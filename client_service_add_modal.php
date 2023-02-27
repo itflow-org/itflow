@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-md">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream"></i> New Service</h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>New Service</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -39,7 +39,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Name of Service" required autofocus>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Service" required>
                 </div>
               </div>
 
@@ -49,7 +49,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of Service" required autofocus>
+                  <input type="text" class="form-control" name="description" placeholder="Description of Service" required>
                 </div>
               </div>
 
@@ -60,7 +60,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="category" placeholder="Category" autofocus>
+                  <input type="text" class="form-control" name="category" placeholder="Category">
                 </div>
               </div>
 
@@ -84,7 +84,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" autofocus>
+                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy">
                 </div>
               </div>
 
@@ -101,7 +101,7 @@
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
-                    $contact_id = $row['contact_id'];
+                    $contact_id = intval($row['contact_id']);
                     $contact_name = htmlentities($row['contact_name']);
                     echo "<option value=\"$contact_id\">$contact_name</option>";
                   }
@@ -115,7 +115,7 @@
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
-                    $vendor_id = $row['vendor_id'];
+                    $vendor_id = intval($row['vendor_id']);
                     $vendor_name = htmlentities($row['vendor_name']);
                     echo "<option value=\"$vendor_id\">$vendor_name</option>";
                   }
@@ -129,7 +129,7 @@
                   <?php
                   $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
-                    $document_id = $row['document_id'];
+                    $document_id = intval($row['document_id']);
                     $document_name = htmlentities($row['document_name']);
                     echo "<option value=\"$document_id\">$document_name</option>";
                   }
@@ -153,7 +153,7 @@
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
-                        $asset_id = $row['asset_id'];
+                        $asset_id = intval($row['asset_id']);
                         $asset_name = htmlentities($row['asset_name']);
                         echo "<option value=\"$asset_id\">$asset_name</option>";
                       }
@@ -169,7 +169,7 @@
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
-                        $login_id = $row['login_id'];
+                        $login_id = intval($row['login_id']);
                         $login_name = htmlentities($row['login_name']);
                         echo "<option value=\"$login_id\">$login_name</option>";
                       }
@@ -190,7 +190,7 @@
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
-                        $domain_id = $row['domain_id'];
+                        $domain_id = intval($row['domain_id']);
                         $domain_name = htmlentities($row['domain_name']);
                         echo "<option value=\"$domain_id\">$domain_name</option>";
                       }
@@ -206,7 +206,7 @@
                       <?php
                       $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
-                        $cert_id = $row['certificate_id'];
+                        $cert_id = intval($row['certificate_id']);
                         $cert_name = htmlentities($row['certificate_name']);
                         $cert_domain = htmlentities($row['certificate_domain']);
                         echo "<option value=\"$cert_id\">$cert_name ($cert_domain)</option>";
@@ -223,8 +223,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_service" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+          <button type="submit" name="add_service" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

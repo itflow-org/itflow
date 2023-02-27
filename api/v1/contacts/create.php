@@ -7,7 +7,7 @@ require_once('../require_post_method.php');
 require_once('contact_model.php');
 
 // Default
-$insert_id = FALSE;
+$insert_id = false;
 
 if (!empty($name) && !empty($email) && !empty($client_id)) {
 
@@ -23,8 +23,8 @@ if (!empty($name) && !empty($email) && !empty($client_id)) {
         if ($insert_sql) {
             $insert_id = mysqli_insert_id($mysqli);
             //Logging
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created contact $name via API ($api_key_name)', log_ip = '$ip', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created contact $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
         }
 
     }

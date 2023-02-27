@@ -5,7 +5,7 @@ $key = randomString(156);
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-key"></i> New Key</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-key mr-2"></i>New Key</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -63,7 +63,7 @@ $key = randomString(156);
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $client_id = $row['client_id'];
+                                    $client_id = intval($row['client_id']);
                                     $client_name = htmlentities($row['client_name']); ?>
                                     <option value="<?php echo $client_id; ?>"><?php echo "$client_name  (Client ID: $client_id)"; ?></option>
                                 <?php } ?>
@@ -73,8 +73,8 @@ $key = randomString(156);
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

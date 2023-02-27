@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.18-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.19-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.5.18-MariaDB-1:10.5.18+maria~ubu2004
+-- Server version	10.5.19-MariaDB-1:10.5.19+maria~ubu2004
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -207,9 +207,9 @@ DROP TABLE IF EXISTS `client_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_tags` (
-  `client_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_id`,`tag_id`)
+  `client_tag_client_id` int(11) NOT NULL,
+  `client_tag_tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`client_tag_client_id`,`client_tag_tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -684,6 +684,7 @@ CREATE TABLE `logs` (
   `log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `log_client_id` int(11) NOT NULL DEFAULT 0,
   `log_user_id` int(11) NOT NULL DEFAULT 0,
+  `log_entity_id` int(11) NOT NULL DEFAULT 0,
   `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1085,6 +1086,7 @@ CREATE TABLE `settings` (
   `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
+  `config_stripe_account` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
@@ -1092,6 +1094,7 @@ CREATE TABLE `settings` (
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
+  `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1535,4 +1538,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-30 17:53:50
+-- Dump completed on 2023-02-25 15:25:59

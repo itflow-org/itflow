@@ -1,5 +1,7 @@
 <?php
 
+header("X-Frame-Options: DENY");
+
 if (!file_exists('config.php')) {
     header("Location: setup.php");
     exit;
@@ -10,13 +12,13 @@ require_once("functions.php");
 require_once("rfc6238.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = sanitizeInput(getIP());
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Block brute force password attacks - check recent failed login attempts for this IP
 //  Block access if more than 15 failed login attempts have happened in the last 10 minutes
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
-$failed_login_count = $row['failed_login_count'];
+$failed_login_count = intval($row['failed_login_count']);
 
 if ($failed_login_count >= 15) {
 
@@ -37,7 +39,7 @@ $company_logo = $row['company_logo'];
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
-$config_smtp_port = $row['config_smtp_port'];
+$config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
@@ -45,11 +47,11 @@ $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
 // HTTP-Only cookies
-ini_set("session.cookie_httponly", True);
+ini_set("session.cookie_httponly", true);
 
 // Tell client to only send cookie(s) over HTTPS
 if ($config_https_only) {
-    ini_set("session.cookie_secure", True);
+    ini_set("session.cookie_secure", true);
 }
 
 // Handle POST login request
@@ -59,12 +61,12 @@ if (isset($_POST['login'])) {
     session_start();
 
     // Passed login brute force check
-    $email = strip_tags(mysqli_real_escape_string($mysqli, $_POST['email']));
+    $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
     $current_code = 0; // Default value
     if (isset($_POST['current_code'])) {
-        $current_code = strip_tags(mysqli_real_escape_string($mysqli, $_POST['current_code']));
+        $current_code = sanitizeInput($_POST['current_code']);
     }
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_status = 1"));
@@ -75,10 +77,10 @@ if (isset($_POST['login'])) {
         // User password correct (partial login)
 
         // Set temporary user variables
-        $user_name = strip_tags(mysqli_real_escape_string($mysqli, $row['user_name']));
-        $user_id = $row['user_id'];
-        $user_email = $row['user_email'];
-        $token = $row['user_token'];
+        $user_name = sanitizeInput($row['user_name']);
+        $user_id = intval($row['user_id']);
+        $user_email = sanitizeInput($row['user_email']);
+        $token = sanitizeInput($row['user_token']);
 
         // Checking for user 2FA
         if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
@@ -86,27 +88,36 @@ if (isset($_POST['login'])) {
             // FULL LOGIN SUCCESS - 2FA not configured or was successful
 
             // Check this login isn't suspicious
-            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = '$user_id'"));
-            $ip_previous_logins = $sql_ip_prev_logins['ip_previous_logins'];
+            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = $user_id"));
+            $ip_previous_logins = sanitizeInput($sql_ip_prev_logins['ip_previous_logins']);
 
-            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = '$user_id'"));
-            $ua_prev_logins = $sql_ua_prev_logins['ua_previous_logins'];
+            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = $user_id"));
+            $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
 
             // Notify if both the user agent and IP are different
             if (!empty($config_smtp_host) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
                 $subject = "$config_app_name new login for $user_name";
                 $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                    $config_mail_from_email, $config_mail_from_name,
-                    $user_email, $user_name,
-                    $subject, $body);
+                $mail = sendSingleEmail(
+                    $config_smtp_host,
+                    $config_smtp_username,
+                    $config_smtp_password,
+                    $config_smtp_encryption,
+                    $config_smtp_port,
+                    $config_mail_from_email,
+                    $config_mail_from_name,
+                    $user_email,
+                    $user_name,
+                    $subject,
+                    $body
+                );
             }
 
 
             // Determine whether 2FA was used (for logs)
             $extended_log = ''; // Default value
-            if ($current_code !== 0 ) {
+            if ($current_code !== 0) {
                 $extended_log = 'with 2FA';
             }
 
@@ -116,9 +127,9 @@ if (isset($_POST['login'])) {
             // Session info
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
-            $_SESSION['user_role'] = $row['user_role'];
+            $_SESSION['user_role'] = intval($row['user_role']);
             $_SESSION['csrf_token'] = randomString(156);
-            $_SESSION['logged'] = TRUE;
+            $_SESSION['logged'] = true;
 
             // Setup encryption session key
             if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
@@ -165,17 +176,26 @@ if (isset($_POST['login'])) {
             if ($current_code !== 0) {
 
                 // Logging
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_user_id = $user_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
                 // Email the tech to advise their credentials may be compromised
                 if (!empty($config_smtp_host)) {
                     $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
                     $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                        $config_mail_from_email, $config_mail_from_name,
-                        $user_email, $user_name,
-                        $subject, $body);
+                    $mail = sendSingleEmail(
+                        $config_smtp_host,
+                        $config_smtp_username,
+                        $config_smtp_password,
+                        $config_smtp_encryption,
+                        $config_smtp_port,
+                        $config_mail_from_email,
+                        $config_mail_from_name,
+                        $user_email,
+                        $user_name,
+                        $subject,
+                        $body
+                    );
                 }
 
                 // HTML feedback for incorrect 2FA code
@@ -191,7 +211,7 @@ if (isset($_POST['login'])) {
 
         // Password incorrect or user doesn't exist - show generic error
 
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $response = "
               <div class='alert alert-danger'>
@@ -236,7 +256,7 @@ if (isset($_POST['login'])) {
             <p class="login-box-msg"><?php if (isset($response)) { echo $response; } ?></p>
             <form method="post">
                 <div class="input-group mb-3" <?php if (isset($token_field)) { echo "hidden"; } ?>>
-                    <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if(isset($token_field)){ echo $email; }?>" required <?php if(!isset($token_field)){ echo "autofocus"; } ?> >
+                    <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if (isset($token_field)) { echo $email; }?>" required <?php if (!isset($token_field)) { echo "autofocus"; } ?> >
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>
@@ -244,7 +264,7 @@ if (isset($_POST['login'])) {
                     </div>
                 </div>
                 <div class="input-group mb-3" <?php if (isset($token_field)) { echo "hidden"; } ?>>
-                    <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if(isset($token_field)){ echo $password; } ?>" required>
+                    <input type="password" class="form-control" placeholder="Agent Password" name="password" value="<?php if (isset($token_field)) { echo $password; } ?>" required>
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>

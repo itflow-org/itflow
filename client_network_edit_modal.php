@@ -2,13 +2,14 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-network-wired"></i> Edit network: <span class="text-bold" id="editNetworkHeader"></span></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-network-wired mr-2"></i>Edit network: <span class="text-bold" id="editNetworkHeader"></span></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="network_id" id="editNetworkId" value="">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <div class="modal-body bg-white">    
           
           <div class="form-group">
@@ -52,7 +53,7 @@
           </div>
 
           <div class="form-group">
-            <label>DHCP Range</label>
+            <label>DHCP Range / IPs</label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
@@ -75,8 +76,8 @@
           
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_network" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+          <button type="submit" name="edit_network" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

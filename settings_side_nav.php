@@ -5,18 +5,18 @@
   <div class="sidebar">
 
     <!-- Sidebar Menu -->
-    <nav class="mt-3">
+    <nav class="mt-2">
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
         
-        <li class="nav-item mb-3">
+        <li class="nav-item mb-2">
           <a href="dashboard_financial.php" class="nav-link">
             <i class="nav-icon fas fa-arrow-left"></i>
-            <p class="h4">Back | <strong>Settings</strong></p>
+            <p class="h5">Back | <strong>Settings</strong></p>
           </a>
         </li>
 
-        <li class="nav-header mt-3">ACCESS</li>
+        <li class="nav-header">ACCESS</li>
 
         <li class="nav-item">
           <a href="users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
@@ -41,13 +41,6 @@
         </li>
 
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
-
-        <li class="nav-item">
-          <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-piggy-bank"></i>
-            <p>Accounts</p>
-          </a>
-        </li>
 
         <li class="nav-item">
           <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">

@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header text-white">
-        <h5 class="modal-title"><i class="fa fa-copy mr-2"></i>Make <?php echo "$invoice_prefix$invoice_number"; ?> Recurring</h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-copy mr-2"></i>Make <?php echo "$invoice_prefix$invoice_number"; ?> Recurring</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -28,8 +28,8 @@
         
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="add_invoice_recurring" class="btn btn-primary"><strong><i class="fas fa-check"></i> Create Invoice</strong></button>
+          <button type="submit" name="add_invoice_recurring" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Invoice</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

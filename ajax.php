@@ -141,7 +141,9 @@ if (isset($_GET['network_get_json_details'])) {
     }
 
     // Lookup all client locations, as networks can be associated with any client location
-    $locations_sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations 
+    $locations_sql = mysqli_query(
+        $mysqli,
+        "SELECT location_id, location_name FROM locations 
         WHERE location_client_id = '$client_id' AND company_id = '$session_company_id'"
     );
     while ($row = mysqli_fetch_array($locations_sql)) {
@@ -153,7 +155,7 @@ if (isset($_GET['network_get_json_details'])) {
 
 if (isset($_POST['client_set_notes'])) {
     $client_id = intval($_POST['client_id']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
 
     // Update notes
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = '$client_id'");
@@ -165,10 +167,10 @@ if (isset($_POST['client_set_notes'])) {
 
 if (isset($_POST['contact_set_notes'])) {
     $contact_id = intval($_POST['contact_id']);
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['notes'])));
+    $notes = sanitizeInput($_POST['notes']);
 
     // Update notes
-    mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = contact_id");
+    mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
@@ -226,28 +228,28 @@ if (isset($_GET['share_generate_link'])) {
     $item_encrypted_credential = '';  // Default empty
 
     $client_id = intval($_GET['client_id']);
-    $item_type = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['type'])));
+    $item_type = sanitizeInput($_GET['type']);
     $item_id = intval($_GET['id']);
-    $item_note = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['note'])));
+    $item_note = sanitizeInput($_GET['note']);
     $item_view_limit = intval($_GET['views']);
-    $item_expires = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['expires'])));
+    $item_expires = sanitizeInput($_GET['expires']);
     $item_key = randomString(156);
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_id' AND document_client_id = '$client_id' LIMIT 1"));
-        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['document_name']));
+        $item_name = sanitizeInput($row['document_name']);
     }
 
     if ($item_type == "File") {
         $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_id' AND file_client_id = '$client_id' LIMIT 1"));
-        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['file_name']));
+        $item_name = sanitizeInput($row['file_name']);
     }
 
     if ($item_type == "Login") {
         $login = mysqli_query($mysqli, "SELECT login_name, login_username, login_password FROM logins WHERE login_id = '$item_id' AND login_client_id = '$client_id' LIMIT 1");
         $row = mysqli_fetch_array($login);
 
-        $item_name = strip_tags(mysqli_real_escape_string($mysqli, $row['login_name']));
+        $item_name = sanitizeInput($row['login_name']);
 
         // Decrypt & re-encrypt username/password for sharing
         $login_encryption_key = randomString();

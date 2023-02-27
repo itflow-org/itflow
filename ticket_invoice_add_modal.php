@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> Invoice ticket</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Invoice ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -23,16 +23,16 @@
                                 <option value="0">New Invoice</option>
                                 <?php
 
-                                $sql_invoices = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id AND company_id = $session_company_id ORDER BY invoice_number ASC");
+                                $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id AND company_id = $session_company_id ORDER BY invoice_number ASC");
                                 while ($row = mysqli_fetch_array($sql_invoices)) {
-                                    $invoice_id = $row['invoice_id'];
+                                    $invoice_id = intval($row['invoice_id']);
                                     $invoice_prefix = htmlentities($row['invoice_prefix']);
-                                    $invoice_number = $row['invoice_number'];
+                                    $invoice_number = intval($row['invoice_number']);
                                     $invoice_scope = htmlentities($row['invoice_scope']);
                                     $invoice_satus = htmlentities($row['invoice_status']);
-                                    $invoice_date = $row['invoice_date'];
-                                    $invoice_due = $row['invoice_due'];
-                                    $invoice_amount = $row['invoice_amount'];
+                                    $invoice_date = htmlentities($row['invoice_date']);
+                                    $invoice_due = htmlentities($row['invoice_due']);
+                                    $invoice_amount = floatval($row['invoice_amount']);
 
                                     ?>
                                     <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
@@ -64,9 +64,9 @@
                                 <option value="">- Category -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $category_id = $row['category_id'];
+                                    $category_id = intval($row['category_id']);
                                     $category_name = htmlentities($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -151,13 +151,13 @@
                                 <option value="0">None</option>
                                 <?php
 
-                                $taxes_sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) AND company_id = $session_company_id ORDER BY tax_name ASC");
+                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC");
                                 while ($row = mysqli_fetch_array($taxes_sql)) {
-                                    $tax_id_select = $row['tax_id'];
+                                    $tax_id_select = intval($row['tax_id']);
                                     $tax_name = htmlentities($row['tax_name']);
-                                    $tax_percent = $row['tax_percent'];
+                                    $tax_percent = floatval($row['tax_percent']);
                                     ?>
-                                    <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                    <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
 
                                     <?php
                                 }
@@ -169,8 +169,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create Invoice</button>
+                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create Invoice</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

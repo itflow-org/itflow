@@ -1,28 +1,25 @@
-<?php include("inc_all_reports.php");
+<?php
+
+require_once("inc_all_reports.php");
+validateAccountantRole();
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
-}else{
+} else {
     $year = date('Y');
 }
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-}else{
-    $year = date('Y');
-}
+$sql_expense_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 AND company_id = $session_company_id ORDER BY expense_year DESC");
 
-$sql_expense_years = mysqli_query($mysqli,"SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 AND company_id = $session_company_id ORDER BY expense_year DESC");
-
-$sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC");
+$sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC");
 
 ?>
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-coins"></i> Expense Summary</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins mr-2"></i>Expense Summary</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print"></i> Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -35,9 +32,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                     ?>
                     <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
 
-                    <?php
-                }
-                ?>
+                <?php } ?>
 
             </select>
         </form>
@@ -67,7 +62,7 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                 <tbody>
                 <?php
                 while ($row = mysqli_fetch_array($sql_categories)) {
-                    $category_id = $row['category_id'];
+                    $category_id = intval($row['category_id']);
                     $category_name = htmlentities($row['category_name']);
                     ?>
 
@@ -77,50 +72,39 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
                         <?php
 
                         $total_expense_for_all_months = 0;
-                        for($month = 1; $month<=12; $month++) {
-                            $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
+                        for ($month = 1; $month<=12; $month++) {
+                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
                             $row = mysqli_fetch_array($sql_expenses);
-                            $expense_amount_for_month = $row['expense_amount_for_month'];
+                            $expense_amount_for_month = floatval($row['expense_amount_for_month']);
                             $total_expense_for_all_months = $expense_amount_for_month + $total_expense_for_all_months;
 
 
                             ?>
                             <td class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency); ?></a></td>
 
-                            <?php
-
-                        }
-
-                        ?>
+                        <?php } ?>
 
                         <th class="text-right"><a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31"><?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?></a></th>
                     </tr>
 
-                    <?php
-
-                }
-
-                ?>
+                <?php } ?>
 
                 <tr>
                     <th>Total</th>
                     <?php
 
-                    for($month = 1; $month<=12; $month++) {
-                        $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
+                    for ($month = 1; $month<=12; $month++) {
+                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
                         $row = mysqli_fetch_array($sql_expenses);
-                        $expense_total_amount_for_month = $row['expense_total_amount_for_month'];
+                        $expense_total_amount_for_month = floatval($row['expense_total_amount_for_month']);
                         $total_expense_for_all_months = $expense_total_amount_for_month + $total_expense_for_all_months;
 
 
                         ?>
 
                         <th class="text-right"><a class="text-dark" href="expenses.php?dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency); ?></a></th>
-                        <?php
 
-                    }
-
-                    ?>
+                    <?php } ?>
 
                     <th class="text-right"><a class="text-dark" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31"><?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?></th>
                 </tr>
@@ -130,14 +114,13 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
     </div>
 </div>
 
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling
     Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
     Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Area Chart Example
     var ctx = document.getElementById("cashFlow");
     var myLineChart = new Chart(ctx, {
         type: 'line',
@@ -159,24 +142,18 @@ $sql_categories = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_
 
                     $largest_expense_month = 0;
 
-                    for($month = 1; $month<=12; $month++) {
-                    $sql_expenses = mysqli_query($mysqli,"SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
+                    for ($month = 1; $month<=12; $month++) {
+                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
                     $row = mysqli_fetch_array($sql_expenses);
-                    $expenses_for_month = $row['expense_amount_for_month'];
+                    $expenses_for_month = floatval($row['expense_amount_for_month']);
 
                     if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
                         $largest_expense_month = $expenses_for_month;
                     }
 
+                    echo "$expenses_for_month,";
 
-                    ?>
-                    <?php echo "$expenses_for_month,"; ?>
-
-                    <?php
-
-                    }
-
-                    ?>
+                    } ?>
 
                 ],
             }],

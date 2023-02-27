@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo $config_theme; ?> elevation-3 d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo $config_theme; ?> d-print-none">
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -7,7 +7,7 @@
         <!-- Sidebar Menu -->
         <nav class="">
             <?php
-            $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
+            $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
 
             if (mysqli_num_rows($sql) > 1) {
 
@@ -24,7 +24,7 @@
 
                         while ($row = mysqli_fetch_array($sql)) {
 
-                            $company_id = $row['company_id'];
+                            $company_id = intval($row['company_id']);
                             $company_name = htmlentities($row['company_name']);
 
                             ?>
@@ -40,9 +40,9 @@
                     </ul>
                 </div>
 
-            <?php }else{ ?>
+            <?php } else { ?>
 
-                <h2 class="brand-text text-light my-3"><i class="fas fa-cloud"></i> <?php echo htmlentities($session_company_name); ?></h2>
+                <h5 class="brand-text text-light my-3"><?php echo htmlentities($session_company_name); ?></h5>
 
             <?php } ?>
 
@@ -81,9 +81,15 @@
 
                     <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">
-                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php" || basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
+                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>Tickets</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="scheduled_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-clock"></i>
+                            <p>Schedule Ticket</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -93,9 +99,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($config_module_enable_accounting == 1) { ?>
+                if ($config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
@@ -129,9 +135,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
+                if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">ACCOUNTING</li>
                     <li class="nav-item">
@@ -159,6 +165,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-piggy-bank"></i>
+                            <p>Accounts</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="transfers.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transfers.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-exchange-alt"></i>
                             <p>Transfers</p>
@@ -173,9 +185,9 @@
                         </a>
                     </li>
 
-                <?php } ?>
+                <?php }
 
-                <?php if ($session_user_role == 3) { ?>
+                if ($session_user_role == 3) { ?>
 
                     <li class="nav-item mt-3">
                         <a href="users.php" class="nav-link">

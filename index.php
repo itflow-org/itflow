@@ -1,4 +1,7 @@
-<?php include("inc_all.php"); ?>
+<?php 
+
+if (file_exists("config.php")) {
+    include("inc_all.php"); ?>
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
 	  <li class="breadcrumb-item">
@@ -10,4 +13,12 @@
 	<!-- Page Content -->
 	<h1>Blank Page</h1>
 	<hr>
-<?php include("footer.php"); ?>
+	<?php 
+
+	include("footer.php");
+
+} else {
+	header("Location: setup.php");
+}
+
+?>

@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-md">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream"></i> Editing service: <strong><?php echo "$service_name"; ?></strong></h5>
+        <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?php echo $service_name; ?></strong></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -40,7 +40,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Name of Service" value="<?php echo $service_name ?>" required autofocus>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Service" value="<?php echo $service_name ?>" required>
                 </div>
               </div>
 
@@ -50,7 +50,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of Service" value="<?php echo $service_description ?>" required autofocus>
+                  <input type="text" class="form-control" name="description" placeholder="Description of Service" value="<?php echo $service_description ?>" required>
                 </div>
               </div>
 
@@ -61,7 +61,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="category" placeholder="Category" value="<?php echo $service_category ?>" autofocus>
+                  <input type="text" class="form-control" name="category" placeholder="Category" value="<?php echo $service_category ?>">
                 </div>
               </div>
 
@@ -85,7 +85,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" value="<?php echo $service_backup ?>" autofocus>
+                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" value="<?php echo $service_backup ?>">
                 </div>
               </div>
 
@@ -101,14 +101,14 @@
                 <select multiple class="form-control" id="contacts" name="contacts[]">
                   <?php
                   // Get just the currently selected contact IDs
-                  $selected_ids = array_column(mysqli_fetch_all($sql_contacts,MYSQLI_ASSOC), "contact_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_contacts, MYSQLI_ASSOC), "contact_id");
 
                   // Get all contacts
                   // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
-                  $sql_all = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id");
 
                   while ($row_all = mysqli_fetch_array($sql_all)) {
-                    $contact_id = $row_all['contact_id'];
+                    $contact_id = intval($row_all['contact_id']);
                     $contact_name = htmlentities($row_all['contact_name']);
 
                     if (in_array($contact_id, $selected_ids)) {
@@ -126,11 +126,11 @@
                 <label for="vendors">Vendors</label>
                 <select multiple class="form-control" id="vendors" name="vendors[]">
                   <?php
-                  $selected_ids = array_column(mysqli_fetch_all($sql_vendors,MYSQLI_ASSOC), "vendor_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
-                    $vendor_id = $row_all['vendor_id'];
+                    $vendor_id = intval($row_all['vendor_id']);
                     $vendor_name = htmlentities($row_all['vendor_name']);
 
                     if (in_array($vendor_id, $selected_ids)) {
@@ -148,11 +148,11 @@
                 <label for="documents">Documents</label>
                 <select multiple class="form-control" id="documents" name="documents[]">
                   <?php
-                  $selected_ids = array_column(mysqli_fetch_all($sql_docs,MYSQLI_ASSOC), "document_id");
+                  $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
-                    $document_id = $row_all['document_id'];
+                    $document_id = intval($row_all['document_id']);
                     $document_name = htmlentities($row_all['document_name']);
 
                     if (in_array($document_id, $selected_ids)) {
@@ -181,11 +181,11 @@
                     <label for="assets">Assets</label>
                     <select multiple class="form-control" id="assets" name="assets[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_assets,MYSQLI_ASSOC), "asset_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $asset_id = $row_all['asset_id'];
+                        $asset_id = intval($row_all['asset_id']);
                         $asset_name = htmlentities($row_all['asset_name']);
 
                         if (in_array($asset_id, $selected_ids)) {
@@ -205,11 +205,11 @@
                     <label for="logins">Logins</label>
                     <select multiple class="form-control" id="logins" name="logins[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_logins,MYSQLI_ASSOC), "login_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_logins, MYSQLI_ASSOC), "login_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $login_id = $row_all['login_id'];
+                        $login_id = intval($row_all['login_id']);
                         $login_name = htmlentities($row_all['login_name']);
 
                         if (in_array($login_id, $selected_ids)) {
@@ -234,11 +234,11 @@
                     <label for="domains">Domains</label>
                     <select multiple class="form-control" id="domains" name="domains[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_domains,MYSQLI_ASSOC), "domain_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $domain_id = $row_all['domain_id'];
+                        $domain_id = intval($row_all['domain_id']);
                         $domain_name = htmlentities($row_all['domain_name']);
 
                         if (in_array($domain_id, $selected_ids)) {
@@ -258,11 +258,11 @@
                     <label for="certificates">Certificates</label>
                     <select multiple class="form-control" id="certificates" name="certificates[]">
                       <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_certificates,MYSQLI_ASSOC), "certificate_id");
+                      $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
 
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $cert_id = $row_all['certificate_id'];
+                        $cert_id = intval($row_all['certificate_id']);
                         $cert_name = htmlentities($row_all['certificate_name']);
 
                         if (in_array($cert_id, $selected_ids)) {
@@ -284,8 +284,8 @@
           </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+          <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

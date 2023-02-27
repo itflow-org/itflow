@@ -6,7 +6,7 @@
 
 require_once('inc_portal.php');
 
-if ($session_contact_id !== $session_client_primary_contact_id) {
+if ($session_contact_id !== $session_client_primary_contact_id && !$session_contact_is_technical_contact) {
     header("Location: portal_post.php?logout");
     exit();
 }
@@ -27,7 +27,7 @@ if (!isset($_GET['status'])) {
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id WHERE $ticket_status_snippet AND ticket_client_id = '$session_client_id' ORDER BY ticket_id DESC");
+$all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 ?>
 
     <h2>All tickets</h2>
@@ -56,9 +56,9 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
 
         <?php
         while ($row = mysqli_fetch_array($all_tickets)) {
-            $ticket_id = $row['ticket_id'];
+            $ticket_id = intval($row['ticket_id']);
             $ticket_prefix = htmlentities($row['ticket_prefix']);
-            $ticket_number = $row['ticket_number'];
+            $ticket_number = intval($row['ticket_number']);
             $ticket_subject = htmlentities($row['ticket_subject']);
             $ticket_status = htmlentities($row['ticket_status']);
             $ticket_contact_name = htmlentities($row['contact_name']);

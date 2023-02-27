@@ -1,30 +1,30 @@
-<?php include("inc_all.php"); ?>
-
 <?php
+
+require_once("inc_all.php");
 
 if (isset($_GET['query'])) {
 
-    $query = trim(strip_tags(mysqli_real_escape_string($mysqli,$_GET['query'])));
+    $query = sanitizeInput($_GET['query']);
 
-    $phone_query = preg_replace("/[^0-9]/", '',$query);
+    $phone_query = preg_replace("/[^0-9]/", '', $query);
     if (empty($phone_query)) {
         $phone_query = $query;
     }
 
     $ticket_num_query = str_replace("$config_ticket_prefix", "", "$query");
 
-    $sql_clients = mysqli_query($mysqli,"SELECT * FROM clients LEFT JOIN locations ON clients.primary_location = locations.location_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
-    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
-    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
-    $sql_products = mysqli_query($mysqli,"SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
+    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN locations ON clients.primary_location = locations.location_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
+    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
+    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
+    $sql_products = mysqli_query($mysqli, "SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
     $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE MATCH(document_content_raw) AGAINST ('$query') AND documents.company_id = $session_company_id ORDER BY document_id DESC LIMIT 5");
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') AND tickets.company_id = $session_company_id ORDER BY ticket_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
+    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
 
     $q = htmlentities($_GET['query']);
     ?>
 
-    <h4 class="text-center"><i class="fa fa-search"></i> Search all things</h4>
+    <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Search all things</h4>
     <hr>
     <div class="row">
 
@@ -32,10 +32,10 @@ if (isset($_GET['query'])) {
 
             <!-- Clients-->
 
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-users"></i> Clients</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Clients</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -49,7 +49,7 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_clients)) {
-                                $client_id = $row['client_id'];
+                                $client_id = intval($row['client_id']);
                                 $client_name = htmlentities($row['client_name']);
                                 $location_phone = formatPhoneNumber($row['location_phone']);
                                 $client_website = htmlentities($row['client_website']);
@@ -60,9 +60,7 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $location_phone; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
 
                             </tbody>
                         </table>
@@ -76,10 +74,10 @@ if (isset($_GET['query'])) {
 
             <!-- Contacts-->
 
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-users"></i> Contacts</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -96,14 +94,14 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_contacts)) {
-                                $contact_id = $row['contact_id'];
+                                $contact_id = intval($row['contact_id']);
                                 $contact_name = htmlentities($row['contact_name']);
                                 $contact_title = htmlentities($row['contact_title']);
                                 $contact_phone = formatPhoneNumber($row['contact_phone']);
                                 $contact_extension = htmlentities($row['contact_extension']);
                                 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                                 $contact_email = htmlentities($row['contact_email']);
-                                $client_id = $row['client_id'];
+                                $client_id = intval($row['client_id']);
                                 $client_name = htmlentities($row['client_name']);
                                 $contact_department = htmlentities($row['contact_department']);
 
@@ -118,9 +116,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $contact_mobile; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -133,10 +130,10 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_vendors) > 0) { ?>
 
             <!-- Vendors -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-building"></i> Vendors</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -161,9 +158,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $vendor_phone; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -176,10 +172,10 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_products) > 0) { ?>
 
             <!-- Products -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-box"></i> Products</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-box mr-2"></i>Products</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -201,9 +197,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $product_description; ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -216,10 +211,10 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_documents) > 0) { ?>
 
             <!-- Documents -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-file-alt"></i> Documents</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -235,9 +230,9 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_array($sql_documents)) {
                                 $document_name = htmlentities($row['document_name']);
-                                $document_client_id = $row['document_client_id'];
+                                $document_client_id = intval($row['document_client_id']);
                                 $document_client = htmlentities($row['client_name']);
-                                $document_updated = $row['document_updated_at'];
+                                $document_updated = htmlentities($row['document_updated_at']);
 
                                 ?>
                                 <tr>
@@ -246,9 +241,8 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $document_updated ?></td>
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -261,10 +255,10 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
 
             <!-- Tickets -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-tags"></i> Tickets</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -280,9 +274,9 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_tickets)) {
-                                $ticket_id = $row['ticket_id'];
-                                $ticket_prefix = $row['ticket_prefix'];
-                                $ticket_number = $row['ticket_number'];
+                                $ticket_id = intval($row['ticket_id']);
+                                $ticket_prefix = htmlentities($row['ticket_prefix']);
+                                $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = htmlentities($row['ticket_subject']);
                                 $ticket_client = htmlentities($row['client_name']);
                                 $ticket_status = htmlentities($row['ticket_status']);
@@ -296,9 +290,8 @@ if (isset($_GET['query'])) {
 
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -311,10 +304,10 @@ if (isset($_GET['query'])) {
         <?php if (mysqli_num_rows($sql_logins) > 0) { ?>
 
             <!-- Logins -->
-            <div class="col-6">
+            <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fa fa-key"></i> Logins</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Logins</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -330,7 +323,7 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_array($sql_logins)) {
                                 $login_name = htmlentities($row['login_name']);
-                                $login_client_id = $row['login_client_id'];
+                                $login_client_id = intval($row['login_client_id']);
                                 $login_username = htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = htmlentities(decryptLoginEntry($row['login_password']));
 
@@ -343,9 +336,8 @@ if (isset($_GET['query'])) {
 
                                 </tr>
 
-                                <?php
-                            }
-                            ?>
+                            <?php } ?>
+
 
                             </tbody>
                         </table>
@@ -360,4 +352,5 @@ if (isset($_GET['query'])) {
 
 <?php } ?>
 
-<?php include("footer.php");
+<?php
+require_once("footer.php");

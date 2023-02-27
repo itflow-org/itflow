@@ -1,8 +1,9 @@
-<?php require_once("inc_all_settings.php"); ?>
+<?php
+require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fa fa-fw fa-palette"></i> Theme</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-palette mr-2"></i>Theme</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -35,10 +36,11 @@
 
                 <hr>
 
-                <button type="submit" name="edit_theme_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Set Theme</button>
+                <button type="submit" name="edit_theme_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Set Theme</button>
 
             </form>
         </div>
     </div>
 
-<?php include("footer.php");
+<?php
+require_once("footer.php");

@@ -31,7 +31,13 @@
 
     <!-- New Notifications Dropdown -->
     <?php
-    $sql_notifications = mysqli_query($mysqli,"SELECT * FROM notifications LEFT JOIN clients ON notification_client_id = client_id WHERE notification_dismissed_at IS NULL AND (notification_user_id = $session_user_id OR notification_user_id = 0) AND notifications.company_id = $session_company_id ORDER BY notification_id DESC LIMIT 5");
+    $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
+      LEFT JOIN clients ON notification_client_id = client_id 
+      WHERE notification_dismissed_at IS NULL 
+      AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
+      AND notifications.company_id = $session_company_id 
+      ORDER BY notification_id DESC LIMIT 5"
+    );
     ?>
 
     <?php if ($num_notifications > 0) { ?>
@@ -42,19 +48,22 @@
         
       </a>
       <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
-        <span class="dropdown-item dropdown-header"><?php echo $num_notifications; ?> Notifications</span>
+        <a href="notifications.php" class="dropdown-item dropdown-header"><i class="fas fa-fw fa-bell mr-2"></i><strong><?php echo $num_notifications; ?></strong> Notifications</a>
         <div class="dropdown-divider"></div>
         <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
-            $notification_id = $row['notification_id'];
+            $notification_id = intval($row['notification_id']);
             $notification_type = htmlentities($row['notification_type']);
             $notification = htmlentities($row['notification']);
-            $notification_timestamp = $row['notification_timestamp'];
+            $notification_timestamp = date('M d g:ia',strtotime($row['notification_timestamp']));
         ?>
 
         <a href="post.php?dismiss_notification=<?php echo $notification_id; ?>" class="dropdown-item">
-          <i class="fas fa-bullhorn mr-2"></i> <?php echo $notification; ?>
-          <span class="float-right text-muted text-sm"><?php echo $notification_timestamp; ?></span>
+          <p class="mb-1">
+            <span class="text-bold"><i class="fas fa-bullhorn mr-2"></i><?php echo $notification_type; ?></span>
+            <small class="float-right text-muted"><?php echo $notification_timestamp; ?></small>
+          </p>
+          <small class="text-secondary"><?php echo $notification; ?></small>
         </a>
         
         <?php
@@ -62,9 +71,7 @@
         ?>
 
         <div class="dropdown-divider"></div>
-        <a href="notifications.php" class="dropdown-item dropdown-footer text-primary">See All Notifications</a>
-        <div class="dropdown-divider"></div>
-        <a href="post.php?dismiss_all_notifications" class="dropdown-item dropdown-footer text-success"><i class="fa fa-fw fa-check"></i> Dismiss All Notifications</a>
+        <a href="post.php?dismiss_all_notifications" class="dropdown-item dropdown-footer text-secondary text-bold"><i class="fa fa-fw fa-check mr-2"></i>Dismiss Notifications</a>
       </div>
     </li>
     <?php } else { ?>
@@ -76,7 +83,7 @@
         <span class="dropdown-item dropdown-header">No Notifications</span>
         <div class="dropdown-divider"></div>
         <div class="text-center text-secondary p-3">
-          <i class='far fa-fw fa-4x fa-bell-slash'></i>
+          <i class='far fa-fw fa-4x fa-bell'></i>
         </div>
         <div class="dropdown-divider"></div>
         <a href="notifications_dismissed.php" class="dropdown-item dropdown-footer">See Dismissed Notifications</a>
@@ -112,8 +119,8 @@
         </li>
         <!-- Menu Footer-->
         <li class="user-footer">
-          <a href="user_profile.php" class="btn btn-default btn-flat">Profile</a>
-          <a href="post.php?logout" class="btn btn-default btn-flat float-right">Sign out</a>
+          <a href="user_profile.php" class="btn btn-default btn-flat"><i class="fas fa-cog mr-2"></i>Profile</a>
+          <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Sign out</a>
         </li>
       </ul>
     </li>

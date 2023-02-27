@@ -50,7 +50,7 @@ function initials($str) {
         $ret = '';
         foreach (explode(' ', $str) as $word)
             $ret .= strtoupper($word[0]);
-            $ret = substr($ret,0, 2);
+        $ret = substr($ret, 0, 2);
         return $ret;
     }
 }
@@ -139,7 +139,7 @@ function getDevice() {
     if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone|android|iemobile)/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
         $mobile_browser++;
     }
-    if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/vnd.wap.xhtml+xml') > 0) || ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
+    if ((strpos(strtolower($_SERVER['HTTP_ACCEPT']), 'application/vnd.wap.xhtml+xml') > 0) || ((isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])))) {
         $mobile_browser++;
     }
     $mobile_ua = strtolower(substr(getUserAgent(), 0, 4));
@@ -153,10 +153,10 @@ function getDevice() {
         'sie-','siem','smal','smar','sony','sph-','symb','t-mo','teli','tim-',
         'tosh','tsm-','upg1','upsi','vk-v','voda','wap-','wapa','wapi','wapp',
         'wapr','webc','winw','winw','xda ','xda-');
-    if (in_array($mobile_ua,$mobile_agents)) {
+    if (in_array($mobile_ua, $mobile_agents)) {
         $mobile_browser++;
     }
-    if (strpos(strtolower(getUserAgent()),'opera mini') > 0) {
+    if (strpos(strtolower(getUserAgent()), 'opera mini') > 0) {
         $mobile_browser++;
         //Check for tablets on Opera Mini alternative headers
         $stock_ua = strtolower(isset($_SERVER['HTTP_X_OPERAMINI_PHONE_UA'])?$_SERVER['HTTP_X_OPERAMINI_PHONE_UA']:(isset($_SERVER['HTTP_DEVICE_STOCK_UA'])?$_SERVER['HTTP_DEVICE_STOCK_UA']:''));
@@ -183,13 +183,13 @@ function truncate($text, $chars) {
         return $text;
     }
     $text = $text." ";
-    $text = substr($text,0,$chars);
-    $text = substr($text,0,strrpos($text,' '));
+    $text = substr($text, 0, $chars);
+    $text = substr($text, 0, strrpos($text, ' '));
     return $text."...";
 }
 
 function formatPhoneNumber($phoneNumber) {
-    $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);
+    $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
 
     if (strlen($phoneNumber) > 10) {
         $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
@@ -358,8 +358,8 @@ function getDomainExpirationDate($name) {
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-    $response = json_decode(curl_exec($ch),1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = json_decode(curl_exec($ch), 1);
 
     if ($response) {
         if (is_array($response['expiration_date'])) {
@@ -390,7 +390,7 @@ function getDomainRecords($name) {
         return $records;
     }
 
-    $domain = escapeshellarg($name);
+    $domain = escapeshellarg(str_replace('www.', '', $name));
     $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
     $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
     $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
@@ -405,7 +405,7 @@ function getDomainRecords($name) {
 function getSSL($name) {
 
     $certificate = array();
-    $certificate['success'] = FALSE;
+    $certificate['success'] = false;
 
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
@@ -417,7 +417,7 @@ function getSSL($name) {
 
     // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
     $socket = "ssl://$name:443";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => TRUE, "verify_peer" => FALSE,)));
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
     $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
     // If the socket connected
@@ -427,7 +427,7 @@ function getSSL($name) {
         openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
 
         if ($cert_public_key_obj) {
-            $certificate['success'] = TRUE;
+            $certificate['success'] = true;
             $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
             $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
             $certificate['public_key'] = $export;
@@ -474,6 +474,7 @@ function validateAdminRole() {
     }
 }
 
+// Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
 function validateTechRole() {
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
         $_SESSION['alert_type'] = "danger";
@@ -483,6 +484,7 @@ function validateTechRole() {
     }
 }
 
+// Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
 function validateAccountantRole() {
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
         $_SESSION['alert_type'] = "danger";
@@ -499,6 +501,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
 
     try{
         // Mail Server Settings
+        $mail->CharSet = "UTF-8";                                   // Specify UTF-8 charset to ensure symbols ($/£) load correctly
         $mail->SMTPDebug = 0;                                       // No Debugging
         $mail->isSMTP();                                            // Set mailer to use SMTP
         $mail->Host       = $config_smtp_host;                      // Specify SMTP server
@@ -529,12 +532,119 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     }
 
     catch(Exception $e) {
-        // If we couldn't send the message return the error, so we can log it
-        return "Message not sent. Mailer Error: {$mail->ErrorInfo}";
+        // If we couldn't send the message return the error, so we can log it in the database (truncated)
+        error_log("ITFlow - Failed to send email: " . $mail->ErrorInfo);
+        return substr("Mailer Error: $mail->ErrorInfo", 0, 150)."...";
     }
 }
 
 function roundUpToNearestMultiple($n, $increment = 1000)
 {
     return (int) ($increment * ceil($n / $increment));
+}
+
+function getAssetIcon($asset_type)
+{
+    if ($asset_type == 'Laptop') {
+        $device_icon = "laptop";
+    } elseif ($asset_type == 'Desktop') {
+        $device_icon = "desktop";
+    } elseif ($asset_type == 'Server') {
+        $device_icon = "server";
+    } elseif ($asset_type == 'Printer') {
+        $device_icon = "print";
+    } elseif ($asset_type == 'Camera') {
+        $device_icon = "video";
+    } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
+        $device_icon = "network-wired";
+    } elseif ($asset_type == 'Access Point') {
+        $device_icon = "wifi";
+    } elseif ($asset_type == 'Phone') {
+        $device_icon = "phone";
+    } elseif ($asset_type == 'Mobile Phone') {
+        $device_icon = "mobile-alt";
+    } elseif ($asset_type == 'Tablet') {
+        $device_icon = "tablet-alt";
+    } elseif ($asset_type == 'TV') {
+        $device_icon = "tv";
+    } elseif ($asset_type == 'Virtual Machine') {
+        $device_icon = "cloud";
+    } else {
+        $device_icon = "tag";
+    }
+
+    return $device_icon;
+}
+
+function getInvoiceBadgeColor($invoice_status)
+{
+    if ($invoice_status == "Sent") {
+        $invoice_badge_color = "warning text-white";
+    } elseif ($invoice_status == "Viewed") {
+        $invoice_badge_color = "info";
+    } elseif ($invoice_status == "Partial") {
+        $invoice_badge_color = "primary";
+    } elseif ($invoice_status == "Paid") {
+        $invoice_badge_color = "success";
+    } elseif ($invoice_status == "Cancelled") {
+        $invoice_badge_color = "danger";
+    } else{
+        $invoice_badge_color = "secondary";
+    }
+
+    return $invoice_badge_color;
+}
+
+// Pass $_FILE['file'] to check an uploaded file before saving it
+function checkFileUpload($file, $allowed_extensions)
+{
+    // Variables
+    $name = $file['name'];
+    $tmp = $file['tmp_name'];
+    $size = $file['size'];
+
+    $extarr = explode('.', $name);
+    $extension = strtolower(end($extarr));
+
+    // Check a file is actually attached/uploaded
+    if ($tmp == '') {
+        return false;
+    }
+
+    // Check the size is under 2 MB
+    if ($size > 2097152) {
+        return false;
+    }
+
+    // Check the extension is allowed
+    if (in_array($extension, $allowed_extensions) === false){
+        return false;
+    }
+
+    // Sanitize & return name
+    return md5(time() . $name) . '.' . $extension;
+
+}
+
+function sanitizeInput($input) {
+    global $mysqli;
+
+    // Remove HTML and PHP tags
+    $input = strip_tags($input);
+
+    // Remove white space from beginning and end of input
+    $input = trim($input);
+
+    // Escape special characters
+    $input = mysqli_real_escape_string($mysqli, $input);
+
+    // Return sanitized input
+    return $input;
+}
+
+function sanitizeForEmail($data) {
+  $sanitized = htmlspecialchars($data);
+  $sanitized = strip_tags($sanitized);
+  $sanitized = trim($sanitized);
+  return $sanitized;
 }

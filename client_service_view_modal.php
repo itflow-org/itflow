@@ -2,9 +2,9 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i><?php echo $service_name; ?> </h5>
+                <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i><?php echo $service_name; ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
+                    <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body bg-white">
@@ -17,14 +17,14 @@
                             <b>Description:</b> <?php echo $service_description; ?> <br>
                             <b>Backup Info:</b> <?php echo $service_backup; ?> <br><br>
 
-                            <h5><i class="nav-icon fas fa-sticky-note"></i> Notes</h5>
+                            <h5><i class="fas fa-fw fa-sticky-note mr-2"></i>Notes</h5>
                             <div style="white-space: pre-line"><?php echo $service_notes; ?></div>
                             <hr>
 
                             <!-- Assets -->
                             <?php
                             if (mysqli_num_rows($sql_assets) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-desktop"></i> Assets</h5>
+                                <h5><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_assets pointer to the start - as we've already cycled through once
@@ -32,9 +32,8 @@
 
                                     while ($row = mysqli_fetch_array($sql_assets)) {
                                         if (!empty($row['asset_ip'])) {
-                                            $ip = '('.$row["asset_ip"].')';
-                                        }
-                                        else{
+                                            $ip = '('.htmlentities($row["asset_ip"]).')';
+                                        } else {
                                             $ip = '';
                                         }
                                         echo "<li><a href=\"client_assets.php?client_id=$client_id&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
@@ -57,7 +56,7 @@
                                 // Get networks linked to assets - push name to array
                                 while ($row = mysqli_fetch_array($sql_assets)) {
                                     if (!empty($row['network_name'])) {
-                                        $network_data = "$row[network_name]:$row[network_vlan]";
+                                        $network_data = htmlentities("$row[network_name]:$row[network_vlan]");
                                         array_push($networks, $network_data);
                                     }
                                 }
@@ -67,7 +66,7 @@
 
                                 // Display
                                 if (!empty($networks)) { ?>
-                                    <h5><i class="nav-icon fas fa-network-wired"></i> Networks</h5>
+                                    <h5><i class="fas fa-fw fa-network-wired mr-2"></i>Networks</h5>
                                     <ul>
                                     <?php
                                 }
@@ -103,7 +102,7 @@
 
                                 // Display
                                 if (!empty($location_names)) { ?>
-                                    <h5><i class="nav-icon fas fa-map-marker-alt"></i> Locations</h5>
+                                    <h5><i class="fas fa-fw fa-map-marker-alt mr-2"></i>Locations</h5>
                                     <ul>
                                     <?php
                                 }
@@ -119,7 +118,7 @@
                             <!-- Domains -->
                             <?php
                             if (mysqli_num_rows($sql_domains) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-globe"></i> Domains</h5>
+                                <h5><i class="fas fa-fw fa-globe mr-2"></i>Domains</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_domains pointer to the start
@@ -140,7 +139,7 @@
                             <!-- Certificates -->
                             <?php
                             if (mysqli_num_rows($sql_certificates) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-lock"></i> Certificates</h5>
+                                <h5><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_certificates pointer to the start
@@ -174,7 +173,7 @@
                             mysqli_data_seek($sql_vendors, 0);
 
                             if (mysqli_num_rows($sql_vendors) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-users"></i> Vendors</h5>
+                                <h5><i class="fas fa-fw fa-building mr-2"></i>Vendors</h5>
                                 <ul>
                                     <?php
                                     while ($row = mysqli_fetch_array($sql_vendors)) {
@@ -189,14 +188,14 @@
                             <!-- Contacts -->
                             <?php
                             if (mysqli_num_rows($sql_contacts) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-building"></i> Contacts</h5>
+                                <h5><i class="fas fa-fw fa-users mr-2"></i>Contacts</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_contacts pointer to the start
                                     mysqli_data_seek($sql_contacts, 0);
 
                                     while ($row = mysqli_fetch_array($sql_contacts)) {
-                                        echo "<li><a href=\"client_contacts.php?client_id=$client_id&q=$row[contact_name]\">$row[contact_name]</a></li>";
+                                        echo "<li><a href=\"client_contact_details.php?client_id=$client_id&contact_id=$row[contact_id]\">$row[contact_name]</a></li>";
                                     }
                                     ?>
                                 </ul>
@@ -207,7 +206,7 @@
                             <!-- Logins -->
                             <?php
                             if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_logins) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-key"></i> Logins</h5>
+                                <h5><i class="fas fa-fw fa-key mr-2"></i>Logins</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_assets/logins pointer to the start
@@ -236,7 +235,7 @@
                             <!-- URLs -->
                             <?php
                             if ($sql_logins || $sql_assets) { ?>
-                                <h5><i class="nav-icon fas fa-link"></i> URLs</h5>
+                                <h5><i class="fas fa-fw fa-link mr-2"></i>URLs</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_logins pointer to the start
@@ -267,14 +266,14 @@
                             <!-- Documents -->
                             <?php
                             if (mysqli_num_rows($sql_docs) > 0) { ?>
-                                <h5><i class="nav-icon fas fa-file-alt"></i> Documents</h5>
+                                <h5><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h5>
                                 <ul>
                                     <?php
                                     // Reset the $sql_docs pointer to the start
                                     mysqli_data_seek($sql_docs, 0);
 
                                     while ($row = mysqli_fetch_array($sql_docs)) {
-                                        echo "<li><a href=\"client_documents.php?client_id=$client_id&q=$row[document_name]\">$row[document_name]</a></li>";
+                                        echo "<li><a href=\"client_document_details.php?client_id=$client_id&document_id=$row[document_id]\">$row[document_name]</a></li>";
                                     }
                                     ?>
                                 </ul>

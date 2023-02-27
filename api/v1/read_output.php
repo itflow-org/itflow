@@ -21,6 +21,12 @@ if ($sql && mysqli_num_rows($sql) > 0) {
 else {
     $return_arr['success'] = "False";
     $return_arr['message'] = "No resource (for this client and company) with the specified parameter(s).";
+
+    // Log any database/schema related errors to the PHP Error log
+    if (mysqli_error($mysqli)) {
+        error_log("API Database Error: " . mysqli_error($mysqli));
+    }
+
     echo json_encode($return_arr);
     exit();
 }

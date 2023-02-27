@@ -24,7 +24,7 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
-    <a href="https://itflow.org/docs.php?doc=about">About</a>
+    <a href="https://itflow.org/index.php?page=About">About</a>
     ·
     <a href="https://itflow.org/docs.php">Docs</a>
     ·
@@ -39,7 +39,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
-<b>A free ITGlue alternative, with additional ticketing / accounting features.</b>
+<b>A comprehensive, free & open-source documentation, ticket management, and accounting platform.</b>
 
 [![ITFlow][product-screenshot]](https://itflow.org)
 
@@ -54,8 +54,8 @@
 - ITFlow consolidates common MSP needs (documentation, ticketing, and accounting) into one system
 
 ### In Beta
-* This project is still in early beta and is considered a **work in progress**.  Many changes are being performed and may cause breakage upon updates. 
-* Currently, we strongly recommend against storing confidential information in ITFlow; ITFlow has not undergone a third-party security assessment.
+* This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues.
+* Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
 * We are hoping to have a stable 1.0 release by April/May 2023.
 
 <!-- BUILT WITH -->
@@ -66,6 +66,7 @@
   * MariaDB
   * PHPMailer
   * HTML Purifier
+  * PHP Mime Mail Parser
 
 * CSS
   * Bootstrap
@@ -84,11 +85,11 @@
 <!-- GETTING STARTED -->
 ## Getting Started / Installation
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://itflow.org/docs.php?doc_id=1), but the main steps are:
+ITFlow is self-hosted. There is a full installation guide in the [docs](https://wiki.itflow.org/doku.php?id=wiki:installation), but the main steps are:
 
 1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
    ```sh
-   sudo apt install git apache2 php libapache2-mod-php php-intl php-imap php-mysqli php-curl mariadb-server
+   sudo apt install git apache2 php libapache2-mod-php php-intl php-imap php-mailparse php-mysqli php-curl mariadb-server
    ```  
 2. Clone the repo
    ```sh
@@ -103,14 +104,13 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * Accounting / Billing - finance dashboard, quotes, invoices, accounting, expenses, etc
 * Client Portal - self service quote/invoice/ticket management for clients
 * Alerting - account balance, invoices, domain/SSL renewals
+* Completely free & open-source alternative to ITGlue and Hudu
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
-
-* MeshCentral (Export common software applications to Software)
+* Comprehensive API to allow custom third party integration
 * CalDAV to integrate with 3rd party calendars
 * CardDAV to integrate with 3rd party Address books
-* Stripe Integration for online payments
 * Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
@@ -125,7 +125,7 @@ For help using ITFlow, feature requests, and general ideas / discussions please 
 For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
 
 ### Contributing
-If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://itflow.org/docs.php?doc=coding-standards). 
+If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://wiki.itflow.org/doku.php?id=wiki:code_standards). 
 For large changes / new features, please discuss the issue with other contributors first.
 
 #### Contributors
@@ -136,7 +136,7 @@ For large changes / new features, please discuss the issue with other contributo
 <!-- LICENSE -->
 ## License
 
-ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See `LICENSE` for details.
+ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](https://github.com/itflow-org/itflow/blob/master/LICENSE) for details.
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
@@ -153,6 +153,6 @@ ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIN
 [license-url]: https://github.com/itflow-org/itflow/blob/master/LICENSE
 [commit-shield]: https://img.shields.io/github/last-commit/itflow-org/itflow?style=for-the-badge
 [commit-url]: https://github.com/itflow-org/itflow/commits/master
-[product-screenshot]: .github/dash.png
+[product-screenshot]: .github/readme.gif
 
 <!-- https://github.com/othneildrew/Best-README-Template -->

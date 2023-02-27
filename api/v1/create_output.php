@@ -20,6 +20,11 @@ if (isset($insert_id) && is_numeric($insert_id)) {
 else {
     $return_arr['success'] = "False";
     $return_arr['message'] = "Auth success but insert query failed, ensure ALL required variables are provided (and aren't duplicates where applicable) and database schema is up-to-date. Turn on error logging and look for 'undefined index'.";
+
+    // Log any database/schema related errors to the PHP Error log
+    if (mysqli_error($mysqli)) {
+        error_log("API Database Error: " . mysqli_error($mysqli));
+    }
 }
 
 echo json_encode($return_arr);

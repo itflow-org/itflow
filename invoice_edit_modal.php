@@ -2,7 +2,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fa fa-fw fa-file"></i> Editing invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong> - <?php echo $client_name; ?></h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-file mr-2"></i>Editing invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong> - <?php echo $client_name; ?></h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span>&times;</span>
         </button>
@@ -42,9 +42,9 @@
                 <option value="">- Category -</option>
                 <?php 
                 
-                $sql_income_category = mysqli_query($mysqli,"SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$invoice_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
+                $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$invoice_created_at' OR category_archived_at IS NULL) AND company_id = $session_company_id ORDER BY category_name ASC"); 
                 while ($row = mysqli_fetch_array($sql_income_category)) {
-                  $category_id_select= $row['category_id'];
+                  $category_id_select= intval($row['category_id']);
                   $category_name_select = htmlentities($row['category_name']);
                 ?>
                 <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
@@ -71,8 +71,8 @@
 
         </div>
         <div class="modal-footer bg-white">
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" name="edit_invoice" class="btn btn-primary"><strong><i class="fas fa-check"></i> Save</strong></button>
+          <button type="submit" name="edit_invoice" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+          <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
         </div>
       </form>
     </div>

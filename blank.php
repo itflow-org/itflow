@@ -2,10 +2,10 @@
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">
-    <a href="index.html">Dashboard</a>
-  </li>
-  <li class="breadcrumb-item active">Blank Page</li>
+    <li class="breadcrumb-item">
+        <a href="index.html">Dashboard</a>
+    </li>
+    <li class="breadcrumb-item active">Blank Page</li>
 </ol>
 
 <!-- Page Content -->
@@ -18,6 +18,17 @@
 
 <?php echo randomString(100); ?>
 <br>
+<form>
+<?php
+$timezones = DateTimeZone::listIdentifiers();
+echo '<select name="timezone">';
+foreach ($timezones as $timezone) {
+  echo '<option value="' . $timezone . '">' . $timezone . '</option>';
+}
+echo '</select>';
+
+?>
+</form>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 
