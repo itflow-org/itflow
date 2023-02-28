@@ -161,6 +161,16 @@
 
                             </ul>
 
+                            <?php if (mysqli_num_rows($sql_tags_select) == 0){ ?>
+
+                                <div class='my-3 text-center'>
+                                    <i class='fa fa-fw fa-6x fa-tags text-secondary'></i>
+                                    <h3 class='text-secondary mt-3'>No Tags Found!</h3>
+                                    <a href="settings_tags.php">Try adding a few <b>Settings > Tags</b></a>
+                                </div>
+
+                            <?php } ?>
+
                         </div>
 
                     </div>

@@ -3,7 +3,7 @@ define('number_regex', '/[^0-9]/');
 
 // Variable assignment from POST (or: blank/from DB is updating)
 if (isset($_POST['contact_name'])) {
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_name'])));
+    $name = sanitizeInput($_POST['contact_name']);
 } elseif ($contact_row) {
     $name = $contact_row['contact_name'];
 } else {
@@ -11,7 +11,7 @@ if (isset($_POST['contact_name'])) {
 }
 
 if (isset($_POST['contact_title'])) {
-    $title = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_title'])));
+    $title = sanitizeInput($_POST['contact_title']);
 } elseif ($contact_row) {
     $title = $contact_row['contact_title'];
 } else {
@@ -19,7 +19,7 @@ if (isset($_POST['contact_title'])) {
 }
 
 if (isset($_POST['contact_department'])) {
-    $department = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_department'])));
+    $department = sanitizeInput($_POST['contact_department']);
 } elseif ($contact_row) {
     $department = $contact_row['contact_department'];
 } else {
@@ -27,7 +27,7 @@ if (isset($_POST['contact_department'])) {
 }
 
 if (isset($_POST['contact_email'])) {
-    $email = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_email'])));
+    $email = sanitizeInput($_POST['contact_email']);
 } elseif ($contact_row) {
     $email = $contact_row['contact_email'];
 } else {
@@ -59,7 +59,7 @@ if (isset($_POST['contact_mobile'])) {
 }
 
 if (isset($_POST['contact_notes'])) {
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_notes'])));
+    $notes = sanitizeInput($_POST['contact_notes']);
 } elseif ($contact_row) {
     $notes = $contact_row['contact_notes'];
 } else {
@@ -67,7 +67,7 @@ if (isset($_POST['contact_notes'])) {
 }
 
 if (isset($_POST['contact_auth_method'])) {
-    $auth_method = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['contact_auth_method'])));
+    $auth_method = sanitizeInput($_POST['contact_auth_method']);
 } elseif ($contact_row) {
     $auth_method = $contact_row['contact_auth_method'];
 } else {

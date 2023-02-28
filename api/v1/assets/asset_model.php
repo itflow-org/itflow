@@ -2,7 +2,7 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 if (isset($_POST['asset_name'])) {
-    $name = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_name'])));
+    $name = sanitizeInput(_POST['asset_name']);
 } elseif (isset($asset_row) && isset($asset_row['asset_name'])) {
     $name = $asset_row['asset_name'];
 } else {
@@ -10,7 +10,7 @@ if (isset($_POST['asset_name'])) {
 }
 
 if (isset($_POST['asset_type'])) {
-    $type = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_type'])));
+    $type = sanitizeInput($_POST['asset_type']);
 } elseif (isset($asset_row) && isset($asset_row['asset_type'])) {
     $type = $asset_row['asset_type'];
 } else {
@@ -18,14 +18,14 @@ if (isset($_POST['asset_type'])) {
 }
 
 if (isset($_POST['asset_make'])) {
-    $make = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_make'])));
+    $make = sanitizeInput($_POST['asset_make']);
 } elseif (isset($asset_row) && isset($asset_row['asset_make'])) {
     $make = $asset_row['asset_make'];
 } else {
     $make = '';
 }
 if (isset($_POST['asset_model'])) {
-    $model = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_model'])));
+    $model = sanitizeInput($_POST['asset_model']);
 } elseif (isset($asset_row) && isset($asset_row['asset_model'])) {
     $model = $asset_row['asset_model'];
 } else {
@@ -33,7 +33,7 @@ if (isset($_POST['asset_model'])) {
 }
 
 if (isset($_POST['asset_serial'])) {
-    $serial = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_serial'])));
+    $serial = sanitizeInput($_POST['asset_serial']);
 } elseif (isset($asset_row) && isset($asset_row['asset_serial'])) {
     $serial = $asset_row['asset_serial'];
 } else {
@@ -41,7 +41,7 @@ if (isset($_POST['asset_serial'])) {
 }
 
 if (isset($_POST['asset_os'])) {
-    $os = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_os'])));
+    $os = sanitizeInput($_POST['asset_os']);
 } elseif (isset($asset_row) && isset($asset_row['asset_os'])) {
     $os = $asset_row['asset_os'];
 } else {
@@ -49,7 +49,7 @@ if (isset($_POST['asset_os'])) {
 }
 
 if (isset($_POST['asset_ip'])) {
-    $aip = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_ip'])));
+    $aip = sanitizeInput($_POST['asset_ip']);
 } elseif (isset($asset_row) && isset($asset_row['asset_ip'])) {
     $aip = $asset_row['asset_ip'];
 } else {
@@ -57,7 +57,7 @@ if (isset($_POST['asset_ip'])) {
 }
 
 if (isset($_POST['asset_mac'])) {
-    $mac = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_mac'])));
+    $mac = sanitizeInput($_POST['asset_mac']);
 } elseif (isset($asset_row) && isset($asset_row['asset_mac'])) {
     $mac = $asset_row['asset_mac'];
 } else {
@@ -65,7 +65,7 @@ if (isset($_POST['asset_mac'])) {
 }
 
 if (isset($_POST['asset_status'])) {
-    $status = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_status'])));
+    $status = sanitizeInput($_POST['asset_status']);
 } elseif (isset($asset_row) && isset($asset_row['asset_status'])) {
     $status = $asset_row['asset_status'];
 } else {
@@ -73,7 +73,7 @@ if (isset($_POST['asset_status'])) {
 }
 
 if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date'])) {
-    $purchase_date = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_purchase_date'])));
+    $purchase_date = sanitizeInput($_POST['asset_purchase_date']);
 } elseif (isset($asset_row) && isset($asset_row['asset_purchase_date'])) {
     $purchase_date = $asset_row['asset_purchase_date'];
 } else {
@@ -81,7 +81,7 @@ if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date']
 }
 
 if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expire'])) {
-    $warranty_expire = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_warranty_expire'])));
+    $warranty_expire = sanitizeInput($_POST['asset_warranty_expire']);
 } elseif (isset($asset_row) && isset($asset_row['asset_warranty_expire'])) {
     $warranty_expire = $asset_row['asset_warranty_expire'];
 } else {
@@ -89,7 +89,7 @@ if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expi
 }
 
 if (isset($_POST['asset_install_date']) && !empty($_POST['asset_install_date'])) {
-    $install_date = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_install_date'])));
+    $install_date = sanitizeInput($_POST['asset_install_date']);
 } elseif (isset($asset_row) && isset($asset_row['asset_install_date'])) {
     $install_date = $asset_row['asset_install_date'];
 } else {
@@ -97,7 +97,7 @@ if (isset($_POST['asset_install_date']) && !empty($_POST['asset_install_date']))
 }
 
 if (isset($_POST['asset_notes'])) {
-    $notes = trim(strip_tags(mysqli_real_escape_string($mysqli, $_POST['asset_notes'])));
+    $notes = sanitizeInput($_POST['asset_notes']);
 } elseif (isset($asset_row) && isset($asset_row['asset_notes'])) {
     $notes = $asset_row['asset_notes'];
 } else {
