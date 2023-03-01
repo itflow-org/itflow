@@ -54,7 +54,7 @@ $sql = mysqli_query($mysqli, "
         
                 ?>
                     <tr>
-                        <th>Total</th>
+                        <th>Total Monthly Income</th>
                         <th class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></th>
                     </tr>
                 </tbody>
