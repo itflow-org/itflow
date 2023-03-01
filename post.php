@@ -4975,21 +4975,27 @@ if(isset($_POST['add_asset'])){
     $network = intval($_POST['network']);
     $purchase_date = sanitizeInput($_POST['purchase_date']);
     if(empty($purchase_date)){
-        $purchase_date = "0000-00-00";
+        $purchase_date = "NULL";
+    } else {
+        $purchase_date = "'" . $purchase_date . "'";
     }
     $warranty_expire = sanitizeInput($_POST['warranty_expire']);
     if(empty($warranty_expire)){
-        $warranty_expire = "0000-00-00";
+        $warranty_expire = "NULL";
+    } else {
+        $warranty_expire = "'" . $warranty_expire . "'";
     }
     $install_date = sanitizeInput($_POST['install_date']);
     if(empty($install_date)){
-        $install_date = "0000-00-00";
+        $install_date = "NULL";
+    } else {
+        $install_date = "'" . $install_date . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, company_id = $session_company_id");
 
     $asset_id = mysqli_insert_id($mysqli);
 
@@ -5039,15 +5045,21 @@ if(isset($_POST['edit_asset'])){
     $network = intval($_POST['network']);
     $purchase_date = sanitizeInput($_POST['purchase_date']);
     if(empty($purchase_date)){
-        $purchase_date = "0000-00-00";
+        $purchase_date = "NULL";
+    } else {
+        $purchase_date = "'" . $purchase_date . "'";
     }
     $warranty_expire = sanitizeInput($_POST['warranty_expire']);
     if(empty($warranty_expire)){
-        $warranty_expire = "0000-00-00";
+        $warranty_expire = "NULL";
+    } else {
+        $warranty_expire = "'" . $warranty_expire . "'";
     }
     $install_date = sanitizeInput($_POST['install_date']);
     if(empty($install_date)){
-        $install_date = "0000-00-00";
+        $install_date = "NULL";
+    } else {
+        $install_date = "'" . $install_date . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
     $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
@@ -5055,7 +5067,7 @@ if(isset($_POST['edit_asset'])){
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = '$purchase_date', asset_warranty_expire = '$warranty_expire', asset_install_date = '$install_date', asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id AND company_id = $session_company_id");
 
     //If login exists then update the login
     if($login_id > 0 && !empty($_POST['username'])){
@@ -5413,15 +5425,19 @@ if(isset($_POST['add_software'])){
     $seats = intval($_POST['seats']);
     $purchase = sanitizeInput($_POST['purchase']);
     if(empty($purchase)){
-        $purchase = "0000-00-00";
+        $purchase = "NULL";
+    } else {
+        $purchase = "'" . $purchase . "'";
     }
     $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_client_id = $client_id, company_id = $session_company_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
@@ -5476,17 +5492,21 @@ if(isset($_POST['edit_software'])){
     $seats = intval($_POST['seats']);
     $purchase = sanitizeInput($_POST['purchase']);
     if(empty($purchase)){
-        $purchase = "0000-00-00";
+        $purchase = "NULL";
+    } else {
+        $purchase = "'" . $purchase . "'";
     }
     $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
     $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
     $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = '$purchase', software_expire = '$expire', software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes' WHERE software_id = $software_id AND company_id = $session_company_id");
 
 
     // Update Asset Licenses
@@ -6049,10 +6069,12 @@ if(isset($_POST['add_certificate'])){
     }
 
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id, company_id = $session_company_id");
 
     $certificate_id = mysqli_insert_id($mysqli);
 
@@ -6089,10 +6111,12 @@ if(isset($_POST['edit_certificate'])){
     }
 
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$session_name modified certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
@@ -6189,12 +6213,15 @@ if(isset($_POST['add_domain'])){
     $extended_log_description = '';
     $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
 
     // Get domain expiry date - if not specified
-    if($expire == '0000-00-00'){
+    if($expire == 'NULL'){
         $expire = getDomainExpirationDate($name);
+        $expire = "'" . $expire . "'";
     }
 
     // NS, MX, A and WHOIS records/data
@@ -6206,7 +6233,7 @@ if(isset($_POST['add_domain'])){
     $whois = sanitizeInput($records['whois']);
 
     // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_client_id = $client_id, company_id = $session_company_id");
 
 
     // Get inserted ID (for linking certificate, if exists)
@@ -6242,7 +6269,9 @@ if(isset($_POST['edit_domain'])){
     $webhost = intval($_POST['webhost']);
     $expire = sanitizeInput($_POST['expire']);
     if(empty($expire)){
-        $expire = "0000-00-00";
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
     }
     $client_id = intval($_POST['client_id']);
 
@@ -6257,7 +6286,7 @@ if(isset($_POST['edit_domain'])){
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id AND company_id = $session_company_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id, company_id = $session_company_id");

@@ -195,7 +195,7 @@ if (isset($_GET['client_id'])) {
             $mysqli,
             "SELECT COUNT('domain_id') AS num FROM domains
             WHERE domain_client_id = $client_id
-            AND domain_expire != '0000-00-00'
+            AND domain_expire IS NOT NULL
             AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
             AND domain_archived_at IS NULL
             AND company_id = $session_company_id"
@@ -207,7 +207,7 @@ if (isset($_GET['client_id'])) {
             $mysqli,
             "SELECT COUNT('certificate_id') AS num FROM certificates
             WHERE certificate_client_id = $client_id
-            AND certificate_expire != '0000-00-00'
+            AND certificate_expire IS NOT NULL
             AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
             AND certificate_archived_at IS NULL
             AND company_id = $session_company_id"
@@ -219,7 +219,7 @@ if (isset($_GET['client_id'])) {
             $mysqli,
             "SELECT * FROM assets
             WHERE asset_client_id = $client_id
-            AND asset_warranty_expire != '0000-00-00'
+            AND asset_warranty_expire IS NOT NULL
             AND asset_archived_at IS NULL
             AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
             AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
@@ -230,7 +230,7 @@ if (isset($_GET['client_id'])) {
             $mysqli,
             "SELECT * FROM assets
             WHERE asset_client_id = $client_id
-            AND asset_install_date != '0000-00-00'
+            AND asset_install_date IS NOT NULL
             AND asset_archived_at IS NULL
             AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
             AND company_id = $session_company_id ORDER BY asset_install_date DESC"
