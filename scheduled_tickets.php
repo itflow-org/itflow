@@ -41,20 +41,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Scheduled Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-8">
 
+                        <div class="dropdown float-right" id="multiActionButton" hidden>
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                            </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item text-danger text-bold" 
+                                    type="submit" form="multi_actions" name="bulk_delete_scheduled_tickets">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                        
+                    </div>
                 </div>
             </form>
             <hr>
 
             <div class="table-responsive">
 
-                <form id="bulk_actions" action="post.php" method="post">
+                <form id="multi_actions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                     <table class="table table-striped table-borderless table-hover">
@@ -62,7 +76,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             echo "d-none";
                         } ?>">
                         <tr>
-                            <th><a class="text-dark">Select</a></th>
+                            <td class="pr-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
+                                </div>
+                            </td>
                             <th><a class="text-dark">Client</a></th>
                             <th><a class="text-dark">Subject</a></th>
                             <th><a class="text-dark">Priority</a></th>
@@ -87,13 +105,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ?>
 
                             <tr>
-                                <td>
+                                <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="scheduled_ticket_ids[]" onchange="showBulkDeleteButton()" value="<?php echo $scheduled_ticket_id ?>">
+                                        <input class="form-check-input" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
                                     </div>
                                 </td>
 
-                                <td class="text-bold"><a href="client_scheduled_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a></td>
+                                <th><a href="client_scheduled_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
+                                </th>
 
                                 <td>
                                     <a href="#" data-toggle="modal" data-target="#editScheduledTicketModal"
@@ -140,17 +159,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
 
-            <div class="form-check">
-                <input type="submit" id="button_bulk_delete" form="bulk_actions" name="bulk_delete_scheduled_tickets" value="Bulk Delete" hidden>
-            </div>
-
             <?php require_once('pagination.php'); ?>
 
         </div>
     </div>
 
     <script src="js/scheduled_tickets_edit_modal.js"></script>
-    <script src="js/scheduled_tickets_bulk_delete_button.js"></script>
+    <script src="js/multi_actions.js"></script>
 
 <?php
 require_once("scheduled_ticket_add_modal.php");
