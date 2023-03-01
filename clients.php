@@ -21,7 +21,7 @@ $sql = mysqli_query(
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     AND clients.company_id = $session_company_id
-    GROUP BY clients.client_id, contacts.contact_id, locations.location_id, client_tags.client_tag_tag_id, tags.tag_id
+    GROUP BY clients.client_id
     ORDER BY $sb $o LIMIT $record_from, $record_to
 ");
 
