@@ -11,10 +11,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, tags.*
-    FROM (
-    SELECT DISTINCT client_id
-    FROM clients
+    "SELECT DISTINCT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, tags.* FROM clients
     LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
     LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
     LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
@@ -24,15 +21,8 @@ $sql = mysqli_query(
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     AND clients.company_id = $session_company_id
-    ) AS unique_clients
-    JOIN clients ON clients.client_id = unique_clients.client_id
-    LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
-    LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-    LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
-    LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
     GROUP BY clients.client_id, contacts.contact_id, locations.location_id, client_tags.client_tag_tag_id, tags.tag_id
-    ORDER BY $sb $o
-    LIMIT $record_from, $record_to
+    ORDER BY $sb $o LIMIT $record_from, $record_to
 ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
