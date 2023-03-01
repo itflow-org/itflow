@@ -806,6 +806,8 @@ if (isset($_POST['add_database'])) {
 
     file_put_contents("config.php", $new_config);
 
+    sleep(2);
+
     include("config.php");
 
     // Name of the file
