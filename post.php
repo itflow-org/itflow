@@ -475,7 +475,7 @@ if(isset($_POST['edit_company'])){
     validateAdminRole();
 
     $company_id = intval($_POST['company_id']);
-    $existing_file_name = sanitizeInputI($mysqli,$_POST['existing_file_name']);
+    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
     if(!file_exists("uploads/settings/$company_id/")) {
         mkdir("uploads/settings/$company_id");
