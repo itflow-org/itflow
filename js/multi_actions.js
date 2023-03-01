@@ -1,5 +1,3 @@
-
-
 var checkboxes = document.querySelectorAll('form input[type="checkbox"]');
 var selectedCount = document.getElementById("selectedCount");
 
@@ -25,9 +23,7 @@ function updateSelectedCount() {
 }
 
 function checkAll(source) {
-  
   for (var i = 0; i < checkboxes.length; i++) {
     checkboxes[i].checked = source.checked;
- 
   }
 }
