@@ -353,7 +353,7 @@ function getDomainExpirationDate($name) {
 
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        return '0000-00-00';
+        return "NULL";
     }
 
     $ch = curl_init();
@@ -373,7 +373,7 @@ function getDomainExpirationDate($name) {
     }
 
     // Default return
-    return '0000-00-00';
+    return "NULL";
 }
 
 // Get domain general info (whois + NS/A/MX records)
