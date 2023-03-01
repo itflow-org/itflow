@@ -428,7 +428,7 @@ while ($row = mysqli_fetch_array($sql_companies)) {
             $category_id = intval($row['recurring_category_id']);
             $client_id = intval($row['recurring_client_id']);
             $client_name = sanitizeInput($row['client_name']); //Escape SQL just in case a name is like Safran's etc
-            $client_net_terms = intvak($row['client_net_terms']);
+            $client_net_terms = intval($row['client_net_terms']);
 
 
             //Get the last Invoice Number and add 1 for the new invoice number
