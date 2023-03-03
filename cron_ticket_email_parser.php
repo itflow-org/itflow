@@ -51,8 +51,7 @@ require_once("plugins/php-mime-mail-parser/src/Parser.php");
 
 
 // Function to raise a new ticket for a given contact and email them confirmation (if configured)
-function addTicket($contact_id, $contact_name, $contact_email, $client_id, $company_id, $date, $subject, $message)
-{
+function addTicket($contact_id, $contact_name, $contact_email, $client_id, $company_id, $date, $subject, $message) {
 
     // Access global variables
     global $mysqli, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password;
@@ -102,7 +101,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $comp
         );
 
         if ($mail !== true) {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', notification_timestamp = NOW(), company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $company_id");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
         }
 
@@ -112,8 +111,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $comp
 
 }
 
-function addReply($from_email, $date, $subject, $ticket_number, $message)
-{
+function addReply($from_email, $date, $subject, $ticket_number, $message) {
     // Add email as a comment/reply to an existing ticket
 
     // Access global variables
@@ -237,7 +235,7 @@ if ($emails) {
         $from_domain = explode("@", $from_array['address']);
         $from_domain = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags(end($from_domain))))); // Use the final element in the array (as technically legal to have multiple @'s)
 
-        $subject = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($parser->getHeader('subject')))));
+        $subject = sanitizeInput($parser->getHeader('subject'));
         $date = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($parser->getHeader('date')))));
 
         $message = $parser->getMessageBody('text');
