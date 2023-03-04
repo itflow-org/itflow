@@ -73,27 +73,27 @@ if (isset($_POST['asset_status'])) {
 }
 
 if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date'])) {
-    $purchase_date = sanitizeInput($_POST['asset_purchase_date']);
+    $purchase_date = "'" . sanitizeInput($_POST['asset_purchase_date']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_purchase_date'])) {
-    $purchase_date = $asset_row['asset_purchase_date'];
+    $purchase_date = "'" . $asset_row['asset_purchase_date'] . "'";
 } else {
     $purchase_date = "NULL";
 }
 
 if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expire'])) {
-    $warranty_expire = sanitizeInput($_POST['asset_warranty_expire']);
+    $warranty_expire = "'" . sanitizeInput($_POST['asset_warranty_expire']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_warranty_expire'])) {
-    $warranty_expire = $asset_row['asset_warranty_expire'];
+    $warranty_expire = "'" . $asset_row['asset_warranty_expire'] . "'";
 } else {
-    $warranty_expire = "0000-00-00";
+    $warranty_expire = "NULL";
 }
 
 if (isset($_POST['asset_install_date']) && !empty($_POST['asset_install_date'])) {
-    $install_date = sanitizeInput($_POST['asset_install_date']);
+    $install_date = "'" . sanitizeInput($_POST['asset_install_date']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_install_date'])) {
-    $install_date = $asset_row['asset_install_date'];
+    $install_date = "'" . $asset_row['asset_install_date'] . "'";
 } else {
-    $install_date = "0000-00-00";
+    $install_date = "NULL";
 }
 
 if (isset($_POST['asset_notes'])) {
