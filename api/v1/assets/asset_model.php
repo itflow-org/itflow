@@ -2,7 +2,7 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 if (isset($_POST['asset_name'])) {
-    $name = sanitizeInput(_POST['asset_name']);
+    $name = sanitizeInput($_POST['asset_name']);
 } elseif (isset($asset_row) && isset($asset_row['asset_name'])) {
     $name = $asset_row['asset_name'];
 } else {
@@ -77,7 +77,7 @@ if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date']
 } elseif (isset($asset_row) && isset($asset_row['asset_purchase_date'])) {
     $purchase_date = $asset_row['asset_purchase_date'];
 } else {
-    $purchase_date = "0000-00-00";
+    $purchase_date = "NULL";
 }
 
 if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expire'])) {
