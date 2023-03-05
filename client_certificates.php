@@ -42,64 +42,99 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="float-right">
                         <a href="post.php?export_client_certificates_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-download mr-2"></i>Export</a>
                     </div>
+
+
+                    <div class="dropdown float-right" id="multiActionButton" hidden>
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item text-danger text-bold"
+                                    type="submit" form="multi_actions" name="bulk_delete_certificates">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
         </form>
         <hr>
         <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_issued_by&o=<?php echo $disp; ?>">Issued By</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_expire&o=<?php echo $disp; ?>">Expire</a></th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
 
-                while ($row = mysqli_fetch_array($sql)) {
-                    $certificate_id = intval($row['certificate_id']);
-                    $certificate_name = htmlentities($row['certificate_name']);
-                    $certificate_domain = htmlentities($row['certificate_domain']);
-                    $certificate_issued_by = htmlentities($row['certificate_issued_by']);
-                    $certificate_expire = htmlentities($row['certificate_expire']);
+            <form id="multi_actions" action="post.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                    ?>
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
-                        <td><?php echo $certificate_domain; ?></td>
-                        <td><?php echo $certificate_issued_by; ?></td>
-                        <td><?php echo $certificate_expire; ?></td>
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <?php if ($session_user_role == 3) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    <?php } ?>
-                                </div>
+                        <td class="pr-0">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
                             </div>
                         </td>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_name&o=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_domain&o=<?php echo $disp; ?>">Domain</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_issued_by&o=<?php echo $disp; ?>">Issued By</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=certificate_expire&o=<?php echo $disp; ?>">Expire</a></th>
+                        <th class="text-center">Action</th>
                     </tr>
-
+                    </thead>
+                    <tbody>
                     <?php
-                }
-                ?>
 
-                </tbody>
-            </table>
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $certificate_id = intval($row['certificate_id']);
+                        $certificate_name = htmlentities($row['certificate_name']);
+                        $certificate_domain = htmlentities($row['certificate_domain']);
+                        $certificate_issued_by = htmlentities($row['certificate_issued_by']);
+                        $certificate_expire = htmlentities($row['certificate_expire']);
+
+                        ?>
+                        <tr>
+                            <td class="pr-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
+                                </div>
+                            </td>
+
+                            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
+
+                            <td><?php echo $certificate_domain; ?></td>
+
+                            <td><?php echo $certificate_issued_by; ?></td>
+
+                            <td><?php echo $certificate_expire; ?></td>
+
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <?php if ($session_user_role == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <?php
+                    }
+                    ?>
+
+                    </tbody>
+                </table>
+
+            </form>
         </div>
         <?php require_once("pagination.php"); ?>
     </div>
@@ -110,94 +145,8 @@ require_once("client_certificate_edit_modal.php");
 require_once("client_certificate_add_modal.php");
 ?>
 
-<script>
-    function populateCertificateEditModal(client_id, certificate_id) {
+<script src="js/certificate_edit_modal.js"></script>
+<script src="js/multi_actions.js"></script>
+<script src="js/certificate_fetch_ssl.js"></script>
 
-        // Send a GET request to post.php as post.php?certificate_get_json_details=true&client_id=NUM&certificate_id=NUM
-        jQuery.get(
-            "ajax.php",
-            {certificate_get_json_details: 'true', client_id: client_id, certificate_id: certificate_id},
-            function(data) {
-
-                // If we get a response from post.php, parse it as JSON
-                const response = JSON.parse(data);
-
-                // Access the certificate (one) and domains (multiple)
-                const certificate = response.certificate[0];
-                const domains = response.domains;
-
-                // Populate the cert modal fields
-                document.getElementById("editHeader").innerText = certificate.certificate_name;
-                document.getElementById("editCertificateId").value = certificate_id;
-                document.getElementById("editCertificateName").value = certificate.certificate_name;
-                document.getElementById("editDomain").value = certificate.certificate_domain;
-                document.getElementById("editIssuedBy").value = certificate.certificate_issued_by;
-                document.getElementById("editExpire").value = certificate.certificate_expire;
-                document.getElementById("editPublicKey").value = certificate.certificate_public_key;
-
-                // Select the domain dropdown
-                var domainDropdown = document.getElementById("editDomainId");
-
-                // Clear domain dropdown
-                var i, L = domainDropdown.options.length -1;
-                for(i = L; i >= 0; i--) {
-                    domainDropdown.remove(i);
-                }
-                domainDropdown[domainDropdown.length] = new Option('- Domain -', '0');
-
-                // Populate domain dropdown
-                domains.forEach(domain => {
-                    if (parseInt(domain.domain_id) == parseInt(certificate.certificate_domain_id)) {
-                        // Selected domain
-                        domainDropdown[domainDropdown.length] = new Option(domain.domain_name, domain.domain_id, true, true);
-                    }
-                    else{
-                        domainDropdown[domainDropdown.length] = new Option(domain.domain_name, domain.domain_id);
-                    }
-                });
-            }
-        );
-    }
-</script>
-
-<script type="text/javascript">
-    function fetchSSL(type)
-    {
-        // Get the domain name input & issued/expire/key fields, based on whether this is a new cert or updating an existing
-        if (type == 'new') {
-            var domain = document.getElementById("domain").value;
-            var issuedBy = document.getElementById("issuedBy");
-            var expire = document.getElementById("expire");
-            var publicKey = document.getElementById("publicKey");
-
-        }
-        if (type == 'edit') {
-            var domain = document.getElementById("editDomain").value;
-            var issuedBy = document.getElementById("editIssuedBy");
-            var expire = document.getElementById("editExpire");
-            var publicKey = document.getElementById("editPublicKey");
-        }
-
-        //Send a GET request to post.php as post.php?certificate_fetch_parse_json_details=TRUE&domain=DOMAIN
-        jQuery.get(
-            "ajax.php",
-            {certificate_fetch_parse_json_details: 'TRUE', domain: domain},
-            function(data) {
-                //If we get a response from post.php, parse it as JSON
-                const ssl_data = JSON.parse(data);
-
-                if (ssl_data.success == "TRUE") {
-                    // Fill the form fields with the cert data
-                    issuedBy.value = ssl_data.issued_by;
-                    expire.value = ssl_data.expire;
-                    publicKey.value = ssl_data.public_key;
-                }
-                else{
-                    alert("Error whilst parsing/retrieving details for domain")
-                }
-            }
-        );
-    }
-</script>
-
-<?php include("footer.php"); ?>
+<?php require_once("footer.php"); ?>

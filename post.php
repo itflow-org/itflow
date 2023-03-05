@@ -6151,6 +6151,35 @@ if(isset($_GET['delete_certificate'])){
 
 }
 
+if (isset($_POST['bulk_delete_certificates'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $certificate_ids = $_POST['certificate_ids']; // Get array of scheduled tickets IDs to be deleted
+
+    if (!empty($certificate_ids)) {
+
+        // Cycle through array and delete each scheduled ticket
+        foreach ($certificate_ids as $certificate_id) {
+
+            $certificate_id = intval($certificate_id);
+            mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name deleted certificate (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $certificate_id, company_id = $session_company_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name bulk deleted $count certificates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, company_id = $session_company_id");
+
+        $_SESSION['alert_message'] = "Deleted $count certificate(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_GET['export_client_certificates_csv'])){
 
     validateTechRole();
