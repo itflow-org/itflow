@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?php echo $config_theme; ?> navbar-dark">
+<nav class="main-header navbar navbar-expand navbar-<?php echo htmlentities($config_theme); ?> navbar-dark">
 
   <!-- Left navbar links -->
   <ul class="navbar-nav">
@@ -45,7 +45,7 @@
       <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="far fa-bell"></i>
         <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
-        
+
       </a>
       <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
         <a href="notifications.php" class="dropdown-item dropdown-header"><i class="fas fa-fw fa-bell mr-2"></i><strong><?php echo $num_notifications; ?></strong> Notifications</a>
@@ -65,7 +65,7 @@
           </p>
           <small class="text-secondary"><?php echo $notification; ?></small>
         </a>
-        
+
         <?php
         }
         ?>
@@ -93,7 +93,7 @@
     <?php } ?>
 
     <!-- End New Notifications Dropdown -->
-    
+
     <li class="nav-item dropdown user-menu">
       <a href="#" class="nav-link" data-toggle="dropdown">
         <?php if (empty($session_avatar)) { ?>
@@ -109,7 +109,7 @@
           <?php if (empty($session_avatar)) { ?>
           	<i class="fas fa-user-circle fa-6x"></i>
           <?php }else{ ?>
-          
+
           	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
 					<?php } ?>
           <p>
@@ -124,7 +124,7 @@
         </li>
       </ul>
     </li>
-    
+
   </ul>
 </nav>
 <!-- /.navbar -->
