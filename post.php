@@ -870,7 +870,7 @@ if(isset($_POST['edit_theme_settings'])){
 
     validateAdminRole();
 
-    $theme = sanitizeInput($_POST['theme']);
+    $theme = preg_replace("/[^0-9a-zA-Z_]/", "", sanitizeInput($_POST['theme']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = $session_company_id");
 
