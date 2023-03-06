@@ -430,7 +430,7 @@ if(isset($_POST['add_api_key'])){
     $expire = sanitizeInput($_POST['expire']);
     $client = intval($_POST['client']);
 
-    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_client_id = '$client', company_id = $session_company_id");
+    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_client_id = $client, company_id = $session_company_id");
 
     $api_key_id = mysqli_insert_id($mysqli);
 
@@ -1366,7 +1366,7 @@ if(isset($_POST['backup_master_key'])){
 
     $password = $_POST['password'];
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = '$session_user_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
     $userRow = mysqli_fetch_array($sql);
 
     if(password_verify($password, $userRow['user_password'])) {
