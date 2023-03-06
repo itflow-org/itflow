@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             $client_tag_id_array[] = $client_tag_id;
                             if (empty($client_tag_color)) {
-                                $client_tag_name_display_array[] = "<small class='text-secondary'>$client_tag_name</small> ";
+                                $client_tag_name_display_array[] = "<small class='text-secondary'><i class='fa fa-fw fa-$client_tag_icon'></i>$client_tag_name</small> ";
                             } else {
                                 $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span> ";
                             }

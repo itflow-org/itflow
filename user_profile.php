@@ -21,13 +21,13 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="existing_file_name" value="<?php echo $session_avatar; ?>">
+                    <input type="hidden" name="existing_file_name" value="<?php echo htmlentities($session_avatar); ?>">
 
                     <center class="mb-3 px-5">
                         <?php if (empty($session_avatar)) { ?>
                             <i class="fas fa-user-circle fa-8x text-secondary"></i>
                         <?php } else { ?>
-                            <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-fluid">
+                            <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/" . htmlentities($session_avatar); ?>" class="img-fluid">
                         <?php } ?>
                         <h4 class="text-secondary mt-2"><?php echo htmlentities($session_user_role_display); ?></h4>
                     </center>

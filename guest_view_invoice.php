@@ -73,8 +73,6 @@ if (!empty($company_logo)) {
 $company_locale = htmlentities($row['company_locale']);
 $config_invoice_footer = htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
-$config_stripe_publishable = $row['config_stripe_publishable'];
-$config_stripe_secret = $row['config_stripe_secret'];
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);

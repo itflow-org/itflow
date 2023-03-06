@@ -7,7 +7,7 @@ header('Pragma: no-cache');
 require_once("guest_header.php"); ?>
 
     <br>
-    <h1> <?php echo $config_app_name ?> Guest sharing </h1>
+    <h1> <?php echo htmlentities($config_app_name); ?> Guest sharing </h1>
     <hr>
 
 <?php
