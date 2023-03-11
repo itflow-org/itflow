@@ -791,23 +791,20 @@ if (isset($_POST['add_database'])) {
         exit("<b>Database connection failed - please check and try again</b> <br> <br> $e");
     }
 
-    $new_config = array();
-    $new_config[] = "<?php\n\n";
-    $new_config[] = sprintf("\$dbhost = '%s';\n", addslashes($host));
-    $new_config[] = sprintf("\$dbusername = '%s';\n", addslashes($username));
-    $new_config[] = sprintf("\$dbpassword = '%s';\n", addslashes($password));
-    $new_config[] = sprintf("\$database = '%s';\n", addslashes($database));
-    $new_config[] = "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
-    $new_config[] = "\$config_app_name = 'ITFlow';\n";
-    $new_config[] = sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
-    $new_config[] = "\$config_https_only = TRUE;\n";
-    $new_config[] = "\$repo_branch = 'master';\n";
-    $new_config[] = "\$installation_id = '$installation_id';\n";
+    $new_config = "<?php\n\n";
+    $new_config .= sprintf("\$dbhost = '%s';\n", addslashes($host));
+    $new_config .= sprintf("\$dbusername = '%s';\n", addslashes($username));
+    $new_config .= sprintf("\$dbpassword = '%s';\n", addslashes($password));
+    $new_config .= sprintf("\$database = '%s';\n", addslashes($database));
+    $new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
+    $new_config .= "\$config_app_name = 'ITFlow';\n";
+    $new_config .= sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));
+    $new_config .= "\$config_https_only = TRUE;\n";
+    $new_config .= "\$repo_branch = 'master';\n";
+    $new_config .= "\$installation_id = '$installation_id';\n";
 
-    file_put_contents("config.php", $new_config);
-
-    if (!file_exists('config.php')) {
-        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+    if (file_put_contents("config.php", $new_config) === false) {
+        $_SESSION['alert_message'] = "Failed to write the config.php file to the filesystem. Please input the database information again.";
         header("Location: setup.php?database");
         exit;
     }
@@ -981,21 +978,21 @@ if (isset($_POST['add_company_settings'])) {
 
     //Create Some Data
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', company_id = 1");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', company_id = 1");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green'");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue'");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', company_id = 1");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red'");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', company_id = 1");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue'");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red'");
 
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
@@ -1010,7 +1007,7 @@ if (isset($_POST['add_telemetry'])) {
 
         $comments = sanitizeInput($_POST['comments']);
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies LIMIT 1");
+        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
 
         $company_name = $row['company_name'];
