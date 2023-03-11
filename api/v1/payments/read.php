@@ -10,18 +10,18 @@ if (isset($_GET['payment_id']) && $client_id == "%") {
     // Payment via ID (single)
 
     $id = intval($_GET['payment_id']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = '$id' AND company_id = '$company_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = '$id'");
 
 } elseif (isset($_GET['payment_invoice_id']) && $client_id == "%") {
     // Payments for an invoice
 
     $id = intval($_GET['payment_invoice_id']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_invoice_id = '$id' AND company_id = '$company_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_invoice_id = '$id'");
 
 } elseif ($client_id == "%") {
     // All payments
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE company_id = '$company_id' ORDER BY payment_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM payments ORDER BY payment_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

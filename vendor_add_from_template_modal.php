@@ -22,7 +22,7 @@
                             <select class="form-control" name="vendor_template_id" required>
                                 <option value="">- Select Template -</option>
                                 <?php
-                                $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 1 AND company_id = $session_company_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 1 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql_vendor_templates)) {
                                     $vendor_template_id = intval($row['vendor_id']);
                                     $vendor_template_name = htmlentities($row['vendor_name']);

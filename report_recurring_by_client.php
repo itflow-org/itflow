@@ -9,8 +9,7 @@ $sql = mysqli_query($mysqli, "
             WHEN recurring.recurring_frequency = 'year' THEN recurring.recurring_amount / 12 END) AS recurring_monthly_total
     FROM clients
     LEFT JOIN recurring ON clients.client_id = recurring.recurring_client_id
-    WHERE clients.company_id = $session_company_id
-        AND recurring.recurring_status = 1
+    WHERE recurring.recurring_status = 1
     GROUP BY clients.client_id
     HAVING recurring_monthly_total > 0
     ORDER BY recurring_monthly_total DESC
@@ -26,7 +25,7 @@ $sql = mysqli_query($mysqli, "
         </div>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
+        <div class="table-responsive-sm">
             <table class="table table-striped table-sm">
                 <thead>
                 <tr>

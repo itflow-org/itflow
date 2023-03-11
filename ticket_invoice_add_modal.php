@@ -23,7 +23,7 @@
                                 <option value="0">New Invoice</option>
                                 <?php
 
-                                $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id AND company_id = $session_company_id ORDER BY invoice_number ASC");
+                                $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
                                 while ($row = mysqli_fetch_array($sql_invoices)) {
                                     $invoice_id = intval($row['invoice_id']);
                                     $invoice_prefix = htmlentities($row['invoice_prefix']);
@@ -64,7 +64,7 @@
                                 <option value="">- Category -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $category_id = intval($row['category_id']);
                                     $category_name = htmlentities($row['category_name']);
@@ -151,7 +151,7 @@
                                 <option value="0">None</option>
                                 <?php
 
-                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL AND company_id = $session_company_id ORDER BY tax_name ASC");
+                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                     $tax_id_select = intval($row['tax_id']);
                                     $tax_name = htmlentities($row['tax_name']);

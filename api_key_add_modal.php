@@ -61,7 +61,7 @@ $key = randomString(156);
                                 <option value="">- Client -</option>
                                 <option value="0"> ALL CLIENTS </option>
                                 <?php
-                                $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = htmlentities($row['client_name']); ?>

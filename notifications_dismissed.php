@@ -18,7 +18,6 @@ $sql = mysqli_query(
     WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt'
     AND (notification_user_id = $session_user_id OR notification_user_id = 0)
-    AND notifications.company_id = $session_company_id
     AND notification_dismissed_at IS NOT NULL
     ORDER BY $sb $o
     LIMIT $record_from, $record_to
@@ -64,7 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
             </form>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-hover">
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>

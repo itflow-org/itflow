@@ -9,9 +9,9 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-$sql_expense_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 AND company_id = $session_company_id ORDER BY expense_year DESC");
+$sql_expense_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 ORDER BY expense_year DESC");
 
-$sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' AND company_id = $session_company_id ORDER BY category_name ASC");
+$sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
 
 ?>
 
@@ -39,7 +39,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
 
         <canvas id="cashFlow" width="100%" height="20"></canvas>
 
-        <div class="table-responsive">
+        <div class="table-responsive-sm">
             <table class="table table-striped">
                 <thead class="text-dark">
                 <tr>
@@ -94,7 +94,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                     <?php
 
                     for ($month = 1; $month<=12; $month++) {
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND company_id = $session_company_id");
+                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
                         $row = mysqli_fetch_array($sql_expenses);
                         $expense_total_amount_for_month = floatval($row['expense_total_amount_for_month']);
                         $total_expense_for_all_months = $expense_total_amount_for_month + $total_expense_for_all_months;
@@ -143,7 +143,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                     $largest_expense_month = 0;
 
                     for ($month = 1; $month<=12; $month++) {
-                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0 AND expenses.company_id = $session_company_id");
+                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
                     $row = mysqli_fetch_array($sql_expenses);
                     $expenses_for_month = floatval($row['expense_amount_for_month']);
 

@@ -47,7 +47,7 @@
                             <select class="form-control select2" name="account_from" required>
                                 <?php
 
-                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC");
+                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id_select = intval($row['account_id']);
                                     $account_name_select = htmlentities($row['account_name']);
@@ -85,7 +85,7 @@
                             <select class="form-control select2" name="account_to" required>
                                 <?php
 
-                                $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) AND company_id = $session_company_id ORDER BY account_name ASC");
+                                $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql2)) {
                                     $account_id2 = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']);

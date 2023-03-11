@@ -13,7 +13,6 @@ $sql = mysqli_query(
     $mysqli, 
     "SELECT * FROM taxes
     WHERE tax_archived_at IS NULL
-    AND company_id = $session_company_id
     ORDER BY $sb $o"
 );
 
@@ -29,7 +28,7 @@ $num_rows = mysqli_num_rows($sql);
             </div>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                     <tr>

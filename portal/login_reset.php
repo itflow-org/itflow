@@ -42,19 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         $email = sanitizeInput($_POST['email']);
 
-        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id, company_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
 
         $id = intval($row['contact_id']);
         $name = $row['contact_name'];
         $client = intval($row['contact_client_id']);
-        $company = intval($row['company_id']);
 
         if ($row['contact_email'] == $email) {
             $token = randomString(156);
             $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, company_id = $company");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
 
             // Send reset email
@@ -77,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Error handling
             if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', company_id = $company");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail'");
             }
 
             //End Mail IF
@@ -106,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $contact_row = mysqli_fetch_array($sql);
         $contact_id = intval($contact_row['contact_id']);
         $name = $contact_row['contact_name'];
-        $company = intval($contact_row['company_id']);
 
         // Ensure the token is correct
         if (sha1($contact_row['contact_password_reset_token']) == sha1($token)) {
@@ -114,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             // Set password, invalidate token, logging
             $password = mysqli_real_escape_string($mysqli, password_hash($_POST['new_password'], PASSWORD_DEFAULT));
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password', contact_password_reset_token = NULL WHERE contact_id = $contact_id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, company_id = $company");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
             // Send confirmation email
             $subject = "Password reset confirmation for $company_name ITFlow Portal";
@@ -137,8 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Error handling
             if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email', company_id = $company");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', company_id = $company");
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail'");
             }
 
             // Redirect to login page

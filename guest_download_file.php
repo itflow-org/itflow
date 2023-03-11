@@ -48,8 +48,7 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     $file_ext = sanitizeInput($file_row['file_ext']);
     $file_reference_name = sanitizeInput($file_row['file_reference_name']);
     $client_id = intval($file_row['file_client_id']);
-    $company_id = intval($file_row['company_id']);
-    $file_path = "uploads/clients/$company_id/$client_id/$file_reference_name";
+    $file_path = "uploads/clients/$client_id/$file_reference_name";
 
     // Display file as download
     $mime_type = mime_content_type($file_path);
@@ -62,6 +61,6 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent', company_id = 1");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent'");
 
 }

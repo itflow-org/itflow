@@ -66,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </form>
             <hr>
 
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
 
                 <form id="multi_actions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">

@@ -9,12 +9,12 @@ if (isset($_GET['product_id']) && $client_id == "%") {
     // product via ID (single)
 
     $id = intval($_GET['product_id']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = '$id' AND company_id = '$company_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = '$id'");
 
 } elseif ($client_id == "%") {
     // All products
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE company_id = '$company_id' ORDER BY product_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM products ORDER BY product_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

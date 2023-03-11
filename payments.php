@@ -15,8 +15,7 @@ $sql = mysqli_query(
     LEFT JOIN invoices ON payment_invoice_id = invoice_id
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN accounts ON payment_account_id = account_id
-    WHERE payments.company_id = $session_company_id
-    AND DATE(payment_date) BETWEEN '$dtf' AND '$dtt'
+    WHERE DATE(payment_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -77,7 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>

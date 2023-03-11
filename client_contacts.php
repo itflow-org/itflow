@@ -60,7 +60,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table border">
                     <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
@@ -132,19 +132,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $auth_method = htmlentities($row['contact_auth_method']);
 
                         // Related Assets Query
-                        $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id AND company_id = $session_company_id ORDER BY asset_id DESC");
+                        $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");
                         $asset_count = mysqli_num_rows($sql_related_assets);
 
                         // Related Logins Query
-                        $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_id DESC");
+                        $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_id DESC");
                         $login_count = mysqli_num_rows($sql_related_logins);
 
                         // Related Software Query
-                        $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+                        $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id ORDER BY software.software_id DESC");
                         $software_count = mysqli_num_rows($sql_related_software);
 
                         // Related Tickets Query
-                        $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+                        $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
                         $ticket_count = mysqli_num_rows($sql_related_tickets);
 
                         ?>
@@ -153,7 +153,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                     <?php if (!empty($contact_photo)) { ?>
 
-                                        <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
+                                        <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
 
                                     <?php } else { ?>
 

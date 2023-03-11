@@ -11,12 +11,10 @@ if (isset($_GET['recurring_id'])) {
         LEFT JOIN clients ON recurring_client_id = client_id
         LEFT JOIN locations ON primary_location = location_id
         LEFT JOIN contacts ON primary_contact = contact_id
-        LEFT JOIN companies ON recurring.company_id = companies.company_id
         WHERE recurring_id = $recurring_id"
     );
 
     $row = mysqli_fetch_array($sql);
-    $recurring_id = intval($row['recurring_id']);
     $recurring_prefix = htmlentities($row['recurring_prefix']);
     $recurring_number = intval($row['recurring_number']);
     $recurring_scope = htmlentities($row['recurring_scope']);
@@ -53,6 +51,10 @@ if (isset($_GET['recurring_id'])) {
         $status = "Inactive";
         $status_badge_color = "secondary";
     }
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+
     $company_id = intval($row['company_id']);
     $company_name = htmlentities($row['company_name']);
     $company_country = htmlentities($row['company_country']);
@@ -68,7 +70,7 @@ if (isset($_GET['recurring_id'])) {
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_recurring_id = $recurring_id ORDER BY history_id DESC");
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -122,7 +124,7 @@ if (isset($_GET['recurring_id'])) {
 
             <div class="row mb-4">
                 <div class="col-2">
-                    <img class="img-fluid" alt="Company logo" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
+                    <img class="img-fluid" alt="Company logo" src="<?php echo "uploads/settings/$company_logo"; ?>">
                 </div>
                 <div class="col-10">
                     <div class="ribbon-wrapper">
@@ -258,7 +260,7 @@ if (isset($_GET['recurring_id'])) {
                                                     <option value="0">No Tax</option>
                                                     <?php
 
-                                                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+                                                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes ORDER BY tax_name ASC");
                                                     while ($row = mysqli_fetch_array($taxes_sql)) {
                                                         $tax_id = intval($row['tax_id']);
                                                         $tax_name = htmlentities($row['tax_name']);

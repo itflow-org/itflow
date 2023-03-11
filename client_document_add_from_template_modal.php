@@ -20,7 +20,7 @@
               <select class="form-control" name="document_template_id" required>
                 <option value="">- Select Template -</option>
                 <?php
-                $sql_document_templates = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_template = 1 AND company_id = $session_company_id AND document_archived_at IS NULL ORDER BY document_name ASC");
+                $sql_document_templates = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_template = 1 AND document_archived_at IS NULL ORDER BY document_name ASC");
                 while ($row = mysqli_fetch_array($sql_document_templates)) {
                   $document_template_id = intval($row['document_id']);
                   $document_template_name = htmlentities($row['document_name']);

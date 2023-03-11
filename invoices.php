@@ -6,50 +6,50 @@ $o = "DESC";
 
 require_once("inc_all.php");
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent'"));
 $sent_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Viewed' AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Viewed'"));
 $viewed_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Partial' AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Partial'"));
 $partial_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Draft' AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Draft'"));
 $draft_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Cancelled' AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Cancelled'"));
 $cancelled_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_due > CURDATE() AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_due > CURDATE()"));
 $overdue_count = $row['num'];
 
-$sql_total_draft = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft FROM invoices WHERE invoice_status = 'Draft' AND company_id = $session_company_id");
+$sql_total_draft = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft FROM invoices WHERE invoice_status = 'Draft'");
 $row = mysqli_fetch_array($sql_total_draft);
 $total_draft = floatval($row['total_draft']);
 
-$sql_total_sent = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent' AND company_id = $session_company_id");
+$sql_total_sent = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent'");
 $row = mysqli_fetch_array($sql_total_sent);
 $total_sent = floatval($row['total_sent']);
 
-$sql_total_viewed = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed FROM invoices WHERE invoice_status = 'Viewed' AND company_id = $session_company_id");
+$sql_total_viewed = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed FROM invoices WHERE invoice_status = 'Viewed'");
 $row = mysqli_fetch_array($sql_total_viewed);
 $total_viewed = floatval($row['total_viewed']);
 
-$sql_total_cancelled = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled' AND company_id = $session_company_id");
+$sql_total_cancelled = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled'");
 $row = mysqli_fetch_array($sql_total_cancelled);
 $total_cancelled = floatval($row['total_cancelled']);
 
-$sql_total_partial = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoices.company_id = $session_company_id");
+$sql_total_partial = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial'");
 $row = mysqli_fetch_array($sql_total_partial);
 $total_partial = floatval($row['total_partial']);
 $total_partial_count = mysqli_num_rows($sql_total_partial);
 
-$sql_total_overdue_partial = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
+$sql_total_overdue_partial = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE()");
 $row = mysqli_fetch_array($sql_total_overdue_partial);
 $total_overdue_partial = floatval($row['total_overdue_partial']);
 
-$sql_total_overdue = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_due < CURDATE() AND invoices.company_id = $session_company_id");
+$sql_total_overdue = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_due < CURDATE()");
 $row = mysqli_fetch_array($sql_total_overdue);
 $total_overdue = floatval($row['total_overdue']);
 
@@ -76,8 +76,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
-    WHERE invoices.company_id = $session_company_id
-    AND (invoice_status LIKE '$status_query')
+    WHERE (invoice_status LIKE '$status_query')
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -160,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(htmlentities($q));} ?>" placeholder="Search Invoices">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Invoices">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -202,7 +201,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                         <tr>

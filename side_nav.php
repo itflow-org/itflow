@@ -6,45 +6,12 @@
 
         <!-- Sidebar Menu -->
         <nav class="">
-            <?php
-            $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id IN ($session_user_company_access)");
 
-            if (mysqli_num_rows($sql) > 1) {
-
-                ?>
-
-                <div class="dropdown brand-link">
-                    <a class="" href="#" data-toggle="dropdown">
-                        <h3 class="brand-text text-light mb-0"><?php echo htmlentities($session_company_name); ?> <small><i class="fa fa-caret-down"></i></small></h3>
-                    </a>
-
-                    <ul class="dropdown-menu">
-
-                        <?php
-
-                        while ($row = mysqli_fetch_array($sql)) {
-
-                            $company_id = intval($row['company_id']);
-                            $company_name = htmlentities($row['company_name']);
-
-                            ?>
-
-                            <li><a class="dropdown-item text-dark" href="post.php?switch_company=<?php echo $company_id; ?>"><?php echo $company_name; ?><?php if ($company_id == $session_company_id) { echo "<i class='fa fa-check text-secondary ml-2'></i>"; } ?></a></li>
-
-                            <?php
-
-                        }
-
-                        ?>
-
-                    </ul>
-                </div>
-
-            <?php } else { ?>
-
-                <h5 class="brand-text text-light my-3"><?php echo htmlentities($session_company_name); ?></h5>
-
-            <?php } ?>
+            <div class="dropdown brand-link">
+                <a class="" href="#">
+                    <h3 class="brand-text text-light mb-0"><?php echo htmlentities($session_company_name); ?></h3>
+                </a>
+            </div>
 
             <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
 

@@ -26,7 +26,7 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
 $session_ip = sanitizeInput(getIP());
 $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
-$session_user_id = $_SESSION['user_id'];
+$session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");
 $row = mysqli_fetch_array($sql);
@@ -34,8 +34,7 @@ $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
 $session_avatar = $row['user_avatar'];
 $session_token = $row['user_token'];
-$session_company_id = $row['user_default_company'];
-$session_user_role = $row['user_role'];
+$session_user_role = intval($row['user_role']);
 if ($session_user_role == 3) {
     $session_user_role_display = "Administrator";
 } elseif ($session_user_role == 2) {
@@ -44,28 +43,16 @@ if ($session_user_role == 3) {
     $session_user_role_display = "Accountant";
 }
 
-//LOAD USER COMPANY ACCESS PERMISSIONS
-$session_user_company_access_sql = mysqli_query($mysqli, "SELECT company_id FROM user_companies WHERE user_id = $session_user_id");
-$session_user_company_access_array = array();
-while ($row = mysqli_fetch_array($session_user_company_access_sql)) {
-    $session_user_company_access_array[] = $row['company_id'];
-}
-$session_user_company_access = implode(',', $session_user_company_access_array);
-
-//Check to see if user has rights to company Prevents User from access a company he is not allowed to have access to.
-if (!in_array($session_company_id, $session_user_company_access_array)) {
-    session_start();
-    session_destroy();
-    header('Location: login.php');
-}
-
-$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = $session_company_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
 
 $session_company_name = $row['company_name'];
 $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
+
+//Set Currency Format
+$currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
 require_once("get_settings.php");
 
@@ -81,10 +68,7 @@ if ($iPod || $iPhone || $iPad) {
 }
 
 //Get Notification Count for the badge on the top nav
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL AND company_id = $session_company_id"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];
-
-//Set Currency Format
-$currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
 

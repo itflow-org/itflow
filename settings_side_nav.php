@@ -26,13 +26,6 @@
         </li>
 
         <li class="nav-item">
-          <a href="companies.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "companies.php") { echo "active"; } ?>">
-            <i class="nav-icon far fa-building"></i>
-            <p>Companies</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_api.php") { echo "active"; } ?>"
              href="settings_api.php">
               <i class="nav-icon fas fa-key"></i>
@@ -80,6 +73,13 @@
         </li>
 
         <li class="nav-header mt-3">SETTINGS</li>
+
+        <li class="nav-item">
+          <a href="settings_company.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_company.php") { echo "active"; } ?>">
+            <i class="nav-icon far fa-building"></i>
+            <p>Company</p>
+          </a>
+        </li>
 
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_theme.php") { echo "active"; } ?>"

@@ -9,7 +9,7 @@ require_once("inc_portal.php");
 if (isset($_POST['add_ticket'])) {
 
     // Get ticket prefix/number
-    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = $session_company_id");
+    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
     $config_ticket_prefix = $row['config_ticket_prefix'];
     $config_ticket_next_number = intval($row['config_ticket_next_number']);
@@ -20,8 +20,8 @@ if (isset($_POST['add_ticket'])) {
     $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
     $purifier = new HTMLPurifier($purifier_config);
 
-    $client_id = $session_client_id;
-    $contact = $session_contact_id;
+    $client_id = intval($session_client_id);
+    $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
     $details = trim(mysqli_real_escape_string($mysqli, $purifier->purify(html_entity_decode(nl2br($_POST['details'])))));
 
@@ -35,13 +35,13 @@ if (isset($_POST['add_ticket'])) {
     // Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
-    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $session_company_id");
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, company_id = $session_company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id");
 
     header("Location: ticket.php?id=" . $id);
 
@@ -71,7 +71,7 @@ if (isset($_POST['add_ticket_comment'])) {
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
         // Add the comment
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id");
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
@@ -97,7 +97,7 @@ if (isset($_POST['add_ticket_feedback'])) {
 
         // Notify on bad feedback
         if ($feedback == "Bad") {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Feedback', notification = '$session_contact_name rated ticket ID $ticket_id as bad', notification_client_id = $session_client_id, company_id = $session_company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Feedback', notification = '$session_contact_name rated ticket ID $ticket_id as bad', notification_client_id = $session_client_id");
         }
 
         // Redirect
@@ -120,10 +120,10 @@ if (isset($_GET['close_ticket'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
 
         // Add reply
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id, company_id = $session_company_id");
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
         //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', company_id = $session_company_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
         header("Location: ticket.php?id=" . $ticket_id);
     } else {
@@ -150,7 +150,7 @@ if (isset($_POST['edit_profile'])) {
         mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, company_id = $session_company_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
     }
     header('Location: index.php');
 }

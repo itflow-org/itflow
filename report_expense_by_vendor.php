@@ -9,9 +9,12 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE company_id = $session_company_id UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues WHERE company_id = $session_company_id ORDER BY payment_year DESC");
+$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments
+    UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues
+    ORDER BY payment_year DESC"
+);
 
-$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $session_company_id");
+$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0");
 
 ?>
 
@@ -39,7 +42,7 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE company_id = $
             </select>
         </form>
 
-        <div class="table-responsive">
+        <div class="table-responsive-sm">
             <table class="table table-striped">
                 <thead>
                 <tr>

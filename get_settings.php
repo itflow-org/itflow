@@ -1,7 +1,7 @@
 <?php
 
 // Query Settings
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = $session_company_id");
+$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_array($sql_settings);
 
 // Database version

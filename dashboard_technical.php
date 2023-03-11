@@ -12,9 +12,8 @@ if (isset($_GET['year'])) {
 $sql_payment_years = mysqli_query(
     $mysqli,
     "SELECT YEAR(expense_date) AS all_years FROM expenses
-    WHERE company_id = $session_company_id
-    UNION DISTINCT SELECT YEAR(payment_date) FROM payments WHERE company_id = $session_company_id
-    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues WHERE company_id = $session_company_id
+    UNION DISTINCT SELECT YEAR(payment_date) FROM payments
+    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues
     ORDER BY all_years DESC"
 );
 
@@ -22,8 +21,7 @@ $sql_payment_years = mysqli_query(
 $sql_clients = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT('client_id') AS clients_added FROM clients
-    WHERE YEAR(client_created_at) = $year
-    AND company_id = $session_company_id"
+    WHERE YEAR(client_created_at) = $year"
 ));
 $clients_added = $sql_clients['clients_added'];
 
@@ -31,8 +29,7 @@ $clients_added = $sql_clients['clients_added'];
 $sql_contacts = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT('contact_id') AS contacts_added FROM contacts
-    WHERE YEAR(contact_created_at) = $year
-    AND company_id = $session_company_id"
+    WHERE YEAR(contact_created_at) = $year"
 ));
 $contacts_added = $sql_contacts['contacts_added'];
 
@@ -40,8 +37,7 @@ $contacts_added = $sql_contacts['contacts_added'];
 $sql_assets = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT('asset_id') AS assets_added FROM assets
-    WHERE YEAR(asset_created_at) = $year
-    AND company_id = $session_company_id"
+    WHERE YEAR(asset_created_at) = $year"
 ));
 $assets_added = $sql_assets['assets_added'];
 
@@ -50,8 +46,7 @@ $sql_tickets = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT('ticket_id') AS active_tickets
     FROM tickets
-    WHERE ticket_status != 'Closed'
-    AND company_id = $session_company_id"
+    WHERE ticket_status != 'Closed'"
 ));
 $active_tickets = $sql_tickets['active_tickets'];
 
@@ -63,8 +58,7 @@ $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query(
     WHERE domain_expire IS NOT NULL
     AND domain_expire > CURRENT_DATE
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND domain_archived_at IS NULL
-    AND company_id = $session_company_id"
+    AND domain_archived_at IS NULL"
 ));
 $expiring_domains = $sql_domains_expiring['expiring_domains'];
 
@@ -76,8 +70,7 @@ $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query(
     WHERE certificate_expire IS NOT NULL
     AND certificate_expire > CURRENT_DATE
     AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND certificate_archived_at IS NULL
-    AND company_id = $session_company_id"
+    AND certificate_archived_at IS NULL"
 ));
 $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 

@@ -13,7 +13,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-        WHERE ticket_id = $ticket_id AND tickets.company_id = $session_company_id"
+        WHERE ticket_id = $ticket_id"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -173,7 +173,7 @@ if (isset($_GET['ticket_id'])) {
             $warranty_status_color = 'green';
         }
 
-        if ($asset_warranty_expire == '0000-00-00') {
+        if ($asset_warranty_expire == "NULL") {
             $dt_value = "None"; $warranty_status_color ='red';
         }
 
@@ -190,10 +190,8 @@ if (isset($_GET['ticket_id'])) {
         $sql_assign_to_select = mysqli_query(
             $mysqli,
             "SELECT users.user_id, user_name FROM users
-            LEFT JOIN user_companies ON users.user_id = user_companies.user_id
             LEFT JOIN user_settings on users.user_id = user_settings.user_id
-            WHERE user_companies.company_id = $session_company_id
-            AND user_role > 1
+            WHERE user_role > 1
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
         );
@@ -325,7 +323,7 @@ if (isset($_GET['ticket_id'])) {
                         $ticket_reply_by_display = htmlentities($row['contact_name']);
                         $user_initials = initials($row['contact_name']);
                         $user_avatar = htmlentities($row['contact_photo']);
-                        $avatar_link = "uploads/clients/$session_company_id/$client_id/$user_avatar";
+                        $avatar_link = "uploads/clients/$client_id/$user_avatar";
                     } else {
                         $ticket_reply_by_display = htmlentities($row['user_name']);
                         $user_id = intval($row['user_id']);

@@ -9,7 +9,10 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments WHERE company_id = $session_company_id UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues WHERE company_id = $session_company_id ORDER BY payment_year DESC");
+$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments 
+    UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues
+    ORDER BY payment_year DESC"
+);
 
 ?>
 
@@ -41,14 +44,13 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
             JOIN invoices AS i ON c.client_id = i.invoice_client_id
             JOIN payments AS p ON i.invoice_id = p.payment_invoice_id
             WHERE YEAR(p.payment_date) = $year
-            AND c.company_id = $session_company_id
             GROUP BY c.client_id
             HAVING amount_paid > 599
             ORDER BY amount_paid DESC"
         );
         ?>
         
-        <div class="table-responsive">
+        <div class="table-responsive-sm">
             <table class="table table-striped">
                 <thead>
                 <tr>

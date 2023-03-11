@@ -35,7 +35,6 @@
       LEFT JOIN clients ON notification_client_id = client_id 
       WHERE notification_dismissed_at IS NULL 
       AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
-      AND notifications.company_id = $session_company_id 
       ORDER BY notification_id DESC LIMIT 5"
     );
     ?>
@@ -101,7 +100,7 @@
         <?php }else{ ?>
         <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>
-        <span class="d-none d-md-inline dropdown-toggle"><?php echo htmlentities($session_name); ?></span>
+        <span class="d-none d-md-inline dropdown-toggle"><?php echo stripslashes(htmlentities($session_name)); ?></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <!-- User image -->
@@ -113,7 +112,7 @@
           	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
 					<?php } ?>
           <p>
-            <?php echo htmlentities($session_name); ?>
+            <?php echo stripslashes(htmlentities($session_name)); ?>
             <small><?php echo htmlentities($session_user_role_display); ?></small>
           </p>
         </li>

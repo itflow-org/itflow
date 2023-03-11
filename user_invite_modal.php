@@ -22,29 +22,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Company <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                            </div>
-                            <select class="form-control select2" name="default_company" required>
-                                <option value="">- Company -</option>
-                                <?php
-
-                                $sql_companies_select = mysqli_query($mysqli, "SELECT * FROM companies ORDER BY company_name ASC");
-                                while ($row = mysqli_fetch_array($sql_companies_select)) {
-                                    $company_id = $row['company_id'];
-                                    $company_name = htmlentities($row['company_name']);
-                                    ?>
-                                    <option value="<?php echo $company_id; ?>"><?php echo $company_name; ?></option>
-
-                                <?php } ?>
-
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Role <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">

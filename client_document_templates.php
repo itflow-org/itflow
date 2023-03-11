@@ -23,7 +23,6 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM documents
     WHERE document_template = 1
-    AND documents.company_id = $session_company_id
     $query_snippet
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -58,7 +57,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </form>
     <hr>
 
-    <div class="table-responsive">
+    <div class="table-responsive-sm">
       <table class="table table-striped table-borderless table-hover">
         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
           <tr>

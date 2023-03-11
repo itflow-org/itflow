@@ -17,7 +17,7 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = '1'");
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_array($sql_settings);
 
 $client_id = $settings['config_azure_client_id'];
@@ -101,10 +101,9 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $row['contact_client_id'];
                 $_SESSION['contact_id'] = $row['contact_id'];
-                $_SESSION['company_id'] = $row['company_id'];
                 $_SESSION['login_method'] = "azure";
 
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW(), log_client_id = $row[contact_client_id]");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");
 
                 header("Location: index.php");
 

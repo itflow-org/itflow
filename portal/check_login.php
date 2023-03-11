@@ -28,11 +28,10 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 // Get info from session
 $session_client_id = intval($_SESSION['client_id']);
 $session_contact_id = intval($_SESSION['contact_id']);
-$session_company_id = intval($_SESSION['company_id']);
 
 
 // Get company info from database
-$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = $session_company_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
 
 $session_company_name = $row['company_name'];
@@ -43,7 +42,7 @@ $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRE
 
 
 // Get contact info
-$contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = '$session_contact_id' AND contact_client_id = '$session_client_id'");
+$contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
 $contact = mysqli_fetch_array($contact_sql);
 
 $session_contact_name = sanitizeInput($contact['contact_name']);

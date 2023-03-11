@@ -7,12 +7,12 @@ if (isset($_GET['quote_id'])) {
     // quote via ID (single)
 
     $id = intval($_GET['quote_id']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id LIKE '$id' AND quote_client_id = '$client_id' AND company_id = '$company_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id LIKE '$id' AND quote_client_id = '$client_id'");
 
 } else {
     // All quotes
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id LIKE '$client_id' AND company_id = '$company_id' ORDER BY quote_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id LIKE '$client_id' ORDER BY quote_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

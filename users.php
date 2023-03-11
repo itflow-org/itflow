@@ -47,7 +47,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </form>
         <hr>
-        <div class="table-responsive">
+        <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
@@ -76,7 +76,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_avatar = htmlentities($row['user_avatar']);
                     $user_token = htmlentities($row['user_token']);
-                    $user_default_company = intval($row['user_default_company']);
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
                         $user_role_display = "Administrator";
@@ -85,13 +84,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $user_role_display = "Accountant";
                     }
-                    $user_company_access_sql = mysqli_query($mysqli, "SELECT company_id FROM user_companies WHERE user_id = $user_id");
-                    $user_company_access_array = array();
-                    while ($row = mysqli_fetch_array($user_company_access_sql)) {
-                        $user_company_access_array[] = intval($row['company_id']);
-                    }
-                    $user_company_access = implode(',', $user_company_access_array);
-
                     $user_initials = htmlentities(initials($user_name));
 
                     $sql_last_login = mysqli_query(
@@ -155,10 +147,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserCompaniesModal<?php echo $user_id; ?>">
-                                        <i class="fas fa-fw fa-user-shield mr-2"></i>Company Access
-                                    </a>
-                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#archiveUserModal<?php echo $user_id; ?>">
                                         <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                     </a>
@@ -170,7 +158,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     require("user_edit_modal.php");
-                    require("user_companies_modal.php");
                     require("user_archive_modal.php");
 
                 }

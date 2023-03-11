@@ -11,7 +11,7 @@
 <br>
 <hr>
 
-<p class="text-center"><?php echo $config_app_name ?></p>
+<p class="text-center"><?php echo htmlentities($config_app_name); ?></p>
 
 
 <!-- jQuery -->

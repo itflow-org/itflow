@@ -209,7 +209,7 @@
 
                             <div class="mb-3 text-center">
                                 <?php if (!empty($contact_photo)) { ?>
-                                    <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
+                                    <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
                                 <?php } else { ?>
                                     <span class="fa-stack fa-4x">
                                         <i class="fa fa-circle fa-stack-2x text-secondary"></i>

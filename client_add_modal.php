@@ -64,7 +64,7 @@
                                         <option value="">N/A</option>
                                         <?php
 
-                                        $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND company_id = $session_company_id ORDER BY category_name ASC");
+                                        $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                         while ($row = mysqli_fetch_array($referral_sql)) {
                                             $referral = htmlentities($row['category_name']); ?>
                                             <option><?php echo $referral; ?></option>
@@ -271,7 +271,7 @@
                             <ul class="list-group">
 
                                 <?php
-                                $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 AND company_id = $session_company_id ORDER BY tag_name ASC");
+                                $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_tags_select)) {
                                     $tag_id_select = intval($row['tag_id']);

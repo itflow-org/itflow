@@ -908,7 +908,7 @@ if (isset($_POST['add_user'])) {
     }
 
     //Create Settings
-    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 3, user_default_company = 1");
+    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 3");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
@@ -936,17 +936,6 @@ if (isset($_POST['add_company_settings'])) {
     $currency_code = sanitizeInput($_POST['currency_code']);
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
-
-    $company_id = mysqli_insert_id($mysqli);
-
-    mkdirMissing("uploads/clients/$company_id");
-    file_put_contents("uploads/clients/$company_id/index.php", "");
-    mkdirMissing("uploads/expenses/$company_id");
-    file_put_contents("uploads/expenses/$company_id/index.php", "");
-    mkdirMissing("uploads/settings/$company_id");
-    file_put_contents("uploads/settings/$company_id/index.php", "");
-    mkdirMissing("uploads/tmp/$company_id");
-    file_put_contents("uploads/tmp/$company_id/index.php", "");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -976,12 +965,12 @@ if (isset($_POST['add_company_settings'])) {
 
         if ($file_error == 0) {
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/settings/$company_id/";
+            $upload_file_dir = "uploads/settings/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = $company_id");
+            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         } else {
@@ -991,28 +980,28 @@ if (isset($_POST['add_company_settings'])) {
     }
 
     //Set User Company Permissions
-    mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = 1");
 
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = $company_id, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
     //Create Some Data
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code', company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green', company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue', company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red', company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', company_id = $company_id");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue', company_id = 1");
+    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red', company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', company_id = $company_id");
+    mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue', company_id = 1");
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
@@ -1194,7 +1183,7 @@ if (isset($_POST['add_telemetry'])) {
                         <div class="card-body">
                             <ul class="mb-4">
                                 <li>Upload is readable and writeable</li>
-                                <li>PHP 7+ Installed</li>
+                                <li>PHP 8.0+ Installed</li>
                             </ul>
                             <div style="text-align: center;"><a href="?database" class="btn btn-lg btn-primary text-bold mb-5">Install</a></div>
                         </div>
@@ -1210,7 +1199,7 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                         <div class="card-body">
                             <?php if (file_exists('config.php')) { ?>
-                                Database already configured. Any further changes should be made by editing the config.php file,
+                                Database is already configured. Any further changes should be made by editing the config.php file,
                                 or deleting it and refreshing this page.
                             <?php }else{ ?>
                                 <form method="post" autocomplete="off">
@@ -1259,7 +1248,9 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
 
                                     <hr>
-                                    <button type="submit" name="add_database" class="btn btn-primary text-bold">Next <i class="fas fa-fw fa-arrow-circle-right"></i></button>
+                                    <button type="submit" name="add_database" class="btn btn-primary text-bold">
+                                        Next<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                    </button>
                                 </form>
                             <?php } ?>
                         </div>
@@ -1463,7 +1454,9 @@ if (isset($_POST['add_telemetry'])) {
 
                                     <hr>
 
-                                    <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">Next <i class="fas fa-fw fa-arrow-circle-right"></i></button>
+                                    <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
+                                        Next<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                    </button>
 
                                 </form>
                             <?php } ?>
@@ -1501,7 +1494,9 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <hr>
 
-                                <button type="submit" name="add_telemetry" class="btn btn-primary text-bold">Finish and Sign in <i class="fas fa-fw fa-check-circle"></i></button>
+                                <button type="submit" name="add_telemetry" class="btn btn-primary text-bold">
+                                    Finish and Sign in<i class="fas fa-fw fa-check-circle ml-2"></i>
+                                </button>
 
                             </form>
 
@@ -1530,7 +1525,9 @@ if (isset($_POST['add_telemetry'])) {
                             ?>
                             <hr>
                             <div style="text-align: center;">
-                                <a href="?database" class="btn btn-primary text-bold">Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right"></i></a>
+                                <a href="?database" class="btn btn-primary text-bold">
+                                    Begin Setup<i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                </a>
                             </div>
                         </div>
                     </div>

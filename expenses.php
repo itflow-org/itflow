@@ -15,8 +15,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON expense_category_id = category_id
     LEFT JOIN vendors ON expense_vendor_id = vendor_id
     LEFT JOIN accounts ON expense_account_id = account_id
-    WHERE expenses.company_id = $session_company_id
-    AND expense_vendor_id > 0
+    WHERE expense_vendor_id > 0
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
@@ -39,7 +38,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Expenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Expenses">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -86,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
@@ -121,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($expense_receipt)) {
                             $receipt_attached = "";
                         } else {
-                            $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$session_company_id/$expense_receipt'><i class='fa fa-file-pdf'></i></a>";
+                            $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.pdf'><i class='fa fa-file-pdf'></i></a>";
                         }
 
                         ?>
@@ -141,7 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="dropdown-menu">
                                         <?php
                                         if (!empty($expense_receipt)) { ?>
-                                            <a class="dropdown-item" href="<?php echo "uploads/expenses/$session_company_id/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
+                                            <a class="dropdown-item" href="<?php echo "uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
                                                 <i class="fas fa-fw fa-download mr-2"></i>Download
                                             </a>
                                             <div class="dropdown-divider"></div>

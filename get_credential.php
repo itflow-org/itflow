@@ -30,8 +30,8 @@ require_once("config.php");
 require_once("functions.php");
 
 // IP & User Agent for logging
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = santizeInput(getIP());
+$user_agent = santizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Define wording for the user
 DEFINE("WORDING_ROLECHECK_FAILED", "ITFlow - You are not permitted to use this application!");
@@ -102,10 +102,9 @@ if (hash('sha256', $row['user_extension_key']) !== hash('sha256', $_COOKIE['user
 session_id($row['user_php_session']);
 session_start();
 
-$session_user_id = $row['user_id'];
+$session_user_id = intval($row['user_id']);
 $session_name = $row['user_name'];
 $session_email = $row['user_email'];
-$session_company_id = $row['user_default_company'];
 $session_user_role = $row['user_role'];
 
 // Check user access level is correct (not an accountant)
@@ -126,21 +125,21 @@ if ($session_user_role < 1) {
 if (isset($_GET['host'])) {
 
     if (!empty($_GET['host'])) {
-        $url = trim(strip_tags(mysqli_real_escape_string($mysqli, $_GET['host'])));
+        $url = santizeInput($_GET['host']);
 
-        $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_uri = '$url' AND company_id = '$session_company_id') LIMIT 1");
+        $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_uri = '$url' LIMIT 1");
 
         if (mysqli_num_rows($sql_logins) > 0) {
             $row = mysqli_fetch_array($sql_logins);
             $data['found'] = "TRUE";
-            $data['username'] = htmlentities($row['login_username']);
+            $data['username'] = htmlentities(decryptLoginEntry($row['login_username']));
             $data['password'] = decryptLoginEntry($row['login_password']); // Uses the PHP Session info and the session key cookie
             echo json_encode($data);
 
             // Logging
-            $login_name = mysqli_real_escape_string($mysqli, $row['login_name']);
-            $login_user = mysqli_real_escape_string($mysqli, $row['login_username']);
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = 'Credential $login_name, username $login_user', log_ip = '$ip', log_user_agent = '$user_agent', company_id = $session_company_id, log_user_id = $session_user_id");
+            $login_name = sanitizeInput($row['login_name']);
+            $login_user = sanitizeInput($row['login_username']);
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Extension requested', log_description = 'Credential $login_name, username $login_user', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $session_user_id");
 
         }
     }

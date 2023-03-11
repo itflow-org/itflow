@@ -10,9 +10,9 @@ if (isset($_GET['year'])) {
 }
 
 //GET unique years from expenses, payments and revenues
-$sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items WHERE company_id = $session_company_id ORDER BY all_years DESC");
+$sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items ORDER BY all_years DESC");
 
-$sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+$sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
 
 ?>
 
@@ -39,7 +39,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes WHERE company_id = $sessio
 
                 </select>
             </form>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-sm">
                     <thead class="text-dark">
                     <tr>

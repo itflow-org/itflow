@@ -17,8 +17,6 @@ $sql = mysqli_query(
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN locations ON primary_location = location_id
     LEFT JOIN contacts ON primary_contact = contact_id
-    LEFT JOIN companies ON invoices.company_id = companies.company_id
-    LEFT JOIN settings ON settings.company_id = companies.company_id
     WHERE invoice_id = $invoice_id
     AND invoice_url_key = '$url_key'"
 );
@@ -31,6 +29,7 @@ if (mysqli_num_rows($sql) !== 1) {
 }
 
 $row = mysqli_fetch_array($sql);
+
 $invoice_id = intval($row['invoice_id']);
 $invoice_prefix = htmlentities($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
@@ -57,7 +56,10 @@ $client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
 }
-$company_id = intval($row['company_id']);
+
+$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$row = mysqli_fetch_array($sql);
+
 $company_name = htmlentities($row['company_name']);
 $company_address = htmlentities($row['company_address']);
 $company_city = htmlentities($row['company_city']);
@@ -68,7 +70,7 @@ $company_email = htmlentities($row['company_email']);
 $company_website = htmlentities($row['company_website']);
 $company_logo = htmlentities($row['company_logo']);
 if (!empty($company_logo)) {
-    $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+    $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
 }
 $company_locale = htmlentities($row['company_locale']);
 $config_invoice_footer = htmlentities($row['config_invoice_footer']);
@@ -88,11 +90,11 @@ if ($invoice_status == 'Sent') {
 }
 
 //Mark viewed in history
-mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_invoice_id = $invoice_id, company_id = $company_id");
+mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Invoice viewed - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
 if ($invoice_status !== 'Paid') {
     $client_name_escaped = sanitizeInput($row['client_name']);
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Viewed', notification = 'Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id");
 }
 $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -122,7 +124,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
             <div class="float-right">
                 <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fas fa-fw fa-history mr-2"></i>Invoice History</a>
                 <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number.pdf"; ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
+                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                 <?php
                 if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
                     <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online</a>
@@ -132,7 +134,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
+                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
                 </div>
                 <div class="col-10">
                     <?php if ($invoice_status == "Paid") { ?>

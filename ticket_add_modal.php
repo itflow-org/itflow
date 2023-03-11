@@ -60,11 +60,11 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = htmlentities($row['client_name']); ?>
-                                                <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
+                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>
@@ -100,10 +100,8 @@
                                         $sql = mysqli_query(
                                             $mysqli,
                                             "SELECT users.user_id, user_name FROM users
-                                            LEFT JOIN user_companies ON users.user_id = user_companies.user_id
                                             LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_companies.company_id = $session_company_id 
-                                            AND user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                            WHERE user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                         );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $user_id = intval($row['user_id']);

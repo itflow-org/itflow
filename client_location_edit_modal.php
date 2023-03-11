@@ -158,7 +158,7 @@
 
                             <div class="mb-3" style="text-align: center;">
                                 <?php if (!empty($location_photo)) { ?>
-                                    <img class="img-fluid" src="<?php echo "uploads/clients/$session_company_id/$client_id/$location_photo"; ?>">
+                                    <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$location_photo"; ?>">
                                 <?php } ?>
                             </div>
 

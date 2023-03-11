@@ -9,15 +9,14 @@ require_once("top_nav.php");
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
 
-    $sql = mysqli_query($mysqli, "UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id AND company_id = $session_company_id");
+    $sql = mysqli_query($mysqli, "UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id");
 
     $sql = mysqli_query(
         $mysqli,
         "SELECT * FROM clients
         LEFT JOIN locations ON primary_location = location_id AND location_archived_at IS NULL
         LEFT JOIN contacts ON primary_contact = contact_id AND contact_archived_at IS NULL
-        WHERE client_id = $client_id
-        AND clients.company_id = $session_company_id"
+        WHERE client_id = $client_id"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -89,13 +88,13 @@ if (isset($_GET['client_id'])) {
         $balance = $invoice_amounts - $amount_paid;
 
         //Get Monthly Recurring Total
-        $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+        $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id");
         $row = mysqli_fetch_array($sql_recurring_monthly_total);
 
         $recurring_monthly_total = floatval($row['recurring_monthly_total']);
 
         //Get Yearly Recurring Total
-        $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id AND company_id = $session_company_id");
+        $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id");
         $row = mysqli_fetch_array($sql_recurring_yearly_total);
 
         $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
@@ -197,8 +196,7 @@ if (isset($_GET['client_id'])) {
             WHERE domain_client_id = $client_id
             AND domain_expire IS NOT NULL
             AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-            AND domain_archived_at IS NULL
-            AND company_id = $session_company_id"
+            AND domain_archived_at IS NULL"
         ));
         $num_domains_expiring = intval($row['num']);
 
@@ -209,8 +207,7 @@ if (isset($_GET['client_id'])) {
             WHERE certificate_client_id = $client_id
             AND certificate_expire IS NOT NULL
             AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
-            AND certificate_archived_at IS NULL
-            AND company_id = $session_company_id"
+            AND certificate_archived_at IS NULL"
         ));
         $num_certs_expiring = intval($row['num']);
 
@@ -222,7 +219,7 @@ if (isset($_GET['client_id'])) {
             AND asset_warranty_expire IS NOT NULL
             AND asset_archived_at IS NULL
             AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
-            AND company_id = $session_company_id ORDER BY asset_warranty_expire DESC"
+            ORDER BY asset_warranty_expire DESC"
         );
 
         // Get Assets Retiring
@@ -233,7 +230,7 @@ if (isset($_GET['client_id'])) {
             AND asset_install_date IS NOT NULL
             AND asset_archived_at IS NULL
             AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
-            AND company_id = $session_company_id ORDER BY asset_install_date DESC"
+            ORDER BY asset_install_date DESC"
         );
 
         // Get Stale Tickets
@@ -243,7 +240,7 @@ if (isset($_GET['client_id'])) {
             WHERE ticket_client_id = $client_id
             AND ticket_created_at < CURRENT_DATE - INTERVAL 14 DAY
             AND ticket_status != 'Closed'
-            AND company_id = $session_company_id ORDER BY ticket_created_at DESC"
+            ORDER BY ticket_created_at DESC"
         );
 
     }

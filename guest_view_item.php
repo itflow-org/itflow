@@ -77,7 +77,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = mysqli_real_escape_string($mysqli, $doc_title);
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent', company_id = 1");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent'");
 
 } elseif ($item_type == "File") {
     $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id LIMIT 1");
@@ -142,7 +142,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = sanitizeInput($login_row['login_name']);
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$ua', company_id = 1");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Viewed shared $item_type $name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$ua'");
 
 }
 

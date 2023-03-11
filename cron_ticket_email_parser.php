@@ -19,8 +19,6 @@ require_once("config.php");
 require_once("functions.php");
 
 // Get settings for the "default" company
-$company_id = 1;
-$session_company_id = 1;
 require_once("get_settings.php");
 
 // Check setting enabled
@@ -51,30 +49,30 @@ require_once("plugins/php-mime-mail-parser/src/Parser.php");
 
 
 // Function to raise a new ticket for a given contact and email them confirmation (if configured)
-function addTicket($contact_id, $contact_name, $contact_email, $client_id, $company_id, $date, $subject, $message) {
+function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message) {
 
     // Access global variables
     global $mysqli, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password;
 
     // Get the next Ticket Number and add 1 for the new ticket number
-    $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = $company_id"));
+    $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1"));
     $ticket_number = intval($ticket_number_sql['config_ticket_next_number']);
     $new_config_ticket_next_number = $ticket_number + 1;
-    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = $company_id");
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
     // Prep ticket details
     $message = nl2br(htmlentities(strip_tags($message)));
     $message = trim(mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message"));
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = '0', ticket_contact_id = $contact_id, ticket_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Open', ticket_created_at = NOW(), ticket_created_by = '0', ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
     echo "Created new ticket.<br>";
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email created ticket $config_ticket_prefix$ticket_number ($subject) ($id)', log_created_at = NOW(), log_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email created ticket $config_ticket_prefix$ticket_number ($subject) ($id)', log_client_id = $client_id");
 
     // Get company name & phone
-    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = $company_id");
+    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_phone = formatPhoneNumber($row['company_phone']);
     $company_name = $row['company_name'];
@@ -101,8 +99,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $comp
         );
 
         if ($mail !== true) {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email', company_id = $company_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
         }
 
     }
@@ -127,7 +125,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message) {
     $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
 
     // Lookup the ticket ID
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, tickets.company_id, contact_email
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, contact_email
         FROM tickets
         LEFT JOIN contacts on tickets.ticket_contact_id = contacts.contact_id
         WHERE ticket_number = $ticket_number LIMIT 1"));
@@ -140,11 +138,10 @@ function addReply($from_email, $date, $subject, $ticket_number, $message) {
         $ticket_reply_contact = intval($row['ticket_contact_id']);
         $ticket_contact_email = $row['contact_email'];
         $client_id = intval($row['ticket_client_id']);
-        $company_id = intval($row['company_id']);
 
         // Check ticket isn't closed
         if ($ticket_status == "Closed") {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Email parser: $from_email attempted to re-open ticket $config_ticket_prefix$ticket_number (ID $ticket_id) - check inbox manually to see email', notification_client_id = $client_id, company_id = $company_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Email parser: $from_email attempted to re-open ticket $config_ticket_prefix$ticket_number (ID $ticket_id) - check inbox manually to see email', notification_client_id = $client_id");
             return false;
         }
 
@@ -171,13 +168,13 @@ function addReply($from_email, $date, $subject, $ticket_number, $message) {
         $comment = trim(mysqli_real_escape_string($mysqli, $message));
 
         // Add the comment
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id, company_id = $company_id");
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         echo "Updated existing ticket.<br>";
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email updated ticket $config_ticket_prefix$ticket_number ($subject)', log_client_id = $client_id, company_id = $company_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email updated ticket $config_ticket_prefix$ticket_number ($subject)', log_client_id = $client_id");
 
         return true;
 
@@ -197,7 +194,7 @@ $imap = imap_open("{{$imap_mailbox}}INBOX", $config_smtp_username, $config_smtp_
 if (!$imap) {
     // Logging
     $extended_log_description = var_export(imap_errors(), true);
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Email parser: Failed to connect to IMAP. Details: $extended_log_description', company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Email parser: Failed to connect to IMAP. Details: $extended_log_description'");
     exit("Could not connect to IMAP");
 }
 
@@ -268,9 +265,8 @@ if ($emails) {
                 $contact_id = intval($row['contact_id']);
                 $contact_email = $row['contact_email'];
                 $client_id = intval($row['contact_client_id']);
-                $company_id = intval($row['company_id']);
 
-                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $company_id, $date, $subject, $message)) {
+                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message)) {
                     $email_processed = true;
                 }
 
@@ -287,20 +283,19 @@ if ($emails) {
 
                     // Client details
                     $client_id = intval($row['client_id']);
-                    $company_id = intval($row['company_id']);
 
                     // Contact details
                     $password = password_hash(randomString(), PASSWORD_DEFAULT);
                     $contact_name = $from_name;
                     $contact_email = $from_email;
-                    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_notes = 'Added automatically via email parsing.', contact_password_hash = '$password', contact_client_id = $client_id, company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_notes = 'Added automatically via email parsing.', contact_password_hash = '$password', contact_client_id = $client_id");
                     $contact_id = mysqli_insert_id($mysqli);
 
                     // Logging for contact creation
                     echo "Created new contact.<br>";
-                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact $contact_name', log_client_id = $client_id, company_id = $company_id");
+                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact $contact_name', log_client_id = $client_id");
 
-                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $company_id, $date, $subject, $message)) {
+                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message)) {
                         $email_processed = true;
                     }
 

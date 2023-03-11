@@ -44,7 +44,7 @@
                                 <option value="">- Account From -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']);
@@ -82,7 +82,7 @@
                                 <option value="">- Account To -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL AND company_id = $session_company_id ORDER BY account_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']);

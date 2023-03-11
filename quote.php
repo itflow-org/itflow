@@ -11,7 +11,6 @@ if (isset($_GET['quote_id'])) {
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN locations ON primary_location = location_id
         LEFT JOIN contacts ON primary_contact = contact_id
-        LEFT JOIN companies ON quotes.company_id = companies.company_id
         WHERE quote_id = $quote_id"
     );
 
@@ -50,6 +49,10 @@ if (isset($_GET['quote_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
+    
+    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $row = mysqli_fetch_array($sql);
+
     $company_id = intval($row['company_id']);
     $company_name = htmlentities($row['company_name']);
     $company_country = htmlentities($row['company_country']);
@@ -62,7 +65,7 @@ if (isset($_GET['quote_id'])) {
     $company_website = htmlentities($row['company_website']);
     $company_logo = htmlentities($row['company_logo']);
     if (!empty($company_logo)) {
-        $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+        $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
     }
 
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
@@ -83,7 +86,7 @@ if (isset($_GET['quote_id'])) {
     }
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE company_id = $session_company_id");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -161,7 +164,7 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
                             <a class="dropdown-item" href="#" 
-                                onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number.pdf"; ?>');">
+                                onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number")); ?>');">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
@@ -186,7 +189,7 @@ if (isset($_GET['quote_id'])) {
 
             <div class="row mb-4">
                 <div class="col-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
                 <div class="col-10">
                     <div class="ribbon-wrapper">
@@ -320,7 +323,7 @@ if (isset($_GET['quote_id'])) {
                                                 <option value="0">No Tax</option>
                                                 <?php
 
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE company_id = $session_company_id ORDER BY tax_name ASC");
+                                                $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                                     $tax_id = intval($row['tax_id']);
                                                     $tax_name = htmlentities($row['tax_name']);

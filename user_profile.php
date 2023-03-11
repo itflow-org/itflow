@@ -3,11 +3,13 @@ require_once("inc_all.php");
 
 $sql_recent_logins = mysqli_query($mysqli, "SELECT * FROM logs
     WHERE log_type = 'Login' OR log_type = 'Login 2FA' AND log_action = 'Success' AND log_user_id = $session_user_id
-    ORDER BY log_id DESC LIMIT 3");
+    ORDER BY log_id DESC LIMIT 3"
+);
 
 $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     WHERE log_user_id = $session_user_id AND log_type NOT LIKE 'Login'
-    ORDER BY log_id DESC LIMIT 5");
+    ORDER BY log_id DESC LIMIT 5"
+);
 
 ?>
 
@@ -40,7 +42,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo htmlentities($session_name); ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo stripslashes(htmlentities($session_name)); ?>" required>
                         </div>
                     </div>
 

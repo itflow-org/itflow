@@ -2,17 +2,17 @@
 
 require_once("inc_all_client.php");
 
-$sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
+$sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_updated_at, contact_created_at DESC LIMIT 5");
 
-$sql_important_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact) AND contact_archived_at IS NULL AND contacts.company_id = $session_company_id ORDER BY contact_name DESC");
+$sql_important_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact) AND contact_archived_at IS NULL ORDER BY contact_name DESC");
 
-$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL AND company_id = $session_company_id ORDER BY vendor_updated_at DESC LIMIT 5");
+$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_updated_at DESC LIMIT 5");
 
-$sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL AND documents.company_id = $session_company_id ORDER BY document_updated_at DESC LIMIT 5");
+$sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = $client_id AND document_archived_at IS NULL ORDER BY document_updated_at DESC LIMIT 5");
 
-$sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND tickets.company_id = $session_company_id ORDER BY ticket_updated_at DESC LIMIT 5");
+$sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id ORDER BY ticket_updated_at DESC LIMIT 5");
 
-$sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = $client_id AND company_id = $session_company_id ORDER BY login_updated_at DESC LIMIT 5");
+$sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_updated_at DESC LIMIT 5");
 
 // Expiring Items
 
@@ -24,7 +24,7 @@ $sql_domains_expiring = mysqli_query(
     AND domain_expire != '0000-00-00'
     AND domain_archived_at IS NULL
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND company_id = $session_company_id ORDER BY domain_expire DESC"
+    ORDER BY domain_expire DESC"
 );
 
 ?>

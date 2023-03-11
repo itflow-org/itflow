@@ -19,4 +19,9 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+// Get Company Information
+$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+$row = mysqli_fetch_array($sql);
+$company_name = $row['company_name'];
+
 require_once("portal_header.php");

@@ -18,18 +18,18 @@ require_once("calendar_add_modal.php");
 require_once("category_quick_add_modal.php");
 
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
 while ($row = mysqli_fetch_array($sql)) {
-    $event_id = $row['event_id'];
+    $event_id = intval($row['event_id']);
     $event_title = htmlentities($row['event_title']);
     $event_description = htmlentities($row['event_description']);
     $event_start = htmlentities($row['event_start']);
     $event_end = htmlentities($row['event_end']);
     $event_repeat = htmlentities($row['event_repeat']);
-    $calendar_id = $row['calendar_id'];
+    $calendar_id = intval($row['calendar_id']);
     $calendar_name = htmlentities($row['calendar_name']);
     $calendar_color = htmlentities($row['calendar_color']);
-    $client_id = $row['event_client_id'];
+    $client_id = intval($row['event_client_id']);
 
     require("calendar_event_edit_modal.php");
 
@@ -70,7 +70,7 @@ while ($row = mysqli_fetch_array($sql)) {
             },
             events: [
                 <?php
-                $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE calendars.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['event_id']);
                     $event_title = json_encode($row['event_title']);
@@ -84,7 +84,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Invoices Created
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id WHERE clients.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['invoice_id']);
                     $event_title = json_encode($row['invoice_prefix'] . $row['invoice_number'] . " " . $row['invoice_scope']);
@@ -94,7 +94,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Quotes Created
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id WHERE clients.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['quote_id']);
                     $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
@@ -104,7 +104,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Tickets Created
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE clients.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['ticket_id']);
                     $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject']);
@@ -115,7 +115,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Vendors Added Created
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE vendor_template = 0 AND clients.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id WHERE vendor_template = 0");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['vendor_id']);
                     $client_id = intval($row['client_id']);
@@ -126,7 +126,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Clients Added
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE clients.company_id = $session_company_id");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['client_id']);
                     $event_title = json_encode($row['client_name']);

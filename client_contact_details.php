@@ -40,28 +40,28 @@ if (isset($_GET['contact_id'])) {
     $auth_method = htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN logins ON logins.login_asset_id = assets.asset_id WHERE asset_contact_id = $contact_id AND assets.company_id = $session_company_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN logins ON logins.login_asset_id = assets.asset_id WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id AND company_id = $session_company_id ORDER BY login_name DESC");
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_name DESC");
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
-    //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id ORDER BY software.software_id DESC");
+    //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id ORDER BY software.software_id DESC");
     $sql_related_software = mysqli_query(
         $mysqli,
         "SELECT * FROM software_contacts 
         LEFT JOIN software ON software_contacts.software_id = software.software_id 
         LEFT JOIN logins on software.software_id = logins.login_software_id 
-        WHERE software_contacts.contact_id = $contact_id AND software.company_id = $session_company_id 
+        WHERE software_contacts.contact_id = $contact_id 
         ORDER BY software.software_id DESC"
     );
 
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id AND company_id = $session_company_id ORDER BY ticket_id DESC");
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
@@ -79,7 +79,7 @@ if (isset($_GET['contact_id'])) {
 
                     <div class="text-center">
                         <?php if (!empty($contact_photo)) { ?>
-                            <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$session_company_id/$client_id/$contact_photo"; ?>">
+                            <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
                             <span class="fa-stack fa-4x">
                                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -146,7 +146,7 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive-sm">
                         <table class="table table-striped table-borderless table-hover">
                             <thead>
                             <tr>
@@ -269,7 +269,7 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Passwords</h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive-sm-sm">
                         <table class="table table-striped table-borderless table-hover">
                             <thead>
                             <tr>
@@ -370,7 +370,7 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive-sm">
                         <table class="table table-striped table-borderless table-hover">
                             <thead class="text-dark">
                             <tr>
@@ -465,7 +465,7 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive-sm">
                         <table class="table table-striped table-borderless table-hover">
                             <thead class="text-dark">
                             <tr>

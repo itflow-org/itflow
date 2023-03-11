@@ -13,13 +13,13 @@ if (isset($_GET['query'])) {
 
     $ticket_num_query = str_replace("$config_ticket_prefix", "", "$query");
 
-    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN locations ON clients.primary_location = locations.location_id WHERE client_name LIKE '%$query%' AND clients.company_id = $session_company_id ORDER BY client_id DESC LIMIT 5");
-    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') AND contacts.company_id = $session_company_id ORDER BY contact_id DESC LIMIT 5");
-    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') AND company_id = $session_company_id ORDER BY vendor_id DESC LIMIT 5");
-    $sql_products = mysqli_query($mysqli, "SELECT * FROM products WHERE product_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY product_id DESC LIMIT 5");
-    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE MATCH(document_content_raw) AGAINST ('$query') AND documents.company_id = $session_company_id ORDER BY document_id DESC LIMIT 5");
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') AND tickets.company_id = $session_company_id ORDER BY ticket_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_name LIKE '%$query%' AND company_id = $session_company_id ORDER BY login_id DESC LIMIT 5");
+    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN locations ON clients.primary_location = locations.location_id WHERE client_name LIKE '%$query%' ORDER BY client_id DESC LIMIT 5");
+    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') ORDER BY contact_id DESC LIMIT 5");
+    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') ORDER BY vendor_id DESC LIMIT 5");
+    $sql_products = mysqli_query($mysqli, "SELECT * FROM products WHERE product_name LIKE '%$query%' ORDER BY product_id DESC LIMIT 5");
+    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE MATCH(document_content_raw) AGAINST ('$query') ORDER BY document_id DESC LIMIT 5");
+    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') ORDER BY ticket_id DESC LIMIT 5");
+    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_name LIKE '%$query%' ORDER BY login_id DESC LIMIT 5");
 
     $q = htmlentities($_GET['query']);
     ?>

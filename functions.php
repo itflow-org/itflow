@@ -438,10 +438,9 @@ function getSSL($name) {
 }
 
 function strtoAZaz09($string) {
-    $string = ucwords(strtolower($string));
 
     // Gets rid of non-alphanumerics
-    return preg_replace('/[^A-Za-z0-9_]/', '', $string);
+    return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
 }
 
 // Cross-Site Request Forgery check for sensitive functions

@@ -48,7 +48,7 @@
                                         <option value="">- Calendar -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $calendar_id = intval($row['calendar_id']);
                                             $calendar_name = htmlentities($row['calendar_name']);
@@ -117,7 +117,7 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id WHERE clients.company_id = $session_company_id ORDER BY client_name ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON primary_contact = contact_id ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = htmlentities($row['client_name']);

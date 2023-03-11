@@ -73,7 +73,7 @@
                                 <?php
 
                                 // WIP Need to only show users within the session company
-                                $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id IN('$session_user_company_access') ORDER BY user_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $user_id = intval($row['user_id']);
                                     $user_name = htmlentities($row['user_name']);
@@ -101,7 +101,7 @@
                                     <option value="0">- Client (Optional) -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE company_id = $session_company_id ORDER BY client_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = intval($row['client_id']);
                                         $client_name = htmlentities($row['client_name']);

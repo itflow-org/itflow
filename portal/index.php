@@ -11,7 +11,7 @@ require_once("inc_portal.php");
 <div class="row">
     <div class="col-md-1 text-center">
         <?php if (!empty($session_contact_photo)) { ?>
-            <img src="<?php echo "../uploads/clients/$session_company_id/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
+            <img src="<?php echo "../uploads/clients/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
 
         <?php } else { ?>
 

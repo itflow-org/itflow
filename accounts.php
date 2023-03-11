@@ -12,7 +12,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
-    WHERE account_name LIKE '%$q%' AND company_id = $session_company_id
+    WHERE account_name LIKE '%$q%'
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -37,7 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>

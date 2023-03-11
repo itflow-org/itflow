@@ -13,7 +13,6 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM tags
     WHERE tag_name LIKE '%$q%'
-    AND company_id = $session_company_id
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -26,8 +25,7 @@ if ($num_rows > 0) {
     $sql_colors_used = mysqli_query(
         $mysqli,
         "SELECT tag_color FROM tags
-        WHERE tag_archived_at IS NULL
-        AND company_id = $session_company_id"
+        WHERE tag_archived_at IS NULL"
     );
 
     while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
@@ -67,7 +65,7 @@ if ($num_rows > 0) {
             </div>
 
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>

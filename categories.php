@@ -21,7 +21,6 @@ $sql = mysqli_query(
     WHERE category_name LIKE '%$q%'
     AND category_type = '$category'
     AND category_archived_at IS NULL
-    AND company_id = $session_company_id 
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -34,8 +33,7 @@ $sql_colors_used = mysqli_query(
     $mysqli,
     "SELECT category_color FROM categories 
     WHERE category_type = '$category'
-    AND category_archived_at IS NULL
-    AND company_id = $session_company_id"
+    AND category_archived_at IS NULL"
 );
 
 while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
@@ -76,7 +74,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                 </div>
             </form>
             <hr>
-            <div class="table-responsive">
+            <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>

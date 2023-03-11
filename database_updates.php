@@ -877,13 +877,65 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.5'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.4.5') {
-    // Insert queries here required to update to DB version 0.4.6
+    if (CURRENT_DATABASE_VERSION == '0.4.5') {
+        // Insert queries here required to update to DB version 0.4.6
+        mysqli_query($mysqli, "ALTER TABLE `contacts` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `locations` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `software` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `logins` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `certificates` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `domains` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `tickets` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `ticket_replies` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `services` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `vendors` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `calendars` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `events` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `files` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `folders` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `invoices` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `recurring` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `quotes` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `history` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `invoice_items` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `payments` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `trips` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `clients` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `expenses` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `transfers` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `revenues` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `api_keys` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `taxes` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `categories` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `tags` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `accounts` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `interfaces` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `records` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `logs` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `notifications` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `products` DROP `company_id`");
+        mysqli_query($mysqli, "ALTER TABLE `companies` DROP `company_archived_at`");
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_default_company`");
+        mysqli_query($mysqli, "DROP TABLE `user_companies`");
+        mysqli_query($mysqli, "DROP TABLE `user_keys`"); //Unused Table
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.6'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.4.6') {
+    // Insert queries here required to update to DB version 0.4.7
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.6'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.7'");
     //}
 
 } else {
     // Up-to-date
 }
+
+

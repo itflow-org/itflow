@@ -18,8 +18,6 @@ $sql = mysqli_query(
     LEFT JOIN clients ON quote_client_id = client_id
     LEFT JOIN locations ON primary_location = location_id
     LEFT JOIN contacts ON primary_contact = contact_id
-    LEFT JOIN companies ON quotes.company_id = companies.company_id
-    LEFT JOIN settings ON settings.company_id = companies.company_id
     WHERE quote_id = $quote_id
     AND quote_url_key = '$url_key'"
 );
@@ -58,7 +56,9 @@ $client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
 }
-$company_id = intval($row['company_id']);
+
+$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$row = mysqli_fetch_array($sql);
 $company_name = htmlentities($row['company_name']);
 $company_address = htmlentities($row['company_address']);
 $company_city = htmlentities($row['company_city']);
@@ -69,7 +69,7 @@ $company_email = htmlentities($row['company_email']);
 $company_website = htmlentities($row['company_website']);
 $company_logo = htmlentities($row['company_logo']);
 if (!empty($company_logo)) {
-    $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_id/$company_logo"));
+    $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
 }
 $company_locale = htmlentities($row['company_locale']);
 $config_quote_footer = htmlentities($row['config_quote_footer']);
@@ -83,11 +83,11 @@ if ($quote_status == 'Sent') {
 }
 
 //Mark viewed in history
-mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_quote_id = $quote_id, company_id = $company_id");
+mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_quote_id = $quote_id");
 
 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
     $client_name_escaped = sanitizeInput($row['client_name']);
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id, company_id = $company_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id");
 }
 
 ?>
@@ -99,10 +99,10 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <?php
                 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
                     ?>
-                    <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
                         <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
                     </a>
-                    <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&company_id=<?php echo $company_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-danger" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
                         <i class="fas fa-fw fa-thumbs-down mr-2"></i>Decline
                     </a>
                 <?php } ?>
@@ -110,7 +110,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
             <div class="float-right">
                 <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo "$quote_date-$company_name-QUOTE-$quote_prefix$quote_number.pdf"; ?>');">
+                <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-QUOTE-$quote_prefix$quote_number")); ?>');">
                     <i class="fa fa-fw fa-download mr-2"></i>Download
                 </a>
             </div>
@@ -119,7 +119,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
             <div class="row mb-4">
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_id/$company_logo"; ?>">
+                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
                 </div>
                 <div class="col-sm-10">
                     <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>

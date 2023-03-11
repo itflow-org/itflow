@@ -17,8 +17,8 @@ header('Content-Type: application/json');
 $_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get IP & UA
-$ip = strip_tags(mysqli_real_escape_string($mysqli, getIP()));
-$user_agent = strip_tags(mysqli_real_escape_string($mysqli, $_SERVER['HTTP_USER_AGENT']));
+$ip = santizeInput(getIP());
+$user_agent = santizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Setup return array
 $return_arr = array();
@@ -56,15 +56,15 @@ if (!isset($_GET['api_key']) && !isset($_POST['api_key'])) {
 
 // Set API key variable
 if (isset($_GET['api_key'])) {
-    $api_key = $_GET['api_key'];
+    $api_key = santizeInput($_GET['api_key']);
 }
 if (isset($_POST['api_key'])) {
-    $api_key = $_POST['api_key'];
+    $api_key = santizeInput($_POST['api_key']);
 }
 
 // Validate API key
 if (isset($api_key)) {
-    $api_key = mysqli_real_escape_string($mysqli, $api_key);
+    $api_key = santizeInput($api_key);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM api_keys WHERE api_key_secret = '$api_key' AND api_key_expire > NOW() LIMIT 1");
 
@@ -72,7 +72,7 @@ if (isset($api_key)) {
     if (mysqli_num_rows($sql) !== 1) {
         // Invalid Key
         header(WORDING_UNAUTHORIZED);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key', log_ip = '$ip', log_user_agent = '$user_agent', log_created_at = NOW()");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $return_arr['success'] = "False";
         $return_arr['message'] = "Authentication failed. API key is invalid or has expired.";
@@ -88,8 +88,7 @@ if (isset($api_key)) {
         // Set client ID, company ID & key name
         $row = mysqli_fetch_array($sql);
         $api_key_name = htmlentities($row['api_key_name']);
-        $client_id = $row['api_key_client_id'];
-        $company_id = $row['company_id'];
+        $client_id = intval($row['api_key_client_id']);
 
         // Set limit & offset for queries
         if (isset($_GET['limit'])) {
