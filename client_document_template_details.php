@@ -1,6 +1,6 @@
-<?php require_once("inc_all_client.php"); ?>
+<?php
 
-<?php 
+require_once("inc_all_client.php");
 
 
 if (isset($_GET['document_id'])) {
@@ -58,10 +58,8 @@ $document_updated_at = htmlentities($row['document_updated_at']);
   </div>
 </div>
 
-<?php 
+<?php
 
-include("client_document_template_edit_modal.php");
+require_once("client_document_template_edit_modal.php");
 
-?>
-
-<?php include("footer.php"); ?>
+require_once("footer.php");

@@ -1,6 +1,6 @@
-<?php require_once("inc_all_client.php"); ?>
+<?php
 
-<?php 
+require_once("inc_all_client.php");
 
 if (isset($_GET['document_id'])) {
 	$document_id = intval($_GET['document_id']);
@@ -42,7 +42,7 @@ $document_folder_id = intval($row['document_folder_id']);
 </ol>
 
 <div class="row">
-	
+
   <div class="col-md-9">
 		<div class="card">
 		  <div class="card-body">
@@ -61,7 +61,7 @@ $document_folder_id = intval($row['document_folder_id']);
         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal">
           <i class="fas fa-fw fa-copy mr-2"></i>Copy
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal" 
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal"
           onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
           <i class="fas fa-fw fa-share mr-2"></i>Share
         </button>
@@ -72,7 +72,7 @@ $document_folder_id = intval($row['document_folder_id']);
         <h6><i class="fas fa-fw fa-laptop mr-2"></i>Assets</h6>
         <h6><i class="fas fa-fw fa-cube mr-2"></i>Software</h6>
         <h6><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
-        
+
       </div>
     </div>
 
@@ -80,11 +80,9 @@ $document_folder_id = intval($row['document_folder_id']);
 
 </div>
 
-<?php 
+<?php
 
-include("client_document_edit_modal.php");
-include("share_modal.php"); 
+require_once("client_document_edit_modal.php");
+require_once("share_modal.php");
 
-?>
-
-<?php include("footer.php"); ?>
+require_once("footer.php");
