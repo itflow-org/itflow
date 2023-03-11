@@ -27,7 +27,7 @@ $company_initials = htmlentities(initials($company_name));
             <h3 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Company Details</h3>
         </div>
         <div class="card-body">
-            <form action="post.php" method="post" autocomplete="off">
+            <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="existing_file_name" value="<?php echo $company_logo; ?>">
 
                 <div class="form-group">
