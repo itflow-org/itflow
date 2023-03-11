@@ -806,7 +806,11 @@ if (isset($_POST['add_database'])) {
 
     file_put_contents("config.php", $new_config);
 
-    sleep(2);
+    if (!file_exists('config.php')) {
+        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+        header("Location: setup.php?database");
+        exit;
+    }
 
     include("config.php");
 
@@ -833,16 +837,9 @@ if (isset($_POST['add_database'])) {
         }
     }
 
-    if (file_exists('config.php')) {
-        $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
-        header("Location: setup.php?user");
-        exit;
-        
-    } else {
-        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
-        header("Location: setup.php?database");
-        exit;
-    }
+    $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
+    header("Location: setup.php?user");
+    exit;
 
 }
 
@@ -902,7 +899,7 @@ if (isset($_POST['add_user'])) {
             move_uploaded_file($file_tmp_path, $dest_path);
 
             //Set Avatar
-            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = 1");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         } else {
