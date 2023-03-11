@@ -833,10 +833,16 @@ if (isset($_POST['add_database'])) {
         }
     }
 
-    $_SESSION['alert_message'] = "Database successfully added";
-
-    header("Location: setup.php?user");
-    exit;
+    if (file_exists('config.php')) {
+        $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
+        header("Location: setup.php?user");
+        exit;
+        
+    } else {
+        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+        header("Location: setup.php?database");
+        exit;
+    }
 
 }
 
@@ -860,9 +866,7 @@ if (isset($_POST['add_user'])) {
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
-    $user_id = mysqli_insert_id($mysqli);
-
-    mkdirMissing("uploads/users/$user_id");
+    mkdirMissing("uploads/users/1");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -892,7 +896,7 @@ if (isset($_POST['add_user'])) {
 
         if ($file_error == 0) {
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/$user_id/";
+            $upload_file_dir = "uploads/users/1/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
@@ -908,7 +912,7 @@ if (isset($_POST['add_user'])) {
     }
 
     //Create Settings
-    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id, user_role = 3");
+    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1, user_role = 3");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
 
@@ -918,10 +922,6 @@ if (isset($_POST['add_user'])) {
 }
 
 if (isset($_POST['add_company_settings'])) {
-
-    $sql = mysqli_query($mysqli,"SELECT user_id FROM users");
-    $row = mysqli_fetch_array($sql);
-    $user_id = intval($row['user_id']);
 
     $name = sanitizeInput($_POST['name']);
     $country = sanitizeInput($_POST['country']);
@@ -979,11 +979,8 @@ if (isset($_POST['add_company_settings'])) {
         }
     }
 
-    //Set User Company Permissions
-    mysqli_query($mysqli,"INSERT INTO user_companies SET user_id = $user_id, company_id = 1");
-
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version',  config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
     //Create Some Data
 
