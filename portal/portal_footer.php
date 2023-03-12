@@ -19,3 +19,23 @@
 
 <!-- Bootstrap 4 -->
 <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script src="../plugins/summernote/summernote-bs4.min.js"></script>
+
+<script>
+// Summernote
+$('.summernote').summernote({
+  toolbar: [
+    ['style', ['style']],
+    ['font', ['bold', 'underline', 'clear']],
+    ['fontname', ['fontname']],
+    ['color', ['color']],
+    ['para', ['ul', 'ol', 'paragraph']],
+    ['table', ['table']],
+    ['insert', ['link', 'picture', 'video']],
+    ['view', ['codeview']],
+  ],
+    height: 200
+});
+
+</script>
