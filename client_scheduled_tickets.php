@@ -24,14 +24,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 ?>
 
 <div class="card card-dark">
-    <div class="card-header">
+    <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-clock mr-2"></i>Scheduled Tickets</h3>
         <div class='card-tools'>
-            <div class="float-left">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
-                    <i class="fas fa-plus mr-2"></i>New Scheduled Ticket
-                </button>
-            </div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
+                <i class="fas fa-plus mr-2"></i>New Scheduled Ticket
+            </button>
         </div>
     </div>
 
