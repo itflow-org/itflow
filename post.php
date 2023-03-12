@@ -6220,18 +6220,12 @@ if(isset($_POST['add_ticket'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
 
@@ -6303,17 +6297,12 @@ if(isset($_POST['edit_ticket'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
     $contact_id = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
-    $details = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['details']))));
+    $details = mysqli_real_escape_string($mysqli,$_POST['details']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $client_id = intval($_POST['client_id']);
@@ -6442,14 +6431,8 @@ if(isset($_POST['add_ticket_reply'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $ticket_id = intval($_POST['ticket_id']);
-    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
+    $ticket_reply = mysqli_real_escape_string($mysqli,$_POST['ticket_reply']);
     $ticket_status = sanitizeInput($_POST['status']);
     $ticket_reply_time_worked = sanitizeInput($_POST['time']);
 
@@ -6551,14 +6534,8 @@ if(isset($_POST['edit_ticket_reply'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
-    $ticket_reply = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['ticket_reply']))));
+    $ticket_reply = mysqli_real_escape_string($mysqli,$_POST['ticket_reply']);
     $ticket_reply_time_worked = sanitizeInput($_POST['time']);
 
     $client_id = intval($_POST['client_id']);
@@ -7277,16 +7254,9 @@ if(isset($_POST['add_document'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
-    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
-
+    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
@@ -7309,15 +7279,9 @@ if(isset($_POST['add_document_template'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
-    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
@@ -7339,12 +7303,6 @@ if(isset($_POST['add_document_from_template'])){
     // ROLE Check
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     // GET POST Data
     $client_id = intval($_POST['client_id']);
     $document_name = sanitizeInput($_POST['name']);
@@ -7357,7 +7315,7 @@ if(isset($_POST['add_document_from_template'])){
     $row = mysqli_fetch_array($sql_document);
 
     $document_template_name = sanitizeInput($row['document_name']);
-    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($row['document_content']))));
+    $content = mysqli_real_escape_string($mysqli,$row['document_content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
     // Document add query
@@ -7378,16 +7336,10 @@ if(isset($_POST['edit_document'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $document_id = intval($_POST['document_id']);
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
-    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $folder = intval($_POST['folder']);
@@ -7409,15 +7361,9 @@ if(isset($_POST['edit_document_template'])){
 
     validateTechRole();
 
-    // HTML Purifier
-    require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
-
     $document_id = intval($_POST['document_id']);
     $name = sanitizeInput($_POST['name']);
-    $content = trim(mysqli_real_escape_string($mysqli,$purifier->purify(html_entity_decode($_POST['content']))));
+    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
