@@ -2,6 +2,12 @@
 
 require_once("inc_all_client.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 if (isset($_GET['document_id'])) {
 	$document_id = intval($_GET['document_id']);
 }
@@ -13,7 +19,8 @@ $row = mysqli_fetch_array($sql_document);
 
 $folder_name = htmlentities($row['folder_name']);
 $document_name = htmlentities($row['document_name']);
-$document_content = $row['document_content'];
+$document_content = $purifier->purify(html_entity_decode($row['document_content']));
+//$document_content = $row['document_content'];
 $document_created_at = htmlentities($row['document_created_at']);
 $document_updated_at = htmlentities($row['document_updated_at']);
 $document_folder_id = intval($row['document_folder_id']);

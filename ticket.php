@@ -1,6 +1,12 @@
 <?php
 require_once("inc_all.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
@@ -38,7 +44,8 @@ if (isset($_GET['ticket_id'])) {
         $ticket_number = intval($row['ticket_number']);
         $ticket_category = htmlentities($row['ticket_category']);
         $ticket_subject = htmlentities($row['ticket_subject']);
-        $ticket_details = $row['ticket_details'];
+        $ticket_details = $purifier->purify(html_entity_decode($row['ticket_details']));
+        //$ticket_details = $row['ticket_details'];
         $ticket_priority = htmlentities($row['ticket_priority']);
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
@@ -313,7 +320,8 @@ if (isset($_GET['ticket_id'])) {
 
                 while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                     $ticket_reply_id = intval($row['ticket_reply_id']);
-                    $ticket_reply = $row['ticket_reply'];
+                    $ticket_reply = $purifier->purify(html_entity_decode($row['ticket_reply']));
+                    //$ticket_reply = $row['ticket_reply'];
                     $ticket_reply_type = htmlentities($row['ticket_reply_type']);
                     $ticket_reply_created_at = htmlentities($row['ticket_reply_created_at']);
                     $ticket_reply_updated_at = htmlentities($row['ticket_reply_updated_at']);
