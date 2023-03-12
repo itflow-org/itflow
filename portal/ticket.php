@@ -6,6 +6,12 @@
 
 require_once("inc_portal.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
 
@@ -24,7 +30,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_status = htmlentities($ticket_row['ticket_status']);
         $ticket_priority = htmlentities($ticket_row['ticket_priority']);
         $ticket_subject = htmlentities($ticket_row['ticket_subject']);
-        $ticket_details = $ticket_row['ticket_details'];
+        $ticket_details = $purifier->purify($ticket_row['ticket_details']);
         $ticket_feedback = htmlentities($ticket_row['ticket_feedback']);
 
         ?>
@@ -111,9 +117,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         while ($row = mysqli_fetch_array($sql)) {
             $ticket_reply_id = intval($row['ticket_reply_id']);
-            $ticket_reply = $row['ticket_reply'];
-            $ticket_reply_created_at = $row['ticket_reply_created_at'];
-            $ticket_reply_updated_at = $row['ticket_reply_updated_at'];
+            $ticket_reply = $purifier->purify($row['ticket_reply']);
+            $ticket_reply_created_at = htmlentities($row['ticket_reply_created_at']);
+            $ticket_reply_updated_at = htmlentities($row['ticket_reply_updated_at']);
             $ticket_reply_by = intval($row['ticket_reply_by']);
             $ticket_reply_type = $row['ticket_reply_type'];
 
@@ -121,7 +127,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 $ticket_reply_by_display = htmlentities($row['contact_name']);
                 $user_initials = initials($row['contact_name']);
                 $user_avatar = $row['contact_photo'];
-                $avatar_link = "../uploads/clients/$session_company_id/$session_client_id/$user_avatar";
+                $avatar_link = "../uploads/clients/$session_client_id/$user_avatar";
             } else {
                 $ticket_reply_by_display = htmlentities($row['user_name']);
                 $user_id = intval($row['user_id']);

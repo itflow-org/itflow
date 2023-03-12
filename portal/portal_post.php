@@ -11,19 +11,13 @@ if (isset($_POST['add_ticket'])) {
     // Get ticket prefix/number
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
-    $config_ticket_prefix = $row['config_ticket_prefix'];
+    $config_ticket_prefix = santizeInput($row['config_ticket_prefix']);
     $config_ticket_next_number = intval($row['config_ticket_next_number']);
-
-    // HTML Purifier
-    require_once("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
 
     $client_id = intval($session_client_id);
     $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
-    $details = trim(mysqli_real_escape_string($mysqli, $purifier->purify(html_entity_decode(nl2br($_POST['details'])))));
+    $details = mysqli_real_escape_string($mysqli,($_POST['details']));
 
     // Ensure priority is low/med/high (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High") {
@@ -48,18 +42,13 @@ if (isset($_POST['add_ticket'])) {
 }
 
 if (isset($_POST['add_ticket_comment'])) {
-    // HTML Purifier
-    require_once("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
-    $purifier_config = HTMLPurifier_Config::createDefault();
-    $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-    $purifier = new HTMLPurifier($purifier_config);
 
     $ticket_id = intval($_POST['ticket_id']);
 
     // Not currently providing the client portal with a full summer note editor, but need to maintain line breaks.
     // In order to maintain line breaks consistently with the agent side, we need to allow HTML tags.
     // So, we need to convert line breaks to HTML and clean HTML with HTML Purifier
-    $comment = trim(mysqli_real_escape_string($mysqli, $purifier->purify(html_entity_decode(nl2br($_POST['comment'])))));
+    $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
 
     // After stripping bad HTML, check the comment isn't just empty
     if (empty($comment)) {
