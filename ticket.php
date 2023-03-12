@@ -320,7 +320,7 @@ if (isset($_GET['ticket_id'])) {
 
                 while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                     $ticket_reply_id = intval($row['ticket_reply_id']);
-                    $ticket_reply = $purifier->purify(html_entity_decode($row['ticket_reply']));
+                    $ticket_reply = $purifier->purify($row['ticket_reply']);
                     //$ticket_reply = $row['ticket_reply'];
                     $ticket_reply_type = htmlentities($row['ticket_reply_type']);
                     $ticket_reply_created_at = htmlentities($row['ticket_reply_created_at']);
