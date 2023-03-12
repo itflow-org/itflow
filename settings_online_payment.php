@@ -2,8 +2,6 @@
 
 require_once("inc_all_settings.php");
 
-$sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = '$session_company_id'");
-
 ?>
 
     <div class="card card-dark">
@@ -51,6 +49,7 @@ $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id =
                             <select class="form-control select2" name="config_stripe_account" required>
                                 <option value="">- Account -</option>
                                 <?php
+                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = htmlentities($row['account_name']); 
