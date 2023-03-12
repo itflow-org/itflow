@@ -11,12 +11,7 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT DISTINCT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, tags.*,
-    (SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = clients.client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled') AS invoice_amounts,
-    (SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = clients.client_id) AS amount_paid,
-    (SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = clients.client_id) +
-    (SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = clients.client_id)/12 AS recurring_monthly
-    FROM clients
+    "SELECT DISTINCT SQL_CALC_FOUND_ROWS * FROM clients
     LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
     LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
     LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
@@ -26,8 +21,8 @@ $sql = mysqli_query(
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     GROUP BY clients.client_id
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
-);
+    ORDER BY $sb $o LIMIT $record_from, $record_to
+");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -97,9 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=location_city&o=<?php echo $disp; ?>">Primary Address </a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Primary Contact</a></th>
-                        <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> 
-                            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=invoice_amounts&o=<?php echo $disp; ?>">Billing</a></th> 
-                        <?php } ?>
+                        <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
                         <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
                     </tr>
                     </thead>
@@ -136,15 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = htmlentities($row['client_updated_at']);
                         $client_archive_at = htmlentities($row['client_archived_at']);
-                        $balance = floatval($row['invoice_amounts']);
-                        //set Text color on balance
-                        if ($balance > 0) {
-                            $balance_text_color = "text-danger font-weight-bold";
-                        } else {
-                            $balance_text_color = "";
-                        }
-                        $amount_paid = floatval($row['amount_paid']);
-                        $recurring_monthly = floatval($row['recurring_monthly']);
+
                         // Client Tags
 
                         $client_tag_name_display_array = array();
@@ -168,6 +153,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                         }
                         $client_tags_display = implode('', $client_tag_name_display_array);
+
+                        //Add up all the payments for the invoice and get the total amount paid to the invoice
+                        $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
+                        $row = mysqli_fetch_array($sql_invoice_amounts);
+
+                        $invoice_amounts = floatval($row['invoice_amounts']);
+
+                        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+                        $row = mysqli_fetch_array($sql_amount_paid);
+
+                        $amount_paid = floatval($row['amount_paid']);
+
+                        $balance = $invoice_amounts - $amount_paid;
+                        //set Text color on balance
+                        if ($balance > 0) {
+                            $balance_text_color = "text-danger font-weight-bold";
+                        } else {
+                            $balance_text_color = "";
+                        }
+
+                        //Get Monthly Recurring Total
+                        $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id");
+                        $row = mysqli_fetch_array($sql_recurring_monthly_total);
+
+                        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
+
+                        //Get Yearly Recurring Total
+                        $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND recurring_client_id = $client_id");
+                        $row = mysqli_fetch_array($sql_recurring_yearly_total);
+
+                        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
+
+                        $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
                         ?>
                         <tr>
