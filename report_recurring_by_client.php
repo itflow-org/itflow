@@ -37,7 +37,7 @@ $sql = mysqli_query($mysqli, "
                 <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
-                    $client_id = intval($_row['client_id']);
+                    $client_id = intval($row['client_id']);
                     $client_name = htmlentities($row['client_name']);
                     $recurring_monthly_total = floatval($row['recurring_monthly_total']);
                     $recurring_total = $recurring_total + $recurring_monthly_total;
@@ -50,7 +50,7 @@ $sql = mysqli_query($mysqli, "
                     </tr>
                     <?php
                 }
-        
+
                 ?>
                     <tr>
                         <th>Total Monthly Income</th>
