@@ -803,39 +803,42 @@ if (isset($_POST['add_database'])) {
     $new_config .= "\$repo_branch = 'master';\n";
     $new_config .= "\$installation_id = '$installation_id';\n";
 
-    if (file_put_contents("config.php", $new_config) === false) {
-        $_SESSION['alert_message'] = "Failed to write the config.php file to the filesystem. Please input the database information again.";
-        header("Location: setup.php?database");
-        exit;
-    }
+    if (file_put_contents("config.php", $new_config) !== false && file_exists('config.php')) {
 
-    include("config.php");
+        include("config.php");
 
-    // Name of the file
-    $filename = 'db.sql';
-    // Temporary variable, used to store current query
-    $templine = '';
-    // Read in entire file
-    $lines = file($filename);
-    // Loop through each line
-    foreach ($lines as $line) {
-        // Skip it if it's a comment
-        if (substr($line, 0, 2) == '--' || $line == '')
-            continue;
+        // Name of the file
+        $filename = 'db.sql';
+        // Temporary variable, used to store current query
+        $templine = '';
+        // Read in entire file
+        $lines = file($filename);
+        // Loop through each line
+        foreach ($lines as $line) {
+            // Skip it if it's a comment
+            if (substr($line, 0, 2) == '--' || $line == '')
+                continue;
 
-        // Add this line to the current segment
-        $templine .= $line;
-        // If it has a semicolon at the end, it's the end of the query
-        if (substr(trim($line), -1, 1) == ';') {
-            // Perform the query
-            mysqli_query($mysqli, $templine);
-            // Reset temp variable to empty
-            $templine = '';
+            // Add this line to the current segment
+            $templine .= $line;
+            // If it has a semicolon at the end, it's the end of the query
+            if (substr(trim($line), -1, 1) == ';') {
+                // Perform the query
+                mysqli_query($mysqli, $templine);
+                // Reset temp variable to empty
+                $templine = '';
+            }
         }
-    }
 
-    $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
-    header("Location: setup.php?user");
+        $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
+        header("Location: setup.php?user");
+        exit;
+
+    } else {
+    // There was an error writing the file
+    // Display an error message and redirect to the setup page
+    $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+    header("Location: setup.php?database");
     exit;
 
 }
