@@ -15,3 +15,6 @@ backups/*
 !backups/index.php
 !backups/.htaccess
 .idea/*
+plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/*
+plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/*
+plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
