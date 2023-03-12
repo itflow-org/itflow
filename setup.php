@@ -835,11 +835,12 @@ if (isset($_POST['add_database'])) {
         exit;
 
     } else {
-    // There was an error writing the file
-    // Display an error message and redirect to the setup page
-    $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
-    header("Location: setup.php?database");
-    exit;
+        // There was an error writing the file
+        // Display an error message and redirect to the setup page
+        $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
+        header("Location: setup.php?database");
+        exit;
+    }
 
 }
 
