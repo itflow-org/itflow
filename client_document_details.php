@@ -20,7 +20,6 @@ $row = mysqli_fetch_array($sql_document);
 $folder_name = htmlentities($row['folder_name']);
 $document_name = htmlentities($row['document_name']);
 $document_content = $purifier->purify($row['document_content']);
-//$document_content = $row['document_content'];
 $document_created_at = htmlentities($row['document_created_at']);
 $document_updated_at = htmlentities($row['document_updated_at']);
 $document_folder_id = intval($row['document_folder_id']);

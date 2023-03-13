@@ -42,6 +42,7 @@ $quote_note = htmlentities($row['quote_note']);
 $category_id = intval($row['category_id']);
 $client_id = intval($row['client_id']);
 $client_name = htmlentities($row['client_name']);
+$client_name_escaped = sanitizeInput($row['client_name']);
 $location_address = htmlentities($row['location_address']);
 $location_city = htmlentities($row['location_city']);
 $location_state = htmlentities($row['location_state']);
@@ -86,7 +87,6 @@ if ($quote_status == 'Sent') {
 mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_quote_id = $quote_id");
 
 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
-    $client_name_escaped = sanitizeInput($row['client_name']);
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Viewed', notification = 'Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser', notification_client_id = $client_id");
 }
 
