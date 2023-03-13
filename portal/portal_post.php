@@ -11,7 +11,7 @@ if (isset($_POST['add_ticket'])) {
     // Get ticket prefix/number
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
-    $config_ticket_prefix = santizeInput($row['config_ticket_prefix']);
+    $config_ticket_prefix = sanitizeInput($row['config_ticket_prefix']);
     $config_ticket_next_number = intval($row['config_ticket_next_number']);
 
     $client_id = intval($session_client_id);
