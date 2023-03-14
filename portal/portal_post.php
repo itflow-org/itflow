@@ -44,10 +44,6 @@ if (isset($_POST['add_ticket'])) {
 if (isset($_POST['add_ticket_comment'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
-
-    // Not currently providing the client portal with a full summer note editor, but need to maintain line breaks.
-    // In order to maintain line breaks consistently with the agent side, we need to allow HTML tags.
-    // So, we need to convert line breaks to HTML and clean HTML with HTML Purifier
     $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
 
     // After stripping bad HTML, check the comment isn't just empty
