@@ -17,8 +17,8 @@ header('Content-Type: application/json');
 $_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get IP & UA
-$ip = santizeInput(getIP());
-$user_agent = santizeInput($_SERVER['HTTP_USER_AGENT']);
+$ip = sanitizeInput(getIP());
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Setup return array
 $return_arr = array();
@@ -56,15 +56,15 @@ if (!isset($_GET['api_key']) && !isset($_POST['api_key'])) {
 
 // Set API key variable
 if (isset($_GET['api_key'])) {
-    $api_key = santizeInput($_GET['api_key']);
+    $api_key = sanitizeInput($_GET['api_key']);
 }
 if (isset($_POST['api_key'])) {
-    $api_key = santizeInput($_POST['api_key']);
+    $api_key = sanitizeInput($_POST['api_key']);
 }
 
 // Validate API key
 if (isset($api_key)) {
-    $api_key = santizeInput($api_key);
+    $api_key = sanitizeInput($api_key);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM api_keys WHERE api_key_secret = '$api_key' AND api_key_expire > NOW() LIMIT 1");
 
