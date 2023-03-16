@@ -239,7 +239,8 @@ if ($config_enable_cron == 1) {
         while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
             $schedule_id = intval($row['scheduled_ticket_id']);
             $subject = sanitizeInput($row['scheduled_ticket_subject']);
-            $details = sanitizeInput($row['scheduled_ticket_details']);
+            $details_escaped = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
+            $details = $row['scheduled_ticket_details'];
             $priority = sanitizeInput($row['scheduled_ticket_priority']);
             $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
             $created_id = intval($row['scheduled_ticket_created_by']);
@@ -253,7 +254,7 @@ if ($config_enable_cron == 1) {
             mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
             // Raise the ticket
-            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details_escaped', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
             $id = mysqli_insert_id($mysqli);
 
             // Logging
@@ -265,7 +266,7 @@ if ($config_enable_cron == 1) {
                 // Get contact/ticket/company details
                 $sql = mysqli_query(
                     $mysqli,
-                    "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, company_phone FROM tickets
+                    "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject FROM tickets
                     LEFT JOIN clients ON ticket_client_id = client_id
                     LEFT JOIN contacts ON ticket_contact_id = contact_id
                     WHERE ticket_id = $id"
@@ -277,7 +278,6 @@ if ($config_enable_cron == 1) {
                 $ticket_prefix = $row['ticket_prefix'];
                 $ticket_number = intval($row['ticket_number']);
                 $ticket_subject = $row['ticket_subject'];
-                $company_phone = formatPhoneNumber($row['company_phone']);
 
                 // Verify contact email is valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -372,8 +372,8 @@ if ($config_enable_cron == 1) {
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
-        <br><br>
-        Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                <br><br>
+                Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
             $mail = sendSingleEmail(
                 $config_smtp_host,
