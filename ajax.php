@@ -120,7 +120,7 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
     } else {
         //Return ticket, client and contact details for the given ticket number
         $response = mysqli_fetch_array($sql);
-        $response = array_map('htmlentities', $response);
+        
         echo json_encode($response);
     }
 }
