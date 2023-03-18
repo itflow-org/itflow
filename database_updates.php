@@ -944,5 +944,3 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 } else {
     // Up-to-date
 }
-
-
