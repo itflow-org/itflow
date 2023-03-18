@@ -258,7 +258,7 @@ if ($config_enable_cron == 1) {
             $id = mysqli_insert_id($mysqli);
 
             // Logging
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id`");
 
             // E-mail client
             if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -368,7 +368,7 @@ if ($config_enable_cron == 1) {
             $contact_name = $row['contact_name'];
             $contact_email = $row['contact_email'];
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body    = "Hello $contact_name,<br><br>According to our records, we have not received payment for invoice $invoice_prefix$invoice_number. Please submit your payment as soon as possible. If you have any questions please contact us at $company_phone.
@@ -462,7 +462,7 @@ if ($config_enable_cron == 1) {
 
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id");
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_client_id = $client_id, notification_entity_id = $new_invoice_id");
 
         //Update recurring dates
 

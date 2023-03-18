@@ -55,9 +55,15 @@
             $notification_type = htmlentities($row['notification_type']);
             $notification = htmlentities($row['notification']);
             $notification_timestamp = date('M d g:ia',strtotime($row['notification_timestamp']));
+            $notification_client_id = intval($row['notification_client_id']);
+            if($notification_client_id > 0){
+              $notification_link = "client_overview.php?client_id=$notification_client_id";
+            } else {
+              $notification_link = "#";
+            }
         ?>
 
-        <a href="post.php?dismiss_notification=<?php echo $notification_id; ?>" class="dropdown-item">
+        <a href="<?php echo $notification_link; ?>" class="dropdown-item">
           <p class="mb-1">
             <span class="text-bold"><i class="fas fa-bullhorn mr-2"></i><?php echo $notification_type; ?></span>
             <small class="float-right text-muted"><?php echo $notification_timestamp; ?></small>
