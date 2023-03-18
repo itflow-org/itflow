@@ -6,7 +6,7 @@ require_once('../require_get_method.php');
 // Asset via ID (single)
 if (isset($_GET['asset_id'])) {
     $id = intval($_GET['asset_id']);
-    $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = '$id' AND asset_client_id LIKE '$client_id'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = $id AND asset_client_id LIKE '$client_id'");
 
 } elseif (isset($_GET['asset_type'])) {
     // Asset query via type
