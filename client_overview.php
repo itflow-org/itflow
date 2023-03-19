@@ -21,7 +21,7 @@ $sql_domains_expiring = mysqli_query(
     $mysqli,
     "SELECT * FROM domains
     WHERE domain_client_id = $client_id
-    AND domain_expire != '0000-00-00'
+    AND domain_expire IS NOT NULL
     AND domain_archived_at IS NULL
     AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
     ORDER BY domain_expire DESC"
