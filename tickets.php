@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // Default Column Sortby Filter
 $sb = "ticket_number";
@@ -288,9 +288,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         if ($ticket_status == "Open") {
                             $ticket_status_color = "primary";
                         }elseif ($ticket_status == "Working") {
-                            $ticket_status_display = "success";
+                            $ticket_status_color = "success";
                         }else{
-                            $ticket_status_display = "secondary";
+                            $ticket_status_color = "secondary";
                         }
 
                         if ($ticket_priority == "High") {
