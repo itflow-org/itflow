@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // Default Column Sortby Filter
 $sb = "ticket_number";
@@ -287,17 +287,17 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if ($ticket_status == "Open") {
                             $ticket_status_color = "primary";
-                        }elseif ($ticket_status == "Working") {
-                            $ticket_status_display = "success";
-                        }else{
-                            $ticket_status_display = "secondary";
+                        } elseif ($ticket_status == "Working") {
+                            $ticket_status_color = "success";
+                        } else{
+                            $ticket_status_color = "secondary";
                         }
 
                         if ($ticket_priority == "High") {
                             $ticket_priority_color = "danger";
-                        }elseif ($ticket_priority == "Medium") {
+                        } elseif ($ticket_priority == "Medium") {
                             $ticket_priority_color = "warning";
-                        }else{
+                        } else{
                             $ticket_priority_color = "info";
                         }
                         $ticket_assigned_to = intval($row['ticket_assigned_to']);
