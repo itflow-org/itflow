@@ -239,45 +239,24 @@ if(isset($_POST['edit_profile'])){
             $subject, $body);
     }
 
-    //Check to see if a file is attached
+    // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
         $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
+    
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
-
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Delete old file
+            // Delete old file
             unlink("uploads/users/$user_id/$existing_file_name");
 
+            // Set Avatar
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
-            //Extended Logging
+            // Extended Logging
             $extended_log_description .= ", profile picture updated";
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
@@ -416,42 +395,22 @@ if(isset($_POST['edit_company'])){
 
     $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
-    //Check to see if a file is attached
+    // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/settings/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Delete old file
+            // Delete old file
             unlink("uploads/settings/$existing_file_name");
 
+            // Set Logo
             mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
@@ -4401,31 +4360,10 @@ if(isset($_POST['add_location'])){
 
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
-
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -4484,30 +4422,10 @@ if(isset($_POST['edit_location'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-        // sanitize file-name
-        $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 2097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -7175,32 +7093,10 @@ if(isset($_POST['add_file'])){
     //Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
 
-        // get details of the uploaded file
-        $file_error = 0;
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        if(empty($file_name)) {
-            $file_name = sanitizeInput($_FILES['file']['name']);
-        }
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+        if ($file_reference_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz'))) {
 
-        // sanitize file-name
-        $file_reference_name = md5(time() . $file_name) . '.' . $file_extension;
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
-
-        if(in_array($file_extension,$allowed_file_extensions) === false){
-            $file_error = 1;
-        }
-
-        //Check File Size
-        if($file_size > 20097152){
-            $file_error = 1;
-        }
-
-        if($file_error == 0){
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $file_reference_name;

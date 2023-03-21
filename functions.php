@@ -595,8 +595,7 @@ function getInvoiceBadgeColor($invoice_status)
 }
 
 // Pass $_FILE['file'] to check an uploaded file before saving it
-function checkFileUpload($file, $allowed_extensions)
-{
+function checkFileUpload($file, $allowed_extensions) {
     // Variables
     $name = $file['name'];
     $tmp = $file['tmp_name'];
