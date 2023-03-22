@@ -1,0 +1,13 @@
+<?php
+$client_id = intval($_POST['client_id']);
+$name = sanitizeInput($_POST['name']);
+$country = sanitizeInput($_POST['country']);
+$address = sanitizeInput($_POST['address']);
+$city = sanitizeInput($_POST['city']);
+$state = sanitizeInput($_POST['state']);
+$zip = sanitizeInput($_POST['zip']);
+$phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
+$hours = sanitizeInput($_POST['hours']);
+$notes = sanitizeInput($_POST['notes']);
+$contact = intval($_POST['contact']);
+$primary_location = intval($_POST['primary_location']);

@@ -4332,18 +4332,7 @@ if(isset($_POST['add_location'])){
 
     validateAdminRole();
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $country = sanitizeInput($_POST['country']);
-    $address = sanitizeInput($_POST['address']);
-    $city = sanitizeInput($_POST['city']);
-    $state = sanitizeInput($_POST['state']);
-    $zip = sanitizeInput($_POST['zip']);
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = sanitizeInput($_POST['hours']);
-    $notes = sanitizeInput($_POST['notes']);
-    $contact = intval($_POST['contact']);
-    $primary_location = intval($_POST['primary_location']);
+    require_once('models/client_locations.php');
 
     if(!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
@@ -4392,19 +4381,9 @@ if(isset($_POST['edit_location'])){
 
     validateAdminRole();
 
+    require_once('models/client_locations.php');
+
     $location_id = intval($_POST['location_id']);
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $country = sanitizeInput($_POST['country']);
-    $address = sanitizeInput($_POST['address']);
-    $city = sanitizeInput($_POST['city']);
-    $state = sanitizeInput($_POST['state']);
-    $zip = sanitizeInput($_POST['zip']);
-    $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $hours = sanitizeInput($_POST['hours']);
-    $notes = sanitizeInput($_POST['notes']);
-    $contact = intval($_POST['contact']);
-    $primary_location = intval($_POST['primary_location']);
 
     $existing_file_name = sanitizeInput($_POST['existing_file_name']);
 
@@ -5418,18 +5397,7 @@ if(isset($_POST['add_login'])){
 
     validateTechRole();
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $uri = sanitizeInput($_POST['uri']);
-    $username = encryptLoginEntry($_POST['username']);
-    $password = encryptLoginEntry($_POST['password']);
-    $otp_secret = sanitizeInput($_POST['otp_secret']);
-    $note = sanitizeInput($_POST['note']);
-    $important = intval($_POST['important']);
-    $contact_id = intval($_POST['contact']);
-    $vendor_id = intval($_POST['vendor']);
-    $asset_id = intval($_POST['asset']);
-    $software_id = intval($_POST['software']);
+    require_once('models/client_logins.php');
 
     mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id");
 
@@ -5448,19 +5416,9 @@ if(isset($_POST['edit_login'])){
 
     validateTechRole();
 
+    require_once('models/client_logins.php');
+
     $login_id = intval($_POST['login_id']);
-    $name = sanitizeInput($_POST['name']);
-    $uri = sanitizeInput($_POST['uri']);
-    $username = encryptLoginEntry($_POST['username']);
-    $password = encryptLoginEntry($_POST['password']);
-    $otp_secret = sanitizeInput($_POST['otp_secret']);
-    $note = sanitizeInput($_POST['note']);
-    $important = intval($_POST['important']);
-    $contact_id = intval($_POST['contact']);
-    $vendor_id = intval($_POST['vendor']);
-    $asset_id = intval($_POST['asset']);
-    $software_id = intval($_POST['software']);
-    $client_id = intval($_POST['client_id']);
 
     mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
 
