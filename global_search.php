@@ -222,23 +222,23 @@ if (isset($_GET['query'])) {
                             <tr>
                                 <th>Document</th>
                                 <th>Client</th>
-                                <th>Updated</th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_documents)) {
+                                $document_id = intval($row['document_id']);
                                 $document_name = htmlentities($row['document_name']);
-                                $document_client_id = intval($row['document_client_id']);
-                                $document_client = htmlentities($row['client_name']);
-                                $document_updated = htmlentities($row['document_updated_at']);
+                                $client_id = intval($row['document_client_id']);
+                                $client_name = htmlentities($row['client_name']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_documents.php?client_id=<?php echo $document_client_id ?>&q=<?php echo $q ?>"><?php echo $document_name; ?></a></td>
-                                    <td><?php echo $document_client ?></td>
-                                    <td><?php echo $document_updated ?></td>
+                                    <td><a href="client_document_details.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
+                                    <td>
+                                        <a href="client_documents.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                                    </td>
                                 </tr>
 
                             <?php } ?>
