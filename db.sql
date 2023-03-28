@@ -220,6 +220,7 @@ CREATE TABLE `clients` (
   `client_type` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,
   `client_referral` varchar(200) DEFAULT NULL,
+  `client_rate` decimal(15,2) DEFAULT NULL,
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
   `client_notes` text DEFAULT NULL,
@@ -1468,4 +1469,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-03-18 15:21:29
+-- Dump completed on 2023-03-28 15:29:24

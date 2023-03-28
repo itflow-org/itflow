@@ -60,6 +60,7 @@
             <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
                 <div class="col-md border-left">
                     <h4 class="text-secondary">Billing</h4>
+                    <h6 class="ml-1 text-secondary">Hourly Rate <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $client_rate, $client_currency_code); ?></div></h6>
                     <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
                     <h6 class="ml-1 text-secondary">Balance <div class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></div></h6>
                     <h6 class="ml-1 text-secondary">Monthly Recurring <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></div></h6>

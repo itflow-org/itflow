@@ -122,6 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         $contact_email = htmlentities($row['contact_email']);
                         $client_website = htmlentities($row['client_website']);
+                        $client_rate = floatval($row['client_rate']);
                         $client_currency_code = htmlentities($row['client_currency_code']);
                         $client_net_terms = intval($row['client_net_terms']);
                         $client_referral = htmlentities($row['client_referral']);
@@ -242,6 +243,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
                                     <br>
                                     <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
+                                    <br>
+                                    <span class="text-secondary">Hourly Rate</span> <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
                                 </td>
                             <?php } ?>
 

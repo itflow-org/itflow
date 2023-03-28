@@ -86,6 +86,17 @@
                             </div>
 
                             <?php if ($config_module_enable_accounting) { ?>
+
+                                <div class="form-group">
+                                    <label>Hourly Rate</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="number" step="0.01" min="0" class="form-control" name="rate" placeholder="Hourly rate" value="<?php echo $client_rate; ?>">
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label>Currency <strong class="text-danger">*</strong></label>
                                     <div class="input-group">

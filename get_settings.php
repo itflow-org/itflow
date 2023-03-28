@@ -922,4 +922,3 @@ $asset_status_array = array(
     'Lost/Stolen',
     'Retired'
 );
-
