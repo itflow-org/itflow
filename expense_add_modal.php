@@ -43,7 +43,7 @@
                                     <option value="">- Account -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $account_id = intval($row['account_id']);
                                         $account_name = htmlentities($row['account_name']);
@@ -83,7 +83,7 @@
                                     <option value="">- Vendor -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $vendor_id = intval($row['vendor_id']);
                                         $vendor_name = htmlentities($row['vendor_name']);
@@ -128,7 +128,7 @@
                                     <option value="">- Category -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = htmlentities($row['category_name']);

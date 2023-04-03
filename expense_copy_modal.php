@@ -44,7 +44,7 @@
                                 <select class="form-control select2" name="account" required>
                                     <?php
 
-                                    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
+                                    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = intval($row['account_id']);
                                         $account_name_select = htmlentities($row['account_name']);
@@ -82,7 +82,7 @@
                                 <select class="form-control select2" name="vendor" required>
                                     <?php
 
-                                    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_vendors)) {
                                         $vendor_id_select = intval($row['vendor_id']);
                                         $vendor_name_select = htmlentities($row['vendor_name']);
@@ -124,7 +124,7 @@
                                 <select class="form-control select2" name="category" required>
                                     <?php
 
-                                    $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
+                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_categories)) {
                                         $category_id_select = intval($row['category_id']);
                                         $category_name_select = htmlentities($row['category_name']);
@@ -152,7 +152,7 @@
                                         <option value="">- Client (Optional) -</option>
                                         <?php
 
-                                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
                                         while ($row = mysqli_fetch_array($sql_clients)) {
                                             $client_id_select = intval($row['client_id']);
                                             $client_name_select = htmlentities($row['client_name']);
