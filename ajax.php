@@ -313,7 +313,7 @@ if (isset($_GET['scheduled_ticket_get_json_details'])) {
  * When provided with a TOTP secret, returns a 6-digit code
  */
 if (isset($_GET['get_totp_token'])) {
-    $otp = TokenAuth6238::getTokenCode($_GET['totp_secret']);
+    $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
 
     echo json_encode($otp);
 }
