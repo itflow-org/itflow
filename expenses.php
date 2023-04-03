@@ -15,9 +15,10 @@ $sql = mysqli_query(
     LEFT JOIN categories ON expense_category_id = category_id
     LEFT JOIN vendors ON expense_vendor_id = vendor_id
     LEFT JOIN accounts ON expense_account_id = account_id
+    LEFT JOIN clients ON expense_client_id = client_id
     WHERE expense_vendor_id > 0
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
-    AND (vendor_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
+    AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -95,6 +96,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_description&o=<?php echo $disp; ?>">Description</a></th>
                         <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=expense_amount&o=<?php echo $disp; ?>">Amount</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=account_name&o=<?php echo $disp; ?>">Account</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">Client</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -116,6 +118,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $category_name = htmlentities($row['category_name']);
                         $account_name = htmlentities($row['account_name']);
                         $expense_account_id = intval($row['expense_account_id']);
+                        $client_name = htmlentities($row['client_name']);
+                        if(empty($client_name)) {
+                            $client_name_display = "-";
+                        } else {
+                            $client_name_display = $client_name;
+                        }
+                        $expense_client_id = intval($row['expense_client_id']);
 
                         if (empty($expense_receipt)) {
                             $receipt_attached = "";
@@ -132,6 +141,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo truncate($expense_description, 50); ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
                             <td><?php echo $account_name; ?></td>
+                            <td><?php echo $client_name_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

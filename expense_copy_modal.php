@@ -103,6 +103,16 @@
                         <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?php echo $expense_description; ?></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Reference</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
+                        </div>
+                    </div>
+
                     <div class="form-row">
 
                         <div class="form-group col-md">
@@ -128,15 +138,36 @@
                             </div>
                         </div>
 
-                        <div class="form-group col-md">
-                            <label>Reference</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                        <?php if (isset($_GET['client_id'])) { ?>
+                            <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                        <?php } else { ?>
+
+                            <div class="form-group col-md">
+                                <label>Client</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="client">
+                                        <option value="">- Client (Optional) -</option>
+                                        <?php
+
+                                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_clients)) {
+                                            $client_id_select = intval($row['client_id']);
+                                            $client_name_select = htmlentities($row['client_name']);
+                                            ?>
+                                            <option <?php if ($expense_client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+
+                                            <?php
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
-                                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
                             </div>
-                        </div>
+
+                        <?php } ?>
+
                     </div>
 
                     <div class="form-group">
