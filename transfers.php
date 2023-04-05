@@ -21,7 +21,7 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
-
+d
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Transfers</h3>
@@ -102,7 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if(empty($transfer_notes)) {
                             $transfer_notes_display = "-";
                         } else {
-                            $transfer_notes_display = $transfer_notes;
+                            $transfer_notes_display = nl2br($transfer_notes);
                         }
                         $transfer_created_at = htmlentities($row['transfer_created_at']);
                         $expense_id = intval($row['transfer_expense_id']);
