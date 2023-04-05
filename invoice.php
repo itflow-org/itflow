@@ -303,7 +303,7 @@ if (isset($_GET['invoice_id'])) {
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
-                                        <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
+                                        <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
@@ -372,7 +372,7 @@ if (isset($_GET['invoice_id'])) {
                             </div>
                         </div>
                         <div class="card-body">
-                            <div style="white-space:pre-line"><?php echo $invoice_note; ?></div>
+                            <?php echo nl2br($invoice_note); ?>
                         </div>
                     </div>
                 </div>
@@ -406,7 +406,7 @@ if (isset($_GET['invoice_id'])) {
 
             <hr class="d-none d-print-block mt-5">
 
-            <center class="d-none d-print-block" style="white-space:pre-line"><?php echo htmlentities($config_invoice_footer); ?></center>
+            <div class="d-none d-print-block text-center"><?php echo nl2br(htmlentities($config_invoice_footer)); ?></div>
         </div>
     </div>
 

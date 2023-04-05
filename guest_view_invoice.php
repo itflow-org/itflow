@@ -225,7 +225,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
 
                                     <tr>
                                         <td><?php echo $item_name; ?></td>
-                                        <td><div style="white-space:pre-line"><?php echo $item_description; ?></div></td>
+                                        <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
@@ -246,7 +246,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                     <?php if (!empty($invoice_note)) { ?>
                         <div class="card">
                             <div class="card-body">
-                                <div style="white-space:pre-line"><?php echo $invoice_note; ?></div>
+                                <?php echo nl2br($invoice_note); ?>
                             </div>
                         </div>
                     <?php } ?>
@@ -281,7 +281,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
 
             <hr class="mt-5">
 
-            <div style="white-space:pre-line; text-align: center;"><?php echo $config_invoice_footer; ?></div>
+            <div style="text-center"><?php echo nl2br($config_invoice_footer); ?></div>
         </div>
     </div>
 

@@ -81,9 +81,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Reply</button>
             </form>
 
-        <?php }
-
-        elseif (empty($ticket_feedback)) { ?>
+        <?php } elseif (empty($ticket_feedback)) { ?>
 
             <h4>Rate your ticket</h4>
 
@@ -99,9 +97,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 </button>
             </form>
 
-        <?php }
-
-        else { ?>
+        <?php } else { ?>
 
             <h4>Rated <?php echo $ticket_feedback ?> -- Thanks for your feedback!</h4>
 
