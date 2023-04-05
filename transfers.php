@@ -14,6 +14,7 @@ $sql = mysqli_query(
     WHERE transfer_expense_id = expense_id 
     AND transfer_revenue_id = revenue_id
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+    AND (transfer_notes LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -83,6 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_date&o=<?php echo $disp; ?>">Date</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_account_from&o=<?php echo $disp; ?>">From Account</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_account_to&o=<?php echo $disp; ?>">To Account</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_notes&o=<?php echo $disp; ?>">Notes</a></th>
                         <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=transfer_amount&o=<?php echo $disp; ?>">Amount</a></th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -97,6 +99,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $transfer_account_to = intval($row['transfer_account_to']);
                         $transfer_amount = floatval($row['transfer_amount']);
                         $transfer_notes = htmlentities($row['transfer_notes']);
+                        if(empty($transfer_notes)) {
+                            $transfer_notes_display = "-";
+                        } else {
+                            $transfer_notes_display = $transfer_notes;
+                        }
                         $transfer_created_at = htmlentities($row['transfer_created_at']);
                         $expense_id = intval($row['transfer_expense_id']);
                         $revenue_id = intval($row['transfer_revenue_id']);
@@ -114,6 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
                             <td><?php echo $account_name_from; ?></td>
                             <td><?php echo $account_name_to; ?></td>
+                            <td><?php echo $transfer_notes_display; ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
