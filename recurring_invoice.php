@@ -232,7 +232,7 @@ if (isset($_GET['recurring_id'])) {
                                             </div>  
                                         </td>
                                         <td><?php echo $item_name; ?></td>
-                                        <td><?php echo nl2br($item_description; ?></td>
+                                        <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $recurring_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $recurring_currency_code); ?></td>
