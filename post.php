@@ -244,7 +244,7 @@ if(isset($_POST['edit_profile'])){
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
-    
+
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -1787,7 +1787,7 @@ if(isset($_POST['add_event'])){
         $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
-        
+
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql_company);
         $company_name = $row['company_name'];
@@ -1844,7 +1844,7 @@ if(isset($_POST['edit_event'])){
         $client_name = $row['client_name'];
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
-        
+
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql_company);
         $company_name = $row['company_name'];
@@ -3189,7 +3189,7 @@ if(isset($_GET['decline_quote'])){
 }
 
 if(isset($_GET['email_quote'])){
-    
+
     $quote_id = intval($_GET['email_quote']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
@@ -3216,7 +3216,7 @@ if(isset($_GET['email_quote'])){
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $client_website = sanitizeInput($row['client_website']);
-    
+
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_name = sanitizeInput($row['company_name']);
@@ -3672,7 +3672,7 @@ if(isset($_POST['add_payment'])){
         $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-        
+
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
@@ -3817,7 +3817,7 @@ if(isset($_GET['email_invoice'])){
         WHERE invoice_id = $invoice_id"
     );
     $row = mysqli_fetch_array($sql);
-    
+
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = $row['invoice_prefix'];
     $invoice_number = $row['invoice_number'];
@@ -6137,7 +6137,7 @@ if(isset($_POST['add_ticket'])){
         $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = intval($row['ticket_number']);
         $ticket_subject = $row['ticket_subject'];
-        
+
         $sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
 
         $company_phone = formatPhoneNumber($row['company_phone']);
@@ -6350,7 +6350,7 @@ if(isset($_POST['add_ticket_reply'])){
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
-    
+
 
     $company_sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($company_sql);
@@ -6529,7 +6529,7 @@ if(isset($_GET['close_ticket'])){
         $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_subject = sanitizeInput($row['ticket_subject']);
-        
+
         $company_sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($company_sql);
         $company_phone = formatPhoneNumber($row['company_phone']);
@@ -7044,12 +7044,20 @@ if(isset($_POST['add_file'])){
     $client_id = intval($_POST['client_id']);
     $file_name = sanitizeInput($_POST['new_name']);
 
-    if(!file_exists("uploads/clients/$client_id")) {
+    $extarr = explode('.', $_FILES['file']['name']);
+    $file_extension = sanitizeInput(strtolower(end($extarr)));
+
+    // If the user-inputted name is empty, revert to the name of the file on disk/uploaded
+    if (empty($file_name)) {
+        $file_name = sanitizeInput($_FILES['file']['name']);
+    }
+
+    if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
 
     //Check to see if a file is attached
-    if($_FILES['file']['tmp_name'] != ''){
+    if ($_FILES['file']['tmp_name'] != '') {
 
         if ($file_reference_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz'))) {
 
@@ -7064,7 +7072,7 @@ if(isset($_POST['add_file'])){
             mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_client_id = $client_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
+        } else {
 
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
@@ -7318,7 +7326,7 @@ if(isset($_GET['delete_folder'])){
 }
 
 if(isset($_GET['deactivate_shared_item'])){
-    
+
     validateAdminRole();
 
     $item_id = intval($_GET['deactivate_shared_item']);
@@ -7436,7 +7444,7 @@ if(isset($_GET['force_recurring'])){
         $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = $row['contact_extension'];
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-        
+
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = $row['company_name'];
