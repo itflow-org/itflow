@@ -7071,17 +7071,17 @@ if(isset($_POST['add_file'])){
 
             mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_client_id = $client_id");
 
+            //Logging
+            $file_id = intval(mysqli_insert_id($mysqli));
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+
             $_SESSION['alert_message'] = 'File successfully uploaded.';
+
         } else {
 
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$path', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "File uploaded";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -7105,7 +7105,7 @@ if(isset($_POST['delete_file'])){
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id, log_entity_id = $file_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> deleted";
