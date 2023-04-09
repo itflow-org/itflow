@@ -7073,7 +7073,7 @@ if(isset($_POST['add_file'])){
 
             //Logging
             $file_id = intval(mysqli_insert_id($mysqli));
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
 
