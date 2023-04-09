@@ -27,7 +27,7 @@ function populateQuoteEditModal(quote_id) {
 
             // Clear Category dropdown
             var i, L = categoryDropdown.options.length -1;
-            for(i = L; i >= 0; i--) {
+            for (i = L; i >= 0; i--) {
                 categoryDropdown.remove(i);
             }
             categoryDropdown[categoryDropdown.length] = new Option('- Category -', '0');

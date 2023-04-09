@@ -332,8 +332,9 @@ if (isset($_GET['quote_get_json_details'])) {
     $category_sql = mysqli_query(
         $mysqli,
         "SELECT category_id, category_name FROM categories
-        WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) 
-        ORDER BY category_name");
+        WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL)
+        ORDER BY category_name"
+    );
 
     while ($row = mysqli_fetch_array($category_sql)) {
         $response['categories'][] = $row;
