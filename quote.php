@@ -49,7 +49,7 @@ if (isset($_GET['quote_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
-    
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
 
@@ -153,7 +153,7 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuoteModal<?php echo $quote_id ?>">
+                            <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateQuoteEditModal(<?php echo $quote_id ?>)" data-target="#editQuoteModal">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
@@ -163,7 +163,7 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
-                            <a class="dropdown-item" href="#" 
+                            <a class="dropdown-item" href="#"
                                 onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number")); ?>');">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
@@ -289,7 +289,7 @@ if (isset($_GET['quote_id'])) {
                                                             <i class="fa fa-fw fa-times mr-2"></i>Remove
                                                         </a>
                                                     </div>
-                                                </div>  
+                                                </div>
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
