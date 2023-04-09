@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="new_name" placeholder="leave blank to use existing name">
+                            <input type="text" class="form-control" name="new_name" placeholder="Leave blank to use existing name">
                         </div>
                     </div>
 

@@ -47,7 +47,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
                                 <small><?php echo $file_name; ?></small>
 
-                                <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
+                                <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
                             </div>
                         </div>
                     </div>
@@ -90,7 +90,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                             <td>
                                 <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>" class="text-secondary float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
                                 <a href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)" class="text-secondary float-left ml-1"><i class="fa fa-share"></i></a>
-                                <a href="post.php?delete_file=<?php echo $file_id; ?>" class="text-secondary float-right mr-1"><i class="fa fa-times"></i></a>
+                                <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-secondary float-right mr-1"><i class="fa fa-times"></i></a>
                             </td>
                         </tr>
                         <?php
@@ -104,4 +104,6 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 <?php
 require_once("client_file_add_modal.php");
 require_once("share_modal.php");
+require_once("client_file_delete_modal.php");
 require_once("footer.php");
+

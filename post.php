@@ -7087,11 +7087,12 @@ if(isset($_POST['add_file'])){
 
 }
 
-if(isset($_GET['delete_file'])){
+if(isset($_POST['delete_file'])){
 
     validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
 
-    $file_id = intval($_GET['delete_file']);
+    $file_id = intval($_POST['file_id']);
 
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_array($sql_file);
