@@ -1280,6 +1280,7 @@ CREATE TABLE `tickets` (
   `ticket_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_prefix` varchar(200) DEFAULT NULL,
   `ticket_number` int(11) NOT NULL,
+  `ticket_source` varchar(255) DEFAULT NULL,
   `ticket_category` varchar(200) DEFAULT NULL,
   `ticket_subject` varchar(200) NOT NULL,
   `ticket_details` longtext NOT NULL,
