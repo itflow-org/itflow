@@ -56,7 +56,7 @@
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues.
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by April/May 2023.
+* We are hoping to have a stable 1.0 release by May/June 2023.
 
 <!-- BUILT WITH -->
 ### Built With
