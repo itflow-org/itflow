@@ -26,7 +26,7 @@
     <br />
     <a href="https://itflow.org/index.php?page=About">About</a>
     ·
-    <a href="https://itflow.org/docs.php">Docs</a>
+    <a href="https://wiki.itflow.org/doku.php?id=start">Docs</a>
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
