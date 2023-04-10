@@ -119,11 +119,13 @@ if (isset($_GET['ticket_id'])) {
         $location_zip = htmlentities($row['location_zip']);
         $location_phone = formatPhoneNumber($row['location_phone']);
 
+        //  REMOVING - doesn't work properly now that a ticket might be created by an agent or client
+        //   Moving to ticket_source in future
         //Ticket Created By
-        $ticket_created_by = intval($row['ticket_created_by']);
-        $ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
-        $row = mysqli_fetch_array($ticket_created_by_sql);
-        $ticket_created_by_display = htmlentities($row['user_name']);
+        //$ticket_created_by = intval($row['ticket_created_by']);
+        //$ticket_created_by_sql = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by");
+        //$row = mysqli_fetch_array($ticket_created_by_sql);
+        //$ticket_created_by_display = htmlentities($row['user_name']);
 
         if ($contact_id) {
             //Get Contact Ticket Stats
@@ -471,7 +473,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
                     <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created: <?php echo $ticket_created_at; ?></div>
                     <div class="ml-1"><i class="fa fa-fw fa-history text-secondary mr-2 mb-2"></i>Updated: <strong><?php echo $ticket_updated_at; ?></strong></div>
-                    <div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Created by: <?php echo $ticket_created_by_display; ?></div>
+                    <!--<div class="ml-1"><i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>Created by: <?php // echo $ticket_created_by_display; ?></div>-->
                     <?php
                     if ($ticket_status == "Closed") {
                         $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
