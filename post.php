@@ -6500,6 +6500,29 @@ if(isset($_POST['merge_ticket'])){
 
 }
 
+if(isset($_POST['change_client_ticket'])){
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $client_id = intval($_POST['new_client_id']);
+    $contact_id = intval($_POST['new_contact_id']);
+
+    // Set any/all existing replies to internal
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_type = 'Internal' WHERE ticket_reply_ticket_id = $ticket_id");
+
+    // Update ticket client & contact
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id LIMIT 1");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Modify', log_description = '$session_name modified ticket - client changed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket client updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if(isset($_GET['close_ticket'])){
 
     validateTechRole();

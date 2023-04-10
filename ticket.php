@@ -233,6 +233,9 @@ if (isset($_GET['ticket_id'])) {
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
                                 <i class="fas fa-fw fa-clone mr-2"></i>Merge
                             </a>
+                            <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
+                                <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
+                            </a>
                             <?php if ($session_user_role == 3) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
@@ -265,7 +268,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($ticket_status != "Closed") { ?>
                     <form class="mb-3" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
-                        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                        <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
                             <textarea class="form-control summernote" name="ticket_reply" placeholder="Type a response" required></textarea>
                         </div>
@@ -647,6 +650,7 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         require("ticket_edit_modal.php");
+        require("ticket_change_client_modal.php");
         require("ticket_merge_modal.php");
         require("ticket_invoice_add_modal.php");
 
