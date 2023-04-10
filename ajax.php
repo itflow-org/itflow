@@ -345,6 +345,45 @@ if (isset($_GET['quote_get_json_details'])) {
 }
 
 /*
+ * Returns sorted list of active clients
+ */
+if (isset($_GET['get_active_clients'])) {
+
+    $client_sql = mysqli_query(
+        $mysqli,
+        "SELECT client_id, client_name FROM clients
+        WHERE client_archived_at IS NULL
+        ORDER BY client_accessed_at DESC"
+    );
+
+    while ($row = mysqli_fetch_array($client_sql)) {
+        $response['clients'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
+ * Returns ordered list of active contacts for a specified client
+ */
+if (isset($_GET['get_client_contacts'])) {
+    $client_id = intval($_GET['client_id']);
+
+    $contact_sql = mysqli_query(
+        $mysqli,
+        "SELECT contact_id, contact_name FROM contacts
+        WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
+        ORDER BY contact_important DESC, contact_name"
+    );
+
+    while ($row = mysqli_fetch_array($contact_sql)) {
+        $response['contacts'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
  * Dynamic TOTP for client login page
  * When provided with a TOTP secret, returns a 6-digit code
  */
