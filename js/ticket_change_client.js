@@ -3,16 +3,15 @@
  */
 
 // Modal loaded listener - populate client select
-changeClientModalLoad = document.getElementById('clientChangeTicketModalLoad');
+const changeClientModalLoad = document.getElementById('clientChangeTicketModalLoad');
 changeClientModalLoad.addEventListener('click', function() {
     populateChangeClientModal_Clients();
 })
 
 // Client selected listener - populate contact select
 //  We seem to have to use jQuery to listen for events, as the client input is a select2 component?
-clientSelectDropdown = document.getElementById("changeClientSelect");
+const clientSelectDropdown = document.getElementById("changeClientSelect");
 $(clientSelectDropdown).on('select2:select', function (e) {
-    console.log("Fired contacts listener!!!!!!")
     let client_id = $(this).find(':selected').val();
     populateChangeClientModal_Contacts(client_id);
 });
@@ -43,7 +42,7 @@ function populateChangeClientModal_Clients() {
             // Client dropdown already defined in listeners as clientSelectDropdown
 
             // Clear dropdown
-            var i, L = clientSelectDropdown.options.length -1;
+            let i, L = clientSelectDropdown.options.length - 1;
             for (i = L; i >= 0; i--) {
                 clientSelectDropdown.remove(i);
             }
@@ -76,10 +75,10 @@ function populateChangeClientModal_Contacts(client_id) {
             const contacts = response.contacts;
 
             // Contacts dropdown
-            var contactSelectDropdown = document.getElementById("changeContactSelect");
+            const contactSelectDropdown = document.getElementById("changeContactSelect");
 
             // Clear Category dropdown
-            var i, L = contactSelectDropdown.options.length -1;
+            let i, L = contactSelectDropdown.options.length - 1;
             for (i = L; i >= 0; i--) {
                 contactSelectDropdown.remove(i);
             }

@@ -651,10 +651,10 @@ if (isset($_GET['ticket_id'])) {
         </div>
 
         <?php
-        require("ticket_edit_modal.php");
-        require("ticket_change_client_modal.php");
-        require("ticket_merge_modal.php");
-        require("ticket_invoice_add_modal.php");
+        require_once("ticket_edit_modal.php");
+        require_once("ticket_change_client_modal.php");
+        require_once("ticket_merge_modal.php");
+        require_once("ticket_invoice_add_modal.php");
 
     }
 

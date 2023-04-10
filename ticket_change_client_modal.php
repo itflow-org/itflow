@@ -23,12 +23,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>New Contact <strong class="text-danger">*</strong></label>
+                        <label>New Contact</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="new_contact_id" id="changeContactSelect" required>
+                            <select class="form-control select2" name="new_contact_id" id="changeContactSelect">
                             </select>
                         </div>
                     </div>
