@@ -865,15 +865,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "ALTER TABLE `client_tags` CHANGE `client_id` `client_tags_client_id` INT NOT NULL");
         mysqli_query($mysqli, "ALTER TABLE `client_tags` CHANGE `tag_id` `client_tags_tag_id` INT NOT NULL");
 
-    // Then, update the database to the next sequential version
-     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.4'");
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.4'");
     }
 
     if (CURRENT_DATABASE_VERSION == '0.4.4') {
-    // Insert queries here required to update to DB version 0.4.5
+        // Insert queries here required to update to DB version 0.4.5
         mysqli_query($mysqli, "ALTER TABLE `client_tags` CHANGE `client_tags_client_id` `client_tag_client_id` INT NOT NULL");
         mysqli_query($mysqli, "ALTER TABLE `client_tags` CHANGE `client_tags_tag_id` `client_tag_tag_id` INT NOT NULL");
-    // Then, update the database to the next sequential version
+        // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.5'");
     }
 
@@ -940,11 +940,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.8'");
     }
 
-//if (CURRENT_DATABASE_VERSION == '0.4.8') {
-    // Insert queries here required to update to DB version 0.4.9
+    if (CURRENT_DATABASE_VERSION == '0.4.8') {
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_source` VARCHAR(255) NULL DEFAULT NULL AFTER `ticket_number`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.9'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.4.9') {
+    // Insert queries here required to update to DB version 0.5.0
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.9'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.0'");
     //}
 
 } else {
