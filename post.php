@@ -387,6 +387,35 @@ if(isset($_GET['delete_api_key'])){
 
 }
 
+if (isset($_POST['bulk_delete_api_keys'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $api_key_ids = $_POST['api_key_ids']; // Get array of API key IDs to be deleted
+
+    if (!empty($api_key_ids)) {
+
+        // Cycle through array and delete each scheduled ticket
+        foreach ($api_key_ids as $api_key_id) {
+
+            $api_key_id = intval($api_key_id);
+            mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $api_key_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name bulk deleted $count keys', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count keys(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_POST['edit_company'])){
 
     require_once('models/company.php');
