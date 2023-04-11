@@ -17,7 +17,7 @@ $sql = mysqli_query(
     LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
     LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
     WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
-    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR tag_name LIKE '%$q%')
+    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
     GROUP BY clients.client_id
@@ -125,6 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_rate = floatval($row['client_rate']);
                         $client_currency_code = htmlentities($row['client_currency_code']);
                         $client_net_terms = intval($row['client_net_terms']);
+                        $client_tax_id_number = htmlentities($row['client_tax_id_number']);
                         $client_referral = htmlentities($row['client_referral']);
                         $client_notes = htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));

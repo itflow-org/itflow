@@ -946,11 +946,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.4.9'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.4.9') {
+    if (CURRENT_DATABASE_VERSION == '0.4.9') {
     // Insert queries here required to update to DB version 0.5.0
+        mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_tax_id_number` VARCHAR(255) NULL DEFAULT NULL AFTER `client_net_terms`");
+    // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.0'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.0') {
+    // Insert queries here required to update to DB version 0.5.1
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.0'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.1'");
     //}
 
 } else {

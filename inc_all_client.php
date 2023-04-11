@@ -34,6 +34,7 @@ if (isset($_GET['client_id'])) {
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
         }
+        $client_tax_id_number = htmlentities($row['client_tax_id_number']);
         $client_rate = floatval($row['client_rate']);
         $client_notes = htmlentities($row['client_notes']);
         $client_created_at = htmlentities($row['client_created_at']);

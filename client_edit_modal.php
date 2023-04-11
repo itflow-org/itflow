@@ -127,6 +127,16 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <label>Tax ID</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number" value="<?php echo $tax_id_number; ?>">
+                                    </div>
+                                </div>
+
                             <?php } else { ?>
                                 <input type="hidden" name="currency_code" value="<?php echo $currency_code; ?>">
                                 <input type="hidden" name="net_terms" value="<?php echo $net_term_value; ?>">

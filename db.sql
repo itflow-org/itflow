@@ -223,6 +223,7 @@ CREATE TABLE `clients` (
   `client_rate` decimal(15,2) DEFAULT NULL,
   `client_currency_code` varchar(200) NOT NULL,
   `client_net_terms` int(10) NOT NULL,
+  `client_tax_id_number` varchar(255) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `client_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1470,4 +1471,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-03-28 15:29:24
+-- Dump completed on 2023-04-11 16:19:58
