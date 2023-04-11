@@ -59,12 +59,11 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $ticket_number = intval($ticket_number_sql['config_ticket_next_number']);
     $new_config_ticket_next_number = $ticket_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
-
-    // Prep ticket details
-    //$message = nl2br(htmlentities(strip_tags($message)));
-    $message = mysqli_real_escape_string($mysqli, nl2br($message));
-    $message = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
     
+    // Prep ticket details
+    $message = nl2br($message);
+    $message = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
+
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Open', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
