@@ -44,8 +44,8 @@ if (isset($_GET['ticket_id'])) {
         $ticket_number = intval($row['ticket_number']);
         $ticket_category = htmlentities($row['ticket_category']);
         $ticket_subject = htmlentities($row['ticket_subject']);
-        //$ticket_details = $purifier->purify($row['ticket_details']);
-        $ticket_details = $row['ticket_details'];
+        $ticket_details = $purifier->purify($row['ticket_details']);
+        //$ticket_details = $row['ticket_details'];
         $ticket_priority = htmlentities($row['ticket_priority']);
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
