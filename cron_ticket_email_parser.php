@@ -82,7 +82,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     if ($config_ticket_client_general_notifications == 1) {
 
         $email_subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $email_body    = "<i style='color: #808080'>#--itflow--#</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+        $email_body    = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
         $mail = sendSingleEmail(
             $config_smtp_host,
@@ -120,7 +120,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message) {
 
     // Capture just the latest/most recent email reply content
     //  based off the "#--itflow#" line that we prepend the outgoing emails with (similar to the old school --reply above this line--)
-    $message = explode("#--itflow--#", $message);
+    $message = explode("##- Please type your reply above this line -##", $message);
     $message = nl2br(htmlentities(strip_tags($message[0])));
     $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
 
