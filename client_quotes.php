@@ -45,7 +45,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="post.php?export_client_quotes_csv=<?php echo $client_id; ?>" class="btn btn-default"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportQuoteModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
 
@@ -158,4 +158,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 require_once("quote_add_modal.php");
 require_once("quote_edit_modal.php");
+require_once("client_quote_export_modal.php");
 require_once("footer.php");

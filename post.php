@@ -2098,8 +2098,8 @@ if(isset($_GET['delete_vendor'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if(isset($_GET['export_client_vendors_csv'])){
-    $client_id = intval($_GET['export_client_vendors_csv']);
+if(isset($_POST['export_client_vendors_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -4170,8 +4170,8 @@ if(isset($_GET['delete_contact'])){
 
 }
 
-if(isset($_GET['export_client_contacts_csv'])){
-    $client_id = intval($_GET['export_client_contacts_csv']);
+if(isset($_POST['export_client_contacts_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -4529,8 +4529,8 @@ if(isset($_GET['delete_location'])){
 
 }
 
-if(isset($_GET['export_client_locations_csv'])){
-    $client_id = intval($_GET['export_client_locations_csv']);
+if(isset($_POST['export_client_locations_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -5028,11 +5028,11 @@ if(isset($_GET['download_client_assets_csv_template'])){
 
 }
 
-if(isset($_GET['export_client_assets_csv'])){
+if(isset($_POST['export_client_assets_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_assets_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
@@ -5346,11 +5346,11 @@ if(isset($_GET['delete_software'])){
 
 }
 
-if(isset($_GET['export_client_software_csv'])){
+if(isset($_POST['export_client_software_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_software_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -5483,11 +5483,11 @@ if(isset($_GET['delete_login'])){
 
 }
 
-if(isset($_GET['export_client_logins_csv'])){
+if(isset($_POST['export_client_logins_csv'])){
 
     validateAdminRole();
 
-    $client_id = intval($_GET['export_client_logins_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM logins LEFT JOIN clients ON client_id = login_client_id WHERE login_client_id = $client_id ORDER BY login_name ASC");
@@ -5716,11 +5716,11 @@ if(isset($_GET['delete_network'])){
 
 }
 
-if(isset($_GET['export_client_networks_csv'])){
+if(isset($_POST['export_client_networks_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_networks_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -5901,11 +5901,11 @@ if (isset($_POST['bulk_delete_certificates'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if(isset($_GET['export_client_certificates_csv'])){
+if(isset($_POST['export_client_certificates_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_certificates_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -6071,11 +6071,11 @@ if(isset($_GET['delete_domain'])){
 
 }
 
-if(isset($_GET['export_client_domains_csv'])){
+if(isset($_POST['export_client_domains_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_domains_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -6709,11 +6709,11 @@ if(isset($_POST['add_invoice_from_ticket'])){
     header("Location: invoice.php?invoice_id=$invoice_id");
 }
 
-if(isset($_GET['export_client_tickets_csv'])){
+if(isset($_POST['export_client_tickets_csv'])){
 
     validateTechRole();
 
-    $client_id = intval($_GET['export_client_tickets_csv']);
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -7588,8 +7588,8 @@ if(isset($_POST['export_trips_csv'])){
 
 }
 
-if(isset($_GET['export_client_invoices_csv'])){
-    $client_id = intval($_GET['export_client_invoices_csv']);
+if(isset($_POST['export_client_invoices_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -7629,8 +7629,8 @@ if(isset($_GET['export_client_invoices_csv'])){
 
 }
 
-if(isset($_GET['export_client_recurring_csv'])){
-    $client_id = intval($_GET['export_client_recurring_csv']);
+if(isset($_POST['export_client_recurring_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -7670,8 +7670,8 @@ if(isset($_GET['export_client_recurring_csv'])){
 
 }
 
-if(isset($_GET['export_client_quotes_csv'])){
-    $client_id = intval($_GET['export_client_quotes_csv']);
+if(isset($_POST['export_client_quotes_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -7711,8 +7711,8 @@ if(isset($_GET['export_client_quotes_csv'])){
 
 }
 
-if(isset($_GET['export_client_payments_csv'])){
-    $client_id = intval($_GET['export_client_payments_csv']);
+if(isset($_POST['export_client_payments_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
@@ -7752,8 +7752,8 @@ if(isset($_GET['export_client_payments_csv'])){
 
 }
 
-if(isset($_GET['export_client_trips_csv'])){
-    $client_id = intval($_GET['export_client_trips_csv']);
+if(isset($_POST['export_client_trips_csv'])){
+    $client_id = intval($_POST['client_id']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
