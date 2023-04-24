@@ -1777,6 +1777,46 @@ if(isset($_GET['delete_client'])){
     header("Location: clients.php");
 }
 
+if(isset($_POST['export_clients_csv'])){
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM clients
+        LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
+        LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
+        ORDER BY client_name ASC
+    ");
+
+    if($sql->num_rows > 0){
+        $delimiter = ",";
+        $filename = $session_company_name . "-Clients-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Address', 'Contact Name', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Creation Date');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()){
+            $lineData = array($row['client_name'], $row['client_type'], $row['client_referral'], $row['client_website'], $row['location_address'] . ' ' . $row['location_city'] . ' ' . $row['location_state'] . ' ' . $row['location_zip'], $row['contact_name'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_email'], $row['client_created_at']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+
+}
+
 if(isset($_POST['add_calendar'])){
 
     $name = sanitizeInput($_POST['name']);

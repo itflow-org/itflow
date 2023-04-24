@@ -41,13 +41,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Clients" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="float-right">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportClientModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
                 </div>
@@ -290,5 +295,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once("client_add_modal.php");
+require_once("client_export_modal.php");
 require_once("category_quick_add_modal.php");
 require_once("footer.php");
