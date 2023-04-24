@@ -200,6 +200,91 @@ if(isset($_GET['disable_user'])){
 
 }
 
+if(isset($_GET['archive_user'])){
+
+    validateAdminRole();
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
+    // Variables from GET
+    $user_id = intval($_GET['archive_user']);
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
+
+    // Get user details
+    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = sanitizeInput($row['user_name']);
+
+    // Archive user query
+    mysqli_query($mysqli,"UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_POST['export_users_csv'])){
+
+    validateAdminRole();
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM users ORDER BY user_name ASC");
+
+    if($sql->num_rows > 0){
+        $delimiter = ",";
+        $filename = $session_company_name . "-Users-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Email', 'Role', 'Status', 'Creation Date');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()){
+
+            $user_status = intval($row['user_status']);
+            if ($user_status == 2) {
+                $user_status_display = "Invited";
+            } elseif ($user_status == 1) {
+                $user_status_display = "Active";
+            } else{
+                $user_status_display = "Disabled";
+            }
+            $user_role = $row['user_role'];
+            if ($user_role == 3) {
+                $user_role_display = "Administrator";
+            } elseif ($user_role == 2) {
+                $user_role_display = "Technician";
+            } else {
+                $user_role_display = "Accountant";
+            }
+
+            $lineData = array($row['user_name'], $row['user_email'], $user_role_display, $user_status_display, $row['user_created_at']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+
+}
+
 if(isset($_POST['edit_profile'])){
 
     // CSRF Check
@@ -305,35 +390,6 @@ if(isset($_POST['edit_profile'])){
     else{
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
-}
-
-if(isset($_GET['archive_user'])){
-
-    validateAdminRole();
-
-    // CSRF Check
-    validateCSRFToken($_GET['csrf_token']);
-
-    // Variables from GET
-    $user_id = intval($_GET['archive_user']);
-    $password = password_hash(randomString(), PASSWORD_DEFAULT);
-
-    // Get user details
-    $sql = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $name = sanitizeInput($row['user_name']);
-
-    // Archive user query
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
-
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 // API Key

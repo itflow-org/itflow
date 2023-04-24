@@ -38,11 +38,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
     <div class="card-body">
-        <form autocomplete="off">
-            <div class="input-group">
-                <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Users">
-                <div class="input-group-append">
-                    <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+        <form class="mb-4" autocomplete="off">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Users">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="float-right">
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -180,4 +189,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 require_once("user_add_modal.php");
 require_once("user_invite_modal.php");
+require_once("user_export_modal.php");
 require_once("footer.php");
