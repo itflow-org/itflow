@@ -438,7 +438,8 @@ if (isset($_GET['ticket_id'])) {
                             <h4 class="text-secondary">Contact</h4>
                             <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
                             <br>
-                            <span class="ml-1">Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong></span>
+                            <span class="ml-1">Related tickets: Open <a href="tickets.php?contact_id=<?php echo $contact_id; ?>&status=Open"><?php echo $ticket_related_open; ?></a> | Closed <a href="tickets.php?contact_id=<?php echo $contact_id; ?>&status=Closed"><?php echo $ticket_related_closed; ?></a> | Total <a href="tickets.php?contact_id=<?php echo $contact_id; ?>&status=All"><?php echo $ticket_related_total; ?></a></span>
+                            
                             <hr>
                             <?php
 
