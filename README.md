@@ -24,9 +24,9 @@
     Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
-    <a href="https://itflow.org/index.php?page=About">About</a>
+    <a href="https://itflow.org/#about">About</a>
     ·
-    <a href="https://wiki.itflow.org/doku.php?id=start">Docs</a>
+    <a href="https://docs.itflow.org">Docs</a>
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
@@ -51,7 +51,7 @@
 - On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
-- ITFlow consolidates common MSP needs (documentation, ticketing, and accounting) into one system
+- ITFlow consolidates common MSP needs (IT Documentation, ticketing and billing) into one system
 
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues.
@@ -85,7 +85,7 @@
 <!-- GETTING STARTED -->
 ## Getting Started / Installation
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://wiki.itflow.org/doku.php?id=wiki:installation), but the main steps are:
+ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation), but the main steps are:
 
 1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
    ```sh
@@ -125,7 +125,7 @@ For help using ITFlow, feature requests, and general ideas / discussions please 
 For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
 
 ### Contributing
-If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://wiki.itflow.org/doku.php?id=wiki:code_standards). 
+If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://docs.itflow.org/code_standards). 
 For large changes / new features, please discuss the issue with other contributors first.
 
 #### Contributors

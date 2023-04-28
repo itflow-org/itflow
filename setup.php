@@ -1485,7 +1485,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <hr>
 
-                                <p>Housekeeping: <b>Post installation, <a href="https://wiki.itflow.org/doku.php?id=wiki:installation#essential_housekeeping">a few additional steps</a> are required</b></p>
+                                <p>Housekeeping: <b>Post installation, <a href="https://docs.itflow.org/installation#essential_housekeeping">a few additional steps</a> are required</b></p>
 
                                 <hr>
 
@@ -1512,7 +1512,7 @@ if (isset($_POST['add_telemetry'])) {
                             <?php
                             // Check that there is access to write config.php
                             if (!file_put_contents("config.php", "Test")) {
-                                echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://wiki.itflow.org/doku.php?id=wiki:installation#ubuntu_setup_guide'>docs</a> for info.</div>";
+                                echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation#ubuntu_setup_guide'>docs</a> for info.</div>";
                             } else {
                                 // Else, able to write. Tidy up
                                 unlink("config.php");
