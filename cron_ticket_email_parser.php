@@ -23,17 +23,17 @@ require_once("get_settings.php");
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
-    exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://wiki.itflow.org/doku.php?id=wiki:ticket_email_parse  -- Quitting..");
+    exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
 // Check IMAP extension works/installed
 if (!function_exists('imap_open')) {
-    exit("Email Parser: PHP IMAP extension is not installed. See https://wiki.itflow.org/doku.php?id=wiki:ticket_email_parse  -- Quitting..");
+    exit("Email Parser: PHP IMAP extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
 // Check mailparse extension works/installed
 if (!function_exists('mailparse_msg_parse_file')) {
-    exit("Email Parser: PHP mailparse extension is not installed. See https://wiki.itflow.org/doku.php?id=wiki:ticket_email_parse  -- Quitting..");
+    exit("Email Parser: PHP mailparse extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
 // PHP Mail Parser
@@ -59,7 +59,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $ticket_number = intval($ticket_number_sql['config_ticket_next_number']);
     $new_config_ticket_next_number = $ticket_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
-    
+
     // Prep ticket details
     $message = nl2br($message);
     $message = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
@@ -234,11 +234,11 @@ if ($emails) {
 
         $subject = sanitizeInput($parser->getHeader('subject'));
         $date = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($parser->getHeader('date')))));
-        
-        
+
+
         $message = $parser->getMessageBody('text');
         //$message .= $parser->getMessageBody('htmlEmbedded');
-        
+
         //$text = "Some Text";
         //$message = str_replace("</body>", "<p>{$text}</p></body>", $message);
 
