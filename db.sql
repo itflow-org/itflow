@@ -1305,6 +1305,20 @@ CREATE TABLE `tickets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_attachments`
+--
+
+CREATE TABLE `ticket_attachments` (
+  `ticket_attachment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_attachment_name` varchar(255) NOT NULL,
+  `ticket_attachment_reference_name` varchar(255) NOT NULL,
+  `ticket_attachment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ticket_attachment_ticket_id` int(11) NOT NULL,
+  `ticket_attachment_reply_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ticket_attachment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- Table structure for table `transfers`
 --
 

@@ -37,6 +37,7 @@ if (!function_exists('mailparse_msg_parse_file')) {
 }
 
 // PHP Mail Parser
+use PhpMimeMailParser\Parser;
 require_once("plugins/php-mime-mail-parser/src/Contracts/CharsetManager.php");
 require_once("plugins/php-mime-mail-parser/src/Contracts/Middleware.php");
 require_once("plugins/php-mime-mail-parser/src/Attachment.php");
@@ -47,9 +48,11 @@ require_once("plugins/php-mime-mail-parser/src/MiddlewareStack.php");
 require_once("plugins/php-mime-mail-parser/src/MimePart.php");
 require_once("plugins/php-mime-mail-parser/src/Parser.php");
 
+// Allowed attachment extensions
+$allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
 
 // Function to raise a new ticket for a given contact and email them confirmation (if configured)
-function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message) {
+function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments) {
 
     // Access global variables
     global $mysqli, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password;
@@ -70,6 +73,41 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     // Logging
     echo "Created new ticket.<br>";
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email created ticket $config_ticket_prefix$ticket_number ($subject) ($id)', log_client_id = $client_id");
+
+    // Process attachments (after ticket is logged as created)
+    mkdirMissing('uploads/tickets/');
+    foreach ($attachments as $attachment) {
+
+        // Get name and extension
+        $att_name = $attachment->getFileName();
+        $att_extarr = explode('.', $att_name);
+        $att_extension = strtolower(end($att_extarr));
+
+        // Check the extension is allowed
+        global $allowed_extensions;
+        if (in_array($att_extension, $allowed_extensions)) {
+
+            // Setup directory for this ticket ID
+            $att_dir = "uploads/tickets/" . $id . "/";
+            mkdirMissing($att_dir);
+
+            // Save attachment with a random name
+            $att_saved_path = $attachment->save($att_dir, Parser::ATTACHMENT_RANDOM_FILENAME);
+
+            // Access the random name to add into the database (this won't work on Windows)
+            $att_tmparr = explode($att_dir, $att_saved_path);
+
+            $ticket_attachment_name = sanitizeInput($att_name);
+            $ticket_attachment_reference_name = sanitizeInput(end($att_tmparr));
+
+            mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name', ticket_attachment_reference_name = '$ticket_attachment_reference_name', ticket_attachment_ticket_id = $id");
+
+        } else {
+            $ticket_attachment_name = sanitizeInput($att_name);
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Blocked attachment $ticket_attachment_name from Client contact $contact_email for ticket $config_ticket_prefix$ticket_number', log_client_id = $client_id");
+        }
+
+    }
 
     // Get company name & phone
     $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
@@ -109,7 +147,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
 }
 
-function addReply($from_email, $date, $subject, $ticket_number, $message) {
+function addReply($from_email, $date, $subject, $ticket_number, $message, $attachments) {
     // Add email as a comment/reply to an existing ticket
 
     // Access global variables
@@ -169,6 +207,43 @@ function addReply($from_email, $date, $subject, $ticket_number, $message) {
 
         // Add the comment
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
+
+        $reply_id = mysqli_insert_id($mysqli);
+
+        // Process attachments
+        mkdirMissing('uploads/tickets/');
+        foreach ($attachments as $attachment) {
+
+            // Get name and extension
+            $att_name = $attachment->getFileName();
+            $att_extarr = explode('.', $att_name);
+            $att_extension = strtolower(end($att_extarr));
+
+            // Check the extension is allowed
+            global $allowed_extensions;
+            if (in_array($att_extension, $allowed_extensions)) {
+
+                // Setup directory for this ticket ID
+                $att_dir = "uploads/tickets/" . $ticket_id . "/";
+                mkdirMissing($att_dir);
+
+                // Save attachment with a random name
+                $att_saved_path = $attachment->save($att_dir, Parser::ATTACHMENT_RANDOM_FILENAME);
+
+                // Access the random name to add into the database (this won't work on Windows)
+                $att_tmparr = explode($att_dir, $att_saved_path);
+
+                $ticket_attachment_name = sanitizeInput($att_name);
+                $ticket_attachment_reference_name = sanitizeInput(end($att_tmparr));
+
+                mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name', ticket_attachment_reference_name = '$ticket_attachment_reference_name', ticket_attachment_reply_id = $reply_id, ticket_attachment_ticket_id = $ticket_id");
+
+            } else {
+                $ticket_attachment_name = sanitizeInput($att_name);
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Blocked attachment $ticket_attachment_name from Client contact $from_email for ticket $config_ticket_prefix$ticket_number', log_client_id = $client_id");
+            }
+
+        }
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
@@ -234,15 +309,10 @@ if ($emails) {
 
         $subject = sanitizeInput($parser->getHeader('subject'));
         $date = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($parser->getHeader('date')))));
-
+        $attachments = $parser->getAttachments();
 
         $message = $parser->getMessageBody('text');
         //$message .= $parser->getMessageBody('htmlEmbedded');
-
-        //$text = "Some Text";
-        //$message = str_replace("</body>", "<p>{$text}</p></body>", $message);
-
-
 
         // Check if we can identify a ticket number (in square brackets)
         if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
@@ -254,7 +324,7 @@ if ($emails) {
             preg_match('/\d+/', $ticket_number[0], $ticket_number);
             $ticket_number = intval($ticket_number[0]);
 
-            if (addReply($from_email, $date, $subject, $ticket_number, $message)) {
+            if (addReply($from_email, $date, $subject, $ticket_number, $message, $attachments)) {
                 $email_processed = true;
             }
 
@@ -272,7 +342,7 @@ if ($emails) {
                 $contact_email = $row['contact_email'];
                 $client_id = intval($row['contact_client_id']);
 
-                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message)) {
+                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments)) {
                     $email_processed = true;
                 }
 
@@ -301,7 +371,7 @@ if ($emails) {
                     echo "Created new contact.<br>";
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact $contact_name', log_client_id = $client_id");
 
-                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message)) {
+                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments)) {
                         $email_processed = true;
                     }
 

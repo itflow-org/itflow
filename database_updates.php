@@ -947,17 +947,33 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '0.4.9') {
-    // Insert queries here required to update to DB version 0.5.0
+        // Insert queries here required to update to DB version 0.5.0
         mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_tax_id_number` VARCHAR(255) NULL DEFAULT NULL AFTER `client_net_terms`");
-    // Then, update the database to the next sequential version
+        // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.0'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.0') {
-    // Insert queries here required to update to DB version 0.5.1
+    if (CURRENT_DATABASE_VERSION == '0.5.0') {
+        // Insert queries here required to update to DB version 0.5.1
+        mysqli_query($mysqli, "CREATE TABLE `ticket_attachments` (
+          `ticket_attachment_id` int(11) NOT NULL AUTO_INCREMENT,
+          `ticket_attachment_name` varchar(255) NOT NULL,
+          `ticket_attachment_reference_name` varchar(255) NOT NULL,
+          `ticket_attachment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+          `ticket_attachment_ticket_id` int(11) NOT NULL,
+          `ticket_attachment_reply_id` int(11) DEFAULT NULL,
+          PRIMARY KEY (`ticket_attachment_id`)
+        )");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.1'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.1') {
+    // Insert queries here required to update to DB version 0.5.2
 
     // Then, update the database to the next sequential version
-    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.1'");
+    // mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.2'");
     //}
 
 } else {
