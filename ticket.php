@@ -19,7 +19,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-        WHERE ticket_id = $ticket_id"
+        WHERE ticket_id = $ticket_id LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -167,9 +167,9 @@ if (isset($_GET['ticket_id'])) {
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
         // Get the number of responses
-            $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
-            $row = mysqli_fetch_array($ticket_responses_sql);
-            $ticket_responses = intval($row['ticket_responses']);
+        $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($ticket_responses_sql);
+        $ticket_responses = intval($row['ticket_responses']);
 
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
@@ -203,6 +203,13 @@ if (isset($_GET['ticket_id'])) {
             WHERE user_role > 1
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
+        );
+
+        $sql_ticket_attachments = mysqli_query(
+            $mysqli,
+            "SELECT * FROM ticket_attachments
+            WHERE ticket_attachment_reply_id IS NULL
+            AND ticket_attachment_ticket_id = $ticket_id"
         );
 
         ?>
@@ -241,8 +248,8 @@ if (isset($_GET['ticket_id'])) {
                             <?php if ($session_user_role == 3) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
-                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                            </a>
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </a>
                             <?php } ?>
                         </div>
                     </div>
@@ -262,6 +269,14 @@ if (isset($_GET['ticket_id'])) {
 
                     <div class="card-body">
                         <?php echo $ticket_details; ?>
+
+                        <?php
+                        while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
+                            $name = htmlentities($ticket_attachment['ticket_attachment_name']);
+                            $ref_name = htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                            echo "<a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'>$name</a><br>";
+                        }
+                        ?>
                     </div>
 
                 </div>
@@ -346,6 +361,13 @@ if (isset($_GET['ticket_id'])) {
                         $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
                     }
 
+                    $sql_ticket_reply_attachments = mysqli_query(
+                        $mysqli,
+                        "SELECT * FROM ticket_attachments
+                        WHERE ticket_attachment_reply_id = $ticket_reply_id
+                        AND ticket_attachment_ticket_id = $ticket_id"
+                    );
+
                     ?>
 
                     <div class="card card-outline <?php if ($ticket_reply_type == 'Internal') { echo "card-dark"; } elseif ($ticket_reply_type == 'Client') {echo "card-warning"; } else { echo "card-info"; } ?> mb-3">
@@ -398,6 +420,14 @@ if (isset($_GET['ticket_id'])) {
 
                         <div class="card-body">
                             <?php echo $ticket_reply; ?>
+
+                            <?php
+                            while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
+                                $name = htmlentities($ticket_attachment['ticket_attachment_name']);
+                                $ref_name = htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                                echo "<a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'>$name</a><br>";
+                            }
+                            ?>
                         </div>
 
                     </div>
