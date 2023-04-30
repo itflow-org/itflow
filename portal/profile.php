@@ -4,6 +4,8 @@
  * User profile
  */
 
+header("Content-Security-Policy: default-src 'self' https: fonts.googleapis.com");
+
 require_once('inc_portal.php');
 ?>
 

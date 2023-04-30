@@ -4,6 +4,8 @@
  * Landing / Home page for the client portal
  */
 
+header("Content-Security-Policy: default-src 'self' https: fonts.googleapis.com");
+
 header("X-Frame-Options: DENY");
 
 $session_company_id = 1;

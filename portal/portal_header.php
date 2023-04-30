@@ -4,7 +4,7 @@
  * HTML Header
  */
 
-header("X-Frame-Options: DENY");
+header("X-Frame-Options: DENY"); // Legacy
 ?>
 
 <!DOCTYPE html>
@@ -12,7 +12,7 @@ header("X-Frame-Options: DENY");
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo htmlentities($company_name); ?> | Client Portal - Tickets</title>
+    <title><?php echo htmlentities($company_name); ?> | Client Portal</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
