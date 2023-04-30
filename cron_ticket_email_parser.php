@@ -14,6 +14,9 @@ TODO:
 
 */
 
+// Set working directory to the directory this cron script lives at.
+chdir(dirname(__FILE__));
+
 // Get ITFlow config & helper functions
 require_once("config.php");
 require_once("functions.php");
