@@ -3985,12 +3985,10 @@ if(isset($_GET['email_invoice'])){
 
     $balance = $invoice_amount - $amount_paid;
 
-    if($invoice_status == 'Paid') {
+    if ($invoice_status == 'Paid') {
         $subject = "Invoice $invoice_prefix$invoice_number Copy";
         $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
     } else {
-
         $subject = "Invoice $invoice_prefix$invoice_number";
         $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
     }
@@ -4004,7 +4002,7 @@ if(isset($_GET['email_invoice'])){
         $_SESSION['alert_message'] = "Invoice has been sent";
         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed invoice', history_invoice_id = $invoice_id");
 
-        //Don't chnage the status to sent if the status is anything but draft
+        //Don't change the status to sent if the status is anything but draft
         if($invoice_status == 'Draft'){
             mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
         }
@@ -4020,6 +4018,25 @@ if(isset($_GET['email_invoice'])){
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email_escaped', notification_client_id = $client_id,");
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email_escaped regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
     }
+
+    // Send copies of the invoice to any additional billing contacts
+    $sql_billing_contacts = mysqli_query(
+        $mysqli,
+        "SELECT contact_name, contact_email FROM contacts
+        WHERE contact_billing = 1
+        AND contact_email != '$contact_email_escaped'
+        AND contact_client_id = $client_id"
+    );
+    while ($billing_contact = mysqli_fetch_array($sql_billing_contacts)) {
+        $billing_contact_name = $billing_contact['contact_name'];
+        $billing_contact_email = $billing_contact['contact_email'];
+
+        sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_invoice_from_email, $config_invoice_from_name,
+            $billing_contact_email, $billing_contact_name,
+            $subject, $body);
+    }
+
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
