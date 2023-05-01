@@ -51,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = intval($row['contact_client_id']);
                 $_SESSION['contact_id'] = intval($row['contact_id']);
-                $_SESSION['company_id'] = intval($row['company_id']);
                 $_SESSION['login_method'] = "local";
 
                 header("Location: index.php");
