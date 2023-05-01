@@ -61,7 +61,7 @@ if ($config_enable_cron == 0) {
 }
 
 // Check Cron Key
-if ($argv[1] !== $config_cron_key) {
+if (isset($argv[1]) !== $config_cron_key) {
     exit("Cron Key invalid  -- Quitting..");
 }
 
