@@ -300,6 +300,7 @@ if (isset($_GET['ticket_id'])) {
                                             <option <?php if ($ticket_status == 'Open') { echo "selected"; } ?> >Open</option>
                                             <option <?php if ($ticket_status == 'Working') { echo "selected"; } ?> >Working</option>
                                             <option <?php if ($ticket_status == 'On Hold') { echo "selected"; } ?> >On Hold</option>
+                                            <option <?php if ($ticket_status == 'Auto Close') { echo "selected"; } ?> >Auto Close</option>
                                             <option <?php if ($ticket_status == 'Closed') { echo "selected"; } ?> >Closed</option>
                                         </select>
                                     </div>

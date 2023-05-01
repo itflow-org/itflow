@@ -93,12 +93,12 @@ if ($config_enable_cron == 1) {
 
     /*
      * ###############################################################################################################
-     *  REFRESH DATA 
+     *  REFRESH DATA
      * ###############################################################################################################
      */
     // 2023-02-20 JQ Commenting this code out as its intermitently breaking cron executions, investigating
     // ERROR
-    // php cron.php 
+    // php cron.php
     // PHP Fatal error:  Uncaught TypeError: mysqli_fetch_array(): Argument #1 ($result) must be of type mysqli_result, bool given in cron.php:141
     // Stack trace:
     //#0 cron.php(141): mysqli_fetch_array()
@@ -332,8 +332,82 @@ if ($config_enable_cron == 1) {
 
         }
     }
+
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets'");
+
+
+    // AUTO CLOSE TICKET - CLOSE
+    //  Automatically silently closes tickets 22 hrs after the last chase
+    $sql_tickets_to_chase = mysqli_query(
+        $mysqli,
+        "SELECT * FROM tickets 
+        WHERE ticket_status = 'Auto Close'
+        AND ticket_updated_at < NOW() - INTERVAL 70 HOUR"
+    );
+
+    while ($row = mysqli_fetch_array($sql_tickets_to_chase)) {
+
+        $ticket_id = $row['ticket_id'];
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_status = sanitizeInput($row['ticket_status']);
+        $ticket_assigned_to = sanitizeInput($row['ticket_assigned_to']);
+        $client_id = intval($row['ticket_client_id']);
+
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_prefix$ticket_number auto closed', log_entity_id = $ticket_id");
+
+    }
+
+
+    // AUTO CLOSE TICKETS - CHASE
+    //  Automatically sends a chaser email after approx 48 hrs/2 days
+    $sql_tickets_to_chase = mysqli_query(
+        $mysqli,
+        "SELECT contact_name, contact_email, ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id 
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        WHERE ticket_status = 'Auto Close'
+        AND ticket_updated_at < NOW() - INTERVAL 48 HOUR"
+    );
+
+    while ($row = mysqli_fetch_array($sql_tickets_to_chase)) {
+
+
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_id = $row['ticket_id'];
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_status = sanitizeInput($row['ticket_status']);
+        $client_id = intval($row['ticket_client_id']);
+
+        $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply FROM ticket_replies WHERE ticket_reply_type = 'Public' AND ticket_reply_ticket_id = $ticket_id ORDER BY ticket_reply_created_at DESC LIMIT 1");
+        $ticket_reply_row = mysqli_fetch_array($sql_ticket_reply);
+        $ticket_reply = $ticket_reply_row['ticket_reply'];
+
+        $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $body    = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $contact_email, $contact_name,
+            $subject, $body);
+
+        if ($mail !== true) {
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
+        }
+
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = 'Auto close chaser email sent to $contact_email for ticket $ticket_prefix$ticket_number - $ticket_subject', log_client_id = $client_id");
+
+    }
+
 
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
