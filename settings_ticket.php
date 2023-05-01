@@ -62,6 +62,14 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_autoclose" <?php if($config_ticket_autoclose == 1){ echo "checked"; } ?> value="1" id="ticketAutoCloseSwitch">
+                        <label class="custom-control-label" for="ticketAutoCloseSwitch">Enable Autoclose Tickets <small class="text-secondary">(If no response is received after 48 hrs, a chaser email is sent mentioning "This is an automatic friendly reminder that your ticket regarding "Test ticket" will be closed, unless you respond", including the last public technician response for reference
+If no response is received after a further 22 hrs (70 total since ticket was put in auto close), the ticket is silently closed. (Note: I chose 70 hrs to help prevent situations where the chaser email is sent twice - feel free to adjust as needed))</small></label>
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_ticket_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>

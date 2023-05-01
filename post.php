@@ -682,8 +682,9 @@ if(isset($_POST['edit_ticket_settings'])){
     $config_ticket_from_name = sanitizeInput($_POST['config_ticket_from_name']);
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
     $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
+    $config_ticket_autoclose = intval($_POST['config_ticket_autoclose']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_client_general_notifications = $config_ticket_client_general_notifications , config_ticket_autoclose = $config_ticket_autoclose WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -739,6 +740,7 @@ if(isset($_POST['edit_alert_settings'])){
     validateAdminRole();
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
+    $config_cron_key = sanitizeInput($_POST['config_cron_key']);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire']);
     $config_send_invoice_reminders = intval($_POST['config_send_invoice_reminders']);
     $config_invoice_overdue_reminders = sanitizeInput($_POST['config_invoice_overdue_reminders']);
@@ -749,6 +751,22 @@ if(isset($_POST['edit_alert_settings'])){
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified alert settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Alert Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['generate_cron_key'])){
+    validateAdminRole();
+
+    $key = randomString(32);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_cron_key = '$key' WHERE company_id = 1");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name regenerated cron key', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Cron key regenerated!";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

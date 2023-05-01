@@ -29,6 +29,13 @@ if ($config_ticket_email_parse == 0) {
     exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
+$argv = $_SERVER['argv'];
+
+// Check Cron Key
+if ($argv[1] !== $config_cron_key) {
+    exit("Cron Key invalid  -- Quitting..");
+}
+
 // Check IMAP extension works/installed
 if (!function_exists('imap_open')) {
     exit("Email Parser: PHP IMAP extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");

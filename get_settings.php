@@ -59,10 +59,13 @@ $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
 $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
+$config_ticket_autoclose = intval($row['config_ticket_autoclose']);
 
-// Alerts
+// Cron
 $config_enable_cron = intval($row['config_enable_cron']);
+$config_cron_key = $row['config_cron_key'];
 
+// Alerts & Notifications
 $config_recurring_auto_send_invoice = intval($row['config_recurring_auto_send_invoice']);
 $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_expire']);
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);

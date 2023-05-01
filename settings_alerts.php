@@ -16,6 +16,19 @@ require_once("inc_all_settings.php"); ?>
                 </div>
 
                 <div class="form-group">
+                    <label>Cron Key</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_cron_key" placeholder="Generate a CRON Key" value="<?php echo htmlentities($config_cron_key); ?>" readonly>
+                        <div class="input-group-append">
+                            <a href="post.php?generate_cron_key" class="btn btn-secondary"><i class="fas fa-fw fa-sync mr-2"></i>Generate</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1" id="alertDomainExpireSwitch">
                         <label class="custom-control-label" for="alertDomainExpireSwitch">Enable Domain Expiration Alerts</label>
