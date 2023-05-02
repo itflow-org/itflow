@@ -29,6 +29,12 @@
 
   <ul class="navbar-nav ml-auto">
 
+    <li class="nav-item">
+      <a class="nav-link" href="https://docs.itflow.org" target="_blank">
+        <i class="fas fa-fw fa-question"></i>
+      </a>
+    </li>
+
     <!-- New Notifications Dropdown -->
     <?php
     $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
@@ -81,6 +87,7 @@
       </div>
     </li>
     <?php } else { ?>
+
     <li class="nav-item dropdown">
       <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="far fa-bell"></i>
