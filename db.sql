@@ -1049,7 +1049,9 @@ CREATE TABLE `settings` (
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_email_parse` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
+  `config_ticket_autoclose` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
+  `config_cron_key` varchar(255) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
@@ -1234,6 +1236,24 @@ CREATE TABLE `taxes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_attachments`
+--
+
+DROP TABLE IF EXISTS `ticket_attachments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_attachments` (
+  `ticket_attachment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_attachment_name` varchar(255) NOT NULL,
+  `ticket_attachment_reference_name` varchar(255) NOT NULL,
+  `ticket_attachment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ticket_attachment_ticket_id` int(11) NOT NULL,
+  `ticket_attachment_reply_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ticket_attachment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_replies`
 --
 
@@ -1303,20 +1323,6 @@ CREATE TABLE `tickets` (
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ticket_attachments`
---
-
-CREATE TABLE `ticket_attachments` (
-  `ticket_attachment_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ticket_attachment_name` varchar(255) NOT NULL,
-  `ticket_attachment_reference_name` varchar(255) NOT NULL,
-  `ticket_attachment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `ticket_attachment_ticket_id` int(11) NOT NULL,
-  `ticket_attachment_reply_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ticket_attachment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `transfers`
@@ -1485,4 +1491,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-11 16:19:58
+-- Dump completed on 2023-05-02 12:35:34
