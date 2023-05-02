@@ -32,7 +32,7 @@ if ($config_ticket_email_parse == 0) {
 $argv = $_SERVER['argv'];
 
 // Check Cron Key
-if (isset($argv[1]) !== $config_cron_key) {
+if ( $argv[1] !== $config_cron_key ) {
     exit("Cron Key invalid  -- Quitting..");
 }
 
