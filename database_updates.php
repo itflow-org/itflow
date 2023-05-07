@@ -979,11 +979,48 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.2'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.2') {
+    if (CURRENT_DATABASE_VERSION == '0.5.2') {
         //Insert queries here required to update to DB version 0.5.3
+        //Custom Fields and Values
+
+        mysqli_query($mysqli, "CREATE TABLE `custom_fields` (
+            `custom_field_id` int(11) NOT NULL AUTO_INCREMENT,
+            `custom_field_table` varchar(255) NOT NULL,
+            `custom_field_label` varchar(255) NOT NULL,
+            `custom_field_type` varchar(255) NOT NULL DEFAULT 'TEXT',
+            `custom_field_location` int(11) NOT NULL DEFAULT 0,
+            `custom_field_order` int(11) NOT NULL DEFAULT 999,
+            PRIMARY KEY (`custom_field_id`),
+            UNIQUE KEY (`custom_field_table`),
+            UNIQUE KEY (`custom_field_label`),
+            UNIQUE KEY (`custom_field_type`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `custom_values` (
+            `custom_value_id` int(11) NOT NULL AUTO_INCREMENT,
+            `custom_value_value` text NOT NULL,
+            `custom_value_field` int(11) NOT NULL,
+            PRIMARY KEY (`custom_value_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `asset_custom` (
+            `asset_custom_id` int(11) NOT NULL AUTO_INCREMENT,
+            `asset_custom_field_value` int(11) NOT NULL,
+            `asset_custom_field_id` int(11) NOT NULL,
+            `asset_custom_asset_id` int(11) NOT NULL,
+            PRIMARY KEY (`asset_custom_id`),
+            UNIQUE KEY (`asset_custom_field_id`)
+        )");
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.3'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.3'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.3') {
+        //Insert queries here required to update to DB version 0.5.4
+
+        // Then, update the database to the next sequential version
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.4'");
     //}
 
 } else {

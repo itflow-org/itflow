@@ -54,6 +54,23 @@ CREATE TABLE `api_keys` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_custom`
+--
+
+DROP TABLE IF EXISTS `asset_custom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_custom` (
+  `asset_custom_id` int(11) NOT NULL AUTO_INCREMENT,
+  `asset_custom_field_value` int(11) NOT NULL,
+  `asset_custom_field_id` int(11) NOT NULL,
+  `asset_custom_asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`asset_custom_id`),
+  UNIQUE KEY `asset_custom_field_id` (`asset_custom_field_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_documents`
 --
 
@@ -351,6 +368,42 @@ CREATE TABLE `contacts` (
   `contact_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`contact_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_fields`
+--
+
+DROP TABLE IF EXISTS `custom_fields`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `custom_fields` (
+  `custom_field_id` int(11) NOT NULL AUTO_INCREMENT,
+  `custom_field_table` varchar(255) NOT NULL,
+  `custom_field_label` varchar(255) NOT NULL,
+  `custom_field_type` varchar(255) NOT NULL DEFAULT 'TEXT',
+  `custom_field_location` int(11) NOT NULL DEFAULT 0,
+  `custom_field_order` int(11) NOT NULL DEFAULT 999,
+  PRIMARY KEY (`custom_field_id`),
+  UNIQUE KEY `custom_field_table` (`custom_field_table`),
+  UNIQUE KEY `custom_field_label` (`custom_field_label`),
+  UNIQUE KEY `custom_field_type` (`custom_field_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_values`
+--
+
+DROP TABLE IF EXISTS `custom_values`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `custom_values` (
+  `custom_value_id` int(11) NOT NULL AUTO_INCREMENT,
+  `custom_value_value` text NOT NULL,
+  `custom_value_field` int(11) NOT NULL,
+  PRIMARY KEY (`custom_value_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1491,4 +1544,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-02 12:35:34
+-- Dump completed on 2023-05-07 19:45:11
