@@ -44,8 +44,8 @@ if (isset($_GET['ticket_id'])) {
         $ticket_number = intval($row['ticket_number']);
         $ticket_category = htmlentities($row['ticket_category']);
         $ticket_subject = htmlentities($row['ticket_subject']);
-        $ticket_details = $purifier->purify($row['ticket_details']);
-        //$ticket_details = $row['ticket_details'];
+        $ticket_details = $purifier->purify($row['ticket_details']); // We use Purify so HTML can be rendered securely on this page
+        $ticket_details_edit = $row['ticket_details']; // HTML Entities is used in the edit modal this is because tickets and ticket details share the edit modal and to prevent double html encoding causing output yuck
         $ticket_priority = htmlentities($row['ticket_priority']);
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {

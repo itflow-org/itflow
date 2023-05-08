@@ -83,6 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $ticket_number = htmlentities($row['ticket_number']);
                     $ticket_subject = htmlentities($row['ticket_subject']);
                     $ticket_details = htmlentities($row['ticket_details']);
+                    $ticket_details_edit = $row['ticket_details']; // HTML Entities is used in the edit modal this is because tickets and ticket details share the edit modal and to prevent double html encoding causing output yuck
                     $ticket_priority = htmlentities($row['ticket_priority']);
                     $ticket_status = htmlentities($row['ticket_status']);
                     $ticket_created_at = htmlentities($row['ticket_created_at']);

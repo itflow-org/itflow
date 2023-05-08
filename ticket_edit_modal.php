@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control summernote" rows="8" name="details" required><?php echo htmlentities($ticket_details); ?></textarea>
+                                <textarea class="form-control summernote" rows="8" name="details" required><?php echo htmlentities($ticket_details_edit); ?></textarea>
                             </div>
 
                             <div class="form-group">
