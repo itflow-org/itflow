@@ -133,7 +133,7 @@
                     <?php } ?>
 
                     <div class="form-group">
-                        <textarea class="form-control summernote" rows="8" name="details"></textarea>
+                        <textarea class="form-control tinymce" name="details"></textarea>
                     </div>
 
                 </div>

@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control summernote" rows="8" name="details" id="editTicketDetails"></textarea>
+                        <textarea class="form-control tinymce" name="details" id="editTicketDetails"></textarea>
                     </div>
 
                 </div>

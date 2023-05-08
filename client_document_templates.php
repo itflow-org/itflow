@@ -2,12 +2,6 @@
 
 require_once("inc_all_client.php");
 
-//Initialize the HTML Purifier to prevent XSS
-require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
-
 // Sort by
 if (!empty($_GET['sb'])) {
   $sb = sanitizeInput($_GET['sb']);
@@ -87,8 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
           while ($row = mysqli_fetch_array($sql)) {
             $document_id = intval($row['document_id']);
             $document_name = htmlentities($row['document_name']);
-            //$document_content = $purifier->purify($row['document_content']);
-            $document_content = $row['document_content'];
+            $document_content = htmlentities($row['document_content']);
             $document_created_at = htmlentities($row['document_created_at']);
             $document_updated_at = htmlentities($row['document_updated_at']);
             $document_folder_id = intval($row['document_folder_id']);
