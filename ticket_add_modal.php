@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control summernote" rows="5" name="details" required></textarea>
+                                <textarea class="form-control tinymce" rows="5" name="details" required></textarea>
                             </div>
 
                             <?php if (empty($_GET['client_id'])) { ?>

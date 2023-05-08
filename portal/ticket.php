@@ -76,7 +76,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <form action="portal_post.php" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
                 <div class="form-group">
-                    <textarea class="form-control summernote" name="comment" placeholder="Add comments.."></textarea>
+                    <textarea class="form-control tinymce" name="comment" placeholder="Add comments.."></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Reply</button>
             </form>

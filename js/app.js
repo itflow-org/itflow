@@ -13,19 +13,26 @@ $('.select2').select2({
   theme: 'bootstrap4'
 });
 
-// Summernote
-$('.summernote').summernote({
-  toolbar: [
-    ['style', ['style']],
-    ['font', ['bold', 'underline', 'clear']],
-    ['fontname', ['fontname']],
-    ['color', ['color']],
-    ['para', ['ul', 'ol', 'paragraph']],
-    ['table', ['table']],
-    ['insert', ['link', 'picture', 'video']],
-    ['view', ['codeview']],
-  ],
-	height: 300
+// Initialize TinyMCE
+tinymce.init({
+    selector: '.tinymce',
+    resize: true,
+    min_height: 300,
+    max_height: 600,
+    promotion: false,
+    branding: false,
+    menubar: false,
+    statusbar: false,
+    toolbar: [
+      { name: 'styles', items: [ 'styles' ] },
+      { name: 'formatting', items: [ 'bold', 'italic', 'forecolor' ] },
+      { name: 'lists', items: [ 'bullist', 'numlist' ] },
+      { name: 'alignment', items: [ 'alignleft', 'aligncenter', 'alignright', 'alignjustify' ] },
+      { name: 'indentation', items: [ 'outdent', 'indent' ] },
+      { name: 'table', items: [ 'table' ] },
+      { name: 'extra', items: [ 'print', 'code', 'fullscreen' ] }
+    ],
+    plugins: 'link image lists table code codesample fullscreen autoresize',
 });
 
 // DateTime

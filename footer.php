@@ -18,7 +18,7 @@
 <script src='plugins/daterangepicker/daterangepicker.js'></script>
 <script src='plugins/select2/js/select2.min.js'></script>
 <script src='plugins/inputmask/jquery.inputmask.min.js'></script>
-<script src="plugins/summernote/summernote-bs4.min.js"></script>
+<script src="/plugins/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <script src="plugins/clipboardjs/clipboard.min.js"></script>
 
