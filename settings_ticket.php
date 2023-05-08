@@ -51,22 +51,21 @@ require_once("inc_all_settings.php"); ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="emailToTicketParseSwitch">
-                        <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing <small>(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
+                        <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing <small class="text-secondary">(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="ticketNotificationSwitch">
-                        <label class="custom-control-label" for="ticketNotificationSwitch">Send clients general notification emails <small>(Should clients receive automatic emails when tickets are raised/closed?)</small></label>
+                        <label class="custom-control-label" for="ticketNotificationSwitch">Send clients general notification emails <small class="text-secondary">(Should clients receive automatic emails when tickets are raised/closed?)</small></label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_ticket_autoclose" <?php if($config_ticket_autoclose == 1){ echo "checked"; } ?> value="1" id="ticketAutoCloseSwitch">
-                        <label class="custom-control-label" for="ticketAutoCloseSwitch">Enable Autoclose Tickets <small class="text-secondary">(If no response is received after 48 hrs, a chaser email is sent mentioning "This is an automatic friendly reminder that your ticket regarding "Test ticket" will be closed, unless you respond", including the last public technician response for reference
-If no response is received after a further 22 hrs (70 total since ticket was put in auto close), the ticket is silently closed. (Note: I chose 70 hrs to help prevent situations where the chaser email is sent twice - feel free to adjust as needed))</small></label>
+                        <label class="custom-control-label" for="ticketAutoCloseSwitch">Enable Auto close Tickets <small class="text-secondary">(If no response is received after 48 hrs, a friendly chaser email is sent. The ticket is then automatically closed after the time specified below (defaults to 72 hours). </small></label>
                     </div>
                 </div>
 
