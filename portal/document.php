@@ -14,7 +14,7 @@ if ($session_contact_id !== $session_client_primary_contact_id && !$session_cont
 }
 
 //Initialize the HTML Purifier to prevent XSS
-require("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
+require_once("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
