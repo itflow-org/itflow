@@ -51,6 +51,14 @@ header("X-Frame-Options: DENY"); // Legacy
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "invoices.php") {echo "active";} ?>" href="invoices.php">Invoices</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "quotes.php") {echo "active";} ?>" href="quotes.php">Quotes</a>
+                    </li>
+                <?php } ?>
+                <?php if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact) { ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "documents.php") {echo "active";} ?>" href="documents.php">Documents</a>
+                    </li>
                 <?php } ?>
             </ul>
 
