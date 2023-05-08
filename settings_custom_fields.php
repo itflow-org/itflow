@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCustomFieldModal<?php echo $custom_field_id; ?>"><?php echo $custom_field_label; ?></a></td>
-                            <td><?php echo $custom_field_type; ?>;"></td>
+                            <td><?php echo $custom_field_type; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
