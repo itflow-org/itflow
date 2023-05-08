@@ -3298,7 +3298,12 @@ if(isset($_GET['delete_quote'])){
 
     $_SESSION['alert_message'] = "Quotes deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    if(isset($_GET['client_id'])) {
+        $client_id = intval($_GET['client_id']);
+        header("Location: client_quotes.php?client_id=$client_id");
+    } else {
+        header("Location: quotes.php");
+    }
 
 }
 

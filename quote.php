@@ -176,8 +176,8 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="#">
-                                <i class="fa fa-fw fa-times text-danger text-bold mr-2"></i>Delete
+                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_quote=<?php echo $quote_id; ?>">
+                                <i class="fa fa-fw fa-times mr-2"></i>Delete
                             </a>
                         </div>
                     </div>
