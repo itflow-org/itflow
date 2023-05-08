@@ -1099,6 +1099,7 @@ CREATE TABLE `settings` (
   `config_ticket_email_parse` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_autoclose` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_cron_key` varchar(255) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
@@ -1540,4 +1541,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-07 20:45:03
+-- Dump completed on 2023-05-07 21:08:34

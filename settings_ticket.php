@@ -70,6 +70,16 @@ If no response is received after a further 22 hrs (70 total since ticket was put
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Number of hours to auto close ticket</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                        </div>
+                        <input type="number" min="72" class="form-control" name="config_ticket_autoclose_hours" placeholder="Enter the number of hours to auto close ticket" value="<?php echo intval($config_ticket_autoclose_hours); ?>">
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_ticket_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>

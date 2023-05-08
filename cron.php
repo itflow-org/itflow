@@ -41,6 +41,7 @@ $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
+$config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 
 //Get Config for Telemetry
 $config_theme = $row['config_theme'];
@@ -357,7 +358,7 @@ if ($config_ticket_autoclose == 1) {
         $mysqli,
         "SELECT * FROM tickets 
         WHERE ticket_status = 'Auto Close'
-        AND ticket_updated_at < NOW() - INTERVAL 70 HOUR"
+        AND ticket_updated_at < NOW() - INTERVAL $config_ticket_autoclose_hours HOUR"
     );
 
     while ($row = mysqli_fetch_array($sql_tickets_to_chase)) {

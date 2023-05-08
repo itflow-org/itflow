@@ -60,6 +60,7 @@ $config_ticket_from_email = $row['config_ticket_from_email'];
 $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
+$config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);
