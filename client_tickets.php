@@ -6,6 +6,12 @@ $o = "DESC";
 
 require_once("inc_all_client.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
 
@@ -82,8 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $ticket_prefix = htmlentities($row['ticket_prefix']);
                     $ticket_number = htmlentities($row['ticket_number']);
                     $ticket_subject = htmlentities($row['ticket_subject']);
-                    $ticket_details = htmlentities($row['ticket_details']);
-                    $ticket_details_edit = $row['ticket_details']; // HTML Entities is used in the edit modal this is because tickets and ticket details share the edit modal and to prevent double html encoding causing output yuck
+                    $ticket_details = $purifier->purify($row['ticket_details']);
                     $ticket_priority = htmlentities($row['ticket_priority']);
                     $ticket_status = htmlentities($row['ticket_status']);
                     $ticket_created_at = htmlentities($row['ticket_created_at']);

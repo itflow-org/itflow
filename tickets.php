@@ -6,6 +6,12 @@ $o = "DESC";
 
 require_once("inc_all.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 // Ticket status from GET
 if (!isset($_GET['status'])) {
     // If nothing is set, assume we only want to see open tickets
@@ -261,8 +267,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_prefix = htmlentities($row['ticket_prefix']);
                         $ticket_number = intval($row['ticket_number']);
                         $ticket_subject = htmlentities($row['ticket_subject']);
-                        $ticket_details = htmlentities($row['ticket_details']);
-                        $ticket_details_edit = $row['ticket_details']; // HTML Entities is used in the edit modal this is because tickets and ticket details share the edit modal and to prevent double html encoding causing output yuck
+                        $ticket_details = $purifier->purify($row['ticket_details']);
                         $ticket_priority = htmlentities($row['ticket_priority']);
                         $ticket_status = htmlentities($row['ticket_status']);
                         $ticket_created_at = htmlentities($row['ticket_created_at']);
