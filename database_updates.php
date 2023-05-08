@@ -1020,11 +1020,45 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.4'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.4') {
+    if (CURRENT_DATABASE_VERSION == '0.5.4') {
         //Insert queries here required to update to DB version 0.5.5
+        mysqli_query($mysqli, "CREATE TABLE `projects` (
+            `project_id` int(11) NOT NULL AUTO_INCREMENT,
+            `project_template` tinyint(1) NOT NULL DEFAULT 0,
+            `project_name` varchar(255) NOT NULL,
+            `project_description` text NULL DEFAULT NULL,
+            `project_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `project_updated_at` datetime NULL DEFAULT NULL on update CURRENT_TIMESTAMP,
+            `project_archived_at` datetime NULL DEFAULT NULL,
+            `project_client_id` int(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`project_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `tasks` (
+            `task_id` int(11) NOT NULL AUTO_INCREMENT,
+            `task_template` tinyint(1) NOT NULL DEFAULT 0,
+            `task_name` varchar(255) NOT NULL,
+            `task_description` text NULL DEFAULT NULL,
+            `task_finish_date` date NULL DEFAULT NULL,
+            `task_status` varchar(255) NULL DEFAULT NULL,
+            `task_completed_at` datetime NULL DEFAULT NULL,
+            `task_completed_by` int(11) NULL DEFAULT NULL,
+            `task_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `task_updated_at` datetime NULL DEFAULT NULL on update CURRENT_TIMESTAMP,
+            `task_ticket_id` int(11) NULL DEFAULT NULL,
+            `task_project_id` int(11) NULL DEFAULT NULL,
+            PRIMARY KEY (`task_id`)
+        )");
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.5'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.5'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.5') {
+        //Insert queries here required to update to DB version 0.5.6
+
+        // Then, update the database to the next sequential version
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.6'");
     //}
 
 } else {

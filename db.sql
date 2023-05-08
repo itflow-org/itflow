@@ -811,6 +811,26 @@ CREATE TABLE `products` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `projects`
+--
+
+DROP TABLE IF EXISTS `projects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `projects` (
+  `project_id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_template` tinyint(1) NOT NULL DEFAULT 0,
+  `project_name` varchar(255) NOT NULL,
+  `project_description` text DEFAULT NULL,
+  `project_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `project_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `project_archived_at` datetime DEFAULT NULL,
+  `project_client_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`project_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quotes`
 --
 
@@ -1268,6 +1288,30 @@ CREATE TABLE `tags` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tasks`
+--
+
+DROP TABLE IF EXISTS `tasks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tasks` (
+  `task_id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_template` tinyint(1) NOT NULL DEFAULT 0,
+  `task_name` varchar(255) NOT NULL,
+  `task_description` text DEFAULT NULL,
+  `task_finish_date` date DEFAULT NULL,
+  `task_status` varchar(255) DEFAULT NULL,
+  `task_completed_at` datetime DEFAULT NULL,
+  `task_completed_by` int(11) DEFAULT NULL,
+  `task_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `task_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `task_ticket_id` int(11) DEFAULT NULL,
+  `task_project_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `taxes`
 --
 
@@ -1541,4 +1585,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-07 21:08:34
+-- Dump completed on 2023-05-07 21:42:46
