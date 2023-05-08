@@ -65,8 +65,7 @@ CREATE TABLE `asset_custom` (
   `asset_custom_field_value` int(11) NOT NULL,
   `asset_custom_field_id` int(11) NOT NULL,
   `asset_custom_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_custom_id`),
-  UNIQUE KEY `asset_custom_field_id` (`asset_custom_field_id`)
+  PRIMARY KEY (`asset_custom_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -381,13 +380,10 @@ CREATE TABLE `custom_fields` (
   `custom_field_id` int(11) NOT NULL AUTO_INCREMENT,
   `custom_field_table` varchar(255) NOT NULL,
   `custom_field_label` varchar(255) NOT NULL,
-  `custom_field_type` varchar(255) NOT NULL DEFAULT 'TEXT',
+  `custom_field_type` varchar(255) NOT NULL DEFAULT 'text',
   `custom_field_location` int(11) NOT NULL DEFAULT 0,
   `custom_field_order` int(11) NOT NULL DEFAULT 999,
-  PRIMARY KEY (`custom_field_id`),
-  UNIQUE KEY `custom_field_table` (`custom_field_table`),
-  UNIQUE KEY `custom_field_label` (`custom_field_label`),
-  UNIQUE KEY `custom_field_type` (`custom_field_type`)
+  PRIMARY KEY (`custom_field_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1544,4 +1540,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-07 19:45:11
+-- Dump completed on 2023-05-07 20:45:03

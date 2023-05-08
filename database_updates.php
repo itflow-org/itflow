@@ -987,13 +987,10 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `custom_field_id` int(11) NOT NULL AUTO_INCREMENT,
             `custom_field_table` varchar(255) NOT NULL,
             `custom_field_label` varchar(255) NOT NULL,
-            `custom_field_type` varchar(255) NOT NULL DEFAULT 'TEXT',
+            `custom_field_type` varchar(255) NOT NULL DEFAULT 'text',
             `custom_field_location` int(11) NOT NULL DEFAULT 0,
             `custom_field_order` int(11) NOT NULL DEFAULT 999,
-            PRIMARY KEY (`custom_field_id`),
-            UNIQUE KEY (`custom_field_table`),
-            UNIQUE KEY (`custom_field_label`),
-            UNIQUE KEY (`custom_field_type`)
+            PRIMARY KEY (`custom_field_id`)
         )");
 
         mysqli_query($mysqli, "CREATE TABLE `custom_values` (
@@ -1008,8 +1005,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `asset_custom_field_value` int(11) NOT NULL,
             `asset_custom_field_id` int(11) NOT NULL,
             `asset_custom_asset_id` int(11) NOT NULL,
-            PRIMARY KEY (`asset_custom_id`),
-            UNIQUE KEY (`asset_custom_field_id`)
+            PRIMARY KEY (`asset_custom_id`)
         )");
 
         // Then, update the database to the next sequential version

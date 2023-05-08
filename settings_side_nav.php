@@ -50,6 +50,13 @@
         </li>
 
         <li class="nav-item">
+          <a href="settings_custom_fields.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_custom_fields.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-list"></i>
+            <p>Custom Fields</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tag"></i>
             <p>Tags</p>
