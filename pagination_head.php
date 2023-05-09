@@ -51,7 +51,6 @@ if (isset($_GET['q'])) {
 // Sortby
 if (!empty($_GET['sb'])) {
     $sb = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sb']));
-    
 }
 
 //$sb = $_GET['sb'];
