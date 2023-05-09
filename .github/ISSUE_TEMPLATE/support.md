@@ -15,4 +15,4 @@ Discord - https://discord.gg/ZjCcBzTUDr
 
 --
 
-To discuss a security issue, please see: https://i.imgur.com/P03o0Sy.png
+To privately discuss a security issue, please see https://github.com/itflow-org/itflow/security
