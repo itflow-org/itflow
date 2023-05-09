@@ -286,7 +286,7 @@ if (isset($_GET['ticket_id'])) {
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
-                            <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response" required></textarea>
+                            <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response"></textarea>
                         </div>
                         <div class="form-row">
                             <div class="col-md-2">
