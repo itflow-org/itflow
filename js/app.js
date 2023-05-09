@@ -30,8 +30,13 @@ tinymce.init({
       { name: 'alignment', items: [ 'alignleft', 'aligncenter', 'alignright', 'alignjustify' ] },
       { name: 'indentation', items: [ 'outdent', 'indent' ] },
       { name: 'table', items: [ 'table' ] },
-      { name: 'extra', items: [ 'print', 'code', 'fullscreen' ] }
+      { name: 'extra', items: [ 'code', 'fullscreen' ] }
     ],
+    mobile: {
+        menubar: false,
+        plugins: 'autosave lists autolink',
+        toolbar: 'bold italic styles'
+    },
     plugins: 'link image lists table code codesample fullscreen autoresize',
 });
 
