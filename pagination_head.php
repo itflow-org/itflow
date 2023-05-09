@@ -50,8 +50,11 @@ if (isset($_GET['q'])) {
 
 // Sortby
 if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput($_GET['sb']);
+    $sb = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sb']));
+    
 }
+
+//$sb = $_GET['sb'];
 
 // Date Handling
 if (empty($_GET['canned_date'])) {
