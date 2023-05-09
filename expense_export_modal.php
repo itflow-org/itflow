@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo $dtf; ?>">
+                            <input type="date" class="form-control" name="date_from" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
                         </div>
                     </div>
 
@@ -28,7 +28,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo $dtt; ?>">
+                            <input type="date" class="form-control" name="date_to" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
                         </div>
                     </div>
 
