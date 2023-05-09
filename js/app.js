@@ -16,6 +16,8 @@ $('.select2').select2({
 // Initialize TinyMCE
 tinymce.init({
     selector: '.tinymce',
+    browser_spellcheck: true,
+    contextmenu: false,
     resize: true,
     min_height: 300,
     max_height: 600,

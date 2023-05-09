@@ -27,6 +27,7 @@
     // Initialize TinyMCE
     tinymce.init({
         selector: '.tinymce',
+        browser_spellcheck: true,
         resize: true,
         min_height: 300,
         max_height: 600,
