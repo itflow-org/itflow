@@ -50,10 +50,8 @@ if (isset($_GET['q'])) {
 
 // Sortby
 if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sb']));
+    $sb = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sb'])); // JQ 2023-05-09 - See issue #673 on GitHub to see the reasoning why we used preg_replace technically sanitizeInput() should have been enough to escape SQL Commands
 }
-
-//$sb = $_GET['sb'];
 
 // Date Handling
 if (empty($_GET['canned_date'])) {
