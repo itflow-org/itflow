@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymce" rows="8" name="details" required><?php echo $ticket_details; ?></textarea>
+                                <textarea class="form-control tinymce" rows="8" name="details"><?php echo $ticket_details; ?></textarea>
                             </div>
 
                             <div class="form-group">
