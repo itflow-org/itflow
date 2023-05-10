@@ -48,7 +48,7 @@ require_once('inc_portal.php');
 
             <div class="form-group">
                 <label>Details <strong class="text-danger">*</strong></label>
-                <textarea class="form-control tinymce" name="details" required></textarea>
+                <textarea class="form-control tinymce" name="details"></textarea>
             </div>
 
             <button class="btn btn-primary" name="add_ticket">Raise ticket</button>

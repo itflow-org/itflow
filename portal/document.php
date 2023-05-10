@@ -57,20 +57,12 @@ $document_content = $purifier->purify($row['document_content']);
     </div>
 
     <br>
-
-    <div class="row">
-
-        <div class="col-md-10">
-
-            <div class="card">
-                <div class="card-body">
-                    <h3><?php echo $document_name; ?></h3>
-                    <?php echo $document_content; ?>
-                </div>
-            </div>
-
+    
+    <div class="card">
+        <div class="card-body">
+            <h3><?php echo $document_name; ?></h3>
+            <?php echo $document_content; ?>
         </div>
-
     </div>
 
 
