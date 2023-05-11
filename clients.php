@@ -11,17 +11,23 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, '
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT DISTINCT SQL_CALC_FOUND_ROWS * FROM clients
-    LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
-    LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
-    LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
-    LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
-    WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
-    OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
-    AND client_archived_at IS NULL
-    AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
-    GROUP BY clients.client_id
-    ORDER BY $sb $o LIMIT $record_from, $record_to
+    "
+SELECT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, GROUP_CONCAT(tags.tag_name) AS tag_names
+FROM clients
+LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contacts.contact_archived_at IS NULL
+LEFT JOIN locations ON clients.primary_location = locations.location_id AND locations.location_archived_at IS NULL
+LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
+LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
+WHERE (clients.client_name LIKE '%$q%' OR clients.client_type LIKE '%$q%' OR clients.client_referral LIKE '%$q%'
+       OR contacts.contact_email LIKE '%$q%' OR contacts.contact_name LIKE '%$q%' OR contacts.contact_phone LIKE '%$phone_query%'
+       OR contacts.contact_mobile LIKE '%$phone_query%' OR locations.location_address LIKE '%$q%'
+       OR locations.location_city LIKE '%$q%' OR locations.location_state LIKE '%$q%' OR locations.location_zip LIKE '%$q%'
+       OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
+  AND clients.client_archived_at IS NULL
+  AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
+GROUP BY clients.client_id
+ORDER BY $sb $o
+LIMIT $record_from, $record_to
 ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
