@@ -20,7 +20,7 @@ $sql = mysqli_query(
     OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
     AND client_archived_at IS NULL
     AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
-    GROUP BY clients.client_id
+    GROUP BY clients.client_id, client_tags.client_tag_tag_id
     ORDER BY $sb $o LIMIT $record_from, $record_to
 ");
 
