@@ -14,7 +14,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo htmlentities($config_ticket_prefix); ?>">
+                        <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo nullable_htmlentities($config_ticket_prefix); ?>">
                     </div>
                 </div>
 
@@ -34,7 +34,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_ticket_from_email" placeholder="From Email" value="<?php echo htmlentities($config_ticket_from_email); ?>">
+                        <input type="email" class="form-control" name="config_ticket_from_email" placeholder="From Email" value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>">
                     </div>
                 </div>
 
@@ -44,7 +44,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name" value="<?php echo htmlentities($config_ticket_from_name); ?>">
+                        <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name" value="<?php echo nullable_htmlentities($config_ticket_from_name); ?>">
                     </div>
                 </div>
 

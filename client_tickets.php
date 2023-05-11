@@ -42,7 +42,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tickets">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -79,14 +79,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $ticket_id = intval($row['ticket_id']);
-                    $ticket_prefix = htmlentities($row['ticket_prefix']);
-                    $ticket_number = htmlentities($row['ticket_number']);
-                    $ticket_subject = htmlentities($row['ticket_subject']);
-                    $ticket_details = htmlentities($row['ticket_details']);
-                    $ticket_priority = htmlentities($row['ticket_priority']);
-                    $ticket_status = htmlentities($row['ticket_status']);
-                    $ticket_created_at = htmlentities($row['ticket_created_at']);
-                    $ticket_updated_at = htmlentities($row['ticket_updated_at']);
+                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                    $ticket_number = nullable_htmlentities($row['ticket_number']);
+                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                    $ticket_details = nullable_htmlentities($row['ticket_details']);
+                    $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                    $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                     if (empty($ticket_updated_at)) {
                         if ($ticket_status == "Closed") {
                             $ticket_updated_at_display = "<p>Never</p>";
@@ -96,7 +96,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $ticket_updated_at_display = $ticket_updated_at;
                     }
-                    $ticket_closed_at = htmlentities($row['ticket_closed_at']);
+                    $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
                     if ($ticket_status == "Open") {
                         $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -123,19 +123,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                         }
                     } else {
-                        $ticket_assigned_to_display = htmlentities($row['user_name']);
+                        $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                     }
                     $contact_id = intval($row['contact_id']);
-                    $contact_name = htmlentities($row['contact_name']);
+                    $contact_name = nullable_htmlentities($row['contact_name']);
                     if (empty($contact_name)) {
                         $contact_display = "-";
                     } else {
                         $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
                     }
-                    $contact_title = htmlentities($row['contact_title']);
-                    $contact_email = htmlentities($row['contact_email']);
+                    $contact_title = nullable_htmlentities($row['contact_title']);
+                    $contact_email = nullable_htmlentities($row['contact_email']);
                     $contact_phone = formatPhoneNumber($row['contact_phone']);
-                    $contact_extension = htmlentities($row['contact_extension']);
+                    $contact_extension = nullable_htmlentities($row['contact_extension']);
                     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
                     $asset_id = intval($row['asset_id']);

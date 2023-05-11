@@ -26,7 +26,7 @@ require_once("inc_all_settings.php");
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key (pk_...)" value="<?php echo htmlentities($config_stripe_publishable); ?>">
+                            <input type="text" class="form-control" name="config_stripe_publishable" placeholder="Stripe Publishable API Key (pk_...)" value="<?php echo nullable_htmlentities($config_stripe_publishable); ?>">
                         </div>
                     </div>
 
@@ -36,7 +36,7 @@ require_once("inc_all_settings.php");
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key (sk_...)" value="<?php echo htmlentities($config_stripe_secret); ?>">
+                            <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key (sk_...)" value="<?php echo nullable_htmlentities($config_stripe_secret); ?>">
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@ require_once("inc_all_settings.php");
                                 $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id = intval($row['account_id']);
-                                    $account_name = htmlentities($row['account_name']); 
+                                    $account_name = nullable_htmlentities($row['account_name']); 
                                 ?>
                                     
                                     <option value="<?php echo $account_id ?>" <?php if ($account_id == $config_stripe_account) { echo "selected"; } ?>><?php echo $account_name ?></option>

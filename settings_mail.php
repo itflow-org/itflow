@@ -14,7 +14,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo htmlentities($config_smtp_host); ?>" required>
+                        <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo nullable_htmlentities($config_smtp_host); ?>" required>
                     </div>
                 </div>
 
@@ -48,7 +48,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo htmlentities($config_smtp_username); ?>" required>
+                        <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo nullable_htmlentities($config_smtp_username); ?>" required>
                     </div>
                 </div>
 
@@ -58,7 +58,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo htmlentities($config_smtp_password); ?>" autocomplete="new-password" required>
+                        <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password" required>
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
@@ -71,7 +71,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo htmlentities($config_mail_from_email); ?>">
+                        <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo htmlentities($config_mail_from_name); ?>">
+                        <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
                     </div>
                 </div>
 
@@ -93,7 +93,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_imap_host" placeholder="Incoming Mail Server Address (for email to ticket parsing)" value="<?php echo htmlentities($config_imap_host); ?>">
+                        <input type="text" class="form-control" name="config_imap_host" placeholder="Incoming Mail Server Address (for email to ticket parsing)" value="<?php echo nullable_htmlentities($config_imap_host); ?>">
                     </div>
                 </div>
 

@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Trips">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Trips">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -70,13 +70,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $trip_id = intval($row['trip_id']);
-                        $trip_date = htmlentities($row['trip_date']);
-                        $trip_purpose = htmlentities($row['trip_purpose']);
-                        $trip_source = htmlentities($row['trip_source']);
-                        $trip_destination = htmlentities($row['trip_destination']);
-                        $trip_miles = htmlentities($row['trip_miles']);
+                        $trip_date = nullable_htmlentities($row['trip_date']);
+                        $trip_purpose = nullable_htmlentities($row['trip_purpose']);
+                        $trip_source = nullable_htmlentities($row['trip_source']);
+                        $trip_destination = nullable_htmlentities($row['trip_destination']);
+                        $trip_miles = nullable_htmlentities($row['trip_miles']);
                         $trip_user_id = intval($row['trip_user_id']);
-                        $round_trip = htmlentities($row['round_trip']);
+                        $round_trip = nullable_htmlentities($row['round_trip']);
                         $client_id = intval($row['trip_client_id']);
 
                         if ($round_trip == 1) {
@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $round_trip_display = "";
                         }
-                        $user_name = htmlentities($row['user_name']);
+                        $user_name = nullable_htmlentities($row['user_name']);
                         if (empty($user_name)) {
                             $user_name_display = "-";
                         } else {

@@ -118,7 +118,7 @@
                                         $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id_select = intval($row['contact_id']);
-                                            $contact_name_select = htmlentities($row['contact_name']);
+                                            $contact_name_select = nullable_htmlentities($row['contact_name']);
                                             ?>
                                             <option <?php if ($login_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
                                         <?php } ?>
@@ -139,7 +139,7 @@
                                         $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
-                                            $vendor_name_select = htmlentities($row['vendor_name']);
+                                            $vendor_name_select = nullable_htmlentities($row['vendor_name']);
                                             ?>
                                             <option <?php if ($login_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                                         <?php } ?>
@@ -161,7 +161,7 @@
                                         $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = intval($row['asset_id']);
-                                            $asset_name_select = htmlentities($row['asset_name']);
+                                            $asset_name_select = nullable_htmlentities($row['asset_name']);
                                             ?>
                                             <option <?php if ($login_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 
@@ -183,7 +183,7 @@
                                         $sql_software = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
                                         while ($row = mysqli_fetch_array($sql_software)) {
                                             $software_id_select = intval($row['software_id']);
-                                            $software_name_select = htmlentities($row['software_name']);
+                                            $software_name_select = nullable_htmlentities($row['software_name']);
                                             ?>
                                             <option <?php if ($login_software_id == $software_id_select) { echo "selected"; } ?> value="<?php echo $software_id_select; ?>"><?php echo $software_name_select; ?></option>
 

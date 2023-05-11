@@ -33,7 +33,7 @@
                                 $sql_select = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
                                 while ($row = mysqli_fetch_array($sql_select)) {
                                     $category_id_select = intval($row['category_id']);
-                                    $category_name_select = htmlentities($row['category_name']);
+                                    $category_name_select = nullable_htmlentities($row['category_name']);
                                     ?>
                                     <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                                     <?php
@@ -73,7 +73,7 @@
                                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$product_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
                                         while ($row = mysqli_fetch_array($taxes_sql)) {
                                             $tax_id_select = intval($row['tax_id']);
-                                            $tax_name = htmlentities($row['tax_name']);
+                                            $tax_name = nullable_htmlentities($row['tax_name']);
                                             $tax_percent = floatval($row['tax_percent']);
                                             ?>
                                             <option <?php if ($tax_id_select == $product_tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>

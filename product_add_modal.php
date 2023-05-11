@@ -33,7 +33,7 @@
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = htmlentities($row['category_name']);
+                                    $category_name = nullable_htmlentities($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 
@@ -74,7 +74,7 @@
                                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                         while ($row = mysqli_fetch_array($taxes_sql)) {
                                             $tax_id = intval($row['tax_id']);
-                                            $tax_name = htmlentities($row['tax_name']);
+                                            $tax_name = nullable_htmlentities($row['tax_name']);
                                             $tax_percent = floatval($row['tax_percent']);
                                             ?>
                                             <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>

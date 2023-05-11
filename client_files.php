@@ -30,9 +30,9 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
 
                 while ($row = mysqli_fetch_array($sql_files_images)) {
                     $file_id = intval($row['file_id']);
-                    $file_name = htmlentities($row['file_name']);
-                    $file_reference_name = htmlentities($row['file_reference_name']);
-                    $file_ext = htmlentities($row['file_ext']);
+                    $file_name = nullable_htmlentities($row['file_name']);
+                    $file_reference_name = nullable_htmlentities($row['file_reference_name']);
+                    $file_ext = nullable_htmlentities($row['file_ext']);
 
                     ?>
 
@@ -65,9 +65,9 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                     <?php
                     while ($row = mysqli_fetch_array($sql_files_other)) {
                         $file_id = intval($row['file_id']);
-                        $file_name = htmlentities($row['file_name']);
-                        $file_reference_name = htmlentities($row['file_reference_name']);
-                        $file_ext = htmlentities($row['file_ext']);
+                        $file_name = nullable_htmlentities($row['file_name']);
+                        $file_reference_name = nullable_htmlentities($row['file_reference_name']);
+                        $file_ext = nullable_htmlentities($row['file_ext']);
                         if ($file_ext == 'pdf') {
                             $file_icon = "file-pdf";
                         } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {

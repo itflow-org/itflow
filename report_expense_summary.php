@@ -63,7 +63,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
                 <?php
                 while ($row = mysqli_fetch_array($sql_categories)) {
                     $category_id = intval($row['category_id']);
-                    $category_name = htmlentities($row['category_name']);
+                    $category_name = nullable_htmlentities($row['category_name']);
                     ?>
 
                     <tr>

@@ -32,7 +32,7 @@
 
                                     while ($row = mysqli_fetch_array($sql_assets)) {
                                         if (!empty($row['asset_ip'])) {
-                                            $ip = '('.htmlentities($row["asset_ip"]).')';
+                                            $ip = '('.nullable_htmlentities($row["asset_ip"]).')';
                                         } else {
                                             $ip = '';
                                         }
@@ -56,7 +56,7 @@
                                 // Get networks linked to assets - push name to array
                                 while ($row = mysqli_fetch_array($sql_assets)) {
                                     if (!empty($row['network_name'])) {
-                                        $network_data = htmlentities("$row[network_name]:$row[network_vlan]");
+                                        $network_data = nullable_htmlentities("$row[network_name]:$row[network_vlan]");
                                         array_push($networks, $network_data);
                                     }
                                 }

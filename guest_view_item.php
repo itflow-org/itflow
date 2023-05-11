@@ -15,7 +15,7 @@ $purifier = new HTMLPurifier($purifier_config);
 ?>
 
     <br>
-    <h1> <?php echo htmlentities($config_app_name); ?> Guest sharing </h1>
+    <h1> <?php echo nullable_htmlentities($config_app_name); ?> Guest sharing </h1>
     <hr>
 
 <?php
@@ -49,13 +49,13 @@ if ($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']
 
 echo "<div class='alert alert-warning'>You may only be able to view this information for a limited time! Be sure to copy/download what you need.</div>";
 
-$item_type = htmlentities($row['item_type']);
+$item_type = nullable_htmlentities($row['item_type']);
 $item_related_id = intval($row['item_related_id']);
-$item_encrypted_credential = htmlentities($row['item_encrypted_credential']);
-$item_note = htmlentities($row['item_note']);
+$item_encrypted_credential = nullable_htmlentities($row['item_encrypted_credential']);
+$item_note = nullable_htmlentities($row['item_note']);
 $item_views = intval($row['item_views']);
-$item_created = htmlentities($row['item_created_at']);
-$item_expire = htmlentities($row['item_expire_at']);
+$item_created = nullable_htmlentities($row['item_created_at']);
+$item_expire = nullable_htmlentities($row['item_expire_at']);
 $client_id = intval($row['item_client_id']);
 
 if ($item_type == "Document") {
@@ -68,7 +68,7 @@ if ($item_type == "Document") {
         exit();
     }
 
-    $doc_title = htmlentities($doc_row['document_name']);
+    $doc_title = nullable_htmlentities($doc_row['document_name']);
     $doc_title_escaped = sanitizeInput($doc_row['document_name']);
     $doc_content = $purifier->purify($row['document_content']);
 
@@ -98,7 +98,7 @@ if ($item_type == "Document") {
         exit();
     }
 
-    $file_name = htmlentities($file_row['file_name']);
+    $file_name = nullable_htmlentities($file_row['file_name']);
 
     echo "<h3>A file has been shared with you</h3>";
     if (!empty($item_note)) {
@@ -118,19 +118,19 @@ if ($item_type == "Document") {
         exit();
     }
 
-    $login_name = htmlentities($login_row['login_name']);
-    $login_uri = htmlentities($login_row['login_uri']);
+    $login_name = nullable_htmlentities($login_row['login_name']);
+    $login_uri = nullable_htmlentities($login_row['login_uri']);
 
     $username_iv = substr($row['item_encrypted_username'], 0, 16);
     $username_ciphertext = substr($row['item_encrypted_username'], 16);
-    $login_username = htmlentities(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
+    $login_username = nullable_htmlentities(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
 
     $password_iv = substr($row['item_encrypted_credential'], 0, 16);
     $password_ciphertext = substr($row['item_encrypted_credential'], 16);
-    $login_password = htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
+    $login_password = nullable_htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
 
-    $login_otp = htmlentities($login_row['login_otp_secret']);
-    $login_notes = htmlentities($login_row['login_note']);
+    $login_otp = nullable_htmlentities($login_row['login_otp_secret']);
+    $login_notes = nullable_htmlentities($login_row['login_note']);
 
     echo "<h3>A login entry has been shared with you</h3>";
     if (!empty($item_note)) {

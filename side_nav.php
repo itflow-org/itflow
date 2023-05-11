@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo htmlentities($config_theme); ?> d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -9,7 +9,7 @@
 
             <div class="dropdown brand-link">
                 <a class="" href="#">
-                    <h3 class="brand-text text-light mb-0"><?php echo htmlentities($session_company_name); ?></h3>
+                    <h3 class="brand-text text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h3>
                 </a>
             </div>
 

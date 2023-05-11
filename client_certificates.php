@@ -31,7 +31,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Certificates">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Certificates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -86,10 +86,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = htmlentities($row['certificate_name']);
-                        $certificate_domain = htmlentities($row['certificate_domain']);
-                        $certificate_issued_by = htmlentities($row['certificate_issued_by']);
-                        $certificate_expire = htmlentities($row['certificate_expire']);
+                        $certificate_name = nullable_htmlentities($row['certificate_name']);
+                        $certificate_domain = nullable_htmlentities($row['certificate_domain']);
+                        $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
+                        $certificate_expire = nullable_htmlentities($row['certificate_expire']);
 
                         ?>
                         <tr>

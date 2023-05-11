@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="input-group">
-                    <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Services">
+                    <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Services">
                     <div class="input-group-append">
                         <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                     </div>
@@ -58,14 +58,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $service_id = intval($row['service_id']);
-                        $service_name = htmlentities($row['service_name']);
-                        $service_description = htmlentities($row['service_description']);
-                        $service_category = htmlentities($row['service_category']);
-                        $service_importance = htmlentities($row['service_importance']);
-                        $service_backup = htmlentities($row['service_backup']);
-                        $service_notes = htmlentities($row['service_notes']);
-                        $service_updated_at = htmlentities($row['service_updated_at']);
-                        $service_review_due = htmlentities($row['service_review_due']);
+                        $service_name = nullable_htmlentities($row['service_name']);
+                        $service_description = nullable_htmlentities($row['service_description']);
+                        $service_category = nullable_htmlentities($row['service_category']);
+                        $service_importance = nullable_htmlentities($row['service_importance']);
+                        $service_backup = nullable_htmlentities($row['service_backup']);
+                        $service_notes = nullable_htmlentities($row['service_notes']);
+                        $service_updated_at = nullable_htmlentities($row['service_updated_at']);
+                        $service_review_due = nullable_htmlentities($row['service_review_due']);
 
                         // Service Importance
                         if ($service_importance == "High") {

@@ -32,27 +32,27 @@ if (mysqli_num_rows($sql) !== 1) {
 $row = mysqli_fetch_array($sql);
 
 $quote_id = intval($row['quote_id']);
-$quote_prefix = htmlentities($row['quote_prefix']);
+$quote_prefix = nullable_htmlentities($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
-$quote_status = htmlentities($row['quote_status']);
-$quote_date = htmlentities($row['quote_date']);
+$quote_status = nullable_htmlentities($row['quote_status']);
+$quote_date = nullable_htmlentities($row['quote_date']);
 $quote_amount = floatval($row['quote_amount']);
-$quote_currency_code = htmlentities($row['quote_currency_code']);
-$quote_note = htmlentities($row['quote_note']);
+$quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
+$quote_note = nullable_htmlentities($row['quote_note']);
 $category_id = intval($row['category_id']);
 $client_id = intval($row['client_id']);
-$client_name = htmlentities($row['client_name']);
+$client_name = nullable_htmlentities($row['client_name']);
 $client_name_escaped = sanitizeInput($row['client_name']);
-$location_address = htmlentities($row['location_address']);
-$location_city = htmlentities($row['location_city']);
-$location_state = htmlentities($row['location_state']);
-$location_zip = htmlentities($row['location_zip']);
-$contact_email = htmlentities($row['contact_email']);
+$location_address = nullable_htmlentities($row['location_address']);
+$location_city = nullable_htmlentities($row['location_city']);
+$location_state = nullable_htmlentities($row['location_state']);
+$location_zip = nullable_htmlentities($row['location_zip']);
+$contact_email = nullable_htmlentities($row['contact_email']);
 $contact_phone = formatPhoneNumber($row['contact_phone']);
-$contact_extension = htmlentities($row['contact_extension']);
+$contact_extension = nullable_htmlentities($row['contact_extension']);
 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-$client_website = htmlentities($row['client_website']);
-$client_currency_code = htmlentities($row['client_currency_code']);
+$client_website = nullable_htmlentities($row['client_website']);
+$client_currency_code = nullable_htmlentities($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
@@ -60,20 +60,20 @@ if ($client_net_terms == 0) {
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
-$company_name = htmlentities($row['company_name']);
-$company_address = htmlentities($row['company_address']);
-$company_city = htmlentities($row['company_city']);
-$company_state = htmlentities($row['company_state']);
-$company_zip = htmlentities($row['company_zip']);
+$company_name = nullable_htmlentities($row['company_name']);
+$company_address = nullable_htmlentities($row['company_address']);
+$company_city = nullable_htmlentities($row['company_city']);
+$company_state = nullable_htmlentities($row['company_state']);
+$company_zip = nullable_htmlentities($row['company_zip']);
 $company_phone = formatPhoneNumber($row['company_phone']);
-$company_email = htmlentities($row['company_email']);
-$company_website = htmlentities($row['company_website']);
-$company_logo = htmlentities($row['company_logo']);
+$company_email = nullable_htmlentities($row['company_email']);
+$company_website = nullable_htmlentities($row['company_website']);
+$company_logo = nullable_htmlentities($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
 }
-$company_locale = htmlentities($row['company_locale']);
-$config_quote_footer = htmlentities($row['config_quote_footer']);
+$company_locale = nullable_htmlentities($row['company_locale']);
+$config_quote_footer = nullable_htmlentities($row['config_quote_footer']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -189,8 +189,8 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
                                     $item_id = intval($row['item_id']);
-                                    $item_name = htmlentities($row['item_name']);
-                                    $item_description = htmlentities($row['item_description']);
+                                    $item_name = nullable_htmlentities($row['item_name']);
+                                    $item_description = nullable_htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);

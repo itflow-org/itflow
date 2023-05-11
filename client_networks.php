@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Networks">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Networks">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -70,23 +70,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $network_id = intval($row['network_id']);
-                    $network_name = htmlentities($row['network_name']);
+                    $network_name = nullable_htmlentities($row['network_name']);
                     $network_vlan = intval($row['network_vlan']);
                     if (empty($network_vlan)) {
                         $network_vlan_display = "-";
                     } else {
                         $network_vlan_display = $network_vlan;
                     }
-                    $network = htmlentities($row['network']);
-                    $network_gateway = htmlentities($row['network_gateway']);
-                    $network_dhcp_range = htmlentities($row['network_dhcp_range']);
+                    $network = nullable_htmlentities($row['network']);
+                    $network_gateway = nullable_htmlentities($row['network_gateway']);
+                    $network_dhcp_range = nullable_htmlentities($row['network_dhcp_range']);
                     if (empty($network_dhcp_range)) {
                         $network_dhcp_range_display = "-";
                     } else {
                         $network_dhcp_range_display = $network_dhcp_range;
                     }
                     $network_location_id = intval($row['network_location_id']);
-                    $location_name = htmlentities($row['location_name']);
+                    $location_name = nullable_htmlentities($row['location_name']);
                     if (empty($location_name)) {
                         $location_name_display = "-";
                     } else {

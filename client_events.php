@@ -22,14 +22,14 @@ include("calendar_add_modal.php");
 $sql = mysqli_query($mysqli, "SELECT * FROM calendars LEFT JOIN events ON calendar_id = event_calendar_id WHERE event_client_id = $client_id");
 while ($row = mysqli_fetch_array($sql)) {
     $event_id = intval($row['event_id']);
-    $event_title = htmlentities($row['event_title']);
-    $event_description = htmlentities($row['event_description']);
-    $event_start = htmlentities($row['event_start']);
-    $event_end = htmlentities($row['event_end']);
-    $event_repeat = htmlentities($row['event_repeat']);
+    $event_title = nullable_htmlentities($row['event_title']);
+    $event_description = nullable_htmlentities($row['event_description']);
+    $event_start = nullable_htmlentities($row['event_start']);
+    $event_end = nullable_htmlentities($row['event_end']);
+    $event_repeat = nullable_htmlentities($row['event_repeat']);
     $calendar_id = intval($row['calendar_id']);
-    $calendar_name = htmlentities($row['calendar_name']);
-    $calendar_color = htmlentities($row['calendar_color']);
+    $calendar_name = nullable_htmlentities($row['calendar_name']);
+    $calendar_color = nullable_htmlentities($row['calendar_color']);
 
     require("calendar_event_edit_modal.php");
 

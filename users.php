@@ -42,7 +42,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Users">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Users">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -73,8 +73,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $user_id = intval($row['user_id']);
-                    $user_name = htmlentities($row['user_name']);
-                    $user_email = htmlentities($row['user_email']);
+                    $user_name = nullable_htmlentities($row['user_name']);
+                    $user_email = nullable_htmlentities($row['user_email']);
                     $user_status = intval($row['user_status']);
                     if ($user_status == 2) {
                         $user_status_display = "<span class='text-info'>Invited</span>";
@@ -83,8 +83,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else{
                         $user_status_display = "<span class='text-danger'>Disabled</span>";
                     }
-                    $user_avatar = htmlentities($row['user_avatar']);
-                    $user_token = htmlentities($row['user_token']);
+                    $user_avatar = nullable_htmlentities($row['user_avatar']);
+                    $user_token = nullable_htmlentities($row['user_token']);
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
                         $user_role_display = "Administrator";
@@ -93,7 +93,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $user_role_display = "Accountant";
                     }
-                    $user_initials = htmlentities(initials($user_name));
+                    $user_initials = nullable_htmlentities(initials($user_name));
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
@@ -102,9 +102,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ORDER BY log_id DESC LIMIT 1"
                     );
                     $row = mysqli_fetch_array($sql_last_login);
-                    $log_created_at = htmlentities($row['log_created_at']);
-                    $log_ip = htmlentities($row['log_ip']);
-                    $log_user_agent = htmlentities($row['log_user_agent']);
+                    $log_created_at = nullable_htmlentities($row['log_created_at']);
+                    $log_ip = nullable_htmlentities($row['log_ip']);
+                    $log_user_agent = nullable_htmlentities($row['log_user_agent']);
                     $log_user_os = getOS($log_user_agent);
                     $log_user_browser = getWebBrowser($log_user_agent);
                     $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";

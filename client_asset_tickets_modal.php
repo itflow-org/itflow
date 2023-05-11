@@ -13,12 +13,12 @@
                 // Query is run from client_assets.php
                 while ($row = mysqli_fetch_array($sql_tickets)) {
                     $ticket_id = intval($row['ticket_id']);
-                    $ticket_prefix = htmlentities($row['ticket_prefix']);
+                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                     $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = htmlentities($row['ticket_subject']);
-                    $ticket_status = htmlentities($row['ticket_status']);
-                    $ticket_created_at = htmlentities($row['ticket_created_at']);
-                    $ticket_updated_at = htmlentities($row['ticket_updated_at']);
+                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                    $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                     ?>
                     <p>
                         <i class="fas fa-fw fa-ticket-alt"></i>

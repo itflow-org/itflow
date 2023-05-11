@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Locations">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Locations">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -69,27 +69,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $location_id = intval($row['location_id']);
-                    $location_name = htmlentities($row['location_name']);
-                    $location_country = htmlentities($row['location_country']);
-                    $location_address = htmlentities($row['location_address']);
-                    $location_city = htmlentities($row['location_city']);
-                    $location_state = htmlentities($row['location_state']);
-                    $location_zip = htmlentities($row['location_zip']);
+                    $location_name = nullable_htmlentities($row['location_name']);
+                    $location_country = nullable_htmlentities($row['location_country']);
+                    $location_address = nullable_htmlentities($row['location_address']);
+                    $location_city = nullable_htmlentities($row['location_city']);
+                    $location_state = nullable_htmlentities($row['location_state']);
+                    $location_zip = nullable_htmlentities($row['location_zip']);
                     $location_phone = formatPhoneNumber($row['location_phone']);
                     if (empty($location_phone)) {
                         $location_phone_display = "-";
                     } else {
                         $location_phone_display = $location_phone;
                     }
-                    $location_hours = htmlentities($row['location_hours']);
+                    $location_hours = nullable_htmlentities($row['location_hours']);
                     if (empty($location_hours)) {
                         $location_hours_display = "-";
                     } else {
                         $location_hours_display = $location_hours;
                     }
-                    $location_photo = htmlentities($row['location_photo']);
-                    $location_notes = htmlentities($row['location_notes']);
-                    $location_created_at = htmlentities($row['location_created_at']);
+                    $location_photo = nullable_htmlentities($row['location_photo']);
+                    $location_notes = nullable_htmlentities($row['location_notes']);
+                    $location_created_at = nullable_htmlentities($row['location_created_at']);
                     $location_contact_id = intval($row['location_contact_id']);
                     if ($location_id == $primary_location) {
                         $primary_location_display = "<p class='text-success'>Primary Location</p>";

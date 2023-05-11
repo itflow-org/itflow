@@ -78,8 +78,8 @@
                                         $sql_network_select = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                                         while ($row = mysqli_fetch_array($sql_network_select)) {
                                             $network_id = $row['network_id'];
-                                            $network_name = htmlentities($row['network_name']);
-                                            $network = htmlentities($row['network']);
+                                            $network_name = nullable_htmlentities($row['network_name']);
+                                            $network = nullable_htmlentities($row['network']);
 
                                             ?>
                                             <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>

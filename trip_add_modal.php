@@ -76,7 +76,7 @@
                                 $sql = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $user_id = intval($row['user_id']);
-                                    $user_name = htmlentities($row['user_name']);
+                                    $user_name = nullable_htmlentities($row['user_name']);
                                     ?>
                                     <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
 
@@ -104,7 +104,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = intval($row['client_id']);
-                                        $client_name = htmlentities($row['client_name']);
+                                        $client_name = nullable_htmlentities($row['client_name']);
                                         ?>
                                         <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 

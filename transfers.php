@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Transfers">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Transfers">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -64,13 +64,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -94,27 +94,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $transfer_id = intval($row['transfer_id']);
-                        $transfer_date = htmlentities($row['transfer_date']);
+                        $transfer_date = nullable_htmlentities($row['transfer_date']);
                         $transfer_account_from = intval($row['transfer_account_from']);
                         $transfer_account_to = intval($row['transfer_account_to']);
                         $transfer_amount = floatval($row['transfer_amount']);
-                        $transfer_notes = htmlentities($row['transfer_notes']);
+                        $transfer_notes = nullable_htmlentities($row['transfer_notes']);
                         if(empty($transfer_notes)) {
                             $transfer_notes_display = "-";
                         } else {
                             $transfer_notes_display = nl2br($transfer_notes);
                         }
-                        $transfer_created_at = htmlentities($row['transfer_created_at']);
+                        $transfer_created_at = nullable_htmlentities($row['transfer_created_at']);
                         $expense_id = intval($row['transfer_expense_id']);
                         $revenue_id = intval($row['transfer_revenue_id']);
 
                         $sql_from = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
                         $row = mysqli_fetch_array($sql_from);
-                        $account_name_from = htmlentities($row['account_name']);
+                        $account_name_from = nullable_htmlentities($row['account_name']);
 
                         $sql_to = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
                         $row = mysqli_fetch_array($sql_to);
-                        $account_name_to = htmlentities($row['account_name']);
+                        $account_name_to = nullable_htmlentities($row['account_name']);
 
                         ?>
                         <tr>

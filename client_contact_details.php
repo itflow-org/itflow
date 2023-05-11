@@ -11,33 +11,33 @@ if (isset($_GET['contact_id'])) {
     ");
 
     $row = mysqli_fetch_array($sql);
-    $contact_name = htmlentities($row['contact_name']);
-    $contact_title = htmlentities($row['contact_title']);
-    $contact_department =htmlentities($row['contact_department']);
+    $contact_name = nullable_htmlentities($row['contact_name']);
+    $contact_title = nullable_htmlentities($row['contact_title']);
+    $contact_department =nullable_htmlentities($row['contact_department']);
     $contact_phone = formatPhoneNumber($row['contact_phone']);
-    $contact_extension = htmlentities($row['contact_extension']);
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-    $contact_email = htmlentities($row['contact_email']);
-    $contact_photo = htmlentities($row['contact_photo']);
+    $contact_email = nullable_htmlentities($row['contact_email']);
+    $contact_photo = nullable_htmlentities($row['contact_photo']);
     $contact_initials = initials($contact_name);
-    $contact_notes = htmlentities($row['contact_notes']);
+    $contact_notes = nullable_htmlentities($row['contact_notes']);
     $contact_important = intval($row['contact_important']);
     $contact_billing = intval($row['contact_billing']);
     $contact_technical = intval($row['contact_technical']);
-    $contact_created_at = htmlentities($row['contact_created_at']);
+    $contact_created_at = nullable_htmlentities($row['contact_created_at']);
     if ($contact_id == $primary_contact) {
         $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
     } else {
         $primary_contact_display = false;
     }
     $contact_location_id = intval($row['contact_location_id']);
-    $location_name = htmlentities($row['location_name']);
+    $location_name = nullable_htmlentities($row['location_name']);
     if (empty($location_name)) {
         $location_name_display = "-";
     } else {
         $location_name_display = $location_name;
     }
-    $auth_method = htmlentities($row['contact_auth_method']);
+    $auth_method = nullable_htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
     $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN logins ON logins.login_asset_id = assets.asset_id WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
@@ -165,48 +165,48 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_array($sql_related_assets)) {
                                 $asset_id = intval($row['asset_id']);
-                                $asset_type = htmlentities($row['asset_type']);
-                                $asset_name = htmlentities($row['asset_name']);
-                                $asset_make = htmlentities($row['asset_make']);
-                                $asset_model = htmlentities($row['asset_model']);
-                                $asset_serial = htmlentities($row['asset_serial']);
+                                $asset_type = nullable_htmlentities($row['asset_type']);
+                                $asset_name = nullable_htmlentities($row['asset_name']);
+                                $asset_make = nullable_htmlentities($row['asset_make']);
+                                $asset_model = nullable_htmlentities($row['asset_model']);
+                                $asset_serial = nullable_htmlentities($row['asset_serial']);
                                 if (empty($asset_serial)) {
                                     $asset_serial_display = "-";
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_os = htmlentities($row['asset_os']);
+                                $asset_os = nullable_htmlentities($row['asset_os']);
                                 if (empty($asset_os)) {
                                     $asset_os_display = "-";
                                 } else {
                                     $asset_os_display = $asset_os;
                                 }
-                                $asset_ip = htmlentities($row['asset_ip']);
+                                $asset_ip = nullable_htmlentities($row['asset_ip']);
                                 if (empty($asset_ip)) {
                                     $asset_ip_display = "-";
                                 } else {
                                     $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
-                                $asset_mac = htmlentities($row['asset_mac']);
-                                $asset_status = htmlentities($row['asset_status']);
-                                $asset_purchase_date = htmlentities($row['asset_purchase_date']);
-                                $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
-                                $asset_install_date = htmlentities($row['asset_install_date']);
+                                $asset_mac = nullable_htmlentities($row['asset_mac']);
+                                $asset_status = nullable_htmlentities($row['asset_status']);
+                                $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
+                                $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                                $asset_install_date = nullable_htmlentities($row['asset_install_date']);
                                 if (empty($asset_install_date)) {
                                     $asset_install_date_display = "-";
                                 } else {
                                     $asset_install_date_display = $asset_install_date;
                                 }
-                                $asset_notes = htmlentities($row['asset_notes']);
-                                $asset_created_at = htmlentities($row['asset_created_at']);
+                                $asset_notes = nullable_htmlentities($row['asset_notes']);
+                                $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                                 $asset_vendor_id = intval($row['asset_vendor_id']);
                                 $asset_location_id = intval($row['asset_location_id']);
                                 $asset_network_id = intval($row['asset_network_id']);
                                 $asset_contact_id = intval($row['asset_contact_id']);
 
                                 $login_id = $row['login_id'];
-                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = htmlentities(decryptLoginEntry($row['login_password']));
+                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
                                 $device_icon = getAssetIcon($asset_type);
 
@@ -286,28 +286,28 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_array($sql_related_logins)) {
                                 $login_id = intval($row['login_id']);
-                                $login_name = htmlentities($row['login_name']);
-                                $login_uri = htmlentities($row['login_uri']);
+                                $login_name = nullable_htmlentities($row['login_name']);
+                                $login_uri = nullable_htmlentities($row['login_uri']);
                                 if (empty($login_uri)) {
                                     $login_uri_display = "-";
                                 } else {
                                     $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
-                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
+                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                 if (empty($login_username)) {
                                     $login_username_display = "-";
                                 } else {
                                     $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
-                                $login_password = htmlentities(decryptLoginEntry($row['login_password']));
-                                $login_otp_secret = htmlentities($row['login_otp_secret']);
+                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                                $login_otp_secret = nullable_htmlentities($row['login_otp_secret']);
                                 $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
                                 if (empty($login_otp_secret)) {
                                     $otp_display = "-";
                                 } else {
                                     $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                                 }
-                                $login_note = htmlentities($row['login_note']);
+                                $login_note = nullable_htmlentities($row['login_note']);
                                 $login_important = intval($row['login_important']);
                                 $login_contact_id = intval($row['login_contact_id']);
                                 $login_vendor_id = intval($row['login_vendor_id']);
@@ -386,22 +386,22 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_array($sql_related_software)) {
                                 $software_id = intval($row['software_id']);
-                                $software_name = htmlentities($row['software_name']);
-                                $software_version = htmlentities($row['software_version']);
-                                $software_type = htmlentities($row['software_type']);
-                                $software_license_type = htmlentities($row['software_license_type']);
-                                $software_key = htmlentities($row['software_key']);
-                                $software_seats = htmlentities($row['software_seats']);
-                                $software_purchase = htmlentities($row['software_purchase']);
-                                $software_expire = htmlentities($row['software_expire']);
-                                $software_notes = htmlentities($row['software_notes']);
+                                $software_name = nullable_htmlentities($row['software_name']);
+                                $software_version = nullable_htmlentities($row['software_version']);
+                                $software_type = nullable_htmlentities($row['software_type']);
+                                $software_license_type = nullable_htmlentities($row['software_license_type']);
+                                $software_key = nullable_htmlentities($row['software_key']);
+                                $software_seats = nullable_htmlentities($row['software_seats']);
+                                $software_purchase = nullable_htmlentities($row['software_purchase']);
+                                $software_expire = nullable_htmlentities($row['software_expire']);
+                                $software_notes = nullable_htmlentities($row['software_notes']);
 
                                 $seat_count = 0;
 
                                 // Get Login
                                 $login_id = intval($row['login_id']);
-                                $login_username = htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = htmlentities(decryptLoginEntry($row['login_password']));
+                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
                                 // Asset Licenses
                                 $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
@@ -483,13 +483,13 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_array($sql_related_tickets)) {
                                 $ticket_id = intval($row['ticket_id']);
-                                $ticket_prefix = htmlentities($row['ticket_prefix']);
+                                $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
-                                $ticket_subject = htmlentities($row['ticket_subject']);
-                                $ticket_priority = htmlentities($row['ticket_priority']);
-                                $ticket_status = htmlentities($row['ticket_status']);
-                                $ticket_created_at = htmlentities($row['ticket_created_at']);
-                                $ticket_updated_at = htmlentities($row['ticket_updated_at']);
+                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                                $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
                                     if ($ticket_status == "Closed") {
                                         $ticket_updated_at_display = "<p>Never</p>";
@@ -499,7 +499,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_updated_at_display = $ticket_updated_at;
                                 }
-                                $ticket_closed_at = htmlentities($row['ticket_closed_at']);
+                                $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
                                 if ($ticket_status == "Open") {
                                     $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
@@ -526,7 +526,7 @@ if (isset($_GET['contact_id'])) {
                                         $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                                     }
                                 } else {
-                                    $ticket_assigned_to_display = htmlentities($row['user_name']);
+                                    $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                                 }
 
                                 ?>

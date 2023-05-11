@@ -42,7 +42,7 @@ $num_rows = mysqli_num_rows($sql);
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $tax_id = intval($row['tax_id']);
-                        $tax_name = htmlentities($row['tax_name']);
+                        $tax_name = nullable_htmlentities($row['tax_name']);
                         $tax_percent = floatval($row['tax_percent']);
 
                         ?>

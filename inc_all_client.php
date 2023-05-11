@@ -25,35 +25,35 @@ if (isset($_GET['client_id'])) {
     } else {
 
         $row = mysqli_fetch_array($sql);
-        $client_name = htmlentities($row['client_name']);
-        $client_type = htmlentities($row['client_type']);
-        $client_website = htmlentities($row['client_website']);
-        $client_referral = htmlentities($row['client_referral']);
-        $client_currency_code = htmlentities($row['client_currency_code']);
+        $client_name = nullable_htmlentities($row['client_name']);
+        $client_type = nullable_htmlentities($row['client_type']);
+        $client_website = nullable_htmlentities($row['client_website']);
+        $client_referral = nullable_htmlentities($row['client_referral']);
+        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
         $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
         }
-        $client_tax_id_number = htmlentities($row['client_tax_id_number']);
+        $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
         $client_rate = floatval($row['client_rate']);
-        $client_notes = htmlentities($row['client_notes']);
-        $client_created_at = htmlentities($row['client_created_at']);
+        $client_notes = nullable_htmlentities($row['client_notes']);
+        $client_created_at = nullable_htmlentities($row['client_created_at']);
         $primary_contact = intval($row['primary_contact']);
         $primary_location = intval($row['primary_location']);
         $contact_id = intval($row['contact_id']);
-        $contact_name = htmlentities($row['contact_name']);
-        $contact_title = htmlentities($row['contact_title']);
-        $contact_email = htmlentities($row['contact_email']);
+        $contact_name = nullable_htmlentities($row['contact_name']);
+        $contact_title = nullable_htmlentities($row['contact_title']);
+        $contact_email = nullable_htmlentities($row['contact_email']);
         $contact_phone = formatPhoneNumber($row['contact_phone']);
-        $contact_extension = htmlentities($row['contact_extension']);
+        $contact_extension = nullable_htmlentities($row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
         $location_id = intval($row['location_id']);
-        $location_name = htmlentities($row['location_name']);
-        $location_address = htmlentities($row['location_address']);
-        $location_city = htmlentities($row['location_city']);
-        $location_state = htmlentities($row['location_state']);
-        $location_zip = htmlentities($row['location_zip']);
-        $location_country = htmlentities($row['location_country']);
+        $location_name = nullable_htmlentities($row['location_name']);
+        $location_address = nullable_htmlentities($row['location_address']);
+        $location_city = nullable_htmlentities($row['location_city']);
+        $location_state = nullable_htmlentities($row['location_state']);
+        $location_zip = nullable_htmlentities($row['location_zip']);
+        $location_country = nullable_htmlentities($row['location_country']);
         $location_phone = formatPhoneNumber($row['location_phone']);
 
         //Client Tags
@@ -64,9 +64,9 @@ if (isset($_GET['client_id'])) {
         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
             $client_tag_id = intval($row['tag_id']);
-            $client_tag_name = htmlentities($row['tag_name']);
-            $client_tag_color = htmlentities($row['tag_color']);
-            $client_tag_icon = htmlentities($row['tag_icon']);
+            $client_tag_name = nullable_htmlentities($row['tag_name']);
+            $client_tag_color = nullable_htmlentities($row['tag_color']);
+            $client_tag_icon = nullable_htmlentities($row['tag_icon']);
             if (empty($client_tag_icon)) {
                 $client_tag_icon = "tag";
             }

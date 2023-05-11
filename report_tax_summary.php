@@ -55,7 +55,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
                     <?php
                     while ($row = mysqli_fetch_array($sql_tax)) {
                         $tax_id = intval($row['tax_id']);
-                        $tax_name = htmlentities($row['tax_name']);
+                        $tax_name = nullable_htmlentities($row['tax_name']);
                         ?>
 
                         <tr>

@@ -23,7 +23,7 @@
                 $sql_document_templates = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_template = 1 AND document_archived_at IS NULL ORDER BY document_name ASC");
                 while ($row = mysqli_fetch_array($sql_document_templates)) {
                   $document_template_id = intval($row['document_id']);
-                  $document_template_name = htmlentities($row['document_name']);
+                  $document_template_name = nullable_htmlentities($row['document_name']);
 
                 ?>
                 <option value="<?php echo $document_template_id ?>"><?php echo $document_template_name; ?></option>
@@ -57,7 +57,7 @@
                 $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                 while ($row = mysqli_fetch_array($sql_folders)) {
                   $folder_id = intval($row['folder_id']);
-                  $folder_name = htmlentities($row['folder_name']);
+                  $folder_name = nullable_htmlentities($row['folder_name']);
 
                 ?>
                 <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>

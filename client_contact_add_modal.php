@@ -123,7 +123,7 @@
                                         $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $location_id = intval($row['location_id']);
-                                            $location_name = htmlentities($row['location_name']);
+                                            $location_name = nullable_htmlentities($row['location_name']);
                                             ?>
                                             <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                                         <?php } ?>

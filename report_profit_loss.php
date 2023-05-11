@@ -66,7 +66,7 @@ $sql_categories_expense = mysqli_query($mysqli, "SELECT * FROM categories WHERE 
                     <?php
                     while ($row = mysqli_fetch_array($sql_categories_income)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
                         ?>
 
                         <tr>
@@ -273,7 +273,7 @@ $sql_categories_expense = mysqli_query($mysqli, "SELECT * FROM categories WHERE 
                     <?php
                     while ($row = mysqli_fetch_array($sql_categories_expense)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
                         ?>
 
                         <tr>

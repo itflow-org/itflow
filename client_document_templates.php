@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <form autocomplete="off">
       <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="input-group">
-        <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search templates">
+        <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search templates">
         <div class="input-group-append">
           <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
         </div>
@@ -80,10 +80,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           while ($row = mysqli_fetch_array($sql)) {
             $document_id = intval($row['document_id']);
-            $document_name = htmlentities($row['document_name']);
-            $document_content = htmlentities($row['document_content']);
-            $document_created_at = htmlentities($row['document_created_at']);
-            $document_updated_at = htmlentities($row['document_updated_at']);
+            $document_name = nullable_htmlentities($row['document_name']);
+            $document_content = nullable_htmlentities($row['document_content']);
+            $document_created_at = nullable_htmlentities($row['document_created_at']);
+            $document_updated_at = nullable_htmlentities($row['document_updated_at']);
             $document_folder_id = intval($row['document_folder_id']);
 
           ?>

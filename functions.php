@@ -46,7 +46,7 @@ function key32gen()
 }
 
 function nullable_htmlentities($unsanitizedInput) {
-    return htmlentities($unsanitizedInput ?? '');
+    return nullable_htmlentities($unsanitizedInput ?? '');
 }
 
 function initials($str) {

@@ -39,7 +39,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Expenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Expenses">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -73,13 +73,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -105,20 +105,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $expense_id = intval($row['expense_id']);
-                        $expense_date = htmlentities($row['expense_date']);
+                        $expense_date = nullable_htmlentities($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
-                        $expense_currency_code = htmlentities($row['expense_currency_code']);
-                        $expense_description = htmlentities($row['expense_description']);
-                        $expense_receipt = htmlentities($row['expense_receipt']);
-                        $expense_reference = htmlentities($row['expense_reference']);
-                        $expense_created_at = htmlentities($row['expense_created_at']);
+                        $expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
+                        $expense_description = nullable_htmlentities($row['expense_description']);
+                        $expense_receipt = nullable_htmlentities($row['expense_receipt']);
+                        $expense_reference = nullable_htmlentities($row['expense_reference']);
+                        $expense_created_at = nullable_htmlentities($row['expense_created_at']);
                         $expense_vendor_id = intval($row['expense_vendor_id']);
-                        $vendor_name = htmlentities($row['vendor_name']);
+                        $vendor_name = nullable_htmlentities($row['vendor_name']);
                         $expense_category_id = intval($row['expense_category_id']);
-                        $category_name = htmlentities($row['category_name']);
-                        $account_name = htmlentities($row['account_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
+                        $account_name = nullable_htmlentities($row['account_name']);
                         $expense_account_id = intval($row['expense_account_id']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         if(empty($client_name)) {
                             $client_name_display = "-";
                         } else {

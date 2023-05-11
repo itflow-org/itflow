@@ -9,8 +9,8 @@ DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your paym
 //  Defaulting to company id of 1 (as multi-company is being removed)
 $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-$config_stripe_publishable = htmlentities($stripe_vars['config_stripe_publishable']);
-$config_stripe_secret = htmlentities($stripe_vars['config_stripe_secret']);
+$config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
+$config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
 
 // Check Stripe is configured
@@ -50,19 +50,19 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Process invoice, client and company details/settings
     $row = mysqli_fetch_array($sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = htmlentities($row['invoice_prefix']);
+    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_status = htmlentities($row['invoice_status']);
-    $invoice_date = htmlentities($row['invoice_date']);
-    $invoice_due = htmlentities($row['invoice_due']);
+    $invoice_status = nullable_htmlentities($row['invoice_status']);
+    $invoice_date = nullable_htmlentities($row['invoice_date']);
+    $invoice_due = nullable_htmlentities($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
+    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = htmlentities($row['client_name']);
+    $client_name = nullable_htmlentities($row['client_name']);
     
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
-    $company_locale = htmlentities($row['company_locale']);
+    $company_locale = nullable_htmlentities($row['company_locale']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -105,7 +105,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                     $item_total = 0;
 
                     while ($row = mysqli_fetch_array($sql_invoice_items)) {
-                        $item_name = htmlentities($row['item_name']);
+                        $item_name = nullable_htmlentities($row['item_name']);
                         $item_quantity = floatval($row['item_quantity']);
                         $item_total = floatval($row['item_total']);
                         ?>
@@ -208,22 +208,22 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Invoice exists - get details
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = htmlentities($row['invoice_prefix']);
+    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-    $invoice_url_key = htmlentities($row['invoice_url_key']);
+    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
     $client_id = intval($row['client_id']);
-    $client_name = htmlentities($row['client_name']);
+    $client_name = nullable_htmlentities($row['client_name']);
     $contact_name = $row['contact_name'];
     $contact_email = $row['contact_email'];
     
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_company);
 
-    $company_name = mysqli_real_escape_string($mysqli, htmlentities($row['company_name']));
-    $company_phone = htmlentities($row['company_phone']);
-    $company_locale = htmlentities($row['company_locale']);
+    $company_name = mysqli_real_escape_string($mysqli, nullable_htmlentities($row['company_name']));
+    $company_phone = nullable_htmlentities($row['company_phone']);
+    $company_locale = nullable_htmlentities($row['company_locale']);
 
     // Set Currency Formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);

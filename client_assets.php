@@ -75,18 +75,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="type" value="<?php echo stripslashes(htmlentities($_GET['type'])); ?>">
+                <input type="hidden" name="type" value="<?php echo stripslashes(nullable_htmlentities($_GET['type'])); ?>">
                 <div class="row">
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -161,40 +161,40 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_type = htmlentities($row['asset_type']);
-                        $asset_name = htmlentities($row['asset_name']);
-                        $asset_make = htmlentities($row['asset_make']);
-                        $asset_model = htmlentities($row['asset_model']);
-                        $asset_serial = htmlentities($row['asset_serial']);
+                        $asset_type = nullable_htmlentities($row['asset_type']);
+                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_make = nullable_htmlentities($row['asset_make']);
+                        $asset_model = nullable_htmlentities($row['asset_model']);
+                        $asset_serial = nullable_htmlentities($row['asset_serial']);
                         if (empty($asset_serial)) {
                             $asset_serial_display = "-";
                         } else {
                             $asset_serial_display = $asset_serial;
                         }
-                        $asset_os = htmlentities($row['asset_os']);
+                        $asset_os = nullable_htmlentities($row['asset_os']);
                         if (empty($asset_os)) {
                             $asset_os_display = "-";
                         } else {
                             $asset_os_display = $asset_os;
                         }
-                        $asset_ip = htmlentities($row['asset_ip']);
+                        $asset_ip = nullable_htmlentities($row['asset_ip']);
                         if (empty($asset_ip)) {
                             $asset_ip_display = "-";
                         } else {
                             $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
                         }
-                        $asset_mac = htmlentities($row['asset_mac']);
-                        $asset_status = htmlentities($row['asset_status']);
-                        $asset_purchase_date = htmlentities($row['asset_purchase_date']);
-                        $asset_warranty_expire = htmlentities($row['asset_warranty_expire']);
-                        $asset_install_date = htmlentities($row['asset_install_date']);
+                        $asset_mac = nullable_htmlentities($row['asset_mac']);
+                        $asset_status = nullable_htmlentities($row['asset_status']);
+                        $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
+                        $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                        $asset_install_date = nullable_htmlentities($row['asset_install_date']);
                         if (empty($asset_install_date)) {
                             $asset_install_date_display = "-";
                         } else {
                             $asset_install_date_display = $asset_install_date;
                         }
-                        $asset_notes = htmlentities($row['asset_notes']);
-                        $asset_created_at = htmlentities($row['asset_created_at']);
+                        $asset_notes = nullable_htmlentities($row['asset_notes']);
+                        $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                         $asset_vendor_id = intval($row['asset_vendor_id']);
                         $asset_location_id = intval($row['asset_location_id']);
                         $asset_contact_id = intval($row['asset_contact_id']);
@@ -202,19 +202,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $device_icon = getAssetIcon($asset_type);
 
-                        $contact_name = htmlentities($row['contact_name']);
+                        $contact_name = nullable_htmlentities($row['contact_name']);
                         if (empty($contact_name)) {
                             $contact_name = "-";
                         }
 
-                        $location_name = htmlentities($row['location_name']);
+                        $location_name = nullable_htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
                         }
 
                         $login_id = intval($row['login_id']);
-                        $login_username = htmlentities(decryptLoginEntry($row['login_username']));
-                        $login_password = htmlentities(decryptLoginEntry($row['login_password']));
+                        $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+                        $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
                         // Related tickets
                         $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");

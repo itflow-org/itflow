@@ -17,11 +17,11 @@ $sql_document = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN folders
 
 $row = mysqli_fetch_array($sql_document);
 
-$folder_name = htmlentities($row['folder_name']);
-$document_name = htmlentities($row['document_name']);
+$folder_name = nullable_htmlentities($row['folder_name']);
+$document_name = nullable_htmlentities($row['document_name']);
 $document_content = $purifier->purify($row['document_content']);
-$document_created_at = htmlentities($row['document_created_at']);
-$document_updated_at = htmlentities($row['document_updated_at']);
+$document_created_at = nullable_htmlentities($row['document_created_at']);
+$document_updated_at = nullable_htmlentities($row['document_updated_at']);
 $document_folder_id = intval($row['document_folder_id']);
 
 ?>

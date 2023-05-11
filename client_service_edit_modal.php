@@ -109,7 +109,7 @@
 
                   while ($row_all = mysqli_fetch_array($sql_all)) {
                     $contact_id = intval($row_all['contact_id']);
-                    $contact_name = htmlentities($row_all['contact_name']);
+                    $contact_name = nullable_htmlentities($row_all['contact_name']);
 
                     if (in_array($contact_id, $selected_ids)) {
                       echo "<option value=\"$contact_id\" selected>$contact_name</option>";
@@ -131,7 +131,7 @@
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
                     $vendor_id = intval($row_all['vendor_id']);
-                    $vendor_name = htmlentities($row_all['vendor_name']);
+                    $vendor_name = nullable_htmlentities($row_all['vendor_name']);
 
                     if (in_array($vendor_id, $selected_ids)) {
                       echo "<option value=\"$vendor_id\" selected>$vendor_name</option>";
@@ -153,7 +153,7 @@
                   $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while ($row_all = mysqli_fetch_array($sql_all)) {
                     $document_id = intval($row_all['document_id']);
-                    $document_name = htmlentities($row_all['document_name']);
+                    $document_name = nullable_htmlentities($row_all['document_name']);
 
                     if (in_array($document_id, $selected_ids)) {
                       echo "<option value=\"$document_id\" selected>$document_name</option>";
@@ -186,7 +186,7 @@
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
                         $asset_id = intval($row_all['asset_id']);
-                        $asset_name = htmlentities($row_all['asset_name']);
+                        $asset_name = nullable_htmlentities($row_all['asset_name']);
 
                         if (in_array($asset_id, $selected_ids)) {
                           echo "<option value=\"$asset_id\" selected>$asset_name</option>";
@@ -210,7 +210,7 @@
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
                         $login_id = intval($row_all['login_id']);
-                        $login_name = htmlentities($row_all['login_name']);
+                        $login_name = nullable_htmlentities($row_all['login_name']);
 
                         if (in_array($login_id, $selected_ids)) {
                           echo "<option value=\"$login_id\" selected>$login_name</option>";
@@ -239,7 +239,7 @@
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
                         $domain_id = intval($row_all['domain_id']);
-                        $domain_name = htmlentities($row_all['domain_name']);
+                        $domain_name = nullable_htmlentities($row_all['domain_name']);
 
                         if (in_array($domain_id, $selected_ids)) {
                           echo "<option value=\"$domain_id\" selected>$domain_name</option>";
@@ -263,7 +263,7 @@
                       $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while ($row_all = mysqli_fetch_array($sql_all)) {
                         $cert_id = intval($row_all['certificate_id']);
-                        $cert_name = htmlentities($row_all['certificate_name']);
+                        $cert_name = nullable_htmlentities($row_all['certificate_name']);
 
                         if (in_array($cert_id, $selected_ids)) {
                           echo "<option value=\"$cert_id\" selected>$cert_name</option>";

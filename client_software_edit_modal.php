@@ -141,9 +141,9 @@
 
                                 while ($row = mysqli_fetch_array($sql_assets_select)) {
                                     $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = htmlentities($row['asset_name']);
-                                    $asset_type_select = htmlentities($row['asset_type']);
-                                    $contact_name_select = htmlentities($row['contact_name']);
+                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
 
                                     ?>
                                     <li class="list-group-item">
@@ -172,8 +172,8 @@
 
                                 while ($row = mysqli_fetch_array($sql_contacts_select)) {
                                     $contact_id_select = intval($row['contact_id']);
-                                    $contact_name_select = htmlentities($row['contact_name']);
-                                    $contact_email_select = htmlentities($row['contact_email']);
+                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                    $contact_email_select = nullable_htmlentities($row['contact_email']);
 
                                     ?>
                                     <li class="list-group-item">

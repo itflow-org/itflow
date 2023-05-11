@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Licenses">
+                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Licenses">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -64,15 +64,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while($row = mysqli_fetch_array($sql)){
                     $software_id = intval($row['software_id']);
-                    $software_name = htmlentities($row['software_name']);
-                    $software_version = htmlentities($row['software_version']);
-                    $software_type = htmlentities($row['software_type']);
-                    $software_license_type = htmlentities($row['software_license_type']);
-                    $software_key = htmlentities($row['software_key']);
-                    $software_seats = htmlentities($row['software_seats']);
-                    $software_purchase = htmlentities($row['software_purchase']);
-                    $software_expire = htmlentities($row['software_expire']);
-                    $software_notes = htmlentities($row['software_notes']);
+                    $software_name = nullable_htmlentities($row['software_name']);
+                    $software_version = nullable_htmlentities($row['software_version']);
+                    $software_type = nullable_htmlentities($row['software_type']);
+                    $software_license_type = nullable_htmlentities($row['software_license_type']);
+                    $software_key = nullable_htmlentities($row['software_key']);
+                    $software_seats = nullable_htmlentities($row['software_seats']);
+                    $software_purchase = nullable_htmlentities($row['software_purchase']);
+                    $software_expire = nullable_htmlentities($row['software_expire']);
+                    $software_notes = nullable_htmlentities($row['software_notes']);
 
                     ?>
                     <tr>

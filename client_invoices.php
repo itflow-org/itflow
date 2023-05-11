@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Invoices">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Invoices">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -71,22 +71,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $invoice_id = intval($row['invoice_id']);
-                        $invoice_prefix = htmlentities($row['invoice_prefix']);
-                        $invoice_number = htmlentities($row['invoice_number']);
-                        $invoice_scope = htmlentities($row['invoice_scope']);
+                        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                        $invoice_number = nullable_htmlentities($row['invoice_number']);
+                        $invoice_scope = nullable_htmlentities($row['invoice_scope']);
                         if (empty($invoice_scope)) {
                             $invoice_scope_display = "-";
                         } else {
                             $invoice_scope_display = $invoice_scope;
                         }
-                        $invoice_status = htmlentities($row['invoice_status']);
-                        $invoice_date = htmlentities($row['invoice_date']);
-                        $invoice_due = htmlentities($row['invoice_due']);
+                        $invoice_status = nullable_htmlentities($row['invoice_status']);
+                        $invoice_date = nullable_htmlentities($row['invoice_date']);
+                        $invoice_due = nullable_htmlentities($row['invoice_due']);
                         $invoice_amount = floatval($row['invoice_amount']);
-                        $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                        $invoice_created_at = htmlentities($row['invoice_created_at']);
+                        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
 
                         if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < time()) {
                             $overdue_color = "text-danger font-weight-bold";

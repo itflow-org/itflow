@@ -1161,7 +1161,7 @@ if (isset($_POST['add_telemetry'])) {
                 if (!empty($_SESSION['alert_message'])) {
                     ?>
                     <div class="alert alert-info" id="alert">
-                        <?php echo htmlentities($_SESSION['alert_message']); ?>
+                        <?php echo nullable_htmlentities($_SESSION['alert_message']); ?>
                         <button class='close' data-dismiss='alert'>&times;</button>
                     </div>
                     <?php

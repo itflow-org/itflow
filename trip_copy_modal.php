@@ -77,7 +77,7 @@
                                 $sql_trips = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_array($sql_trips)) {
                                     $user_id_select = intval($row['user_id']);
-                                    $user_name_select = htmlentities($row['user_name']);
+                                    $user_name_select = nullable_htmlentities($row['user_name']);
                                     ?>
                                     <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
 
@@ -103,7 +103,7 @@
                                     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql_clients)) {
                                         $client_id_select = intval($row['client_id']);
-                                        $client_name_select = htmlentities($row['client_name']);
+                                        $client_name_select = nullable_htmlentities($row['client_name']);
                                         ?>
                                         <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 

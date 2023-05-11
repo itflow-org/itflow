@@ -32,7 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Domains">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Domains">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -64,18 +64,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $domain_id = intval($row['domain_id']);
-                        $domain_name = htmlentities($row['domain_name']);
+                        $domain_name = nullable_htmlentities($row['domain_name']);
                         $domain_registrar = intval($row['domain_registrar']);
                         $domain_webhost = intval($row['domain_webhost']);
-                        $domain_expire = htmlentities($row['domain_expire']);
-                        $domain_registrar_name = htmlentities($row['vendor_name']);
+                        $domain_expire = nullable_htmlentities($row['domain_expire']);
+                        $domain_registrar_name = nullable_htmlentities($row['vendor_name']);
                         if (empty($domain_registrar_name)) {
                             $domain_registrar_name = "-";
                         }
 
                         $sql_domain_webhost = mysqli_query($mysqli, "SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
                         $row = mysqli_fetch_array($sql_domain_webhost);
-                        $domain_webhost_name = htmlentities($row['vendor_name']);
+                        $domain_webhost_name = nullable_htmlentities($row['vendor_name']);
                         if (empty($domain_webhost_name)) {
                             $domain_webhost_name = "-";
                         }

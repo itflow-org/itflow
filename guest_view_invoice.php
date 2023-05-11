@@ -31,28 +31,28 @@ if (mysqli_num_rows($sql) !== 1) {
 $row = mysqli_fetch_array($sql);
 
 $invoice_id = intval($row['invoice_id']);
-$invoice_prefix = htmlentities($row['invoice_prefix']);
+$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
-$invoice_status = htmlentities($row['invoice_status']);
-$invoice_date = htmlentities($row['invoice_date']);
-$invoice_due = htmlentities($row['invoice_due']);
+$invoice_status = nullable_htmlentities($row['invoice_status']);
+$invoice_date = nullable_htmlentities($row['invoice_date']);
+$invoice_due = nullable_htmlentities($row['invoice_due']);
 $invoice_amount = floatval($row['invoice_amount']);
-$invoice_currency_code = htmlentities($row['invoice_currency_code']);
-$invoice_note = htmlentities($row['invoice_note']);
+$invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+$invoice_note = nullable_htmlentities($row['invoice_note']);
 $invoice_category_id = intval($row['invoice_category_id']);
 $client_id = intval($row['client_id']);
-$client_name = htmlentities($row['client_name']);
+$client_name = nullable_htmlentities($row['client_name']);
 $client_name_escaped = sanitizeInput($row['client_name']);
-$location_address = htmlentities($row['location_address']);
-$location_city = htmlentities($row['location_city']);
-$location_state = htmlentities($row['location_state']);
-$location_zip = htmlentities($row['location_zip']);
-$contact_email = htmlentities($row['contact_email']);
+$location_address = nullable_htmlentities($row['location_address']);
+$location_city = nullable_htmlentities($row['location_city']);
+$location_state = nullable_htmlentities($row['location_state']);
+$location_zip = nullable_htmlentities($row['location_zip']);
+$contact_email = nullable_htmlentities($row['contact_email']);
 $contact_phone = formatPhoneNumber($row['contact_phone']);
-$contact_extension = htmlentities($row['contact_extension']);
+$contact_extension = nullable_htmlentities($row['contact_extension']);
 $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-$client_website = htmlentities($row['client_website']);
-$client_currency_code = htmlentities($row['client_currency_code']);
+$client_website = nullable_htmlentities($row['client_website']);
+$client_currency_code = nullable_htmlentities($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 if ($client_net_terms == 0) {
     $client_net_terms = intval($row['config_default_net_terms']);
@@ -61,20 +61,20 @@ if ($client_net_terms == 0) {
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 
-$company_name = htmlentities($row['company_name']);
-$company_address = htmlentities($row['company_address']);
-$company_city = htmlentities($row['company_city']);
-$company_state = htmlentities($row['company_state']);
-$company_zip = htmlentities($row['company_zip']);
+$company_name = nullable_htmlentities($row['company_name']);
+$company_address = nullable_htmlentities($row['company_address']);
+$company_city = nullable_htmlentities($row['company_city']);
+$company_state = nullable_htmlentities($row['company_state']);
+$company_zip = nullable_htmlentities($row['company_zip']);
 $company_phone = formatPhoneNumber($row['company_phone']);
-$company_email = htmlentities($row['company_email']);
-$company_website = htmlentities($row['company_website']);
-$company_logo = htmlentities($row['company_logo']);
+$company_email = nullable_htmlentities($row['company_email']);
+$company_website = nullable_htmlentities($row['company_website']);
+$company_logo = nullable_htmlentities($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
 }
-$company_locale = htmlentities($row['company_locale']);
-$config_invoice_footer = htmlentities($row['config_invoice_footer']);
+$company_locale = nullable_htmlentities($row['company_locale']);
+$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
 
 //Set Currency Format
@@ -212,8 +212,8 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
 
                                 while ($row = mysqli_fetch_array($sql_invoice_items)) {
                                     $item_id = intval($row['item_id']);
-                                    $item_name = htmlentities($row['item_name']);
-                                    $item_description = htmlentities($row['item_description']);
+                                    $item_name = nullable_htmlentities($row['item_name']);
+                                    $item_description = nullable_htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
@@ -734,13 +734,13 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $invoice_id = intval($row['invoice_id']);
-                    $invoice_prefix = htmlentities($row['invoice_prefix']);
+                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
-                    $invoice_date = htmlentities($row['invoice_date']);
-                    $invoice_due = htmlentities($row['invoice_due']);
+                    $invoice_date = nullable_htmlentities($row['invoice_date']);
+                    $invoice_due = nullable_htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
-                    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                    $invoice_url_key = htmlentities($row['invoice_url_key']);
+                    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
                     $invoice_tally_total = $invoice_amount + $invoice_tally_total;
                     $difference = time() - strtotime($invoice_due);
                     $days = floor($difference / (60*60*24));
@@ -792,13 +792,13 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $invoice_id = intval($row['invoice_id']);
-                    $invoice_prefix = htmlentities($row['invoice_prefix']);
+                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
-                    $invoice_date = htmlentities($row['invoice_date']);
-                    $invoice_due = htmlentities($row['invoice_due']);
+                    $invoice_date = nullable_htmlentities($row['invoice_date']);
+                    $invoice_due = nullable_htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
-                    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                    $invoice_url_key = htmlentities($row['invoice_url_key']);
+                    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
                     $invoice_tally_total = $invoice_amount + $invoice_tally_total;
                     $difference = strtotime($invoice_due) - time();
                     $days = floor($difference / (60*60*24));
@@ -850,13 +850,13 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $invoice_id = intval($row['invoice_id']);
-                    $invoice_prefix = htmlentities($row['invoice_prefix']);
+                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
-                    $invoice_date = htmlentities($row['invoice_date']);
-                    $invoice_due = htmlentities($row['invoice_due']);
+                    $invoice_date = nullable_htmlentities($row['invoice_date']);
+                    $invoice_due = nullable_htmlentities($row['invoice_due']);
                     $invoice_amount = floatval($row['invoice_amount']);
-                    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                    $invoice_url_key = htmlentities($row['invoice_url_key']);
+                    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
                     $invoice_tally_total = $invoice_amount + $invoice_tally_total;
 
                     ?>
@@ -878,11 +878,11 @@ if (mysqli_num_rows($sql) > 1) { ?>
 
                     while ($row = mysqli_fetch_array($sql_payments)) {
                         $payment_id = intval($row['payment_id']);
-                        $payment_date = htmlentities($row['payment_date']);
+                        $payment_date = nullable_htmlentities($row['payment_date']);
                         $payment_amount = floatval($row['payment_amount']);
-                        $payment_currency_code = htmlentities($row['payment_currency_code']);
-                        $payment_method = htmlentities($row['payment_method']);
-                        $payment_reference = htmlentities($row['payment_reference']);
+                        $payment_currency_code = nullable_htmlentities($row['payment_currency_code']);
+                        $payment_method = nullable_htmlentities($row['payment_method']);
+                        $payment_reference = nullable_htmlentities($row['payment_reference']);
                         if (strtotime($payment_date) > strtotime($invoice_due)) {
                             $payment_note = "Late";
                             $difference = strtotime($payment_date) - strtotime($invoice_due);

@@ -16,7 +16,7 @@ header("X-Frame-Options: DENY");
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title><?php echo htmlentities($session_company_name); ?> | <?php echo htmlentities($config_app_name); ?></title>
+    <title><?php echo nullable_htmlentities($session_company_name); ?> | <?php echo nullable_htmlentities($config_app_name); ?></title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
@@ -36,5 +36,5 @@ header("X-Frame-Options: DENY");
     <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
-<body class="hold-transition sidebar-mini layout-fixed accent-<?php echo htmlentities($config_theme); ?>">
+<body class="hold-transition sidebar-mini layout-fixed accent-<?php echo nullable_htmlentities($config_theme); ?>">
     <div class="wrapper text-sm">

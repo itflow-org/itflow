@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Trips">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Trips">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -70,13 +70,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -102,15 +102,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $trip_id = intval($row['trip_id']);
-                        $trip_date = htmlentities($row['trip_date']);
-                        $trip_purpose = htmlentities($row['trip_purpose']);
-                        $trip_source = htmlentities($row['trip_source']);
-                        $trip_destination = htmlentities($row['trip_destination']);
+                        $trip_date = nullable_htmlentities($row['trip_date']);
+                        $trip_purpose = nullable_htmlentities($row['trip_purpose']);
+                        $trip_source = nullable_htmlentities($row['trip_source']);
+                        $trip_destination = nullable_htmlentities($row['trip_destination']);
                         $trip_miles = floatval($row['trip_miles']);
                         $trip_user_id = intval($row['trip_user_id']);
-                        $round_trip = htmlentities($row['round_trip']);
+                        $round_trip = nullable_htmlentities($row['round_trip']);
                         $client_id = intval($row['client_id']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
@@ -121,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $round_trip_display = "";
                         }
-                        $user_name = htmlentities($row['user_name']);
+                        $user_name = nullable_htmlentities($row['user_name']);
                         if (empty($user_name)) {
                             $user_name_display = "-";
                         } else {

@@ -102,7 +102,7 @@
                   $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
                     $contact_id = intval($row['contact_id']);
-                    $contact_name = htmlentities($row['contact_name']);
+                    $contact_name = nullable_htmlentities($row['contact_name']);
                     echo "<option value=\"$contact_id\">$contact_name</option>";
                   }
                   ?>
@@ -116,7 +116,7 @@
                   $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0 AND vendor_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
                     $vendor_id = intval($row['vendor_id']);
-                    $vendor_name = htmlentities($row['vendor_name']);
+                    $vendor_name = nullable_htmlentities($row['vendor_name']);
                     echo "<option value=\"$vendor_id\">$vendor_name</option>";
                   }
                   ?>
@@ -130,7 +130,7 @@
                   $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_client_id = '$client_id'");
                   while ($row = mysqli_fetch_array($sql)) {
                     $document_id = intval($row['document_id']);
-                    $document_name = htmlentities($row['document_name']);
+                    $document_name = nullable_htmlentities($row['document_name']);
                     echo "<option value=\"$document_id\">$document_name</option>";
                   }
                   ?>
@@ -154,7 +154,7 @@
                       $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = htmlentities($row['asset_name']);
+                        $asset_name = nullable_htmlentities($row['asset_name']);
                         echo "<option value=\"$asset_id\">$asset_name</option>";
                       }
                       ?>
@@ -170,7 +170,7 @@
                       $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
                         $login_id = intval($row['login_id']);
-                        $login_name = htmlentities($row['login_name']);
+                        $login_name = nullable_htmlentities($row['login_name']);
                         echo "<option value=\"$login_id\">$login_name</option>";
                       }
                       ?>
@@ -191,7 +191,7 @@
                       $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
                         $domain_id = intval($row['domain_id']);
-                        $domain_name = htmlentities($row['domain_name']);
+                        $domain_name = nullable_htmlentities($row['domain_name']);
                         echo "<option value=\"$domain_id\">$domain_name</option>";
                       }
                       ?>
@@ -207,8 +207,8 @@
                       $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id'");
                       while ($row = mysqli_fetch_array($sql)) {
                         $cert_id = intval($row['certificate_id']);
-                        $cert_name = htmlentities($row['certificate_name']);
-                        $cert_domain = htmlentities($row['certificate_domain']);
+                        $cert_name = nullable_htmlentities($row['certificate_name']);
+                        $cert_domain = nullable_htmlentities($row['certificate_domain']);
                         echo "<option value=\"$cert_id\">$cert_name ($cert_domain)</option>";
                       }
                       ?>

@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?php echo htmlentities($config_theme); ?> navbar-dark">
+<nav class="main-header navbar navbar-expand navbar-<?php echo nullable_htmlentities($config_theme); ?> navbar-dark">
 
   <!-- Left navbar links -->
   <ul class="navbar-nav">
@@ -15,7 +15,7 @@
     <!-- SEARCH FORM -->
     <form class="form-inline" action="global_search.php">
       <div class="input-group input-group-sm">
-        <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query" value="<?php if (isset($_GET['query'])) { echo htmlentities($_GET['query']); } ?>">
+        <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query" value="<?php if (isset($_GET['query'])) { echo nullable_htmlentities($_GET['query']); } ?>">
         <div class="input-group-append">
           <button class="btn btn-navbar" type="submit">
             <i class="fas fa-search"></i>
@@ -58,8 +58,8 @@
         <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
             $notification_id = intval($row['notification_id']);
-            $notification_type = htmlentities($row['notification_type']);
-            $notification = htmlentities($row['notification']);
+            $notification_type = nullable_htmlentities($row['notification_type']);
+            $notification = nullable_htmlentities($row['notification']);
             $notification_timestamp = date('M d g:ia',strtotime($row['notification_timestamp']));
             $notification_client_id = intval($row['notification_client_id']);
             if($notification_client_id > 0){
@@ -114,7 +114,7 @@
         <?php }else{ ?>
         <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="user-image img-circle">
         <?php } ?>
-        <span class="d-none d-md-inline dropdown-toggle"><?php echo stripslashes(htmlentities($session_name)); ?></span>
+        <span class="d-none d-md-inline dropdown-toggle"><?php echo stripslashes(nullable_htmlentities($session_name)); ?></span>
       </a>
       <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <!-- User image -->
@@ -126,8 +126,8 @@
           	<img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
 					<?php } ?>
           <p>
-            <?php echo stripslashes(htmlentities($session_name)); ?>
-            <small><?php echo htmlentities($session_user_role_display); ?></small>
+            <?php echo stripslashes(nullable_htmlentities($session_name)); ?>
+            <small><?php echo nullable_htmlentities($session_user_role_display); ?></small>
           </p>
         </li>
         <!-- Menu Footer-->

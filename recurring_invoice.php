@@ -15,33 +15,33 @@ if (isset($_GET['recurring_id'])) {
     );
 
     $row = mysqli_fetch_array($sql);
-    $recurring_prefix = htmlentities($row['recurring_prefix']);
+    $recurring_prefix = nullable_htmlentities($row['recurring_prefix']);
     $recurring_number = intval($row['recurring_number']);
-    $recurring_scope = htmlentities($row['recurring_scope']);
-    $recurring_frequency = htmlentities($row['recurring_frequency']);
-    $recurring_status = htmlentities($row['recurring_status']);
+    $recurring_scope = nullable_htmlentities($row['recurring_scope']);
+    $recurring_frequency = nullable_htmlentities($row['recurring_frequency']);
+    $recurring_status = nullable_htmlentities($row['recurring_status']);
     $recurring_created_at = date('Y-m-d', strtotime($row['recurring_created_at']));
-    $recurring_last_sent = htmlentities($row['recurring_last_sent']);
+    $recurring_last_sent = nullable_htmlentities($row['recurring_last_sent']);
     if ($recurring_last_sent == 0) {
         $recurring_last_sent = '-';
     }
-    $recurring_next_date = htmlentities($row['recurring_next_date']);
+    $recurring_next_date = nullable_htmlentities($row['recurring_next_date']);
     $recurring_amount = floatval($row['recurring_amount']);
-    $recurring_currency_code = htmlentities($row['recurring_currency_code']);
-    $recurring_note = htmlentities($row['recurring_note']);
+    $recurring_currency_code = nullable_htmlentities($row['recurring_currency_code']);
+    $recurring_note = nullable_htmlentities($row['recurring_note']);
     $category_id = intval($row['recurring_category_id']);
     $client_id = intval($row['client_id']);
-    $client_name = htmlentities($row['client_name']);
-    $location_address = htmlentities($row['location_address']);
-    $location_city = htmlentities($row['location_city']);
-    $location_state = htmlentities($row['location_state']);
-    $location_zip = htmlentities($row['location_zip']);
-    $contact_email = htmlentities($row['contact_email']);
+    $client_name = nullable_htmlentities($row['client_name']);
+    $location_address = nullable_htmlentities($row['location_address']);
+    $location_city = nullable_htmlentities($row['location_city']);
+    $location_state = nullable_htmlentities($row['location_state']);
+    $location_zip = nullable_htmlentities($row['location_zip']);
+    $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_phone = formatPhoneNumber($row['contact_phone']);
-    $contact_extension = htmlentities($row['contact_extension']);
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-    $client_website = htmlentities($row['client_website']);
-    $client_currency_code = htmlentities($row['client_currency_code']);
+    $client_website = nullable_htmlentities($row['client_website']);
+    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
     $client_net_terms = intval($row['client_net_terms']);
 
     if ($recurring_status == 1) {
@@ -56,16 +56,16 @@ if (isset($_GET['recurring_id'])) {
     $row = mysqli_fetch_array($sql);
 
     $company_id = intval($row['company_id']);
-    $company_name = htmlentities($row['company_name']);
-    $company_country = htmlentities($row['company_country']);
-    $company_address = htmlentities($row['company_address']);
-    $company_city = htmlentities($row['company_city']);
-    $company_state = htmlentities($row['company_state']);
-    $company_zip = htmlentities($row['company_zip']);
+    $company_name = nullable_htmlentities($row['company_name']);
+    $company_country = nullable_htmlentities($row['company_country']);
+    $company_address = nullable_htmlentities($row['company_address']);
+    $company_city = nullable_htmlentities($row['company_city']);
+    $company_state = nullable_htmlentities($row['company_state']);
+    $company_zip = nullable_htmlentities($row['company_zip']);
     $company_phone = formatPhoneNumber($row['company_phone']);
-    $company_email = htmlentities($row['company_email']);
-    $company_website = htmlentities($row['company_website']);
-    $company_logo = htmlentities($row['company_logo']);
+    $company_email = nullable_htmlentities($row['company_email']);
+    $company_website = nullable_htmlentities($row['company_website']);
+    $company_logo = nullable_htmlentities($row['company_logo']);
 
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_recurring_id = $recurring_id ORDER BY history_id DESC");
 
@@ -205,13 +205,13 @@ if (isset($_GET['recurring_id'])) {
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
                                     $item_id = intval($row['item_id']);
-                                    $item_name = htmlentities($row['item_name']);
-                                    $item_description = htmlentities($row['item_description']);
+                                    $item_name = nullable_htmlentities($row['item_name']);
+                                    $item_description = nullable_htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
-                                    $item_created_at = htmlentities($row['item_created_at']);
+                                    $item_created_at = nullable_htmlentities($row['item_created_at']);
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
@@ -263,7 +263,7 @@ if (isset($_GET['recurring_id'])) {
                                                     $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes ORDER BY tax_name ASC");
                                                     while ($row = mysqli_fetch_array($taxes_sql)) {
                                                         $tax_id = intval($row['tax_id']);
-                                                        $tax_name = htmlentities($row['tax_name']);
+                                                        $tax_name = nullable_htmlentities($row['tax_name']);
                                                         $tax_percent = floatval($row['tax_percent']);
                                                         ?>
                                                         <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
@@ -353,9 +353,9 @@ if (isset($_GET['recurring_id'])) {
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_history)) {
-                            $history_created_at = htmlentities($row['history_created_at']);
-                            $history_status = htmlentities($row['history_status']);
-                            $history_description = htmlentities($row['history_description']);
+                            $history_created_at = nullable_htmlentities($row['history_created_at']);
+                            $history_status = nullable_htmlentities($row['history_status']);
+                            $history_description = nullable_htmlentities($row['history_description']);
 
                             ?>
                             <tr>

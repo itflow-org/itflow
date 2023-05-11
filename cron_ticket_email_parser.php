@@ -169,7 +169,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     // Capture just the latest/most recent email reply content
     //  based off the "#--itflow#" line that we prepend the outgoing emails with (similar to the old school --reply above this line--)
     $message = explode("##- Please type your reply above this line -##", $message);
-    $message = nl2br(htmlentities(strip_tags($message[0])));
+    $message = nl2br(nullable_htmlentities(strip_tags($message[0])));
     $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
 
     // Lookup the ticket ID
@@ -312,13 +312,13 @@ if ($emails) {
         // Process message attributes
 
         $from_array = $parser->getAddresses('from')[0];
-        $from_name = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($from_array['display']))));
-        $from_email = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($from_array['address']))));
+        $from_name = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['display']))));
+        $from_email = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['address']))));
         $from_domain = explode("@", $from_array['address']);
-        $from_domain = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags(end($from_domain))))); // Use the final element in the array (as technically legal to have multiple @'s)
+        $from_domain = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags(end($from_domain))))); // Use the final element in the array (as technically legal to have multiple @'s)
 
         $subject = sanitizeInput($parser->getHeader('subject'));
-        $date = trim(mysqli_real_escape_string($mysqli, htmlentities(strip_tags($parser->getHeader('date')))));
+        $date = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($parser->getHeader('date')))));
         $attachments = $parser->getAttachments();
 
         $message = $parser->getMessageBody('text');

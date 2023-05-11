@@ -14,7 +14,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_quote_prefix" placeholder="Quote Prefix" value="<?php echo htmlentities($config_quote_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_quote_prefix" placeholder="Quote Prefix" value="<?php echo nullable_htmlentities($config_quote_prefix); ?>" required>
                     </div>
                 </div>
 
@@ -30,7 +30,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <div class="form-group">
                     <label>Quote Footer</label>
-                    <textarea class="form-control" rows="4" name="config_quote_footer"><?php echo htmlentities($config_quote_footer); ?></textarea>
+                    <textarea class="form-control" rows="4" name="config_quote_footer"><?php echo nullable_htmlentities($config_quote_footer); ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -39,7 +39,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_quote_from_email" placeholder="From Email" value="<?php echo htmlentities($config_quote_from_email); ?>">
+                        <input type="email" class="form-control" name="config_quote_from_email" placeholder="From Email" value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
                     </div>
                 </div>
 
@@ -49,7 +49,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_quote_from_name" placeholder="Name" value="<?php echo htmlentities($config_quote_from_name); ?>">
+                        <input type="text" class="form-control" name="config_quote_from_name" placeholder="Name" value="<?php echo nullable_htmlentities($config_quote_from_name); ?>">
                     </div>
                 </div>
 

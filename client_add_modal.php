@@ -66,7 +66,7 @@
 
                                         $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                         while ($row = mysqli_fetch_array($referral_sql)) {
-                                            $referral = htmlentities($row['category_name']); ?>
+                                            $referral = nullable_htmlentities($row['category_name']); ?>
                                             <option><?php echo $referral; ?></option>
                                         <?php } ?>
 
@@ -296,9 +296,9 @@
 
                                 while ($row = mysqli_fetch_array($sql_tags_select)) {
                                     $tag_id_select = intval($row['tag_id']);
-                                    $tag_name_select = htmlentities($row['tag_name']);
-                                    $tag_color_select = htmlentities($row['tag_color']);
-                                    $tag_icon_select = htmlentities($row['tag_icon']);
+                                    $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                    $tag_color_select = nullable_htmlentities($row['tag_color']);
+                                    $tag_icon_select = nullable_htmlentities($row['tag_icon']);
 
                                     ?>
                                     <li class="list-group-item">

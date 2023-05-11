@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Dismissed Notifications">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Dismissed Notifications">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -51,13 +51,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -123,12 +123,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                     $notification_id = intval($row['notification_id']);
-                    $notification_timestamp = htmlentities($row['notification_timestamp']);
-                    $notification_type = htmlentities($row['notification_type']);
-                    $notification = htmlentities($row['notification']);
-                    $notification_dismissed_at = htmlentities($row['notification_dismissed_at']);
-                    $user_name = htmlentities($row['user_name']);
-                    $client_name = htmlentities($row['client_name']);
+                    $notification_timestamp = nullable_htmlentities($row['notification_timestamp']);
+                    $notification_type = nullable_htmlentities($row['notification_type']);
+                    $notification = nullable_htmlentities($row['notification']);
+                    $notification_dismissed_at = nullable_htmlentities($row['notification_dismissed_at']);
+                    $user_name = nullable_htmlentities($row['user_name']);
+                    $client_name = nullable_htmlentities($row['client_name']);
                     $client_id = intval($row['client_id']);
                     if (empty($client_name)) {
                         $client_name_display = "-";

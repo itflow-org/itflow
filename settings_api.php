@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search keys">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search keys">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -88,10 +88,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_array($sql)) {
                             $api_key_id = intval($row['api_key_id']);
-                            $api_key_name = htmlentities($row['api_key_name']);
-                            $api_key_secret = htmlentities("************" . substr($row['api_key_secret'], -4));
-                            $api_key_created_at = htmlentities($row['api_key_created_at']);
-                            $api_key_expire = htmlentities($row['api_key_expire']);
+                            $api_key_name = nullable_htmlentities($row['api_key_name']);
+                            $api_key_secret = nullable_htmlentities("************" . substr($row['api_key_secret'], -4));
+                            $api_key_created_at = nullable_htmlentities($row['api_key_created_at']);
+                            $api_key_expire = nullable_htmlentities($row['api_key_expire']);
                             if ($api_key_expire < date("Y-m-d H:i:s")) {
                                 $api_key_expire = $api_key_expire . " (Expired)";
                             }
@@ -99,7 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if ($row['api_key_client_id'] == 0) {
                                 $api_key_client = "<i>All Clients</i>";
                             } else {
-                                $api_key_client = htmlentities($row['client_name']);
+                                $api_key_client = nullable_htmlentities($row['client_name']);
                             }
 
                             ?>

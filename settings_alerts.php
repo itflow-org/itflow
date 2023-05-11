@@ -21,7 +21,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_cron_key" placeholder="Generate a CRON Key" value="<?php echo htmlentities($config_cron_key); ?>" readonly>
+                        <input type="text" class="form-control" name="config_cron_key" placeholder="Generate a CRON Key" value="<?php echo nullable_htmlentities($config_cron_key); ?>" readonly>
                         <div class="input-group-append">
                             <a href="post.php?generate_cron_key" class="btn btn-secondary"><i class="fas fa-fw fa-sync mr-2"></i>Generate</a>
                         </div>
@@ -50,7 +50,7 @@ require_once("inc_all_settings.php"); ?>
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo htmlentities($config_invoice_overdue_reminders); ?>">
+                            <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo nullable_htmlentities($config_invoice_overdue_reminders); ?>">
                         </div>
                     </div>
 

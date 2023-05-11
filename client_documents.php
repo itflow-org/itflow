@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                         while ($row = mysqli_fetch_array($sql_folders)) {
                             $folder_id = intval($row['folder_id']);
-                            $folder_name = htmlentities($row['folder_name']);
+                            $folder_name = nullable_htmlentities($row['folder_name']);
 
                             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
                             $num_documents = intval($row['num']);
@@ -141,7 +141,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                         <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
                         <div class="input-group">
-                            <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Documents">
+                            <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Documents">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                             </div>
@@ -172,10 +172,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             while ($row = mysqli_fetch_array($sql)) {
                                 $document_id = intval($row['document_id']);
-                                $document_name = htmlentities($row['document_name']);
-                                $document_content = htmlentities($row['document_content']);
-                                $document_created_at = htmlentities($row['document_created_at']);
-                                $document_updated_at = htmlentities($row['document_updated_at']);
+                                $document_name = nullable_htmlentities($row['document_name']);
+                                $document_content = nullable_htmlentities($row['document_content']);
+                                $document_created_at = nullable_htmlentities($row['document_created_at']);
+                                $document_updated_at = nullable_htmlentities($row['document_updated_at']);
                                 $document_folder_id = intval($row['document_folder_id']);
 
                                 ?>

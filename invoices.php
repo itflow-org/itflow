@@ -155,11 +155,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
-                <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo htmlentities($_GET['status']); } ?>">
+                <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo nullable_htmlentities($_GET['status']); } ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Invoices">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Invoices">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -221,25 +221,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $invoice_id = intval($row['invoice_id']);
-                        $invoice_prefix = htmlentities($row['invoice_prefix']);
-                        $invoice_number = htmlentities($row['invoice_number']);
-                        $invoice_scope = htmlentities($row['invoice_scope']);
+                        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                        $invoice_number = nullable_htmlentities($row['invoice_number']);
+                        $invoice_scope = nullable_htmlentities($row['invoice_scope']);
                         if (empty($invoice_scope)) {
                             $invoice_scope_display = "-";
                         } else {
                             $invoice_scope_display = $invoice_scope;
                         }
-                        $invoice_status = htmlentities($row['invoice_status']);
-                        $invoice_date = htmlentities($row['invoice_date']);
-                        $invoice_due = htmlentities($row['invoice_due']);
+                        $invoice_status = nullable_htmlentities($row['invoice_status']);
+                        $invoice_date = nullable_htmlentities($row['invoice_date']);
+                        $invoice_due = nullable_htmlentities($row['invoice_due']);
                         $invoice_amount = floatval($row['invoice_amount']);
-                        $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                        $invoice_created_at = htmlentities($row['invoice_created_at']);
+                        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
                         $client_id = intval($row['client_id']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
-                        $client_currency_code = htmlentities($row['client_currency_code']);
+                        $category_name = nullable_htmlentities($row['category_name']);
+                        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
                         $client_net_terms = intval($row['client_net_terms']);
                         if ($client_net_terms == 0) {
                             $client_net_terms = $config_default_net_terms;

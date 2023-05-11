@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Recurring Invoices">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -71,21 +71,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $recurring_id = intval($row['recurring_id']);
-                    $recurring_prefix = htmlentities($row['recurring_prefix']);
+                    $recurring_prefix = nullable_htmlentities($row['recurring_prefix']);
                     $recurring_number = intval($row['recurring_number']);
-                    $recurring_scope = htmlentities($row['recurring_scope']);
-                    $recurring_frequency = htmlentities($row['recurring_frequency']);
-                    $recurring_status = htmlentities($row['recurring_status']);
-                    $recurring_last_sent = htmlentities($row['recurring_last_sent']);
+                    $recurring_scope = nullable_htmlentities($row['recurring_scope']);
+                    $recurring_frequency = nullable_htmlentities($row['recurring_frequency']);
+                    $recurring_status = nullable_htmlentities($row['recurring_status']);
+                    $recurring_last_sent = nullable_htmlentities($row['recurring_last_sent']);
                     if ($recurring_last_sent == 0) {
                         $recurring_last_sent = "-";
                     }
-                    $recurring_next_date = htmlentities($row['recurring_next_date']);
+                    $recurring_next_date = nullable_htmlentities($row['recurring_next_date']);
                     $recurring_amount = floatval($row['recurring_amount']);
-                    $recurring_currency_code = htmlentities($row['recurring_currency_code']);
-                    $recurring_created_at = htmlentities($row['recurring_created_at']);
+                    $recurring_currency_code = nullable_htmlentities($row['recurring_currency_code']);
+                    $recurring_created_at = nullable_htmlentities($row['recurring_created_at']);
                     $category_id = intval($row['category_id']);
-                    $category_name = htmlentities($row['category_name']);
+                    $category_name = nullable_htmlentities($row['category_name']);
                     if ($recurring_status == 1) {
                         $status = "Active";
                         $status_badge_color = "success";

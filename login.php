@@ -228,7 +228,7 @@ if (isset($_POST['login'])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo htmlentities($company_name); ?> | Login</title>
+    <title><?php echo nullable_htmlentities($company_name); ?> | Login</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
@@ -244,7 +244,7 @@ if (isset($_POST['login'])) {
 <div class="login-box">
     <div class="login-logo">
         <?php if (!empty($company_logo)) { ?>
-            <img alt="<?=htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
         <?php } else { ?>
             <b>IT</b>Flow
         <?php } ?>

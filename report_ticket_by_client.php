@@ -85,7 +85,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                     <?php
                     while ($row = mysqli_fetch_array($sql_clients)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
 
                         // Calculate total tickets raised in period
                         $sql_ticket_raised_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_raised_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");

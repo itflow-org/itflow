@@ -320,7 +320,7 @@ $vendors_added = intval($row['vendors_added']);
                     <?php
                     while ($row = mysqli_fetch_array($sql_accounts)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = htmlentities($row['account_name']);
+                        $account_name = nullable_htmlentities($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
 
                         ?>
@@ -379,11 +379,11 @@ $vendors_added = intval($row['vendors_added']);
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
-                        $payment_date = htmlentities($row['payment_date']);
+                        $payment_date = nullable_htmlentities($row['payment_date']);
                         $payment_amount = floatval($row['payment_amount']);
-                        $invoice_prefix = htmlentities($row['invoice_prefix']);
+                        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                         $invoice_number = intval($row['invoice_number']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         ?>
                         <tr>
                             <td><?php echo $payment_date; ?></td>
@@ -422,10 +422,10 @@ $vendors_added = intval($row['vendors_added']);
                     <tbody>
                     <?php
                     while ($row = mysqli_fetch_array($sql_latest_expenses)) {
-                        $expense_date = htmlentities($row['expense_date']);
+                        $expense_date = nullable_htmlentities($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
-                        $vendor_name = htmlentities($row['vendor_name']);
-                        $category_name = htmlentities($row['category_name']);
+                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
 
                         ?>
                         <tr>

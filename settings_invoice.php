@@ -16,7 +16,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_invoice_prefix" placeholder="Invoice Prefix" value="<?php echo htmlentities($config_invoice_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_invoice_prefix" placeholder="Invoice Prefix" value="<?php echo nullable_htmlentities($config_invoice_prefix); ?>" required>
                     </div>
                 </div>
 
@@ -32,7 +32,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <div class="form-group">
                     <label>Invoice Footer</label>
-                    <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo htmlentities($config_invoice_footer); ?></textarea>
+                    <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo nullable_htmlentities($config_invoice_footer); ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -41,7 +41,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_invoice_from_email" placeholder="From Email" value="<?php echo htmlentities($config_invoice_from_email); ?>">
+                        <input type="email" class="form-control" name="config_invoice_from_email" placeholder="From Email" value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_invoice_from_name" placeholder="From Name" value="<?php echo htmlentities($config_invoice_from_name); ?>">
+                        <input type="text" class="form-control" name="config_invoice_from_name" placeholder="From Name" value="<?php echo nullable_htmlentities($config_invoice_from_name); ?>">
                     </div>
                 </div>
 
@@ -65,7 +65,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_recurring_prefix" placeholder="Recurring Prefix" value="<?php echo htmlentities($config_recurring_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_recurring_prefix" placeholder="Recurring Prefix" value="<?php echo nullable_htmlentities($config_recurring_prefix); ?>" required>
                     </div>
                 </div>
 

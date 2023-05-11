@@ -36,7 +36,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Quotes">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Quotes">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -70,21 +70,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $quote_id = intval($row['quote_id']);
-                        $quote_prefix = htmlentities($row['quote_prefix']);
-                        $quote_number = htmlentities($row['quote_number']);
-                        $quote_scope = htmlentities($row['quote_scope']);
+                        $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+                        $quote_number = nullable_htmlentities($row['quote_number']);
+                        $quote_scope = nullable_htmlentities($row['quote_scope']);
                         if (empty($quote_scope)) {
                             $quote_scope_display = "-";
                         } else {
                             $quote_scope_display = $quote_scope;
                         }
-                        $quote_status = htmlentities($row['quote_status']);
-                        $quote_date = htmlentities($row['quote_date']);
+                        $quote_status = nullable_htmlentities($row['quote_status']);
+                        $quote_date = nullable_htmlentities($row['quote_date']);
                         $quote_amount = floatval($row['quote_amount']);
-                        $quote_currency_code = htmlentities($row['quote_currency_code']);
-                        $quote_created_at = htmlentities($row['quote_created_at']);
+                        $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
+                        $quote_created_at = nullable_htmlentities($row['quote_created_at']);
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
 
                         //Set Badge color based off of quote status
                         if ($quote_status == "Sent") {

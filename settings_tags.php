@@ -53,7 +53,7 @@ if ($num_rows > 0) {
                 <div class="col-sm-4 mb-2">
                     <form autocomplete="off">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tags">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tags">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -80,10 +80,10 @@ if ($num_rows > 0) {
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $tag_id = intval($row['tag_id']);
-                        $tag_name = htmlentities($row['tag_name']);
-                        $tag_type = htmlentities($row['tag_type']);
-                        $tag_color = htmlentities($row['tag_color']);
-                        $tag_icon = htmlentities($row['tag_icon']);
+                        $tag_name = nullable_htmlentities($row['tag_name']);
+                        $tag_type = nullable_htmlentities($row['tag_type']);
+                        $tag_color = nullable_htmlentities($row['tag_color']);
+                        $tag_icon = nullable_htmlentities($row['tag_icon']);
 
                         ?>
                         <tr>

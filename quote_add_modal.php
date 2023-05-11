@@ -38,7 +38,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = intval($row['client_id']);
-                                        $client_name = htmlentities($row['client_name']);
+                                        $client_name = nullable_htmlentities($row['client_name']);
                                         ?>
                                         <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                                     <?php } ?>
@@ -62,7 +62,7 @@
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = htmlentities($row['category_name']);
+                                    $category_name = nullable_htmlentities($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 

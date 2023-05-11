@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Shared Items">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Shared Items">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -61,28 +61,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $item_id = intval($row['item_id']);
-                        $item_active = htmlentities($row['item_active']);
-                        $item_key = htmlentities($row['item_key']);
-                        $item_type = htmlentities($row['item_type']);
+                        $item_active = nullable_htmlentities($row['item_active']);
+                        $item_key = nullable_htmlentities($row['item_key']);
+                        $item_type = nullable_htmlentities($row['item_type']);
                         $item_related_id = intval($row['item_related_id']);
-                        $item_note = htmlentities($row['item_note']);
-                        $item_views = htmlentities($row['item_views']);
-                        $item_view_limit = htmlentities($row['item_view_limit']);
-                        $item_created_at = htmlentities($row['item_created_at']);
-                        $item_expire_at = htmlentities($row['item_expire_at']);
+                        $item_note = nullable_htmlentities($row['item_note']);
+                        $item_views = nullable_htmlentities($row['item_views']);
+                        $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                        $item_created_at = nullable_htmlentities($row['item_created_at']);
+                        $item_expire_at = nullable_htmlentities($row['item_expire_at']);
 
                         if ($item_type == 'Login') {
                             $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id'");
                             $share_item = mysqli_fetch_array($share_item_sql);
-                            $item_name = htmlentities($share_item['login_name']);
+                            $item_name = nullable_htmlentities($share_item['login_name']);
                         } elseif ($item_type == 'Document') {
                             $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id'");
                             $share_item = mysqli_fetch_array($share_item_sql);
-                            $item_name = htmlentities($share_item['document_name']);
+                            $item_name = nullable_htmlentities($share_item['document_name']);
                         } elseif ($item_type == 'File') {
                             $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id'");
                             $share_item = mysqli_fetch_array($share_item_sql);
-                            $item_name = htmlentities($share_item['file_name']);
+                            $item_name = nullable_htmlentities($share_item['file_name']);
                         }
 
 

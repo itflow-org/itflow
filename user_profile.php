@@ -23,15 +23,15 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="existing_file_name" value="<?php echo htmlentities($session_avatar); ?>">
+                    <input type="hidden" name="existing_file_name" value="<?php echo nullable_htmlentities($session_avatar); ?>">
 
                     <center class="mb-3 px-5">
                         <?php if (empty($session_avatar)) { ?>
                             <i class="fas fa-user-circle fa-8x text-secondary"></i>
                         <?php } else { ?>
-                            <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/" . htmlentities($session_avatar); ?>" class="img-fluid">
+                            <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>" class="img-fluid">
                         <?php } ?>
-                        <h4 class="text-secondary mt-2"><?php echo htmlentities($session_user_role_display); ?></h4>
+                        <h4 class="text-secondary mt-2"><?php echo nullable_htmlentities($session_user_role_display); ?></h4>
                     </center>
 
                     <hr>
@@ -42,7 +42,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo stripslashes(htmlentities($session_name)); ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo stripslashes(nullable_htmlentities($session_name)); ?>" required>
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo htmlentities($session_email); ?>" required>
+                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo nullable_htmlentities($session_email); ?>" required>
                         </div>
                     </div>
 
@@ -157,11 +157,11 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                 while ($row = mysqli_fetch_array($sql_recent_logins)) {
                     $log_id = intval($row['log_id']);
-                    $log_ip = htmlentities($row['log_ip']);
-                    $log_user_agent = htmlentities($row['log_user_agent']);
+                    $log_ip = nullable_htmlentities($row['log_ip']);
+                    $log_user_agent = nullable_htmlentities($row['log_user_agent']);
                     $log_user_os = getOS($log_user_agent);
                     $log_user_browser = getWebBrowser($log_user_agent);
-                    $log_created_at = htmlentities($row['log_created_at']);
+                    $log_created_at = nullable_htmlentities($row['log_created_at']);
 
                     ?>
 
@@ -192,10 +192,10 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                 while ($row = mysqli_fetch_array($sql_recent_logs)) {
                     $log_id = intval($row['log_id']);
-                    $log_type = htmlentities($row['log_type']);
-                    $log_action = htmlentities($row['log_action']);
-                    $log_description = htmlentities($row['log_description']);
-                    $log_created_at = htmlentities($row['log_created_at']);
+                    $log_type = nullable_htmlentities($row['log_type']);
+                    $log_action = nullable_htmlentities($row['log_action']);
+                    $log_description = nullable_htmlentities($row['log_description']);
+                    $log_created_at = nullable_htmlentities($row['log_created_at']);
 
                     if ($log_action == 'Create') {
                         $log_icon = "plus text-success";
@@ -223,7 +223,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                 </tbody>
             </table>
             <div class="card-footer">
-                <a href="logs.php?q=<?php echo htmlentities($session_name); ?>">See More...</a>
+                <a href="logs.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
             </div>
         </div>
     </div>

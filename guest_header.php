@@ -20,7 +20,7 @@ $browser = sanitizeInput(getWebBrowser($ua));
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title><?php echo htmlentities($config_app_name); ?></title>
+    <title><?php echo nullable_htmlentities($config_app_name); ?></title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
@@ -52,7 +52,7 @@ $browser = sanitizeInput(getWebBrowser($ua));
                     }
                     ?>
                     <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-                        <?php echo htmlentities($_SESSION['alert_message']); ?>
+                        <?php echo nullable_htmlentities($_SESSION['alert_message']); ?>
                         <button class='close' data-dismiss='alert'>&times;</button>
                     </div>
                     <?php

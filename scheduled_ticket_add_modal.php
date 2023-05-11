@@ -24,7 +24,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $contact_id = intval($row['contact_id']);
-                                        $contact_name = htmlentities($row['contact_name']);
+                                        $contact_name = nullable_htmlentities($row['contact_name']);
                                         ?>
                                         <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo $contact_name; ?></option>
 
@@ -46,7 +46,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $selectable_client_id = intval($row['client_id']);
-                                        $client_name = htmlentities($row['client_name']);
+                                        $client_name = nullable_htmlentities($row['client_name']);
                                         ?>
                                         <option value="<?php echo $selectable_client_id; ?>"><?php echo $client_name; ?></option>
 
@@ -121,7 +121,7 @@
 
                                     while ($row = mysqli_fetch_array($sql_assets)) {
                                         $asset_id_select = intval($row['asset_id']);
-                                        $asset_name_select = htmlentities($row['asset_name']);
+                                        $asset_name_select = nullable_htmlentities($row['asset_name']);
                                         ?>
                                         <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 

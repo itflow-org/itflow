@@ -103,7 +103,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse"
                                         data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -176,13 +176,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -206,7 +206,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                     $sql_assign_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
                                     while ($row = mysqli_fetch_array($sql_assign_to)) {
                                         $user_id = intval($row['user_id']);
-                                        $user_name = htmlentities($row['user_name']);
+                                        $user_name = nullable_htmlentities($row['user_name']);
                                         ?>
                                         <option <?php if ($ticket_assigned_filter == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                         <?php
@@ -258,14 +258,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $ticket_id = intval($row['ticket_id']);
-                        $ticket_prefix = htmlentities($row['ticket_prefix']);
+                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                         $ticket_number = intval($row['ticket_number']);
-                        $ticket_subject = htmlentities($row['ticket_subject']);
-                        $ticket_details = htmlentities($row['ticket_details']);
-                        $ticket_priority = htmlentities($row['ticket_priority']);
-                        $ticket_status = htmlentities($row['ticket_status']);
-                        $ticket_created_at = htmlentities($row['ticket_created_at']);
-                        $ticket_updated_at = htmlentities($row['ticket_updated_at']);
+                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_details = nullable_htmlentities($row['ticket_details']);
+                        $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                        $ticket_status = nullable_htmlentities($row['ticket_status']);
+                        $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                        $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                         if (empty($ticket_updated_at)) {
                             if ($ticket_status == "Closed") {
                                 $ticket_updated_at_display = "<p>Never</p>";
@@ -275,15 +275,15 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         } else {
                             $ticket_updated_at_display = $ticket_updated_at;
                         }
-                        $ticket_closed_at = htmlentities($row['ticket_closed_at']);
+                        $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
                         $client_id = intval($row['client_id']);
-                        $client_name = htmlentities($row['client_name']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = htmlentities($row['contact_name']);
-                        $contact_title = htmlentities($row['contact_title']);
-                        $contact_email = htmlentities($row['contact_email']);
+                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_title = nullable_htmlentities($row['contact_title']);
+                        $contact_email = nullable_htmlentities($row['contact_email']);
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
-                        $contact_extension = htmlentities($row['contact_extension']);
+                        $contact_extension = nullable_htmlentities($row['contact_extension']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if ($ticket_status == "Open") {
                             $ticket_status_color = "primary";
@@ -308,7 +308,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                             }
                         } else {
-                            $ticket_assigned_to_display = htmlentities($row['user_name']);
+                            $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                         }
 
                         if (empty($contact_name)) {

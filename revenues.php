@@ -35,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Revenues">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Revenues">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -64,13 +64,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date From</label>
-                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date To</label>
-                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                         </div>
                     </div>
                 </div>
@@ -95,22 +95,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $revenue_id = intval($row['revenue_id']);
-                    $revenue_description = htmlentities($row['revenue_description']);
-                    $revenue_reference = htmlentities($row['revenue_reference']);
+                    $revenue_description = nullable_htmlentities($row['revenue_description']);
+                    $revenue_reference = nullable_htmlentities($row['revenue_reference']);
                     if (empty($revenue_reference)) {
                         $revenue_reference_display = "-";
                     } else {
                         $revenue_reference_display = $revenue_reference;
                     }
-                    $revenue_date = htmlentities($row['revenue_date']);
-                    $revenue_payment_method = htmlentities($row['revenue_payment_method']);
+                    $revenue_date = nullable_htmlentities($row['revenue_date']);
+                    $revenue_payment_method = nullable_htmlentities($row['revenue_payment_method']);
                     $revenue_amount = floatval($row['revenue_amount']);
-                    $revenue_currency_code = htmlentities($row['revenue_currency_code']);
-                    $revenue_created_at = htmlentities($row['revenue_created_at']);
+                    $revenue_currency_code = nullable_htmlentities($row['revenue_currency_code']);
+                    $revenue_created_at = nullable_htmlentities($row['revenue_created_at']);
                     $account_id = intval($row['account_id']);
-                    $account_name = htmlentities($row['account_name']);
+                    $account_name = nullable_htmlentities($row['account_name']);
                     $category_id = intval($row['category_id']);
-                    $category_name = htmlentities($row['category_name']);
+                    $category_name = nullable_htmlentities($row['category_name']);
 
                     ?>
 

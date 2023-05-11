@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Payments">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Payments">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -69,23 +69,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $invoice_id = intval($row['invoice_id']);
-                    $invoice_prefix = htmlentities($row['invoice_prefix']);
+                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
-                    $invoice_status = htmlentities($row['invoice_status']);
+                    $invoice_status = nullable_htmlentities($row['invoice_status']);
                     $invoice_amount = floatval($row['invoice_amount']);
-                    $invoice_currency_code = htmlentities($row['invoice_currency_code']);
-                    $invoice_date = htmlentities($row['invoice_date']);
-                    $payment_date = htmlentities($row['payment_date']);
-                    $payment_method = htmlentities($row['payment_method']);
-                    $payment_reference = htmlentities($row['payment_reference']);
+                    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                    $invoice_date = nullable_htmlentities($row['invoice_date']);
+                    $payment_date = nullable_htmlentities($row['payment_date']);
+                    $payment_method = nullable_htmlentities($row['payment_method']);
+                    $payment_reference = nullable_htmlentities($row['payment_reference']);
                     if (empty($payment_reference)) {
                         $payment_reference_display = "-";
                     } else {
                         $payment_reference_display = $payment_reference;
                     }
                     $payment_amount = floatval($row['payment_amount']);
-                    $payment_currency_code = htmlentities($row['payment_currency_code']);
-                    $account_name = htmlentities($row['account_name']);
+                    $payment_currency_code = nullable_htmlentities($row['payment_currency_code']);
+                    $account_name = nullable_htmlentities($row['account_name']);
 
 
                     ?>

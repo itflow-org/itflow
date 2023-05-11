@@ -30,18 +30,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list mr-2"></i><?php echo htmlentities($table); ?> Fields</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list mr-2"></i><?php echo nullable_htmlentities($table); ?> Fields</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCustomFieldModal"><i class="fas fa-plus mr-2"></i>Create</button>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <input type="hidden" name="table" value="<?php echo htmlentities($table); ?>">
+                <input type="hidden" name="table" value="<?php echo nullable_htmlentities($table); ?>">
                 <div class="row">
                     <div class="col-sm-4 mb-2">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -70,8 +70,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $custom_field_id = intval($row['custom_field_id']);
-                        $custom_field_label = htmlentities($row['custom_field_label']);
-                        $custom_field_type = htmlentities($row['custom_field_type']);
+                        $custom_field_label = nullable_htmlentities($row['custom_field_label']);
+                        $custom_field_type = nullable_htmlentities($row['custom_field_type']);
                         $custom_field_location = intval($row['custom_field_location']);
                         $custom_field_order = intval($row['custom_field_order']);
                         

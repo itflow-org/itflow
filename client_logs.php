@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Logs">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Logs">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -66,16 +66,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $log_id = intval($row['log_id']);
-                    $log_type = htmlentities($row['log_type']);
-                    $log_action = htmlentities($row['log_action']);
-                    $log_description = htmlentities($row['log_description']);
-                    $log_ip = htmlentities($row['log_ip']);
-                    $log_user_agent = htmlentities($row['log_user_agent']);
+                    $log_type = nullable_htmlentities($row['log_type']);
+                    $log_action = nullable_htmlentities($row['log_action']);
+                    $log_description = nullable_htmlentities($row['log_description']);
+                    $log_ip = nullable_htmlentities($row['log_ip']);
+                    $log_user_agent = nullable_htmlentities($row['log_user_agent']);
                     $log_user_os = getOS($log_user_agent);
                     $log_user_browser = getWebBrowser($log_user_agent);
-                    $log_created_at = htmlentities($row['log_created_at']);
+                    $log_created_at = nullable_htmlentities($row['log_created_at']);
                     $user_id = intval($row['user_id']);
-                    $user_name = htmlentities($row['user_name']);
+                    $user_name = nullable_htmlentities($row['user_name']);
                     if (empty($user_name)) {
                         $user_name_display = "-";
                     } else {

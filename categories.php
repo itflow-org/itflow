@@ -46,18 +46,18 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list mr-2"></i><?php echo htmlentities($category); ?> Categories</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-list mr-2"></i><?php echo nullable_htmlentities($category); ?> Categories</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i class="fas fa-plus mr-2"></i>New</button>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <input type="hidden" name="category" value="<?php echo htmlentities($category); ?>">
+                <input type="hidden" name="category" value="<?php echo nullable_htmlentities($category); ?>">
                 <div class="row">
                     <div class="col-sm-4 mb-2">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Categories">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Categories">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -88,8 +88,8 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
-                        $category_color = htmlentities($row['category_color']);
+                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_color = nullable_htmlentities($row['category_color']);
                         //$colors_used_array[] = $row['category_color'];
 
                         ?>

@@ -22,29 +22,29 @@ if (isset($_GET['quote_id'])) {
 
     $row = mysqli_fetch_array($sql);
     $quote_id = intval($row['quote_id']);
-    $quote_prefix = htmlentities($row['quote_prefix']);
+    $quote_prefix = nullable_htmlentities($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
-    $quote_scope = htmlentities($row['quote_scope']);
-    $quote_status = htmlentities($row['quote_status']);
-    $quote_date = htmlentities($row['quote_date']);
+    $quote_scope = nullable_htmlentities($row['quote_scope']);
+    $quote_status = nullable_htmlentities($row['quote_status']);
+    $quote_date = nullable_htmlentities($row['quote_date']);
     $quote_amount = floatval($row['quote_amount']);
-    $quote_currency_code = htmlentities($row['quote_currency_code']);
-    $quote_note = htmlentities($row['quote_note']);
-    $quote_url_key = htmlentities($row['quote_url_key']);
-    $quote_created_at = htmlentities($row['quote_created_at']);
+    $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
+    $quote_note = nullable_htmlentities($row['quote_note']);
+    $quote_url_key = nullable_htmlentities($row['quote_url_key']);
+    $quote_created_at = nullable_htmlentities($row['quote_created_at']);
     $category_id = intval($row['quote_category_id']);
     $client_id = intval($row['client_id']);
-    $client_name = htmlentities($row['client_name']);
-    $location_address = htmlentities($row['location_address']);
-    $location_city = htmlentities($row['location_city']);
-    $location_state = htmlentities($row['location_state']);
-    $location_zip = htmlentities($row['location_zip']);
-    $contact_email = htmlentities($row['contact_email']);
+    $client_name = nullable_htmlentities($row['client_name']);
+    $location_address = nullable_htmlentities($row['location_address']);
+    $location_city = nullable_htmlentities($row['location_city']);
+    $location_state = nullable_htmlentities($row['location_state']);
+    $location_zip = nullable_htmlentities($row['location_zip']);
+    $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_phone = formatPhoneNumber($row['contact_phone']);
-    $contact_extension = htmlentities($row['contact_extension']);
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-    $client_website = htmlentities($row['client_website']);
-    $client_currency_code = htmlentities($row['client_currency_code']);
+    $client_website = nullable_htmlentities($row['client_website']);
+    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
     $client_net_terms = intval($row['client_net_terms']);
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
@@ -54,16 +54,16 @@ if (isset($_GET['quote_id'])) {
     $row = mysqli_fetch_array($sql);
 
     $company_id = intval($row['company_id']);
-    $company_name = htmlentities($row['company_name']);
-    $company_country = htmlentities($row['company_country']);
-    $company_address = htmlentities($row['company_address']);
-    $company_city = htmlentities($row['company_city']);
-    $company_state = htmlentities($row['company_state']);
-    $company_zip = htmlentities($row['company_zip']);
+    $company_name = nullable_htmlentities($row['company_name']);
+    $company_country = nullable_htmlentities($row['company_country']);
+    $company_address = nullable_htmlentities($row['company_address']);
+    $company_city = nullable_htmlentities($row['company_city']);
+    $company_state = nullable_htmlentities($row['company_state']);
+    $company_zip = nullable_htmlentities($row['company_zip']);
     $company_phone = formatPhoneNumber($row['company_phone']);
-    $company_email = htmlentities($row['company_email']);
-    $company_website = htmlentities($row['company_website']);
-    $company_logo = htmlentities($row['company_logo']);
+    $company_email = nullable_htmlentities($row['company_email']);
+    $company_website = nullable_htmlentities($row['company_website']);
+    $company_logo = nullable_htmlentities($row['company_logo']);
     if (!empty($company_logo)) {
         $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
     }
@@ -260,13 +260,13 @@ if (isset($_GET['quote_id'])) {
 
                                 while ($row = mysqli_fetch_array($sql_items)) {
                                     $item_id = intval($row['item_id']);
-                                    $item_name = htmlentities($row['item_name']);
-                                    $item_description = htmlentities($row['item_description']);
+                                    $item_name = nullable_htmlentities($row['item_name']);
+                                    $item_description = nullable_htmlentities($row['item_description']);
                                     $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
-                                    $item_created_at = htmlentities($row['item_created_at']);
+                                    $item_created_at = nullable_htmlentities($row['item_created_at']);
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
@@ -326,7 +326,7 @@ if (isset($_GET['quote_id'])) {
                                                 $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                                     $tax_id = intval($row['tax_id']);
-                                                    $tax_name = htmlentities($row['tax_name']);
+                                                    $tax_name = nullable_htmlentities($row['tax_name']);
                                                     $tax_percent = floatval($row['tax_percent']);
                                                     ?>
                                                     <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
@@ -391,7 +391,7 @@ if (isset($_GET['quote_id'])) {
 
             <hr class="d-none d-print-block mt-5">
 
-            <div class="d-none d-print-block text-center"><?php echo nl2br(htmlentities($config_quote_footer)); ?></div>
+            <div class="d-none d-print-block text-center"><?php echo nl2br(nullable_htmlentities($config_quote_footer)); ?></div>
         </div>
     </div>
 
@@ -422,9 +422,9 @@ if (isset($_GET['quote_id'])) {
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_history)) {
-                            $history_created_at = htmlentities($row['history_created_at']);
-                            $history_status = htmlentities($row['history_status']);
-                            $history_description = htmlentities($row['history_description']);
+                            $history_created_at = nullable_htmlentities($row['history_created_at']);
+                            $history_status = nullable_htmlentities($row['history_status']);
+                            $history_description = nullable_htmlentities($row['history_description']);
 
                             ?>
                             <tr>

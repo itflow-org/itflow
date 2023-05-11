@@ -47,7 +47,7 @@
                                     $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = intval($row['account_id']);
-                                        $account_name_select = htmlentities($row['account_name']);
+                                        $account_name_select = nullable_htmlentities($row['account_name']);
                                         $opening_balance = floatval($row['opening_balance']);
 
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
@@ -85,7 +85,7 @@
                                     $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_vendors)) {
                                         $vendor_id_select = intval($row['vendor_id']);
-                                        $vendor_name_select = htmlentities($row['vendor_name']);
+                                        $vendor_name_select = nullable_htmlentities($row['vendor_name']);
                                         ?>
                                         <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                                         <?php
@@ -127,7 +127,7 @@
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_categories)) {
                                         $category_id_select = intval($row['category_id']);
-                                        $category_name_select = htmlentities($row['category_name']);
+                                        $category_name_select = nullable_htmlentities($row['category_name']);
                                         ?>
                                         <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                                         <?php
@@ -155,7 +155,7 @@
                                         $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
                                         while ($row = mysqli_fetch_array($sql_clients)) {
                                             $client_id_select = intval($row['client_id']);
-                                            $client_name_select = htmlentities($row['client_name']);
+                                            $client_name_select = nullable_htmlentities($row['client_name']);
                                             ?>
                                             <option <?php if ($expense_client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 

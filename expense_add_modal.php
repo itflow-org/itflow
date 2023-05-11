@@ -46,7 +46,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $account_id = intval($row['account_id']);
-                                        $account_name = htmlentities($row['account_name']);
+                                        $account_name = nullable_htmlentities($row['account_name']);
                                         $opening_balance = floatval($row['opening_balance']);
 
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -86,7 +86,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $vendor_id = intval($row['vendor_id']);
-                                        $vendor_name = htmlentities($row['vendor_name']);
+                                        $vendor_name = nullable_htmlentities($row['vendor_name']);
                                         ?>
                                         <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
 
@@ -131,7 +131,7 @@
                                     $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = htmlentities($row['category_name']);
+                                        $category_name = nullable_htmlentities($row['category_name']);
                                         ?>
                                         <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 
@@ -164,7 +164,7 @@
                                         $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $client_id = intval($row['client_id']);
-                                            $client_name = htmlentities($row['client_name']);
+                                            $client_name = nullable_htmlentities($row['client_name']);
                                             ?>
                                             <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 

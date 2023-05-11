@@ -9,7 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="category_id" value="<?php echo $category_id; ?>">
-                <input type="hidden" name="type" value="<?php echo htmlentities($category); ?>">
+                <input type="hidden" name="type" value="<?php echo nullable_htmlentities($category); ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

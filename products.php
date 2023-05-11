@@ -33,7 +33,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(htmlentities($q));} ?>" placeholder="Search Products">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Products">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -58,18 +58,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $product_id = intval($row['product_id']);
-                        $product_name = htmlentities($row['product_name']);
-                        $product_description = htmlentities($row['product_description']);
+                        $product_name = nullable_htmlentities($row['product_name']);
+                        $product_description = nullable_htmlentities($row['product_description']);
                         if (empty($product_description)) {
                             $product_description_display = "-";
                         } else {
                             $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
                         }
                         $product_price = floatval($row['product_price']);
-                        $product_currency_code = htmlentities($row['product_currency_code']);
-                        $product_created_at = htmlentities($row['product_created_at']);
+                        $product_currency_code = nullable_htmlentities($row['product_currency_code']);
+                        $product_created_at = nullable_htmlentities($row['product_created_at']);
                         $category_id = intval($row['category_id']);
-                        $category_name = htmlentities($row['category_name']);
+                        $category_name = nullable_htmlentities($row['category_name']);
                         $product_tax_id = intval($row['product_tax_id']);
 
                         ?>

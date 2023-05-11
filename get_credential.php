@@ -132,7 +132,7 @@ if (isset($_GET['host'])) {
         if (mysqli_num_rows($sql_logins) > 0) {
             $row = mysqli_fetch_array($sql_logins);
             $data['found'] = "TRUE";
-            $data['username'] = htmlentities(decryptLoginEntry($row['login_username']));
+            $data['username'] = nullable_htmlentities(decryptLoginEntry($row['login_username']));
             $data['password'] = decryptLoginEntry($row['login_password']); // Uses the PHP Session info and the session key cookie
             echo json_encode($data);
 

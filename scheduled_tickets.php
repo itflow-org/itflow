@@ -41,7 +41,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -97,11 +97,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($sql)) {
                             $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
                             $scheduled_ticket_client_id = intval($row['client_id']);
-                            $scheduled_ticket_subject = htmlentities($row['scheduled_ticket_subject']);
-                            $scheduled_ticket_priority = htmlentities($row['scheduled_ticket_priority']);
-                            $scheduled_ticket_frequency = htmlentities($row['scheduled_ticket_frequency']);
-                            $scheduled_ticket_next_run = htmlentities($row['scheduled_ticket_next_run']);
-                            $scheduled_ticket_client_name = htmlentities($row['client_name']);
+                            $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
+                            $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
+                            $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
+                            $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                            $scheduled_ticket_client_name = nullable_htmlentities($row['client_name']);
                             ?>
 
                             <tr>
