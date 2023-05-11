@@ -11,7 +11,7 @@
 <br>
 <hr>
 
-<p class="text-center"><?php echo htmlentities($session_company_name); ?></p>
+<p class="text-center"><?php echo nullable_htmlentities($session_company_name); ?></p>
 
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>

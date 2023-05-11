@@ -32,7 +32,7 @@ $sql_document = mysqli_query($mysqli, "SELECT document_id, document_name, docume
 $row = mysqli_fetch_array($sql_document);
 
 $document_id = intval($row['document_id']);
-$document_name = htmlentities($row['document_name']);
+$document_name = nullable_htmlentities($row['document_name']);
 $document_content = $purifier->purify($row['document_content']);
 
 ?>

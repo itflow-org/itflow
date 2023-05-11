@@ -205,10 +205,10 @@ if (isset($_GET['ticket_query_views'])) {
         $users = array_unique($users);
         if (count($users) > 1) {
             // Multiple viewers
-            $response['message'] = htmlentities(implode(", ", $users) . " are viewing this ticket.");
+            $response['message'] = nullable_htmlentities(implode(", ", $users) . " are viewing this ticket.");
         } else {
             // Single viewer
-            $response['message'] = htmlentities(implode("", $users) . " is viewing this ticket.");
+            $response['message'] = nullable_htmlentities(implode("", $users) . " is viewing this ticket.");
         }
     } else {
         // No viewers

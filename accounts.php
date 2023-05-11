@@ -30,7 +30,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form autocomplete="off">
                 <div class="input-group">
-                    <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search Accounts">
+                    <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Accounts">
                     <div class="input-group-append">
                         <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                     </div>
@@ -52,10 +52,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = htmlentities($row['account_name']);
+                        $account_name = nullable_htmlentities($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
-                        $account_currency_code = htmlentities($row['account_currency_code']);
-                        $account_notes = htmlentities($row['account_notes']);
+                        $account_currency_code = nullable_htmlentities($row['account_currency_code']);
+                        $account_notes = nullable_htmlentities($row['account_notes']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);

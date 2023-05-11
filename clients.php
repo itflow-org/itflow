@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(htmlentities($q)); } ?>" placeholder="Search" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -83,13 +83,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date from</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo htmlentities($dtf); ?>">
+                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date to</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo htmlentities($dtt); ?>">
+                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
                     </div>
@@ -112,36 +112,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_array($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = htmlentities($row['client_name']);
-                        $client_type = htmlentities($row['client_type']);
+                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_type = nullable_htmlentities($row['client_type']);
                         $location_id = intval($row['location_id']);
-                        $location_country = htmlentities($row['location_country']);
-                        $location_address = htmlentities($row['location_address']);
-                        $location_city = htmlentities($row['location_city']);
-                        $location_state = htmlentities($row['location_state']);
-                        $location_zip = htmlentities($row['location_zip']);
+                        $location_country = nullable_htmlentities($row['location_country']);
+                        $location_address = nullable_htmlentities($row['location_address']);
+                        $location_city = nullable_htmlentities($row['location_city']);
+                        $location_state = nullable_htmlentities($row['location_state']);
+                        $location_zip = nullable_htmlentities($row['location_zip']);
                         if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
                             $location_address_display = "-";
                         } else {
                             $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
                         }
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = htmlentities($row['contact_name']);
-                        $contact_title = htmlentities($row['contact_title']);
+                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_title = nullable_htmlentities($row['contact_title']);
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
-                        $contact_extension = htmlentities($row['contact_extension']);
+                        $contact_extension = nullable_htmlentities($row['contact_extension']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                        $contact_email = htmlentities($row['contact_email']);
-                        $client_website = htmlentities($row['client_website']);
+                        $contact_email = nullable_htmlentities($row['contact_email']);
+                        $client_website = nullable_htmlentities($row['client_website']);
                         $client_rate = floatval($row['client_rate']);
-                        $client_currency_code = htmlentities($row['client_currency_code']);
+                        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
                         $client_net_terms = intval($row['client_net_terms']);
-                        $client_tax_id_number = htmlentities($row['client_tax_id_number']);
-                        $client_referral = htmlentities($row['client_referral']);
-                        $client_notes = htmlentities($row['client_notes']);
+                        $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
+                        $client_referral = nullable_htmlentities($row['client_referral']);
+                        $client_notes = nullable_htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
-                        $client_updated_at = htmlentities($row['client_updated_at']);
-                        $client_archive_at = htmlentities($row['client_archived_at']);
+                        $client_updated_at = nullable_htmlentities($row['client_updated_at']);
+                        $client_archive_at = nullable_htmlentities($row['client_archived_at']);
 
                         // Client Tags
 
@@ -151,9 +151,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
                             $client_tag_id = intval($row['tag_id']);
-                            $client_tag_name = htmlentities($row['tag_name']);
-                            $client_tag_color = htmlentities($row['tag_color']);
-                            $client_tag_icon = htmlentities($row['tag_icon']);
+                            $client_tag_name = nullable_htmlentities($row['tag_name']);
+                            $client_tag_color = nullable_htmlentities($row['tag_color']);
+                            $client_tag_icon = nullable_htmlentities($row['tag_icon']);
                             if (empty($client_tag_icon)) {
                                 $client_tag_icon = "tag";
                             }

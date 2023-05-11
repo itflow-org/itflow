@@ -248,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <?php
                 // Show feedback from session
                 if (!empty($_SESSION['login_message'])) {
-                    echo htmlentities($_SESSION['login_message']);
+                    echo nullable_htmlentities($_SESSION['login_message']);
                     unset($_SESSION['login_message']);
                 }
                 ?>

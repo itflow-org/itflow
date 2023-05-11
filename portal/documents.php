@@ -53,9 +53,9 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                 <?php
                 while ($row = mysqli_fetch_array($documents_sql)) {
                     $document_id = intval($row['document_id']);
-                    $folder_name = htmlentities($row['folder_name']);
-                    $document_name = htmlentities($row['document_name']);
-                    $document_created_at = htmlentities($row['document_created_at']);
+                    $folder_name = nullable_htmlentities($row['folder_name']);
+                    $document_name = nullable_htmlentities($row['document_name']);
+                    $document_created_at = nullable_htmlentities($row['document_created_at']);
 
                     ?>
 
