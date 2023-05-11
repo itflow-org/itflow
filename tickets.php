@@ -113,7 +113,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     </div>
                     <div class="col-sm-8">
                         <div class="btn-group btn-group-lg float-right">
-                            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton"
+                            <button class="btn btn-outline-dark dropdown-toggle" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" type="button" id="dropdownMenuButton"
                                     data-toggle="dropdown">
                                 <i class="fa fa-fw fa-envelope"></i> My Tickets
                             </button>
