@@ -45,6 +45,10 @@ function key32gen()
     return $key;
 }
 
+function nullable_htmlentities($unsanitizedInput) {
+    return htmlentities($unsanitizedInput ?? '');
+}
+
 function initials($str) {
     if (!empty($str)) {
         $ret = '';
