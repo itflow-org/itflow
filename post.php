@@ -298,7 +298,7 @@ if(isset($_POST['edit_profile'])){
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $new_password = trim($_POST['new_password']);
-    
+
     $sql = mysqli_query($mysqli,"SELECT user_avatar FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
     $existing_file_name = sanitizeInput($row['user_avatar']);
@@ -2743,7 +2743,7 @@ if(isset($_POST['edit_expense'])){
     require_once('models/expense.php');
 
     $expense_id = intval($_POST['expense_id']);
-    
+
     // Get old receipt
     $sql = mysqli_query($mysqli,"SELECT expense_receipt FROM expenses WHERE expense_id = $expense_id");
     $row = mysqli_fetch_array($sql);
@@ -6244,7 +6244,7 @@ if(isset($_POST['edit_domain'])){
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
