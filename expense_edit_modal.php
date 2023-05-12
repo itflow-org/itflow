@@ -10,7 +10,6 @@
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <div class="modal-body bg-white">
                     <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
-                    <input type="hidden" name="existing_file_name" value="<?php echo $expense_receipt; ?>">
 
                     <div class="form-row">
 

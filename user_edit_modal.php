@@ -11,7 +11,6 @@
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                <input type="hidden" name="existing_file_name" value="<?php echo "$user_avatar"; ?>">
                 <div class="modal-body bg-white">
 
                     <center class="mb-3">

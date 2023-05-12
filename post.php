@@ -92,7 +92,11 @@ if(isset($_POST['edit_user'])){
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
 
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
+    // Get current Avatar
+    $sql = mysqli_query($mysqli,"SELECT user_avatar FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['user_avatar']);
+
     $extended_log_description = '';
     if(!empty($_POST['2fa'])) {
         $two_fa = $_POST['2fa'];
@@ -294,7 +298,11 @@ if(isset($_POST['edit_profile'])){
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $new_password = trim($_POST['new_password']);
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
+    
+    $sql = mysqli_query($mysqli,"SELECT user_avatar FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['user_avatar']);
+
     $logout = false;
     $extended_log_description = '';
 
@@ -478,7 +486,9 @@ if(isset($_POST['edit_company'])){
 
     validateAdminRole();
 
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
+    $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['company_logo']);
 
     // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
@@ -2733,8 +2743,11 @@ if(isset($_POST['edit_expense'])){
     require_once('models/expense.php');
 
     $expense_id = intval($_POST['expense_id']);
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
-
+    
+    // Get old receipt
+    $sql = mysqli_query($mysqli,"SELECT expense_receipt FROM expenses WHERE expense_id = $expense_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['expense_receipt']);
 
     // Check for and process attachment
     $extended_alert_description = '';
@@ -4233,7 +4246,12 @@ if(isset($_POST['edit_contact'])){
     require_once('models/contact.php');
 
     $contact_id = intval($_POST['contact_id']);
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
+
+    // Get Exisiting Contact Photo
+    $sql = mysqli_query($mysqli,"SELECT contact_photo FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['contact_photo']);
+
 
     if(!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
@@ -4600,7 +4618,11 @@ if(isset($_POST['edit_location'])){
 
     $location_id = intval($_POST['location_id']);
 
-    $existing_file_name = sanitizeInput($_POST['existing_file_name']);
+    // Get old location photo
+    $sql = mysqli_query($mysqli,"SELECT location_photo FROM locations WHERE location_id = $location_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['location_photo']);
+
 
     if(!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");

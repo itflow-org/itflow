@@ -28,7 +28,6 @@ $company_initials = nullable_htmlentities(initials($company_name));
         </div>
         <div class="card-body">
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-                <input type="hidden" name="existing_file_name" value="<?php echo $company_logo; ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>

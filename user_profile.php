@@ -23,7 +23,6 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
                 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="existing_file_name" value="<?php echo nullable_htmlentities($session_avatar); ?>">
 
                     <center class="mb-3 px-5">
                         <?php if (empty($session_avatar)) { ?>

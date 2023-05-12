@@ -10,7 +10,7 @@
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="location_id" value="<?php echo $location_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="existing_file_name" value="<?php echo $location_photo; ?>">
+                
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
