@@ -33,6 +33,14 @@
           </a>
         </li>
 
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link --><?php //if (basename($_SERVER["PHP_SELF"]) == "settings_security.php") { echo "active"; } ?><!--"-->
+<!--             href="settings_security.php">-->
+<!--            <i class="nav-icon fas fa-shield-alt"></i>-->
+<!--            <p>Security</p>-->
+<!--          </a>-->
+<!--        </li>-->
+
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">

@@ -29,7 +29,7 @@ if ($failed_login_count >= 15) {
     exit("<h2>$config_app_name</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
 }
 
-// Query Settings for "default" company (as companies are being removed shortly)
+// Query Settings for company
 $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings LEFT JOIN companies ON settings.company_id = companies.company_id WHERE settings.company_id = 1");
 $row = mysqli_fetch_array($sql_settings);
 
@@ -45,6 +45,19 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
+
+//// Login key (if setup)
+//$config_login_key_required = $row['config_login_key_required'];
+//$config_login_key_secret = $row['config_login_key_secret'];
+//
+//// Login key verification
+////  If no/incorrect 'key' is supplied, send to client portal instead
+//if ($config_login_key_required) {
+//    if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
+//        header("Location: portal");
+//        exit();
+//    }
+//}
 
 // HTTP-Only cookies
 ini_set("session.cookie_httponly", true);
@@ -255,6 +268,8 @@ if (isset($_POST['login'])) {
         <div class="card-body login-card-body">
             <p class="login-box-msg"><?php if (isset($response)) { echo $response; } ?></p>
             <form method="post">
+
+
                 <div class="input-group mb-3" <?php if (isset($token_field)) { echo "hidden"; } ?>>
                     <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if (isset($token_field)) { echo $email; }?>" required <?php if (!isset($token_field)) { echo "autofocus"; } ?> >
                     <div class="input-group-append">

@@ -83,6 +83,10 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 
+// Login key
+$config_login_key_required = $row['config_login_key_required'];
+$config_login_key_secret = $row['config_login_key_secret'];
+
 // Currency
 $config_currency_format = "US_en";
 

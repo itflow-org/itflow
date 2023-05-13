@@ -1054,11 +1054,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.5'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.5') {
-        //Insert queries here required to update to DB version 0.5.6
+    if (CURRENT_DATABASE_VERSION == '0.5.5') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_login_key_required` TINYINT(1) NOT NULL DEFAULT '0' AFTER `config_module_enable_accounting`, ADD `config_login_key_secret` VARCHAR(255) NULL DEFAULT NULL AFTER `config_login_key_required`; ");
 
-        // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.6'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.6'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.6') {
+    //Insert queries here required to update to DB version 0.5.7
+
+    // Then, update the database to the next sequential version
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.7'");
     //}
 
 } else {

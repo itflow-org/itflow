@@ -1138,6 +1138,8 @@ CREATE TABLE `settings` (
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
+  `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
+  `config_login_key_secret` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
