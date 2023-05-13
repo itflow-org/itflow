@@ -468,10 +468,27 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body card-outline card-dark mb-3">
                         <div>
                             <h4 class="text-secondary">Contact</h4>
-                            <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
-                            <br>
-                            <span class="ml-1">Related tickets: Open <strong><?php echo $ticket_related_open; ?></strong> | Closed <strong><?php echo $ticket_related_closed; ?></strong> | Total <strong><?php echo $ticket_related_total; ?></strong></span>
-                            <hr>
+                            <span class="">
+ 							 <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i>
+  								<a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-dark">
+    							<strong><?php echo strtoupper($contact_name); ?></strong>
+ 								 </a>
+							</span>
+
+
+ 							<span class="ml-1">
+ 							 <a href="#" tabindex="0" role="button" data-toggle="popover" title="Related Tickets" data-html="true" data-content="
+    							Open tickets: <strong><a href='tickets.php?contact_id=<?php echo $contact_id; ?>&status=Open'><?php echo $ticket_related_open; ?></a></strong><br>
+    							Closed tickets: <strong><a href='tickets.php?contact_id=<?php echo $contact_id; ?>&status=Closed'><?php echo $ticket_related_closed; ?></a></strong>
+  							">
+    						<span class="badge bg-secondary"><?php echo $ticket_related_total; ?></span>
+  							</a>
+						</span>
+ 
+
+						<br>
+
+
                             <?php
 
                             if (!empty($location_name)) { ?>
@@ -485,14 +502,48 @@ if (isset($_GET['ticket_id'])) {
                             <?php }
 
                             if (!empty($contact_phone)) { ?>
-                                <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_phone; ?>
+                                <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
                                 <br>
                             <?php }
 
                             if (!empty($contact_mobile)) { ?>
-                                <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i><?php echo $contact_mobile; ?>
+                                 <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
                                 <br>
                             <?php } ?>
+                            
+                            <hr>
+                            
+                            
+                            
+                            <?php
+
+  							  	$sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id < $ticket_id ORDER BY ticket_id DESC LIMIT 1";
+    							$row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
+
+   								 if ($row) {
+        							$prev_ticket_id = $row['ticket_id'];
+    								//    $prev_ticket_created_at = $row['ticket_created_at'];
+        							$prev_ticket_subject = $row['ticket_subject'];
+        							$prev_ticket_status = $row['ticket_status'];
+    								//    $prev_ticket_assigned_to = $row['ticket_assigned_to'];
+    							}
+							?>
+
+
+						<div class="row">
+   							 <div class="col-sm-12"> 
+        						<i class="fa fa-history text-secondary ml-1 mr-2 mb-2"></i> <b>Previous ticket:</b>
+	        					<a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a> 
+								<br>
+								<i class="fa fa-hourglass-start text-secondary ml-1 mr-2 mb-2"></i> <b>Status:</b> <?php if ($prev_ticket_status == 'Open') { ?>
+            					<span class="text-danger"><?php echo $prev_ticket_status; ?></span>
+        						<?php } else { ?>
+            					<span class="text-success"><?php echo $prev_ticket_status; ?></span>
+        			<?php } ?>
+
+    						</div>
+					</div>
+                            
 
                         </div>
                     </div>
