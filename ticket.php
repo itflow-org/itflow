@@ -517,16 +517,16 @@ if (isset($_GET['ticket_id'])) {
                             
                             <?php
 
-  							  	$sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id < $ticket_id ORDER BY ticket_id DESC LIMIT 1";
-    							$row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
+								$sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = " . intval($contact_id) . " AND ticket_id < " . intval($ticket_id) . " ORDER BY ticket_id DESC LIMIT 1";
+								$row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
 
-   								 if ($row) {
-        							$prev_ticket_id = $row['ticket_id'];
-    								//    $prev_ticket_created_at = $row['ticket_created_at'];
-        							$prev_ticket_subject = $row['ticket_subject'];
-        							$prev_ticket_status = $row['ticket_status'];
-    								//    $prev_ticket_assigned_to = $row['ticket_assigned_to'];
-    							}
+								if ($row) {
+    								$prev_ticket_id = intval($row['ticket_id']);
+   									$prev_ticket_subject = htmlentities($row['ticket_subject']);
+    								$prev_ticket_status = htmlentities($row['ticket_status']);
+								}
+    								
+    						
 							?>
 
 
@@ -546,6 +546,7 @@ if (isset($_GET['ticket_id'])) {
         						<?php } ?>
     						</div>
 						</div>
+
                             
 
                         </div>
