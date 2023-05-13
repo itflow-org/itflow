@@ -531,18 +531,21 @@ if (isset($_GET['ticket_id'])) {
 
 
 						<div class="row">
-   							 <div class="col-sm-12"> 
-        						<i class="fa fa-history text-secondary ml-1 mr-2 mb-2"></i> <b>Previous ticket:</b>
-	        					<a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a> 
-								<br>
-								<i class="fa fa-hourglass-start text-secondary ml-1 mr-2 mb-2"></i> <b>Status:</b> <?php if ($prev_ticket_status == 'Open') { ?>
-            					<span class="text-danger"><?php echo $prev_ticket_status; ?></span>
-        						<?php } else { ?>
-            					<span class="text-success"><?php echo $prev_ticket_status; ?></span>
-        			<?php } ?>
-
+   							 <div class="col-sm-12">
+        						<?php if (!empty($prev_ticket_id)) { ?>
+            					<i class="fa fa-history text-secondary ml-1 mr-2 mb-2"></i> <b>Previous ticket:</b>
+            					<a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a>
+            					<br>
+            					<?php if ($prev_ticket_status == 'Open') { ?>
+                				<i class="fa fa-hourglass-start text-secondary ml-1 mr-2 mb-2"></i> <b>Status:</b>
+                				<span class="text-danger"><?php echo $prev_ticket_status; ?></span>
+            					<?php } else { ?>
+                				<i class="fa fa-hourglass-start text-secondary ml-1 mr-2 mb-2"></i> <b>Status:</b>
+                				<span class="text-success"><?php echo $prev_ticket_status; ?></span>
+            					<?php } ?>
+        						<?php } ?>
     						</div>
-					</div>
+						</div>
                             
 
                         </div>
