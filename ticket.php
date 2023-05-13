@@ -468,7 +468,12 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body card-outline card-dark mb-3">
                         <div>
                             <h4 class="text-secondary">Contact</h4>
-                            <span class=""><i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
+                                                      <span class="">
+ 							 <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i>
+  								<a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-dark">
+    							<strong><?php echo strtoupper($contact_name); ?></strong>
+ 								 </a>
+							</span>
  							<span class="ml-1">
  							 <a href="#" tabindex="0" role="button" data-toggle="popover" title="Related Tickets" data-html="true" data-content="
     							Open tickets: <strong><a href='tickets.php?contact_id=<?php echo $contact_id; ?>&status=Open'><?php echo $ticket_related_open; ?></a></strong><br>
