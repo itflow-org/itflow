@@ -608,6 +608,25 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
         }
 
+        // Send copies of the invoice to any additional billing contacts
+        $sql_billing_contacts = mysqli_query(
+            $mysqli,
+            "SELECT contact_name, contact_email FROM contacts
+        WHERE contact_billing = 1
+        AND contact_email != '$contact_email'
+        AND contact_client_id = $client_id"
+        );
+
+        while ($billing_contact = mysqli_fetch_array($sql_billing_contacts)) {
+            $billing_contact_name = $billing_contact['contact_name'];
+            $billing_contact_email = $billing_contact['contact_email'];
+
+            sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+                $config_invoice_from_email, $config_invoice_from_name,
+                $billing_contact_email, $billing_contact_name,
+                $subject, $body);
+        }
+
     } //End if Autosend is on
 } //End Recurring Invoices Loop
 // Logging
