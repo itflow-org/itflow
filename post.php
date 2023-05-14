@@ -839,6 +839,22 @@ if(isset($_POST['edit_module_settings'])){
 
 }
 
+if(isset($_POST['edit_security_settings'])){
+    validateAdminRole();
+
+    $config_login_key_required = intval($_POST['config_login_key_required']);
+    $config_login_key_secret = sanitizeInput($_POST['config_login_key_secret']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_login_key_required = '$config_login_key_required', config_login_key_secret = '$config_login_key_secret' WHERE company_id = 1");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified login key settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Login key settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if(isset($_POST['edit_telemetry_settings'])){
 
     validateAdminRole();
@@ -9280,7 +9296,7 @@ if(isset($_GET['logout'])){
     session_unset();
     session_destroy();
 
-    header('Location: login.php');
+    header('Location: login.php?key=' . $config_login_key_secret);
 }
 
 ?>
