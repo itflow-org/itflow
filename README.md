@@ -54,9 +54,9 @@
 - ITFlow consolidates common MSP needs (IT Documentation, ticketing and billing) into one system
 
 ### In Beta
-* This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues.
+* This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by May/June 2023.
+* We are hoping to have a stable 1.0 release by July 2023.
 
 <!-- BUILT WITH -->
 ### Built With
