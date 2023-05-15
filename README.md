@@ -79,7 +79,7 @@
   * jQuery
   * pdfmake
   * Select2
-  * SummerNote
+  * TinyMCE
   * FullCalendar.io
 
 <!-- GETTING STARTED -->
