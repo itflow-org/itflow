@@ -309,14 +309,14 @@ if (isset($_GET['ticket_id'])) {
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="public_reply_type" value="1" checked>
-                                        <label class="custom-control-label" for="customControlAutosizing">Email contact<br><small class="text-secondary">(Public Update)</small></label>
+                                        <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" checked>
+                                        <label class="custom-control-label" for="ticket_reply_type_checkbox">Email contact<br><small class="text-secondary">(Public Update)</small></label>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-2">
-                                <button type="submit" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
+                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
                             </div>
 
                         </div>
@@ -746,5 +746,6 @@ if ($ticket_status !== "Closed") { ?>
 
     <!-- Ticket collision detect JS (jQuery is called in footer, so collision detection script MUST be below it) -->
     <script src="js/ticket_collision_detection.js"></script>
+    <script src="js/ticket_button_respond_note.js"></script>
 <?php } ?>
 

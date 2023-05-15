@@ -6658,7 +6658,7 @@ if(isset($_POST['add_ticket_reply'])){
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
 
-    $_SESSION['alert_message'] = "Ticket <strong>$prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>";
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
