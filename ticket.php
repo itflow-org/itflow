@@ -473,7 +473,7 @@ if (isset($_GET['ticket_id'])) {
     							Open tickets: <strong><a href='tickets.php?contact_id=<?php echo $contact_id; ?>&status=Open'><?php echo $ticket_related_open; ?></a></strong><br>
     							Closed tickets: <strong><a href='tickets.php?contact_id=<?php echo $contact_id; ?>&status=Closed'><?php echo $ticket_related_closed; ?></a></strong>
   							">
-    						<span class="badge bg-secondary"><?php echo $ticket_related_total; ?></span>
+<!--    						<span class="badge bg-secondary">--><?php //echo $ticket_related_total; ?><!--</span>-->
   							</a>
 						</span>
 
