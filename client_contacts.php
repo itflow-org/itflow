@@ -66,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th class="text-center"><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_name&o=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=contact_department&o=<?php echo $disp; ?>">Department</a></th>
-                        <th>Contact Info</th>
+                        <th>Contact</th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Location</a></th>
                         <th class="text-center">Action</th>
                     </tr>

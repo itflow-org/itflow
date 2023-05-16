@@ -169,7 +169,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     // Capture just the latest/most recent email reply content
     //  based off the "#--itflow#" line that we prepend the outgoing emails with (similar to the old school --reply above this line--)
     $message = explode("##- Please type your reply above this line -##", $message);
-    $message = nl2br(nullable_htmlentities(strip_tags($message[0])));
+    $message = nl2br($message[0]);
     $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
 
     // Lookup the ticket ID
