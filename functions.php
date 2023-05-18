@@ -85,6 +85,9 @@ function getIP() {
     } else {
         $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
+    
+    if (!filter_var($ip, FILTER_VALIDATE_IP))
+        die("Potential Security Violation");
 
     return $ip;
 }
