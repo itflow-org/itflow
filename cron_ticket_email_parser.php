@@ -6,7 +6,6 @@
 
 /*
 TODO:
-  - Attachments
   - Process unregistered contacts/clients into an inbox to allow a ticket to be created/ignored
   - Better handle replying to closed tickets
   - Support for authenticating with OAuth
