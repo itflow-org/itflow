@@ -149,7 +149,7 @@
 
                         <?php if (isset($_GET['client_id'])) { ?>
                             <input type="hidden" name="client" value="<?php echo $client_id; ?>">
-                        <?php }else{ ?>
+                        <?php } else { ?>
 
                             <div class="form-group col-md">
                                 <label>Client</label>
