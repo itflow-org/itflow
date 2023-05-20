@@ -372,7 +372,7 @@ function getDomainExpirationDate($name) {
         if (is_array($response['expiration_date'])) {
             $expiry = new DateTime($response['expiration_date'][1]);
         }
-        else{
+        else {
             $expiry = new DateTime($response['expiration_date']);
         }
 
