@@ -472,7 +472,7 @@ if (isset($_GET['invoice_id'])) {
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table">
-                            <thead class="<?php if(mysqli_num_rows($sql_payments) == 0) { echo "d-none"; } ?>">
+                            <thead class="<?php if (mysqli_num_rows($sql_payments) == 0) { echo "d-none"; } ?>">
                                 <tr>
                                     <th>Date</th>
                                     <th class="text-right">Amount</th>
