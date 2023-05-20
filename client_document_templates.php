@@ -1,13 +1,10 @@
-<?php 
+<?php
+
+// Default Column Sort by Filter
+$sb = "document_name";
+$o = "ASC";
 
 require_once("inc_all_client.php");
-
-// Sort by
-if (!empty($_GET['sb'])) {
-  $sb = sanitizeInput($_GET['sb']);
-} else {
-  $sb = "document_name";
-}
 
 // Search query SQL snippet
 if (!empty($q)) {
