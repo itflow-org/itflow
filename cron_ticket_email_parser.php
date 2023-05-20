@@ -47,6 +47,7 @@ if (!function_exists('mailparse_msg_parse_file')) {
 
 // PHP Mail Parser
 use PhpMimeMailParser\Parser;
+
 require_once("plugins/php-mime-mail-parser/src/Contracts/CharsetManager.php");
 require_once("plugins/php-mime-mail-parser/src/Contracts/Middleware.php");
 require_once("plugins/php-mime-mail-parser/src/Attachment.php");
