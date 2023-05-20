@@ -24,7 +24,7 @@
                             </div>
                             <select class="form-control select2" name="type" required>
                                 <option value="">- Select a field type -</option>
-                                <option <?php if($custom_field_type == 'text') { echo "selected"; } ?> value="text">Text</option>
+                                <option <?php if ($custom_field_type == 'text') { echo "selected"; } ?> value="text">Text</option>
                             </select>
                         </div>
                     </div>
