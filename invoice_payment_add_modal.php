@@ -46,15 +46,15 @@
 
           <div class="form-group">
             <label>Account <strong class="text-danger">*</strong></label>
-            <div class="input-group"> 
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-              </div> 
+              </div>
               <select class="form-control select2" name="account" required>
                 <option value="">- Account -</option>
-                <?php 
+                <?php
                 
-                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC"); 
+                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                 while ($row = mysqli_fetch_array($sql)) {
                   $account_id = intval($row['account_id']);
                   $account_name = nullable_htmlentities($row['account_name']);
@@ -86,15 +86,15 @@
           
           <div class="form-group">
             <label>Payment Method <strong class="text-danger">*</strong></label>
-            <div class="input-group"> 
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-              </div> 
+              </div>
               <select class="form-control select2" name="payment_method" required>
                 <option value="">- Method of Payment -</option>
-                <?php 
+                <?php
                 
-                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL ORDER BY category_name ASC"); 
+                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL ORDER BY category_name ASC");
                 while ($row = mysqli_fetch_array($sql)) {
                   $category_name = nullable_htmlentities($row['category_name']);
                 ?>
