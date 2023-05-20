@@ -143,8 +143,8 @@ if (isset($_GET['network_get_json_details'])) {
     // Lookup all client locations, as networks can be associated with any client location
     $locations_sql = mysqli_query(
         $mysqli,
-        "SELECT location_id, location_name FROM locations 
-        WHERE location_client_id = '$client_id'"
+        "SELECT location_id, location_name FROM locations
+         WHERE location_client_id = '$client_id'"
     );
     while ($row = mysqli_fetch_array($locations_sql)) {
         $response['locations'][] = $row;
