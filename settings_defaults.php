@@ -19,7 +19,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -40,7 +40,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -61,7 +61,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -82,7 +82,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE company_id = $session_company_id ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -103,7 +103,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id ORDER BY category_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $payment_method = nullable_htmlentities($row['category_name']); ?>
                                 <option <?php if ($config_default_payment_method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
@@ -123,7 +123,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND company_id = $session_company_id ORDER BY category_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $payment_method = nullable_htmlentities($row['category_name']); ?>
                                 <option <?php if ($config_default_expense_payment_method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
@@ -143,7 +143,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE company_id = $session_company_id ORDER BY calendar_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $calendar_id = intval($row['calendar_id']);
                                 $calendar_name = nullable_htmlentities($row['calendar_name']); ?>
