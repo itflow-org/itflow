@@ -6181,7 +6181,7 @@ if(isset($_POST['add_domain'])){
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
+    $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $extended_log_description = '';
@@ -6238,7 +6238,7 @@ if(isset($_POST['edit_domain'])){
     validateTechRole();
 
     $domain_id = intval($_POST['domain_id']);
-    $name = sanitizeInput($_POST['name']);
+    $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = sanitizeInput($_POST['expire']);
