@@ -21,13 +21,14 @@ function generateShareLink() {
     let item_note = document.getElementById("share_note").value;
     let item_views = document.getElementById("share_views").value;
     let item_expires = document.getElementById("share_expires").value;
+    let contact_email = document.getElementById("share_email").value;
 
     // Check values are provided
     if (item_views && item_expires && item_note) {
         // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
         jQuery.get(
             "ajax.php",
-            {share_generate_link: 'true', client_id: client_id, type: item_type, id: item_ref_id, note: item_note ,views: item_views, expires: item_expires},
+            {share_generate_link: 'true', client_id: client_id, type: item_type, id: item_ref_id, note: item_note ,views: item_views, expires: item_expires, contact_email},
             function(data) {
 
                 // If we get a response from ajax.php, parse it as JSON
