@@ -47,7 +47,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 </div>
-                                <select class="form-control" name="contact_email" id="share_email">
+                                <select class="form-control select2" name="contact_email" id="share_email">
                                     <option value="">-Select a contact-</option>
                                     <?php
 
