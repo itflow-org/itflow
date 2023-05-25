@@ -276,9 +276,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $ticket_updated_at_display = $ticket_updated_at;
                         }
                         $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-                        $client_id = intval($row['client_id']);
+                        $client_id = intval($row['ticket_client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
-                        $contact_id = intval($row['contact_id']);
+                        $contact_id = intval($row['ticket_contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);
                         $contact_title = nullable_htmlentities($row['contact_title']);
                         $contact_email = nullable_htmlentities($row['contact_email']);
@@ -317,8 +317,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
                         }
 
-                        $asset_id = intval($row['asset_id']);
-                        $vendor_id = intval($row['vendor_id']);
+                        $asset_id = intval($row['ticket_asset_id']);
+                        $vendor_id = intval($row['ticket_vendor_id']);
 
                         ?>
 

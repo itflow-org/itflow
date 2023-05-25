@@ -125,21 +125,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                     }
-                    $contact_id = intval($row['contact_id']);
+                    $contact_id = intval($row['ticket_contact_id']);
                     $contact_name = nullable_htmlentities($row['contact_name']);
-                    if (empty($contact_name)) {
-                        $contact_display = "-";
-                    } else {
-                        $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
-                    }
                     $contact_title = nullable_htmlentities($row['contact_title']);
                     $contact_email = nullable_htmlentities($row['contact_email']);
                     $contact_phone = formatPhoneNumber($row['contact_phone']);
                     $contact_extension = nullable_htmlentities($row['contact_extension']);
                     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-
-                    $asset_id = intval($row['asset_id']);
-                    $vendor_id = intval($row['vendor_id']);
+                    if (empty($contact_name)) {
+                        $contact_display = "-";
+                    } else {
+                        $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                    }
+                    
+                    $asset_id = intval($row['ticket_asset_id']);
+                    $vendor_id = intval($row['ticket_vendor_id']);
 
                     ?>
 
