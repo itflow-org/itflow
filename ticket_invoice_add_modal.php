@@ -21,25 +21,25 @@
                             </div>
                             <select class="form-control select2" name="invoice_id">
                                 <option value="0">New Invoice</option>
-                                <?php
+                              <?php
 
                                 $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
                                 while ($row = mysqli_fetch_array($sql_invoices)) {
-                                    $invoice_id = intval($row['invoice_id']);
-                                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-                                    $invoice_number = intval($row['invoice_number']);
-                                    $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-                                    $invoice_satus = nullable_htmlentities($row['invoice_status']);
-                                    $invoice_date = nullable_htmlentities($row['invoice_date']);
-                                    $invoice_due = nullable_htmlentities($row['invoice_due']);
-                                    $invoice_amount = floatval($row['invoice_amount']);
+                                  $invoice_id     = intval($row['invoice_id']);
+                                  $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                  $invoice_number = intval($row['invoice_number']);
+                                  $invoice_scope  = nullable_htmlentities($row['invoice_scope']);
+                                  $invoice_satus  = nullable_htmlentities($row['invoice_status']);
+                                  $invoice_date   = nullable_htmlentities($row['invoice_date']);
+                                  $invoice_due    = nullable_htmlentities($row['invoice_due']);
+                                  $invoice_amount = floatval($row['invoice_amount']);
 
-                                    ?>
+                                  ?>
                                     <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
 
-                                    <?php
+                                  <?php
                                 }
-                                ?>
+                              ?>
                             </select>
                         </div>
                     </div>
@@ -62,18 +62,18 @@
                             </div>
                             <select class="form-control select2" name="category" required>
                                 <option value="">- Category -</option>
-                                <?php
+                              <?php
 
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
-                                    $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
-                                    ?>
+                                  $category_id   = intval($row['category_id']);
+                                  $category_name = nullable_htmlentities($row['category_name']);
+                                  ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 
-                                    <?php
+                                  <?php
                                 }
-                                ?>
+                              ?>
                             </select>
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
@@ -106,7 +106,8 @@
                     <div class="form-group">
                         <label>Item Description</label>
                         <div class="input-group">
-                            <textarea class="form-control" rows="5" name="item_description"><?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?></textarea>
+                            <textarea class="form-control" rows="5" name="item_description">
+                                <?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?></textarea>
                         </div>
                     </div>
 
@@ -133,7 +134,15 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" step="0.01" min="0" name="price" value="0.00" required>
+                                  <?php
+                                    $sql_client_rate = mysqli_query($mysqli, "SELECT clients.client_rate FROM clients LEFT JOIN invoices ON invoices.invoice_client_id = clients.client_id");
+                                    while ($row = mysqli_fetch_array($sql_client_rate)) {
+                                      $client_rate = intval($row['client_rate']);
+                                    }
+                                  ?>
+
+                                    <input type="number" class="form-control" step="0.01" min="0" name="price" value="<?php echo $client_rate; ?>" required>
+
                                 </div>
                             </div>
 
@@ -149,19 +158,19 @@
                             </div>
                             <select class="form-control select2" name="tax_id" required>
                                 <option value="0">None</option>
-                                <?php
+                              <?php
 
                                 $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                 while ($row = mysqli_fetch_array($taxes_sql)) {
-                                    $tax_id_select = intval($row['tax_id']);
-                                    $tax_name = nullable_htmlentities($row['tax_name']);
-                                    $tax_percent = floatval($row['tax_percent']);
-                                    ?>
+                                  $tax_id_select = intval($row['tax_id']);
+                                  $tax_name      = nullable_htmlentities($row['tax_name']);
+                                  $tax_percent   = floatval($row['tax_percent']);
+                                  ?>
                                     <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
 
-                                    <?php
+                                  <?php
                                 }
-                                ?>
+                              ?>
                             </select>
 
                         </div>
