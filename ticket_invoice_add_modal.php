@@ -76,8 +76,7 @@
                                 ?>
                             </select>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i>
-                                </button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
                             </div>
                         </div>
                     </div>
@@ -179,10 +178,8 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create Invoice
-                    </button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel
-                    </button>
+                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create Invoice</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>
