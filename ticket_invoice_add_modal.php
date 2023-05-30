@@ -50,8 +50,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="date" max="2999-12-31"
-                                   value="<?php echo date("Y-m-d"); ?>" required>
+                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
                         </div>
                     </div>
 
@@ -77,8 +76,7 @@
                                 ?>
                             </select>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" data-toggle="modal"
-                                        data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i>
                                 </button>
                             </div>
                         </div>
@@ -90,8 +88,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="scope" placeholder="Quick description"
-                                   value="Ticket <?php echo "$ticket_prefix$ticket_number - $ticket_subject"; ?>">
+                            <input type="text" class="form-control" name="scope" placeholder="Quick description" value="Ticket <?php echo "$ticket_prefix$ticket_number - $ticket_subject"; ?>">
                         </div>
                     </div>
 
@@ -124,8 +121,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" step="0.01" min="0" name="qty" value="1"
-                                           required>
+                                    <input type="number" class="form-control" step="0.01" min="0" name="qty" value="1" required>
                                 </div>
                             </div>
 
@@ -146,8 +142,7 @@
                                         }
                                     ?>
 
-                                    <input type="number" class="form-control" step="0.01" min="0" name="price"
-                                           value="<?php echo $client_rate; ?>" required>
+                                    <input type="number" class="form-control" step="0.01" min="0" name="price" value="<?php echo $client_rate; ?>" required>
 
                                 </div>
                             </div>
@@ -184,8 +179,7 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i
-                                class="fa fa-check mr-2"></i>Create Invoice
+                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create Invoice
                     </button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel
                     </button>
