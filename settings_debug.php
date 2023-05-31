@@ -136,6 +136,50 @@ if ($currentStructure === null) {
 // Compare the structures and display the differences
 $differences = arrayDiffRecursive($desiredStructure, $currentStructure);
 
+//DB Stats
+// Query to fetch the number of tables
+$tablesQuery = "SHOW TABLES";
+$tablesResult = $mysqli->query($tablesQuery);
+
+$numTables = $tablesResult->num_rows;
+$numFields = 0;
+$numRows = 0;
+
+// Loop through each table
+while ($row = $tablesResult->fetch_row()) {
+    $tableName = $row[0];
+
+    // Query to fetch the number of fields
+    $fieldsQuery = "DESCRIBE `$tableName`";
+    $fieldsResult = $mysqli->query($fieldsQuery);
+
+    // Check if the query was successful
+    if ($fieldsResult) {
+        $numFields += $fieldsResult->num_rows;
+
+        // Query to fetch the number of rows
+        $rowsQuery = "SELECT COUNT(*) FROM `$tableName`";
+        $rowsResult = $mysqli->query($rowsQuery);
+
+        // Check if the query was successful
+        if ($rowsResult) {
+            $numRows += $rowsResult->fetch_row()[0];
+        } else {
+            echo "Error executing query: " . $mysqli->error;
+        }
+    } else {
+        echo "Error executing query: " . $mysqli->error;
+    }
+}
+
+//Get loaded PHP modules
+$loadedModules = get_loaded_extensions();
+
+//Get Versions
+$phpVersion = phpversion();
+$mysqlVersion = $mysqli->server_version;
+$operatingSystem = shell_exec('uname -a');
+
 ?>
 
     <div class="card card-dark">
@@ -158,73 +202,18 @@ $differences = arrayDiffRecursive($desiredStructure, $currentStructure);
             <hr>
 
             <h4>Database stats</h4>
-            <?php
-            // Query to fetch the number of tables
-            $tablesQuery = "SHOW TABLES";
-            $tablesResult = $mysqli->query($tablesQuery);
-
-            // Check if the query was successful
-            if ($tablesResult) {
-                $numTables = $tablesResult->num_rows;
-                $numFields = 0;
-                $numRows = 0;
-
-                // Loop through each table
-                while ($row = $tablesResult->fetch_row()) {
-                    $tableName = $row[0];
-
-                    // Query to fetch the number of fields
-                    $fieldsQuery = "DESCRIBE `$tableName`";
-                    $fieldsResult = $mysqli->query($fieldsQuery);
-
-                    // Check if the query was successful
-                    if ($fieldsResult) {
-                        $numFields += $fieldsResult->num_rows;
-
-                        // Query to fetch the number of rows
-                        $rowsQuery = "SELECT COUNT(*) FROM `$tableName`";
-                        $rowsResult = $mysqli->query($rowsQuery);
-
-                        // Check if the query was successful
-                        if ($rowsResult) {
-                            $numRows += $rowsResult->fetch_row()[0];
-                        } else {
-                            echo "Error executing query: " . $mysqli->error;
-                        }
-                    } else {
-                        echo "Error executing query: " . $mysqli->error;
-                    }
-                }
-
-                echo "Number of tables: " . $numTables . "<br>";
-                echo "Total number of fields: " . $numFields . "<br>";
-                echo "Total number of rows: " . $numRows . "<br>";
-            } else {
-                echo "Error executing query: " . $mysqli->error;
-            }
-            // Query to fetch the database size
-            $query = "SELECT table_schema AS 'Database', SUM(data_length + index_length) / (1024 * 1024) AS 'Size (MB)' 
-                      FROM information_schema.TABLES WHERE table_schema = '$database' 
-                      GROUP BY table_schema";
-            $result = $mysqli->query($query);
-
-            // Check if the query was successful
-            if ($result) {
-                $row = $result->fetch_assoc();
-                $dbSize = $row['Size (MB)'];
-                echo "Database Size: " . $dbSize . " MB";
-            } else {
-                echo "Error executing query: " . $conn->error;
-            }
-
-            ?>
-
-            <hr>
-                    
-            <h3>Installed PHP Modules</h3>
             
             <?php
-            $loadedModules = get_loaded_extensions();
+            echo "Number of tables: " . $numTables . "<br>";
+            echo "Total number of fields: " . $numFields . "<br>";
+            echo "Total number of rows: " . $numRows . "<br>";
+            ?>
+            
+            <hr>
+                    
+            <h3>PHP Modules Installed</h3>
+            
+            <?php
             foreach ($loadedModules as $module) {
                 echo $module . "<br>";
             }
@@ -235,15 +224,12 @@ $differences = arrayDiffRecursive($desiredStructure, $currentStructure);
             <h3>Versions</h3>
             
             <?php
-            $phpVersion = phpversion();
             echo "PHP version: " . $phpVersion;
             echo "<br>";
             
-            $mysqlVersion = $mysqli->server_version;
             echo "MySQL Version: " . $mysqlVersion;
             echo "<br>";
 
-            $operatingSystem = shell_exec('uname -a');
             echo "Operating System: " . $operatingSystem;
             
             ?>
