@@ -188,66 +188,105 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
             <h3 class="card-title"><i class="fas fa-fw fa-bug mr-2"></i>Debug</h3>
         </div>
         <div class="card-body">
-            
-            <h3>Database Structure Check</h3>
-            
-            <?php
-            if (empty($differences)) {
-                echo "The database structure matches the desired structure.";
-            } else {
-                echo "Differences found:\n";
-                print_r($differences);
-            }
-            ?>
 
-            <hr>
+            <div class="row">
 
-            <h4>Database stats</h4>
-            
-            <?php
-            echo "Number of tables: " . $numTables . "<br>";
-            echo "Total number of fields: " . $numFields . "<br>";
-            echo "Total number of rows: " . $numRows . "<br>";
-            ?>
-            
-            <hr>
-                    
-            <h3>PHP Modules Installed</h3>
-            
-            <?php
-            foreach ($loadedModules as $module) {
-                echo $module . "<br>";
-            }
-            ?>
+                <div class="col-md-12">
+                    <div class="card card-dark">
+                        <div class="card-header py-3">
+                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Database Structure Check</h3>
+                        </div>
+                        <div class="card-body">            
+                            
+                            <?php
+                            if (empty($differences)) {
+                                echo "The database structure matches the desired structure.";
+                            } else {
+                                echo "Differences found:\n";
+                                print_r($differences);
+                            }
+                            ?>
 
-            <hr>
-            
-            <h3>Versions</h3>
-            
-            <?php
-            echo "PHP version: " . $phpVersion . "<br>";
-            echo "MySQL Version: " . $mysqlVersion . "<br>";
-            echo "Operating System: " . $operatingSystem . "<br>";
-            echo "Web Server: " . $webServer;
+                        </div>
+                    </div>
+                </div>
 
-            
-            ?>
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header py-3">
+                            <h3 class="card-title"><i class="fas fa-fw fa-chart-bar mr-2"></i>Database Statistics</h3>
+                        </div>
+                        <div class="card-body">
+                            
+                            <?php
+                            echo "Number of tables: " . $numTables . "<br>";
+                            echo "Total number of fields: " . $numFields . "<br>";
+                            echo "Total number of rows: " . $numRows . "<br>";
+                            ?>
+                            
+                        </div>
+                    </div>
+                </div>
 
-            <hr>
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header py-3">
+                            <h3 class="card-title"><i class="fas fa-fw fa-check mr-2"></i>Versions Check</h3>
+                        </div>
+                        <div class="card-body">
+                            
+                            <?php
+                            echo "PHP version: " . $phpVersion . "<br>";
+                            echo "MySQL Version: " . $mysqlVersion . "<br>";
+                            echo "Operating System: " . $operatingSystem . "<br>";
+                            echo "Web Server: " . $webServer;
 
-            <h3>File System</h3>
-            <?php
-            $result = countFilesInDirectory($folderPath);
+                            ?>
 
-            $totalFiles = $result['count'];
-            $totalSizeMB = round($result['size'] / (1024 * 1024), 2);
+                        </div>
+                    </div>
+                </div>
 
-            echo "Total number of files in $folderPath and its subdirectories: " . $totalFiles . "<br>";
-            echo "Total size of files in $folderPath and its subdirectories: " . $totalSizeMB . " MB";
-            ?>
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header py-3">
+                            <h3 class="card-title"><i class="fas fa-fw fa-hdd mr-2"></i>File system Check</h3>
+                        </div>
+                        <div class="card-body">
 
-            <hr>
+                            <?php
+                            $result = countFilesInDirectory($folderPath);
 
+                            $totalFiles = $result['count'];
+                            $totalSizeMB = round($result['size'] / (1024 * 1024), 2);
+
+                            echo "Total number of files in $folderPath and its subdirectories: " . $totalFiles . "<br>";
+                            echo "Total size of files in $folderPath and its subdirectories: " . $totalSizeMB . " MB";
+                            ?>
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header py-3">
+                            <h3 class="card-title"><i class="fas fa-fw fa-puzzle-piece mr-2"></i>PHP Modules Installed</h3>
+                        </div>
+                        <div class="card-body">                
+                            
+                            <?php
+                            foreach ($loadedModules as $module) {
+                                echo $module . "<br>";
+                            }
+                            ?>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
