@@ -179,6 +179,7 @@ $loadedModules = get_loaded_extensions();
 $phpVersion = phpversion();
 $mysqlVersion = $mysqli->server_version;
 $operatingSystem = shell_exec('uname -a');
+$webServer = $_SERVER['SERVER_SOFTWARE'];
 
 ?>
 
@@ -224,13 +225,11 @@ $operatingSystem = shell_exec('uname -a');
             <h3>Versions</h3>
             
             <?php
-            echo "PHP version: " . $phpVersion;
-            echo "<br>";
-            
-            echo "MySQL Version: " . $mysqlVersion;
-            echo "<br>";
+            echo "PHP version: " . $phpVersion . "<br>";
+            echo "MySQL Version: " . $mysqlVersion . "<br>";
+            echo "Operating System: " . $operatingSystem . "<br>";
+            echo "Web Server: " . $webServer;
 
-            echo "Operating System: " . $operatingSystem;
             
             ?>
 
