@@ -205,6 +205,13 @@
         </li>
 
         <li class="nav-item">
+          <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
+            <i class="nav-icon fa fa-bug"></i>
+            <p>Debug</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
             <i class="nav-icon far fa-eye"></i>
             <p>Audit Logs</p>
