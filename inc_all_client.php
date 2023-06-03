@@ -213,38 +213,6 @@ if (isset($_GET['client_id'])) {
         ));
         $num_certs_expiring = intval($row['num']);
 
-        // Get Asset Warranties Expiring
-        $sql_asset_warranties_expiring = mysqli_query(
-            $mysqli,
-            "SELECT * FROM assets
-            WHERE asset_client_id = $client_id
-            AND asset_warranty_expire IS NOT NULL
-            AND asset_archived_at IS NULL
-            AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
-            ORDER BY asset_warranty_expire DESC"
-        );
-
-        // Get Assets Retiring
-        $sql_asset_retire = mysqli_query(
-            $mysqli,
-            "SELECT * FROM assets
-            WHERE asset_client_id = $client_id
-            AND asset_install_date IS NOT NULL
-            AND asset_archived_at IS NULL
-            AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
-            ORDER BY asset_install_date DESC"
-        );
-
-        // Get Stale Tickets
-        $sql_tickets_stale = mysqli_query(
-            $mysqli,
-            "SELECT * FROM tickets
-            WHERE ticket_client_id = $client_id
-            AND ticket_created_at < CURRENT_DATE - INTERVAL 14 DAY
-            AND ticket_status != 'Closed'
-            ORDER BY ticket_created_at DESC"
-        );
-
     }
 }
 
