@@ -170,13 +170,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label>software</label>
+                                <label>Software</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                                     </div>
                                     <select class="form-control select2" name="software">
-                                        <option value="">- software -</option>
+                                        <option value="">- Software -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
