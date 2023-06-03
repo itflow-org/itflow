@@ -4,7 +4,7 @@ require_once("inc_all_client.php");
 
 $sql_important_contacts = mysqli_query(
     $mysqli,
-    "SELECT * FROM contacts 
+    "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
     AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact)
     AND contact_archived_at IS NULL ORDER BY contact_name DESC"
@@ -16,23 +16,23 @@ $sql_important_contacts = mysqli_query(
 
 $sql_recent_contacts = mysqli_query(
     $mysqli,
-    "SELECT * FROM contacts 
-    WHERE contact_client_id = $client_id 
-    AND contact_archived_at IS NULL 
+    "SELECT * FROM contacts
+    WHERE contact_client_id = $client_id
+    AND contact_archived_at IS NULL
     ORDER BY contact_updated_at, contact_created_at DESC LIMIT 3"
 );
 
 $sql_recent_vendors = mysqli_query(
     $mysqli,
-    "SELECT * FROM vendors 
-    WHERE vendor_client_id = $client_id 
-    AND vendor_template = 0 AND vendor_archived_at IS NULL 
+    "SELECT * FROM vendors
+    WHERE vendor_client_id = $client_id
+    AND vendor_template = 0 AND vendor_archived_at IS NULL
     ORDER BY vendor_updated_at DESC LIMIT 2"
 );
 
 $sql_recent_documents = mysqli_query(
     $mysqli,
-    "SELECT * FROM documents 
+    "SELECT * FROM documents
     WHERE document_client_id = $client_id
     AND document_archived_at IS NULL
     ORDER BY document_updated_at DESC LIMIT 2"
