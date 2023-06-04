@@ -322,17 +322,17 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                         ?>
 
-                        <tr>
+                        <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
                             <td>
                                 <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
                                     <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                 </a>
                             </td>
                             <td>
-                                <strong><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></strong>
+                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
-                                <strong><a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
+                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                                 <br>
                                 <?php echo $contact_display; ?>
                             </td>

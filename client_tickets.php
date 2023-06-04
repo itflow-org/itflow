@@ -143,9 +143,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
 
-                    <tr>
+                    <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
                         <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-                        <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+                        <td>
+                            <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                        </td>
                         <td><?php echo $contact_display; ?></td>
                         <td><?php echo $ticket_priority_display; ?></td>
                         <td><?php echo $ticket_status_display; ?></td>
