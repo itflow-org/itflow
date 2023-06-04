@@ -12,7 +12,7 @@ require_once("inc_all_settings.php");
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_login_key_required" <?php if ($config_login_key_required == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
-                        <label class="custom-control-label" for="customSwitch1">Require a login key to protect the technician login page?</label>
+                        <label class="custom-control-label" for="customSwitch1">Require a login key to access the technician login page?</label>
                     </div>
                 </div>
 

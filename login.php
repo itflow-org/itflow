@@ -46,18 +46,18 @@ $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
-//// Login key (if setup)
-//$config_login_key_required = $row['config_login_key_required'];
-//$config_login_key_secret = $row['config_login_key_secret'];
-//
-//// Login key verification
-////  If no/incorrect 'key' is supplied, send to client portal instead
-//if ($config_login_key_required) {
-//    if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
-//        header("Location: portal");
-//        exit();
-//    }
-//}
+// Login key (if setup)
+$config_login_key_required = $row['config_login_key_required'];
+$config_login_key_secret = $row['config_login_key_secret'];
+
+// Login key verification
+//  If no/incorrect 'key' is supplied, send to client portal instead
+if ($config_login_key_required) {
+    if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
+        header("Location: portal");
+        exit();
+    }
+}
 
 // HTTP-Only cookies
 ini_set("session.cookie_httponly", true);
