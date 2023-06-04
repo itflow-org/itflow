@@ -151,7 +151,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <th class="text-center">
+                            <td class="text-center <?php if(!empty($contact_important)) { echo "text-bold"; }?>">
                                 <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                     <?php if (!empty($contact_photo)) { ?>
 
@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div><?php echo $contact_title_display; ?></div>
                                     <div><?php echo $primary_contact_display; ?></div>
                                 </a>
-                            </th>
+                            </td>
 
                             <td><?php echo $contact_department_display; ?></td>
                             <td><?php echo $contact_info_display; ?></td>
