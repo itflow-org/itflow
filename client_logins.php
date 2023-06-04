@@ -98,7 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $login_software_id = intval($row['login_software_id']);
 
                     ?>
-                    <tr>
+                    <tr class="<?php if(!empty($login_important)) { echo "text-bold"; }?>">
                         <td>
                             <i class="fa fa-fw fa-key text-secondary"></i>
                             <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
