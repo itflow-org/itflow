@@ -265,7 +265,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                         $ticket_status = nullable_htmlentities($row['ticket_status']);
                         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                        $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                        $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                         if (empty($ticket_updated_at)) {
                             if ($ticket_status == "Closed") {
                                 $ticket_updated_at_display = "<p>Never</p>";
@@ -273,7 +275,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
                             }
                         } else {
-                            $ticket_updated_at_display = $ticket_updated_at;
+                            $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                         }
                         $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
                         $client_id = intval($row['ticket_client_id']);
@@ -340,7 +342,11 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                             <td><?php echo $ticket_assigned_to_display; ?></td>
                             <td><?php echo $ticket_updated_at_display; ?></td>
-                            <td><?php echo $ticket_created_at; ?></td>
+                            <td>
+                                <?php echo $ticket_created_at_time_ago; ?>
+                                <br>
+                                <small class="text-secondary"><?php echo $ticket_created_at; ?></small>        
+                            </td>
                             <td>
                                 <?php if ($ticket_status !== "Closed") { ?>
                                     <div class="dropdown dropleft text-center">
