@@ -2,40 +2,19 @@
 
 require_once("inc_all_client.php");
 
+$sql_recent_activities = mysqli_query(
+    $mysqli,
+    "SELECT * FROM logs
+    WHERE log_client_id = $client_id
+    ORDER BY log_created_at DESC LIMIT 8"
+);
+
 $sql_important_contacts = mysqli_query(
     $mysqli,
     "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
     AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact)
     AND contact_archived_at IS NULL ORDER BY contact_name DESC"
-);
-
-/*
- * RECENTLY UPDATED ITEMS
- */
-
-$sql_recent_contacts = mysqli_query(
-    $mysqli,
-    "SELECT * FROM contacts
-    WHERE contact_client_id = $client_id
-    AND contact_archived_at IS NULL
-    ORDER BY contact_updated_at, contact_created_at DESC LIMIT 3"
-);
-
-$sql_recent_vendors = mysqli_query(
-    $mysqli,
-    "SELECT * FROM vendors
-    WHERE vendor_client_id = $client_id
-    AND vendor_template = 0 AND vendor_archived_at IS NULL
-    ORDER BY vendor_updated_at DESC LIMIT 2"
-);
-
-$sql_recent_documents = mysqli_query(
-    $mysqli,
-    "SELECT * FROM documents
-    WHERE document_client_id = $client_id
-    AND document_archived_at IS NULL
-    ORDER BY document_updated_at DESC LIMIT 2"
 );
 
 $sql_recent_tickets = mysqli_query(
@@ -118,6 +97,45 @@ $sql_asset_retire = mysqli_query(
 
         </div>
 
+        <?php if (mysqli_num_rows($sql_recent_activities) > 0) { ?>
+
+            <!-- Stale Tickets -->
+
+            <div class="col-md-6">
+
+                <div class="card card-dark mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities</small></h5>
+                    </div>
+                    <div class="card-body p-1">
+
+                        <table class="table table-borderless table-sm">
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_recent_activities)) {
+                                $log_id = intval($row['log_id']);
+                                $log_created_at = nullable_htmlentities($row['log_created_at']);
+                                $log_description = nullable_htmlentities($row['log_description']);
+
+                                ?>
+                                <tr>
+                                    <td><?php echo $log_created_at; ?></td>
+                                    <td><?php echo $log_description; ?></td>
+                                </tr>
+
+                                <?php
+                            }
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
         <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
 
             <div class="col-md-4">
@@ -167,66 +185,6 @@ $sql_asset_retire = mysqli_query(
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_recent_contacts) > 0 || mysqli_num_rows($sql_recent_vendors) > 0 || mysqli_num_rows($sql_recent_documents) > 0) { ?>
-            <div class="col-md-3">
-
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-history mr-2"></i>Recently Updated</h5>
-                    </div>
-                    <div class="card-body">
-
-                        <!-- Contacts -->
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_recent_contacts)) {
-                            $contact_id = intval($row['contact_id']);
-                            $contact_name = nullable_htmlentities($row['contact_name']);
-                            $contact_updated_at = nullable_htmlentities($row['contact_updated_at']);
-
-                            ?>
-                            <p class="mb-1">
-                                <i class="fa fa-fw fa-user text-secondary mr-1"></i>
-                                <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
-                            </p>
-                            <?php
-                        }
-                        ?>
-
-                        <!-- Vendors -->
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_recent_vendors)) {
-                            $vendor_id = intval($row['vendor_id']);
-                            $vendor_name = nullable_htmlentities($row['vendor_name']);
-                            $vendor_updated_at = nullable_htmlentities($row['vendor_updated_at']);
-
-                            ?>
-                            <p class="mb-1">
-                                <i class="fas fa-fw fa-building text-secondary mr-1"></i>
-                                <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>"><?php echo $vendor_name; ?></a></td>
-                            </p>
-                            <?php
-                        }
-                        ?>
-
-                        <!-- Docs -->
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_recent_documents)) {
-                            $document_id = intval($row['document_id']);
-                            $document_name = nullable_htmlentities($row['document_name']);
-                            ?>
-                            <p class="mb-1">
-                                <i class="fas fa-fw fa-file-alt text-secondary mr-1"></i>
-                                <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
-                            </p>
-                            <?php
-                        }
-                        ?>
-
-                    </div>
-                </div>
-            </div>
-        <?php } ?>
-
         <?php
         if (mysqli_num_rows($sql_domains_expiring) > 0
             || mysqli_num_rows($sql_asset_warranties_expiring) > 0
@@ -239,7 +197,7 @@ $sql_asset_retire = mysqli_query(
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-1">
 
                         <?php
 
@@ -305,13 +263,13 @@ $sql_asset_retire = mysqli_query(
 
             <!-- Stale Tickets -->
 
-            <div class="col-md-5">
+            <div class="col-md-6">
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(14d)</small></h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-1">
 
                         <table class="table table-borderless table-sm">
                             <tbody>
