@@ -114,13 +114,12 @@ $sql_asset_retire = mysqli_query(
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_recent_activities)) {
-                                $log_id = intval($row['log_id']);
-                                $log_created_at = nullable_htmlentities($row['log_created_at']);
+                                $log_created_at_time_ago = timeAgo($row['log_created_at']);
                                 $log_description = nullable_htmlentities($row['log_description']);
 
                                 ?>
                                 <tr>
-                                    <td><?php echo $log_created_at; ?></td>
+                                    <td><?php echo $log_created_at_time_ago; ?></td>
                                     <td><?php echo $log_description; ?></td>
                                 </tr>
 

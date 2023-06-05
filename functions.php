@@ -653,3 +653,29 @@ function sanitizeForEmail($data) {
   $sanitized = trim($sanitized);
   return $sanitized;
 }
+
+function timeAgo($datetime) {
+    $time = strtotime($datetime);
+    $difference = time() - $time;
+    
+    if ($difference < 1) {
+        return 'just now';
+    }
+    $timeRules = array (
+        31536000 => 'year',
+        2592000 => 'month',
+        604800 => 'week',
+        86400 => 'day',
+        3600 => 'hour',
+        60 => 'minute',
+        1 => 'second'
+    );
+    
+    foreach ($timeRules as $secs => $str) {
+        $div = $difference / $secs;
+        if ($div >= 1) {
+            $t = round($div);
+            return $t . ' ' . $str . ($t > 1 ? 's' : '') . ' ago';
+        }
+    }
+}
