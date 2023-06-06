@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card d-print-none">
     <div class="card-body">
         <div class="row">
             <div class="col-md">

@@ -50,34 +50,61 @@ $document_folder_id = intval($row['document_folder_id']);
 <div class="row">
 
   <div class="col-md-9">
-		<div class="card">
-		  <div class="card-body">
-        <h3><?php echo $document_name; ?></h3>
-        <?php echo $document_content; ?>
-      </div>
-    </div>
-	</div>
+    <div class="tinymcePreview"><?php echo $document_content; ?></div>
+  </div>
 
-	<div class="col-md-3">
+	<div class="col-md-3 d-print-none">
     <div class="card bg-light">
       <div class="card-body">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+        <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
           <i class="fas fa-fw fa-edit mr-2"></i>Edit
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal">
+        <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#editDocumentModal">
           <i class="fas fa-fw fa-copy mr-2"></i>Copy
         </button>
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#shareModal"
+        <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#shareModal"
           onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
           <i class="fas fa-fw fa-share mr-2"></i>Share
         </button>
+        <button type="button" class="btn btn-secondary btn-block" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         <hr>
-        <h6><i class="fas fa-fw fa-paperclip mr-2"></i>Files</h6>
-        <h6><i class="fas fa-fw fa-key mr-2"></i>Passwords</h6>
-        <h6><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
-        <h6><i class="fas fa-fw fa-laptop mr-2"></i>Assets</h6>
-        <h6><i class="fas fa-fw fa-cube mr-2"></i>Software</h6>
-        <h6><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
+        <h5>Related</h5>
+        <h6>
+          <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <h6>
+          <i class="fas fa-fw fa-key text-secondary mr-2"></i>Passwords
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <h6>
+          <i class="fas fa-fw fa-users text-secondary mr-2"></i>Contacts
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <h6>
+          <i class="fas fa-fw fa-laptop text-secondary mr-2"></i>Assets
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <h6>
+          <i class="fas fa-fw fa-cube text-secondary mr-2"></i>Software
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <h6>
+          <i class="fas fa-fw fa-building text-secondary mr-2"></i>Vendors
+          <button type="button" class="btn btn-link btn-sm">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
 
       </div>
     </div>
@@ -90,5 +117,6 @@ $document_folder_id = intval($row['document_folder_id']);
 
 require_once("client_document_edit_modal.php");
 require_once("share_modal.php");
-
 require_once("footer.php");
+
+?>

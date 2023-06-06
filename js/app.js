@@ -42,6 +42,19 @@ tinymce.init({
     plugins: 'link image lists table code codesample fullscreen autoresize',
 });
 
+// Initialize TinyMCE
+tinymce.init({
+    selector: '.tinymcePreview',
+    resize: false,
+    promotion: false,
+    branding: false,
+    menubar: false,
+    toolbar: false,
+    statusbar: false,
+    readonly: false,
+    plugins: 'autoresize',
+});
+
 // DateTime
 $('.datetimepicker').datetimepicker({
 });

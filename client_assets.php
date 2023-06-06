@@ -302,10 +302,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                     <div class="dropdown-menu">
+                                        <!-- Interfaces is still in Development also we may not complete this and may recommend to document in notes or seperate document linking to the asset
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">
                                             <i class="fas fa-fw fa-ethernet mr-2"></i>Interfaces
                                         </a>
                                         <div class="dropdown-divider"></div>
+                                        -->
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
@@ -341,7 +343,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         require("client_asset_edit_modal.php");
                         require("client_asset_copy_modal.php");
                         require("client_asset_tickets_modal.php");
-                        require("client_asset_interface_add_modal.php");
+                        //require("client_asset_interface_add_modal.php");
                     }
 
                     ?>
