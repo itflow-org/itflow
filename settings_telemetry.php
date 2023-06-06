@@ -23,6 +23,7 @@ require_once("inc_all_settings.php"); ?>
                             <option <?php if ($config_telemetry == "2") { echo "selected"; } ?> value = "2">Detailed</option>
                         </select>
                     </div>
+                    <small class="form-text"><a href="https://docs.itflow.org/telemetry" target="_blank">Click Here for additional details regarding the information we gather <i class="fas fa-external-link-alt"></i></a></small>
                 </div>
 
                 <div class="form-group">

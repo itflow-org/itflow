@@ -1484,7 +1484,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" name="share_data" value="1">
-                                    <label class="form-check-label ml-2">Share <small class="text-secondary"> (Including City, State/Province, Country, Currency and your comments)</small></label>
+                                    <label class="form-check-label ml-2">Share <small class="form-text"><a href="https://docs.itflow.org/telemetry" target="_blank">Click Here for additional details regarding the information we gather <i class="fas fa-external-link-alt"></i></a></small></label>
                                 </div>
 
                                 <br>
