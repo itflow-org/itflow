@@ -85,9 +85,10 @@ function getIP() {
     } else {
         $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
-    
-    if (!filter_var($ip, FILTER_VALIDATE_IP))
-        die("Potential Security Violation");
+
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        exit("Potential Security Violation");
+    }
 
     return $ip;
 }
@@ -657,7 +658,7 @@ function sanitizeForEmail($data) {
 function timeAgo($datetime) {
     $time = strtotime($datetime);
     $difference = time() - $time;
-    
+
     if ($difference < 1) {
         return 'just now';
     }
@@ -670,7 +671,7 @@ function timeAgo($datetime) {
         60 => 'minute',
         1 => 'second'
     );
-    
+
     foreach ($timeRules as $secs => $str) {
         $div = $difference / $secs;
         if ($div >= 1) {
