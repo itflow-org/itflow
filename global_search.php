@@ -19,7 +19,7 @@ if (isset($_GET['query'])) {
     $sql_products = mysqli_query($mysqli, "SELECT * FROM products WHERE product_name LIKE '%$query%' ORDER BY product_id DESC LIMIT 5");
     $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE MATCH(document_content_raw) AGAINST ('$query') ORDER BY document_id DESC LIMIT 5");
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') ORDER BY ticket_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_name LIKE '%$query%' ORDER BY login_id DESC LIMIT 5");
+    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_description LIKE '%$query%') ORDER BY login_id DESC LIMIT 5");
 
     $q = nullable_htmlentities($_GET['query']);
     ?>
@@ -313,6 +313,7 @@ if (isset($_GET['query'])) {
                         <table class="table table-striped table-borderless">
                             <thead>
                             <tr>
+                                <th>Name</th>
                                 <th>Description</th>
                                 <th>Username</th>
                                 <th>Password</th>
@@ -323,6 +324,7 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_array($sql_logins)) {
                                 $login_name = nullable_htmlentities($row['login_name']);
+                                $login_description = nullable_htmlentities($row['login_description']);
                                 $login_client_id = intval($row['login_client_id']);
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
@@ -330,6 +332,7 @@ if (isset($_GET['query'])) {
                                 ?>
                                 <tr>
                                     <td><a href="client_logins.php?client_id=<?php echo $login_client_id ?>&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
+                                    <td><?php echo $login_description; ?></td>
                                     <td><?php echo $login_username; ?></td>
                                     <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
 

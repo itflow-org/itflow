@@ -1,6 +1,7 @@
 <?php
 $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
+$description = sanitizeInput($_POST['description']);
 $uri = preg_replace("(^https?://)", "", sanitizeInput($_POST['uri']));
 $username = encryptLoginEntry($_POST['username']);
 $password = encryptLoginEntry($_POST['password']);

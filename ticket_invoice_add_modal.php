@@ -8,87 +8,109 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-
+                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                 <div class="modal-body bg-white">
+                    
+                    <ul class="nav nav-pills nav-justified mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                        </li>
+                    </ul>
 
-                    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                    <hr>
 
-                    <div class="form-group">
-                        <label>Exisiting Invoice?</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                    <div class="tab-content">
+
+                        <div class="tab-pane fade show active" id="pills-create-invoice">
+
+                            <div class="form-group">
+                                <label>Invoice Date <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                    </div>
+                                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                                </div>
                             </div>
-                            <select class="form-control select2" name="invoice_id">
-                                <option value="0">New Invoice</option>
-                                <?php
 
-                                $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
-                                while ($row = mysqli_fetch_array($sql_invoices)) {
-                                    $invoice_id = intval($row['invoice_id']);
-                                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-                                    $invoice_number = intval($row['invoice_number']);
-                                    $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-                                    $invoice_satus = nullable_htmlentities($row['invoice_status']);
-                                    $invoice_date = nullable_htmlentities($row['invoice_date']);
-                                    $invoice_due = nullable_htmlentities($row['invoice_due']);
-                                    $invoice_amount = floatval($row['invoice_amount']);
+                            <div class="form-group">
+                                <label>Invoice Category <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="category" required>
+                                        <option value="">- Category -</option>
+                                        <?php
 
-                                    ?>
-                                    <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $category_id = intval($row['category_id']);
+                                            $category_name = nullable_htmlentities($row['category_name']);
+                                            ?>
+                                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 
-                                    <?php
-                                }
-                                ?>
-                            </select>
+                                            <?php
+                                        }
+                                        ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Scope</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="scope" placeholder="Quick description" value="Ticket <?php echo "$ticket_prefix$ticket_number - $ticket_subject"; ?>">
+                                </div>
+                            </div>
+
+
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Invoice Date <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <div class="tab-pane fade" id="pills-add-to-invoice">
+
+                            <div class="form-group">
+                                <label>Invoice</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="invoice_id">
+                                        <option value="0">- Invoice -</option>
+                                        <?php
+
+                                        $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
+                                        while ($row = mysqli_fetch_array($sql_invoices)) {
+                                            $invoice_id = intval($row['invoice_id']);
+                                            $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                            $invoice_number = intval($row['invoice_number']);
+                                            $invoice_scope = nullable_htmlentities($row['invoice_scope']);
+                                            $invoice_satus = nullable_htmlentities($row['invoice_status']);
+                                            $invoice_date = nullable_htmlentities($row['invoice_date']);
+                                            $invoice_due = nullable_htmlentities($row['invoice_due']);
+                                            $invoice_amount = floatval($row['invoice_amount']);
+
+                                            ?>
+                                            <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
+
+                                            <?php
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
                             </div>
-                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Invoice Category <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            </div>
-                            <select class="form-control select2" name="category" required>
-                                <option value="">- Category -</option>
-                                <?php
-
-                                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                                while ($row = mysqli_fetch_array($sql)) {
-                                    $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
-                                    ?>
-                                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
-
-                                    <?php
-                                }
-                                ?>
-                            </select>
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Scope</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="scope" placeholder="Quick description" value="Ticket <?php echo "$ticket_prefix$ticket_number - $ticket_subject"; ?>">
-                        </div>
                     </div>
 
                     <hr>
@@ -169,7 +191,7 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create Invoice</button>
+                    <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Invoice</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>

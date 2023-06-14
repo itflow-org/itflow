@@ -62,7 +62,7 @@ $sql = mysqli_query(
     LEFT JOIN logins ON login_asset_id = asset_id
     WHERE asset_client_id = $client_id
     AND asset_archived_at IS NULL
-    AND (asset_name LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
     AND ($type_query)
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
@@ -134,6 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_name&o=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_description&o=<?php echo $disp; ?>">Description</a></th>
                         <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=asset_type&o=<?php echo $disp; ?>">Type</a></th>
                         <?php }
@@ -163,6 +164,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_id = intval($row['asset_id']);
                         $asset_type = nullable_htmlentities($row['asset_type']);
                         $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_description = nullable_htmlentities($row['asset_description']);
+                        if (empty($asset_description)) {
+                            $asset_description_display = "-";
+                        } else {
+                            $asset_description_display = $asset_description;
+                        }
                         $asset_make = nullable_htmlentities($row['asset_make']);
                         $asset_model = nullable_htmlentities($row['asset_model']);
                         $asset_serial = nullable_htmlentities($row['asset_serial']);
@@ -279,6 +286,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
 
                             </th>
+                            <td><?php echo $asset_description_display; ?></td>
                             <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
                                 <td><?php echo $asset_type; ?></td>
                             <?php } ?>

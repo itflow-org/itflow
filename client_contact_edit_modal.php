@@ -26,7 +26,7 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $contact_id; ?>"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-portal<?php echo $contact_id; ?>"><i class="fa fa-fw fa-lock mr-2"></i>Portal</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-secure<?php echo $contact_id; ?>"><i class="fa fa-fw fa-lock mr-2"></i>Secure</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $contact_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
@@ -164,7 +164,17 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-portal<?php echo $contact_id; ?>">
+                        <div class="tab-pane fade" id="pills-secure<?php echo $contact_id; ?>">
+
+                            <div class="form-group">
+                                <label>Pin</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="pin" placeholder="Security code or pin" value="<?php echo $contact_pin; ?>">
+                                </div>
+                            </div>
 
                             <div class="form-group">
                                 <label>Login</label>

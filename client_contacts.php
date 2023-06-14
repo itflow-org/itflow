@@ -112,6 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($contact_info_display)) {
                             $contact_info_display = "-";
                         }
+                        $contact_pin = nullable_htmlentities($row['contact_pin']);
                         $contact_photo = nullable_htmlentities($row['contact_photo']);
                         $contact_initials = initials($contact_name);
                         $contact_notes = nullable_htmlentities($row['contact_notes']);

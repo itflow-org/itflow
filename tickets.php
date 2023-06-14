@@ -50,7 +50,7 @@ $sql = mysqli_query(
     WHERE ticket_assigned_to LIKE '%$ticket_assigned_filter%'
     AND $ticket_status_snippet
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%')
+    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR user_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -264,6 +264,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_details = nullable_htmlentities($row['ticket_details']);
                         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                         $ticket_status = nullable_htmlentities($row['ticket_status']);
+                        $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
                         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                         $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);

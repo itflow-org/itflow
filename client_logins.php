@@ -13,7 +13,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM logins
     WHERE login_client_id = $client_id
-    AND (login_name LIKE '%$q%' OR login_uri LIKE '%$q%')
+    AND (login_name LIKE '%$q%' OR login_description LIKE '%$q%' OR login_uri LIKE '%$q%')
     ORDER BY $sb $o LIMIT $record_from, $record_to"
 );
 
@@ -25,7 +25,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Passwords</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal"><i class="fas fa-plus mr-2"></i>New Login</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal"><i class="fas fa-plus mr-2"></i>Create</button>
         </div>
     </div>
     <div class="card-body">
@@ -57,6 +57,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_name&o=<?php echo $disp; ?>">Name</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=login_description&o=<?php echo $disp; ?>">Description</a></th>
                     <th>Username</th>
                     <th>Password</th>
                     <th>OTP</th>
@@ -70,6 +71,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 while ($row = mysqli_fetch_array($sql)) {
                     $login_id = intval($row['login_id']);
                     $login_name = nullable_htmlentities($row['login_name']);
+                    $login_description = nullable_htmlentities($row['login_description']);
+                    if (empty($login_description)) {
+                        $login_description_display = "-";
+                    } else {
+                        $login_description_display = $login_description;
+                    }
                     $login_uri = nullable_htmlentities($row['login_uri']);
                     if (empty($login_uri)) {
                         $login_uri_display = "-";
@@ -105,6 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php echo $login_name; ?>
                             </a>
                         </td>
+                        <td><?php echo $login_description_display; ?></td>
                         <td><?php echo $login_username_display; ?></td>
                         <td>
                             <a tabindex="0" href="#" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>

@@ -188,6 +188,16 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <label>Vendor Ticket Number</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
+                                    </div>
+                                </div>
+
                             </div>
 
                         <?php } ?>

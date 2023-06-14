@@ -19,6 +19,7 @@ if (isset($_GET['contact_id'])) {
     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
     $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_photo = nullable_htmlentities($row['contact_photo']);
+    $contact_pin = nullable_htmlentities($row['contact_pin']);
     $contact_initials = initials($contact_name);
     $contact_notes = nullable_htmlentities($row['contact_notes']);
     $contact_important = intval($row['contact_important']);
@@ -99,6 +100,9 @@ if (isset($_GET['contact_id'])) {
                     <?php }
                     if (!empty($contact_mobile)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
+                    <?php }
+                    if (!empty($contact_pin)) { ?>
+                        <div class="mb-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
                     <?php } ?>
                     <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
                     <hr>

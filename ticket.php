@@ -67,6 +67,7 @@ if (isset($_GET['ticket_id'])) {
             $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
         }
 
+        $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
@@ -656,10 +657,16 @@ if (isset($_GET['ticket_id'])) {
                         <div>
                             <h4 class="text-secondary">Vendor</h4>
                             <i class="fa fa-fw fa-building text-secondary ml-1 mr-2 mb-2"></i><strong><?php echo $vendor_name; ?></strong>
+                            <br>
                             <?php
 
                             if (!empty($vendor_contact_name)) { ?>
                                 <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><?php echo $vendor_contact_name; ?>
+                                <br>
+                            <?php }
+
+                            if (!empty($ticket_vendor_ticket_number)) { ?>
+                                <i class="fa fa-fw fa-tag text-secondary ml-1 mr-2 mb-2"></i><?php echo $ticket_vendor_ticket_number; ?>
                                 <br>
                             <?php }
 

@@ -4217,7 +4217,7 @@ if(isset($_POST['add_contact'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -4273,7 +4273,7 @@ if(isset($_POST['edit_contact'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
 
     // Update Primary contact in clients if primary contact is checked
     if ($primary_contact > 0){
@@ -4927,6 +4927,7 @@ if(isset($_POST['add_asset'])){
 
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $make = sanitizeInput($_POST['make']);
     $model = sanitizeInput($_POST['model']);
@@ -4961,7 +4962,7 @@ if(isset($_POST['add_asset'])){
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
 
     $asset_id = mysqli_insert_id($mysqli);
 
@@ -4997,6 +4998,7 @@ if(isset($_POST['edit_asset'])){
     $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $make = sanitizeInput($_POST['make']);
     $model = sanitizeInput($_POST['model']);
@@ -5033,7 +5035,7 @@ if(isset($_POST['edit_asset'])){
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
 
     //If login exists then update the login
     if($login_id > 0 && !empty($_POST['username'])){
@@ -5169,28 +5171,34 @@ if(isset($_POST["import_client_assets_csv"])){
                 }
             }
             if(isset($column[1])){
-                $type = sanitizeInput($column[1]);
+                $description = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $make = sanitizeInput($column[2]);
+                $type = sanitizeInput($column[2]);
             }
             if(isset($column[3])){
-                $model = sanitizeInput($column[3]);
+                $make = sanitizeInput($column[3]);
             }
             if(isset($column[4])){
-                $serial = sanitizeInput($column[4]);
+                $model = sanitizeInput($column[4]);
             }
             if(isset($column[5])){
-                $os = sanitizeInput(column[5]);
+                $serial = sanitizeInput($column[5]);
             }
             if(isset($column[6])){
-                $contact = sanitizeInput($column[6]);
+                $os = sanitizeInput($column[6]);
+            }
+            if(isset($column[7])){
+                $os = sanitizeInput($column[7]);
+            }
+            if(isset($column[8])){
+                $contact = sanitizeInput($column[8]);
                 $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_contact);
                 $contact_id = intval($row['contact_id']);
             }
-            if(isset($column[7])){
-                $location = sanitizeInput($column[7]);
+            if(isset($column[9])){
+                $location = sanitizeInput($column[9]);
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
@@ -5199,7 +5207,7 @@ if(isset($_POST["import_client_assets_csv"])){
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
@@ -5236,7 +5244,7 @@ if(isset($_GET['download_client_assets_csv_template'])){
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location');
+    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file
@@ -5274,12 +5282,12 @@ if(isset($_POST['export_client_assets_csv'])){
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Notes');
+        $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Notes');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_array($sql)){
-            $lineData = array($row['asset_name'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
+            $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -5652,7 +5660,7 @@ if(isset($_POST['add_login'])){
 
     require_once('models/client_logins.php');
 
-    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id");
 
     $login_id = mysqli_insert_id($mysqli);
 
@@ -5673,7 +5681,7 @@ if(isset($_POST['edit_login'])){
 
     $login_id = intval($_POST['login_id']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
@@ -5729,14 +5737,14 @@ if(isset($_POST['export_client_logins_csv'])){
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Username', 'Password', 'URL');
+        $fields = array('Name', 'Description', 'Username', 'Password', 'URL');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $login_username = decryptLoginEntry($row['login_username']);
             $login_password = decryptLoginEntry($row['login_password']);
-            $lineData = array($row['login_name'], $login_username, $login_password, $row['login_uri']);
+            $lineData = array($row['login_name'], $row['login_description'], $login_username, $login_password, $row['login_uri']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -5803,19 +5811,22 @@ if(isset($_POST["import_client_logins_csv"])){
                 }
             }
             if(isset($column[1])){
-                $username = sanitizeInput(encryptLoginEntry($column[1]));
+                $description = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $password = sanitizeInput(encryptLoginEntry($column[2]));
+                $username = sanitizeInput(encryptLoginEntry($column[2]));
             }
             if(isset($column[3])){
-                $url = sanitizeInput($column[3]);
+                $password = sanitizeInput(encryptLoginEntry($column[3]));
+            }
+            if(isset($column[4])){
+                $url = sanitizeInput($column[4]);
             }
 
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_username = '$username', login_password = '$password', login_client_id = $client_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
@@ -5852,7 +5863,7 @@ if(isset($_GET['download_client_logins_csv_template'])){
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Username', 'Password', 'URL');
+    $fields = array('Name', 'Description', 'Username', 'Password', 'URL');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file
@@ -6356,6 +6367,7 @@ if(isset($_POST['add_ticket'])){
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
 
@@ -6371,7 +6383,7 @@ if(isset($_POST['add_ticket'])){
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -6433,12 +6445,13 @@ if(isset($_POST['edit_ticket'])){
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli,$_POST['details']);
+    $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $client_id = intval($_POST['client_id']);
     $ticket_number = intval($_POST['ticket_number']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
