@@ -1060,11 +1060,39 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.6'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.6') {
-    //Insert queries here required to update to DB version 0.5.7
+    if (CURRENT_DATABASE_VERSION == '0.5.6') {
+    
+        mysqli_query($mysqli, "CREATE TABLE `email_queue` (
+            `email_id` int(11) NOT NULL AUTO_INCREMENT,
+            `email_recipient` varchar(255) NOT NULL,
+            `email_from` varchar(255) NOT NULL,
+            `email_from_name` varchar(255) NOT NULL,
+            `email_subject` varchar(255) NOT NULL,
+            `email_content` longtext NOT NULL,
+            `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `email_sent_at` datetime NULL DEFAULT NULL,
+            PRIMARY KEY (`email_id`)
+        )");
+
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_description` VARCHAR(255) NULL DEFAULT NULL AFTER `asset_name`");
+
+        mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_description` VARCHAR(255) NULL DEFAULT NULL AFTER `login_name`");
+
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_pin` VARCHAR(255) NULL DEFAULT NULL AFTER `contact_photo`");
+
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_client_portal_enable` TINYINT(1) NOT NULL DEFAULT '1' AFTER `config_module_enable_accounting`");
+
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_vendor_ticket_number` VARCHAR(255) NULL DEFAULT NULL AFTER `ticket_status`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.7'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.7') {
+    //Insert queries here required to update to DB version 0.5.8
 
     // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.7'");
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.8'");
     //}
 
 } else {

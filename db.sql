@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.19-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.21-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.5.19-MariaDB-1:10.5.19+maria~ubu2004
+-- Server version	10.5.21-MariaDB-1:10.5.21+maria~ubu2004
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -122,6 +122,7 @@ CREATE TABLE `assets` (
   `asset_id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_type` varchar(200) NOT NULL,
   `asset_name` varchar(200) NOT NULL,
+  `asset_description` varchar(255) DEFAULT NULL,
   `asset_make` varchar(200) NOT NULL,
   `asset_model` varchar(200) DEFAULT NULL,
   `asset_serial` varchar(200) DEFAULT NULL,
@@ -350,6 +351,7 @@ CREATE TABLE `contacts` (
   `contact_extension` varchar(200) DEFAULT NULL,
   `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
+  `contact_pin` varchar(255) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
   `contact_auth_method` varchar(200) DEFAULT NULL,
   `contact_password_hash` varchar(200) DEFAULT NULL,
@@ -451,6 +453,26 @@ CREATE TABLE `domains` (
   `domain_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `email_queue`
+--
+
+DROP TABLE IF EXISTS `email_queue`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `email_queue` (
+  `email_id` int(11) NOT NULL AUTO_INCREMENT,
+  `email_recipient` varchar(255) NOT NULL,
+  `email_from` varchar(255) NOT NULL,
+  `email_from_name` varchar(255) NOT NULL,
+  `email_subject` varchar(255) NOT NULL,
+  `email_content` longtext NOT NULL,
+  `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `email_sent_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`email_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -677,6 +699,7 @@ DROP TABLE IF EXISTS `logins`;
 CREATE TABLE `logins` (
   `login_id` int(11) NOT NULL AUTO_INCREMENT,
   `login_name` varchar(200) NOT NULL,
+  `login_description` varchar(255) DEFAULT NULL,
   `login_category` varchar(200) DEFAULT NULL,
   `login_uri` varchar(200) DEFAULT NULL,
   `login_username` varchar(200) DEFAULT NULL,
@@ -1134,12 +1157,13 @@ CREATE TABLE `settings` (
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
+  `config_client_portal_enable` tinyint(1) NOT NULL DEFAULT 1,
+  `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
+  `config_login_key_secret` varchar(255) DEFAULT NULL,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
-  `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
-  `config_login_key_secret` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1403,6 +1427,7 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
+  `ticket_vendor_ticket_number` varchar(255) DEFAULT NULL,
   `ticket_feedback` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1587,4 +1612,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-07 21:42:46
+-- Dump completed on 2023-06-14 16:55:33
