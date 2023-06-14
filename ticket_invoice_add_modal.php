@@ -155,7 +155,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" step="0.01" min="0" name="price" value="0.00" required>
+                                    <input type="number" class="form-control" step="0.01" min="0" name="price" value="<?php echo $client_rate; ?>" required>
                                 </div>
                             </div>
 

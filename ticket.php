@@ -40,6 +40,8 @@ if (isset($_GET['ticket_id'])) {
             $client_net_terms = $config_default_net_terms;
         }
 
+        $client_rate = floatval($row['client_rate']);
+
         $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_category = nullable_htmlentities($row['ticket_category']);
