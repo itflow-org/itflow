@@ -29,6 +29,13 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_client_portal_enable" <?php if ($config_client_portal_enable == 1) { echo "checked"; } ?> value="1" id="customSwitch4">
+                        <label class="custom-control-label" for="customSwitch4">Enable Client Portal</label>
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_module_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>

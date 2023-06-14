@@ -176,6 +176,7 @@
                                 </div>
                             </div>
 
+                            <?php if($config_client_portal_enable == 1) { ?>
                             <div class="form-group">
                                 <label>Login</label>
                                 <div class="input-group">
@@ -192,18 +193,18 @@
 
                             <?php if ($auth_method == "local") { ?>
 
-                                <div class="form-group">
-                                    <label>Password</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                                        </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                        </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
                                 </div>
+                            </div>
 
                             <?php } ?>
 
@@ -211,6 +212,8 @@
                                 <input type="checkbox" class="form-check-input" name="send_email" value=""/>
                                 <label class="form-check-label">Send user e-mail with login details?</label>
                             </div>
+
+                            <?php } ?>
 
                         </div>
 

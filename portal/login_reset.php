@@ -14,6 +14,12 @@ if (empty($config_smtp_host)) {
     exit();
 }
 
+// Check to see if client portal is enabled
+if($config_client_portal_enable == 0) {
+    echo "Client Portal is Disabled";
+    exit();
+}
+
 if (!isset($_SESSION)) {
     // HTTP Only cookies
     ini_set("session.cookie_httponly", true);

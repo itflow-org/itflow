@@ -23,6 +23,12 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+// Check to see if client portal is enabled
+if($config_client_portal_enable == 0) {
+    echo "Client Portal is Disabled";
+    exit();
+}
+
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 

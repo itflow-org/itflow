@@ -46,6 +46,9 @@ $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
+// Client Portal Enabled
+$config_client_portal_enable = intval($row['config_client_portal_enable']);
+
 // Login key (if setup)
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
@@ -290,9 +293,11 @@ if (isset($_POST['login'])) {
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
+                <?php if($config_client_portal_enable == 1){ ?>
                 <hr><br>
 
                 <h4>Looking for the <a href="portal">Client Portal?<a/></h4>
+                <?php } ?>
 
             </form>
 

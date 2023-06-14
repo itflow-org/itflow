@@ -183,7 +183,7 @@
                                     <input type="text" class="form-control" name="pin" placeholder="Security code or pin">
                                 </div>
                             </div>
-
+                            <?php if($config_client_portal_enable == 1) { ?>
                             <div class="form-group">
                                 <label>Login</label>
                                 <div class="input-group">
@@ -197,6 +197,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <? php } ?>
 
                         </div>
 

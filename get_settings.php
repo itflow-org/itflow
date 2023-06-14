@@ -82,6 +82,7 @@ $config_stripe_account = $row['config_stripe_account'];
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
+$config_client_portal_enable = intval($row['config_client_portal_enable']);
 
 // Login key
 $config_login_key_required = $row['config_login_key_required'];
