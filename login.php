@@ -1,6 +1,7 @@
 <?php
 
 header("X-Frame-Options: DENY");
+header("Content-Security-Policy: default-src 'self' https: fonts.googleapis.com");
 
 if (!file_exists('config.php')) {
     header("Location: setup.php");
@@ -66,7 +67,7 @@ if ($config_login_key_required) {
 ini_set("session.cookie_httponly", true);
 
 // Tell client to only send cookie(s) over HTTPS
-if ($config_https_only) {
+if ($config_https_only || !isset($config_https_only)) {
     ini_set("session.cookie_secure", true);
 }
 
@@ -227,6 +228,8 @@ if (isset($_POST['login'])) {
 
         // Password incorrect or user doesn't exist - show generic error
 
+        header("HTTP/1.1 401 Unauthorized");
+
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $response = "
@@ -309,21 +312,17 @@ if (isset($_POST['login'])) {
 
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
+
 <!-- Bootstrap 4 -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
 
-<script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<!-- <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script> -->
 
 <!-- Prevents resubmit on refresh or back -->
-<script>
-
-    if (window.history.replaceState) {
-        window.history.replaceState(null,null,window.location.href);
-    }
-
-</script>
+<script src="js/login_prevent_resubmit.js"></script>
 
 </body>
 </html>
