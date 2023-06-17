@@ -1,6 +1,5 @@
 <?php
 
-header("X-Frame-Options: DENY");
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
 if (!file_exists('config.php')) {
