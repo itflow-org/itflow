@@ -28,12 +28,6 @@ $document_folder_id = intval($row['document_folder_id']);
 
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
-    <a href="invoices.php">Home</a>
-  </li>
-  <li class="breadcrumb-item">
-    <a href="clients.php">Clients</a>
-  </li>
-  <li class="breadcrumb-item">
     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
   </li>
   <li class="breadcrumb-item">

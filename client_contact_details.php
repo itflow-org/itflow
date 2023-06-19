@@ -131,12 +131,6 @@ if (isset($_GET['contact_id'])) {
 
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="invoices.php">Home</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="clients.php">Clients</a>
-                </li>
-                <li class="breadcrumb-item">
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                 </li>
                 <li class="breadcrumb-item">
