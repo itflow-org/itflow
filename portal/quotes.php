@@ -4,7 +4,7 @@
  * Quotes for PTC / billing contacts
  */
 
-header("Content-Security-Policy: default-src 'self' https: fonts.googleapis.com");
+header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
 require_once("inc_portal.php");
 
