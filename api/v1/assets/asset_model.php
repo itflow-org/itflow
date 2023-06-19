@@ -9,6 +9,14 @@ if (isset($_POST['asset_name'])) {
     $name = '';
 }
 
+if (isset($_POST['asset_description'])) {
+    $description = sanitizeInput($_POST['asset_description']);
+} elseif (isset($asset_row) && isset($asset_row['asset_description'])) {
+    $description = $asset_row['asset_description'];
+} else {
+    $description = '';
+}
+
 if (isset($_POST['asset_type'])) {
     $type = sanitizeInput($_POST['asset_type']);
 } elseif (isset($asset_row) && isset($asset_row['asset_type'])) {
