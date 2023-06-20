@@ -80,14 +80,12 @@ if (mysqli_num_rows($sql_queue) > 0) {
             if ($mail !== true) {
                 mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email_recipient_logging'");
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email_recipient_logging regarding $email_subject_logging. $mail'");
+            } else {
+                // Update Message
+                mysqli_query($mysqli, "UPDATE email_queue SET email_sent_at = NOW() WHERE email_id = $email_id");
             }
-
-        }
-
-        // Update Message
-        mysqli_query($mysqli, "UPDATE email_queue SET email_sent_at = NOW() WHERE email_id = $email_id");
+        }   
     }
-
 }
 
 /*
