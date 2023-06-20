@@ -1088,11 +1088,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.7'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.7') {
-    //Insert queries here required to update to DB version 0.5.8
+    if (CURRENT_DATABASE_VERSION == '0.5.7') {
+        mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_status` TINYINT(1) NOT NULL DEFAULT '0' AFTER `email_id`");
+        mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_recipient_name` VARCHAR(255) NULL DEFAULT NULL AFTER `email_recipient`");
+        mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_failed_at` DATETIME NULL DEFAULT NULL AFTER `email_queued_at`");
+        mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_attempts` TINYINT(1) NOT NULL DEFAULT '0' AFTER `email_failed_at`");
 
-    // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.8'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.8'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.8') {
+        //Insert queries here required to update to DB version 0.5.9
+
+        // Then, update the database to the next sequential version
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
     //}
 
 } else {

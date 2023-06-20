@@ -464,12 +464,16 @@ DROP TABLE IF EXISTS `email_queue`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `email_queue` (
   `email_id` int(11) NOT NULL AUTO_INCREMENT,
+  `email_status` tinyint(1) NOT NULL DEFAULT 0,
   `email_recipient` varchar(255) NOT NULL,
+  `email_recipient_name` varchar(255) DEFAULT NULL,
   `email_from` varchar(255) NOT NULL,
   `email_from_name` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
   `email_content` longtext NOT NULL,
   `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `email_failed_at` datetime DEFAULT NULL,
+  `email_attempts` tinyint(1) NOT NULL DEFAULT 0,
   `email_sent_at` datetime DEFAULT NULL,
   PRIMARY KEY (`email_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -1612,4 +1616,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-14 16:55:33
+-- Dump completed on 2023-06-20 19:53:31
