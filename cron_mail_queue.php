@@ -58,6 +58,9 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
         $email_subject_logging = sanitizeInput($row['email_subject']);
 
+        // Update the status to sending
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
+
         // Verify contact email is valid
         if (filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
 
@@ -111,6 +114,9 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
 
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
         $email_subject_logging = sanitizeInput($row['email_subject']);
+
+        // Update the status to sending before actually sending
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
 
         // Verify contact email is valid
         if (filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
