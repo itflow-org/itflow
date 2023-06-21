@@ -259,7 +259,7 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category <small>(Top 5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -275,7 +275,7 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category</h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category <small>(Top 5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -291,7 +291,7 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor</h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
