@@ -4,7 +4,11 @@ require_once("inc_all_reports.php");
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
+    if ($_GET['year'] === 'all') {
+        $year = 'all';
+    } else {
+        $year = intval($_GET['year']);
+    }
 } else {
     $year = date('Y');
 }
@@ -26,6 +30,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
     <div class="card-body">
         <form class="mb-3">
             <select onchange="this.form.submit()" class="form-control" name="year">
+                <option value="all" <?php if ($year == 'all') { ?> selected <?php } ?> >All Years</option>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_payment_years)) {
@@ -39,15 +44,18 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
         </form>
 
         <?php
-        $sql_clients = mysqli_query($mysqli, "SELECT c.client_id, c.client_name, SUM(p.payment_amount) AS amount_paid
+        $sql_clients = "SELECT c.client_id, c.client_name, SUM(p.payment_amount) AS amount_paid
             FROM clients AS c
             JOIN invoices AS i ON c.client_id = i.invoice_client_id
-            JOIN payments AS p ON i.invoice_id = p.payment_invoice_id
-            WHERE YEAR(p.payment_date) = $year
-            GROUP BY c.client_id
+            JOIN payments AS p ON i.invoice_id = p.payment_invoice_id";
+            if ($year != 'all') {
+                $sql_clients .= " WHERE YEAR(p.payment_date) = $year";
+            }
+        $sql_clients .= " GROUP BY c.client_id
             HAVING amount_paid > 599
-            ORDER BY amount_paid DESC"
-        );
+            ORDER BY amount_paid DESC";
+
+        $sql_clients = mysqli_query($mysqli, $sql_clients);
         ?>
         
         <div class="table-responsive-sm">
