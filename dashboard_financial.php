@@ -744,39 +744,46 @@ $vendors_added = intval($row['vendors_added']);
         data: {
             labels: [
                 <?php
-                $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
+                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories SELECT category_name, category_id, SUM(invoice_amount) AS total_income FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year GROUP BY category_name, category_id ORDER BY total_income DESC LIMIT 5");
+                $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
                 while ($row = mysqli_fetch_array($sql_categories)) {
                     $category_name = json_encode($row['category_name']);
                     echo "$category_name,";
                 }
 
+                $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(invoices.invoice_amount) AS other_income FROM categories LEFT JOIN TopCategories ON categories.category_id = TopCategories.category_id INNER JOIN invoices ON categories.category_id = invoices.invoice_category_id WHERE TopCategories.category_id IS NULL AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
+                $row = mysqli_fetch_array($sql_other_categories);
+                $other_income = floatval($row['other_income']);
+                if ($other_income > 0) {
+                    echo "'Others',";
+                }
                 ?>
 
             ],
             datasets: [{
                 data: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_id FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
+                    $sql_categories = mysqli_query($mysqli, "SELECT total_income FROM TopCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_id = intval($row['category_id']);
-
-                        $sql_invoices = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS income_amount_for_year FROM invoices WHERE invoice_category_id = $category_id AND YEAR(invoice_date) = $year");
-                        $row = mysqli_fetch_array($sql_invoices);
-                        $income_amount_for_year = floatval($row['income_amount_for_year']);
-                        echo "$income_amount_for_year,";
+                        $total_income = floatval($row['total_income']);
+                        echo "$total_income,";
                     }
-
+                    if ($other_income > 0) {
+                        echo "$other_income,";
+                    }
                     ?>
 
                 ],
                 backgroundColor: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_id, category_color FROM categories, invoices WHERE invoice_category_id = category_id AND YEAR(invoice_date) = $year");
+                    $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopCategories JOIN categories ON TopCategories.category_id = categories.category_id");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $category_color = json_encode($row['category_color']);
                         echo "$category_color,";
                     }
-
+                    if ($other_income > 0) {
+                        echo "'#999999',"; // color for 'Others' category
+                    }
                     ?>
 
                 ],
@@ -801,39 +808,46 @@ $vendors_added = intval($row['vendors_added']);
         data: {
             labels: [
                 <?php
-                $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
+                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopExpenseCategories SELECT category_name, category_id, SUM(expense_amount) AS total_expense FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year GROUP BY category_name, category_id ORDER BY total_expense DESC LIMIT 5");
+                $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopExpenseCategories");
                 while ($row = mysqli_fetch_array($sql_categories)) {
                     $category_name = json_encode($row['category_name']);
                     echo "$category_name,";
                 }
 
+                $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM categories LEFT JOIN TopExpenseCategories ON categories.category_id = TopExpenseCategories.category_id INNER JOIN expenses ON categories.category_id = expenses.expense_category_id WHERE TopExpenseCategories.category_id IS NULL AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
+                $row = mysqli_fetch_array($sql_other_categories);
+                $other_expense = floatval($row['other_expense']);
+                if ($other_expense > 0) {
+                    echo "'Others',";
+                }
                 ?>
 
             ],
             datasets: [{
                 data: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, categories.category_id FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
+                    $sql_categories = mysqli_query($mysqli, "SELECT total_expense FROM TopExpenseCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_id = $row['category_id'];
-
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year");
-                        $row = mysqli_fetch_array($sql_expenses);
-                        $expense_amount_for_year = floatval($row['expense_amount_for_year']);
-                        echo "$expense_amount_for_year,";
+                        $total_expense = floatval($row['total_expense']);
+                        echo "$total_expense,";
                     }
-
+                    if ($other_expense > 0) {
+                        echo "$other_expense,";
+                    }
                     ?>
 
                 ],
                 backgroundColor: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = categories.category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
+                    $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopExpenseCategories JOIN categories ON TopExpenseCategories.category_id = categories.category_id");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $category_color = json_encode($row['category_color']);
                         echo "$category_color,";
                     }
-
+                    if ($other_expense > 0) {
+                        echo "'#999999',"; // color for 'Others' category
+                    }
                     ?>
 
                 ],
@@ -854,39 +868,46 @@ $vendors_added = intval($row['vendors_added']);
         data: {
             labels: [
                 <?php
-                $sql_vendors = mysqli_query($mysqli, "SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year");
+                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopVendors SELECT vendor_name, vendor_id, SUM(expense_amount) AS total_expense FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year GROUP BY vendor_name, vendor_id ORDER BY total_expense DESC LIMIT 5");
+                $sql_vendors = mysqli_query($mysqli, "SELECT vendor_name FROM TopVendors");
                 while ($row = mysqli_fetch_array($sql_vendors)) {
                     $vendor_name = json_encode($row['vendor_name']);
                     echo "$vendor_name,";
                 }
 
+                $sql_other_vendors = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM vendors LEFT JOIN TopVendors ON vendors.vendor_id = TopVendors.vendor_id INNER JOIN expenses ON vendors.vendor_id = expenses.expense_vendor_id WHERE TopVendors.vendor_id IS NULL AND YEAR(expense_date) = $year");
+                $row = mysqli_fetch_array($sql_other_vendors);
+                $other_expense = floatval($row['other_expense']);
+                if ($other_expense > 0) {
+                    echo "'Others',";
+                }
                 ?>
 
             ],
             datasets: [{
                 data: [
                     <?php
-                    $sql_vendors = mysqli_query($mysqli, "SELECT DISTINCT vendor_name, vendor_id FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year");
+                    $sql_vendors = mysqli_query($mysqli, "SELECT total_expense FROM TopVendors");
                     while ($row = mysqli_fetch_array($sql_vendors)) {
-                        $vendor_id = $row['vendor_id'];
-
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_year FROM expenses WHERE expense_vendor_id = $vendor_id AND YEAR(expense_date) = $year");
-                        $row = mysqli_fetch_array($sql_expenses);
-                        $expense_amount_for_year = floatval($row['expense_amount_for_year']);
-                        echo "$expense_amount_for_year,";
+                        $total_expense = floatval($row['total_expense']);
+                        echo "$total_expense,";
                     }
-
+                    if ($other_expense > 0) {
+                        echo "$other_expense,";
+                    }
                     ?>
 
                 ],
                 backgroundColor: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT DISTINCT category_name, category_color FROM categories, expenses WHERE expense_category_id = category_id AND YEAR(expense_date) = $year");
-                    while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_color = json_encode($row['category_color']);
-                        echo "$category_color,";
+                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id FROM TopVendors");
+                    while ($row = mysqli_fetch_array($sql_vendors)) {
+                        // Generate random color for each vendor
+                        echo "'#" . substr(md5(rand()), 0, 6) . "',";
                     }
-
+                    if ($other_expense > 0) {
+                        echo "'#999999',"; // color for 'Others' vendor
+                    }
                     ?>
 
                 ],
