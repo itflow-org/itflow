@@ -19,7 +19,7 @@ validateAccountantRole();
             SELECT 
                 clients.client_id,
                 clients.client_name,
-                SUM(invoices.invoice_amount) - COALESCE(SUM(payments.payment_amount), 0) AS balance
+                IFNULL(SUM(invoices.invoice_amount), 0) - IFNULL(SUM(payments.payment_amount), 0) AS balance
             FROM 
                 clients
             LEFT JOIN
@@ -29,7 +29,11 @@ validateAccountantRole();
                 AND invoices.invoice_status NOT LIKE 'Draft' 
                 AND invoices.invoice_status NOT LIKE 'Cancelled'
             LEFT JOIN
-                payments
+                (SELECT 
+                    payment_invoice_id, 
+                    SUM(payment_amount) as payment_amount 
+                 FROM payments 
+                 GROUP BY payment_invoice_id) as payments
             ON
                 invoices.invoice_id = payments.payment_invoice_id
             GROUP BY
