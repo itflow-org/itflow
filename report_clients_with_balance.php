@@ -17,21 +17,26 @@ validateAccountantRole();
         <?php
         $sql_clients = mysqli_query($mysqli, "
             SELECT 
-                c.client_id,
-                c.client_name,
-                IFNULL(SUM(i.invoice_amount), 0) AS invoice_amounts,
-                IFNULL(SUM(p.payment_amount), 0) AS amount_paid,
-                IFNULL(SUM(i.invoice_amount), 0) - IFNULL(SUM(p.payment_amount), 0) AS balance
+                clients.client_id,
+                clients.client_name,
+                SUM(invoices.invoice_amount) - COALESCE(SUM(payments.payment_amount), 0) AS balance
             FROM 
-                clients c
-            LEFT JOIN 
-                invoices i ON c.client_id = i.invoice_client_id AND i.invoice_status NOT IN ('Draft', 'Cancelled')
-            LEFT JOIN 
-                payments p ON i.invoice_id = p.payment_invoice_id
+                clients
+            LEFT JOIN
+                invoices
+            ON 
+                clients.client_id = invoices.invoice_client_id 
+                AND invoices.invoice_status NOT LIKE 'Draft' 
+                AND invoices.invoice_status NOT LIKE 'Cancelled'
+            LEFT JOIN
+                payments
+            ON
+                invoices.invoice_id = payments.payment_invoice_id
             GROUP BY
-                c.client_id
+                clients.client_id,
+                clients.client_name
             HAVING 
-                balance != 0
+                balance > 0
             ORDER BY
                 balance DESC
         ");
