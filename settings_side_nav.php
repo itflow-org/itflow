@@ -212,6 +212,13 @@
         </li>
 
         <li class="nav-item">
+          <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
+            <i class="nav-icon far fa-envelope-open"></i>
+            <p>Mail Queue</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
             <i class="nav-icon far fa-eye"></i>
             <p>Audit Logs</p>

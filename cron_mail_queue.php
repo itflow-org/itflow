@@ -3,6 +3,12 @@
 require_once("config.php");
 require_once("functions.php");
 
+//Initialize the HTML Purifier to prevent XSS
+require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
+
 $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
 
 $row = mysqli_fetch_array($sql_settings);
@@ -42,10 +48,11 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_recipient = nullable_htmlentities($row['email_recipient']);
         $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
         $email_subject = nullable_htmlentities($row['email_subject']);
-        $email_content = nullable_htmlentities($row['email_content']);
+        $email_content = $purifier->purify($row['email_content']);
         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
         $email_sent_at = nullable_htmlentities($row['email_sent_at']);
 
+        // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
         $email_subject_logging = sanitizeInput($row['email_subject']);
 
@@ -97,12 +104,13 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_recipient = nullable_htmlentities($row['email_recipient']);
         $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
         $email_subject = nullable_htmlentities($row['email_subject']);
-        $email_content = nullable_htmlentities($row['email_content']);
+        $email_content = $purifier->purify($row['email_content']);
         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
         $email_sent_at = nullable_htmlentities($row['email_sent_at']);
         // Increment the attempts
         $email_attempts = intval($row['email_attempts']) + 1;
 
+        // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
         $email_subject_logging = sanitizeInput($row['email_subject']);
 

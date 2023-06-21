@@ -4058,6 +4058,7 @@ if(isset($_GET['email_invoice'])){
     $client_id = $row['client_id'];
     $client_name = $row['client_name'];
     $contact_name = $row['contact_name'];
+    $contact_name_escaped = sanitizeInput($row['contact_name']);
     $contact_email = $row['contact_email'];
     $contact_email_escaped = sanitizeInput($row['contact_email']);
     $contact_phone = formatPhoneNumber($row['contact_phone']);
@@ -4081,7 +4082,7 @@ if(isset($_GET['email_invoice'])){
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payment_id DESC");
 
-    //Add up all the payments for the invoice and get the total amount paid to the invoice
+    // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = floatval($row['amount_paid']);
@@ -4089,38 +4090,29 @@ if(isset($_GET['email_invoice'])){
     $balance = $invoice_amount - $amount_paid;
 
     if ($invoice_status == 'Paid') {
-        $subject = "Invoice $invoice_prefix$invoice_number Copy";
-        $body    = "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $subject = sanitizeInput("Invoice $invoice_prefix$invoice_number Copy");
+        $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>Please click on the link below to see your invoice marked <b>paid</b>.<br><br><a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>Invoice Link</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
     } else {
-        $subject = "Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $subject = sanitizeInput("Invoice $invoice_prefix$invoice_number");
+        $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
     }
 
-    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-        $config_invoice_from_email, $config_invoice_from_name,
-        $contact_email, $contact_name,
-        $subject, $body);
+    // Queue Mail
+    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
 
-    if ($mail === true) {
-        $_SESSION['alert_message'] = "Invoice has been sent";
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed invoice', history_invoice_id = $invoice_id");
+    // Get Email ID for reference
+    $email_id = mysqli_insert_id($mysqli);
 
-        //Don't change the status to sent if the status is anything but draft
-        if($invoice_status == 'Draft'){
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
-        }
+    $_SESSION['alert_message'] = "Invoice has been sent to the mail queue";
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Queued', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number emailed to $contact_email_escaped', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
-
-    } else {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invoice Failed to send ";
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Invoice Failed', history_invoice_id = $invoice_id");
-
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email_escaped', notification_client_id = $client_id,");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email_escaped regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
+    // Don't change the status to sent if the status is anything but draft
+    if($invoice_status == 'Draft'){
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email Queue', log_description = 'Invoice $invoice_prefix$invoice_number queued to $contact_email_escaped Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
 
     // Send copies of the invoice to any additional billing contacts
     $sql_billing_contacts = mysqli_query(
@@ -4128,18 +4120,20 @@ if(isset($_GET['email_invoice'])){
         "SELECT contact_name, contact_email FROM contacts
         WHERE contact_billing = 1
         AND contact_email != '$contact_email_escaped'
+        AND contact_email != ''
         AND contact_client_id = $client_id"
     );
     while ($billing_contact = mysqli_fetch_array($sql_billing_contacts)) {
-        $billing_contact_name = $billing_contact['contact_name'];
-        $billing_contact_email = $billing_contact['contact_email'];
+        $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
+        $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
 
-        sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_invoice_from_email, $config_invoice_from_name,
-            $billing_contact_email, $billing_contact_name,
-            $subject, $body);
+        // Queue Mail
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$billing_contact_email', email_recipient_name = '$billing_contact_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
+
+        // Get Email ID for reference
+        $email_id = mysqli_insert_id($mysqli);
+
     }
-
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
