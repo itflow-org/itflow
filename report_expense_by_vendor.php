@@ -4,7 +4,11 @@ require_once("inc_all_reports.php");
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
+    if ($_GET['year'] === 'all') {
+        $year = 'all';
+    } else {
+        $year = intval($_GET['year']);
+    }
 } else {
     $year = date('Y');
 }
@@ -14,7 +18,25 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
     ORDER BY payment_year DESC"
 );
 
-$sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_template = 0");
+$year_condition = ($year == 'all') ? "" : "AND YEAR(expense_date) = $year";
+
+$sql_vendor_expenses = mysqli_query($mysqli, "
+    SELECT 
+        vendors.*, 
+        SUM(expenses.expense_amount) AS amount_paid 
+    FROM 
+        vendors 
+    LEFT JOIN 
+        expenses ON vendors.vendor_id = expenses.expense_vendor_id $year_condition
+    WHERE 
+        vendors.vendor_template = 0 
+    GROUP BY 
+        vendors.vendor_id
+    HAVING
+        amount_paid > 599
+    ORDER BY 
+        amount_paid DESC
+");
 
 ?>
 
@@ -28,6 +50,7 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_templat
     <div class="card-body">
         <form class="mb-3">
             <select onchange="this.form.submit()" class="form-control" name="year">
+                <option value="all" <?php if ($year == 'all') { ?> selected <?php } ?> >All Years</option>
                 <?php
 
                 while ($row = mysqli_fetch_array($sql_payment_years)) {
@@ -52,24 +75,18 @@ $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_templat
                 </thead>
                 <tbody>
                 <?php
-                while ($row = mysqli_fetch_array($sql_vendors)) {
+                while ($row = mysqli_fetch_array($sql_vendor_expenses)) {
                     $vendor_id = intval($row['vendor_id']);
                     $vendor_name = nullable_htmlentities($row['vendor_name']);
+                    $amount_paid = floatval($row['amount_paid']); ?>
 
-                    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS amount_paid FROM expenses WHERE YEAR(expense_date) = $year AND expense_vendor_id = $vendor_id");
-                    $row = mysqli_fetch_array($sql_amount_paid);
-
-                    $amount_paid = floatval($row['amount_paid']);
-
-                    if ($amount_paid > 599) { ?>
-
-                        <tr>
-                            <td><?php echo $vendor_name; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></td>
-                        </tr>
-                        <?php
-                    }
+                    <tr>
+                        <td><?php echo $vendor_name; ?></td>
+                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></td>
+                    </tr>
+                    <?php
                 }
+                
                 ?>
                 </tbody>
             </table>
