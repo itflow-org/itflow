@@ -38,6 +38,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="report_clients_with_balance.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_clients_with_balance.php") { echo "active"; } ?>">
+                            <i class="fa fa-exclamation-triangle nav-icon"></i>
+                            <p>Clients with a Balance</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="report_expense_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_expense_summary.php") { echo "active"; } ?>">
                             <i class="far fa-credit-card nav-icon"></i>
                             <p>Expense</p>
