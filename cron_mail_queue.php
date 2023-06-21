@@ -28,15 +28,6 @@ if ( $argv[1] !== $config_cron_key ) {
     exit("Cron Key invalid  -- Quitting..");
 }
 
-/*
- * ###############################################################################################################
- *  STARTUP ACTIONS
- * ###############################################################################################################
- */
-
-//Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started processing emails from the queue'");
-
 // Process Mail Queue
 
 // Get Mail Queue that hasnt been sent yet
@@ -110,7 +101,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
         $email_sent_at = nullable_htmlentities($row['email_sent_at']);
         // Increment the attempts
-        $email_attempts = intval($row['email_attempts']) +1 ;
+        $email_attempts = intval($row['email_attempts']) + 1;
 
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
         $email_subject_logging = sanitizeInput($row['email_subject']);
@@ -148,13 +139,3 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         }   
     }
 }
-
-
-/*
- * ###############################################################################################################
- *  FINISH UP
- * ###############################################################################################################
- */
-
-// Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron finished processing the mail queue'");
