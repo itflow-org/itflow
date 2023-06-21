@@ -22,7 +22,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Income By Client</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Income By Client <small>(With payments of 600 or more)</small></h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
