@@ -24,9 +24,9 @@ if ($config_enable_cron == 0) {
 }
 
 // Check Cron Key
-//if ( $argv[1] !== $config_cron_key ) {
-//    exit("Cron Key invalid  -- Quitting..");
-//}
+if ( $argv[1] !== $config_cron_key ) {
+    exit("Cron Key invalid  -- Quitting..");
+}
 
 /*
  * ###############################################################################################################
@@ -38,10 +38,6 @@ if ($config_enable_cron == 0) {
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started processing emails from the queue'");
 
 // Process Mail Queue
-
-// Get date for search
-$today = new DateTime();
-$today_text = $today->format('Y-m-d');
 
 // Get Mail Queue that hasnt been sent yet
 // Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
@@ -93,11 +89,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
     }
 }
 
-// Process Failed Mail Queued up to 4 times every 30 mins
-
-// Get date for search
-$today = new DateTime();
-$today_text = $today->format('Y-m-d');
+// Process Failed Mail up to 4 times every 30 mins
 
 // Get Mail Queue that hasnt been sent yet
 // Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
