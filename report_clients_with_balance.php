@@ -15,9 +15,13 @@ validateAccountantRole();
     <div class="card-body">
 
         <?php
-        $sql_clients = mysqli_query($mysqli, "SELECT c.client_id, c.client_name,
-            IFNULL(SUM(i.invoice_amount), 0) AS invoice_amounts,
-            IFNULL(SUM(p.payment_amount), 0) AS amount_paid
+        $sql_clients = mysqli_query($mysqli, "
+            SELECT 
+                c.client_id,
+                c.client_name,
+                IFNULL(SUM(i.invoice_amount), 0) AS invoice_amounts,
+                IFNULL(SUM(p.payment_amount), 0) AS amount_paid,
+                IFNULL(SUM(i.invoice_amount), 0) - IFNULL(SUM(p.payment_amount), 0) AS balance
             FROM 
                 clients c
             LEFT JOIN 
@@ -27,7 +31,9 @@ validateAccountantRole();
             GROUP BY
                 c.client_id
             HAVING 
-                IFNULL(SUM(i.invoice_amount), 0) - IFNULL(SUM(p.payment_amount), 0) != 0
+                balance != 0
+            ORDER BY
+                balance DESC
         ");
 
         ?>
@@ -45,10 +51,7 @@ validateAccountantRole();
                 while ($row = mysqli_fetch_array($sql_clients)) {
                     $client_id = intval($row['client_id']);
                     $client_name = nullable_htmlentities($row['client_name']);
-                    $invoice_amounts = floatval($row['invoice_amounts']);
-                    $amount_paid = floatval($row['amount_paid']);
-                    
-                    $balance = $invoice_amounts - $amount_paid;
+                    $balance = floatval($row['balance']);
 
                     ?>
 
