@@ -9,6 +9,13 @@ if (isset($_GET['calendar_id'])) {
 ?>
 <link href='plugins/fullcalendar/main.min.css' rel='stylesheet' />
 
+<!-- So that when hovering over a created event it turns into a hand instead of cursor -->
+<style>
+    .fc-event {
+        cursor: pointer;
+    }
+</style>
+
 <div id='calendar'></div>
 
 <?php

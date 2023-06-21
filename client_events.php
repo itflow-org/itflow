@@ -10,6 +10,12 @@ if (isset($_GET['calendar_id'])) {
 
 <link href='plugins/fullcalendar/main.min.css' rel='stylesheet' />
 
+<style>
+    .fc-event {
+        cursor: pointer;
+    }
+</style>
+
 <div class="card">
     <div id='calendar'></div>
 </div>
