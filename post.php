@@ -4276,7 +4276,7 @@ if(isset($_POST['edit_contact'])){
 
     // Set password
     if(!empty($_POST['contact_password'])){
-        $password_hash = password_hash($_POST['contact_password'], PASSWORD_DEFAULT);
+        $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
         mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = $contact_id AND contact_client_id = $client_id");
     }
 
