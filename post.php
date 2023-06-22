@@ -19,8 +19,8 @@ if(isset($_POST['add_user'])){
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['password']);
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
+    $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
@@ -134,7 +134,7 @@ if(isset($_POST['edit_user'])){
 
     if(!empty($new_password)){
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
-        $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['new_password']));
         mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
         //Extended Logging
         $extended_log_description .= ", password changed";

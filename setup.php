@@ -776,10 +776,10 @@ if (isset($_POST['add_database'])) {
         exit;
     }
 
-    $host = $_POST['host'];
-    $database = $_POST['database'];
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $host = trim($_POST['host']);
+    $database = trim($_POST['database']);
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
 
     $installation_id = randomString(32);
@@ -854,13 +854,13 @@ if (isset($_POST['add_user'])) {
 
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
 
     //Generate master encryption key
     $site_encryption_master_key = randomString();
 
     //Generate user specific key
-    $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($_POST['password'], $site_encryption_master_key);
+    $user_specific_encryption_ciphertext = setupFirstUserSpecificKey(trim($_POST['password']), $site_encryption_master_key);
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
