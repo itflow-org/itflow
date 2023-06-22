@@ -4048,18 +4048,19 @@ if(isset($_GET['email_invoice'])){
 
     $invoice_id = intval($row['invoice_id']);
     $invoice_prefix = $row['invoice_prefix'];
-    $invoice_number = $row['invoice_number'];
+    $invoice_number = intval($row['invoice_number']);
     $invoice_status = $row['invoice_status'];
     $invoice_date = $row['invoice_date'];
     $invoice_due = $row['invoice_due'];
-    $invoice_amount = $row['invoice_amount'];
+    $invoice_amount = floatval($row['invoice_amount']);
     $invoice_url_key = $row['invoice_url_key'];
     $invoice_currency_code = $row['invoice_currency_code'];
-    $client_id = $row['client_id'];
+    $client_id = intval($row['client_id']);
     $client_name = $row['client_name'];
     $contact_name = $row['contact_name'];
-    $contact_name_escaped = sanitizeInput($row['contact_name']);
     $contact_email = $row['contact_email'];
+    $invoice_prefix_escaped = sanitizeInput($row['invoice_prefix']);
+    $contact_name_escaped = sanitizeInput($row['contact_name']);
     $contact_email_escaped = sanitizeInput($row['contact_email']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
@@ -4075,6 +4076,10 @@ if(isset($_GET['email_invoice'])){
     $company_email = $row['company_email'];
     $company_website = $row['company_website'];
     $company_logo = $row['company_logo'];
+
+    // Sanitize Config vars from get_settings.php
+    $config_invoice_from_name_escaped = sanitizeInput($config_invoice_from_name);
+    $config_invoice_from_email_escaped = sanitizeInput($config_invoice_from_email);
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payment_id DESC");
 
@@ -4094,7 +4099,7 @@ if(isset($_GET['email_invoice'])){
     }
 
     // Queue Mail
-    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
+    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
 
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
@@ -4108,7 +4113,7 @@ if(isset($_GET['email_invoice'])){
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number queued to $contact_email_escaped Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix_escaped$invoice_number queued to $contact_email_escaped Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
 
     // Send copies of the invoice to any additional billing contacts
     $sql_billing_contacts = mysqli_query(
@@ -4130,7 +4135,7 @@ if(isset($_GET['email_invoice'])){
         $email_id = mysqli_insert_id($mysqli);
 
         // Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix$invoice_number queued to $billing_contact_email Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix_escaped$invoice_number queued to $billing_contact_email Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
 
     }
 
