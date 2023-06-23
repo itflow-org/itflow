@@ -3876,6 +3876,9 @@ if(isset($_POST['add_payment'])){
     }else{
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
 
+        // Get Payment ID for reference
+        $payment_id = mysqli_insert_id($mysqli);
+
         //Add up all the payments for the invoice and get the total amount paid to the invoice
         $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE payment_invoice_id = $invoice_id");
         $row = mysqli_fetch_array($sql_total_payments_amount);
@@ -3890,87 +3893,88 @@ if(isset($_POST['add_payment'])){
 
         $row = mysqli_fetch_array($sql);
         $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+        $invoice_prefix = $row['invoice_prefix'];
         $invoice_number = intval($row['invoice_number']);
-        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-        $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
+        $invoice_url_key = $row['invoice_url_key'];
+        $invoice_currency_code = $row['invoice_currency_code'];
+        $client_id = intval($row['client_id']);
+        $client_name = $row['client_name'];
+        $contact_name = $row['contact_name'];
+        $contact_email = $row['contact_email'];
         $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
+        $invoice_prefix_escaped = sanitizeInput($row['invoice_prefix']);
+        $contact_name_escaped = sanitizeInput($row['contact_name']);
+        $contact_email_escaped = sanitizeInput($row['contact_email']);
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_country = sanitizeInput($row['company_country']);
-        $company_address = sanitizeInput($row['company_address']);
-        $company_city = sanitizeInput($row['company_city']);
-        $company_state = sanitizeInput($row['company_state']);
-        $company_zip = sanitizeInput($row['company_zip']);
+        
+        $company_name = $row['company_name'];
+        $company_country = $row['company_country'];
+        $company_address = $row['company_address'];
+        $company_city = $row['company_city'];
+        $company_state = $row['company_state'];
+        $company_zip = $row['company_zip'];
         $company_phone = formatPhoneNumber($row['company_phone']);
-        $company_email = sanitizeInput($row['company_email']);
-        $company_website = sanitizeInput($row['company_website']);
-        $company_logo = sanitizeInput($row['company_logo']);
+        $company_email = $row['company_email'];
+        $company_website = $row['company_website'];
+        $company_logo = $row['company_logo'];
+
+        // Sanitize Config vars from get_settings.php
+        $config_invoice_from_name_escaped = sanitizeInput($config_invoice_from_name);
+        $config_invoice_from_email_escaped = sanitizeInput($config_invoice_from_email);
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
 
         //Determine if invoice has been paid then set the status accordingly
         if($invoice_balance == 0){
+            
             $invoice_status = "Paid";
+            
             if($email_receipt == 1){
 
+                $subject = sanitizeInput("Payment Received - Invoice $invoice_prefix$invoice_number");
+                $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
 
-                $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                // Queue Mail
+                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
 
-                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                    $config_invoice_from_email, $config_invoice_from_name,
-                    $contact_email, $contact_name,
-                    $subject, $body);
+                // Get Email ID for reference
+                $email_id = mysqli_insert_id($mysqli);
 
                 // Email Logging
-                if ($mail === true) {
-                    $_SESSION['alert_message'] .= "Email receipt sent ";
 
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
-                } else {
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id");
-                    $_SESSION['alert_message'] .= "Mailer Error ";
+                $_SESSION['alert_message'] .= "Email receipt sent ";
 
-                    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-                    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-                }
+                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
 
             }
+        
         } else {
+            
             $invoice_status = "Partial";
+            
             if($email_receipt == 1){
 
 
-                $subject = "Partial Payment Recieved - Invoice $invoice_prefix$invoice_number";
-                $body    = "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                $subject = sanitizeInput("Partial Payment Recieved - Invoice $invoice_prefix$invoice_number");
+                $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
 
-                $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                    $config_invoice_from_email, $config_invoice_from_name,
-                    $contact_email, $contact_name,
-                    $subject, $body);
+                // Queue Mail
+                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+
+                // Get Email ID for reference
+                $email_id = mysqli_insert_id($mysqli);
 
                 // Email Logging
-                if ($mail === true) {
-                    $_SESSION['alert_message'] .= "Email receipt sent ";
+                
+                $_SESSION['alert_message'] .= "Email receipt sent ";
 
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
-                } else {
-                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id");
-                    $_SESSION['alert_message'] .= "Mailer Error ";
-
-                    mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-                    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-                }
+                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
 
             }
 
@@ -3983,7 +3987,11 @@ if(isset($_POST['add_payment'])){
         mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added', history_invoice_id = $invoice_id");
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = '$payment_amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = '$payment_amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
+
+        if($email_receipt == 1){
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Email', log_description = 'Payment receipt for invoice $invoice_prefix_escaped$invoice_number queued to $contact_email_escaped Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
+        }
 
         $_SESSION['alert_message'] .= "Payment added";
 
