@@ -3427,58 +3427,54 @@ if(isset($_GET['email_quote'])){
     );
 
     $row = mysqli_fetch_array($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_prefix = $row['quote_prefix'];
     $quote_number = intval($row['quote_number']);
-    $quote_scope = sanitizeInput($row['quote_scope']);
-    $quote_status = sanitizeInput($row['quote_status']);
-    $quote_date = sanitizeInput($row['quote_date']);
+    $quote_scope = $row['quote_scope'];
+    $quote_status = $row['quote_status'];
+    $quote_date = $row['quote_date'];
     $quote_amount = floatval($row['quote_amount']);
-    $quote_note = sanitizeInput($row['quote_note']);
-    $quote_url_key = sanitizeInput($row['quote_url_key']);
-    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
+    $quote_url_key = $row['quote_url_key'];
+    $quote_currency_code = $row['quote_currency_code'];
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = formatPhoneNumber($row['contact_phone']);
-    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-    $client_website = sanitizeInput($row['client_website']);
+    $client_name = $row['client_name'];
+    $contact_name = $row['contact_name'];
+    $contact_email = $row['contact_email'];
+    $quote_prefix_escaped = sanitizeInput($row['quote_prefix']);
+    $contact_name_escaped = sanitizeInput($row['contact_name']);
+    $contact_email_escaped = sanitizeInput($row['contact_email']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
+    
+    $company_name = $row['company_name'];
+    $company_country = $row['company_country'];
+    $company_address = $row['company_address'];
+    $company_city = $row['company_city'];
+    $company_state = $row['company_state'];
+    $company_zip = $row['company_zip'];
     $company_phone = formatPhoneNumber($row['company_phone']);
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
-    $company_logo = sanitizeInput($row['company_logo']);
+    $company_email = $row['company_email'];
+    $company_website = $row['company_website'];
+    $company_logo = $row['company_logo'];
 
-    $subject = "Quote [$quote_scope]";
-    $body    = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone";
+    // Sanitize Config vars from get_settings.php
+    $config_quote_from_name_escaped = sanitizeInput($config_quote_from_name);
+    $config_quote_from_email_escaped = sanitizeInput($config_quote_from_email);
 
-    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-        $config_quote_from_email, $config_quote_from_name,
-        $contact_email, $contact_name,
-        $subject, $body);
+    $subject = sanitizeInput("Quote [$quote_scope]");
+    $body    = mysqli_escape_string($mysqli, "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone");
+
+    // Queue Mail
+    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_quote_from_email_escaped', email_from_name = '$config_quote_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+
+    // Get Email ID for reference
+    $email_id = mysqli_insert_id($mysqli);
 
     // Logging
-    if ($mail === true) {
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$quote_id emailed to $contact_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$session_name emailed Quote $quote_prefix_escaped$quote_number to $contact_email_escaped Email ID: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $quote_id");
 
-        $_SESSION['alert_message'] = "Quote has been sent";
-    } else {
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Error sending quote";
-    }
+    $_SESSION['alert_message'] = "Quote has been sent";
 
     //Don't change the status to sent if the status is anything but draft
     if($quote_status == 'Draft'){
