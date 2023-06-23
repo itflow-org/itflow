@@ -4292,24 +4292,27 @@ if(isset($_POST['edit_contact'])){
     // Send contact a welcome e-mail, if specified
     if(isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)){
 
+        // Un-sanitizied used in body of email
+        $contact_name = $_POST['name'];
+
+        // Sanitize Config vars from get_settings.php
+        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
+
         if($auth_method == 'azure') {
             $password_info = "Login with your Microsoft (Azure AD) account.";
         } else {
             $password_info = $_POST['contact_password'];
         }
 
-        $subject = "Your new $session_company_name ITFlow account";
-        $body = "Hello, $name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $subject = sanitizeInput("Your new $session_company_name ITFlow account");
+        $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $email, $name,
-            $subject, $body);
+         // Queue Mail
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$email', email_recipient_name = '$name', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
 
-        if ($mail !== true) {
-            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-        }
+        // Get Email ID for reference
+        $email_id = mysqli_insert_id($mysqli);
 
     }
 
