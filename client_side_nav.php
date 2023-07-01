@@ -233,7 +233,7 @@
 
                 <li class="nav-item">
                     <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-file-alt"></i>
+                        <i class="nav-icon fas fa-folder"></i>
                         <p>
                             Documents
                             <?php

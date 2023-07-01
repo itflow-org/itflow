@@ -46,7 +46,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2">
-                <i class="fa fa-fw fa-file-alt mr-2"></i>Documents
+                <i class="fa fa-fw fa-folder mr-2"></i>Documents
             </h3>
             <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
             <div class="dropdown-menu">
@@ -57,7 +57,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal">
-                        <i class="fas fa-plus mr-2"></i>New Document
+                        <i class="fas fa-plus mr-2"></i>Create
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
@@ -160,7 +160,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_created_at&o=<?php echo $disp; ?>">Created</a>
                                 </th>
                                 <th>
-                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_updated_at&o=<?php echo $disp; ?>">Updated</a>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=document_updated_at&o=<?php echo $disp; ?>">Last Update</a>
                                 </th>
                                 <th class="text-center">
                                     Action
@@ -174,8 +174,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $document_id = intval($row['document_id']);
                                 $document_name = nullable_htmlentities($row['document_name']);
                                 $document_content = nullable_htmlentities($row['document_content']);
-                                $document_created_at = nullable_htmlentities($row['document_created_at']);
-                                $document_updated_at = nullable_htmlentities($row['document_updated_at']);
+                                $document_created_at = date("m/d/Y",strtotime($row['document_created_at']));
+                                $document_updated_at = date("m/d/Y",strtotime($row['document_updated_at']));
                                 $document_folder_id = intval($row['document_folder_id']);
 
                                 ?>
