@@ -218,14 +218,14 @@ if (isset($_GET['delete_recurring'])) {
 
     //Delete Items Associated with the Recurring
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id");
-    while($row = mysqli_fetch_array($sql)) {;
+    while($row = mysqli_fetch_array($sql)) {
         $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_id = $recurring_id");
-    while($row = mysqli_fetch_array($sql)) {;
+    while($row = mysqli_fetch_array($sql)) {
         $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
@@ -255,7 +255,7 @@ if (isset($_POST['add_recurring_item'])) {
         $row = mysqli_fetch_array($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
+    } else {
         $tax_amount = 0;
     }
 
@@ -360,21 +360,21 @@ if (isset($_GET['delete_invoice'])) {
 
     //Delete Items Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_array($sql)) {;
+    while($row = mysqli_fetch_array($sql)) {
         $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
     }
 
     //Delete History Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_array($sql)) {;
+    while($row = mysqli_fetch_array($sql)) {
         $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
     //Delete Payments Associated with the Invoice
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_array($sql)) {;
+    while($row = mysqli_fetch_array($sql)) {
         $payment_id = intval($row['payment_id']);
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
     }
@@ -404,7 +404,7 @@ if (isset($_POST['add_invoice_item'])) {
         $row = mysqli_fetch_array($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
+    } else {
         $tax_amount = 0;
     }
 
@@ -460,7 +460,7 @@ if (isset($_POST['edit_item'])) {
         $row = mysqli_fetch_array($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
+    } else {
         $tax_amount = 0;
     }
 
@@ -484,7 +484,7 @@ if (isset($_POST['edit_item'])) {
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-    }else{
+    } else {
         //Update Invoice Balances by tallying up invoice items
 
         $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE item_recurring_id = $recurring_id");
@@ -545,7 +545,7 @@ if (isset($_POST['add_payment'])) {
     if ($amount > $balance) {
         $_SESSION['alert_message'] = "Payment is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }else{
+    } else {
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
 
         // Get Payment ID for reference
@@ -695,7 +695,7 @@ if (isset($_GET['delete_payment'])) {
     //Determine if invoice has been paid
     if ($invoice_balance == 0) {
         $invoice_status = "Paid";
-    }else{
+    } else {
         $invoice_status = "Partial";
     }
 
@@ -872,7 +872,7 @@ if (isset($_GET['force_recurring'])) {
             $row = mysqli_fetch_array($sql);
             $tax_percent = floatval($row['tax_percent']);
             $item_tax_amount = $item_subtotal * $tax_percent / 100;
-        }else{
+        } else {
             $item_tax_amount = 0;
         }
 
