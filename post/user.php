@@ -1,0 +1,282 @@
+<?php
+
+/*
+ * ITFlow - GET/POST request handler for user (agent) management
+ */
+
+if (isset($_POST['add_user'])) {
+
+    require_once('post/user_model.php');
+
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
+    $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
+
+    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
+
+    $user_id = mysqli_insert_id($mysqli);
+
+    if (!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
+
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+
+            $file_tmp_path = $_FILES['file']['tmp_name'];
+
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            // Set Avatar
+            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
+            $_SESSION['alert_type'] = "error";
+            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
+        }
+    }
+
+    // Create Settings
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role");
+
+    // Send user e-mail, if specified
+    if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $subject = "Your new $session_company_name ITFlow account";
+        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+
+        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
+            $config_ticket_from_email, $config_ticket_from_name,
+            $email, $name,
+            $subject, $body);
+
+        if ($mail !== true) {
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+        }
+
+    }
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_user'])) {
+
+    require_once('post/user_model.php');
+
+    validateAdminRole();
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $user_id = intval($_POST['user_id']);
+    $new_password = trim($_POST['new_password']);
+
+    // Get current Avatar
+    $sql = mysqli_query($mysqli, "SELECT user_avatar FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['user_avatar']);
+
+    $extended_log_description = '';
+    if (!empty($_POST['2fa'])) {
+        $two_fa = $_POST['2fa'];
+    }
+
+    if (!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
+
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if ($_FILES['file']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+
+            $file_tmp_path = $_FILES['file']['tmp_name'];
+
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            // Delete old file
+            unlink("uploads/users/$user_id/$existing_file_name");
+
+            // Set Avatar
+            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+            $extended_alert_description = '. File successfully uploaded.';
+        } else {
+            $_SESSION['alert_type'] = "error";
+            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
+        }
+    }
+
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
+
+    if (!empty($new_password)) {
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['new_password']));
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
+        //Extended Logging
+        $extended_log_description .= ", password changed";
+    }
+
+    if (!empty($two_fa) && $two_fa == 'disable') {
+        mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    }
+
+    //Update User Settings
+    mysqli_query($mysqli, "UPDATE user_settings SET user_role = $role WHERE user_id = $user_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['activate_user'])) {
+
+    validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
+
+    $user_id = intval($_GET['activate_user']);
+
+    // Get User Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $user_name = sanitizeInput($row['user_name']);
+
+    mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name activated user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> activated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['disable_user'])) {
+
+    validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
+
+    $user_id = intval($_GET['disable_user']);
+
+    // Get User Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $user_name = sanitizeInput($row['user_name']);
+
+    mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> disabled";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['archive_user'])) {
+
+    validateAdminRole();
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
+    // Variables from GET
+    $user_id = intval($_GET['archive_user']);
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
+
+    // Get user details
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = sanitizeInput($row['user_name']);
+
+    // Archive user query
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['export_users_csv'])) {
+
+    validateAdminRole();
+
+    //get records from database
+    $sql = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
+
+    if ($sql->num_rows > 0) {
+        $delimiter = ", ";
+        $filename = $session_company_name . "-Users-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Email', 'Role', 'Status', 'Creation Date');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()) {
+
+            $user_status = intval($row['user_status']);
+            if ($user_status == 2) {
+                $user_status_display = "Invited";
+            } elseif ($user_status == 1) {
+                $user_status_display = "Active";
+            } else{
+                $user_status_display = "Disabled";
+            }
+            $user_role = $row['user_role'];
+            if ($user_role == 3) {
+                $user_role_display = "Administrator";
+            } elseif ($user_role == 2) {
+                $user_role_display = "Technician";
+            } else {
+                $user_role_display = "Accountant";
+            }
+
+            $lineData = array($row['user_name'], $row['user_email'], $user_role_display, $user_status_display, $row['user_created_at']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+    exit;
+
+}
