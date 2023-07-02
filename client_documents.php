@@ -192,9 +192,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
@@ -209,9 +206,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </td>
                                 </tr>
 
-                                <?php
+                            <?php
 
-                                require("client_document_edit_modal.php");
                             }
 
                             ?>
