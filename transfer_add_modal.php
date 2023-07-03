@@ -132,7 +132,7 @@
                                     $payment_amount = floatval($row['payment_amount']);
 
                                     ?>
-                                    <option><?php echo "$client_name - $payment_method - $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency); ?></option>
+                                    <option><?php echo "$client_name - $payment_method $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency); ?></option>
 
                                 <?php } ?>
 
