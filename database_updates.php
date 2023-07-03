@@ -1104,11 +1104,32 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.9') {
-        //Insert queries here required to update to DB version 0.6.0
+        
+
+    if (CURRENT_DATABASE_VERSION == '0.5.9') {
+        
+        // Copy primary_location and primary_contact to their new vars in their own respecting tables 
+        $sql = mysqli_query($mysqli, "SELECT * FROM clients");
+        while($row = mysqli_fetch_array($sql)) {
+            $primary_contact = $row['primary_contact'];
+            $primary_location = $row['primary_location'];
+            
+            if($primary_contact > 0){
+                mysqli_query($mysqli, "UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $primary_contact");
+            }
+            if($primary_location > 0){
+                mysqli_query($mysqli, "UPDATE locations SET location_primary = 1 WHERE location_id = $primary_location");
+            }
+        }
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.0'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.6.0') {
+        //Insert queries here required to update to DB version 0.6.1
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.0'");
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.1'");
     //}
 
 } else {
