@@ -1097,11 +1097,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.8'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.5.8') {
-        //Insert queries here required to update to DB version 0.5.9
+    if (CURRENT_DATABASE_VERSION == '0.5.8') {
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_primary` TINYINT(1) NOT NULL DEFAULT 0 AFTER `contact_token_expire`");
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_primary` TINYINT(1) NOT NULL DEFAULT 0 AFTER `location_photo`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.5.9') {
+        //Insert queries here required to update to DB version 0.6.0
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.0'");
     //}
 
 } else {

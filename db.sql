@@ -357,6 +357,7 @@ CREATE TABLE `contacts` (
   `contact_password_hash` varchar(200) DEFAULT NULL,
   `contact_password_reset_token` varchar(200) DEFAULT NULL,
   `contact_token_expire` datetime DEFAULT NULL,
+  `contact_primary` tinyint(1) NOT NULL DEFAULT 0,
   `contact_important` tinyint(1) NOT NULL DEFAULT 0,
   `contact_billing` tinyint(1) DEFAULT 0,
   `contact_technical` tinyint(1) DEFAULT 0,
@@ -682,6 +683,7 @@ CREATE TABLE `locations` (
   `location_phone` varchar(200) DEFAULT NULL,
   `location_hours` varchar(200) DEFAULT NULL,
   `location_photo` varchar(200) DEFAULT NULL,
+  `location_primary` tinyint(1) NOT NULL DEFAULT 0,
   `location_notes` text DEFAULT NULL,
   `location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1616,4 +1618,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-20 19:53:31
+-- Dump completed on 2023-07-03 16:38:34
