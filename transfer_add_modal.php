@@ -111,7 +111,36 @@
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes"></textarea>
+                        <textarea class="form-control" rows="5" name="notes" id="transferNotes" placeholder="Enter some notes"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select class="form-control" id="paymentSelect">
+                                <option value="">Select a Payment to Add to Notes</option>
+                                <?php
+
+                                $sql = mysqli_query($mysqli, "SELECT client_name, payment_method, payment_reference, payment_amount FROM payments
+                                    LEFT JOIN invoices ON payment_invoice_id = invoice_id
+                                    LEFT JOIN clients ON invoice_client_id = client_id
+                                    ORDER BY payment_id DESC LIMIT 25
+                                ");
+                                while ($row = mysqli_fetch_array($sql)) {
+                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $payment_method = nullable_htmlentities($row['payment_method']);
+                                    $payment_reference = nullable_htmlentities($row['payment_reference']);
+                                    $payment_amount = floatval($row['payment_amount']);
+
+                                    ?>
+                                    <option><?php echo "$client_name - $payment_method - $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency); ?></option>
+
+                                <?php } ?>
+
+                            </select>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-secondary" onclick="addOptionToTextbox()"><i class="fas fa-fw fa-plus"></i></button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -124,3 +153,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    function addOptionToTextbox() {
+      var selectElement = document.getElementById("paymentSelect");
+      var selectedOption = selectElement.options[selectElement.selectedIndex];
+      
+      var textboxElement = document.getElementById("transferNotes");
+      textboxElement.value += selectedOption.value + "\n";
+    }
+</script>
