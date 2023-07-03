@@ -21,8 +21,13 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     //Update Primary contact in clients if primary contact is checked
-    if ($primary_contact > 0) {
-        mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
+    if ($contact_primary > 0) {
+        // Old way of adding contact_primary Set for Removal
+        mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");     
+    
+        // New Way of setting primary contact
+        mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
+        mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
 
     // Check for and process image/photo
@@ -67,7 +72,6 @@ if (isset($_POST['edit_contact'])) {
     $row = mysqli_fetch_array($sql);
     $existing_file_name = sanitizeInput($row['contact_photo']);
 
-
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
@@ -75,8 +79,12 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
 
     // Update Primary contact in clients if primary contact is checked
-    if ($primary_contact > 0) {
+    if ($contact_primary > 0) {
+        // Old way of adding contact_primary Set for Removal
         mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
+
+        mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
+        mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
 
     // Set password
