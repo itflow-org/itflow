@@ -15,7 +15,7 @@ $sql = mysqli_query(
     WHERE location_client_id = $client_id
     AND location_archived_at IS NULL
     AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY location_primary DESC, $sb $o LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
