@@ -14,8 +14,8 @@ $sql = mysqli_query(
     "
     SELECT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, GROUP_CONCAT(tags.tag_name) AS tag_names
     FROM clients
-    LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contacts.contact_archived_at IS NULL
-    LEFT JOIN locations ON clients.primary_location = locations.location_id AND locations.location_archived_at IS NULL
+    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+    LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
     LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
     LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
     WHERE (clients.client_name LIKE '%$q%' OR clients.client_type LIKE '%$q%' OR clients.client_referral LIKE '%$q%'
