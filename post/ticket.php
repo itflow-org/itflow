@@ -274,8 +274,9 @@ if (isset($_POST['add_ticket_reply'])) {
 
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            $ticket_reply = preg_replace('/<p[^>]*>/', '', $ticket_reply); // Remove the start <p> or <p attr="">
-            $ticket_reply = preg_replace('/</p>/', '<br />', $ticket_reply); // Replace the end
+            // 2023-07-04 Commend the 2 lines below out as the last line was causing ticket reply to appear blank in emails, maybe because of the switch to TinyMCE
+            //$ticket_reply = preg_replace('/<p[^>]*>/', '', $ticket_reply); // Remove the start <p> or <p attr="">
+            //$ticket_reply = preg_replace('/</p>/', '<br />', $ticket_reply); // Replace the end
 
             // Slightly different email subject/text depending on if this update closed the ticket or not
 
