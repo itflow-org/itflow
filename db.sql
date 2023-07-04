@@ -246,8 +246,6 @@ CREATE TABLE `clients` (
   `client_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `client_archived_at` datetime DEFAULT NULL,
   `client_accessed_at` datetime DEFAULT NULL,
-  `primary_location` int(11) NOT NULL DEFAULT 0,
-  `primary_contact` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1618,4 +1616,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-03 16:38:34
+-- Dump completed on 2023-07-03 20:22:39
