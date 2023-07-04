@@ -288,7 +288,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 $imap_mailbox = "$config_imap_host:$config_imap_port/imap/$config_imap_encryption";
 
 // Connect to host via IMAP
-$imap = imap_open("{{$imap_mailbox}}INBOX", $config_smtp_username, $config_smtp_password);
+$imap = imap_open("{{$imap_mailbox}}INBOX", $config_imap_username, $config_imap_password);
 
 // Check connection
 if (!$imap) {

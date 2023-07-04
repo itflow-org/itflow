@@ -23,6 +23,8 @@ $config_mail_from_name = $row['config_mail_from_name'];
 $config_imap_host = $row['config_imap_host'];
 $config_imap_port = intval($row['config_imap_port']);
 $config_imap_encryption = $row['config_imap_encryption'];
+$config_imap_username = $row['config_imap_username'];
+$config_imap_password = $row['config_imap_password'];
 
 // Defaults
 $config_default_transfer_from_account = intval($row['config_default_transfer_from_account']);
