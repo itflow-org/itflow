@@ -11,7 +11,7 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
 {
 
     // Access the global variables
-    global $mysqli, $session_contact_id, $session_client_primary_contact_id, $session_contact_is_technical_contact, $session_client_id;
+    global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id;
 
     // Setup
     if ($expected_ticket_state == "Closed") {
@@ -27,7 +27,7 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     $row = mysqli_fetch_array($sql);
     $ticket_id = $row['ticket_id'];
 
-    if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact)) {
+    if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_primary == 1 || $session_contact_is_technical_contact)) {
         // Client is ticket owner, primary contact, or a technical contact
         return true;
     }

@@ -328,7 +328,7 @@ if (isset($_GET['email_quote'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
-    LEFT JOIN contacts ON contact_id = primary_contact
+    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     WHERE quote_id = $quote_id"
     );
 

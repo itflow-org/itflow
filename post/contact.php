@@ -21,11 +21,7 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     //Update Primary contact in clients if primary contact is checked
-    if ($contact_primary == 1) {
-        // Old way of adding contact_primary Set for Removal
-        mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");     
-    
-        // New Way of setting primary contact
+    if ($contact_primary == 1) { 
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
@@ -80,9 +76,6 @@ if (isset($_POST['edit_contact'])) {
 
     // Update Primary contact in clients if primary contact is checked
     if ($contact_primary == 1) {
-        // Old way of adding contact_primary Set for Removal
-        mysqli_query($mysqli,"UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
-
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }

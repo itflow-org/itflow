@@ -15,7 +15,7 @@ $purifier = new HTMLPurifier($purifier_config);
 if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
 
-    if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact) {
+    if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
         $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
     } else {
         $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");

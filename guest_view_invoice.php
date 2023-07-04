@@ -15,8 +15,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
-    LEFT JOIN locations ON primary_location = location_id
-    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
+    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     WHERE invoice_id = $invoice_id
     AND invoice_url_key = '$url_key'"
 );

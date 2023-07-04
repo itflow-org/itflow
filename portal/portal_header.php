@@ -45,7 +45,7 @@ header("X-Frame-Options: DENY"); // Legacy
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
                     </li>
-                <?php if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_billing_contact) { ?>
+                <?php if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "invoices.php") {echo "active";} ?>" href="invoices.php">Invoices</a>
                     </li>
@@ -53,7 +53,7 @@ header("X-Frame-Options: DENY"); // Legacy
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "quotes.php") {echo "active";} ?>" href="quotes.php">Quotes</a>
                     </li>
                 <?php } ?>
-                <?php if ($session_contact_id == $session_client_primary_contact_id || $session_contact_is_technical_contact) { ?>
+                <?php if ($session_contact_primary == 1 || $session_contact_is_technical_contact) { ?>
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "documents.php") {echo "active";} ?>" href="documents.php">Documents</a>
                     </li>

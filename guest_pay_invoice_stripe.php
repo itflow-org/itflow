@@ -193,7 +193,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         $mysqli,
         "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON contact_id = primary_contact
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         WHERE invoice_id = $pi_invoice_id
         AND invoice_status != 'Draft'
         AND invoice_status != 'Paid'

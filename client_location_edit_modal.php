@@ -40,7 +40,7 @@
                                     <input type="text" class="form-control" name="name" placeholder="Name of location" value="<?php echo $location_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="primary_location" value="1" <?php if ($location_id == $primary_location) { echo "checked"; } ?>>
+                                            <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
                                         </div>
                                     </div>
                                 </div>

@@ -559,7 +559,7 @@ if (isset($_POST['add_payment'])) {
         //Get the invoice total
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON contact_id = primary_contact
+            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
             WHERE invoice_id = $invoice_id"
         );
 
@@ -721,7 +721,7 @@ if (isset($_GET['email_invoice'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON contact_id = primary_contact
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         WHERE invoice_id = $invoice_id"
     );
     $row = mysqli_fetch_array($sql);
@@ -899,7 +899,7 @@ if (isset($_GET['force_recurring'])) {
     if ($config_recurring_auto_send_invoice == 1) {
         $sql = mysqli_query($mysqli,"SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON contact_id = primary_contact
+            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
             WHERE invoice_id = $new_invoice_id"
         );
         $row = mysqli_fetch_array($sql);

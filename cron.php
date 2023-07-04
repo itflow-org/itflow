@@ -435,7 +435,7 @@ foreach ($invoiceAlertArray as $day) {
         $mysqli,
         "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON contact_id = primary_contact
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         WHERE invoice_status NOT LIKE 'Draft'
         AND invoice_status NOT LIKE 'Paid'
         AND invoice_status NOT LIKE 'Cancelled'
@@ -563,7 +563,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
             $mysqli,
             "SELECT * FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON contact_id = primary_contact
+            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
             WHERE invoice_id = $new_invoice_id"
         );
 

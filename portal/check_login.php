@@ -50,6 +50,7 @@ $session_contact_initials = initials($session_contact_name);
 $session_contact_title = sanitizeInput($contact['contact_title']);
 $session_contact_email = sanitizeInput($contact['contact_email']);
 $session_contact_photo = sanitizeInput($contact['contact_photo']);
+$session_contact_primary = intval($client['contact_primary']);
 
 $session_contact_is_technical_contact = false;
 $session_contact_is_billing_contact = false;
@@ -60,11 +61,8 @@ if ($contact['contact_billing'] == 1) {
     $session_contact_is_billing_contact = true;
 }
 
-
-
 // Get client info
 $client_sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $session_client_id");
 $client = mysqli_fetch_array($client_sql);
 
 $session_client_name = $client['client_name'];
-$session_client_primary_contact_id = intval($client['primary_contact']);

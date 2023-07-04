@@ -22,14 +22,15 @@ if (isset($_GET['contact_id'])) {
     $contact_pin = nullable_htmlentities($row['contact_pin']);
     $contact_initials = initials($contact_name);
     $contact_notes = nullable_htmlentities($row['contact_notes']);
+    $contact_primary = intval($row['contact_primary']);
     $contact_important = intval($row['contact_important']);
     $contact_billing = intval($row['contact_billing']);
     $contact_technical = intval($row['contact_technical']);
     $contact_created_at = nullable_htmlentities($row['contact_created_at']);
-    if ($contact_id == $primary_contact) {
-        $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
+    if ($contact_primary == 1 ) {
+        $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
     } else {
-        $primary_contact_display = false;
+        $contact_primary_display = false;
     }
     $contact_location_id = intval($row['contact_location_id']);
     $location_name = nullable_htmlentities($row['location_name']);

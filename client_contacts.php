@@ -116,14 +116,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_photo = nullable_htmlentities($row['contact_photo']);
                         $contact_initials = initials($contact_name);
                         $contact_notes = nullable_htmlentities($row['contact_notes']);
+                        $contact_primary = intval($row['contact_primary']);
                         $contact_important = intval($row['contact_important']);
                         $contact_billing = intval($row['contact_billing']);
                         $contact_technical = intval($row['contact_technical']);
                         $contact_created_at = nullable_htmlentities($row['contact_created_at']);
-                        if ($contact_id == $primary_contact) {
-                            $primary_contact_display = "<small class='text-success'>Primary Contact</small>";
+                        if ($contact_primary == 1) {
+                            $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
                         } else {
-                            $primary_contact_display = false;
+                            $contact_primary_display = false;
                         }
                         $contact_location_id = intval($row['contact_location_id']);
                         $location_name = nullable_htmlentities($row['location_name']);
@@ -170,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php } ?>
                                     <div class="text-dark"><?php echo $contact_name; ?></div>
                                     <div><?php echo $contact_title_display; ?></div>
-                                    <div><?php echo $primary_contact_display; ?></div>
+                                    <div><?php echo $contact_primary_display; ?></div>
                                 </a>
                             </td>
 
@@ -189,7 +190,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <?php if ($session_user_role == 3 && $contact_id !== $primary_contact) { ?>
+                                        <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive

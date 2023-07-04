@@ -15,7 +15,7 @@ require_once('inc_portal.php');
     <p>Email: <?php echo $session_contact_email ?></p>
     <p>Client: <?php echo $session_client_name ?></p>
     <br>
-    <p>Client Primary Contact: <?php if ($session_client_primary_contact_id == $session_contact_id) {echo "Yes"; } else {echo "No";} ?></p>
+    <p>Client Primary Contact: <?php if ($session_contact_primary == 1) {echo "Yes"; } else {echo "No";} ?></p>
     <p>Client Technical Contact: <?php if ($session_contact_is_technical_contact) {echo "Yes"; } else {echo "No";} ?></p>
     <p>Client Billing Contact: <?php if ($session_contact_is_billing_contact == $session_contact_id) {echo "Yes"; } else {echo "No";} ?></p>
 

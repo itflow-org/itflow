@@ -19,16 +19,12 @@ if(isset($_POST['add_location'])){
     $location_id = mysqli_insert_id($mysqli);
 
     // Update Primay location in clients if primary location is checked
-    if($location_primary == 1){
-        // Old way of adding contact_primary Set for Removal
-        mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
-
-        // New Way of setting primary location
+    if ($location_primary == 1) {
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 0 WHERE location_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 1 WHERE location_id = $location_id");
     }
 
-    //Check to see if a file is attached
+    // Check to see if a file is attached
     if($_FILES['file']['tmp_name'] != ''){
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
@@ -79,11 +75,7 @@ if(isset($_POST['edit_location'])){
     mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id");
 
     // Update Primay location in clients if primary location is checked
-    if($location_primary == 1){
-        // Old way of adding contact_primary Set for Removal
-        mysqli_query($mysqli,"UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
-
-        // New Way of setting primary location
+    if ($location_primary == 1) {
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 0 WHERE location_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 1 WHERE location_id = $location_id");
     }

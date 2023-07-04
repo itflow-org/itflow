@@ -91,10 +91,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $location_notes = nullable_htmlentities($row['location_notes']);
                     $location_created_at = nullable_htmlentities($row['location_created_at']);
                     $location_contact_id = intval($row['location_contact_id']);
-                    if ($location_id == $primary_location) {
-                        $primary_location_display = "<p class='text-success'>Primary Location</p>";
+                    $location_primary = intval($row['location_primary']);
+                    if ( $location_primary == 1 ) {
+                        $location_primary_display = "<p class='text-success'>Primary Location</p>";
                     } else {
-                        $primary_location_display = "";
+                        $location_primary_display = "";
                     }
 
                     ?>
@@ -102,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th>
                             <i class="fa fa-fw fa-map-marker-alt text-secondary"></i>
                             <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
-                            <?php echo $primary_location_display; ?>
+                            <?php echo $location_primary_display; ?>
                         </th>
                         <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
                         <td><?php echo $location_phone_display; ?></td>

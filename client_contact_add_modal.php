@@ -9,7 +9,7 @@
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <!-- Prevent undefined checkbox errors on submit -->
-                <input type="hidden" name="primary_contact" value="0">
+                <input type="hidden" name="contact_primary" value="0">
                 <input type="hidden" name="contact_important" value="0">
                 <input type="hidden" name="contact_billing" value="0">
                 <input type="hidden" name="contact_technical" value="0">
@@ -47,7 +47,7 @@
                                     <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="primary_contact" value="1" <?php if ($primary_contact == 0) { echo "checked"; } ?>>
+                                            <input type="checkbox" name="contact_primary" value="1">
                                         </div>
                                     </div>
                                 </div>

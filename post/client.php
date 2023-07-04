@@ -38,10 +38,6 @@ if (isset($_POST['add_client'])) {
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
         mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
-        //Update Primay location in clients
-        $location_id = mysqli_insert_id($mysqli);
-        mysqli_query($mysqli, "UPDATE clients SET primary_location = $location_id WHERE client_id = $client_id");
-
         //Extended Logging
         $extended_log_description .= ", primary location $address added";
     }
@@ -50,10 +46,6 @@ if (isset($_POST['add_client'])) {
     //Add Contact
     if (!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)) {
         mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
-
-        //Update Primary contact in clients
-        $contact_id = mysqli_insert_id($mysqli);
-        mysqli_query($mysqli, "UPDATE clients SET primary_contact = $contact_id WHERE client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary contact $contact added";
@@ -306,8 +298,8 @@ if (isset($_POST['export_clients_csv'])) {
 
     //get records from database
     $sql = mysqli_query($mysqli, "SELECT * FROM clients
-        LEFT JOIN contacts ON clients.primary_contact = contacts.contact_id AND contact_archived_at IS NULL
-        LEFT JOIN locations ON clients.primary_location = locations.location_id AND location_archived_at IS NULL
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         ORDER BY client_name ASC
     ");
 
@@ -368,8 +360,8 @@ if (isset($_POST['export_client_pdf'])) {
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM clients 
-        LEFT JOIN contacts ON primary_contact = contact_id 
-        LEFT JOIN locations ON primary_location = location_id 
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_id = $client_id
     ");
 

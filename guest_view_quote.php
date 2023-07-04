@@ -16,8 +16,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT * FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
-    LEFT JOIN locations ON primary_location = location_id
-    LEFT JOIN contacts ON primary_contact = contact_id
+    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+    LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
     WHERE quote_id = $quote_id
     AND quote_url_key = '$url_key'"
 );

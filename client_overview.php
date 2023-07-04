@@ -13,8 +13,9 @@ $sql_important_contacts = mysqli_query(
     $mysqli,
     "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
-    AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_id = $primary_contact)
-    AND contact_archived_at IS NULL ORDER BY contact_name DESC"
+    AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_primary = 1)
+    AND contact_archived_at IS NULL 
+    ORDER BY contact_primary DESC, contact_name DESC"
 );
 
 $sql_recent_tickets = mysqli_query(

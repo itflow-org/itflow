@@ -14,8 +14,8 @@ if (isset($_GET['client_id'])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT * FROM clients
-        LEFT JOIN locations ON primary_location = location_id AND location_archived_at IS NULL
-        LEFT JOIN contacts ON primary_contact = contact_id AND contact_archived_at IS NULL
+        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         WHERE client_id = $client_id"
     );
 
@@ -38,8 +38,6 @@ if (isset($_GET['client_id'])) {
         $client_rate = floatval($row['client_rate']);
         $client_notes = nullable_htmlentities($row['client_notes']);
         $client_created_at = nullable_htmlentities($row['client_created_at']);
-        $primary_contact = intval($row['primary_contact']);
-        $primary_location = intval($row['primary_location']);
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
@@ -47,6 +45,7 @@ if (isset($_GET['client_id'])) {
         $contact_phone = formatPhoneNumber($row['contact_phone']);
         $contact_extension = nullable_htmlentities($row['contact_extension']);
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $contact_primary = intval($row['contact_primary']);
         $location_id = intval($row['location_id']);
         $location_name = nullable_htmlentities($row['location_name']);
         $location_address = nullable_htmlentities($row['location_address']);
@@ -55,6 +54,7 @@ if (isset($_GET['client_id'])) {
         $location_zip = nullable_htmlentities($row['location_zip']);
         $location_country = nullable_htmlentities($row['location_country']);
         $location_phone = formatPhoneNumber($row['location_phone']);
+        $location_primary = intval($row['location_primary']);
 
         //Client Tags
 
