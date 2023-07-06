@@ -47,7 +47,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_from_name = nullable_htmlentities($row['email_from_name']);
         $email_recipient = nullable_htmlentities($row['email_recipient']);
         $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = nullable_htmlentities($row['email_subject']);
+        $email_subject = $purifier->purify($row['email_subject']);
         $email_content = $purifier->purify($row['email_content']);
         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
         $email_sent_at = nullable_htmlentities($row['email_sent_at']);
@@ -103,7 +103,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_from_name = nullable_htmlentities($row['email_from_name']);
         $email_recipient = nullable_htmlentities($row['email_recipient']);
         $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = nullable_htmlentities($row['email_subject']);
+        $email_subject = $purifier->purify($row['email_subject']);
         $email_content = $purifier->purify($row['email_content']);
         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
         $email_sent_at = nullable_htmlentities($row['email_sent_at']);

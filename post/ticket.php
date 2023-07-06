@@ -313,17 +313,17 @@ if (isset($_POST['add_ticket_reply'])) {
     // Notification for assigned ticket user
     if (intval($session_user_id) !== $ticket_assigned_to || $ticket_assigned_to !== 0) {
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that is assigned to you', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped that is assigned to you', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
     }
 
     // Notification for user that opened the ticket
     if (intval($session_user_id) !== $ticket_created_by || $ticket_created_by !== 0) {
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that you opened', notification_client_id = $client_id, notification_user_id = $ticket_created_by");
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped that you opened', notification_client_id = $client_id, notification_user_id = $ticket_created_by");
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix_escaped$ticket_number - $ticket_subject_escaped and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>";
 
