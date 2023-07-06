@@ -62,10 +62,12 @@ if (isset($_POST['edit_mail_settings'])) {
     $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
     $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
     $config_imap_host = sanitizeInput($_POST['config_imap_host']);
+    $config_imap_username = sanitizeInput($_POST['config_imap_username']);
+    $config_imap_password = sanitizeInput($_POST['config_imap_password']);
     $config_imap_port = intval($_POST['config_imap_port']);
     $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption', config_imap_username = '$config_imap_username', config_imap_password = '$config_imap_password' WHERE company_id = 1");
 
 
     //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
@@ -133,7 +135,7 @@ if (isset($_POST['test_email_imap'])) {
     $imap_mailbox = "$config_imap_host:$config_imap_port/imap/readonly/$config_imap_encryption";
 
     // Connect
-    $imap = imap_open("{{$imap_mailbox}}INBOX", $config_smtp_username, $config_smtp_password);
+    $imap = imap_open("{{$imap_mailbox}}INBOX", $config_imap_username, $config_imap_password);
 
     if ($imap) {
         $_SESSION['alert_message'] = "Connected successfully";

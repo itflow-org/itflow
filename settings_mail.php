@@ -121,6 +121,31 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
+                <div class='form-group'>
+                    <label>IMAP Username</label>
+                    <div class='input-group'>
+                        <div class='input-group-prepend'>
+                            <span class='input-group-text'><i class='fa fa-fw fa-user'></i></span>
+                        </div>
+                        <input type='text' class='form-control' name='config_imap_username' placeholder='Username' value="<?php
+                        echo nullable_htmlentities($config_imap_username); ?>" required>
+                    </div>
+                </div>
+
+                <div class='form-group'>
+                    <label>IMAP Password</label>
+                    <div class='input-group'>
+                        <div class='input-group-prepend'>
+                            <span class='input-group-text'><i class='fa fa-fw fa-key'></i></span>
+                        </div>
+                        <input type='password' class='form-control' data-toggle='password' name='config_imap_password' placeholder='Password' value="<?php
+                        echo nullable_htmlentities($config_imap_password); ?>" autocomplete='new-password' required>
+                        <div class='input-group-append'>
+                            <span class='input-group-text'><i class='fa fa-fw fa-eye'></i></span>
+                        </div>
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_mail_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
