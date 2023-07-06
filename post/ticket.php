@@ -306,15 +306,6 @@ if (isset($_POST['add_ticket_reply'])) {
             // Get Email ID for reference
             $email_id = mysqli_insert_id($mysqli);
 
-            $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                $config_ticket_from_email, $config_ticket_from_name,
-                $contact_email, $contact_name,
-                $subject, $body);
-
-            if ($mail !== true) {
-                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email_escaped'");
-                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email_escaped regarding $subject_escaped. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
-            }
         }
     }
     //End Mail IF
