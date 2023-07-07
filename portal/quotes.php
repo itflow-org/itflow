@@ -87,7 +87,7 @@ $quotes_sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id 
                     ?>
 
                     <tr>
-                        <td><a target="_blank" href="\\<?php echo $config_base_url ?>/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"?>"> <?php echo "$quote_prefix$quote_number"; ?></a></td>
+                        <td><a target="_blank" href="//<?php echo $config_base_url ?>/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"?>"> <?php echo "$quote_prefix$quote_number"; ?></a></td>
                         <td><?php echo $quote_scope_display; ?></td>
                         <td><?php echo numfmt_format_currency($currency_format, $quote_amount, $session_company_currency); ?></td>
                         <td><?php echo $quote_date; ?></td>
