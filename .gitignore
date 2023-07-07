@@ -15,5 +15,8 @@ uploads/tickets/*
 !uploads/tickets/index.php
 .idea/*
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/*
+!plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/.gitkeep
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/*
+!plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/.gitkeep
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
+!plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/.gitkeep
