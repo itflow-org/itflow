@@ -21,7 +21,7 @@ if (!empty($q)) {
 }
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
+$url_query_strings_sort = http_build_query($get_copy);
 
 // Folder ID
 $get_folder_id = 0;

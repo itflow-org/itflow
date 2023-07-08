@@ -7,6 +7,12 @@
  * Should not be accessed directly, but called from other pages
  */
 
+// Unset Array Var to prevent Duplicate Get VARs
+$get_copy = $_GET; // create a copy of the $_GET array
+//unset($get_copy['page']);
+unset($get_copy['sort']);
+unset($get_copy['order']); 
+
 // Paging
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);

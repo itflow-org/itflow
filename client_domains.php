@@ -7,7 +7,7 @@ $order = "ASC";
 require_once("inc_all_client.php");
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
+$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM domains LEFT JOIN vendors ON domain_registrar = vendor_id
   WHERE domain_client_id = $client_id AND (domain_name LIKE '%$q%' OR vendor_name LIKE '%$q%') 

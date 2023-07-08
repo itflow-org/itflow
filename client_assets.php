@@ -52,7 +52,8 @@ if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
 }
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
+//Rebuild URL
+$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
