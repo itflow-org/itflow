@@ -8,27 +8,27 @@
  */
 
 // Paging
-if (isset($_GET['p'])) {
-    $p = intval($_GET['p']);
-    $record_from = (($p)-1)*$_SESSION['records_per_page'];
+if (isset($_GET['page'])) {
+    $page = intval($_GET['page']);
+    $record_from = (($page)-1)*$_SESSION['records_per_page'];
     $record_to = $_SESSION['records_per_page'];
 } else {
     $record_from = 0;
     $record_to = $_SESSION['records_per_page'];
-    $p = 1;
+    $page = 1;
 }
 
 // Order
-if (isset($_GET['o'])) {
-    if ($_GET['o'] == 'ASC') {
-        $o = "ASC";
+if (isset($_GET['order'])) {
+    if ($_GET['order'] == 'ASC') {
+        $order = "ASC";
         $disp = "DESC";
     } else {
-        $o = "DESC";
+        $order = "DESC";
         $disp = "ASC";
     }
-} elseif(isset($o)) {
-    if ($o == "ASC") {
+} elseif(isset($order)) {
+    if ($order == "ASC") {
         $disp = "DESC";
     } else {
         $disp = "ASC";
@@ -49,8 +49,8 @@ if (isset($_GET['q'])) {
 }
 
 // Sortby
-if (!empty($_GET['sb'])) {
-    $sb = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sb'])); // JQ 2023-05-09 - See issue #673 on GitHub to see the reasoning why we used preg_replace technically sanitizeInput() should have been enough to escape SQL Commands
+if (!empty($_GET['sort'])) {
+    $sort = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sort'])); // JQ 2023-05-09 - See issue #673 on GitHub to see the reasoning why we used preg_replace technically sanitizeInput() should have been enough to escape SQL Commands
 }
 
 // Date Handling

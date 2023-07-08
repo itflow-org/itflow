@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "location_name";
-$o = "ASC";
+$sort = "location_name";
+$order = "ASC";
 
 require_once("inc_all_client.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -15,7 +15,7 @@ $sql = mysqli_query(
     WHERE location_client_id = $client_id
     AND location_archived_at IS NULL
     AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
-    ORDER BY location_primary DESC, $sb $o LIMIT $record_from, $record_to"
+    ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -57,10 +57,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_name&o=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_address&o=<?php echo $disp; ?>">Address</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_phone&o=<?php echo $disp; ?>">Phone</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=location_hours&o=<?php echo $disp; ?>">Hours</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Name</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_address&order=<?php echo $disp; ?>">Address</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_phone&order=<?php echo $disp; ?>">Phone</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_hours&order=<?php echo $disp; ?>">Hours</a></th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>

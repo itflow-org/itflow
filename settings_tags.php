@@ -1,19 +1,19 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "tag_name";
-$o = "ASC";
+$sort = "tag_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM tags
     WHERE tag_name LIKE '%$q%'
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -69,8 +69,8 @@ if ($num_rows > 0) {
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_name&o=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tag_type&o=<?php echo $disp; ?>">Type</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_name&order=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_type&order=<?php echo $disp; ?>">Type</a></th>
                         <th>Color</th>
                         <th class="text-center">Action</th>
                     </tr>

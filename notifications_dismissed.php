@@ -1,14 +1,14 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "notification_timestamp";
-$o = "DESC";
+$sort = "notification_timestamp";
+$order = "DESC";
 
 require_once("inc_all.php");
 
 //Rebuild URL
 
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -19,7 +19,7 @@ $sql = mysqli_query(
     AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt'
     AND (notification_user_id = $session_user_id OR notification_user_id = 0)
     AND notification_dismissed_at IS NOT NULL
-    ORDER BY $sb $o
+    ORDER BY $sort $order
     LIMIT $record_from, $record_to
 ");
 
@@ -68,49 +68,49 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_timestamp&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_timestamp&order=<?php echo $disp; ?>">
                                 Timestamp 
-                                <?php if($sb == "notification_timestamp") { ?>
+                                <?php if($sort == "notification_timestamp") { ?>
                                     <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_type&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_type&order=<?php echo $disp; ?>">
                                 Type
-                                <?php if($sb == "notification_type") { ?> 
+                                <?php if($sort == "notification_type") { ?> 
                                     <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification&order=<?php echo $disp; ?>">
                                 Notification
-                                <?php if($sb == "notification") { ?>
+                                <?php if($sort == "notification") { ?>
                                     <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=client_name&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                 Client
-                                <?php if($sb == "client_name") { ?>
+                                <?php if($sort == "client_name") { ?>
                                     <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=notification_dismissed_at&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_dismissed_at&order=<?php echo $disp; ?>">
                                 Dismissed At
-                                <?php if($sb == "notification_dismissed_at") { ?>
+                                <?php if($sort == "notification_dismissed_at") { ?>
                                     <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
                                 Dismissed By
-                                <?php if($sb == "user_name") { ?>
+                                <?php if($sort == "user_name") { ?>
                                     <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
                                 <?php } ?>
                             </a>

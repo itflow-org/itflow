@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "scheduled_ticket_subject";
-$o = "ASC";
+$sort = "scheduled_ticket_subject";
+$order = "ASC";
 
 require_once("inc_all_client.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 // SQL
 $sql = mysqli_query(
@@ -16,7 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN clients on scheduled_ticket_client_id = client_id
     WHERE scheduled_ticket_client_id = $client_id
     AND scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

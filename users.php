@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "user_name";
-$o = "ASC";
+$sort = "user_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -15,7 +15,7 @@ $sql = mysqli_query(
     WHERE users.user_id = user_settings.user_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -60,10 +60,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_name&o=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_email&o=<?php echo $disp; ?>">Email</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_role&o=<?php echo $disp; ?>">Role</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=user_status&o=<?php echo $disp; ?>">Status</a></th>
+                    <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Name</a></th>
+                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">Email</a></th>
+                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">Role</a></th>
+                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th>Last Login</th>
                     <th class="text-center">Action</th>
                 </tr>

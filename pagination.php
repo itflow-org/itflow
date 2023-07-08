@@ -11,7 +11,7 @@ $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $_SESSION['records_per_page']);
 
 if ($total_found_rows > 10) {
-    $i=0;
+    $i = 0;
 
     ?>
 
@@ -48,38 +48,38 @@ if ($total_found_rows > 10) {
                 if (($total_pages <= 10000) && ($total_pages > 1000)) {
                     $pages_split = 1000;
                 }
-                if ($p > 1) {
+                if ($page > 1) {
                     $prev_class = "";
                 } else {
                     $prev_class = "disabled";
                 }
-                if ($p <> $total_pages) {
+                if ($page <> $total_pages) {
                     $next_class = "";
                 } else {
                     $next_class = "disabled";
                 }
-                $url_query_strings = http_build_query(array_merge($_GET, array('p' => $i)));
-                $prev_page = $p - 1;
-                $next_page  = $p + 1;
+                $url_query_strings = http_build_query(array_merge($_GET, array('page' => $i)));
+                $prev_page = $page - 1;
+                $next_page  = $page + 1;
 
-                if ($p > 1) {
-                    echo "<li class='page-item $prev_class'><a class='page-link' href='?$url_query_strings&p=$prev_page'>Prev</a></li>";
+                if ($page > 1) {
+                    echo "<li class='page-item $prev_class'><a class='page-link' href='?$url_query_strings&page=$prev_page'>Prev</a></li>";
                 }
 
                 while ($i < $total_pages) {
                     $i++;
-                    if (($i == 1) || (($p <= 3) && ($i <= 6)) || (($i >  $total_pages - 6) && ($p > $total_pages - 3)) || (is_int($i / $pages_split)) || (($p > 3) && ($i >= $p - 2) && ($i <= $p + 3)) || ($i == $total_pages)) {
-                        if ($p == $i) {
+                    if (($i == 1) || (($page <= 3) && ($i <= 6)) || (($i >  $total_pages - 6) && ($page > $total_pages - 3)) || (is_int($i / $pages_split)) || (($page > 3) && ($i >= $page - 2) && ($i <= $page + 3)) || ($i == $total_pages)) {
+                        if ($page == $i) {
                             $page_class = "active";
                         } else {
                             $page_class = "";
                         }
-                        echo "<li class='page-item $page_class'><a class='page-link' href='?$url_query_strings&p=$i'>$i</a></li>";
+                        echo "<li class='page-item $page_class'><a class='page-link' href='?$url_query_strings&page=$i'>$i</a></li>";
                     }
                 }
 
-                if ($p <> $total_pages) {
-                    echo "<li class='page-item $next_class'><a class='page-link' href='?$url_query_strings&p=$next_page'>Next</a></li>";
+                if ($page <> $total_pages) {
+                    echo "<li class='page-item $next_class'><a class='page-link' href='?$url_query_strings&page=$next_page'>Next</a></li>";
                 }
 
                 ?>

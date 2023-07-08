@@ -1,20 +1,20 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "api_key_name";
-$o = "ASC";
+$sort = "api_key_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM api_keys
     LEFT JOIN clients on api_keys.api_key_client_id = clients.client_id
     WHERE (api_key_name LIKE '%$q%')
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -25,7 +25,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-key mr-2"></i>API Keys</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addApiKeyModal"><i class="fas fa-plus mr-2"></i>New Key</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addApiKeyModal"><i class="fas fa-plus mr-2"></i>Create</button>
             </div>
         </div>
 
@@ -75,11 +75,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_name&o=<?php echo $disp; ?>">Name</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_client_id&o=<?php echo $disp; ?>">Client</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_secret&o=<?php echo $disp; ?>">Secret</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_created_at&o=<?php echo $disp; ?>">Created</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=api_key_expire&o=<?php echo $disp; ?>">Expires</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_name&order=<?php echo $disp; ?>">Name</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_client_id&order=<?php echo $disp; ?>">Client</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_secret&order=<?php echo $disp; ?>">Secret</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_created_at&order=<?php echo $disp; ?>">Created</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_expire&order=<?php echo $disp; ?>">Expires</a></th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>

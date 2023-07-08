@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "software_name";
-$o = "ASC";
+$sort = "software_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -15,7 +15,7 @@ $sql = mysqli_query(
     LEFT JOIN logins ON login_software_id = software_id
     WHERE software_template = 1 
     AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%') 
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -52,10 +52,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_name&o=<?php echo $disp; ?>">Template</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_type&o=<?php echo $disp; ?>">Type</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_license_type&o=<?php echo $disp; ?>">License Type</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sb=software_seats&o=<?php echo $disp; ?>">Seats</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">Template</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">Type</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">License Type</a></th>
+                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Seats</a></th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>

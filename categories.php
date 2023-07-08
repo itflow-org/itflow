@@ -1,8 +1,8 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "category_name";
-$o = "ASC";
+$sort = "category_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
@@ -13,7 +13,7 @@ if (isset($_GET['category'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -21,7 +21,7 @@ $sql = mysqli_query(
     WHERE category_name LIKE '%$q%'
     AND category_type = '$category'
     AND category_archived_at IS NULL
-    ORDER BY $sb $o LIMIT $record_from, $record_to"
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -78,7 +78,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=category_name&o=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Name</a></th>
                         <th>Color</th>
                         <th class="text-center">Action</th>
                     </tr>

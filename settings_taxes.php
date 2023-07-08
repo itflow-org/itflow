@@ -1,19 +1,19 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "tax_name";
-$o = "ASC";
+$sort = "tax_name";
+$order = "ASC";
 
 require_once("inc_all_settings.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli, 
     "SELECT * FROM taxes
     WHERE tax_archived_at IS NULL
-    ORDER BY $sb $o"
+    ORDER BY $sort $order"
 );
 
 $num_rows = mysqli_num_rows($sql);
@@ -32,8 +32,8 @@ $num_rows = mysqli_num_rows($sql);
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tax_name&o=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sb; ?>&sb=tax_percent&o=<?php echo $disp; ?>">Percent</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">Percent</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

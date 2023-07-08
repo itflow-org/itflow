@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sb = "item_created_at";
-$o = "DESC";
+$sort = "item_created_at";
+$order = "DESC";
 
 require_once("inc_all_client.php");
 
 //Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sb' => $sb, 'o' => $o)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
 
 $sql = mysqli_query(
     $mysqli,
@@ -16,7 +16,7 @@ $sql = mysqli_query(
     AND item_active = '1'
     AND item_views != item_view_limit
     AND item_expire_at > NOW()
-    AND (item_note LIKE '%$q%') ORDER BY $sb $o LIMIT $record_from, $record_to"
+    AND (item_note LIKE '%$q%') ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
