@@ -78,12 +78,12 @@ $sql_latest_expenses = mysqli_query(
 );
 
 //Get Yearly Recurring Total
-$sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year'");
+$sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND YEAR(recurring_created_at) <= $year");
 $row = mysqli_fetch_array($sql_recurring_yearly_total);
 $recurring_yearly_total = floatval($row['recurring_yearly_total']);
 
 //Get Monthly Recurring Total
-$sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month'");
+$sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND YEAR(recurring_created_at) <= $year");
 $row = mysqli_fetch_array($sql_recurring_monthly_total);
 $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
 
