@@ -30,6 +30,11 @@ echo '</select>';
 ?>
 </form>
 
+
+<?php
+echo date('Y-m-d');
+?>
+
 <script>toastr.success('Have Fun Wozz!!')</script>
 
 <?php require_once("footer.php"); ?>

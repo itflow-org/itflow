@@ -25,6 +25,8 @@ $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_invoice_prefix = $row['config_invoice_prefix'];
 $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_from_name = $row['config_invoice_from_name'];
+$config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
+$config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
@@ -98,8 +100,12 @@ mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL W
 // Clean-up old dismissed notifications
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
 
+// Clean-up mail queue
+mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
+
 //Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data'");
+
 
 
 
@@ -240,12 +246,8 @@ mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Tas
 
 // Scheduled tickets
 
-// Get date for search
-$today = new DateTime();
-$today_text = $today->format('Y-m-d');
-
 // Get scheduled tickets for today
-$sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = '$today_text'");
+$sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = CURDATE()");
 
 if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
     while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
@@ -392,7 +394,6 @@ if ($config_ticket_autoclose == 1) {
 
     while ($row = mysqli_fetch_array($sql_tickets_to_chase)) {
 
-
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
         $ticket_id = $row['ticket_id'];
@@ -436,9 +437,9 @@ foreach ($invoiceAlertArray as $day) {
         "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        WHERE invoice_status NOT LIKE 'Draft'
-        AND invoice_status NOT LIKE 'Paid'
-        AND invoice_status NOT LIKE 'Cancelled'
+        WHERE invoice_status != 'Draft'
+        AND invoice_status != 'Paid'
+        AND invoice_status != 'Cancelled'
         AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
         ORDER BY invoice_number DESC"
     );
@@ -457,6 +458,25 @@ foreach ($invoiceAlertArray as $day) {
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
+
+        // Late Charges
+
+        if ($config_invoice_late_fee_enable == 1) {
+            
+            $todays_date = date('Y-m-d');
+            $late_fee_amount = ($invoice_amount * $config_invoice_late_fee_percent) / 100;
+            $new_invoice_amount = $invoice_amount + $late_fee_amount;
+
+            mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
+
+            //Insert Items into New Invoice
+            mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_invoice_id = $invoice_id");
+
+            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late charge', history_invoice_id = $invoice_id");
+
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_client_id = $client_id, notification_entity_id = $invoice_id");
+        
+        }
 
         mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
@@ -494,7 +514,7 @@ foreach ($invoiceAlertArray as $day) {
 // Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for past due invoices and sent out notifications to the primary contacts email'");
 
-//Send Recurring Invoices that match todays date and are active
+// Send Recurring Invoices that match todays date and are active
 
 //Loop through all recurring that match today's date and is active
 $sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1");
