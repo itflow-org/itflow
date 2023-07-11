@@ -281,7 +281,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
 
             <hr class="mt-5">
 
-            <div style="text-center"><?php echo nl2br($config_invoice_footer); ?></div>
+            <div class="text-center"><?php echo nl2br($config_invoice_footer); ?></div>
         </div>
     </div>
 

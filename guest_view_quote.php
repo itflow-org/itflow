@@ -257,7 +257,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
             <hr class="mt-5">
 
-            <div style="text-center"><?php echo nl2br($config_quote_footer); ?></div>
+            <div class="text-center"><?php echo nl2br($config_quote_footer); ?></div>
         </div>
     </div>
 
