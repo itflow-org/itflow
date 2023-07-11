@@ -57,6 +57,28 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
+                <legend>Invoice Late Fees</legend>
+
+                 <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_invoice_late_fee_enable" <?php if ($config_invoice_late_fee_enable == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
+                        <label class="custom-control-label" for="customSwitch1">Enable Late Fee</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Late Fee %</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                        </div>
+                        <input type="number" class="form-control" min="0" max="100" step="0.01" name="config_invoice_late_fee_percent" value="<?php echo $config_invoice_late_fee_percent; ?>">
+                    </div>
+                    <small class="text-secondary">We recommend updating the invoice footer to include policies on your late charges. This will be applied every 30 days after the invoice Due Date.</small>
+                </div>
+
+                <hr>
+
                 <legend>Recurring Invoice</legend>
 
                 <div class="form-group">

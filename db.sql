@@ -1134,6 +1134,8 @@ CREATE TABLE `settings` (
   `config_invoice_footer` text DEFAULT NULL,
   `config_invoice_from_name` varchar(200) DEFAULT NULL,
   `config_invoice_from_email` varchar(200) DEFAULT NULL,
+  `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_recurring_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_next_number` int(11) NOT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
@@ -1618,4 +1620,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-03 20:22:39
+-- Dump completed on 2023-07-11 11:40:09

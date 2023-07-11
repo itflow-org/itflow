@@ -42,6 +42,8 @@ $config_invoice_next_number = intval($row['config_invoice_next_number']);
 $config_invoice_footer = $row['config_invoice_footer'];
 $config_invoice_from_name = $row['config_invoice_from_name'];
 $config_invoice_from_email = $row['config_invoice_from_email'];
+$config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
+$config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 
 // Recurring
 $config_recurring_prefix = $row['config_recurring_prefix'];
