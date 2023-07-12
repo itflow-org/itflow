@@ -655,10 +655,11 @@ if (isset($_POST['add_scheduled_ticket'])) {
     require_once('post/scheduled_ticket_model.php');
     $start_date = sanitizeInput($_POST['start_date']);
 
+    // If no contact is selected automatically choose the primary contact for the client
     if ($client_id > 0 && $contact_id == 0) {
-        $sql = mysqli_query($mysqli, "SELECT primary_contact FROM clients WHERE client_id = $client_id");
+        $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
-        $contact_id = intval($row['primary_contact']);
+        $contact_id = intval($row['contact_id']);
     }
 
     // Add scheduled ticket
