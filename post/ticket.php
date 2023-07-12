@@ -20,9 +20,9 @@ if (isset($_POST['add_ticket'])) {
 
     // If no contact is selected automatically choose the primary contact for the client
     if ($client_id > 0 && $contact == 0) {
-        $sql = mysqli_query($mysqli,"SELECT primary_contact FROM clients WHERE client_id = $client_id");
+        $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
-        $contact = intval($row['primary_contact']);
+        $contact = intval($row['contact_id']);
     }
 
     //Get the next Ticket Number and add 1 for the new ticket number
