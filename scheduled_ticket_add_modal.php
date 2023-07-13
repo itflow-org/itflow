@@ -20,14 +20,31 @@
                                 <select class="form-control select2" name="contact" required>
                                     <option value="">- Contact -</option>
                                     <?php
-
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $contact_id = intval($row['contact_id']);
                                         $contact_name = nullable_htmlentities($row['contact_name']);
+                                        $contact_primary = intval($row['contact_primary']);
+                                        if($contact_primary == 1) {
+                                            $contact_primary_display = " (Primary)";
+                                        } else {
+                                            $contact_primary_display = "";
+                                        }
+                                        $contact_technical = intval($row['contact_technical']);
+                                        if($contact_technical == 1) {
+                                            $contact_technical_display = " (Technical)";
+                                        } else {
+                                            $contact_technical_display = "";
+                                        }
+                                        $contact_title = nullable_htmlentities($row['contact_title']);
+                                        if(!empty($contact_title)) {
+                                            $contact_title_display = " - $contact_title";
+                                        } else {
+                                            $contact_title_display = "";
+                                        }
+                                        
                                         ?>
-                                        <option value="<?php echo $contact_id; ?>" <?php if ($primary_contact == $contact_id) { echo "selected"; } ?>><?php echo $contact_name; ?></option>
-
+                                        <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
