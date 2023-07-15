@@ -157,7 +157,6 @@ while ($row = mysqli_fetch_array($sql)) {
 
 <!-- Automatically set new event end date to 1 hr after start date -->
 <script>
-
     // Function - called when user leaves field (onblur)
     function updateIncrementEndTime() {
 
@@ -167,15 +166,19 @@ while ($row = mysqli_fetch_array($sql)) {
         // Create a date object
         let new_end = new Date(start);
 
+        // Get the time zone offset in minutes, convert it to milliseconds
+        let offsetInMilliseconds = new_end.getTimezoneOffset() * 60 * 1000;
+
+        // Adjust the date by the time zone offset before adding an hour
+        new_end = new Date(new_end.getTime() - offsetInMilliseconds);
+
         // Set the end date to 1 hr in the future
-        new_end.setHours(new_end.getHours() + 1)
+        new_end.setHours(new_end.getHours() + 1);
 
         // Get the date back as a string, with the milliseconds trimmed off
         new_end = new_end.toISOString().replace(/.\d+Z$/g, "");
 
         // Update the end date field
         document.getElementById("event_add_end").value = new_end;
-
     }
-
 </script>
