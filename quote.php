@@ -27,6 +27,7 @@ if (isset($_GET['quote_id'])) {
     $quote_scope = nullable_htmlentities($row['quote_scope']);
     $quote_status = nullable_htmlentities($row['quote_status']);
     $quote_date = nullable_htmlentities($row['quote_date']);
+    $quote_expire = nullable_htmlentities($row['quote_expire']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
     $quote_note = nullable_htmlentities($row['quote_note']);
@@ -229,6 +230,10 @@ if (isset($_GET['quote_id'])) {
                         <tr>
                             <td>Date</td>
                             <td class="text-right"><?php echo $quote_date; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Expire</td>
+                            <td class="text-right"><?php echo $quote_expire; ?></td>
                         </tr>
                     </table>
                 </div>
@@ -553,7 +558,7 @@ require_once("footer.php");
                         [
                             {
                                 text: '',
-                                rowSpan: 2
+                                rowSpan: 3
                             },
                             {},
                             {},
@@ -566,6 +571,17 @@ require_once("footer.php");
                             },
                             {
                                 text: <?php echo json_encode(html_entity_decode($quote_date)) ?>,
+                                style: 'invoiceDateValue'
+                            },
+                        ],
+                        [
+                            {},
+                            {
+                                text: 'Expire',
+                                style: 'invoiceDateTitle'
+                            },
+                            {
+                                text: <?php echo json_encode(html_entity_decode($quote_expire)) ?>,
                                 style: 'invoiceDateValue'
                             },
                         ],

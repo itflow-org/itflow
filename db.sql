@@ -871,6 +871,7 @@ CREATE TABLE `quotes` (
   `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
   `quote_date` date NOT NULL,
+  `quote_expire` date DEFAULT NULL,
   `quote_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_currency_code` varchar(200) NOT NULL,
   `quote_note` text DEFAULT NULL,
@@ -1620,4 +1621,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-11 11:40:09
+-- Dump completed on 2023-07-15 15:32:02

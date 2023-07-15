@@ -1150,11 +1150,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.3'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.6.3') {
-        //Insert queries here required to update to DB version 0.6.4
+    if (CURRENT_DATABASE_VERSION == '0.6.3') {
+        mysqli_query($mysqli, "ALTER TABLE `quotes` ADD COLUMN `quote_expire` DATE NULL DEFAULT NULL AFTER `quote_date`");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.4'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.6.4') {
+        //Insert queries here required to update to DB version 0.6.5
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.4'");
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.5'");
     //}
 
 } else {

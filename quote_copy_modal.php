@@ -21,6 +21,16 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label>Expire <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+              </div>
+              <input type="date" class="form-control" name="expire" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" value="<?php echo date("Y-m-d", strtotime("+30 days")); ?>" required>
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="submit" name="add_quote_copy" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>

@@ -18,6 +18,7 @@ function populateQuoteEditModal(quote_id) {
             document.getElementById("editQuoteHeaderClient").innerText = quote.client_name;
             document.getElementById("editQuoteID").value = quote.quote_id;
             document.getElementById("editQuoteDate").value = quote.quote_date;
+            document.getElementById("editQuoteExpire").value = quote.quote_expire;
             document.getElementById("editQuoteScope").value = quote.quote_scope;
 
             /* DROPDOWNS */

@@ -18,7 +18,7 @@ if (isset($_POST['add_quote'])) {
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', quote_currency_code = '$session_company_currency', quote_category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_currency_code = '$session_company_currency', quote_category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_client_id = $client");
 
     $quote_id = mysqli_insert_id($mysqli);
 
@@ -37,6 +37,7 @@ if (isset($_POST['add_quote_copy'])) {
 
     $quote_id = intval($_POST['quote_id']);
     $date = sanitizeInput($_POST['date']);
+    $expire = sanitizeInput($_POST['expire']);
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = $config_quote_next_number;
@@ -55,7 +56,7 @@ if (isset($_POST['add_quote_copy'])) {
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = $quote_amount, quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_expire = '$expire', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = $quote_amount, quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
@@ -199,7 +200,7 @@ if (isset($_POST['edit_quote'])) {
 
     $quote_id = intval($_POST['quote_id']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_category_id = $category WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_category_id = $category WHERE quote_id = $quote_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -338,6 +339,7 @@ if (isset($_GET['email_quote'])) {
     $quote_scope = $row['quote_scope'];
     $quote_status = $row['quote_status'];
     $quote_date = $row['quote_date'];
+    $quote_expire = $row['quote_expire'];
     $quote_amount = floatval($row['quote_amount']);
     $quote_url_key = $row['quote_url_key'];
     $quote_currency_code = $row['quote_currency_code'];

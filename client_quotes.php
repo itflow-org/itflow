@@ -60,6 +60,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_scope&order=<?php echo $disp; ?>">Scope</a></th>
                         <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_amount&order=<?php echo $disp; ?>">Amount</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_date&order=<?php echo $disp; ?>">Date</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_expire&order=<?php echo $disp; ?>">Expire</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_status&order=<?php echo $disp; ?>">Status</a></th>
                         <th class="text-center">Action</th>
@@ -80,6 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $quote_status = nullable_htmlentities($row['quote_status']);
                         $quote_date = nullable_htmlentities($row['quote_date']);
+                        $quote_expire = nullable_htmlentities($row['quote_expire']);
                         $quote_amount = floatval($row['quote_amount']);
                         $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
                         $quote_created_at = nullable_htmlentities($row['quote_created_at']);
@@ -108,6 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $quote_scope_display; ?></td>
                             <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                             <td><?php echo $quote_date; ?></td>
+                            <td><?php echo $quote_expire; ?></td>
                             <td><?php echo $category_name; ?></td>
                             <td>
                                 <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">

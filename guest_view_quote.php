@@ -36,6 +36,7 @@ $quote_prefix = nullable_htmlentities($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
 $quote_status = nullable_htmlentities($row['quote_status']);
 $quote_date = nullable_htmlentities($row['quote_date']);
+$quote_expire = nullable_htmlentities($row['quote_expire']);
 $quote_amount = floatval($row['quote_amount']);
 $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
 $quote_note = nullable_htmlentities($row['quote_note']);
@@ -97,7 +98,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
         <div class="card-header d-print-none">
             <div class="float-left">
                 <?php
-                if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
+                if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) {
                     ?>
                     <a class="btn btn-success" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
                         <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
@@ -160,6 +161,10 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                         <tr>
                             <td>Date</td>
                             <td class="text-right"><?php echo $quote_date; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Expire</td>
+                            <td class="text-right"><?php echo $quote_expire; ?></td>
                         </tr>
                     </table>
                 </div>
@@ -337,7 +342,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                             [
                                 {
                                     text: '',
-                                    rowSpan: 2
+                                    rowSpan: 3
                                 },
                                 {},
                                 {},
@@ -350,6 +355,17 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                                 },
                                 {
                                     text: <?php echo json_encode(html_entity_decode($quote_date)) ?>,
+                                    style: 'invoiceDateValue'
+                                },
+                            ],
+                            [
+                                {},
+                                {
+                                    text: 'Expire',
+                                    style: 'invoiceDateTitle'
+                                },
+                                {
+                                    text: <?php echo json_encode(html_entity_decode($quote_expire)) ?>,
                                     style: 'invoiceDateValue'
                                 },
                             ],
