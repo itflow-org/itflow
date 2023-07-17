@@ -785,10 +785,10 @@ if (isset($_POST['add_database'])) {
     $installation_id = randomString(32);
 
     // Test database connection before writing it to config.php
-    try {
-        mysqli_connect($host, $username, $password, $database);
-    } catch (Exception $e) {
-        exit("<b>Database connection failed - please check and try again</b> <br> <br> $e");
+
+    $conn = mysqli_connect($host, $username, $password, $database);
+    if (!$conn) {
+        exit("<b>Database connection failed - please check and try again</b> <br> <br>" . mysqli_connect_error());
     }
 
     $new_config = "<?php\n\n";
@@ -1323,149 +1323,145 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Company Details</h3>
                         </div>
                         <div class="card-body">
-                            <?php if (mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users")) < 0) { ?>
-                                Database config invalid, or users already exist in the database.
-                            <?php } else { ?>
-                                <form method="post" enctype="multipart/form-data" autocomplete="off">
+                            <form method="post" enctype="multipart/form-data" autocomplete="off">
 
-                                    <div class="form-group">
-                                        <label>Company Name <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="name" placeholder="Company Name" autofocus required>
+                                <div class="form-group">
+                                    <label>Company Name <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="name" placeholder="Company Name" autofocus required>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Address</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="address" placeholder="Street Address">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="address" placeholder="Street Address">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>City</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="city" placeholder="City">
+                                <div class="form-group">
+                                    <label>City</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="city" placeholder="City">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>State / Province</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="state" placeholder="State or Province">
+                                <div class="form-group">
+                                    <label>State / Province</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="state" placeholder="State or Province">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Zip / Postal Code</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
+                                <div class="form-group">
+                                    <label>Zip / Postal Code</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Country <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                            </div>
-                                            <select class="form-control select2" name="country" required>
-                                                <option value="">- Country -</option>
-                                                <?php foreach($countries_array as $country_name) { ?>
-                                                    <option><?php echo $country_name; ?></option>
-                                                <?php } ?>
-                                            </select>
+                                <div class="form-group">
+                                    <label>Country <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                         </div>
+                                        <select class="form-control select2" name="country" required>
+                                            <option value="">- Country -</option>
+                                            <?php foreach($countries_array as $country_name) { ?>
+                                                <option><?php echo $country_name; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Phone</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="phone" placeholder="Phone Number">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                            </div>
-                                            <input type="email" class="form-control" name="email" placeholder="Email address">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                         </div>
+                                        <input type="email" class="form-control" name="email" placeholder="Email address">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Website</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="website" placeholder="Website address">
+                                <div class="form-group">
+                                    <label>Website</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                         </div>
+                                        <input type="text" class="form-control" name="website" placeholder="Website address">
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Locale <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                            </div>
-                                            <select class="form-control select2" name="locale" required>
-                                                <option value="">- Select a Locale -</option>
-                                                <?php foreach($locales_array as $locale_code => $locale_name) { ?>
-                                                    <option value="<?php echo $locale_code; ?>"><?php echo "$locale_code - $locale_name"; ?></option>
-                                                <?php } ?>
-                                            </select>
+                                <div class="form-group">
+                                    <label>Locale <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                         </div>
+                                        <select class="form-control select2" name="locale" required>
+                                            <option value="">- Select a Locale -</option>
+                                            <?php foreach($locales_array as $locale_code => $locale_name) { ?>
+                                                <option value="<?php echo $locale_code; ?>"><?php echo "$locale_code - $locale_name"; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Currency <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                            </div>
-                                            <select class="form-control select2" name="currency_code" required>
-                                                <option value="">- Currency -</option>
-                                                <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                                    <option value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                                                <?php } ?>
-                                            </select>
+                                <div class="form-group">
+                                    <label>Currency <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                                         </div>
+                                        <select class="form-control select2" name="currency_code" required>
+                                            <option value="">- Currency -</option>
+                                            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                                                <option value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="form-group">
-                                        <label>Logo</label>
-                                        <input type="file" class="form-control-file" name="file">
-                                    </div>
+                                <div class="form-group">
+                                    <label>Logo</label>
+                                    <input type="file" class="form-control-file" name="file">
+                                </div>
 
-                                    <hr>
+                                <hr>
 
-                                    <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
-                                        Next<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
-                                    </button>
+                                <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
+                                    Next<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                </button>
 
-                                </form>
-                            <?php } ?>
+                            </form>
                         </div>
                     </div>
 
@@ -1521,12 +1517,9 @@ if (isset($_POST['add_telemetry'])) {
                             <hr>
                             <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
                             <?php
-                            // Check that there is access to write config.php
-                            if (!file_put_contents("config.php", "Test")) {
-                                echo "<div class='alert alert-danger'>Warning: config.php is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation#ubuntu_setup_guide'>docs</a> for info.</div>";
-                            } else {
-                                // Else, able to write. Tidy up
-                                unlink("config.php");
+                            // Check that there is access to write to the current directory
+                            if (!is_writable('.')) {
+                                echo "<div class='alert alert-danger'>Warning: The current directory is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation#ubuntu_setup_guide'>docs</a> for info.</div>";
                             }
                             ?>
                             <hr>
