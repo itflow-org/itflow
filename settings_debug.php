@@ -191,15 +191,6 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
             
             <h3>Database Structure Check</h3>
             
-            <?php
-            if (empty($differences)) {
-                echo "The database structure matches the desired structure.";
-            } else {
-                echo "Differences found:\n";
-                print_r($differences);
-            }
-            ?>
-
             <hr>
 
             <h4>Database stats</h4>
@@ -208,8 +199,50 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
             echo "Number of tables: " . $numTables . "<br>";
             echo "Total number of fields: " . $numFields . "<br>";
             echo "Total number of rows: " . $numRows . "<br>";
+            echo "Current Database Version: " . CURRENT_DATABASE_VERSION . "<br>";
             ?>
             
+            <hr>
+
+            <h4>Table Stats</h4>
+            <?php
+            // Fetch all table names from the database
+            $tables = array();
+            $result = mysqli_query($mysqli, "SHOW TABLES");
+            while ($row = mysqli_fetch_array($result)) {
+                $tables[] = $row[0];
+            }
+
+            // Generate an HTML table to display the results
+            ?>
+            <table class="table table-sm">
+                <tr>
+                    <th>Table Name</th>
+                    <th>Number of Fields</th>
+                    <th>Number of Rows</th>
+                </tr>
+
+                <?php
+
+                foreach ($tables as $table) {
+                    // Count the number of fields and rows for each table
+                    $columns_result = mysqli_query($mysqli, "SHOW COLUMNS FROM `$table`");
+                    $columns = mysqli_num_rows($columns_result);
+
+                    $rows_result = mysqli_query($mysqli, "SELECT COUNT(*) FROM `$table`");
+                    $rows = mysqli_fetch_array($rows_result)[0];
+                    ?>
+
+                    <tr>
+                        <td><?php echo $table; ?></td>
+                        <td><?php echo $columns; ?></td>
+                        <td><?php echo $rows; ?></td>
+                    </tr>
+                <?php
+                }
+                ?>
+            </table>
+
             <hr>
 
             <h3>Versions</h3>
