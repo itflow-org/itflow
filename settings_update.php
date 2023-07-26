@@ -47,7 +47,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <br>
                     <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
                 <?php } else { ?>
-                    <h3 class="text-success">Congratulations!<br><small>You are on the latest version!</small><br><i class="fas fa-check"></i></h3>
+                    <h3 class="text-success">Congratulations!<br><i class="far fa-3x fa-smile-wink"></i><br><small>You are on the latest version!</small></h3>
                     <p class="text-secondary">Current Database Version:<br><strong><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
                 <?php }
             }
