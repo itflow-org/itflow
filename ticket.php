@@ -310,6 +310,9 @@ if (isset($_GET['ticket_id'])) {
                                             <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                         </div>
                                         <input class="form-control timepicker" id="time_worked" name="time" type="text" value="00:00:00" onchange="setTime()"/>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-dark" id="toggleTimer"><i class="fas fa-pause"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
