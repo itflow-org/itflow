@@ -111,6 +111,27 @@ if (isset($_POST['edit_document'])) {
 
 }
 
+if (isset($_POST['move_document'])) {
+
+    validateTechRole();
+
+    $document_id = intval($_POST['document_id']);
+    $client_id = intval($_POST['client_id']);
+    $folder = intval($_POST['folder']);
+
+    // Document edit query
+    mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder WHERE document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name moved document', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+
+
+    $_SESSION['alert_message'] = "Document moved";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['edit_document_template'])) {
 
     validateTechRole();

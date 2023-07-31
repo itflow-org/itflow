@@ -195,6 +195,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveDocumentModal<?php echo $document_id; ?>">
+                                                    <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?php echo $document_id; ?>">
@@ -207,6 +211,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </tr>
 
                             <?php
+
+                            require("client_document_move_modal.php");
 
                             }
 
