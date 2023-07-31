@@ -17,7 +17,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                 </div>
-                                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                                <input type="date" class="form-control" name="date" max="2999-12-31" required>
                             </div>
                         </div>
 
