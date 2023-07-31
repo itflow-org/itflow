@@ -22,7 +22,7 @@
                         <div class="col-3">
                             <div class="form-group">
                                 <label>Time worked</label>
-                                <input class="form-control timepicker" id="time_worked" name="time" type="time" step="1" value="<?php echo date_format($ticket_reply_time_worked, 'H:i:s') ?>"/>
+                                <input class="form-control timepicker" id="time_worked" name="time" type="text" value="<?php echo date_format($ticket_reply_time_worked, 'H:i:s') ?>"/>
                             </div>
                         </div>
                     <?php } ?>
