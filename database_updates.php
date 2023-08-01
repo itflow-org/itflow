@@ -1156,11 +1156,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.4'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.6.4') {
+    if (CURRENT_DATABASE_VERSION == '0.6.4') {
         //Insert queries here required to update to DB version 0.6.5
 
+        mysqli_query($mysqli, "CREATE TABLE `ticket_watchers` (
+            `watcher_id` int(11) NOT NULL AUTO_INCREMENT,
+            `watcher_name` varchar(255) NULL DEFAULT NULL,
+            `watcher_email` varchar(255) NOT NULL,
+            `watcher_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `watcher_ticket_id` int(11) NOT NULL,
+            PRIMARY KEY (`watcher_id`)
+        )");
+
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.5'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.5'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.6.5') {
+        //Insert queries here required to update to DB version 0.6.6
+
+        // Then, update the database to the next sequential version
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.6'");
     //}
 
 } else {

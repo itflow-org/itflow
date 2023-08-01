@@ -1420,6 +1420,23 @@ CREATE TABLE `ticket_views` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_watchers`
+--
+
+DROP TABLE IF EXISTS `ticket_watchers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_watchers` (
+  `watcher_id` int(11) NOT NULL AUTO_INCREMENT,
+  `watcher_name` varchar(255) DEFAULT NULL,
+  `watcher_email` varchar(255) NOT NULL,
+  `watcher_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `watcher_ticket_id` int(11) NOT NULL,
+  PRIMARY KEY (`watcher_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `tickets`
 --
 
@@ -1621,4 +1638,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-15 15:32:02
+-- Dump completed on 2023-08-01 13:03:12

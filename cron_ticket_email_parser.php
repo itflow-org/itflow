@@ -337,7 +337,8 @@ if ($emails) {
         $attachments = $parser->getAttachments();
 
         $message = $parser->getMessageBody('text');
-        //$message .= $parser->getMessageBody('htmlEmbedded');
+        // If below is enabled and up above is enabled text based emails get cut out 
+        //$message = $parser->getMessageBody('htmlEmbedded');
 
         // Check if we can identify a ticket number (in square brackets)
         if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
