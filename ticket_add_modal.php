@@ -119,6 +119,7 @@
                             <div class="tab-pane fade" id="pills-contacts">
 
                                 <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                                
                                 <div class="form-group">
                                     <label>Contact <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
@@ -158,6 +159,57 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <div class="form-group">
+                                    <label>Watchers <span class="text-danger">Work in Progress</span></label>
+                                    <div id="text-fields"></div>
+                                    <button class="btn btn-primary" onclick="addTextField()"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
+                                </div>
+
+                                <script>
+                                    function addTextField() {
+                                        var container = document.getElementById("text-fields");
+                                        var textFieldWrapper = document.createElement("div");
+                                        textFieldWrapper.className = "input-group mb-3";
+
+                                        var prependWrapper = document.createElement("div");
+                                        prependWrapper.className = "input-group-prepend";
+                                        var iconSpan = document.createElement("span");
+                                        iconSpan.className = "input-group-text";
+                                        iconSpan.innerHTML = "<i class='fa fa-fw fa-envelope'></i>";
+                                        prependWrapper.appendChild(iconSpan);
+
+                                        var textField = document.createElement("input");
+                                        textField.type = "email";
+                                        textField.className = "form-control";
+                                        textField.name = "watchers[]";
+
+                                        var removeButtonWrapper = document.createElement("div");
+                                        removeButtonWrapper.className = "input-group-append";
+
+                                        var removeButton = document.createElement("button");
+                                        removeButton.className = "btn btn-danger";
+                                        removeButton.type = "button";
+                                        removeButton.innerHTML = "<i class='fas fa-fw fa-minus'></i>";
+                                        removeButton.onclick = function() {
+                                            removeTextField(this);
+                                        };
+
+                                        removeButtonWrapper.appendChild(removeButton);
+                                        textFieldWrapper.appendChild(prependWrapper);
+                                        textFieldWrapper.appendChild(textField);
+                                        textFieldWrapper.appendChild(removeButtonWrapper);
+                                        container.appendChild(textFieldWrapper);
+                                    }
+
+                                    function removeTextField(button) {
+                                        var container = document.getElementById("text-fields");
+                                        var textFieldWrapper = button.parentNode.parentNode; // Since we added an extra wrapping div
+                                        container.removeChild(textFieldWrapper);
+                                    }
+                                </script>
+
+                            
                             </div>
 
                             <div class="tab-pane fade" id="pills-assets">
