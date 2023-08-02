@@ -163,7 +163,7 @@
                                 <div class="form-group">
                                     <label>Watchers <span class="text-danger">Work in Progress</span></label>
                                     <div id="text-fields"></div>
-                                    <button class="btn btn-primary" onclick="addTextField()"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
+                                    <button type="button" class="btn btn-primary" onclick="addTextField()"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
                                 </div>
 
                                 <script>
@@ -209,7 +209,6 @@
                                     }
                                 </script>
 
-                            
                             </div>
 
                             <div class="tab-pane fade" id="pills-assets">

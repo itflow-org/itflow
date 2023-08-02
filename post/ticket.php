@@ -34,6 +34,14 @@ if (isset($_POST['add_ticket'])) {
 
     $ticket_id = mysqli_insert_id($mysqli);
 
+    // Add Watchers
+    if (!empty($_POST['watchers'])) {
+        foreach($_POST['watchers'] as $watcher) {
+            $watcher_email = sanitizeInput($watcher);
+            mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+        }
+    }
+
     // E-mail client
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 

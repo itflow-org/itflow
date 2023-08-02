@@ -272,7 +272,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $id = mysqli_insert_id($mysqli);
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id`");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
 
         // E-mail client
         if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
