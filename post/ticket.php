@@ -321,11 +321,22 @@ if (isset($_POST['add_ticket_reply'])) {
 
             }
 
+            // Email Ticket Contact
             // Queue Mail
             mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
 
             // Get Email ID for reference
             $email_id = mysqli_insert_id($mysqli);
+
+            // Also Email all the watchers
+            $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+            $body    .= "<br><br>----------------------------------------<br>YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            while ($row = mysqli_fetch_array($sql_watchers)) {
+                $watcher_email = sanitizeInput($row['watcher_email']);
+
+                // Queue Mail
+                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+            }    
 
         }
     }
