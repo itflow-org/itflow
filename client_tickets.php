@@ -201,3 +201,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 require_once("ticket_add_modal.php");
 require_once("client_ticket_export_modal.php");
 require_once("footer.php");
+?>
+
+<script src="js/ticket_add_remove_watchers.js"></script>

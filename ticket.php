@@ -759,3 +759,4 @@ if ($ticket_status !== "Closed") { ?>
     <script src="js/ticket_button_respond_note.js"></script>
 <?php } ?>
 
+<script src="js/ticket_add_remove_watchers.js"></script>

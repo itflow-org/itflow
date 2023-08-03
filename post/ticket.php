@@ -108,6 +108,19 @@ if (isset($_POST['edit_ticket'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
+    // Add Watchers
+    if (!empty($_POST['watchers'])) {
+        
+        // Remove all watchers first
+        mysqli_query($mysqli,"DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+
+        //Add the Watchers
+        foreach($_POST['watchers'] as $watcher) {
+            $watcher_email = sanitizeInput($watcher);
+            mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+        }
+    }
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 

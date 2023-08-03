@@ -390,3 +390,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 <?php
 require_once("ticket_add_modal.php");
 require_once("footer.php");
+?>
+
+<script src="js/ticket_add_remove_watchers.js"></script>

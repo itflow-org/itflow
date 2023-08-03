@@ -137,7 +137,7 @@
                             <div class="form-group">
                                 <label>Watchers <span class="text-danger">Work in Progress</span></label>
 
-                                <div id="text-fields">
+                                <div class="text-fields">
                                     <?php
                                     $sql_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
                                     while ($row = mysqli_fetch_array($sql_watchers)) {
@@ -150,7 +150,7 @@
                                         </div>
                                         <input type="text" class="form-control" name="watchers[]" value="<?php echo $watcher_email; ?>">
                                         <div class="input-group-append">
-                                            <button type="button" class="btn btn-danger"><i class="fas fa-fw fa-plus"></i></button>
+                                            <button type="button" class="btn btn-danger" onclick="removeWatcher(this)"><i class="fas fa-fw fa-minus"></i></button>
                                         </div>
                                     </div>
                                     <?php
@@ -158,51 +158,8 @@
                                     ?>
                                 </div>
 
-                                <button class="btn btn-primary" type="button" onclick="addTextField()"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
+                                <button class="btn btn-primary" type="button" onclick="addWatcher(this)"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
                             </div>
-
-                            <script>
-                                function addTextField<?php echo $ticket_id; ?>() {
-                                    var container = document.getElementById("text-fields<?php echo $ticket_id; ?>");
-                                    var textFieldWrapper = document.createElement("div");
-                                    textFieldWrapper.className = "input-group mb-3";
-
-                                    var prependWrapper = document.createElement("div");
-                                    prependWrapper.className = "input-group-prepend";
-                                    var iconSpan = document.createElement("span");
-                                    iconSpan.className = "input-group-text";
-                                    iconSpan.innerHTML = "<i class='fa fa-fw fa-envelope'></i>";
-                                    prependWrapper.appendChild(iconSpan);
-
-                                    var textField = document.createElement("input");
-                                    textField.type = "email";
-                                    textField.className = "form-control";
-                                    textField.name = "watchers[]";
-
-                                    var removeButtonWrapper = document.createElement("div");
-                                    removeButtonWrapper.className = "input-group-append";
-
-                                    var removeButton = document.createElement("button");
-                                    removeButton.className = "btn btn-danger";
-                                    removeButton.type = "button";
-                                    removeButton.innerHTML = "<i class='fas fa-fw fa-minus'></i>";
-                                    removeButton.onclick = function() {
-                                        removeTextField(this);
-                                    };
-
-                                    removeButtonWrapper.appendChild(removeButton);
-                                    textFieldWrapper.appendChild(prependWrapper);
-                                    textFieldWrapper.appendChild(textField);
-                                    textFieldWrapper.appendChild(removeButtonWrapper);
-                                    container.appendChild(textFieldWrapper);
-                                }
-
-                                function removeTextField(button) {
-                                    var container = document.getElementById("text-fields");
-                                    var textFieldWrapper = button.parentNode.parentNode; // Since we added an extra wrapping div
-                                    container.removeChild(textFieldWrapper);
-                                }
-                            </script>
 
                         </div>
 
