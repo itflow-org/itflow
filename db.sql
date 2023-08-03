@@ -1430,7 +1430,6 @@ CREATE TABLE `ticket_watchers` (
   `watcher_id` int(11) NOT NULL AUTO_INCREMENT,
   `watcher_name` varchar(255) DEFAULT NULL,
   `watcher_email` varchar(255) NOT NULL,
-  `watcher_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `watcher_ticket_id` int(11) NOT NULL,
   PRIMARY KEY (`watcher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -1638,4 +1637,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-01 13:03:12
+-- Dump completed on 2023-08-03 18:07:23
