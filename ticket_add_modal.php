@@ -161,8 +161,8 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Watchers <span class="text-danger">Work in Progress</span></label>
-                                    <div class="text-fields"></div>
+                                    <label>Watchers</label>
+                                    <div class="watchers"></div>
                                     <button type="button" class="btn btn-primary" onclick="addWatcher(this)"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
                                 </div>
 

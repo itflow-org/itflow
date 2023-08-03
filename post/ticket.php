@@ -330,7 +330,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-            $body    .= "<br><br>----------------------------------------<br>YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            $body    .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
             while ($row = mysqli_fetch_array($sql_watchers)) {
                 $watcher_email = sanitizeInput($row['watcher_email']);
 

@@ -135,9 +135,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Watchers <span class="text-danger">Work in Progress</span></label>
+                                <label>Watchers</label>
 
-                                <div class="text-fields">
+                                <div class="watchers">
+                
                                     <?php
                                     $sql_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
                                     while ($row = mysqli_fetch_array($sql_watchers)) {
@@ -156,6 +157,7 @@
                                     <?php
                                     }
                                     ?>
+
                                 </div>
 
                                 <button class="btn btn-primary" type="button" onclick="addWatcher(this)"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>

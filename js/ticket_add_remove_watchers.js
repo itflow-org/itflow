@@ -14,6 +14,7 @@ function addWatcher(button) {
     textField.type = "email";
     textField.className = "form-control";
     textField.name = "watchers[]";
+    textField.placeholder = "Enter an email";
 
     var removeButtonWrapper = document.createElement("div");
     removeButtonWrapper.className = "input-group-append";
