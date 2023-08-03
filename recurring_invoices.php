@@ -15,7 +15,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON recurring_client_id = client_id
     LEFT JOIN categories ON recurring_category_id = category_id
     WHERE (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
-    AND DATE(recurring_last_sent) BETWEEN '$dtf' AND '$dtt'
+    AND DATE(recurring_next_date) BETWEEN '$dtf' AND '$dtt'
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
