@@ -617,8 +617,8 @@ function checkFileUpload($file, $allowed_extensions) {
         return false;
     }
 
-    // Check the size is under 20 MB
-    if ($size > 20 * 1024 * 1024) {
+    // Check the size is under 500 MB
+    if ($size > 500 * 1024 * 1024) {
         return false;
     }
 

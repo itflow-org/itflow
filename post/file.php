@@ -23,7 +23,7 @@ if (isset($_POST['add_file'])) {
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
 
-        if ($file_reference_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz'))) {
+        if ($file_reference_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz', 'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1'))) {
 
             $file_tmp_path = $_FILES['file']['tmp_name'];
 

@@ -22,7 +22,7 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .doc, .docx, .csv, .xls, .xlsx, .zip, .tar, .gz">
+                        <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1">
                     </div>
 
                 </div>

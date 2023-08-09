@@ -2,7 +2,7 @@
 
 require_once("inc_all_client.php");
 
-$sql_files_images = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG') ORDER BY file_name ASC");
+$sql_files_images = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG' OR file_ext LIKE 'webp' OR file_ext LIKE 'WEBP' ) ORDER BY file_name ASC");
 
 $sql_files_other = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'jpeg' AND file_ext NOT LIKE 'JPEG' AND file_ext NOT LIKE 'webp' AND file_ext NOT LIKE 'WEBP' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC");
 
@@ -72,14 +72,20 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
                             $file_icon = "file-pdf";
                         } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
                             $file_icon = "file-archive";
-                        } elseif ($file_ext == 'txt') {
+                        } elseif ($file_ext == 'txt' || $file_ext == 'md') {
                             $file_icon = "file-alt";
-                        } elseif ($file_ext == 'doc' || $file_ext == 'docx') {
+                        } elseif ($file_ext == 'msg') {
+                            $file_icon = "envelope";
+                        } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
                             $file_icon = "file-word";
                         } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
                             $file_icon = "file-excel";
+                        } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
+                            $file_icon = "file-powerpoint";
                         } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
                             $file_icon = "file-audio";
+                        } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
+                            $file_icon = "file-video";
                         } else {
                             $file_icon = "file";
                         }
