@@ -57,6 +57,17 @@ $sql_domains_expiring = mysqli_query(
     ORDER BY domain_expire DESC"
 );
 
+// Get Licenses Expiring
+$sql_licenses_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM software
+    WHERE software_client_id = $client_id
+    AND software_expire IS NOT NULL
+    AND software_archived_at IS NULL
+    AND software_expire < CURRENT_DATE + INTERVAL 30 DAY
+    ORDER BY software_expire DESC"
+);
+
 // Get Asset Warranties Expiring
 $sql_asset_warranties_expiring = mysqli_query(
     $mysqli,
@@ -189,6 +200,7 @@ $sql_asset_retire = mysqli_query(
         if (mysqli_num_rows($sql_domains_expiring) > 0
             || mysqli_num_rows($sql_asset_warranties_expiring) > 0
             || mysqli_num_rows($sql_asset_retire) > 0
+            || mysqli_num_rows($sql_licenses_expiring) > 0
         ) { ?>
 
             <div class="col-md-4">
@@ -247,6 +259,24 @@ $sql_asset_retire = mysqli_query(
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
                                 <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
                                 <span class="text-warning">-- <?php echo $asset_install_date; ?></span>
+                            </p>
+
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_licenses_expiring)) {
+                            $software_id = intval($row['software_id']);
+                            $software_name = nullable_htmlentities($row['software_name']);
+                            $software_expire = nullable_htmlentities($row['software_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
+                                <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
+                                <span class="text-warning">-- <?php echo $software_expire; ?></span>
                             </p>
 
                             <?php
