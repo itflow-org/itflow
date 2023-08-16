@@ -176,7 +176,7 @@ if(isset($_POST["import_client_logins_csv"])){
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_username = '$username', login_password = '$password', login_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$url', login_username = '$username', login_password = '$password', login_client_id = $client_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
