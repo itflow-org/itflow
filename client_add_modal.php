@@ -298,7 +298,13 @@
                                     $tag_id_select = intval($row['tag_id']);
                                     $tag_name_select = nullable_htmlentities($row['tag_name']);
                                     $tag_color_select = nullable_htmlentities($row['tag_color']);
+                                    if (empty($tag_color_select)) {
+                                        $tag_color_select = "dark";
+                                    }
                                     $tag_icon_select = nullable_htmlentities($row['tag_icon']);
+                                    if (empty($tag_icon_select)) {
+                                        $tag_icon_select = "tag";
+                                    }
 
                                     ?>
                                     <li class="list-group-item">
@@ -306,7 +312,7 @@
                                             <input class="custom-control-input" type="checkbox" id="tagCheckbox<?php echo $tag_id_select; ?>" name="tags[]" value="<?php echo $tag_id_select; ?>">
                                             <label for="tagCheckbox<?php echo $tag_id_select; ?>" class="custom-control-label">
                                             <span class="badge bg-<?php echo $tag_color_select; ?>">
-                                                <?php echo "<i class='fa fw fa-$tag_icon_select'></i>"; ?> <?php echo $tag_name_select; ?>
+                                                <?php echo "<i class='fa fw fa-$tag_icon_select mr-2'></i>"; ?><?php echo $tag_name_select; ?>
                                             </span>
                                             </label>
                                         </div>

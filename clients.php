@@ -153,18 +153,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $client_tag_id = intval($row['tag_id']);
                             $client_tag_name = nullable_htmlentities($row['tag_name']);
                             $client_tag_color = nullable_htmlentities($row['tag_color']);
+                            if (empty($client_tag_color)) {
+                                $client_tag_color = "dark";
+                            }
                             $client_tag_icon = nullable_htmlentities($row['tag_icon']);
                             if (empty($client_tag_icon)) {
                                 $client_tag_icon = "tag";
                             }
 
                             $client_tag_id_array[] = $client_tag_id;
-                            if (empty($client_tag_color)) {
-                                $client_tag_color = "dark";
-                            }
-                            if (empty($client_tag_icon)) {
-                                $client_tag_icon = "tag";
-                            }
                             $client_tag_name_display_array[] = "<a href='clients.php?q=$client_tag_name'><span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a> ";
                         }
                         $client_tags_display = implode('', $client_tag_name_display_array);
