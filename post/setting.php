@@ -223,6 +223,7 @@ if (isset($_POST['edit_default_settings'])) {
 
     validateAdminRole();
 
+    $start_page = sanitizeInput($_POST['start_page']);
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
     $payment_method = sanitizeInput($_POST['payment_method']);
@@ -232,7 +233,7 @@ if (isset($_POST['edit_default_settings'])) {
     $calendar = intval($_POST['calendar']);
     $net_terms = intval($_POST['net_terms']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_default_expense_account = $expense_account, config_default_payment_account = $payment_account, config_default_payment_method = '$payment_method', config_default_expense_payment_method = '$expense_payment_method', config_default_transfer_from_account = $transfer_from_account, config_default_transfer_to_account = $transfer_to_account, config_default_calendar = $calendar, config_default_net_terms = $net_terms WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_start_page = '$start_page', config_default_expense_account = $expense_account, config_default_payment_account = $payment_account, config_default_payment_method = '$payment_method', config_default_expense_payment_method = '$expense_payment_method', config_default_transfer_from_account = $transfer_from_account, config_default_transfer_to_account = $transfer_to_account, config_default_calendar = $calendar, config_default_net_terms = $net_terms WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified default settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

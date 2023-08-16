@@ -10,6 +10,16 @@ require_once("inc_all_settings.php"); ?>
             <form action="post.php" method="post" autocomplete="off">
 
                 <div class="form-group">
+                    <label>Start Page</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="start_page" value="<?php echo nullable_htmlentities($config_start_page); ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Transfer From Account</label>
                     <div class="input-group">
                         <div class="input-group-prepend">

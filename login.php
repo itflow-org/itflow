@@ -36,6 +36,7 @@ $row = mysqli_fetch_array($sql_settings);
 // Company info
 $company_name = $row['company_name'];
 $company_logo = $row['company_logo'];
+$config_start_page = nullable_htmlentities($row['config_start_page']);
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
@@ -165,13 +166,7 @@ if (isset($_POST['login'])) {
                 }
             }
 
-            // Show start page/dashboard depending on role
-            if ($row['user_role'] == 2) {
-                header("Location: dashboard_technical.php");
-            } else {
-                header("Location: dashboard_financial.php");
-            }
-
+            header("Location: $config_start_page");
 
         } else {
 
