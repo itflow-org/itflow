@@ -18,27 +18,7 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-$colors_used_array = [];
-
-if ($num_rows > 0) {
-    //Colors Used
-    $sql_colors_used = mysqli_query(
-        $mysqli,
-        "SELECT tag_color FROM tags
-        WHERE tag_archived_at IS NULL"
-    );
-
-    while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
-        $colors_used_array[] = $color_used_row['tag_color'];
-    }
-    $colors_diff = array_diff($colors_array, $colors_used_array);
-
-} else {
-    $colors_diff = $colors_array;
-}
-
 ?>
-
 
     <div class="card card-dark">
         <div class="card-header py-2">
@@ -81,7 +61,7 @@ if ($num_rows > 0) {
                     while ($row = mysqli_fetch_array($sql)) {
                         $tag_id = intval($row['tag_id']);
                         $tag_name = nullable_htmlentities($row['tag_name']);
-                        $tag_type = nullable_htmlentities($row['tag_type']);
+                        $tag_type = intval($row['tag_type']);
                         $tag_color = nullable_htmlentities($row['tag_color']);
                         $tag_icon = nullable_htmlentities($row['tag_icon']);
 

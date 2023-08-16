@@ -34,7 +34,7 @@
 
             <?php
             
-            foreach($colors_diff as $color) {
+            foreach($colors_array as $color) {
             
             ?>
             

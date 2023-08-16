@@ -42,7 +42,7 @@
 
             <?php 
 
-            foreach($colors_diff as $color) { 
+            foreach($colors_array as $color) { 
             ?>
             <div class="col-3 mb-3">
               <div class="form-check">
