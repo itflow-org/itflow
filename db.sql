@@ -935,6 +935,37 @@ CREATE TABLE `recurring` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `recurring_expenses`
+--
+
+DROP TABLE IF EXISTS `recurring_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_expenses` (
+  `recurring_expense_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_expense_frequency` tinyint(1) NOT NULL,
+  `recurring_expense_day` tinyint(4) DEFAULT NULL,
+  `recurring_expense_month` tinyint(4) DEFAULT NULL,
+  `recurring_expense_last_sent` date DEFAULT NULL,
+  `recurring_expense_next_date` date NOT NULL,
+  `recurring_expense_status` tinyint(1) NOT NULL DEFAULT 1,
+  `recurring_expense_description` text DEFAULT NULL,
+  `recurring_expense_amount` decimal(15,2) NOT NULL,
+  `recurring_expense_payment_method` varchar(200) DEFAULT NULL,
+  `recurring_expense_payment_reference` varchar(200) DEFAULT NULL,
+  `recurring_expense_currency_code` varchar(200) NOT NULL,
+  `recurring_expense_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `recurring_expense_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `recurring_expense_archived_at` datetime DEFAULT NULL,
+  `recurring_expense_vendor_id` int(11) NOT NULL,
+  `recurring_expense_client_id` int(11) NOT NULL DEFAULT 0,
+  `recurring_expense_category_id` int(11) NOT NULL,
+  `recurring_expense_account_id` int(11) NOT NULL,
+  PRIMARY KEY (`recurring_expense_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `revenues`
 --
 
@@ -1638,4 +1669,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-16 13:24:12
+-- Dump completed on 2023-08-16 17:56:01

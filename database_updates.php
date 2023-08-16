@@ -1187,11 +1187,39 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.7'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.6.7') {
-        //Insert queries here required to update to DB version 0.6.8
+    if (CURRENT_DATABASE_VERSION == '0.6.7') {
+        
+        mysqli_query($mysqli, "CREATE TABLE `recurring_expenses` (
+            `recurring_expense_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `recurring_expense_frequency` TINYINT(1) NOT NULL,
+            `recurring_expense_day` TINYINT DEFAULT NULL,
+            `recurring_expense_month` TINYINT DEFAULT NULL,
+            `recurring_expense_last_sent` DATE NULL DEFAULT NULL,
+            `recurring_expense_next_date` DATE NOT NULL,
+            `recurring_expense_status` TINYINT(1) NOT NULL DEFAULT 1,
+            `recurring_expense_description` TEXT DEFAULT NULL,
+            `recurring_expense_amount` DECIMAL(15,2) NOT NULL,
+            `recurring_expense_payment_method` VARCHAR(200) DEFAULT NULL,
+            `recurring_expense_payment_reference` VARCHAR(200) DEFAULT NULL,
+            `recurring_expense_currency_code` VARCHAR(200) NOT NULL,
+            `recurring_expense_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `recurring_expense_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `recurring_expense_archived_at` DATETIME DEFAULT NULL,
+            `recurring_expense_vendor_id` INT(11) NOT NULL,
+            `recurring_expense_client_id` INT(11) NOT NULL DEFAULT 0,
+            `recurring_expense_category_id` INT(11) NOT NULL,
+            `recurring_expense_account_id` INT(11) NOT NULL,
+            PRIMARY KEY (`recurring_expense_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.8'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.6.8') {
+        //Insert queries here required to update to DB version 0.6.9
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.8'");
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.9'");
     //}
 
 } else {
