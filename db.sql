@@ -1110,6 +1110,7 @@ DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_current_database_version` varchar(10) NOT NULL,
+  `config_start_page` varchar(200) DEFAULT 'dashboard.php',
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
   `config_smtp_encryption` varchar(200) DEFAULT NULL,
@@ -1637,4 +1638,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-03 18:07:23
+-- Dump completed on 2023-08-16 13:24:12
