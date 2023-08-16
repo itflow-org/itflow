@@ -141,7 +141,8 @@ if (isset($_GET['ticket_id'])) {
         $row = mysqli_fetch_array($ticket_total_reply_time);
         $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
 
-        //Client Tags
+        // Client Tags
+
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
         $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tag_tag_id = tags.tag_id WHERE client_tags.client_tag_client_id = $client_id");
@@ -150,13 +151,16 @@ if (isset($_GET['ticket_id'])) {
             $client_tag_id = intval($row['tag_id']);
             $client_tag_name = nullable_htmlentities($row['tag_name']);
             $client_tag_color = nullable_htmlentities($row['tag_color']);
+            if (empty($client_tag_color)) {
+                $client_tag_color = "dark";
+            }
             $client_tag_icon = nullable_htmlentities($row['tag_icon']);
             if (empty($client_tag_icon)) {
                 $client_tag_icon = "tag";
             }
 
             $client_tag_id_array[] = $client_tag_id;
-            $client_tag_name_display_array[] = "<span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon'></i> $client_tag_name</span>";
+            $client_tag_name_display_array[] = "<a href='clients.php?q=$client_tag_name'><span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a> ";
         }
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
