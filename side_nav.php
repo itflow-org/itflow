@@ -84,15 +84,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-credit-card"></i>
-                            <p>Revenues</p>
+                        <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-sync-alt"></i>
+                            <p>Rec Invoices</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-sync-alt"></i>
-                            <p>Recurring</p>
+                        <a href="revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            <p>Revenues</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -123,6 +123,12 @@
                         <a href="expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Expenses</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-clock"></i>
+                            <p>Rec Expenses</p>
                         </a>
                     </li>
                     <li class="nav-item">
