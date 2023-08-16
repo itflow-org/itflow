@@ -18,9 +18,9 @@ if ($total_found_rows > 10) {
     <hr>
 
     <div class="row">
-        <div class="col mb-3">
+        <div class="col-sm mb-3">
             <form action="post.php" method="post">
-                <select onchange="this.form.submit()" class="input-form select2" name="change_records_per_page">
+                <select onchange="this.form.submit()" class="form-control select2 col-sm-2" name="change_records_per_page">
                     <option <?php if ($_SESSION['records_per_page'] == 5) { echo "selected"; } ?> >5</option>
                     <option <?php if ($_SESSION['records_per_page'] == 10) { echo "selected"; } ?> >10</option>
                     <option <?php if ($_SESSION['records_per_page'] == 20) { echo "selected"; } ?> >20</option>
@@ -30,12 +30,12 @@ if ($total_found_rows > 10) {
                 </select>
             </form>
         </div>
-        <div class="col mb-3">
+        <div class="col-sm mb-3">
             <p class="text-center mt-2"><?php echo $total_found_rows; ?></p>
         </div>
-        <div class="col mb-3">
+        <div class="col-sm mb-3">
 
-            <ul class="pagination justify-content-end">
+            <ul class="pagination justify-content-sm-end">
 
                 <?php
 
