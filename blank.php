@@ -13,7 +13,14 @@
 <hr>
 <p>This is a great starting point for new custom pages.</p>
 
-<?php echo CURRENT_DATABASE_VERSION; ?>
+<?php
+
+$start_date = date('Y') . "-10-10";
+
+echo "<H1>$start_date</H1>";
+
+
+?>
 <br>
 
 <?php echo randomString(100); ?>
@@ -30,10 +37,6 @@ echo '</select>';
 ?>
 </form>
 
-
-<?php
-echo date('Y-m-d');
-?>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 

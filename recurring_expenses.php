@@ -104,9 +104,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $recurring_expense_id = intval($row['recurring_expense_id']);
                         $recurring_expense_frequency = intval($row['recurring_expense_frequency']);
+                        if($recurring_expense_frequency == 1) {
+                            $recurring_expense_frequency_display = "Monthly";
+                        } else {
+                            $recurring_expense_frequency_display = "Annually";
+                        }
                         $recurring_expense_day = intval($row['recurring_expense_day']);
                         $recurring_expense_month = intval($row['recurring_expense_month']);
                         $recurring_expense_last_sent = nullable_htmlentities($row['recurring_expense_last_sent']);
+                        if(empty($client_name)) {
+                            $recurring_expense_last_sent_display = "-";
+                        } else {
+                            $recurring_expense_last_sent_display = $recurring_expense_last_sent;
+                        }
                         $recurring_expense_next_date = nullable_htmlentities($row['recurring_expense_next_date']);
                         $recurring_expense_status = intval($row['recurring_expense_status']);
                         $recurring_expense_description = nullable_htmlentities($row['recurring_expense_description']);
@@ -137,6 +147,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $category_name; ?></td>
                             <td><?php echo truncate($recurring_expense_description, 50); ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code); ?></td>
+                            <td><?php echo $recurring_expense_frequency_display; ?></td>
+                            <td><?php echo $recurring_expense_last_sent_display; ?></td>
                             <td><?php echo $account_name; ?></td>
                             <td><?php echo $client_name_display; ?></td>
                             <td>

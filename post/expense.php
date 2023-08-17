@@ -98,7 +98,7 @@ if (isset($_GET['delete_expense'])) {
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$epense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$expense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Expense deleted";
 
@@ -159,4 +159,76 @@ if (isset($_POST['export_expenses_csv'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Export', log_description = '$session_name exported expenses to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
 
     exit;
+}
+
+if (isset($_POST['create_recurring_expense'])) {
+
+    $frequency = intval($_POST['frequency']);
+    $day = intval($_POST['day']);
+    $month = intval($_POST['month']);
+    $amount = floatval($_POST['amount']);
+    $account = intval($_POST['account']);
+    $vendor = intval($_POST['vendor']);
+    $client = intval($_POST['client']);
+    $category = intval($_POST['category']);
+    $description = sanitizeInput($_POST['description']);
+    $reference = sanitizeInput($_POST['reference']);
+
+    $start_date = date('Y') . "-$month-$day";
+
+    mysqli_query($mysqli,"INSERT INTO recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_payment_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account");
+
+    $recurring_expense_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Create', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Recurring Expense added";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_recurring_expense'])) {
+
+    $recurring_expense_id = intval($_POST['recurring_expense_id']);
+    $frequency = intval($_POST['frequency']);
+    $day = intval($_POST['day']);
+    $month = intval($_POST['month']);
+    $amount = floatval($_POST['amount']);
+    $account = intval($_POST['account']);
+    $vendor = intval($_POST['vendor']);
+    $client = intval($_POST['client']);
+    $category = intval($_POST['category']);
+    $description = sanitizeInput($_POST['description']);
+    $reference = sanitizeInput($_POST['reference']);
+
+    $start_date = date('Y') . "-$month-$day";
+
+    mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_payment_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
+
+    $recurring_expense_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Edit', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Recurring Expense edited";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['delete_recurring_expense'])) {
+    $recurring_expense_id = intval($_GET['delete_recurring_expense']);
+
+    mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Delete', log_description = '$recurring_expense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Recurring Expense deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
