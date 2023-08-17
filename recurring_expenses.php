@@ -16,7 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN vendors ON recurring_expense_vendor_id = vendor_id
     LEFT JOIN accounts ON recurring_expense_account_id = account_id
     LEFT JOIN clients ON recurring_expense_client_id = client_id
-    WHERE DATE(recurring_expense_next_date) BETWEEN '$dtf' AND '$dtt'
+    WHERE DATE(recurring_expense_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR recurring_expense_description LIKE '%$q%' OR recurring_expense_amount LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $recurring_expense_day = intval($row['recurring_expense_day']);
                         $recurring_expense_month = intval($row['recurring_expense_month']);
                         $recurring_expense_last_sent = nullable_htmlentities($row['recurring_expense_last_sent']);
-                        if(empty($client_name)) {
+                        if(empty($recurring_expense_last_sent)) {
                             $recurring_expense_last_sent_display = "-";
                         } else {
                             $recurring_expense_last_sent_display = $recurring_expense_last_sent;

@@ -1215,11 +1215,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.8'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.6.8') {
+    if (CURRENT_DATABASE_VERSION == '0.6.8') {
         //Insert queries here required to update to DB version 0.6.9
+        mysqli_query($mysqli, "ALTER TABLE `recurring_expenses` CHANGE `recurring_expense_payment_reference` `recurring_expense_reference` VARCHAR(255) DEFAULT NULL");
 
         // Then, update the database to the next sequential version
-        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.9'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.9'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.6.9') {
+        //Insert queries here required to update to DB version 0.7.0
+
+        // Then, update the database to the next sequential version
+        //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.0'");
     //}
 
 } else {

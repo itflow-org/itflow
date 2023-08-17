@@ -652,6 +652,49 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 // Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created invoices from recurring invoices and sent emails out'");
 
+// Recurring Expenses
+// Loop through all recurring expenses that match today's date and is active
+$sql_recurring_expenses = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_next_date = CURDATE() AND recurring_expense_status = 1");
+
+while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
+    $recurring_expense_id = intval($row['recurring_expense_id']);
+    $recurring_expense_frequency = intval($row['recurring_expense_frequency']);
+    $recurring_expense_month = intval($row['recurring_expense_month']);
+    $recurring_expense_day = intval($row['recurring_expense_day']);
+    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    $recurring_expense_amount = floatval($row['recurring_expense_amount']);
+    $recurring_expense_payment_method = sanitizeInput($row['recurring_expense_payment_method']);
+    $recurring_expense_reference = sanitizeInput($row['recurring_expense_reference']);
+    $recurring_expense_currency_code = sanitizeInput($row['recurring_expense_currency_code']);
+    $recurring_expense_vendor_id = intval($row['recurring_expense_vendor_id']);
+    $recurring_expense_category_id = intval($row['recurring_expense_category_id']);
+    $recurring_expense_account_id = intval($row['recurring_expense_account_id']);
+    $recurring_expense_client_id = intval($row['recurring_expense_client_id']);
+
+    // Calculate next billing date based on frequency
+    if ($recurring_expense_frequency == 1) { // Monthly
+        $next_date_query = "DATE_ADD(CURDATE(), INTERVAL 1 MONTH)";
+    } elseif ($recurring_expense_frequency == 2) { // Yearly
+        $next_date_query = "DATE(CONCAT(YEAR(CURDATE()) + 1, '-', $recurring_expense_month, '-', $recurring_expense_day))";
+    } else {
+        // Handle unexpected frequency values. For now, just use current date.
+        $next_date_query = "CURDATE()";
+    }
+
+    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = CURDATE(), expense_amount = $recurring_expense_amount, expense_currency_code = '$recurring_expense_currency_code', expense_account_id = $recurring_expense_account_id, expense_vendor_id = $recurring_expense_vendor_id, expense_client_id = $recurring_expense_client_id, expense_category_id = $recurring_expense_category_id, expense_description = '$recurring_expense_description', expense_reference = '$recurring_expense_reference'");
+
+   $expense_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Expense Created', notification = 'Expense $recurring_expense_description created from recurring expenses', notification_client_id = $recurring_expense_client_id, notification_entity_id = $expense_id");
+
+    // Update recurring dates using calculated next billing date
+
+    mysqli_query($mysqli, "UPDATE recurring_expenses SET recurring_expense_last_sent = CURDATE(), recurring_expense_next_date = $next_date_query WHERE recurring_expense_id = $recurring_expense_id");
+
+   
+} //End Recurring Invoices Loop
+// Logging
+mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created expenses from recurring expenses'");
 
 // TELEMETRY
 

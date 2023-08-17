@@ -176,7 +176,7 @@ if (isset($_POST['create_recurring_expense'])) {
 
     $start_date = date('Y') . "-$month-$day";
 
-    mysqli_query($mysqli,"INSERT INTO recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_payment_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account");
+    mysqli_query($mysqli,"INSERT INTO recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account");
 
     $recurring_expense_id = mysqli_insert_id($mysqli);
 
@@ -205,7 +205,7 @@ if (isset($_POST['edit_recurring_expense'])) {
 
     $start_date = date('Y') . "-$month-$day";
 
-    mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_payment_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
+    mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
 
     $recurring_expense_id = mysqli_insert_id($mysqli);
 

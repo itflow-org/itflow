@@ -952,7 +952,7 @@ CREATE TABLE `recurring_expenses` (
   `recurring_expense_description` text DEFAULT NULL,
   `recurring_expense_amount` decimal(15,2) NOT NULL,
   `recurring_expense_payment_method` varchar(200) DEFAULT NULL,
-  `recurring_expense_payment_reference` varchar(200) DEFAULT NULL,
+  `recurring_expense_reference` varchar(255) DEFAULT NULL,
   `recurring_expense_currency_code` varchar(200) NOT NULL,
   `recurring_expense_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `recurring_expense_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1669,4 +1669,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-16 17:56:01
+-- Dump completed on 2023-08-17 16:03:19
