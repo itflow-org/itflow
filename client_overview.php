@@ -6,7 +6,7 @@ $sql_recent_activities = mysqli_query(
     $mysqli,
     "SELECT * FROM logs
     WHERE log_client_id = $client_id
-    ORDER BY log_created_at DESC LIMIT 8"
+    ORDER BY log_created_at DESC LIMIT 10"
 );
 
 $sql_important_contacts = mysqli_query(
@@ -41,7 +41,7 @@ $sql_stale_tickets = mysqli_query(
     $mysqli,
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-    AND ticket_created_at < CURRENT_DATE - INTERVAL 14 DAY
+    AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
     AND ticket_status != 'Closed'
     ORDER BY ticket_created_at DESC"
 );
@@ -53,7 +53,7 @@ $sql_domains_expiring = mysqli_query(
     WHERE domain_client_id = $client_id
     AND domain_expire IS NOT NULL
     AND domain_archived_at IS NULL
-    AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
+    AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
     ORDER BY domain_expire DESC"
 );
 
@@ -64,7 +64,7 @@ $sql_licenses_expiring = mysqli_query(
     WHERE software_client_id = $client_id
     AND software_expire IS NOT NULL
     AND software_archived_at IS NULL
-    AND software_expire < CURRENT_DATE + INTERVAL 30 DAY
+    AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
     ORDER BY software_expire DESC"
 );
 
@@ -117,7 +117,7 @@ $sql_asset_retire = mysqli_query(
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities</small></h5>
+                        <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
                     </div>
                     <div class="card-body p-1">
 
@@ -207,7 +207,7 @@ $sql_asset_retire = mysqli_query(
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
+                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations <small>(Within 90 Days)</small></h5></h5>
                     </div>
                     <div class="card-body p-1">
 
@@ -297,7 +297,7 @@ $sql_asset_retire = mysqli_query(
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(14d)</small></h5>
+                        <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(Not updated within 3 days)</small></h5>
                     </div>
                     <div class="card-body p-1">
 
