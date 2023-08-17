@@ -16,11 +16,11 @@ unset($get_copy['order']);
 // Paging
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
-    $record_from = (($page)-1)*$_SESSION['records_per_page'];
-    $record_to = $_SESSION['records_per_page'];
+    $record_from = (($page)-1)*$user_config_records_per_page;
+    $record_to = $user_config_records_per_page;
 } else {
     $record_from = 0;
-    $record_to = $_SESSION['records_per_page'];
+    $record_to = $user_config_records_per_page;
     $page = 1;
 }
 

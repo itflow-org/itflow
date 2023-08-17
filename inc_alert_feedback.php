@@ -38,9 +38,4 @@ if (!empty($_SESSION['alert_message'])) {
 
 }
 
-//Set Records Per Page
-if (empty($_SESSION['records_per_page'])) {
-    $_SESSION['records_per_page'] = 10;
-}
-
 ?>

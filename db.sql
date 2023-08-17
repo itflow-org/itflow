@@ -1557,6 +1557,7 @@ DROP TABLE IF EXISTS `user_settings`;
 CREATE TABLE `user_settings` (
   `user_id` int(11) NOT NULL,
   `user_role` int(11) NOT NULL,
+  `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1669,4 +1670,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-17 16:03:19
+-- Dump completed on 2023-08-17 19:41:13

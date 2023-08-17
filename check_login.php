@@ -42,6 +42,7 @@ if ($session_user_role == 3) {
 } else {
     $session_user_role_display = "Accountant";
 }
+$user_config_records_per_page = intval($row['user_config_records_per_page']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
