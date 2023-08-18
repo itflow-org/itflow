@@ -285,7 +285,7 @@ if (isset($_GET['share_generate_link'])) {
         $body = "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive encrypted link which will expire in <strong>$item_expires</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. The sender will receive a notification when the link is viewed. Please click the link below to view your shared secret<br><br><strong><a href='$url'>Click Here</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
+            $config_mail_from_email, $config_mail_from_name,
             $item_email, $item_email,
             $subject, $body);
 

@@ -167,7 +167,7 @@ require_once("inc_all_settings.php"); ?>
         </div>
     </div>
 
-    <?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
+    <?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
@@ -187,7 +187,7 @@ require_once("inc_all_settings.php"); ?>
 
     <?php } ?>
 
-    <?php if (!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)) { ?>
+    <?php if (!empty($config_imap_username) && !empty($config_imap_password) && !empty($config_imap_host) && !empty($config_imap_port)) { ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
