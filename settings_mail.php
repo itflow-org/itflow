@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>Mail Settings</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>SMTP Mail Settings</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -87,6 +87,19 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
+                <button type="submit" name="edit_mail_smtp_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="card card-dark">
+        <div class="card-header py-3">
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>IMAP Mail Settings</h3>
+        </div>
+        <div class="card-body">
+            <form action="post.php" method="post" autocomplete="off">
+
                 <div class="form-group">
                     <label>IMAP Host</label>
                     <div class="input-group">
@@ -148,13 +161,13 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <button type="submit" name="edit_mail_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+                <button type="submit" name="edit_mail_imap_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>
         </div>
     </div>
 
-<?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
+    <?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
@@ -172,9 +185,9 @@ require_once("inc_all_settings.php"); ?>
         </div>
     </div>
 
-<?php } ?>
+    <?php } ?>
 
-<?php if (!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)) { ?>
+    <?php if (!empty($config_smtp_username) && !empty($config_smtp_password) && !empty($config_imap_host) && !empty($config_imap_port)) { ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
@@ -189,6 +202,6 @@ require_once("inc_all_settings.php"); ?>
         </div>
     </div>
 
-<?php } ?>
+    <?php } ?>
 
 <?php require_once("footer.php");

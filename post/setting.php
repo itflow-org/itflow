@@ -50,7 +50,7 @@ if (isset($_POST['edit_company'])) {
 
 }
 
-if (isset($_POST['edit_mail_settings'])) {
+if (isset($_POST['edit_mail_smtp_settings'])) {
 
     validateAdminRole();
 
@@ -61,13 +61,8 @@ if (isset($_POST['edit_mail_settings'])) {
     $config_smtp_password = sanitizeInput($_POST['config_smtp_password']);
     $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
     $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
-    $config_imap_host = sanitizeInput($_POST['config_imap_host']);
-    $config_imap_username = sanitizeInput($_POST['config_imap_username']);
-    $config_imap_password = sanitizeInput($_POST['config_imap_password']);
-    $config_imap_port = intval($_POST['config_imap_port']);
-    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption', config_imap_username = '$config_imap_username', config_imap_password = '$config_imap_password' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = 1");
 
 
     //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
@@ -96,9 +91,31 @@ if (isset($_POST['edit_mail_settings'])) {
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified SMTP mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Mail Settings updated";
+    $_SESSION['alert_message'] = "SMTP Mail Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_mail_imap_settings'])) {
+
+    validateAdminRole();
+
+    $config_imap_host = sanitizeInput($_POST['config_imap_host']);
+    $config_imap_username = sanitizeInput($_POST['config_imap_username']);
+    $config_imap_password = sanitizeInput($_POST['config_imap_password']);
+    $config_imap_port = intval($_POST['config_imap_port']);
+    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption', config_imap_username = '$config_imap_username', config_imap_password = '$config_imap_password' WHERE company_id = 1");
+
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified IMAP mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "IMAP Mail Settings updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
