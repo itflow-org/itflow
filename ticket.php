@@ -476,7 +476,7 @@ if (isset($_GET['ticket_id'])) {
                         <div>
                             <h4 class="text-secondary">Contact</h4>
                             <span class="">
- 							    <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-dark"><strong><?php echo strtoupper($contact_name); ?></strong></a>
+ 							    <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-dark"><strong><?php echo $contact_name; ?></strong></a>
 							</span>
 
                             <span class="ml-1">
