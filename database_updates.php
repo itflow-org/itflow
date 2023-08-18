@@ -1230,6 +1230,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.0'");
 	}
 
+	if (CURRENT_DATABASE_VERSION == '0.7.0') {
+		mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_login_message` TEXT DEFAULT NULL AFTER `config_client_portal_enable`");
+
+		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.1'");
+	}
+
 	//if (CURRENT_DATABASE_VERSION == '0.7.0') {
 		//Insert queries here required to update to DB version 0.7.1
 

@@ -1199,6 +1199,7 @@ CREATE TABLE `settings` (
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
   `config_client_portal_enable` tinyint(1) NOT NULL DEFAULT 1,
+  `config_login_message` text DEFAULT NULL,
   `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_key_secret` varchar(255) DEFAULT NULL,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
@@ -1670,4 +1671,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-17 19:41:13
+-- Dump completed on 2023-08-18 15:07:08
