@@ -59,6 +59,7 @@ $item_expire = nullable_htmlentities($row['item_expire_at']);
 $client_id = intval($row['item_client_id']);
 
 if ($item_type == "Document") {
+
     $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id LIMIT 1");
     $doc_row = mysqli_fetch_array($doc_sql);
 
@@ -70,7 +71,7 @@ if ($item_type == "Document") {
 
     $doc_title = nullable_htmlentities($doc_row['document_name']);
     $doc_title_escaped = sanitizeInput($doc_row['document_name']);
-    $doc_content = $purifier->purify($row['document_content']);
+    $doc_content = $purifier->purify($doc_row['document_content']);
 
     echo "<h3>A document has been shared with you</h3>";
     if (!empty($item_note)) {
