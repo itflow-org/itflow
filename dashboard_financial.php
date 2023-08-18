@@ -77,17 +77,25 @@ $sql_latest_expenses = mysqli_query(
     ORDER BY expense_id DESC LIMIT 5"
 );
 
-//Get Yearly Recurring Total
+//Get Yearly Recurring Income Total
 $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND YEAR(recurring_created_at) <= $year");
 $row = mysqli_fetch_array($sql_recurring_yearly_total);
 $recurring_yearly_total = floatval($row['recurring_yearly_total']);
 
-//Get Monthly Recurring Total
+//Get Monthly Recurring Income Total
 $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND YEAR(recurring_created_at) <= $year");
 $row = mysqli_fetch_array($sql_recurring_monthly_total);
 $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
 
+//Get Yearly Recurring Expenses Total
+$sql_recurring_expense_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_yearly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 2 AND YEAR(recurring_expense_created_at) <= $year");
+$row = mysqli_fetch_array($sql_recurring_expense_yearly_total);
+$recurring_expense_yearly_total = floatval($row['recurring_expense_yearly_total']);
 
+//Get Monthly Recurring Expenses Total
+$sql_recurring_expense_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_monthly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 1 AND YEAR(recurring_expense_created_at) <= $year");
+$row = mysqli_fetch_array($sql_recurring_expense_monthly_total);
+$recurring_expense_monthly_total = floatval($row['recurring_expense_monthly_total']) + ($recurring_expense_yearly_total / 12);
 
 
 //Get Total Miles Driven
@@ -175,10 +183,24 @@ $vendors_added = intval($row['vendors_added']);
         <div class="small-box bg-info">
             <div class="inner">
                 <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?></h3>
-                <p>Monthly Recurring</p>
+                <p>Monthly Recurring Income</p>
             </div>
             <div class="icon">
                 <i class="fa fa-sync-alt"></i>
+            </div>
+        </div>
+    </div>
+    <!-- ./col -->
+
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <!-- small box -->
+        <div class="small-box bg-pink">
+            <div class="inner">
+                <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?></h3>
+                <p>Monthly Recurring Expense</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-clock"></i>
             </div>
         </div>
     </div>
