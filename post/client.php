@@ -304,7 +304,7 @@ if (isset($_POST['export_clients_csv'])) {
     ");
 
     if ($sql->num_rows > 0) {
-        $delimiter = ", ";
+        $delimiter = ",";
         $filename = $session_company_name . "-Clients-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
