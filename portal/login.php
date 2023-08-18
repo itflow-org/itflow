@@ -30,9 +30,10 @@ if($config_client_portal_enable == 0) {
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
-$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_login_message FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_array($sql_settings);
 $azure_client_id = $settings['config_azure_client_id'];
+$config_login_message = nullable_htmlentities($settings['config_login_message']);
 
 $company_sql = mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = 1");
 $company_results = mysqli_fetch_array($company_sql);
@@ -106,13 +107,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     </div>
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg text-danger">
-                <?php
-                if (!empty($_SESSION['login_message'])) {
-                    echo $_SESSION['login_message'];
-                    unset($_SESSION['login_message']);
-                }
-                ?>
+            <?php if(!empty($config_login_message)){ ?>
+            <p class="login-box-msg"><?php echo nl2br($config_login_message); ?></p>
+            <?php } ?>
+            <?php
+            if (!empty($_SESSION['login_message'])) { ?>
+                <p class="login-box-msg text-danger">
+                <?php 
+                echo $_SESSION['login_message'];
+                unset($_SESSION['login_message']);
+            }
+            ?>
             </p>
             <form method="post">
                 <div class="input-group mb-3">

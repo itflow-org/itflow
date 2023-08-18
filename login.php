@@ -37,6 +37,7 @@ $row = mysqli_fetch_array($sql_settings);
 $company_name = $row['company_name'];
 $company_logo = $row['company_logo'];
 $config_start_page = nullable_htmlentities($row['config_start_page']);
+$config_login_message = nullable_htmlentities($row['config_login_message']);
 
 // Mail
 $config_smtp_host = $row['config_smtp_host'];
@@ -266,9 +267,14 @@ if (isset($_POST['login'])) {
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg"><?php if (isset($response)) { echo $response; } ?></p>
-            <form method="post">
+            <?php if(!empty($config_login_message)){ ?>
+            <p class="login-box-msg"><?php echo nl2br($config_login_message); ?></p>
+            <?php } ?>
+            <?php if (isset($response)) { ?>
+            <p class="login-box-msg"><?php echo $response; ?></p>
+            <?php } ?>
 
+            <form method="post">
 
                 <div class="input-group mb-3" <?php if (isset($token_field)) { echo "hidden"; } ?>>
                     <input type="text" class="form-control" placeholder="Agent Email" name="email" value="<?php if (isset($token_field)) { echo $email; }?>" required <?php if (!isset($token_field)) { echo "autofocus"; } ?> >

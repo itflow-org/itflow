@@ -89,7 +89,8 @@ $config_module_enable_ticketing = intval($row['config_module_enable_ticketing'])
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
 
-// Login key
+// Login
+$config_login_message = $row['config_login_message'];
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 
