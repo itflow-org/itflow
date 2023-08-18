@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editBudgetModal<?php echo $expense_id; ?>"><?php echo $budget_year; ?></a></td>
+                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editBudgetModal<?php echo $budget_id; ?>"><?php echo $budget_year; ?></a></td>
                             <td><?php echo $budget_month; ?></td>
                             <td><?php echo $category_name; ?></td>
                             <td><?php echo truncate($budget_description, 50); ?></td>
@@ -121,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_expense=<?php echo $budget_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_budget=<?php echo $budget_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>
