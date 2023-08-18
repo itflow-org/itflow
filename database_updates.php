@@ -1236,11 +1236,28 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.1'");
 	}
 
-	//if (CURRENT_DATABASE_VERSION == '0.7.0') {
-		//Insert queries here required to update to DB version 0.7.1
+	if (CURRENT_DATABASE_VERSION == '0.7.1') {
+		mysqli_query($mysqli, "CREATE TABLE `budget` (
+			`budget_id` INT(11) NOT NULL AUTO_INCREMENT,
+			`budget_month` TINYINT NOT NULL,
+			`budget_year` TINYINT NOT NULL,
+			`budget_amount` DECIMAL(15,2) NOT NULL,
+			`budget_description` VARCHAR(255) DEFAULT NULL,
+			`budget_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+			`budget_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+			`budget_category_id` INT(11) NOT NULL,
+			PRIMARY KEY (`budget_id`)
+		)");
 
 		// Then, update the database to the next sequential version
-		//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.1'");
+		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.2'");
+	}
+
+	//if (CURRENT_DATABASE_VERSION == '0.7.2') {
+		//Insert queries here required to update to DB version 0.7.3
+
+		// Then, update the database to the next sequential version
+		//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.3'");
 	//}
 
 } else {

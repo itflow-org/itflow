@@ -149,6 +149,26 @@ CREATE TABLE `assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `budget`
+--
+
+DROP TABLE IF EXISTS `budget`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `budget` (
+  `budget_id` int(11) NOT NULL AUTO_INCREMENT,
+  `budget_month` tinyint(4) NOT NULL,
+  `budget_year` tinyint(4) NOT NULL,
+  `budget_amount` decimal(15,2) NOT NULL,
+  `budget_description` varchar(255) DEFAULT NULL,
+  `budget_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `budget_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `budget_category_id` int(11) NOT NULL,
+  PRIMARY KEY (`budget_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `calendars`
 --
 
@@ -1671,4 +1691,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-18 15:07:08
+-- Dump completed on 2023-08-18 18:20:52
