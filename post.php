@@ -40,7 +40,7 @@ require_once("post/transfer.php");
 require_once("post/trip.php");
 require_once("post/user.php");
 require_once("post/vendor.php");
-
+require_once("post/budget.php");
 require_once("post/misc.php");
 
 ?>

@@ -1253,11 +1253,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.2'");
 	}
 
-	//if (CURRENT_DATABASE_VERSION == '0.7.2') {
-		//Insert queries here required to update to DB version 0.7.3
+	if (CURRENT_DATABASE_VERSION == '0.7.2') {
+		mysqli_query($mysqli, "ALTER TABLE `budget` CHANGE `budget_year` `budget_year` INT NOT NULL");
+		mysqli_query($mysqli, "ALTER TABLE `budget` CHANGE `budget_amount` `budget_amount` DECIMAL(15,2) DEFAULT 0.00");
+		// Then, update the database to the next sequential version
+		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.3'");
+	}
+
+	//if (CURRENT_DATABASE_VERSION == '0.7.3') {
+		//Insert queries here required to update to DB version 0.7.4
 
 		// Then, update the database to the next sequential version
-		//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.3'");
+		//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.4'");
 	//}
 
 } else {

@@ -158,8 +158,8 @@ DROP TABLE IF EXISTS `budget`;
 CREATE TABLE `budget` (
   `budget_id` int(11) NOT NULL AUTO_INCREMENT,
   `budget_month` tinyint(4) NOT NULL,
-  `budget_year` tinyint(4) NOT NULL,
-  `budget_amount` decimal(15,2) NOT NULL,
+  `budget_year` int(11) NOT NULL,
+  `budget_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `budget_description` varchar(255) DEFAULT NULL,
   `budget_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `budget_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1691,4 +1691,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-18 18:20:52
+-- Dump completed on 2023-08-18 19:33:44

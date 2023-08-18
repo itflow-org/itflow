@@ -149,7 +149,12 @@
                             <p>Transfers</p>
                         </a>
                     </li>
-
+                    <li class="nav-item">
+                        <a href="budget.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "budget.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-balance-scale"></i>
+                            <p>Budget</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
                             <i class="fas fa-chart-bar nav-icon"></i>
