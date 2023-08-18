@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $email_status_display = "<div class='text-primary'>Queued</div>";
                         }elseif($email_status == 1){
                             $email_status_display = "<div class='text-warning'>Sending</div>";
-                        }elseif($email_status_display == 2){
+                        }elseif($email_status == 2){
                             $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary'>$email_failed_at</small>";
                         }else{
                             $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary'>$email_sent_at</small>";
