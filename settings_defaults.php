@@ -20,6 +20,27 @@ require_once("inc_all_settings.php"); ?>
                 </div>
 
                 <div class="form-group">
+                    <label>Calendar</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        </div>
+                        <select class="form-control select2" name="calendar">
+                            <option value="0">- None -</option>
+                            <?php
+
+                            $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
+                            while ($row = mysqli_fetch_array($sql)) {
+                                $calendar_id = intval($row['calendar_id']);
+                                $calendar_name = nullable_htmlentities($row['calendar_name']); ?>
+                                <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+                            <?php } ?>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Transfer From Account</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -137,27 +158,6 @@ require_once("inc_all_settings.php"); ?>
                             while ($row = mysqli_fetch_array($sql)) {
                                 $payment_method = nullable_htmlentities($row['category_name']); ?>
                                 <option <?php if ($config_default_expense_payment_method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Calendar</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        </div>
-                        <select class="form-control select2" name="calendar">
-                            <option value="0">- None -</option>
-                            <?php
-
-                            $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
-                            while ($row = mysqli_fetch_array($sql)) {
-                                $calendar_id = intval($row['calendar_id']);
-                                $calendar_name = nullable_htmlentities($row['calendar_name']); ?>
-                                <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
                             <?php } ?>
 
                         </select>

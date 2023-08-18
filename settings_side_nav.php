@@ -112,7 +112,14 @@
           </a>
         </li>
 
-        <?php if ($config_module_enable_accounting) { ?>
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_alerts.php") { echo "active"; } ?>"
+            href="settings_alerts.php">
+            <i class="nav-icon far fa-bell"></i>
+            <p>Alerts</p>
+          </a>
+        </li>
+
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_defaults.php") { echo "active"; } ?>"
             href="settings_defaults.php">
@@ -120,6 +127,8 @@
             <p>Defaults</p>
           </a>
         </li>
+
+        <?php if ($config_module_enable_accounting) { ?>
 
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_invoice.php") { echo "active"; } ?>"
@@ -134,14 +143,6 @@
             href="settings_quote.php">
             <i class="nav-icon far fa-file"></i>
             <p>Quote</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_alerts.php") { echo "active"; } ?>"
-            href="settings_alerts.php">
-            <i class="nav-icon far fa-bell"></i>
-            <p>Alerts</p>
           </a>
         </li>
 
