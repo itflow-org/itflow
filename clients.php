@@ -58,7 +58,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-md-8">
                         <div class="float-right">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportClientModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                            <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#exportClientModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
                 </div>
@@ -202,20 +202,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <strong><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
-                                <?php
-                                if (!empty($client_type)) {
-                                    ?>
-                                    <br>
-                                    <small class="text-secondary"><?php echo $client_type; ?></small>
-                                <?php } ?>
-                                <?php
-                                if (!empty($client_tags_display)) { ?>
-                                    <br>
-                                    <?php echo $client_tags_display; ?>
-                                <?php } ?>
-                                <br>
-                                <small class="text-secondary"><strong>Created:</strong> <?php echo $client_created_at; ?></small>
+                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
+                                <div class="mt-1">
+                                    <?php
+                                    if (!empty($client_type)) {
+                                        ?>
+                                        <div class="text-secondary">
+                                            <?php echo $client_type; ?>
+                                        </div>
+                                    <?php } ?>
+                                    <?php
+                                    if (!empty($client_tags_display)) { ?>
+                                        <div class="mt-1">
+                                            <?php echo $client_tags_display; ?>
+                                        </div>
+                                    <?php } ?>
+                                    
+                                    <div class="mt-1 text-secondary">
+                                        <strong>Created:</strong> <?php echo $client_created_at; ?>
+                                    </div>
+                                </div>
                             </td>
                             <td><?php echo $location_address_display; ?></td>
                             <td>
@@ -249,13 +255,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <!-- Show Billing for Admin/Accountant roles only and if accounting module is enabled -->
                             <?php if ($session_user_role == 3 || $session_user_role == 1 && $config_module_enable_accounting == 1) { ?>
                                 <td class="text-right">
-                                    <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
-                                    <br>
-                                    <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
-                                    <br>
-                                    <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
-                                    <br>
-                                    <span class="text-secondary">Hourly Rate</span> <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
+                                    <div class="mt-1">
+                                        <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+                                    </div>
+                                    <div class="mt-1">
+                                        <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
+                                    </div>
+                                    <div class="mt-1">
+                                        <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
+                                    </div>
+                                    <div class="mt-1">
+                                        <span class="text-secondary">Hourly Rate</span> <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
+                                    </div>
                                 </td>
                             <?php } ?>
 
