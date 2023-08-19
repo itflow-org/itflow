@@ -56,6 +56,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="report_budget.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_budget.php") { echo "active"; } ?>">
+                            <i class="fas fa-balance-scale nav-icon"></i>
+                            <p>Budget</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="report_tax_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_tax_summary.php") { echo "active"; } ?>">
                             <i class="fas fa-percent nav-icon"></i>
                             <p>Tax Summary</p>
