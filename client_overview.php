@@ -22,7 +22,7 @@ $sql_recent_tickets = mysqli_query(
     $mysqli,
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-    ORDER BY ticket_updated_at DESC LIMIT 5"
+    ORDER BY ticket_created_at DESC LIMIT 5"
 );
 
 $sql_recent_logins = mysqli_query(
@@ -43,7 +43,7 @@ $sql_stale_tickets = mysqli_query(
     WHERE ticket_client_id = $client_id
     AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
     AND ticket_status != 'Closed'
-    ORDER BY ticket_created_at DESC"
+    ORDER BY ticket_updated_at DESC"
 );
 
 // Get Domains Expiring
