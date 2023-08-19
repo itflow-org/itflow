@@ -46,7 +46,7 @@
 
                 <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
 
-                    <li class="nav-header mt-3">SUPPORT SERVICES</li>
+                    <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">
                         <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
@@ -56,7 +56,7 @@
                     <li class="nav-item">
                         <a href="scheduled_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-clock"></i>
-                            <p>Scheduled Support</p>
+                            <p>Scheduled Tickets</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -70,7 +70,7 @@
 
                 if ($config_module_enable_accounting == 1) { ?>
 
-                    <li class="nav-header mt-3">SALES & BILLING</li>
+                    <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
                         <a href="quotes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
@@ -86,7 +86,7 @@
                     <li class="nav-item">
                         <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-sync-alt"></i>
-                            <p>Recurring Invoices</p>
+                            <p>Rec. Invoices</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -106,7 +106,7 @@
 
                 if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
 
-                    <li class="nav-header mt-3">FINANCIAL MANAGEMENT</li>
+                    <li class="nav-header mt-3">FINANCE</li>
                     <li class="nav-item">
                         <a href="payments.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-credit-card"></i>
@@ -116,7 +116,7 @@
                     <li class="nav-item">
                         <a href="vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-building"></i>
-                            <p>Vendor Management</p>
+                            <p>Vendors</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -128,37 +128,37 @@
                     <li class="nav-item">
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-clock"></i>
-                            <p>Recurring Expenses</p>
+                            <p>Rec. Expenses</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
-                            <p>Business Trips</p>
+                            <p>Trips</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-piggy-bank"></i>
-                            <p>Financial Accounts</p>
+                            <p>Accounts</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="transfers.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transfers.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-exchange-alt"></i>
-                            <p>Fund Transfers</p>
+                            <p>Transfers</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="budget.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "budget.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-balance-scale"></i>
-                            <p>Budget Planning</p>
+                            <p>Budget</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
                             <i class="fas fa-chart-bar nav-icon"></i>
-                            <p>Financial Reports</p>
+                            <p>Reports</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
                         </a>
                     </li>
@@ -167,12 +167,12 @@
 
                 if ($session_user_role == 3) { ?>
 
-                    <li class="nav-header mt-3">ADMIN SETTINGS</li>
+                    <li class="nav-header mt-3">SETTINGS</li>
 
                     <li class="nav-item">
                         <a href="users.php" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
-                            <p>System Settings</p>
+                            <p>Settings</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
                         </a>
                     </li>
