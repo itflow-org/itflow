@@ -39,7 +39,7 @@
 
                 <li class="nav-item">
                     <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-users"></i>
+                        <i class="nav-icon fas fa-user-friends"></i>
                         <p>Client Management</p>
                     </a>
                 </li>
@@ -55,13 +55,13 @@
                     </li>
                     <li class="nav-item">
                         <a href="scheduled_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-clock"></i>
+                            <i class="nav-icon fas fa-calendar-check"></i>
                             <p>Scheduled Tickets</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar"></i>
+                            <i class="nav-icon fas fa-calendar-alt"></i>
                             <p>Calendar</p>
                         </a>
                     </li>
@@ -73,7 +73,7 @@
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
                         <a href="quotes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-file-invoice"></i>
+                            <i class="nav-icon fas fa-comment-dollar"></i>
                             <p>Quotes</p>
                         </a>
                     </li>
@@ -85,19 +85,19 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-sync-alt"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>Rec. Invoices</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-credit-card"></i>
+                            <i class="nav-icon fas fa-hand-holding-usd"></i>
                             <p>Revenues</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="products.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-box"></i>
+                            <i class="nav-icon fas fa-box-open"></i>
                             <p>Products</p>
                         </a>
                     </li>
@@ -115,7 +115,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-building"></i>
+                            <i class="nav-icon fas fa-store"></i>
                             <p>Vendors</p>
                         </a>
                     </li>
@@ -157,7 +157,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
-                            <i class="fas fa-chart-bar nav-icon"></i>
+                            <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
                         </a>
@@ -171,7 +171,7 @@
 
                     <li class="nav-item">
                         <a href="users.php" class="nav-link">
-                            <i class="nav-icon fas fa-cog"></i>
+                            <i class="nav-icon fas fa-cogs"></i>
                             <p>Settings</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
                         </a>
