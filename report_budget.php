@@ -65,7 +65,7 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                 if ($categories->num_rows > 0) {
                     while($category = $categories->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . $category['category_name'] . "</td>";
+                        echo "<td>" . nullable_htmlentities($category['category_name']) . "</td>";
                         $categoryTotal = 0;
                         for ($month = 1; $month <= 12; $month++) {
                             // Fetch the monthly budget for this category for 2022
