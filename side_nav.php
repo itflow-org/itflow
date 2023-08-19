@@ -115,7 +115,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-store"></i>
+                            <i class="nav-icon fas fa-building"></i>
                             <p>Vendors</p>
                         </a>
                     </li>

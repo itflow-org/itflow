@@ -20,7 +20,7 @@
 
         <li class="nav-item">
           <a href="users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") { echo "active"; } ?>">
-            <i class="nav-icon far fa-user"></i>
+            <i class="nav-icon fas fa-users"></i>
             <p>Users</p>
           </a>
         </li>
@@ -52,21 +52,21 @@
 
         <li class="nav-item">
           <a href="categories.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "categories.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-list"></i>
+            <i class="nav-icon fas fa-list-ul"></i>
             <p>Categories</p>
           </a>
         </li>
 
         <li class="nav-item">
           <a href="settings_custom_fields.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_custom_fields.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-list"></i>
+            <i class="nav-icon fas fa-th-list"></i>
             <p>Custom Fields</p>
           </a>
         </li>
 
         <li class="nav-item">
           <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tag"></i>
+            <i class="nav-icon fas fa-tags"></i>
             <p>Tags</p>
           </a>
         </li>
@@ -91,7 +91,7 @@
 
         <li class="nav-item">
           <a href="settings_company.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_company.php") { echo "active"; } ?>">
-            <i class="nav-icon far fa-building"></i>
+            <i class="nav-icon fa fa-briefcase"></i>
             <p>Company</p>
           </a>
         </li>
@@ -99,7 +99,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_theme.php") { echo "active"; } ?>"
             href="settings_theme.php">
-            <i class="nav-icon fa fa-palette"></i>
+            <i class="nav-icon fa fa-paint-brush"></i>
             <p>Theme</p>
           </a>
         </li>
@@ -123,7 +123,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_defaults.php") { echo "active"; } ?>"
             href="settings_defaults.php">
-            <i class="nav-icon fas fa-cog"></i>
+            <i class="nav-icon fas fa-cogs"></i>
             <p>Defaults</p>
           </a>
         </li>
@@ -133,7 +133,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_invoice.php") { echo "active"; } ?>"
             href="settings_invoice.php">
-            <i class="nav-icon fas fa-file"></i>
+            <i class="nav-icon fas fa-file-invoice"></i>
             <p>Invoice</p>
           </a>
         </li>
@@ -141,7 +141,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_quote.php") { echo "active"; } ?>"
             href="settings_quote.php">
-            <i class="nav-icon far fa-file"></i>
+            <i class="nav-icon fas fa-comment-dollar"></i>
             <p>Quote</p>
           </a>
         </li>
@@ -168,7 +168,7 @@
 
         <li class="nav-item">
           <a href="settings_integrations.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_integrations.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-puzzle-piece"></i>
+            <i class="nav-icon fas fa-plug"></i>
             <p>Integrations</p>
           </a>
         </li>
@@ -176,7 +176,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_update.php") { echo "active"; } ?>"
             href="settings_update.php">
-            <i class="nav-icon fas fa-arrow-alt-circle-up"></i>
+            <i class="nav-icon fas fa-download"></i>
             <p>Update</p>
           </a>
         </li>
@@ -184,7 +184,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_telemetry.php") { echo "active"; } ?>"
             href="settings_telemetry.php">
-            <i class="nav-icon fas fa-broadcast-tower"></i>
+            <i class="nav-icon fas fa-satellite-dish"></i>
             <p>Telemetry</p>
           </a>
         </li>
@@ -192,7 +192,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>"
             href="settings_backup.php">
-            <i class="nav-icon fas fa-database"></i>
+            <i class="nav-icon fas fa-cloud-upload-alt"></i>
             <p>Backup</p>
           </a>
         </li>
@@ -200,7 +200,7 @@
         <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_modules.php") { echo "active"; } ?>"
              href="settings_modules.php">
-              <i class="nav-icon fas fa-puzzle-piece"></i>
+              <i class="nav-icon fas fa-cube"></i>
               <p>Modules</p>
           </a>
         </li>
@@ -214,14 +214,14 @@
 
         <li class="nav-item">
           <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
-            <i class="nav-icon far fa-envelope-open"></i>
+            <i class="nav-icon fas fa-mail-bulk"></i>
             <p>Mail Queue</p>
           </a>
         </li>
 
         <li class="nav-item">
           <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
-            <i class="nav-icon far fa-eye"></i>
+            <i class="nav-icon fas fa-history"></i>
             <p>Audit Logs</p>
           </a>
         </li>
