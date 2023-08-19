@@ -36,10 +36,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-users mr-2"></i>Client Management</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i>Client Management</h3>
             <div class="card-tools">
                 <?php if ($session_user_role == 3) { ?>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus mr-2"></i>Create Client</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus mr-2"></i>New Client</button>
                 <?php } ?>
             </div>
         </div>
@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search clients" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -202,8 +202,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></strong>
-                                <div class="mt-1">
+                                <h6><a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <i class="fas fa-fw fa-arrow-circle-right"></i></a></h6>
+                                
                                     <?php
                                     if (!empty($client_type)) {
                                         ?>
@@ -221,7 +221,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="mt-1 text-secondary">
                                         <strong>Created:</strong> <?php echo $client_created_at; ?>
                                     </div>
-                                </div>
+                                
                             </td>
                             <td><?php echo $location_address_display; ?></td>
                             <td>
