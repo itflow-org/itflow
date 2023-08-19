@@ -97,11 +97,14 @@ $sql_recurring_expense_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurri
 $row = mysqli_fetch_array($sql_recurring_expense_monthly_total);
 $recurring_expense_monthly_total = floatval($row['recurring_expense_monthly_total']) + ($recurring_expense_yearly_total / 12);
 
-
 //Get Total Miles Driven
 $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year");
 $row = mysqli_fetch_array($sql_miles_driven);
 $total_miles = floatval($row['total_miles']);
+
+//Get Total Recurring Invoices added
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
+$recurring_invoices_added = intval($row['recurring_invoice_added']);
 
 //Get Total Clients added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
@@ -208,13 +211,13 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
-                <h3><?php echo number_format($total_miles, 2); ?></h3>
-                <p>Miles Traveled</p>
+                <h3><?php echo $recurring_invoices_added; ?></h3>
+                <p>Recurring Invoices Added</p>
             </div>
             <div class="icon">
-                <i class="fa fa-route"></i>
+                <i class="fa fa-file-invoice"></i>
             </div>
         </a>
     </div>
@@ -243,6 +246,20 @@ $vendors_added = intval($row['vendors_added']);
             </div>
             <div class="icon">
                 <i class="fa fa-building"></i>
+            </div>
+        </a>
+    </div>
+    <!-- ./col -->
+
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <!-- small box -->
+        <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+            <div class="inner">
+                <h3><?php echo number_format($total_miles, 2); ?></h3>
+                <p>Miles Traveled</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-route"></i>
             </div>
         </a>
     </div>
