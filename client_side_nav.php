@@ -164,7 +164,7 @@
 
                     <li class="nav-item">
                         <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-clock"></i>
+                            <i class="nav-icon fas fa-calendar-check"></i>
                             <p>
                                 Schedule Ticket
 
@@ -207,7 +207,7 @@
 
                 <li class="nav-item">
                     <a href="client_events.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_events.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar"></i>
+                        <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>
                             Events
                             <?php
@@ -246,11 +246,11 @@
 
                 <?php if ($session_user_role == 1 || $session_user_role > 2 && $config_module_enable_accounting == 1) { ?>
 
-                    <li class="nav-header mt-3">ACCOUNTING</li>
+                    <li class="nav-header mt-3">FINANCE</li>
 
                     <li class="nav-item">
                         <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_invoices.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-file"></i>
+                            <i class="nav-icon fas fa-file-invoice"></i>
                             <p>
                                 Invoices
 
@@ -269,9 +269,9 @@
 
                     <li class="nav-item">
                         <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_recurring_invoices.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-sync-alt"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
-                                Recurring
+                                Rec. Invoices
                                 <?php
                                 if ($num_recurring > 0) { ?>
                                     <span class="right badge badge-light"><?php echo $num_recurring; ?></span>
@@ -282,7 +282,7 @@
 
                     <li class="nav-item">
                         <a href="client_quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_quotes.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-file"></i>
+                            <i class="nav-icon fas fa-comment-dollar"></i>
                             <p>
                                 Quotes
                                 <?php
@@ -338,7 +338,7 @@
 
                 <li class="nav-item">
                     <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-eye"></i>
+                        <i class="nav-icon fas fa-history"></i>
                         <p>Audit Logs</p>
                     </a>
                 </li>

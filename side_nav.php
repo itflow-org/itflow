@@ -79,7 +79,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                            <i class="nav-icon fas fa-file-invoice"></i>
                             <p>Invoices</p>
                         </a>
                     </li>
