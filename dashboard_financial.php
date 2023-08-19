@@ -104,7 +104,7 @@ $total_miles = floatval($row['total_miles']);
 
 //Get Total Recurring Invoices added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
-$recurring_invoices_added = intval($row['recurring_invoice_added']);
+$recurring_invoices_added = intval($row['recurring_invoices_added']);
 
 //Get Total Clients added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
