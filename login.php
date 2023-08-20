@@ -255,6 +255,7 @@ if (isset($_POST['login'])) {
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition login-page">
+
 <div class="login-box">
     <div class="login-logo">
         <?php if (!empty($company_logo)) { ?>
@@ -267,11 +268,13 @@ if (isset($_POST['login'])) {
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
+
             <?php if(!empty($config_login_message)){ ?>
-            <p class="login-box-msg"><?php echo nl2br($config_login_message); ?></p>
+            <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
+           
             <?php if (isset($response)) { ?>
-            <p class="login-box-msg"><?php echo $response; ?></p>
+            <p><?php echo $response; ?></p>
             <?php } ?>
 
             <form method="post">
@@ -297,9 +300,8 @@ if (isset($_POST['login'])) {
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
                 <?php if($config_client_portal_enable == 1){ ?>
-                <hr><br>
-
-                <h4>Looking for the <a href="portal">Client Portal?<a/></h4>
+                <hr>
+                <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
                 <?php } ?>
 
             </form>
