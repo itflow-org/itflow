@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-box mr-2"></i>New Product</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>New Product</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>

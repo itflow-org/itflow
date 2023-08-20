@@ -66,7 +66,7 @@
 
                 <li class="nav-item">
                     <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-cube"></i>
+                        <i class="nav-icon fas fa-certificate"></i>
                         <p>
                             Licenses
                             <?php

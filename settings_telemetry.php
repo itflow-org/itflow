@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower mr-2"></i>Telemetry</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-satellite-dish mr-2"></i>Telemetry</h3>
         </div>
         <div class="card-body">
 

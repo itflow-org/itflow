@@ -191,7 +191,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-paper-plane mr-2"></i>Test Email Receiving</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-plug mr-2"></i>Test IMAP Connection</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">

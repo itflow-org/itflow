@@ -20,7 +20,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-arrow-alt-circle-up mr-2"></i>Update</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-download mr-2"></i>Update</h3>
         </div>
         <div class="card-body" style="text-align: center;">
 
@@ -32,7 +32,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
             <?php } ?>
 
             <?php if (!empty($git_log)) { ?>
-                <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update App</h5></a>
+                <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
                 <hr>
 
             <?php } else {
@@ -41,14 +41,15 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                         <strong>Ensure you have a current app & database backup before updating!</strong>
                     </div>
                     <br>
-                    <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-arrow-alt-circle-up mb-1"></i><h5>Update Database</h5></a>
+                    <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
                     <br>
                     <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
                     <br>
                     <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
                 <?php } else { ?>
-                    <h3 class="text-success">Congratulations!<br><i class="far fa-3x fa-smile-wink"></i><br><small>You are on the latest version!</small></h3>
+                    <h3 class="text-success text-bold">Congratulations!<br><i class="far fa-3x text-dark fa-smile-wink"></i><br><small>You are on the latest version!</small></h3>
                     <p class="text-secondary">Current Database Version:<br><strong><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
+                    <p class="text-secondary">Current App Version:<br><strong><?php echo $current_version; ?></strong></p>
                 <?php }
             }
 

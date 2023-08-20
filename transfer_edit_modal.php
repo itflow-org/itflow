@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Edit Transfer</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Editing Transfer</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>

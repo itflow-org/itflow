@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-money-bill-alt mr-2"></i>New Revenue</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-hand-holding-usd mr-2"></i>New Revenue</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>

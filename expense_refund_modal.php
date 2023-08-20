@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-undo-alt mr-2"></i>Refunding expense</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-undo mr-2"></i>Refunding expense</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
