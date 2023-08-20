@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     <div class="card">
         <div class="card-body login-card-body">
             <?php if(!empty($config_login_message)){ ?>
-            <p class="login-box-msg"><?php echo nl2br($config_login_message); ?></p>
+            <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
             <?php
             if (!empty($_SESSION['login_message'])) { ?>
@@ -139,9 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
                 <button type="submit" class="btn btn-success btn-block mb-3" name="login">Sign in</button>
 
+                <hr>
+
                 <?php
                 if (!empty($config_smtp_host)) { ?>
-                    <a href="login_reset.php">Forgot password?</a>
+                    <h6 class="text-center"><a href="login_reset.php">Forgot password?</a></h6>
                 <?php } ?>
 
             </form>
