@@ -176,7 +176,7 @@ if (isset($_POST['login'])) {
             // HTML code for the token input field
             $token_field = "
                     <div class='input-group mb-3'>
-                        <input type='text' class='form-control' placeholder='2FA Token' name='current_code' required autofocus>
+                        <input type='text' class='form-control' placeholder='Enter your 2FA code' name='current_code' required autofocus>
                         <div class='input-group-append'>
                           <div class='input-group-text'>
                             <span class='fas fa-key'></span>
@@ -213,7 +213,7 @@ if (isset($_POST['login'])) {
                 // HTML feedback for incorrect 2FA code
                 $response = "
                       <div class='alert alert-warning'>
-                        Please Enter 2FA Key!
+                        Please Enter 2FA Code!
                         <button class='close' data-dismiss='alert'>&times;</button>
                       </div>";
             }

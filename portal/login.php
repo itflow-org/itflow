@@ -116,9 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 <?php 
                 echo $_SESSION['login_message'];
                 unset($_SESSION['login_message']);
+                ?>
+                </p>
+            <?php
             }
             ?>
-            </p>
             <form method="post">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
