@@ -48,7 +48,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_smtp_username" placeholder="Username" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
+                        <input type="text" class="form-control" name="config_smtp_username" placeholder="Username (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
                     </div>
                 </div>
 
@@ -58,7 +58,7 @@ require_once("inc_all_settings.php"); ?>
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
+                        <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
