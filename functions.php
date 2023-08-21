@@ -506,13 +506,20 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
 
     $mail = new PHPMailer(true);
 
+    if (empty($config_smtp_username)) { 
+        $smtp_auth = false;
+    } else {
+
+        $smtp_auth = true;
+    }
+
     try{
         // Mail Server Settings
         $mail->CharSet = "UTF-8";                                   // Specify UTF-8 charset to ensure symbols ($/£) load correctly
         $mail->SMTPDebug = 0;                                       // No Debugging
         $mail->isSMTP();                                            // Set mailer to use SMTP
         $mail->Host       = $config_smtp_host;                      // Specify SMTP server
-        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->SMTPAuth   = $smtp_auth;                             // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                  // SMTP username
         $mail->Password   = $config_smtp_password;                  // SMTP password
         $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
