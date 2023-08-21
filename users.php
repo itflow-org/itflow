@@ -101,15 +101,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         WHERE log_user_id = $user_id AND log_type = 'Login'
                         ORDER BY log_id DESC LIMIT 1"
                     );
-                    $row = mysqli_fetch_array($sql_last_login);
-                    $log_created_at = nullable_htmlentities($row['log_created_at']);
-                    $log_ip = nullable_htmlentities($row['log_ip']);
-                    $log_user_agent = nullable_htmlentities($row['log_user_agent']);
-                    $log_user_os = getOS($log_user_agent);
-                    $log_user_browser = getWebBrowser($log_user_agent);
-                    $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
                     if (mysqli_num_rows($sql_last_login) == 0) {
                         $last_login = "<span class='text-bold'>Never logged in</span>";
+                    } else {
+                        $row = mysqli_fetch_array($sql_last_login);
+                        $log_created_at = nullable_htmlentities($row['log_created_at']);
+                        $log_ip = nullable_htmlentities($row['log_ip']);
+                        $log_user_agent = nullable_htmlentities($row['log_user_agent']);
+                        $log_user_os = getOS($log_user_agent);
+                        $log_user_browser = getWebBrowser($log_user_agent);
+                        $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
                     }
 
                     ?>
