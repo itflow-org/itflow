@@ -6,9 +6,9 @@ require_once("functions.php");
 session_start();
 
 $ip = sanitizeInput(getIP());
-$ua = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
-$os = sanitizeInput(getOS($ua));
-$browser = sanitizeInput(getWebBrowser($ua));
+$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$os = sanitizeInput(getOS($user_agent));
+$browser = sanitizeInput(getWebBrowser($user_agent));
 
 ?>
 
