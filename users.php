@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $log_user_agent = nullable_htmlentities($row['log_user_agent']);
                         $log_user_os = getOS($log_user_agent);
                         $log_user_browser = getWebBrowser($log_user_agent);
-                        $last_login = "$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip";
+                        $last_login = "$log_created_at<br><small class='text-secondary'>$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip</small>";
                     }
 
                     ?>
@@ -133,11 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
                         <td><?php echo $user_role_display; ?></td>
                         <td><?php echo $user_status_display; ?></td>
-                        <td>
-                            <?php echo $log_created_at; ?>
-                            <br>
-                            <small class="text-secondary"><?php echo $last_login; ?></small>
-                        </td>
+                        <td><?php echo $last_login; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
