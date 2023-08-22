@@ -12,10 +12,28 @@ $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
+$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$row = mysqli_fetch_array($sql);
+
+$company_name = nullable_htmlentities($row['company_name']);
+$company_address = nullable_htmlentities($row['company_address']);
+$company_city = nullable_htmlentities($row['company_city']);
+$company_state = nullable_htmlentities($row['company_state']);
+$company_zip = nullable_htmlentities($row['company_zip']);
+$company_phone = formatPhoneNumber($row['company_phone']);
+$company_email = nullable_htmlentities($row['company_email']);
+$company_website = nullable_htmlentities($row['company_website']);
+$company_logo = nullable_htmlentities($row['company_logo']);
+$company_locale = nullable_htmlentities($row['company_locale']);
+$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
+
+//Set Currency Format
+$currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
+
 ?>
 
     <br>
-    <h1> <?php echo nullable_htmlentities($config_app_name); ?> Guest sharing </h1>
+    <h1> <?php echo nullable_htmlentities($company_name); ?> Guest sharing </h1>
     <hr>
 
 <?php
