@@ -117,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
-                                    <?php if ($session_user_role == 3 && $location_id !== $primary_location) { ?>
+                                    <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger" href="post.php?archive_location=<?php echo $location_id; ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
