@@ -16,7 +16,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
 
                 <!-- Dashboard item (tech/financial) -->
-                <?php if ($session_user_role == 2) { ?>
+                <?php if ($session_user_role == 2 || $config_module_enable_accounting == 0) { ?>
 
                     <li class="nav-item">
                         <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php") { echo "active"; } ?>">
