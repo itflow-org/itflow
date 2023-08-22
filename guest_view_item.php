@@ -71,7 +71,16 @@ $item_expire = nullable_htmlentities($row['item_expire_at']);
 $client_id = intval($row['item_client_id']);
 ?>
 
-<div class="card">
+<?php 
+    if (!empty($company_logo)) { ?>
+            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+        <?php 
+        } else {
+            echo "<h3>$company_name</h3>";
+        } 
+?>
+
+<div class="card mt-3">
     <div class="card-body">
 
 <?php
@@ -166,8 +175,9 @@ if ($item_type == "Document") {
 
 </div>
 <div class="card-footer">
-<?php echo "$company_name | $company_phone | $company_email | $company_website"; ?>
+<?php echo "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-envelope fa-fw mr-2 ml-2'></i>$company_email"; ?>
 </div>
+
 <?php
 require_once("guest_footer.php");
 ?>
