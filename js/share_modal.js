@@ -24,7 +24,7 @@ function generateShareLink() {
     let contact_email = document.getElementById("share_email").value;
 
     // Check values are provided
-    if (item_views && item_expires && item_note) {
+    if (item_views && item_expires) {
         // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
         jQuery.get(
             "ajax.php",
