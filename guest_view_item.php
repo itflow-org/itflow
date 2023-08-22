@@ -32,10 +32,6 @@ $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
 ?>
 
-    <br>
-    <h1> <?php echo nullable_htmlentities($company_name); ?> Guest sharing </h1>
-    <hr>
-
 <?php
 if (!isset($_GET['id']) || !isset($_GET['key'])) {
     echo "<div class='alert alert-danger'>Incorrect URL.</div>";
@@ -65,8 +61,6 @@ if ($row['item_active'] !== "1" || ($row['item_view_limit'] > 0 && $row['item_vi
 
 // If we got here, we have valid information
 
-echo "<div class='alert alert-warning'>You may only be able to view this information for a limited time! Be sure to copy/download what you need.</div>";
-
 $item_type = nullable_htmlentities($row['item_type']);
 $item_related_id = intval($row['item_related_id']);
 $item_encrypted_credential = nullable_htmlentities($row['item_encrypted_credential']);
@@ -75,7 +69,12 @@ $item_views = intval($row['item_views']);
 $item_created = nullable_htmlentities($row['item_created_at']);
 $item_expire = nullable_htmlentities($row['item_expire_at']);
 $client_id = intval($row['item_client_id']);
+?>
 
+<div class="card">
+    <div class="card-body">
+
+<?php
 if ($item_type == "Document") {
 
     $doc_sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id LIMIT 1");
@@ -91,11 +90,6 @@ if ($item_type == "Document") {
     $doc_title_escaped = sanitizeInput($doc_row['document_name']);
     $doc_content = $purifier->purify($doc_row['document_content']);
 
-    echo "<h3>A document has been shared with you</h3>";
-    if (!empty($item_note)) {
-        echo "<p class='lead'>Note: <i>$item_note</i></p>";
-    }
-    echo "<br>";
     echo "<h2>$doc_title</h2>";
     echo $doc_content;
 
@@ -151,12 +145,6 @@ if ($item_type == "Document") {
     $login_otp = nullable_htmlentities($login_row['login_otp_secret']);
     $login_notes = nullable_htmlentities($login_row['login_note']);
 
-    echo "<h3>A login entry has been shared with you</h3>";
-    if (!empty($item_note)) {
-        echo "<p class='lead'>Note: <i>$item_note</i></p>";
-    }
-    echo "<br>";
-
     echo "<p>Name: $login_name</p>";
     echo "<p>URL: $login_uri</p>";
     echo "<p>Username: $login_username</p>";
@@ -174,6 +162,12 @@ if ($item_type == "Document") {
 
 }
 
-echo "<br><hr>";
-echo $config_app_name;
+?>
+
+</div>
+<div class="card-footer">
+<?php echo "$company_name | $company_phone | $company_email | $company_website"; ?>
+</div>
+<?php
 require_once("guest_footer.php");
+?>
