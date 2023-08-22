@@ -80,7 +80,7 @@ $client_id = intval($row['item_client_id']);
         } 
 ?>
 
-<div class="card mt-3">
+<div class="card mt-2">
     <div class="card-body">
 
 <?php
@@ -154,12 +154,26 @@ if ($item_type == "Document") {
     $login_otp = nullable_htmlentities($login_row['login_otp_secret']);
     $login_notes = nullable_htmlentities($login_row['login_note']);
 
-    echo "<p>Name: $login_name</p>";
-    echo "<p>URL: $login_uri</p>";
-    echo "<p>Username: $login_username</p>";
-    echo "<p>Password: $login_password</p>";
-    echo "<p>OTP: $login_otp</p>";
-    echo "<p>Notes: $login_notes</p>";
+    ?>
+
+    <h4><?php echo $login_name; ?></h4>
+    <table class="table col-md-3">
+        <tr>
+            <th>URL</th>
+            <td><?php echo $login_uri; ?></td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td><?php echo $login_username ?></td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td><?php echo $login_password ?></td>
+        </tr>
+    </table>
+
+
+    <?php
 
     // Update login view count
     $new_item_views = $item_views + 1;
