@@ -17,7 +17,7 @@
 
                     <div id="div_share_link_form">
 
-                        <label>Views / Expire <strong class="text-danger">*</strong></label>
+                        <label>Views / Expire <strong class="text-danger">*</strong> <small class="text-secondary">Enter 0 for unlimited</small></label>
                         <div class="form-row">
                             <div class="col-4">
                                 <div class="input-group mb-3">
@@ -36,6 +36,8 @@
                                         <option value="30 MINUTE">30 Minutes</option>
                                         <option value="24 HOUR">24 Hours (1 Day)</option>
                                         <option value="72 HOUR">72 Hours (3 Days)</option>
+                                        <option value="100 YEAR">NEVER</option>
+
                                     </select>
                                 </div>
                             </div>

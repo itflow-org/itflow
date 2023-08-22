@@ -38,8 +38,8 @@ if (mysqli_num_rows($sql) !== 1 || !$row) {
     exit();
 }
 
-// Check item share is active & hasn't been viewed too many times
-if ($row['item_active'] !== "1" || $row['item_views'] >= $row['item_view_limit']) {
+// Check item share is active & hasn't been viewed too many times but allow 0 views as that is consider infinite views
+if ($row['item_active'] !== "1" || ($row['item_view_limit'] > 0 && $row['item_views'] >= $row['item_view_limit'])) {
     echo "<div class='alert alert-danger'>Item cannot be viewed at this time. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
     include("guest_footer.php");
     exit();
