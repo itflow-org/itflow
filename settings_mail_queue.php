@@ -29,7 +29,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-envelope-open mr-2"></i>Email Queue</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-mail-bulk mr-2"></i>Email Queue</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
@@ -135,7 +135,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="modal-dialog modal-xl ">
                                 <div class="modal-content bg-dark">
                                     <div class="modal-header">
-                                        <h5 class="modal-title"><i class="fa fa-fw fa-envelope mr-2"></i><?php echo $email_subject; ?></h5>
+                                        <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open mr-2"></i><?php echo $email_subject; ?></h5>
                                         <button type="button" class="close text-white" data-dismiss="modal">
                                             <span>&times;</span>
                                         </button>
