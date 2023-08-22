@@ -138,7 +138,7 @@
                                 </div>
 
                             <?php } else { ?>
-                                <input type="hidden" name="currency_code" value="<?php echo $currency_code; ?>">
+                                <input type="hidden" name="currency_code" value="<?php if(empty($currency_code)) { echo $session_company_currency } else { echo $currency_code; ?>">
                                 <input type="hidden" name="net_terms" value="<?php echo $net_term_value; ?>">
                             <?php } ?>
 
