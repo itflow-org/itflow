@@ -35,14 +35,14 @@ if (isset($_POST['add_files'])) {
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            // Extract .ext from reference file name to be used to store SHA256 hash value
+            // Extract .ext from reference file name to be used to store SHA256 hash
             $file_hash = strstr($file_reference_name, '.', true) ?: $file_reference_name;
 
             mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_hash = '$file_hash', file_client_id = $client_id");
 
             //Logging
             $file_id = intval(mysqli_insert_id($mysqli));
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'File', log_action = 'Upload', log_description = '$session_name uploaded $file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
         } else {
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }

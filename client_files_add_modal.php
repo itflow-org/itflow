@@ -12,7 +12,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <input type="file" class="form-control-file" name="file[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1">
+                        <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1">
                     </div>
                     <small class="text-secondary">Multiple files can be uploaded by holding down CTRL and selecting files</small>
 
@@ -25,3 +25,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    const maxFiles = 20; // Set the maximum number of allowed files
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadForm = document.getElementById('uploadForm');
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > maxFiles) {
+            alert(`You can only upload up to ${maxFiles} files at a time.`);
+            resetFileInput();
+        }
+    });
+
+    uploadForm.addEventListener('submit', function (event) {
+        if (fileInput.files.length > maxFiles) {
+            event.preventDefault();
+            alert(`You can only upload up to ${maxFiles} files at a time.`);
+            resetFileInput();
+        }
+    });
+
+    function resetFileInput() {
+        fileInput.value = ''; // Clear the selected files
+    }
+</script>
