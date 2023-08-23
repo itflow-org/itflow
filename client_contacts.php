@@ -89,13 +89,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_department_display = $contact_department;
                         }
+                        $contact_extension = nullable_htmlentities($row['contact_extension']);
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
                         if (empty($contact_phone)) {
                             $contact_phone_display = "";
                         } else {
-                            $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i>$contact_phone</div>";
+                            $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i>$contact_phone $contact_extension</div>";
                         }
-                        $contact_extension = nullable_htmlentities($row['contact_extension']);
+                        
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
