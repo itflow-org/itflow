@@ -14,7 +14,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip mr-2"></i>Files</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFileModal"><i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload File</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFilesModal"><i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload File</button>
             </div>
         </div>
         <div class="card-body">
@@ -108,7 +108,7 @@ $num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_
     </div>
 
 <?php
-require_once("client_file_add_modal.php");
+require_once("client_files_add_modal.php");
 require_once("share_modal.php");
 require_once("client_file_delete_modal.php");
 require_once("footer.php");
