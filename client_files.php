@@ -82,7 +82,7 @@ $num_of_files = mysqli_num_rows($sql);
     
     <div class="card-body">
         <div class="row">
-            <div class="col-md-3 border-right">
+            <div class="col-md-3 border-right mb-3">
                 <h4>Folders</h4>
                 <hr>
                 <ul class="nav nav-pills flex-column bg-light">

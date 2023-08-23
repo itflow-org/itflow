@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3 border-right">
+                <div class="col-md-3 border-right mb-3">
                     <h4>Folders</h4>
                     <hr>
                     <ul class="nav nav-pills flex-column bg-light">
