@@ -620,23 +620,27 @@ function checkFileUpload($file, $allowed_extensions) {
     $extension = strtolower(end($extarr));
 
     // Check a file is actually attached/uploaded
-    if ($tmp == '') {
-        return false;
-    }
-
-    // Check the size is under 500 MB
-    if ($size > 500 * 1024 * 1024) {
-        return false;
+    if ($tmp === '') {
+        return "No file was uploaded.";
     }
 
     // Check the extension is allowed
-    if (in_array($extension, $allowed_extensions) === false){
-        return false;
+    if (!in_array($extension, $allowed_extensions)) {
+        return "File extension not allowed.";
     }
 
-    // Sanitize & return name
-    return md5(time() . $name) . '.' . $extension;
+    // Check the size is under 500 MB
+    $maxSizeBytes = 500 * 1024 * 1024; // 500 MB
+    if ($size > $maxSizeBytes) {
+        return "File size exceeds the limit.";
+    }
 
+    // Perform additional content-based validation here, if needed
+
+    // Generate a secure filename using SHA-256
+    $secureFilename = hash('sha256', time() . $name) . '.' . $extension;
+
+    return $secureFilename;
 }
 
 function sanitizeInput($input) {
