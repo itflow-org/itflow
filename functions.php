@@ -636,16 +636,13 @@ function checkFileUpload($file, $allowed_extensions) {
     }
 
     // Read the file content
-    //$fileContent = file_get_contents($tmp);
+    $fileContent = file_get_contents($tmp);
 
     // Hash the file content using SHA-256
-    //$hashedContent = hash('sha256', $fileContent);
+    $hashedContent = hash('sha256', $fileContent);
 
     // Generate a secure filename using the hashed content
-    //$secureFilename = $hashedContent . '.' . $extension;
-
-    // Generate a secure filename using SHA-256
-    $secureFilename = hash('sha256', time() . $name) . '.' . $extension;
+    $secureFilename = $hashedContent . '.' . $extension;
 
     return $secureFilename;
 }
