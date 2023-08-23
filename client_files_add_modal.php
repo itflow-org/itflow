@@ -14,6 +14,7 @@
                     <div class="form-group">
                         <input type="file" class="form-control-file" name="file[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1">
                     </div>
+                    <small class="text-secondary">Multiple files can be uploaded by holding down CTRL and selecting files</small>
 
                 </div>
                 <div class="modal-footer bg-white">
