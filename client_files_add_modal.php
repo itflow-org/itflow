@@ -28,24 +28,35 @@
 
 <script>
     const maxFiles = 20; // Set the maximum number of allowed files
+    const maxTotalSize = 500 * 1024 * 1024; // 500MB in bytes
 
     const fileInput = document.getElementById('fileInput');
     const uploadForm = document.getElementById('uploadForm');
 
     fileInput.addEventListener('change', function () {
-        if (fileInput.files.length > maxFiles) {
-            alert(`You can only upload up to ${maxFiles} files at a time.`);
+        const totalSize = calculateTotalFileSize(fileInput.files);
+        if (fileInput.files.length > maxFiles || totalSize > maxTotalSize) {
+            alert(`You can only upload up to ${maxFiles} files at a time and the total file size must not exceed 500MB.`);
             resetFileInput();
         }
     });
 
     uploadForm.addEventListener('submit', function (event) {
-        if (fileInput.files.length > maxFiles) {
+        const totalSize = calculateTotalFileSize(fileInput.files);
+        if (fileInput.files.length > maxFiles || totalSize > maxTotalSize) {
             event.preventDefault();
-            alert(`You can only upload up to ${maxFiles} files at a time.`);
+            alert(`You can only upload up to ${maxFiles} files at a time and the total file size must not exceed 500MB.`);
             resetFileInput();
         }
     });
+
+    function calculateTotalFileSize(files) {
+        let totalSize = 0;
+        for (const file of files) {
+            totalSize += file.size;
+        }
+        return totalSize;
+    }
 
     function resetFileInput() {
         fileInput.value = ''; // Clear the selected files
