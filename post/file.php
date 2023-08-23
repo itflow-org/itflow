@@ -35,7 +35,10 @@ if (isset($_POST['add_files'])) {
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_client_id = $client_id");
+            // Extract .ext from reference file name to be used to store SHA256 hash value
+            $file_hash = strstr($file_reference_name, '.', true) ?: $file_reference_name;
+
+            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_hash = '$file_hash', file_client_id = $client_id");
 
             //Logging
             $file_id = intval(mysqli_insert_id($mysqli));
