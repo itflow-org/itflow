@@ -583,6 +583,7 @@ CREATE TABLE `folders` (
   `folder_id` int(11) NOT NULL AUTO_INCREMENT,
   `folder_name` varchar(200) NOT NULL,
   `parent_folder` int(11) NOT NULL DEFAULT 0,
+  `folder_location` int(11) DEFAULT 0,
   `folder_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`folder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -1693,4 +1694,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-23 16:27:20
+-- Dump completed on 2023-08-23 18:02:23

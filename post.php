@@ -18,6 +18,7 @@ require_once("post/client.php");
 require_once("post/contact.php");
 require_once("post/custom_field.php");
 require_once("post/document.php");
+require_once("post/folder.php");
 require_once("post/domain.php");
 require_once("post/event.php");
 require_once("post/expense.php");

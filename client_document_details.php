@@ -12,6 +12,7 @@ if (isset($_GET['document_id'])) {
 	$document_id = intval($_GET['document_id']);
 }
 
+$folder_location = 0;
 
 $sql_document = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_id = $client_id AND document_id = $document_id");
 
@@ -52,9 +53,6 @@ $document_folder_id = intval($row['document_folder_id']);
       <div class="card-body">
         <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
           <i class="fas fa-fw fa-edit mr-2"></i>Edit
-        </button>
-        <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#editDocumentModal">
-          <i class="fas fa-fw fa-copy mr-2"></i>Copy
         </button>
         <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#shareModal"
           onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">

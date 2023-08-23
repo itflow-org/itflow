@@ -1,4 +1,4 @@
-<div class="modal" id="addFolderModal" tabindex="-1">
+<div class="modal" id="createFolderModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
@@ -9,6 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="folder_location" value="<?php echo $folder_location; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -23,7 +24,7 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_folder" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="submit" name="create_folder" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>

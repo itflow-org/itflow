@@ -4,8 +4,9 @@
  * ITFlow - GET/POST request handler for client files/uploads
  */
 
-if (isset($_POST['add_files'])) {
+if (isset($_POST['upload_files'])) {
     $client_id = intval($_POST['client_id']);
+    $folder_id = intval($_POST['folder_id']);
     
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
@@ -38,7 +39,7 @@ if (isset($_POST['add_files'])) {
             // Extract .ext from reference file name to be used to store SHA256 hash
             $file_hash = strstr($file_reference_name, '.', true) ?: $file_reference_name;
 
-            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_hash = '$file_hash', file_client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_ext = '$file_extension', file_hash = '$file_hash', file_folder_id = $folder_id, file_client_id = $client_id");
 
             //Logging
             $file_id = intval(mysqli_insert_id($mysqli));
@@ -66,6 +67,27 @@ if (isset($_POST['rename_file'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Rename', log_description = '$session_name renamed file to $file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
 
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> renamed";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['move_file'])) {
+
+    validateTechRole();
+
+    $file_id = intval($_POST['file_id']);
+    $client_id = intval($_POST['client_id']);
+    $folder_id = intval($_POST['folder_id']);
+
+    // Document edit query
+    mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Move', log_description = '$session_name moved file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+
+
+    $_SESSION['alert_message'] = "File moved";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

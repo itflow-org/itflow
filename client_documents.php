@@ -29,6 +29,9 @@ if (!empty($_GET['folder_id'])) {
     $get_folder_id = intval($_GET['folder_id']);
 }
 
+// Set Folder Location Var used when creating folders
+$folder_location = 0;
+
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM documents
@@ -61,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addFolderModal">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
                             <i class="fa fa-fw fa-folder-plus mr-2"></i>Folder
                         </a>
                         <div class="dropdown-divider"></div>
@@ -82,10 +85,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
                         </li>
                         <?php
-                        $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                        $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
                         while ($row = mysqli_fetch_array($sql_folders)) {
                             $folder_id = intval($row['folder_id']);
                             $folder_name = nullable_htmlentities($row['folder_name']);
+
 
                             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
                             $num_documents = intval($row['num']);
@@ -128,12 +132,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </li>
 
                             <?php
-                            require("client_document_folder_rename_modal.php");
+                            require("folder_rename_modal.php");
 
                         }
                         ?>
                     </ul>
-                    <?php require_once("client_document_folder_add_modal.php"); ?>
+                    <?php require_once("folder_create_modal.php"); ?>
                 </div>
 
                 <div class="col-md-9">
