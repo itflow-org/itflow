@@ -1232,8 +1232,7 @@ if (isset($_POST['add_telemetry'])) {
                                 or deleting it and refreshing this page.
                             <?php }else{ ?>
                                 <form method="post" autocomplete="off">
-                                
-                                    <div class="form-group">
+                                 <div class="form-group">
                                         <label>Database User <strong class="text-danger">*</strong></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
