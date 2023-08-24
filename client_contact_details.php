@@ -55,7 +55,6 @@ if (isset($_GET['contact_id'])) {
         $mysqli,
         "SELECT * FROM software_contacts 
         LEFT JOIN software ON software_contacts.software_id = software.software_id 
-        LEFT JOIN logins on software.software_id = logins.login_software_id 
         WHERE software_contacts.contact_id = $contact_id 
         ORDER BY software.software_id DESC"
     );
