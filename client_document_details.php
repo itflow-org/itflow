@@ -63,7 +63,7 @@ $document_folder_id = intval($row['document_folder_id']);
         <h5>Related</h5>
         <h6>
           <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
-          <button type="button" class="btn btn-link btn-sm">
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#associateFileToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
@@ -93,11 +93,37 @@ $document_folder_id = intval($row['document_folder_id']);
         </h6>
         <h6>
           <i class="fas fa-fw fa-building text-secondary mr-2"></i>Vendors
-          <button type="button" class="btn btn-link btn-sm">
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#associateVendorToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
+        <ul>
+          <?php
+          $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors, vendor_documents
+            WHERE vendors.vendor_id = vendor_documents.vendor_id 
+            AND vendor_documents.document_id = $document_id
+            ORDER BY vendor_name ASC"
+          );
+          
+          $associated_vendors = array();
 
+          while ($row = mysqli_fetch_array($sql_vendors)) {
+            $vendor_id = intval($row['vendor_id']);
+            $vendor_name = nullable_htmlentities($row['vendor_name']);
+
+            $associated_vendors[] = $vendor_id;
+
+            ?>
+            <li>
+              <?php echo $vendor_name; ?> 
+              <a href="post.php?unassociate_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
+                <i class="fas fa-fw fa-times text-secondary ml-2"></i>
+              </a>
+            </li>
+          <?php
+          }
+          ?>
+      </ul>
       </div>
     </div>
 
@@ -108,6 +134,8 @@ $document_folder_id = intval($row['document_folder_id']);
 <?php
 
 require_once("client_document_edit_modal.php");
+require_once("client_document_associate_file_modal.php");
+require_once("client_document_associate_vendor_modal.php");
 require_once("share_modal.php");
 require_once("footer.php");
 
