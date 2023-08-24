@@ -59,36 +59,8 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     $config_smtp_encryption = sanitizeInput($_POST['config_smtp_encryption']);
     $config_smtp_username = sanitizeInput($_POST['config_smtp_username']);
     $config_smtp_password = sanitizeInput($_POST['config_smtp_password']);
-    $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
-    $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password', config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name' WHERE company_id = 1");
-
-
-    //Update From Email and From Name if Invoice/Quote or Ticket fields are blank
-    if (empty($config_invoice_from_name)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_name = '$config_mail_from_name' WHERE company_id = 1");
-    }
-
-    if (empty($config_invoice_from_email)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_invoice_from_email = '$config_mail_from_email' WHERE company_id = 1");
-    }
-
-    if (empty($config_quote_from_name)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_quote_from_name = '$config_mail_from_name' WHERE company_id = 1");
-    }
-
-    if (empty($config_quote_from_email)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_quote_from_email = '$config_mail_from_email' WHERE company_id = 1");
-    }
-
-    if (empty($config_ticket_from_name)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_name = '$config_mail_from_name' WHERE company_id = 1");
-    }
-
-    if (empty($config_ticket_from_email)) {
-        mysqli_query($mysqli,"UPDATE settings SET config_ticket_from_email = '$config_mail_from_email' WHERE company_id = 1");
-    }
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified SMTP mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -121,17 +93,44 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
 }
 
-if (isset($_POST['test_email_smtp'])) {
+if (isset($_POST['edit_mail_from_settings'])) {
 
     validateAdminRole();
 
-    $email = sanitizeInput($_POST['email']);
+    $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
+    $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
+
+    $config_invoice_from_email = sanitizeInput($_POST['config_invoice_from_email']);
+    $config_invoice_from_name = sanitizeInput($_POST['config_invoice_from_name']);
+
+    $config_quote_from_email = sanitizeInput($_POST['config_quote_from_email']);
+    $config_quote_from_name = sanitizeInput($_POST['config_quote_from_name']);
+
+    $config_ticket_from_email = sanitizeInput($_POST['config_ticket_from_email']);
+    $config_ticket_from_name = sanitizeInput($_POST['config_ticket_from_name']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified Mail From settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Mail From Settings updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['test_email_smtp'])) {
+
+    validateAdminRole();
+    $email_from = sanitizeInput($_POST['email_from']);
+    $email_to = sanitizeInput($_POST['email_to']);
     $subject = "Hi'ya there Chap";
     $body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
 
     $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-        $config_mail_from_email, $config_mail_from_name,
-        $email, $email,
+        $email_from, $config_mail_from_name,
+        $email_to, $email_to,
         $subject, $body);
 
     if ($mail === true) {

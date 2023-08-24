@@ -3,7 +3,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>SMTP Mail Settings</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>SMTP Mail Settings <small>(For Sending Email)</small></h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -65,26 +65,6 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
-                        <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Name</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
-                    </div>
-                </div>
-
                 <hr>
 
                 <button type="submit" name="edit_mail_smtp_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
@@ -95,7 +75,7 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>IMAP Mail Settings</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>IMAP Mail Settings <small>(For Monitoring Ticket Inbox)</small></h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
@@ -167,6 +147,112 @@ require_once("inc_all_settings.php"); ?>
         </div>
     </div>
 
+    <div class="card card-dark">
+        <div class="card-header py-3">
+            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>Mail From Configuration</h3>
+        </div>
+        <div class="card-body">
+            <form action="post.php" method="post" autocomplete="off">
+                <p>Each of the "From Email" Addresses need to be able to send email on behalf of the SMTP user configured above
+                <h3>Generic</h3>
+                <p>(used for system tasks such as sending share links)</p>
+                <div class="form-group">
+                    <label>From Email</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_mail_from_email" placeholder="Email Address (ex noreply@yourcompany.com)" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>From Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_mail_from_name" placeholder="Name (ex YourCompany)" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
+                    </div>
+                </div>
+
+                <h3>Invoices</h3>
+                <p>(used for when invoice emails are sent)</p>
+
+                <div class="form-group">
+                    <label>From Email</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_invoice_from_email" placeholder="Email (ex billing@yourcompany.com)" value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>From Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_invoice_from_name" placeholder="Name (ex CompanyName Billing)" value="<?php echo nullable_htmlentities($config_invoice_from_name); ?>">
+                    </div>
+                </div>
+
+                <h3>Quotes</h3>
+                <p>(used for when quote emails are sent)</p>
+
+                <div class="form-group">
+                    <label>From Email</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_quote_from_email" placeholder="Email (ex sales@yourcompany.com)" value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>From Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_quote_from_name" placeholder="Name (ex YourCompany Sales)" value="<?php echo nullable_htmlentities($config_quote_from_name); ?>">
+                    </div>
+                </div>
+
+                <h3>Tickets</h3>
+                <p>(used for when tickets are created and emailed to a client)</p>
+
+                <div class="form-group">
+                    <label>From Email</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_ticket_from_email" placeholder="Email (ex support@yourcompany.com)" value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>From Name</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_ticket_from_name" placeholder="Name (ex YourCompany Support)" value="<?php echo nullable_htmlentities($config_ticket_from_name); ?>">
+                    </div>
+                </div>
+
+                <hr>
+
+                <button type="submit" name="edit_mail_from_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+
+            </form>
+        </div>
+    </div>
+
     <?php if (!empty($config_smtp_host) && !empty($config_smtp_port) && !empty($config_mail_from_email) && !empty($config_mail_from_name)) { ?>
 
     <div class="card card-dark">
@@ -176,7 +262,33 @@ require_once("inc_all_settings.php"); ?>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <div class="input-group">
-                    <input type="email" class="form-control " name="email" placeholder="Email address to test">
+                    <select class="form-control select2" name="email_from" required>
+                        <option value="">- Select an Email Address to send from -</option>
+                        <?php
+                        if(!empty($config_mail_from_email)){
+                        ?>
+                        <option><?php echo nullable_htmlentities($config_mail_from_email); ?></option>
+                        <?php } ?>
+
+                        <?php
+                        if(!empty($config_ticket_from_email)){
+                        ?>
+                        <option><?php echo nullable_htmlentities($config_ticket_from_email); ?></option>
+                        <?php } ?>
+
+                        <?php
+                        if(!empty($config_invoice_from_email)){
+                        ?>
+                        <option><?php echo nullable_htmlentities($config_invoice_from_email); ?></option>
+                        <?php } ?>
+
+                        <?php
+                        if(!empty($config_quote_from_email)){
+                        ?>
+                        <option><?php echo nullable_htmlentities($config_quote_from_email); ?></option>
+                        <?php } ?>
+                    </select>
+                    <input type="email" class="form-control " name="email_to" placeholder="Email address to send to">
                     <div class="input-group-append">
                         <button type="submit" name="test_email_smtp" class="btn btn-success"><i class="fas fa-fw fa-paper-plane mr-2"></i>Send</button>
                     </div>
