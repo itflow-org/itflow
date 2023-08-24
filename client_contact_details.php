@@ -42,7 +42,7 @@ if (isset($_GET['contact_id'])) {
     $auth_method = nullable_htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN logins ON logins.login_asset_id = assets.asset_id WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
@@ -376,7 +376,6 @@ if (isset($_GET['contact_id'])) {
                                 <th>Type</th>
                                 <th>License Type</th>
                                 <th>Seats</th>
-                                <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -425,29 +424,10 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $software_type; ?></td>
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
-                                    <td>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                </a>
-                                                <?php if ($session_user_role == 3) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_software=<?php echo $software_id; ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                    </a>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </td>
                                 </tr>
 
                                 <?php
 
-                                require("client_software_edit_modal.php");
                             }
 
                             ?>
