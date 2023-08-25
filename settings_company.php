@@ -80,7 +80,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
                 </div>
 
                 <div class="form-group">
-                    <label>Zip / Postal Code</label>
+                    <label>Postal Code</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
@@ -135,15 +135,15 @@ $company_initials = nullable_htmlentities(initials($company_name));
                 </div>
 
                 <div class="form-group">
-                    <label>Locale <strong class="text-danger">*</strong></label>
+                    <label>Language <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
                         </div>
                         <select class="form-control select2" name="locale" required>
                             <option value="">- Select a Locale -</option>
                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
-                                <option <?php if ($company_locale == $locale_code) { echo "selected"; } ?> value="<?php echo $locale_code; ?>"><?php echo "$locale_code - $locale_name"; ?></option>
+                                <option <?php if ($company_locale == $locale_code) { echo "selected"; } ?> value="<?php echo $locale_code; ?>"><?php echo $locale_name; ?></option>
                             <?php } ?>
                         </select>
                     </div>
