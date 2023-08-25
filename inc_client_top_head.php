@@ -1,28 +1,34 @@
 <div class="card d-print-none">
-    <div class="card-body">
+    <div class="card-body py-2">
         <div class="row">
             <div class="col-md">
                 <h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4>
                 <?php if (!empty($location_address)) { ?>
-                    <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-1"></i> <?php echo $location_address; ?></div>
-                        <div class="ml-4 mb-2"><?php echo "$location_city $location_state $location_zip"; ?></div>
-                    </a>
+                    <div>
+                        <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
+                            <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2"></i><?php echo $location_address; ?>
+                            <div class="ml-4"><?php echo "$location_city $location_state $location_zip"; ?></div>
+                        </a>
+                    </div>
                 <?php }
 
                 if (!empty($location_phone)) { ?>
-                    <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $location_phone?>"><?php echo $location_phone; ?></a>
-                    <br>
+                    <div class="mt-1">
+                        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2"></i><a href="tel:<?php echo $location_phone?>"><?php echo $location_phone; ?></a>
+                    </div>
                 <?php }
 
                 if (!empty($client_website)) { ?>
-                    <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2 mb-2"></i> <a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
-                    <br>
+                    <div class="mt-1">
+                        <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2"></i><a target="_blank" href="//<?php echo $client_website; ?>"><?php echo $client_website; ?></a>
+                    </div>
                 <?php }
 
-                if (!empty($client_tag_name_display_array)) {
-                    echo $client_tags_display;
-                } ?>
+                if (!empty($client_tag_name_display_array)) { ?>
+                    <div class="mt-1">
+                        <?php echo $client_tags_display; ?>
+                    </div>
+                <?php } ?>
 
             </div>
             <div class="col-md border-left">
@@ -30,43 +36,63 @@
                 <?php
 
                 if (!empty($contact_name)) { ?>
-                    <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i> <?php echo $contact_name; ?>
-                    <br>
+                    <div>
+                        <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i> <?php echo $contact_name; ?>
+                    </div>
                 <?php }
 
-
                 if (!empty($contact_email)) { ?>
-                    <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2 mb-2"></i> <a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
-                    <br>
+                    <div class="mt-1">
+                        <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2"></i>
+                        <a href="mailto:<?php echo $contact_email; ?>"> <?php echo $contact_email; ?></a>
+                    </div>
                     <?php
                 }
 
-
                 if (!empty($contact_phone)) { ?>
-                    <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?> </a>
+                    <div class="mt-1">
+                        <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2"></i>
+                        <a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
 
+                        <?php
+                        if (!empty($contact_extension)) {
+                            echo "<small>x$contact_extension</small>";
+                        }
+                        ?>
+                    </div>
                     <?php
-                    if (!empty($contact_extension)) {
-                        echo "x $contact_extension";
-                    }
-                    echo "<br>";
                 }
 
                 if (!empty($contact_mobile)) { ?>
-                    <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2 mb-2"></i> <a href="tel:<?php echo $contact_mobile; ?>"> <?php echo $contact_mobile; ?> </a>
+                    <div class="mt-1">
+                        <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2"></i>
+                        <a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
+                    </div>
                 <?php } ?>
 
             </div>
             <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
                 <div class="col-md border-left">
                     <h4 class="text-secondary">Billing</h4>
-                    <h6 class="ml-1 text-secondary">Hourly Rate <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $client_rate, $client_currency_code); ?></div></h6>
-                    <h6 class="ml-1 text-secondary">Paid <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></div></h6>
-                    <h6 class="ml-1 text-secondary">Balance <div class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></div></h6>
-                    <h6 class="ml-1 text-secondary">Monthly Recurring <div class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></div></h6>
-                    <h6 class="ml-1 text-secondary">Net Terms <div class="text-dark float-right"><?php echo $client_net_terms; ?> <small class="text-secondary">Days</small></div></h6>
+                    <div class="ml-1 text-secondary">Hourly Rate
+                        <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $client_rate, $client_currency_code); ?></span>
+                    </div>
+                    <div class="ml-1 mt-1 text-secondary">Paid
+                        <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></span>
+                    </div>
+                    <div class="ml-1 mt-1 text-secondary">Balance
+                        <span class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></span>
+                    </div>
+                    <div class="ml-1 mt-1 text-secondary">Monthly Recurring
+                        <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></span>
+                    </div>
+                    <div class="ml-1 mt-1 text-secondary">Net Terms
+                        <span class="text-dark float-right"><?php echo $client_net_terms; ?><small class="text-secondary ml-1">Days</small></span>
+                    </div>
                     <?php if(!empty($client_tax_id_number)) { ?>
-                    <h6 class="ml-1 text-secondary">Tax ID <div class="text-dark float-right"><?php echo $client_tax_id_number; ?></div></h6>
+                    <div class="ml-1 mt-1 text-secondary">Tax ID
+                        <span class="text-dark float-right"><?php echo $client_tax_id_number; ?></span>
+                    </div>
                     <?php } ?>
                 </div>
             <?php } ?>
@@ -74,7 +100,9 @@
             <?php if ($config_module_enable_ticketing == 1) { ?>
                 <div class="col-md border-left">
                     <h4 class="text-secondary">Support</h4>
-                    <h6 class="ml-1 text-secondary">Open Tickets <div class="text-dark float-right"><?php echo $num_active_tickets; ?></div></h6>
+                    <div class="ml-1 text-secondary">Open Tickets
+                        <span class="text-dark float-right"><?php echo $num_active_tickets; ?></span>
+                    </div>
                 </div>
             <?php } ?>
 
