@@ -1402,7 +1402,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <label>Country <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                                            <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                                         </div>
                                         <select class="form-control select2" name="country" required>
                                             <option value="">- Country -</option>

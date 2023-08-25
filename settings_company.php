@@ -93,7 +93,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
                     <label>Country</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                         </div>
                         <select class="form-control select2" name="country">
                             <option value="">- Country -</option>

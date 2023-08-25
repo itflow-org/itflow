@@ -109,7 +109,7 @@
                                 <label>Purchase Date</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                     </div>
                                     <input type="date" class="form-control" name="purchase" max="2999-12-31">
                                 </div>
@@ -119,7 +119,7 @@
                                 <label>Expire</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                                     </div>
                                     <input type="date" class="form-control" name="expire" max="2999-12-31">
                                 </div>

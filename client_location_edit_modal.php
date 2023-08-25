@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Zip / Postal Code</label>
+                                <label>Postal Code</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
@@ -90,7 +90,7 @@
                                 <label>Country</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                                     </div>
                                     <select class="form-control select2" name="country">
                                         <option value="">- Country -</option>

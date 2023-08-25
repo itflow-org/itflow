@@ -49,7 +49,7 @@
                         <label>Expire Date</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                             </div>
                             <input type="date" class="form-control" id="editExpire" name="expire" max="2999-12-31" value="">
                         </div>

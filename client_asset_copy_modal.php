@@ -253,7 +253,7 @@
                                 <label>Install Date</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                     </div>
                                     <input type="date" class="form-control" name="install_date" max="2999-12-31" value="<?php echo $asset_install_date; ?>">
                                 </div>
@@ -274,7 +274,7 @@
                                     <label>Warranty Expire</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                                         </div>
                                         <input type="date" class="form-control" name="warranty_expire" max="2999-12-31" value="<?php echo $asset_warranty_expire; ?>">
                                     </div>

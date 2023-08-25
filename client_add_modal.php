@@ -134,7 +134,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Zip / Postal Code</label>
+                                <label>Postal Code</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
@@ -147,7 +147,7 @@
                                 <label>Country</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                                     </div>
                                     <select class="form-control select2" name="country">
                                         <option value="">- Country -</option>
@@ -166,7 +166,7 @@
                                 <label>Primary Contact <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                     </div>
                                     <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" required autofocus>
                                 </div>

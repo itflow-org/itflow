@@ -16,7 +16,7 @@
                         <label>Frequency <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-plus"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                             </div>
                             <!-- Not using select2 as couldn't get this working with Javascript modal population -->
                             <select class="form-control" name="frequency" required id="editTicketFrequency">
