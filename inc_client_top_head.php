@@ -31,13 +31,15 @@
                 <?php } ?>
             </div>
         </div>
-
         
         <div class="collapse show" id="Collapse">
+
+
+
             <div class="row">
                 
-                <div class="col-md">
-                    <h5 class="text-secondary">Primary Location</h5>
+                <div class="col-md border-top">
+                    <h5 class="text-secondary mt-1">Primary Location</h5>
                     <?php if (!empty($location_address)) { ?>
                         <div>
                             <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
@@ -62,8 +64,8 @@
 
                 </div>
 
-                <div class="col-md border-left">
-                    <h5 class="text-secondary">Primary Contact</h5>
+                <div class="col-md border-left border-top">
+                    <h5 class="text-secondary mt-1">Primary Contact</h5>
                     <?php
 
                     if (!empty($contact_name)) { ?>
@@ -104,8 +106,8 @@
                 </div>
 
                 <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
-                <div class="col-md border-left">
-                    <h5 class="text-secondary">Billing</h5>
+                <div class="col-md border-left border-top">
+                    <h5 class="text-secondary mt-1">Billing</h5>
                     <div class="ml-1 text-secondary">Hourly Rate
                         <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $client_rate, $client_currency_code); ?></span>
                     </div>
@@ -130,8 +132,8 @@
                 <?php } ?>
 
                 
-                <div class="col-md border-left">
-                    <h5 class="text-secondary">Support</h5>
+                <div class="col-md border-left border-top">
+                    <h5 class="text-secondary mt-1">Support</h5>
                     <div class="ml-1 text-secondary">Open Tickets
                         <span class="text-dark float-right"><?php echo $num_active_tickets; ?></span>
                     </div>

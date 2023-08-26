@@ -202,25 +202,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <h6><a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <i class="fas fa-fw fa-arrow-circle-right"></i></a></h6>
+                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <i class="fas fa-fw fa-arrow-circle-right"></i></a>
                                 
-                                    <?php
-                                    if (!empty($client_type)) {
-                                        ?>
-                                        <div class="text-secondary">
-                                            <?php echo $client_type; ?>
-                                        </div>
-                                    <?php } ?>
-                                    <?php
-                                    if (!empty($client_tags_display)) { ?>
-                                        <div class="mt-1">
-                                            <?php echo $client_tags_display; ?>
-                                        </div>
-                                    <?php } ?>
-                                    
-                                    <div class="mt-1 text-secondary">
-                                        <strong>Created:</strong> <?php echo $client_created_at; ?>
+                                <?php
+                                if (!empty($client_type)) {
+                                ?>
+                                    <div class="text-secondary mt-1">
+                                        <?php echo $client_type; ?>
                                     </div>
+                                <?php } ?>
+                                <?php
+                                if (!empty($client_tags_display)) { ?>
+                                    <div class="mt-1">
+                                        <?php echo $client_tags_display; ?>
+                                    </div>
+                                <?php } ?>
+                                <div class="mt-1 text-secondary">
+                                    <small><strong>Created:</strong> <?php echo $client_created_at; ?></small>
+                                </div>
                                 
                             </td>
                             <td><?php echo $location_address_display; ?></td>
@@ -231,24 +230,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 }
 
                                 if (!empty($contact_name)) { ?>
-                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><strong><?php echo $contact_name; ?></strong>
-                                    <br>
+                                    <div>
+                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $contact_name; ?>
+                                    </div>
                                 <?php } else {
                                     echo "-";
                                 }
 
                                 if (!empty($contact_phone)) { ?>
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
-                                    <br>
+                                    <div class="mt-1">
+                                        <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
+                                    </div>
                                 <?php }
 
                                 if (!empty($contact_mobile)) { ?>
-                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
-                                    <br>
+                                    <div class="mt-1">
+                                        <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
+                                    </div>
                                 <?php }
 
                                 if (!empty($contact_email)) { ?>
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                    <div class="mt-1">
+                                        <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                    </div>
                                 <?php } ?>
                             </td>
 
