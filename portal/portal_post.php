@@ -14,6 +14,12 @@ if (isset($_POST['add_ticket'])) {
     $config_ticket_prefix = sanitizeInput($row['config_ticket_prefix']);
     $config_ticket_next_number = intval($row['config_ticket_next_number']);
 
+    // Get email settings
+    $config_ticket_from_name = $row['config_ticket_from_name'];
+    $config_ticket_from_email = $row['config_ticket_from_email'];
+    $config_ticket_new_ticket_notification_email = filter_var($row['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL);
+
+
     $client_id = intval($session_client_id);
     $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
@@ -33,6 +39,18 @@ if (isset($_POST['add_ticket'])) {
 
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
+
+    // Notify agent DL of the new ticket, if populated with a valid email
+    if ($config_ticket_new_ticket_notification_email) {
+
+        $client_name = sanitizeInput($session_client_name);
+        $details = removeEmoji($details);
+
+        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br><b>$subject</b><br>$details";
+
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
+    }
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id");

@@ -79,6 +79,16 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Email address to notify when new tickets are raised <small class="text-secondary">(Ideally a distribution list/shared mailbox)</small></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave bank for none" value="<?php echo nullable_htmlentities($config_ticket_new_ticket_notification_email); ?>">
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_ticket_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
