@@ -38,7 +38,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
             <?php } else {
                 if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
                     <div class="alert alert-warning" role="alert">
-                        <strong>Ensure you have a current app & database backup before updating!</strong>
+                        <strong>Ensure you have a current <a href="https://docs.itflow.org/backups">app & database backup</a> before updating!</strong>
                     </div>
                     <br>
                     <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
