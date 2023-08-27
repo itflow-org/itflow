@@ -62,13 +62,18 @@
                                     <option value="">- Account -</option>
                                     <?php
 
-                                    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_name ASC");
+                                    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = intval($row['account_id']);
                                         $account_name_select = nullable_htmlentities($row['account_name']);
                                         $account_currency_code_select = nullable_htmlentities($row['account_currency_code']);
                                         $opening_balance = floatval($row['opening_balance']);
-
+                                        $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                                        if (empty($account_archived_at)) {
+                                            $account_archived_display = "";
+                                        } else {
+                                            $account_archived_display = "Archived - ";
+                                        }
                                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                                         $row = mysqli_fetch_array($sql_payments);
                                         $total_payments = floatval($row['total_payments']);
@@ -84,7 +89,7 @@
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                         ?>
-                                        <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code_select); ?> ]</option>
+                                        <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_archived_display; ?> <?php echo $account_name_select; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code_select); ?> ]</option>
 
                                         <?php
                                     }

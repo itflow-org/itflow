@@ -47,11 +47,17 @@
                             <select class="form-control select2" name="account_from" required>
                                 <?php
 
-                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_name ASC");
+                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id_select = intval($row['account_id']);
                                     $account_name_select = nullable_htmlentities($row['account_name']);
                                     $opening_balance = floatval($row['opening_balance']);
+                                    $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                                    if (empty($account_archived_at)) {
+                                        $account_archived_display = "";
+                                    } else {
+                                        $account_archived_display = "Archived - ";
+                                    }
 
                                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                                     $row = mysqli_fetch_array($sql_payments);
@@ -68,7 +74,7 @@
                                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                     ?>
-                                    <option <?php if ($transfer_account_from == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                                    <option <?php if ($transfer_account_from == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo "$account_archived_display$account_name_select"; ?> [$<?php echo number_format($balance, 2); ?>]</option>
                                     <?php
                                 }
 
@@ -85,11 +91,17 @@
                             <select class="form-control select2" name="account_to" required>
                                 <?php
 
-                                $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_name ASC");
+                                $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                                 while ($row = mysqli_fetch_array($sql2)) {
                                     $account_id2 = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']);
                                     $opening_balance = floatval($row['opening_balance']);
+                                    $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                                    if (empty($account_archived_at)) {
+                                        $account_archived_display = "";
+                                    } else {
+                                        $account_archived_display = "Archived - ";
+                                    }
 
                                     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id2");
                                     $row = mysqli_fetch_array($sql_payments);
@@ -106,7 +118,7 @@
                                     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                     ?>
-                                    <option <?php if ($transfer_account_to == $account_id2) { echo "selected"; } ?> value="<?php echo $account_id2; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                                    <option <?php if ($transfer_account_to == $account_id2) { echo "selected"; } ?> value="<?php echo $account_id2; ?>"><?php echo "$account_archived_display$account_name"; ?> [$<?php echo number_format($balance, 2); ?>]</option>
                                     <?php
                                 }
 

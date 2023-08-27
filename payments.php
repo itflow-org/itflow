@@ -112,6 +112,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
                         $account_name = nullable_htmlentities($row['account_name']);
+                        $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        if (empty($account_archived_at)) {
+                            $account_archived_display = "";
+                        } else {
+                            $account_archived_display = "Archived - ";
+                        }
 
                         ?>
 
@@ -123,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                             <td><?php echo $payment_method; ?></td>
                             <td><?php echo $payment_reference_display; ?></td>
-                            <td><?php echo $account_name; ?></td>
+                            <td><?php echo "$account_archived_display$account_name"; ?></td>
                         </tr>
 
                     <?php } ?>

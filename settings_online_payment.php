@@ -49,7 +49,7 @@ require_once("inc_all_settings.php");
                             <select class="form-control select2" name="config_stripe_account" required>
                                 <option value="">- Account -</option>
                                 <?php
-                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts");
+                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']); 

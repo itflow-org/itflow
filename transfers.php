@@ -111,16 +111,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_from = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
                         $row = mysqli_fetch_array($sql_from);
                         $account_name_from = nullable_htmlentities($row['account_name']);
+                        $account_from_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        if (empty($account_from_archived_at)) {
+                            $account_from_archived_display = "";
+                        } else {
+                            $account_from_archived_display = "Archived - ";
+                        }
 
                         $sql_to = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
                         $row = mysqli_fetch_array($sql_to);
                         $account_name_to = nullable_htmlentities($row['account_name']);
+                        $account_to_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        if (empty($account_to_archived_at)) {
+                            $account_to_archived_display = "";
+                        } else {
+                            $account_to_archived_display = "Archived - ";
+                        }
 
                         ?>
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
-                            <td><?php echo $account_name_from; ?></td>
-                            <td><?php echo $account_name_to; ?></td>
+                            <td><?php echo "$account_from_archived_display$account_name_from"; ?></td>
+                            <td><?php echo "$account_to_archived_display$account_name_to"; ?></td>
                             <td><?php echo $transfer_notes_display; ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
                             <td>

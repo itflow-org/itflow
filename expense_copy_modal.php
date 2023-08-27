@@ -44,7 +44,7 @@
                                 <select class="form-control select2" name="account" required>
                                     <?php
 
-                                    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts ORDER BY account_name ASC");
+                                    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = intval($row['account_id']);
                                         $account_name_select = nullable_htmlentities($row['account_name']);
@@ -64,7 +64,7 @@
 
                                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                                         ?>
-                                        <option <?php if ($expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                                        <option <?php if ($expense_account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
                                         <?php
                                     }
 

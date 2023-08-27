@@ -59,7 +59,7 @@ $receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years
 
 $profit = $total_income - $total_expenses;
 
-$sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts");
+$sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
 
 $sql_latest_invoice_payments = mysqli_query(
     $mysqli,

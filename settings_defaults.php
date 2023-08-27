@@ -50,7 +50,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -71,7 +71,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -92,7 +92,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -113,7 +113,7 @@ require_once("inc_all_settings.php"); ?>
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts ORDER BY account_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_array($sql)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']); ?>
@@ -180,7 +180,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Save</button>
+                <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
 
             </form>
         </div>

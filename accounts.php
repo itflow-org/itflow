@@ -13,6 +13,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
     WHERE account_name LIKE '%$q%'
+    AND account_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -85,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <?php if ($balance == 0) { //Cannot Archive an Account until it reaches 0 Balance ?>
+                                        <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
