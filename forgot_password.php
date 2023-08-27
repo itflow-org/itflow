@@ -4,6 +4,7 @@ if (!file_exists('config.php')) {
     exit;
 }
 
+$company_name = "ITFLOW";
 include("config.php");
 include("get_settings.php");
 
