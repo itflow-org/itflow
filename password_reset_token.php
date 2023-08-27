@@ -30,7 +30,7 @@ $timeDifference = $currentDateTime->diff($expiredDateTime);
 // Convert the time difference to hours
 $hoursDifference = $timeDifference->h + ($timeDifference->days * 24);
 
-// Check if the difference is less than or equal to 1 hour
+// Check if the time difference is greater than 1 hour
 if ($hoursDifference > 1) {
     
     $status = '<div class="alert alert-warning alert-dismissible fade show" role="alert">
