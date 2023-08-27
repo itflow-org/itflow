@@ -1,7 +1,10 @@
 <?php
-if (file_exists("config.php")) {
-    include("config.php");
+if (!file_exists('config.php')) {
+    header("Location: setup.php");
+    exit;
 }
+
+include("config.php");
 
 include("functions.php");
 if (isset($_POST['forgot_password']) && $_POST['email']) {
