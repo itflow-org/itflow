@@ -1207,6 +1207,7 @@ CREATE TABLE `settings` (
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_autoclose` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
+  `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_cron_key` varchar(255) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,

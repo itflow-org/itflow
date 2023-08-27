@@ -1061,7 +1061,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 	}
 
 	if (CURRENT_DATABASE_VERSION == '0.5.6') {
-	
+
 		mysqli_query($mysqli, "CREATE TABLE `email_queue` (
 			`email_id` int(11) NOT NULL AUTO_INCREMENT,
 			`email_recipient` varchar(255) NOT NULL,
@@ -1104,16 +1104,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
 	}
 
-		
+
 
 	if (CURRENT_DATABASE_VERSION == '0.5.9') {
-		
-		// Copy primary_location and primary_contact to their new vars in their own respecting tables 
+
+		// Copy primary_location and primary_contact to their new vars in their own respecting tables
 		$sql = mysqli_query($mysqli, "SELECT * FROM clients");
 		while($row = mysqli_fetch_array($sql)) {
 			$primary_contact = $row['primary_contact'];
 			$primary_location = $row['primary_location'];
-			
+
 			if($primary_contact > 0){
 				mysqli_query($mysqli, "UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $primary_contact");
 			}
@@ -1152,7 +1152,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
 	if (CURRENT_DATABASE_VERSION == '0.6.3') {
 		mysqli_query($mysqli, "ALTER TABLE `quotes` ADD COLUMN `quote_expire` DATE NULL DEFAULT NULL AFTER `quote_date`");
-		
+
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.4'");
 	}
 
@@ -1183,12 +1183,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 	if (CURRENT_DATABASE_VERSION == '0.6.6') {
 
 		mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_start_page` VARCHAR(200) DEFAULT 'clients.php' AFTER `config_current_database_version`");
-		
+
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.6.7'");
 	}
 
 	if (CURRENT_DATABASE_VERSION == '0.6.7') {
-		
+
 		mysqli_query($mysqli, "CREATE TABLE `recurring_expenses` (
 			`recurring_expense_id` INT(11) NOT NULL AUTO_INCREMENT,
 			`recurring_expense_frequency` TINYINT(1) NOT NULL,
@@ -1226,7 +1226,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 	if (CURRENT_DATABASE_VERSION == '0.6.9') {
 
 		mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_records_per_page` INT(11) NOT NULL DEFAULT 10 AFTER `user_role`");
-		
+
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.0'");
 	}
 
@@ -1283,12 +1283,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.6'");
 	}
 
-	//if (CURRENT_DATABASE_VERSION == '0.7.6') {
+	if (CURRENT_DATABASE_VERSION == '0.7.6') {
 		//Insert queries here required to update to DB version 0.7.7
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_new_ticket_notification_email` VARCHAR(200) DEFAULT NULL AFTER `config_ticket_autoclose_hours`");
 
-		// Then, update the database to the next sequential version
-		//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.7'");
-	//}
+		 //Then, update the database to the next sequential version
+		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.7'");
+	}
+
+    //if (CURRENT_DATABASE_VERSION == '0.7.7') {
+    //Insert queries here required to update to DB version 0.7.8
+
+    // Then, update the database to the next sequential version
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.8'");
+    //}
 
 } else {
 	// Up-to-date

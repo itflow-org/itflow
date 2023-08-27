@@ -70,7 +70,7 @@ $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', '
 function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments) {
 
     // Access global variables
-    global $mysqli, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
+    global $mysqli, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
 
     // Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1"));
@@ -149,6 +149,21 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
         }
 
+    }
+
+    // Notify agent DL of the new ticket, if populated with a valid email
+    if ($config_ticket_new_ticket_notification_email) {
+
+        // Get client info
+        $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
+        $client_row = mysqli_fetch_array($client_sql);
+        $client_name = sanitizeInput($client_row['client_name']);
+
+        $details = removeEmoji($message);
+        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br><b>$subject</b><br>$details";
+
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
     }
 
     return true;
@@ -337,7 +352,7 @@ if ($emails) {
         $attachments = $parser->getAttachments();
 
         $message = $parser->getMessageBody('text');
-        // If below is enabled and up above is enabled text based emails get cut out 
+        // If below is enabled and up above is enabled text based emails get cut out
         //$message = $parser->getMessageBody('htmlEmbedded');
 
         // Check if we can identify a ticket number (in square brackets)
