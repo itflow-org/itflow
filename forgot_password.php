@@ -5,9 +5,16 @@ if (!file_exists('config.php')) {
 }
 
 include("config.php");
+include("get_settings.php");
 
+
+$company_name = "ITFlow";
+$company_reset_email = "no-reply@example.com";
 include("functions.php");
 if (isset($_POST['forgot_password']) && $_POST['email']) {
+
+
+    
 
     $email = $_POST['email'];
 
@@ -30,8 +37,10 @@ if (isset($_POST['forgot_password']) && $_POST['email']) {
         
 
         $user_id = $row['user_id'];
+        $user_name = $row['user_name'];
+
     
-        $company_name = "ITFlow";
+        
         
         $token = md5($email).rand(10, 9999);
 
@@ -53,7 +62,7 @@ if (isset($_POST['forgot_password']) && $_POST['email']) {
         
         
 
-        $output = '<p>Dear user,</p>';
+        $output = '<p>Dear '.$user_name.',</p>';
         $output .= '<p>Please click on the following link to reset your password.</p>';
         $output .= '<p>-------------------------------------------------------------</p>';
         $output .= $link;
@@ -67,24 +76,7 @@ if (isset($_POST['forgot_password']) && $_POST['email']) {
         $output .= '<p>' . $company_name . '</p>';
         $body = $output;
         $subject = "Password Recovery ";
-
-
-       
-
-        // Get Email settings Now
-        $fetch_email_setup = mysqli_query($mysqli, "SELECT * FROM `settings` WHERE company_id='" . $company_id . "'");
-        $company_email = mysqli_fetch_array($fetch_email_setup);
-        $config_smtp_host = $company_email['config_smtp_host'] ?? '';
-        ($config_smtp_host);
-        $config_smtp_username = $company_email['config_smtp_username'] ?? '';
-        $config_smtp_password = $company_email['config_smtp_password'] ?? '';
-        $config_smtp_port = $company_email['config_smtp_port'] ?? '';
-        $config_smtp_encryption = $company_email['config_smtp_encryption'] ?? ''; 
-        $config_mail_from_email = $company_email['config_mail_from_email'] ?? '';
-        $config_mail_from_name = $company_email['config_mail_from_name'] ?? '';
-
-
-
+               
 
             $mail = sendSingleEmail(
             $config_smtp_host,
@@ -95,7 +87,7 @@ if (isset($_POST['forgot_password']) && $_POST['email']) {
             $config_mail_from_email,
             $config_mail_from_name,
             $email,
-            $contact_name = $company_name,
+            $user_name,
             $subject,
             $body
         );

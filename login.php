@@ -277,6 +277,25 @@ if (isset($_POST['login'])) {
             <p><?php echo $response; ?></p>
             <?php } ?>
 
+
+ <!-- Response for success or unsucessfull password reset -->
+ <p class="login-box-msg">
+          <?php  if (!empty($_GET['status'])) {
+              $message = $_GET['status'];
+              echo '<div class="alert alert-info alert-dismissible fade show" role="alert">
+<strong>' . $message . '
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+</div>';
+          }
+?>
+  </p>
+
+   <!-- Response for success or unsucessfull password reset ends here -->
+
+
+
             <form method="post">
 
                 <div class="input-group mb-3" <?php if (isset($token_field)) { echo "hidden"; } ?>>
@@ -298,10 +317,13 @@ if (isset($_POST['login'])) {
                 <?php if (isset($token_field)) { echo $token_field; } ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
+             
+<a href="forgot_password.php" style="color: white; text-decoration: none;">Forgot Password?</a>
+
 
                 <?php if($config_client_portal_enable == 1){ ?>
                 <hr>
-                <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
+                <h5 class="text-center">Looking for the <a href="portal">Client Portal?</a></h5>
                 <?php } ?>
 
             </form>
