@@ -13,7 +13,7 @@ if($_GET['key'] && $_GET['email'] && $_GET['action'])
 
 $email = $_GET['email'];
 $token = $_GET['key'];
-$query = mysqli_query($mysqli,"SELECT * FROM `password_resets` WHERE `token`='".$token."' and `email`='".$email."'");
+$query = mysqli_query($mysqli,"SELECT * FROM `password_resets` WHERE `password_reset_token`='".$token."' and `password_reset_email`='".$email."'");
 
 if (mysqli_num_rows($query) > 0) {
 $row= mysqli_fetch_array($query);

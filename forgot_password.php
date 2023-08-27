@@ -55,7 +55,7 @@ if (isset($_POST['forgot_password']) && $_POST['email']) {
 
         $expDate = date("Y-m-d H:i:s", $expFormat);
        
-        $update = mysqli_query($mysqli, "INSERT INTO password_resets set password_rest_token='" . $token . "' , password_rest_email='" . $email . "',password_rest_expired_at='" . $expDate . "' ");
+        $update = mysqli_query($mysqli, "INSERT INTO password_resets set password_reset_token='" . $token . "' , password_reset_email='" . $email . "',password_reset_expired_at='" . $expDate . "' ");
 
         $link = "<a href='http://".$base_url."/password_reset_token.php?key=".$token."&email=".$email."&action=reset"."'>Click To Reset password</a>";
 
