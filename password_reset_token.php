@@ -18,7 +18,12 @@ $query = mysqli_query($mysqli,"SELECT * FROM `password_resets` WHERE `password_r
 if (mysqli_num_rows($query) > 0) {
 $row= mysqli_fetch_array($query);
 $curDate = date("Y-m-d H:i:s");
-$expiredAt = $row['expired_at'];
+$expiredAt = $row['password_reset_expired_at'];
+
+// Convert both dates to DateTime objects for comparison
+$currentDateTime = new DateTime($curDate);
+$expiredDateTime = new DateTime($expiredAt);
+
 // Calculate the time difference
 $timeDifference = $currentDateTime->diff($expiredDateTime);
 
@@ -67,7 +72,7 @@ if ($hoursDifference > 1) {
     <div class="card">
         <div class="card-body login-card-body">
             <p class="login-box-msg"><?php if(isset($status)) { echo $status; } ?></p>
-            <form action="update_forget_password.php" method="post">
+            <form action="update_forgot_password.php" method="post">
               <input type="hidden" name="email" value="<?php echo $email;?>">
               <input type="hidden" name="token" value="<?php echo $token;?>">
 
