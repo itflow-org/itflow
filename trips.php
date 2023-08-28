@@ -108,6 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $trip_destination = nullable_htmlentities($row['trip_destination']);
                         $trip_miles = floatval($row['trip_miles']);
                         $trip_user_id = intval($row['trip_user_id']);
+                        $trip_created_at = nullable_htmlentities($row['trip_created_at']);
                         $round_trip = nullable_htmlentities($row['round_trip']);
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);

@@ -38,6 +38,7 @@ $sql = mysqli_query(
     WHERE document_client_id = $client_id
     AND document_template = 0
     AND document_folder_id = $folder
+    AND document_archived_at IS NULL
     $query_snippet
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -90,8 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $folder_id = intval($row['folder_id']);
                             $folder_name = nullable_htmlentities($row['folder_name']);
 
-
-                            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id"));
+                            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id AND document_archived_at IS NULL"));
                             $num_documents = intval($row['num']);
 
                             ?>
@@ -119,7 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                                 </a>
-                                                <?php if ($session_user_role == 3) { ?>
+                                                <?php if ($session_user_role == 3 && $num_documents == 0) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger text-bold" href="post.php?delete_folder=<?php echo $folder_id; ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
@@ -204,6 +204,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger" href="post.php?archive_document=<?php echo $document_id; ?>">
+                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    </a>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?php echo $document_id; ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete

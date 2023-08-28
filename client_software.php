@@ -15,6 +15,7 @@ $sql = mysqli_query(
     LEFT JOIN logins ON login_software_id = software_id
     WHERE software_client_id = $client_id
     AND software_template = 0
+    AND software_archived_at IS NULL
     AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
@@ -86,6 +87,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $software_purchase = nullable_htmlentities($row['software_purchase']);
                         $software_expire = nullable_htmlentities($row['software_expire']);
                         $software_notes = nullable_htmlentities($row['software_notes']);
+                        $software_created_at = nullable_htmlentities($row['software_created_at']);
 
                         // Get Login
                         $login_id = intval($row['login_id']);

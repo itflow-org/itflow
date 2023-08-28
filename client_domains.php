@@ -9,9 +9,12 @@ require_once("inc_all_client.php");
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM domains LEFT JOIN vendors ON domain_registrar = vendor_id
-  WHERE domain_client_id = $client_id AND (domain_name LIKE '%$q%' OR vendor_name LIKE '%$q%') 
-  ORDER BY $sort $order LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM domains 
+    LEFT JOIN vendors ON domain_registrar = vendor_id
+    WHERE domain_client_id = $client_id 
+    AND domain_archived_at IS NULL
+    AND (domain_name LIKE '%$q%' OR vendor_name LIKE '%$q%') 
+    ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -79,6 +82,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($row) {
                             $domain_webhost_name = nullable_htmlentities($row['vendor_name']);
                         }
+                        $domain_created_at = nullable_htmlentities($row['domain_created_at']);
 
                         ?>
                         <tr>
@@ -95,6 +99,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
+                                        <?php if ($session_user_role == 2) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_domain=<?php echo $domain_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
+                                        <? } ?>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold" href="post.php?delete_domain=<?php echo $domain_id; ?>">

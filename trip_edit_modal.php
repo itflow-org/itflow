@@ -103,12 +103,18 @@
                                     <option value="">- Client (Optional) -</option>
                                     <?php
 
-                                    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at > '$trip_created_at' OR trip_archived_at IS NULL ORDER BY client_archived_at ASC, client_name ASC");
                                     while ($row = mysqli_fetch_array($sql_clients)) {
                                         $client_id_select = intval($row['client_id']);
                                         $client_name_select = nullable_htmlentities($row['client_name']);
+                                        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
+                                        if (empty($client_archived_at)) {
+                                            $client_archived_display = "";
+                                        } else {
+                                            $client_archived_display = "Archived - ";
+                                        }
                                         ?>
-                                        <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                        <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo "$client_archived_display$client_name_select"; ?></option>
 
                                         <?php
                                     }

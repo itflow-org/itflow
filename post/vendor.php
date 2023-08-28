@@ -198,6 +198,7 @@ if (isset($_GET['archive_vendor'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_array($sql);
     $vendor_name = sanitizeInput($row['vendor_name']);
+    $client_id = intval($row['vendor_client_id']);
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 

@@ -14,6 +14,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM networks
     LEFT JOIN locations ON location_id = network_location_id
     WHERE network_client_id = $client_id
+    AND network_archived_at IS NULL
     AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -116,6 +117,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($session_user_role == 3) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_network=<?php echo $network_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold" href="post.php?delete_network=<?php echo $network_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete

@@ -93,6 +93,30 @@ if (isset($_POST['move_file'])) {
 
 }
 
+if (isset($_GET['archive_file'])) {
+
+    validateTechRole();
+
+    $file_id = intval($_GET['archive_file']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Archive', log_description = '$session_name archived file $file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "File <strong>$file_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['delete_file'])) {
 
     validateAdminRole();

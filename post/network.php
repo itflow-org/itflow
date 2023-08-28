@@ -53,6 +53,30 @@ if (isset($_POST['edit_network'])) {
 
 }
 
+if (isset($_GET['archive_network'])) {
+
+    validateTechRole();
+
+    $network_id = intval($_GET['archive_network']);
+
+    // Get Network Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
+    $row = mysqli_fetch_array($sql);
+    $network_name = sanitizeInput($row['network_name']);
+    $client_id = intval($row['network_client_id']);
+
+    mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NOW() WHERE network_id = $network_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Archive', log_description = '$session_name archived network $network_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_network'])) {
     validateAdminRole();
 

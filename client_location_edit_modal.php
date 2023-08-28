@@ -115,13 +115,19 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id_select = intval($row['contact_id']);
                                             $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                            $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                            if (empty($contact_archived_at)) {
+                                                $contact_archived_display = "";
+                                            } else {
+                                                $contact_archived_display = "Archived - ";
+                                            }
 
                                             ?>
-                                            <option <?php if ($location_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                                            <option <?php if ($location_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo "$contact_archived_display$contact_name_select"; ?></option>
                                         <?php } ?>
 
                                     </select>

@@ -12,7 +12,8 @@ $url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $s
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM products LEFT JOIN categories ON product_category_id = category_id
-    WHERE (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%')
+    WHERE product_archived_at IS NULL
+    AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -86,6 +87,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_product=<?php echo $product_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold" href="post.php?delete_product=<?php echo $product_id; ?>">

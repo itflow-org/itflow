@@ -135,11 +135,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $contact_phone = formatPhoneNumber($row['contact_phone']);
                     $contact_extension = nullable_htmlentities($row['contact_extension']);
                     $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                    $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                    if (empty($contact_archived_at)) {
+                        $contact_archived_display = "";
+                    } else {
+                        $contact_archived_display = "Archived - ";
+                    }
                     if (empty($contact_name)) {
                         $contact_display = "-";
                     } else {
-                        $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                        $contact_display = "$contact_archived_display$contact_name<br><small class='text-secondary'>$contact_email</small>";
                     }
+
                     
                     $asset_id = intval($row['ticket_asset_id']);
                     $vendor_id = intval($row['ticket_vendor_id']);

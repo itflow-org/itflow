@@ -43,18 +43,13 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM files
     WHERE file_client_id = $client_id
     AND file_folder_id = $folder_id
+    AND file_archived_at IS NULL
     AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%')
     $query_images
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
-//$sql_files_images = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG' OR file_ext LIKE 'webp' OR file_ext LIKE 'WEBP' ) ORDER BY file_name ASC");
-
-//$sql_files_other = mysqli_query($mysqli, "SELECT * FROM files WHERE file_client_id = $client_id AND file_ext NOT LIKE 'JPG' AND file_ext NOT LIKE 'jpg' AND file_ext NOT LIKE 'jpeg' AND file_ext NOT LIKE 'JPEG' AND file_ext NOT LIKE 'webp' AND file_ext NOT LIKE 'WEBP' AND file_ext NOT LIKE 'png' AND file_ext NOT LIKE 'PNG' ORDER BY file_name ASC");
-
-//$num_of_files = mysqli_num_rows($sql_files_images) + mysqli_num_rows($sql_files_other);
 
 $num_of_files = mysqli_num_rows($sql);
 
@@ -95,7 +90,7 @@ $num_of_files = mysqli_num_rows($sql);
                         $folder_id = intval($row['folder_id']);
                         $folder_name = nullable_htmlentities($row['folder_name']);
 
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_folder_id = $folder_id"));
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_archived_at IS NULL AND file_folder_id = $folder_id"));
                         $num_files = intval($row['num']);
 
                         ?>
@@ -123,7 +118,7 @@ $num_of_files = mysqli_num_rows($sql);
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                             </a>
-                                            <?php if ($session_user_role == 3) { ?>
+                                            <?php if ($session_user_role == 3 && $num_files == 0) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger text-bold" href="post.php?delete_folder=<?php echo $folder_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete

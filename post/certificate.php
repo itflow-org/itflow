@@ -85,6 +85,30 @@ if (isset($_POST['edit_certificate'])) {
 
 }
 
+if (isset($_GET['archive_certificate'])) {
+
+    validateTechRole();
+
+    $certificate_id = intval($_GET['archive_certificate']);
+
+    // Get Certificate Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
+    $row = mysqli_fetch_array($sql);
+    $certificate_name = sanitizeInput($row['certificate_name']);
+    $client_id = intval($row['certificate_client_id']);
+
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Archive', log_description = '$session_name archived certificate $certificate_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_certificate'])) {
 
     validateAdminRole();

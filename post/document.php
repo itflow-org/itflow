@@ -192,6 +192,30 @@ if (isset($_POST['edit_document_template'])) {
 
 }
 
+if (isset($_GET['archive_document'])) {
+
+    validateTechRole();
+
+    $document_id = intval($_GET['archive_document']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NOW() WHERE document_id = $document_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Archive', log_description = '$session_name archived document $document_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_document'])) {
 
     validateAdminRole();

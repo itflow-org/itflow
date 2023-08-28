@@ -214,10 +214,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($contact_name)) {
                             $contact_name = "-";
                         }
+                        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                        if (empty($contact_archived_at)) {
+                            $contact_archived_display = "";
+                        } else {
+                            $contact_archived_display = "Archived - ";
+                        }
 
                         $location_name = nullable_htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
+                        }
+                        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                        if (empty($location_archived_at)) {
+                            $location_archived_display = "";
+                        } else {
+                            $location_archived_display = "Archived - ";
                         }
 
                         $login_id = intval($row['login_id']);
@@ -303,9 +315,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $asset_ip_display; ?></td>
                             <td><?php echo $asset_install_date_display; ?></td>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
-                                <td><?php echo $contact_name; ?></td>
+                                <td><?php echo "$contact_archived_display$contact_name"; ?></td>
                             <?php } ?>
-                            <td><?php echo $location_name; ?></td>
+                            <td><?php echo "$location_archived_display$location_name"; ?></td>
                             <td><?php echo $asset_status; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">

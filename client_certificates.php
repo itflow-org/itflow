@@ -10,7 +10,9 @@ require_once("inc_all_client.php");
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates 
-  WHERE certificate_client_id = $client_id AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
+  WHERE certificate_archived_at IS NULL
+  AND certificate_client_id = $client_id 
+  AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
   ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -90,6 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $certificate_domain = nullable_htmlentities($row['certificate_domain']);
                         $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
                         $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                        $certificate_created_at = nullable_htmlentities($row['certificate_created_at']);
 
                         ?>
                         <tr>
@@ -117,6 +120,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="post.php?archive_certificate=<?php echo $certificate_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete

@@ -40,6 +40,29 @@ if (isset($_POST['edit_product'])) {
 
 }
 
+if (isset($_GET['archive_product'])) {
+
+    validateTechRole();
+
+    $product_id = intval($_GET['archive_product']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
+    $row = mysqli_fetch_array($sql);
+    $product_name = sanitizeInput($row['product_name']);
+
+    mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Archive', log_description = '$session_name archived product $product_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $product_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Product <strong>$product_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_product'])) {
     $product_id = intval($_GET['delete_product']);
 

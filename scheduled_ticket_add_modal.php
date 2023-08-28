@@ -60,7 +60,7 @@
                                     <option value="">- Client -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $selectable_client_id = intval($row['client_id']);
                                         $client_name = nullable_htmlentities($row['client_name']);
@@ -134,7 +134,7 @@
                                 <select class="form-control select2" name="asset">
                                     <option value="0">- None -</option>
                                     <?php
-                                    $sql_assets = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                    $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
 
                                     while ($row = mysqli_fetch_array($sql_assets)) {
                                         $asset_id_select = intval($row['asset_id']);

@@ -91,7 +91,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE product_archived_at IS NULL");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -333,7 +333,7 @@ if (isset($_GET['invoice_id'])) {
                                                 <option value="0">No Tax</option>
                                                 <?php
 
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
+                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                                     $tax_id = intval($row['tax_id']);
                                                     $tax_name = nullable_htmlentities($row['tax_name']);

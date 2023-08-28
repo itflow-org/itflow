@@ -137,19 +137,25 @@
                             <ul class="list-group">
 
                                 <?php
-                                $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE (asset_archived_at > '$software_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_assets_select)) {
                                     $asset_id_select = intval($row['asset_id']);
                                     $asset_name_select = nullable_htmlentities($row['asset_name']);
                                     $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                    $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                                    if (empty($asset_archived_at)) {
+                                        $asset_archived_display = "";
+                                    } else {
+                                        $asset_archived_display = "Archived - ";
+                                    }
                                     $contact_name_select = nullable_htmlentities($row['contact_name']);
 
                                     ?>
                                     <li class="list-group-item">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
-                                            <label class="form-check-label ml-2"><?php echo "$asset_name_select - $contact_name_select"; ?></label>
+                                            <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
                                         </div>
                                     </li>
 
@@ -168,18 +174,24 @@
                             <ul class="list-group">
 
                                 <?php
-                                $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$software_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
 
                                 while ($row = mysqli_fetch_array($sql_contacts_select)) {
                                     $contact_id_select = intval($row['contact_id']);
                                     $contact_name_select = nullable_htmlentities($row['contact_name']);
                                     $contact_email_select = nullable_htmlentities($row['contact_email']);
+                                    $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                    if (empty($contact_archived_at)) {
+                                        $contact_archived_display = "";
+                                    } else {
+                                        $contact_archived_display = "Archived - ";
+                                    }
 
                                     ?>
                                     <li class="list-group-item">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
-                                            <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
+                                            <label class="form-check-label ml-2"><?php echo "$contact_archived_display$contact_name_select - $contact_email_select"; ?></label>
                                         </div>
                                     </li>
 
