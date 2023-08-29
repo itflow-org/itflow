@@ -300,25 +300,28 @@ if (isset($_POST['add_ticket_reply'])) {
 
     $row = mysqli_fetch_array($ticket_sql);
 
-    $contact_name_escaped = sanitizeInput($row['contact_name']);
+    // Unescaped Content used for email body and subject because it will get escaped as a whole
     $contact_name = $row['contact_name'];
-    $contact_email_escaped = sanitizeInput($row['contact_email']);
     $ticket_prefix = $row['ticket_prefix'];
-    $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
-    $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
     $ticket_subject = $row['ticket_subject'];
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
-
-    $company_sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_array($company_sql);
-    $company_phone = formatPhoneNumber($row['company_phone']);
-
+    
+    // Escaped content used for everything else except email subject and body
+    $contact_name_escaped = sanitizeInput($row['contact_name']);
+    $contact_email_escaped = sanitizeInput($row['contact_email']);
+    $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
+    $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
+    
     // Sanitize Config vars from get_settings.php
     $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
     $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
+
+    $sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
+
+    $company_phone = formatPhoneNumber($row['company_phone']);
 
     // Send e-mail to client if public update & email is set up
     if ($ticket_reply_type == 'Public' && !empty($config_smtp_host)) {
@@ -328,34 +331,34 @@ if (isset($_POST['add_ticket_reply'])) {
             // Slightly different email subject/text depending on if this update closed the ticket or not
 
             if ($ticket_status == 'Closed') {
-                $subject = mysqli_escape_string($mysqli, "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)");
-                $body    = mysqli_escape_string($mysqli, "Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+                $subject_escaped = mysqli_escape_string($mysqli, "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)");
+                $body_escaped    = mysqli_escape_string($mysqli, "Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             } elseif ($ticket_status == 'Auto Close') {
-                $subject = mysqli_escape_string($mysqli, "Re: [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)");
-                $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your issue is resolved, you can ignore this email. If you need further assistance, please respond!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+                $subject_escaped = mysqli_escape_string($mysqli, "Re: [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)");
+                $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your issue is resolved, you can ignore this email. If you need further assistance, please respond!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             } else {
-                $subject = mysqli_escape_string($mysqli, "Re: [$ticket_prefix$ticket_number] - $ticket_subject");
-                $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+                $subject_escaped = mysqli_escape_string($mysqli, "Re: [$ticket_prefix$ticket_number] - $ticket_subject");
+                $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             }
 
             // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
 
             // Get Email ID for reference
             $email_id = mysqli_insert_id($mysqli);
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-            $body    .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            $body_escaped   .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
             while ($row = mysqli_fetch_array($sql_watchers)) {
-                $watcher_email = sanitizeInput($row['watcher_email']);
+                $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
             }    
 
         }
@@ -507,10 +510,10 @@ if (isset($_GET['close_ticket'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = 'Ticket ID $ticket_id Closed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
     // Client notification email
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -523,30 +526,51 @@ if (isset($_GET['close_ticket'])) {
         ");
         $row = mysqli_fetch_array($ticket_sql);
 
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        // Unescaped Content used for email body and subject because it will get escaped as a whole
+        $contact_name = $row['contact_name'];
+        $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = intval($row['ticket_number']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_subject = $row['ticket_subject'];
+        $ticket_details = $row['ticket_details'];
+        $client_id = intval($row['ticket_client_id']);
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+        
+        // Escaped content used for everything else except email subject and body
+        $contact_name_escaped = sanitizeInput($row['contact_name']);
+        $contact_email_escaped = sanitizeInput($row['contact_email']);
+        $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
+        $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
+        
+        // Sanitize Config vars from get_settings.php
+        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
+        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
 
-        $company_sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_array($company_sql);
+        $sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
+
         $company_phone = formatPhoneNumber($row['company_phone']);
 
         // Check email valid
-        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+        if (filter_var($contact_email_escaped, FILTER_VALIDATE_EMAIL)) {
 
-            $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-            $body    = "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $subject_escaped = mysqli_escape_string($mysqli, "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)");
+            $body_escaped    = mysqli_escape_string($mysqli, "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
-            $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                $config_ticket_from_email, $config_ticket_from_name,
-                $contact_email, $contact_name,
-                $subject, $body);
+            // Email Ticket Contact
+            // Queue Mail
+            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
 
-            if ($mail !== true) {
-                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+            // Get Email ID for reference
+            $email_queue_id = mysqli_insert_id($mysqli);
+
+            // Also Email all the watchers
+            $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+            $body_escaped    .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            while ($row = mysqli_fetch_array($sql_watchers)) {
+                $watcher_email_escaped = sanitizeInput($row['watcher_email']);
+
+                // Queue Mail
+                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
             }
 
         }
