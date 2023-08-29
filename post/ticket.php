@@ -168,11 +168,18 @@ if (isset($_POST['assign_ticket'])) {
         // Get & verify assigned agent details
         $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assigned_to AND user_settings.user_role > 1");
         $agent_details = mysqli_fetch_array($agent_details_sql);
-        $agent_name = sanitizeInput($agent_details['user_name']);
-        $agent_email = sanitizeInput($agent_details['user_email']);
+        
+        //Unescaped
+        $agent_name = $agent_details['user_name'];
+        $agent_email = $agent_details['user_email'];
         $ticket_reply = "Ticket re-assigned to $agent_name.";
+        
+        // Escaped
+        $agent_name_escaped = sanitizeInput($agent_details['user_name']);
+        $agent_email_escaped = sanitizeInput($agent_details['user_email']);
+        $ticket_reply_escaped = mysqli_real_escape_string($mysqli, "Ticket re-assigned to $agent_name.");
 
-        if (!$agent_name) {
+        if (!$agent_name_escaped) {
             $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = "Invalid agent!";
             header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -183,12 +190,18 @@ if (isset($_POST['assign_ticket'])) {
     // Get & verify ticket details
     $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
-    $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
+    
+    //Unescaped
+    $ticket_prefix = $ticket_details['ticket_prefix'];
+    $ticket_subject = $ticket_details['ticket_subject'];
+
+    //Escaped
+    $ticket_prefix_escaped = sanitizeInput($ticket_details['ticket_prefix']);
     $ticket_number = intval($ticket_details['ticket_number']);
-    $ticket_subject = sanitizeInput($ticket_details['ticket_subject']);
+    $ticket_subject_escaped = sanitizeInput($ticket_details['ticket_subject']);
     $client_id = intval($ticket_details['ticket_client_id']);
 
-    if (!$ticket_subject) {
+    if (!$ticket_subject_escaped) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid ticket!";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -198,23 +211,36 @@ if (isset($_POST['assign_ticket'])) {
     // Update ticket & insert reply
     mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id");
 
-    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_escaped', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name reassigned ticket $ticket_prefix_escaped$ticket_number - $ticket_subject_escaped to $agent_name_escaped', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
-    // Email notification
+    
+    // Notification
     if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
 
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        // App Notification
+        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to");
+    
+        // Email Notification
+        if (!empty($config_smtp_host)) {
 
-        $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
-        $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$session_company_name";
+            // Sanitize Config vars from get_settings.php
+            $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
+            $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $agent_email, $agent_name,
-            $subject, $body);
+            $subject_escaped = mysqli_escape_string($mysqli, "$config_app_name ticket $ticket_prefix$ticket_number assigned to you");
+            $body_escaped = mysqli_escape_string($mysqli, "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$session_company_name");
+
+            // Email Ticket Agent
+            // Queue Mail
+            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$agent_email_escaped', email_recipient_name = '$agent_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+
+            // Get Email ID for reference
+            $email_id = mysqli_insert_id($mysqli);
+        }
+
     }
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>";
