@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             <?php
             if (!empty($_SESSION['login_message'])) { ?>
                 <p class="login-box-msg text-danger">
-                <?php 
+                <?php
                 echo $_SESSION['login_message'];
                 unset($_SESSION['login_message']);
                 ?>
@@ -154,7 +154,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             if (!empty($azure_client_id)) { ?>
                 <hr>
                 <div class="col text-center">
-                    <button type="button" class="btn btn-secondary" onclick="location.href = 'login_microsoft.php';">Login with Microsoft Azure AD</button>
+                    <a href="login_microsoft.php">
+                        <button type="button" class="btn btn-secondary">Login with Microsoft Azure AD</button>
+                    </a>
                 </div>
             <?php } ?>
 
