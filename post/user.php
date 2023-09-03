@@ -213,7 +213,7 @@ if (isset($_GET['archive_user'])) {
     $name = sanitizeInput($row['user_name']);
 
     // Archive user query
-    mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");

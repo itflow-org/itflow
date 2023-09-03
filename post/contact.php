@@ -21,7 +21,7 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     //Update Primary contact in clients if primary contact is checked
-    if ($contact_primary == 1) { 
+    if ($contact_primary == 1) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
@@ -143,6 +143,98 @@ if (isset($_POST['edit_contact'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if (isset($_GET['anonymize_contact'])) {
+
+    validateAdminRole();
+
+    $contact_id = intval($_GET['anonymize_contact']);
+
+    // Get contact & client info
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_first_name = explode(" ", $contact_name)[0];
+    $contact_email = sanitizeInput($row['contact_email']);
+    $contact_phone = sanitizeInput($row['contact_phone']);
+    $info_to_redact = array($contact_name, $contact_first_name, $contact_email, $contact_phone);
+
+    $client_id = intval($row['contact_client_id']);
+
+    // Redact name with asterisks
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '*****' WHERE contact_id = $contact_id");
+
+    // Remove all other contact information
+    // Doing redactions field by field to ensure that an error updating one field doesn't break the entire query
+    mysqli_query($mysqli,"UPDATE contacts SET contact_title = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_department = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_email = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_phone = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_extension = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_mobile = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_pin = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_notes = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_auth_method = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_password_hash = '' WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = '0' WHERE contact_id = $contact_id");
+
+    // Redact audit logs
+    $log_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_client_id =  $client_id");
+    while($log = mysqli_fetch_array($log_sql)) {
+        $log_id = intval($log['log_id']);
+        $description = $log['log_description'];
+        $description = str_ireplace($info_to_redact, "*****", $description);
+        $description = sanitizeInput($description);
+
+        mysqli_query($mysqli,"UPDATE logs SET log_description = '$description' WHERE log_id = $log_id AND log_client_id = $client_id");
+    }
+
+
+    // Get all tickets this contact raised
+    $contact_tickets_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND ticket_contact_id =  $contact_id");
+    while($ticket = mysqli_fetch_array($contact_tickets_sql)) {
+
+        $ticket_id = intval($ticket['ticket_id']);
+
+        // Redact contact name or email in the subject of all tickets they raised
+        $subject = $ticket['ticket_subject'];
+        $subject = str_ireplace($info_to_redact, "*****", $subject);
+        $subject = sanitizeInput($subject);
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject' WHERE ticket_id = $ticket_id");
+
+        // Redact contact name or email in the description of all tickets they raised
+        $details = $ticket['ticket_details'];
+
+        $details = str_ireplace($info_to_redact, "*****", $details);
+        $details = sanitizeInput($details);
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_details = '$details' WHERE ticket_id = $ticket_id");
+
+        // Redact contact name or email in the replies of all tickets they raised
+        $ticket_replies_sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+
+        while($ticket_reply = mysqli_fetch_array($ticket_replies_sql)) {
+            $ticket_reply_id = intval($ticket_reply['ticket_reply_id']);
+            $ticket_reply_details = $ticket_reply['ticket_reply'];
+            $ticket_reply_details = str_ireplace($info_to_redact, "*****", $ticket_reply_details);
+            $ticket_reply_details = sanitizeInput($ticket_reply_details);
+            mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply_details' WHERE ticket_reply_id = $ticket_reply_id");
+        }
+
+    }
+
+    // Archive contact
+    mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Anonymize', log_description = '$session_name anonymized contact', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Contact $contact_name anonymized & archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_GET['archive_contact'])) {
