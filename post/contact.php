@@ -183,7 +183,7 @@ if (isset($_GET['anonymize_contact'])) {
 
     // Redact audit logs
     $log_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_client_id =  $client_id");
-    while($log = mysqli_fetch_array($log_sql)) {
+    while ($log = mysqli_fetch_array($log_sql)) {
         $log_id = intval($log['log_id']);
         $description = $log['log_description'];
         $description = str_ireplace($info_to_redact, "*****", $description);
@@ -195,7 +195,7 @@ if (isset($_GET['anonymize_contact'])) {
 
     // Get all tickets this contact raised
     $contact_tickets_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND ticket_contact_id =  $contact_id");
-    while($ticket = mysqli_fetch_array($contact_tickets_sql)) {
+    while ($ticket = mysqli_fetch_array($contact_tickets_sql)) {
 
         $ticket_id = intval($ticket['ticket_id']);
 

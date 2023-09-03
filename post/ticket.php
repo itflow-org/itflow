@@ -46,7 +46,7 @@ if (isset($_POST['add_ticket'])) {
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets 
+        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_details, ticket_client_id FROM tickets 
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               WHERE ticket_id = $ticket_id");
@@ -61,13 +61,13 @@ if (isset($_POST['add_ticket'])) {
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
-        
+
         // Escaped content used for everything else except email subject and body
         $contact_name_escaped = sanitizeInput($row['contact_name']);
         $contact_email_escaped = sanitizeInput($row['contact_email']);
         $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
         $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
-        
+
         // Sanitize Config vars from get_settings.php
         $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
         $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
@@ -97,7 +97,7 @@ if (isset($_POST['add_ticket'])) {
 
                 // Queue Mail
                 mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-            }    
+            }
         }
     }
 
@@ -130,7 +130,7 @@ if (isset($_POST['edit_ticket'])) {
 
     // Add Watchers
     if (!empty($_POST['watchers'])) {
-        
+
         // Remove all watchers first
         mysqli_query($mysqli,"DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
 
@@ -168,12 +168,12 @@ if (isset($_POST['assign_ticket'])) {
         // Get & verify assigned agent details
         $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assigned_to AND user_settings.user_role > 1");
         $agent_details = mysqli_fetch_array($agent_details_sql);
-        
+
         //Unescaped
         $agent_name = $agent_details['user_name'];
         $agent_email = $agent_details['user_email'];
         $ticket_reply = "Ticket re-assigned to $agent_name.";
-        
+
         // Escaped
         $agent_name_escaped = sanitizeInput($agent_details['user_name']);
         $agent_email_escaped = sanitizeInput($agent_details['user_email']);
@@ -190,7 +190,7 @@ if (isset($_POST['assign_ticket'])) {
     // Get & verify ticket details
     $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
-    
+
     //Unescaped
     $ticket_prefix = $ticket_details['ticket_prefix'];
     $ticket_subject = $ticket_details['ticket_subject'];
@@ -216,13 +216,13 @@ if (isset($_POST['assign_ticket'])) {
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name reassigned ticket $ticket_prefix_escaped$ticket_number - $ticket_subject_escaped to $agent_name_escaped', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
-    
+
     // Notification
     if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
 
         // App Notification
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to");
-    
+
         // Email Notification
         if (!empty($config_smtp_host)) {
 
@@ -334,13 +334,13 @@ if (isset($_POST['add_ticket_reply'])) {
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
-    
+
     // Escaped content used for everything else except email subject and body
     $contact_name_escaped = sanitizeInput($row['contact_name']);
     $contact_email_escaped = sanitizeInput($row['contact_email']);
     $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
     $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
-    
+
     // Sanitize Config vars from get_settings.php
     $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
     $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
@@ -385,7 +385,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
                 // Queue Mail
                 mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-            }    
+            }
 
         }
     }
@@ -561,13 +561,13 @@ if (isset($_GET['close_ticket'])) {
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
-        
+
         // Escaped content used for everything else except email subject and body
         $contact_name_escaped = sanitizeInput($row['contact_name']);
         $contact_email_escaped = sanitizeInput($row['contact_email']);
         $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
         $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
-        
+
         // Sanitize Config vars from get_settings.php
         $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
         $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
