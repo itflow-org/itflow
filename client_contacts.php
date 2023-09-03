@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i>$contact_phone$contact_extension_display</div>";
                         }
-                        
+
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
@@ -197,6 +197,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
+                                                <i class="fas fa-fw fa-user-secret mr-2"></i>Anonymize & Archive
+                                            </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger" href="post.php?archive_contact=<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
