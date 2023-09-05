@@ -142,7 +142,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

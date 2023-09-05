@@ -100,7 +100,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item text-danger" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
                                                 <i class="fas fa-fw fa-times mr-2"></i>Deactivate
                                             </a>
                                         </div>

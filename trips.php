@@ -16,6 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN users ON trip_user_id = user_id
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
+    AND trip_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -109,6 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $trip_miles = floatval($row['trip_miles']);
                         $trip_user_id = intval($row['trip_user_id']);
                         $trip_created_at = nullable_htmlentities($row['trip_created_at']);
+                        $trip_archived_at = nullable_htmlentities($row['trip_archived_at']);
                         $round_trip = nullable_htmlentities($row['round_trip']);
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
@@ -155,7 +157,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fa fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_trip=<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_trip=<?php echo $trip_id; ?>">
                                             <i class="fa fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

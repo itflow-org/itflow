@@ -88,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_account=<?php echo $account_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                         <?php } ?>

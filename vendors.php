@@ -160,7 +160,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_vendor=<?php echo $vendor_id; ?>">
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?php echo $vendor_id; ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                         </a>
                                     </div>

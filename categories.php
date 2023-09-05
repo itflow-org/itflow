@@ -106,7 +106,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="post.php?archive_category=<?php echo $category_id; ?>">
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_category=<?php echo $category_id; ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                         </a>
                                     </div>

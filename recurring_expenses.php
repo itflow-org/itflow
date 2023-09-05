@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_recurring_expense=<?php echo $recurring_expense_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_expense=<?php echo $recurring_expense_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

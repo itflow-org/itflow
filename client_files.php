@@ -120,7 +120,7 @@ $num_of_files = mysqli_num_rows($sql);
                                             </a>
                                             <?php if ($session_user_role == 3 && $num_files == 0) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_folder=<?php echo $folder_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                             <?php } ?>
@@ -276,7 +276,7 @@ $num_of_files = mysqli_num_rows($sql);
                                                 <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_file=<?php echo $file_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>

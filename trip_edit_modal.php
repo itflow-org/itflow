@@ -103,7 +103,7 @@
                                     <option value="">- Client (Optional) -</option>
                                     <?php
 
-                                    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at > '$trip_created_at' OR trip_archived_at IS NULL ORDER BY client_archived_at ASC, client_name ASC");
+                                    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at > '$trip_created_at' OR client_archived_at IS NULL ORDER BY client_archived_at ASC, client_name ASC");
                                     while ($row = mysqli_fetch_array($sql_clients)) {
                                         $client_id_select = intval($row['client_id']);
                                         $client_name_select = nullable_htmlentities($row['client_name']);
