@@ -60,16 +60,17 @@
             $notification_id = intval($row['notification_id']);
             $notification_type = nullable_htmlentities($row['notification_type']);
             $notification = nullable_htmlentities($row['notification']);
+            $notification_action = nullable_htmlentities($row['notification_action']);
             $notification_timestamp = date('M d g:ia',strtotime($row['notification_timestamp']));
             $notification_client_id = intval($row['notification_client_id']);
-            if($notification_client_id > 0){
-              $notification_link = "client_overview.php?client_id=$notification_client_id";
+            if(!empty($notification_action)){
+              $notification_action = $notification_action;
             } else {
-              $notification_link = "#";
+              $notification_action = "#";
             }
         ?>
         <div class="dropdown-item">
-          <a class="text-dark" href="<?php echo $notification_link; ?>">
+          <a class="text-dark" href="<?php echo $notification_action; ?>">
             <p class="mb-1">
               <span class="text-bold"><i class="fas fa-bullhorn mr-2"></i><?php echo $notification_type; ?></span>
               <small class="text-muted mt-1 float-right"><?php echo $notification_timestamp; ?></small>
