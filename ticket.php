@@ -288,7 +288,7 @@ if (isset($_GET['ticket_id'])) {
                             <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response"></textarea>
                         </div>
                         <div class="form-row">
-                            <div class="col-sm">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -306,7 +306,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <div class="col-sm">
+                            <div class="col-sm-4">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -320,7 +320,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <div class="col-sm">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" checked>
@@ -329,7 +329,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <div class="col-sm">
+                            <div class="col-md-2">
                                 <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
                             </div>
 
