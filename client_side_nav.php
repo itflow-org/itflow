@@ -1,20 +1,17 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
+    <a class="brand-link pb-1 mt-1" href="clients.php">    
+        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong><?php echo $client_name; ?></strong></p>
+    </a>
+
     <!-- Sidebar -->
     <div class="sidebar">
 
         <!-- Sidebar Menu -->
-        <nav class="mt-2">
+        <nav>
 
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-                <li class="nav-item">
-                    <a href="clients.php" class="nav-link">
-                        <i class="nav-icon fas fa-arrow-left"></i>
-                        <p class="h5">Back | <strong><?php echo $client_name; ?></strong></p>
-                    </a>
-                </li>
 
                 <li class="nav-item mt-3">
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "active"; } ?>">

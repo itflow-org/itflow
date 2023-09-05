@@ -1,17 +1,15 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
+    <div class="brand-link">   
+        <h3 class="brand-text text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h3>
+    </div>
+
     <!-- Sidebar -->
     <div class="sidebar">
 
         <!-- Sidebar Menu -->
         <nav>
-
-            <div class="brand-link">
-                <a href="#">
-                    <h3 class="brand-text text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h3>
-                </a>
-            </div>
 
             <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
 

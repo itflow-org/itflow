@@ -1,20 +1,17 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
 
+    <a class="brand-link pb-1 mt-1" href="clients.php">    
+        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Reports</strong></p>
+    </a>
+
     <!-- Sidebar -->
     <div class="sidebar">
 
         <!-- Sidebar Menu -->
-        <nav class="mt-2">
+        <nav>
 
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
-
-                <li class="nav-item mb-2">
-                    <a href="dashboard_financial.php" class="nav-link">
-                        <i class="nav-icon fas fa-arrow-left"></i>
-                        <p class="h5">Back | <strong>Reports</strong></p>
-                    </a>
-                </li>
 
                 <?php  if ($session_user_role == 1 || $session_user_role == 3) { ?>
                     <li class="nav-header">FINANCIAL</li>
