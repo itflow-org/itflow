@@ -547,12 +547,34 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-
-
                         </div>
                     </div>
 
                 <?php } ?>
+
+                <!-- Ticket watchers card -->
+                <?php 
+                // Get Watchers
+                $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
+
+                if (mysqli_num_rows($sql_ticket_watchers) > 0 ) { ?>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h4 class="text-secondary">Watchers</h4>
+                        
+                        <?php
+                        while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
+                            $ticket_watcher_email = $ticket_watcher_row['watcher_email'];
+
+                            echo "<div class='mt-1'>$ticket_watcher_email</div>";
+
+                        }
+
+                        ?> 
+                    
+                    </div>
+
+                <?php } ?>
+                <!-- End Ticket watchers card -->
 
                 <!-- Ticket Details card -->
                 <div class="card card-body card-outline card-dark mb-3">
