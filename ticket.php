@@ -245,7 +245,7 @@ if (isset($_GET['ticket_id'])) {
                             </a>
                             <?php if ($session_user_role == 3) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </a>
                             <?php } ?>
@@ -415,7 +415,7 @@ if (isset($_GET['ticket_id'])) {
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                             <?php } ?>
@@ -751,7 +751,7 @@ if (isset($_GET['ticket_id'])) {
                             </a>
                             <?php
                             if ($ticket_status !== "Closed") { ?>
-                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block">
+                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
                                     <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
                                 </a>
                             <?php } ?>
