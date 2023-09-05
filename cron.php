@@ -177,7 +177,7 @@ foreach ($domainAlertArray as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_action = 'client_domains.php?client_id=$client_id', notification_client_id = $client_id");
 
     }
 
@@ -207,7 +207,7 @@ foreach ($certificateAlertArray as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Certificate', notification = 'Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire', notification_action = 'client_certificates.php?client_id=$client_id', notification_client_id = $client_id");
 
     }
 
@@ -236,7 +236,7 @@ foreach ($warranty_alert_array as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Asset', notification = 'Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire', notification_action = 'client_assets.php?client_id=$client_id', notification_client_id = $client_id");
 
     }
 
@@ -474,11 +474,11 @@ foreach ($invoiceAlertArray as $day) {
 
             mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late charge', history_invoice_id = $invoice_id");
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_client_id = $client_id, notification_entity_id = $invoice_id");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
         
         }
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_client_id = $client_id, notification_entity_id = $invoice_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
         $subject = "Overdue Invoice $invoice_prefix$invoice_number";
         $body    = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
@@ -572,7 +572,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id");
 
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_client_id = $client_id, notification_entity_id = $new_invoice_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_action = 'invoice.php?invoice_id=$new_invoice_id', notification_client_id = $client_id, notification_entity_id = $new_invoice_id");
 
     //Update recurring dates
 
@@ -685,7 +685,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 
    $expense_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Expense Created', notification = 'Expense $recurring_expense_description created from recurring expenses', notification_client_id = $recurring_expense_client_id, notification_entity_id = $expense_id");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Expense Created', notification = 'Expense $recurring_expense_description created from recurring expenses', notification_action = 'expenses.php', notification_client_id = $recurring_expense_client_id, notification_entity_id = $expense_id");
 
     // Update recurring dates using calculated next billing date
 
@@ -947,7 +947,7 @@ if ($config_telemetry == 1) {
  */
 
 // Send Alert to inform Cron was run
-mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed'");
+mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_action = 'logs.php'");
 
 // Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name'");
