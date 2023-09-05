@@ -218,7 +218,7 @@ if (isset($_POST['assign_ticket'])) {
 
 
     // Notification
-    if (intval($session_user_id) !== $assigned_to || $assigned_to !== 0) {
+    if ($session_user_id != $assigned_to && $assigned_to != 0) {
 
         // App Notification
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped has been assigned to you by $session_name', notification_client_id = $client_id, notification_user_id = $assigned_to");
@@ -392,13 +392,13 @@ if (isset($_POST['add_ticket_reply'])) {
     //End Mail IF
 
     // Notification for assigned ticket user
-    if (intval($session_user_id) !== $ticket_assigned_to || $ticket_assigned_to !== 0) {
+    if ($session_user_id != $ticket_assigned_to && $ticket_assigned_to != 0) {
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped that is assigned to you', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
     }
 
     // Notification for user that opened the ticket
-    if (intval($session_user_id) !== $ticket_created_by || $ticket_created_by !== 0) {
+    if ($session_user_id != $ticket_created_by && $ticket_created_by != 0) {
 
         mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix_escaped$ticket_number - Subject: $ticket_subject_escaped that you opened', notification_client_id = $client_id, notification_user_id = $ticket_created_by");
     }
