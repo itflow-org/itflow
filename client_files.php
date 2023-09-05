@@ -203,12 +203,9 @@ $num_of_files = mysqli_num_rows($sql);
 
                         <?php
                         require("client_file_view_modal.php");
-
                     }
                     ?>
                 </div>
-
-                <?php require_once("pagination.php"); ?>
 
                 <?php } else { ?>
 
@@ -299,9 +296,11 @@ $num_of_files = mysqli_num_rows($sql);
 
                     </table>
                 </div>
-                <?php require_once("pagination.php"); ?>
+                
 
                 <?php } ?>
+
+                <?php require_once("pagination.php"); ?>
 
             </div>
         </div>
