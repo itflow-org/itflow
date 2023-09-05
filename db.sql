@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.5.21-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.22-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.5.21-MariaDB-1:10.5.21+maria~ubu2004
+-- Server version	10.5.22-MariaDB-1:10.5.22+maria~ubu2004
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -805,6 +805,7 @@ CREATE TABLE `notifications` (
   `notification_id` int(11) NOT NULL AUTO_INCREMENT,
   `notification_type` varchar(200) NOT NULL,
   `notification` varchar(255) NOT NULL,
+  `notification_action` varchar(250) DEFAULT NULL,
   `notification_timestamp` datetime NOT NULL DEFAULT current_timestamp(),
   `notification_dismissed_at` datetime DEFAULT NULL,
   `notification_dismissed_by` int(11) DEFAULT NULL,
@@ -1695,4 +1696,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-23 18:02:23
+-- Dump completed on 2023-09-05 16:11:29

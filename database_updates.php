@@ -1291,11 +1291,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.7'");
 	}
 
-    //if (CURRENT_DATABASE_VERSION == '0.7.7') {
-    //Insert queries here required to update to DB version 0.7.8
+    if (CURRENT_DATABASE_VERSION == '0.7.7') {
+    	//Insert queries here required to update to DB version 0.7.8
+    	mysqli_query($mysqli, "ALTER TABLE `notifications` ADD `notification_action` VARCHAR(250) DEFAULT NULL AFTER `notification`");
+    	// Then, update the database to the next sequential version
+    	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.8'");
+    }
 
-    // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.8'");
+    //if (CURRENT_DATABASE_VERSION == '0.7.8') {
+    	//Insert queries here required to update to DB version 0.7.9
+
+    	// Then, update the database to the next sequential version
+    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.9'");
     //}
 
 } else {
