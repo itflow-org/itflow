@@ -1298,11 +1298,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.8'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.7.8') {
+    if (CURRENT_DATABASE_VERSION == '0.7.8') {
     	//Insert queries here required to update to DB version 0.7.9
+    	mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_force_mfa` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_role`");
 
     	// Then, update the database to the next sequential version
-    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.9'");
+    	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.7.9'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.7.9') {
+    	//Insert queries here required to update to DB version 0.8.0
+
+    	// Then, update the database to the next sequential version
+    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.0'");
     //}
 
 } else {
