@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-2 p-md-3">
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-md-4">
