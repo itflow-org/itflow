@@ -89,6 +89,15 @@
                         <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
                     </div>
 
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="forceMFACheckBox<?php echo $user_id; ?>" name="force_mfa" value="1" <?php if($user_config_force_mfa == 1){ echo "checked"; } ?>>
+                            <label for="forceMFACheckBox<?php echo $user_id; ?>" class="custom-control-label">
+                                Force MFA
+                            </label>
+                        </div>
+                    </div>
+
                     <?php if (!empty($user_token)) { ?>
 
                         <div class="form-group">

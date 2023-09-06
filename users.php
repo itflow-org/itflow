@@ -85,6 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_avatar = nullable_htmlentities($row['user_avatar']);
                     $user_token = nullable_htmlentities($row['user_token']);
+                    $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
                         $user_role_display = "Administrator";

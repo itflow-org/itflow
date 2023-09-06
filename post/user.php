@@ -44,7 +44,7 @@ if (isset($_POST['add_user'])) {
     }
 
     // Create Settings
-    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role");
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_config_force_mfa = $force_mfa");
 
     // Send user e-mail, if specified
     if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -138,7 +138,7 @@ if (isset($_POST['edit_user'])) {
     }
 
     //Update User Settings
-    mysqli_query($mysqli, "UPDATE user_settings SET user_role = $role WHERE user_id = $user_id");
+    mysqli_query($mysqli, "UPDATE user_settings SET user_role = $role, user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
 
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");

@@ -76,6 +76,15 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="forceMFACheckBox" name="force_mfa" value=1>
+                            <label for="forceMFACheckBox" class="custom-control-label">
+                                Force MFA
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_user" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
