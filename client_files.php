@@ -98,7 +98,7 @@ $num_of_files = mysqli_num_rows($sql);
                         <li class="nav-item">
                             <div class="row">
                                 <div class="col-10">
-                                    <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>">
+                                    <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>&view=<?php echo $view; ?>">
                                         <?php
                                         if ($get_folder_id == $folder_id) { ?>
                                             <i class="fas fa-fw fa-folder-open"></i>
