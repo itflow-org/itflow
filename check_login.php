@@ -42,6 +42,7 @@ if ($session_user_role == 3) {
 } else {
     $session_user_role_display = "Accountant";
 }
+$session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
@@ -71,5 +72,3 @@ if ($iPod || $iPhone || $iPad) {
 //Get Notification Count for the badge on the top nav
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];
-
-

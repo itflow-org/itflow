@@ -99,6 +99,10 @@ if (isset($_POST['login'])) {
         $user_id = intval($row['user_id']);
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
+        $force_mfa = intval($row['user_config_force_mfa']);
+        if($force_mfa == 1 && $token == NULL) {
+            $config_start_page = "user_profile.php";
+        }
 
         // Checking for user 2FA
         if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
