@@ -179,7 +179,7 @@ if (isset($_GET['invoice_id'])) {
                             </a>
                             <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
                                     <i class="fa fa-fw fa-times mr-2"></i>Cancel
                                 </a>
                             <?php } ?>
@@ -296,7 +296,7 @@ if (isset($_GET['invoice_id'])) {
                                                     <div class="dropdown-menu">
                                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
                                                     </div>
                                                 </div>  
                                                 
@@ -498,7 +498,7 @@ if (isset($_GET['invoice_id'])) {
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                                     <td><?php echo $payment_reference; ?></td>
                                     <td><?php echo $account_name; ?></td>
-                                    <td class="text-center"><a class="btn btn-light text-danger" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-times"></i></a></td>
+                                    <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?php echo $payment_id; ?>"><i class="fa fa-times"></i></a></td>
                                 </tr>
                                 <?php
                             }

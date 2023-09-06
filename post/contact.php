@@ -10,13 +10,19 @@ if (isset($_POST['add_contact'])) {
 
     require_once('post/contact_model.php');
 
-    $password = password_hash(randomString(), PASSWORD_DEFAULT);
-
+    // Set password
+    if (!empty($_POST['contact_password'])) {
+        $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+    } else {
+        // Set a random password
+        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+    }
+    
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password_hash', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 

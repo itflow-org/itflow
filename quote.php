@@ -177,7 +177,7 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_quote=<?php echo $quote_id; ?>">
+                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
                                 <i class="fa fa-fw fa-times mr-2"></i>Delete
                             </a>
                         </div>
@@ -290,7 +290,7 @@ if (isset($_GET['quote_id'])) {
                                                             <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                         </a>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
                                                             <i class="fa fa-fw fa-times mr-2"></i>Remove
                                                         </a>
                                                     </div>

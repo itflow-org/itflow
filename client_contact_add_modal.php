@@ -190,11 +190,25 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="auth_method">
+                                    <select class="form-control select2" id="authMethod" name="auth_method">
                                         <option value="">- None -</option>
                                         <option value="local">Local</option>
                                         <option value="azure">Azure</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- Password Form Group (Initially hidden) -->
+                            <div class="form-group" id="passwordGroup" style="display: none;">
+                                <label>Password</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Enter a password" autocomplete="new-password">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                    </div>
                                 </div>
                             </div>
                             <?php } ?>
@@ -220,3 +234,16 @@
         </div>
     </div>
 </div>
+
+<!-- JavaScript to Show/Hide Password Form Group -->
+<script>
+    $(document).ready(function() {
+        $('#authMethod').on('change', function() {
+            if ($(this).val() === 'local') {
+                $('#passwordGroup').show();
+            } else {
+                $('#passwordGroup').hide();
+            }
+        });
+    });
+</script>

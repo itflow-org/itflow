@@ -111,7 +111,7 @@ if (isset($_GET['recurring_id'])) {
                                 <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Send
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring=<?php echo $recurring_id; ?>">
                                 <i class="fa fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         </div>
@@ -227,7 +227,7 @@ if (isset($_GET['recurring_id'])) {
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
                                                 </div>
                                             </div>  
                                         </td>
