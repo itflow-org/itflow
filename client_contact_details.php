@@ -272,6 +272,7 @@ if (isset($_GET['contact_id'])) {
                             <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Description</th>
                                 <th>Username</th>
                                 <th>Password</th>
                                 <th>OTP</th>
@@ -285,6 +286,7 @@ if (isset($_GET['contact_id'])) {
                             while ($row = mysqli_fetch_array($sql_related_logins)) {
                                 $login_id = intval($row['login_id']);
                                 $login_name = nullable_htmlentities($row['login_name']);
+                                $login_description = nullable_htmlentities($row['login_description']);
                                 $login_uri = nullable_htmlentities($row['login_uri']);
                                 if (empty($login_uri)) {
                                     $login_uri_display = "-";
@@ -320,6 +322,7 @@ if (isset($_GET['contact_id'])) {
                                             <?php echo $login_name; ?>
                                         </a>
                                     </td>
+                                    <td><?php echo $login_description; ?></td>
                                     <td><?php echo $login_username_display; ?></td>
                                     <td>
                                         <a tabindex="0" href="#" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
