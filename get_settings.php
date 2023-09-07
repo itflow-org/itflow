@@ -95,8 +95,9 @@ $config_login_message = $row['config_login_message'];
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 
-// Currency
+// Locale
 $config_currency_format = "US_en";
+$config_timezone = $row['config_timezone'];
 
 // Theme
 $config_theme = $row['config_theme'];

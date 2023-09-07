@@ -4,9 +4,11 @@ require_once("inc_all_settings.php");
 $sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 
 $row = mysqli_fetch_array($sql);
-$company_id = intval($row['company_id']);
 $company_locale = nullable_htmlentities($row['company_locale']);
 $company_currency = nullable_htmlentities($row['company_currency']);
+
+// Get a list of all available timezones
+$timezones = DateTimeZone::listIdentifiers();
 
 ?>
 
@@ -42,6 +44,21 @@ $company_currency = nullable_htmlentities($row['company_currency']);
                             <option value="">- Currency -</option>
                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                 <option <?php if ($company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Timezone <strong class="text-danger">*</strong></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
+                        </div>
+                        <select class="form-control select2" name="timezone" required>
+                            <option value="">- Select a Timezone -</option>
+                            <?php foreach ($timezones as $tz) { ?>
+                                <option <?php if ($config_timezone == $tz) { echo "selected"; } ?> value="<?php echo $tz; ?>"><?php echo $tz; ?></option>
                             <?php } ?>
                         </select>
                     </div>
