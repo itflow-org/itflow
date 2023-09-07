@@ -131,8 +131,12 @@ $colors_array = array(
 $net_terms_array = array(
     '0'=>'On Reciept',
     '7'=>'7 Days',
+    '10'=>'10 Days',
     '14'=>'14 Days',
-    '30'=>'30 Days'
+    '15'=>'15 Days',
+    '30'=>'30 Days',
+    '60'=>'60 Days',
+    '90'=>'90 Days'
 );
 
 $records_per_page_array = array('5','10','15','20','30','50','100');
