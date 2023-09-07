@@ -8,7 +8,7 @@ require_once("inc_all_settings.php"); ?>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
 
-                <legend>Invoice</legend>
+                <h4>Invoice</h4>
 
                 <div class="form-group">
                     <label>Invoice Prefix</label>
@@ -35,29 +35,7 @@ require_once("inc_all_settings.php"); ?>
                     <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo nullable_htmlentities($config_invoice_footer); ?></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>From Email</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
-                        <input type="email" class="form-control" name="config_invoice_from_email" placeholder="From Email" value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>From Name</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="config_invoice_from_name" placeholder="From Name" value="<?php echo nullable_htmlentities($config_invoice_from_name); ?>">
-                    </div>
-                </div>
-
-                <hr>
-
-                <legend>Invoice Late Fees</legend>
+                <h5>Invoice Late Fees</h5>
 
                  <div class="form-group">
                     <div class="custom-control custom-switch">
@@ -79,7 +57,7 @@ require_once("inc_all_settings.php"); ?>
 
                 <hr>
 
-                <legend>Recurring Invoice</legend>
+                <h4>Recurring Invoice</h4>
 
                 <div class="form-group">
                     <label>Recurring Prefix</label>

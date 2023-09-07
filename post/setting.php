@@ -192,20 +192,18 @@ if (isset($_POST['edit_invoice_settings'])) {
     $config_invoice_prefix = sanitizeInput($_POST['config_invoice_prefix']);
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);
     $config_invoice_footer = sanitizeInput($_POST['config_invoice_footer']);
-    $config_invoice_from_email = sanitizeInput($_POST['config_invoice_from_email']);
-    $config_invoice_from_name = sanitizeInput($_POST['config_invoice_from_name']);
     $config_invoice_late_fee_enable = intval($_POST['config_invoice_late_fee_enable']);
     $config_invoice_late_fee_percent = floatval($_POST['config_invoice_late_fee_percent']);
     $config_recurring_prefix = sanitizeInput($_POST['config_recurring_prefix']);
     $config_recurring_next_number = intval($_POST['config_recurring_next_number']);
 
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number WHERE company_id = 1");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified invoice settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Edit', log_description = '$session_name edited invoice settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Invoice Settings updated";
+    $_SESSION['alert_message'] = "Invoice Settings edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -218,10 +216,8 @@ if (isset($_POST['edit_quote_settings'])) {
     $config_quote_prefix = sanitizeInput($_POST['config_quote_prefix']);
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
     $config_quote_footer = sanitizeInput($_POST['config_quote_footer']);
-    $config_quote_from_email = sanitizeInput($_POST['config_quote_from_email']);
-    $config_quote_from_name = sanitizeInput($_POST['config_quote_from_name']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer' WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified quote settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -238,8 +234,6 @@ if (isset($_POST['edit_ticket_settings'])) {
 
     $config_ticket_prefix = sanitizeInput($_POST['config_ticket_prefix']);
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
-    $config_ticket_from_email = sanitizeInput($_POST['config_ticket_from_email']);
-    $config_ticket_from_name = sanitizeInput($_POST['config_ticket_from_name']);
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse']);
     $config_ticket_client_general_notifications = intval($_POST['config_ticket_client_general_notifications']);
     $config_ticket_autoclose = intval($_POST['config_ticket_autoclose']);

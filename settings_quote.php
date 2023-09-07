@@ -33,26 +33,6 @@ require_once("inc_all_settings.php"); ?>
                     <textarea class="form-control" rows="4" name="config_quote_footer"><?php echo nullable_htmlentities($config_quote_footer); ?></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>From Email</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
-                        <input type="email" class="form-control" name="config_quote_from_email" placeholder="From Email" value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>From Name</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="config_quote_from_name" placeholder="Name" value="<?php echo nullable_htmlentities($config_quote_from_name); ?>">
-                    </div>
-                </div>
-
                 <hr>
 
                 <button type="submit" name="edit_quote_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
