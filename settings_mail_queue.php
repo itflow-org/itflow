@@ -18,7 +18,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM email_queue
-    WHERE (email_from LIKE '%$q%' OR email_from_name LIKE '%$q%' OR email_recipient LIKE '%$q%' OR email_recipient_name LIKE '%$q%' OR email_subject LIKE '%$q%')
+    WHERE (email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LIKE '%$q%' OR email_recipient LIKE '%$q%' OR email_recipient_name LIKE '%$q%' OR email_subject LIKE '%$q%')
     AND DATE(email_queued_at) BETWEEN '$dtf' AND '$dtt'
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -82,6 +82,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_id&order=<?php echo $disp; ?>">ID</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_queued_at&order=<?php echo $disp; ?>">Queued</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_from&order=<?php echo $disp; ?>">From</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_recipient&order=<?php echo $disp; ?>">To</a></th>
@@ -120,6 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
+                            <td><?php echo $email_id; ?></td>
                             <td><?php echo $email_queued_at; ?></td>
                             <td><?php echo "$email_from<br><small class='text-secondary'>$email_from_name</small>"?></td>
                             <td><?php echo "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>"?></td>
@@ -128,6 +130,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $email_attempts; ?></td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#viewEmailModal<?php echo $email_id; ?>"><i class="fas fa-fw fa-eye"></i></button>
+                                
+                                <?php if($email_attempts > 3 && $email_status == 2) { ?>
+
+                                <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?php echo $email_id; ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
+
+                                <?php } ?>
                             </td>
                         </tr>
 
@@ -135,7 +143,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="modal-dialog modal-xl ">
                                 <div class="modal-content bg-dark">
                                     <div class="modal-header">
-                                        <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open mr-2"></i><?php echo $email_subject; ?></h5>
+                                        <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open mr-2"></i>ID: <?php echo "$email_id - $email_subject"; ?></h5>
                                         <button type="button" class="close text-white" data-dismiss="modal">
                                             <span>&times;</span>
                                         </button>

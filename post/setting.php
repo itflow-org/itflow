@@ -419,6 +419,23 @@ if (isset($_POST['edit_telemetry_settings'])) {
 
 }
 
+if (isset($_GET['send_failed_mail'])) {
+
+    validateAdminRole();
+
+    $email_id = intval($_GET['send_failed_mail']);
+
+    mysqli_query($mysqli,"UPDATE email_queue SET email_attempts = 3 WHERE email_id = $email_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Email', log_action = 'Send', log_description = '$session_name attempted to force send email queue id: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Email Force Sent, give it a minute to resend";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['send_telemetry_data'])) {
 
     validateAdminRole();

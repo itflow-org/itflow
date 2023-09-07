@@ -94,7 +94,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
 // Get Mail Queue that hasnt been sent yet
 // Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
-$sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 5 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
+$sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 4 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
 
 if (mysqli_num_rows($sql_failed_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_failed_queue)) {
