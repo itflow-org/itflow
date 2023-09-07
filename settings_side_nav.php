@@ -2,7 +2,7 @@
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
   <a class="brand-link pb-1 mt-1" href="clients.php">    
-    <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Settings</strong></p>
+    <p class="h6"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Administration</strong></p>
   </a>
 
   <!-- Sidebar -->
