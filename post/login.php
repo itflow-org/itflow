@@ -141,7 +141,7 @@ if(isset($_POST["import_client_logins_csv"])){
     //(Else)Check column count
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if(!$error & count($f_columns) != 4) {
+    if(!$error & count($f_columns) != 5) {
         $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
