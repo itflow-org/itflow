@@ -149,13 +149,13 @@ require_once("inc_all_settings.php"); ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-envelope mr-2"></i>Mail From Configuration</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-paper-plane mr-2"></i>Mail From Configuration</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <p>Each of the "From Email" Addresses need to be able to send email on behalf of the SMTP user configured above
-                <h3>Generic</h3>
-                <p>(used for system tasks such as sending share links)</p>
+                <h5>System Default</h5>
+                <p class="text-secondary">(used for system tasks such as sending share links)</p>
                 <div class="form-group">
                     <label>From Email</label>
                     <div class="input-group">
@@ -176,8 +176,8 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
-                <h3>Invoices</h3>
-                <p>(used for when invoice emails are sent)</p>
+                <h5>Invoices</h5>
+                <p class="text-secondary">(used for when invoice emails are sent)</p>
 
                 <div class="form-group">
                     <label>From Email</label>
@@ -199,8 +199,8 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
-                <h3>Quotes</h3>
-                <p>(used for when quote emails are sent)</p>
+                <h5>Quotes</h5>
+                <p class="text-secondary">(used for when quote emails are sent)</p>
 
                 <div class="form-group">
                     <label>From Email</label>
@@ -222,8 +222,8 @@ require_once("inc_all_settings.php"); ?>
                     </div>
                 </div>
 
-                <h3>Tickets</h3>
-                <p>(used for when tickets are created and emailed to a client)</p>
+                <h5>Tickets</h5>
+                <p class="text-secondary">(used for when tickets are created and emailed to a client)</p>
 
                 <div class="form-group">
                     <label>From Email</label>
