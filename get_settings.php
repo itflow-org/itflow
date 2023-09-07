@@ -129,7 +129,7 @@ $colors_array = array(
 );
 
 $net_terms_array = array(
-    '0'=>'On Reciept',
+    '0'=>'On Receipt',
     '7'=>'7 Days',
     '10'=>'10 Days',
     '14'=>'14 Days',
