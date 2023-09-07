@@ -57,12 +57,6 @@
                             <p>Scheduled Tickets</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar-alt"></i>
-                            <p>Calendar</p>
-                        </a>
-                    </li>
 
                 <?php }
 
@@ -130,12 +124,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-route"></i>
-                            <p>Trips</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-piggy-bank"></i>
                             <p>Accounts</p>
@@ -153,29 +141,45 @@
                             <p>Budget</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
-                            <i class="fas fa-chart-line nav-icon"></i>
-                            <p>Reports</p>
-                            <i class="fas fa-angle-right nav-icon float-right"></i>
-                        </a>
-                    </li>
-
-                <?php }
-
-                if ($session_user_role == 3) { ?>
-
-                    <li class="nav-header mt-3">SETTINGS</li>
-
-                    <li class="nav-item">
-                        <a href="users.php" class="nav-link">
-                            <i class="nav-icon fas fa-cogs"></i>
-                            <p>Settings</p>
-                            <i class="fas fa-angle-right nav-icon float-right"></i>
-                        </a>
-                    </li>
 
                 <?php } ?>
+
+                <li class="nav-header mt-3">MORE</li>
+
+                <li class="nav-item">
+                    <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Calendar</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-route"></i>
+                        <p>Trips</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
+                        <i class="fas fa-chart-line nav-icon"></i>
+                        <p>Reports</p>
+                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                    </a>
+                </li>
+
+                <?php if ($session_user_role == 3) { ?>
+
+                <li class="nav-item">
+                    <a href="users.php" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>Settings</p>
+                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                    </a>
+                </li>
+
+                <?php } ?>
+
 
             </ul>
         </nav>
