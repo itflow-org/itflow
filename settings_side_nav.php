@@ -38,6 +38,43 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-mail-bulk"></i>
+            <p>Mail Queue</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-history"></i>
+            <p>Audit Logs</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>"
+            href="settings_backup.php">
+            <i class="nav-icon fas fa-cloud-upload-alt"></i>
+            <p>Backup</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_update.php") { echo "active"; } ?>"
+            href="settings_update.php">
+            <i class="nav-icon fas fa-download"></i>
+            <p>Update</p>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
+            <i class="nav-icon fa fa-bug"></i>
+            <p>Debug</p>
+          </a>
+        </li>
+
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">
@@ -89,7 +126,14 @@
         <li class="nav-item">
           <a href="settings_company.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_company.php") { echo "active"; } ?>">
             <i class="nav-icon fa fa-briefcase"></i>
-            <p>Company</p>
+            <p>Company Details</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="settings_localization.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_localization.php") { echo "active"; } ?>">
+            <i class="nav-icon fa fa-globe"></i>
+            <p>Localization</p>
           </a>
         </li>
 
@@ -171,26 +215,10 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_update.php") { echo "active"; } ?>"
-            href="settings_update.php">
-            <i class="nav-icon fas fa-download"></i>
-            <p>Update</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_telemetry.php") { echo "active"; } ?>"
             href="settings_telemetry.php">
             <i class="nav-icon fas fa-satellite-dish"></i>
             <p>Telemetry</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>"
-            href="settings_backup.php">
-            <i class="nav-icon fas fa-cloud-upload-alt"></i>
-            <p>Backup</p>
           </a>
         </li>
 
@@ -202,26 +230,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
-            <i class="nav-icon fa fa-bug"></i>
-            <p>Debug</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-mail-bulk"></i>
-            <p>Mail Queue</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-history"></i>
-            <p>Audit Logs</p>
-          </a>
-        </li>
       </ul>
 
     </nav>
