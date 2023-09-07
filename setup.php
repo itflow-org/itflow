@@ -790,6 +790,9 @@ $locales_array = [
     'zu'          => 'Zulu',
 ];
 
+// Get a list of all available timezones
+$timezones = DateTimeZone::listIdentifiers();
+
 if (isset($_POST['add_database'])) {
 
     // Check if database has been set up already. If it has, direct user to edit directly instead.
@@ -955,6 +958,7 @@ if (isset($_POST['add_company_settings'])) {
     $website = sanitizeInput($_POST['website']);
     $locale = sanitizeInput($_POST['locale']);
     $currency_code = sanitizeInput($_POST['currency_code']);
+    $timezone = sanitizeInput($_POST['timezone']);
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
@@ -1003,7 +1007,7 @@ if (isset($_POST['add_company_settings'])) {
 
 
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-', config_timezone = '$timezone'");
 
     # Used only for the install script to grab the generated cronkey and insert into the db
     if (file_exists("uploads/tmp/cronkey.php")) {
@@ -1343,7 +1347,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Company Details</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-briefcase mr-2"></i>Company Details</h3>
                         </div>
                         <div class="card-body">
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
@@ -1356,6 +1360,11 @@ if (isset($_POST['add_telemetry'])) {
                                         </div>
                                         <input type="text" class="form-control" name="name" placeholder="Company Name" autofocus required>
                                     </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Logo</label>
+                                    <input type="file" class="form-control-file" name="file">
                                 </div>
 
                                 <div class="form-group">
@@ -1443,6 +1452,8 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
                                 </div>
 
+                                <Legend>Localization</Legend>
+
                                 <div class="form-group">
                                     <label>Language <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
@@ -1465,7 +1476,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                                         </div>
                                         <select class="form-control select2" name="currency_code" required>
-                                            <option value="">- Currency -</option>
+                                            <option value="">- Select a Currency -</option>
                                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                                 <option value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                                             <?php } ?>
@@ -1474,8 +1485,18 @@ if (isset($_POST['add_telemetry'])) {
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Logo</label>
-                                    <input type="file" class="form-control-file" name="file">
+                                    <label>Timezone <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="timezone" required>
+                                            <option value="">- Select a Timezone -</option>
+                                            <?php foreach ($timezones as $tz) { ?>
+                                                <option value="<?php echo $tz; ?>"><?php echo $tz; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <hr>
