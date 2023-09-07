@@ -562,5 +562,20 @@ if (isset($_GET['contact_id'])) {
     }
 </script>
 
+<!-- JavaScript to Show/Hide Password Form Group -->
+<script>
+    $(document).ready(function() {
+        $('.authMethod').on('change', function() {
+            var $form = $(this).closest('.authForm');
+            if ($(this).val() === 'local') {
+                $form.find('.passwordGroup').show();
+            } else {
+                $form.find('.passwordGroup').hide();
+            }
+        });
+        $('.authMethod').trigger('change');
+    });
+</script>
+
 <?php
 require_once("footer.php");

@@ -230,6 +230,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
+<!-- JavaScript to Show/Hide Password Form Group -->
+<script>
+    $(document).ready(function() {
+        $('.authMethod').on('change', function() {
+            var $form = $(this).closest('.authForm');
+            if ($(this).val() === 'local') {
+                $form.find('.passwordGroup').show();
+            } else {
+                $form.find('.passwordGroup').hide();
+            }
+        });
+        $('.authMethod').trigger('change');
+    });
+</script>
+
 <?php
 
 require_once("client_contact_add_modal.php");
