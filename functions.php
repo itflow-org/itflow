@@ -192,7 +192,10 @@ function truncate($text, $chars) {
     }
     $text = $text." ";
     $text = substr($text, 0, $chars);
-    $text = substr($text, 0, strrpos($text, ' '));
+    $lastSpacePos = strrpos($text, ' ');
+    if ($lastSpacePos !== false) {
+        $text = substr($text, 0, $lastSpacePos);
+    }
     return $text."...";
 }
 
