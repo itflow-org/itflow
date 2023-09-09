@@ -231,10 +231,10 @@ if (isset($_POST["import_client_assets_csv"])) {
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
-    //(Else)Check column count (name, type, make, model, serial, os)
+    //(Else)Check column count (name, desc, type, make, model, serial, os, assigned to, location)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 8) {
+    if (!$error & count($f_columns) != 9) {
         $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
@@ -246,6 +246,11 @@ if (isset($_POST["import_client_assets_csv"])) {
         $row_count = 0;
         $duplicate_count = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== false) {
+
+            // Default variables (if undefined)
+            $description = $type = $make = $model = $serial = $os = '';
+            $contact_id = $location_id = 0;
+
             $duplicate_detect = 0;
             if (isset($column[0])) {
                 $name = sanitizeInput($column[0]);
@@ -253,38 +258,39 @@ if (isset($_POST["import_client_assets_csv"])) {
                     $duplicate_detect = 1;
                 }
             }
-            if (isset($column[1])) {
+            if (!empty($column[1])) {
                 $description = sanitizeInput($column[1]);
             }
-            if (isset($column[2])) {
+            if (!empty($column[2])) {
                 $type = sanitizeInput($column[2]);
             }
-            if (isset($column[3])) {
+            if (!empty($column[3])) {
                 $make = sanitizeInput($column[3]);
             }
-            if (isset($column[4])) {
+            if (!empty($column[4])) {
                 $model = sanitizeInput($column[4]);
             }
-            if (isset($column[5])) {
+            if (!empty($column[5])) {
                 $serial = sanitizeInput($column[5]);
             }
-            if (isset($column[6])) {
+            if (!empty($column[6])) {
                 $os = sanitizeInput($column[6]);
             }
-            if (isset($column[7])) {
-                $os = sanitizeInput($column[7]);
+            if (!empty($column[7])) {
+                $contact = sanitizeInput($column[7]);
+                if ($contact) {
+                    $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_contact);
+                    $contact_id = intval($row['contact_id']);
+                }
             }
-            if (isset($column[8])) {
-                $contact = sanitizeInput($column[8]);
-                $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
-                $row = mysqli_fetch_assoc($sql_contact);
-                $contact_id = intval($row['contact_id']);
-            }
-            if (isset($column[9])) {
-                $location = sanitizeInput($column[9]);
-                $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
-                $row = mysqli_fetch_assoc($sql_location);
-                $location_id = intval($row['location_id']);
+            if (!empty($column[8])) {
+                $location = sanitizeInput($column[8]);
+                if ($location) {
+                    $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_location);
+                    $location_id = intval($row['location_id']);
+                }
             }
 
             // Check if duplicate was detected
@@ -292,7 +298,7 @@ if (isset($_POST["import_client_assets_csv"])) {
                 //Add
                 mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
                 $row_count = $row_count + 1;
-            }else{
+            } else {
                 $duplicate_count = $duplicate_count + 1;
             }
         }
