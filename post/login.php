@@ -87,7 +87,7 @@ if(isset($_POST['export_client_logins_csv'])){
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Description', 'Username', 'Password', 'URL');
+        $fields = array('Name', 'Description', 'Username', 'Password', 'URI');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
@@ -170,13 +170,13 @@ if(isset($_POST["import_client_logins_csv"])){
                 $password = sanitizeInput(encryptLoginEntry($column[3]));
             }
             if(isset($column[4])){
-                $url = sanitizeInput($column[4]);
+                $uri = sanitizeInput($column[4]);
             }
 
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$url', login_username = '$username', login_password = '$password', login_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_username = '$username', login_password = '$password', login_client_id = $client_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
@@ -213,7 +213,7 @@ if(isset($_GET['download_client_logins_csv_template'])){
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Description', 'Username', 'Password', 'URL');
+    $fields = array('Name', 'Description', 'Username', 'Password', 'URI');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file

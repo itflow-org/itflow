@@ -94,12 +94,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>URL/Host</label>
+                                <label>URI</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="ex. google.com">
+                                    <input type="text" class="form-control" name="uri" placeholder=" http://192.168.1.1">
                                 </div>
                             </div>
 

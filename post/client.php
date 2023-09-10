@@ -728,7 +728,7 @@ if (isset($_POST['export_client_pdf'])) {
                                     style: 'itemHeader'
                                 },
                                 {
-                                    text: 'URL',
+                                    text: 'URI',
                                     style: 'itemHeader'
                                 },
                                 {

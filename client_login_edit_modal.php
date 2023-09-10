@@ -95,12 +95,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>URL/Host</label>
+                                <label>URI</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="ex. google.com" value="<?php echo $login_uri; ?>">
+                                    <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" value="<?php echo $login_uri; ?>">
                                     <div class="input-group-append">
 
                                         <a href="<?php echo $login_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>

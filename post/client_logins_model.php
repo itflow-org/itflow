@@ -2,7 +2,7 @@
 $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
 $description = sanitizeInput($_POST['description']);
-$uri = preg_replace("(^https?://)", "", sanitizeInput($_POST['uri']));
+$uri = sanitizeInput($_POST['uri']);
 $username = encryptLoginEntry(trim($_POST['username']));
 $password = encryptLoginEntry(trim($_POST['password']));
 $otp_secret = sanitizeInput($_POST['otp_secret']);
