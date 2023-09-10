@@ -18,6 +18,7 @@ if (isset($_POST['add_asset'])) {
     $os = sanitizeInput($_POST['os']);
     $ip = sanitizeInput($_POST['ip']);
     $mac = sanitizeInput($_POST['mac']);
+    $uri = sanitizeInput($_POST['uri']);
     $status = sanitizeInput($_POST['status']);
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
@@ -45,7 +46,7 @@ if (isset($_POST['add_asset'])) {
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_uri = '$uri', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
 
     $asset_id = mysqli_insert_id($mysqli);
 
@@ -89,6 +90,7 @@ if (isset($_POST['edit_asset'])) {
     $os = sanitizeInput($_POST['os']);
     $ip = sanitizeInput($_POST['ip']);
     $mac = sanitizeInput($_POST['mac']);
+    $uri = sanitizeInput($_POST['uri']);
     $status = sanitizeInput($_POST['status']);
     $location = intval($_POST['location']);
     $vendor = intval($_POST['vendor']);
@@ -118,7 +120,7 @@ if (isset($_POST['edit_asset'])) {
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_mac = '$mac', asset_uri = '$uri', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
 
     //If login exists then update the login
     if ($login_id > 0 && !empty($_POST['username'])) {

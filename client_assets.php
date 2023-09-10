@@ -192,6 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $asset_mac = nullable_htmlentities($row['asset_mac']);
+                        $asset_uri = nullable_htmlentities($row['asset_uri']);
                         $asset_status = nullable_htmlentities($row['asset_status']);
                         $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
                         $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
@@ -254,6 +255,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <th>
                                 <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
                                 <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                <?php if(!empty($asset_uri)){ ?>
+                                    <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                <?php } ?>
                                 <?php
                                 if ($login_id > 0) {
                                     ?>

@@ -223,6 +223,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>URI</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pillsPurchaseCopy<?php echo $asset_id; ?>">
