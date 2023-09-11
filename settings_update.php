@@ -5,16 +5,16 @@ require_once("config.php");
 
 // Fetch the latest code changes but don't apply them
 exec("git fetch", $output, $result);
-$latest_version = exec("git rev-parse origin/$repo_branch");
-$current_version = exec("git rev-parse HEAD");
+$latest_commit_version = exec("git rev-parse origin/$repo_branch");
+$current_commit_version = exec("git rev-parse HEAD");
 
-if ($current_version == $latest_version) {
-    $update_message = "No Updates available";
+if ($current_commit_version == $latest_commit_version) {
+    //$update_message = "No Updates available";
+    $git_log = shell_exec("git log -n 10 --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 } else {
-    $update_message = "New Updates are Available [$latest_version]";
+    //$update_message = "New Updates are Available [$latest_commit_version]";
+    $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 }
-
-$git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 
 ?>
 
@@ -31,10 +31,12 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 </div>
             <?php } ?>
 
-            <?php if (!empty($git_log)) { ?>
+            <!-- Compare git versions -->
+            <?php if ($current_commit_version !== $latest_commit_version ) { ?>
                 <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
                 <hr>
 
+            <!-- Compare database versions -->
             <?php } else {
                 if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
                     <div class="alert alert-warning" role="alert">
@@ -49,10 +51,11 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 <?php } else { ?>
                     <h3 class="text-success text-bold">Congratulations!<br><i class="far fa-3x text-dark fa-smile-wink"></i><br><small>You are on the latest version!</small></h3>
                     <p class="text-secondary">Current Database Version:<br><strong><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
-                    <p class="text-secondary">Current App Version:<br><strong><?php echo $current_version; ?></strong></p>
+                    <p class="text-secondary">Current App Version:<br><strong><?php echo $current_commit_version; ?></strong></p>
                 <?php }
             }
 
+            // Show git log of previous updates / updates to apply
             if (!empty($git_log)) { ?>
                 <table class="table ">
                     <thead>
