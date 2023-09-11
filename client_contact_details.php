@@ -149,6 +149,7 @@ if (isset($_GET['contact_id'])) {
                             <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Description</th>
                                 <th>Type</th>
                                 <th>Make/Model</th>
                                 <th>Serial Number</th>
@@ -165,6 +166,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_id = intval($row['asset_id']);
                                 $asset_type = nullable_htmlentities($row['asset_type']);
                                 $asset_name = nullable_htmlentities($row['asset_name']);
+                                $asset_description = nullable_htmlentities($row['asset_description']);
                                 $asset_make = nullable_htmlentities($row['asset_make']);
                                 $asset_model = nullable_htmlentities($row['asset_model']);
                                 $asset_serial = nullable_htmlentities($row['asset_serial']);
@@ -214,6 +216,7 @@ if (isset($_GET['contact_id'])) {
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
                                         <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                     </th>
+                                    <td><?php echo $asset_description; ?></td>
                                     <td><?php echo $asset_type; ?></td>
                                     <td><?php echo "$asset_make $asset_model"; ?></td>
                                     <td><?php echo $asset_serial_display; ?></td>
