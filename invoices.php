@@ -78,7 +78,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE (invoice_status LIKE '$status_query')
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
+    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_number LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
