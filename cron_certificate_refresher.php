@@ -29,15 +29,29 @@ if ( $argv[1] !== $config_cron_key ) {
  * ###############################################################################################################
  */
 
-$sql_certificates = mysqli_query($mysqli, "SELECT certificate_id, certificate_domain FROM certificates WHERE certificate_archived_at IS NULL");
+$sql_certificates = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_archived_at IS NULL");
 
 while ($row = mysqli_fetch_array($sql_certificates)) {
     $certificate_id = intval($row['certificate_id']);
-    $certificate_domain = sanitizeInput($row['certificate_domain']);
+    $domain = sanitizeInput($row['certificate_domain']);
+    
+    $certificate = getSSL($domain);
 
-    $expire_date = getCertificateExpiryDate($certificate_domain);
+    $expire = sanitizeInput($certificate['expire']);
+    $issued_by = sanitizeInput($certificate['issued_by']);
+    $public_key = sanitizeInput($certificate['public_key']);
 
-    // Update the Certificate Expiry date
-    mysqli_query($mysqli, "UPDATE certificates SET certificate_expire = '$expire_date' WHERE certificate_id = $certificate_id");
+    if (empty($expire)) {
+        $expire = "NULL";
+    } else {
+        $expire = "'" . $expire . "'";
+    }
+
+    echo "\n$domain\n";
+    echo "$issued_by\n";
+    echo "$expire\n";
+    echo "$public_key\n\n";
+
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
 
 }

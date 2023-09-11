@@ -72,3 +72,9 @@ if ($iPod || $iPhone || $iPad) {
 //Get Notification Count for the badge on the top nav
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];
+
+// FORCE MFA Setup
+//if ($session_user_config_force_mfa == 1 && $session_token == NULL) {
+//    header("Location: force_mfa.php");
+//}
+
