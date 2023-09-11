@@ -119,7 +119,7 @@ $sql_asset_retire = mysqli_query(
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
                     </div>
-                    <div class="card-body p-1">
+                    <div class="card-body p-2">
 
                         <table class="table table-borderless table-sm">
                             <tbody>
@@ -155,7 +155,7 @@ $sql_asset_retire = mysqli_query(
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
                     </div>
-                    <div class="card-body p-1">
+                    <div class="card-body p-2">
                         <table class="table table-borderless table-sm">
                             <?php
 
@@ -209,7 +209,7 @@ $sql_asset_retire = mysqli_query(
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations <small>(Within 90 Days)</small></h5></h5>
                     </div>
-                    <div class="card-body p-1">
+                    <div class="card-body p-2">
 
                         <?php
 
@@ -299,7 +299,7 @@ $sql_asset_retire = mysqli_query(
                     <div class="card-header">
                         <h5 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Stale Tickets <small>(Not updated within 3 days)</small></h5>
                     </div>
-                    <div class="card-body p-1">
+                    <div class="card-body p-2">
 
                         <table class="table table-borderless table-sm">
                             <tbody>
