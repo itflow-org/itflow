@@ -314,7 +314,8 @@ if (!$imap) {
 }
 
 // Check for the ITFlow_Processed mailbox that we move messages to once processed
-$imap_folder = 'INBOX/ITFlow_Processed';
+//$imap_folder = 'INBOX/ITFlow_Processed';
+$imap_folder = 'ITFlow';
 $list = imap_list($imap, "{{$imap_mailbox}}", "*");
 if (array_search("{{$imap_mailbox}}$imap_folder", $list) === false) {
     imap_createmailbox($imap, imap_utf7_encode("{{$imap_mailbox}}$imap_folder"));
@@ -430,10 +431,11 @@ if ($emails) {
         // Deal with the message (move it if processed, flag it if not)
         if ($email_processed) {
             imap_mail_move($imap, $email, $imap_folder);
-        } else {
-            echo "Failed to process email - flagging for manual review.";
-            imap_setflag_full($imap, $email, "\\Flagged");
-        }
+        } 
+        //else {
+        //    echo "Failed to process email - flagging for manual review.";
+        //    imap_setflag_full($imap, $email, "\\Flagged");
+        //}
 
     }
 
