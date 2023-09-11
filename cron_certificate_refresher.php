@@ -33,7 +33,7 @@ $sql_certificates = mysqli_query($mysqli, "SELECT certificate_id, certificate_do
 
 while ($row = mysqli_fetch_array($sql_certificates)) {
     $certificate_id = intval($row['certificate_id']);
-    $certificate_domain = santizeInput($row['certificate_domain']);
+    $certificate_domain = sanitizeInput($row['certificate_domain']);
 
     $expire_date = getCertificateExpiryDate($certificate_domain);
 
