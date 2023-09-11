@@ -319,6 +319,7 @@ $imap_folder = 'ITFlow';
 $list = imap_list($imap, "{{$imap_mailbox}}", "*");
 if (array_search("{{$imap_mailbox}}$imap_folder", $list) === false) {
     imap_createmailbox($imap, imap_utf7_encode("{{$imap_mailbox}}$imap_folder"));
+    imap_subscribe($imap, imap_utf7_encode("{{$imap_mailbox}}$imap_folder"));
 }
 
 // Search for unread ("UNSEEN") emails
