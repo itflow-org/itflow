@@ -13,19 +13,71 @@ if (isset($_GET['query'])) {
 
     $ticket_num_query = str_replace("$config_ticket_prefix", "", "$query");
 
-    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1 WHERE client_name LIKE '%$query%' ORDER BY client_id DESC LIMIT 5");
-    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts LEFT JOIN clients ON client_id = contact_client_id WHERE (contact_name LIKE '%$query%' OR contact_title LIKE '%$query%' OR contact_email LIKE '%$query%' OR contact_phone LIKE '%$phone_query%' OR contact_mobile LIKE '%$phone_query%') ORDER BY contact_id DESC LIMIT 5");
-    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%') ORDER BY vendor_id DESC LIMIT 5");
-    $sql_products = mysqli_query($mysqli, "SELECT * FROM products WHERE product_name LIKE '%$query%' ORDER BY product_id DESC LIMIT 5");
-    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN clients on document_client_id = clients.client_id WHERE MATCH(document_content_raw) AGAINST ('$query') ORDER BY document_id DESC LIMIT 5");
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') ORDER BY ticket_id DESC LIMIT 5");
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_description LIKE '%$query%') ORDER BY login_id DESC LIMIT 5");
+    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
+        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
+        WHERE client_archived_at IS NULL
+            AND client_name LIKE '%$query%'
+        ORDER BY client_id DESC LIMIT 5"
+    );
+    
+    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts 
+        LEFT JOIN clients ON client_id = contact_client_id
+        WHERE contact_archived_at IS NULL
+            AND (contact_name LIKE '%$query%'
+            OR contact_title LIKE '%$query%'
+            OR contact_email LIKE '%$query%'
+            OR contact_phone LIKE '%$phone_query%'
+            OR contact_mobile LIKE '%$phone_query%')
+        ORDER BY contact_id DESC LIMIT 5"
+    );
+    
+    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors
+        LEFT JOIN clients ON vendor_client_id = client_id
+        WHERE vendor_archived_at IS NULL
+            AND vendor_template = 0
+            AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
+        ORDER BY vendor_id DESC LIMIT 5"
+    );
+    
+    $sql_products = mysqli_query($mysqli, "SELECT * FROM products
+        WHERE product_archived_at IS NULL
+            AND product_name LIKE '%$query%'
+        ORDER BY product_id DESC LIMIT 5"
+    );
+    
+    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents
+        LEFT JOIN clients on document_client_id = clients.client_id
+        WHERE document_archived_at IS NULL
+            AND MATCH(document_content_raw) AGAINST ('$query')
+        ORDER BY document_id DESC LIMIT 5"
+    );
+    
+    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+        LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
+        WHERE ticket_archived_at IS NULL
+            AND (ticket_subject LIKE '%$query%'
+            OR ticket_number = '$ticket_num_query')
+        ORDER BY ticket_id DESC LIMIT 5"
+    );
+    
+    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins
+        LEFT JOIN contacts ON login_contact_id = contact_id
+        LEFT JOIN clients ON login_client_id = client_id
+        WHERE login_archived_at IS NULL
+            AND (login_name LIKE '%$query%' OR login_description LIKE '%$query%')
+        ORDER BY login_id DESC LIMIT 5"
+    );
 
-    $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id LEFT JOIN categories ON invoice_category_id = category_id
-    WHERE (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%') ORDER BY invoice_number DESC LIMIT 5");
+    $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices
+        LEFT JOIN clients ON invoice_client_id = client_id
+        LEFT JOIN categories ON invoice_category_id = category_id
+        WHERE invoice_archived_at IS NULL
+            AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%')
+        ORDER BY invoice_number DESC LIMIT 5"
+    );
 
-    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
-        LEFT JOIN contacts ON asset_contact_id = contact_id 
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets
+        LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN clients ON asset_client_id = client_id
         WHERE asset_archived_at IS NULL
@@ -34,6 +86,7 @@ if (isset($_GET['query'])) {
     );
 
     $q = nullable_htmlentities($_GET['query']);
+    
     ?>
 
     <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Search all things</h4>
@@ -96,10 +149,10 @@ if (isset($_GET['query'])) {
                             <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Client</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Cell</th>
+                                <th>Client</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -122,10 +175,10 @@ if (isset($_GET['query'])) {
                                     <td><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
                                         <br><small class="text-secondary"><?php echo $contact_title; ?></small>
                                     </td>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                     <td><?php echo $contact_email; ?></td>
                                     <td><?php echo "$contact_phone $contact_extension"; ?></td>
                                     <td><?php echo $contact_mobile; ?></td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -154,6 +207,7 @@ if (isset($_GET['query'])) {
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Phone</th>
+                                <th>Client</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -163,11 +217,15 @@ if (isset($_GET['query'])) {
                                 $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 $vendor_description = nullable_htmlentities($row['vendor_description']);
                                 $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+
                                 ?>
                                 <tr>
                                     <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
                                     <td><?php echo $vendor_description; ?></td>
                                     <td><?php echo $vendor_phone; ?></td>
+                                    <td><a href="client_vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -319,7 +377,7 @@ if (isset($_GET['query'])) {
             <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Logins</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Passwords</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -329,6 +387,7 @@ if (isset($_GET['query'])) {
                                 <th>Description</th>
                                 <th>Username</th>
                                 <th>Password</th>
+                                <th>Client</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -340,15 +399,17 @@ if (isset($_GET['query'])) {
                                 $login_client_id = intval($row['login_client_id']);
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                 $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
 
                                 ?>
                                 <tr>
                                     <td><a href="client_logins.php?client_id=<?php echo $login_client_id ?>&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
                                     <td><?php echo $login_description; ?></td>
                                     <td><?php echo $login_username; ?></td>
-                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
-
-
+                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    </td>
+                                    <td><a href="client_logins.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
