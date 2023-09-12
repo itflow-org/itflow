@@ -22,8 +22,16 @@ if (isset($_GET['query'])) {
     $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_description LIKE '%$query%') ORDER BY login_id DESC LIMIT 5");
 
     $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id LEFT JOIN categories ON invoice_category_id = category_id
-    WHERE (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%') ORDER BY invoice_number DESC LIMIT 5"
-);
+    WHERE (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%') ORDER BY invoice_number DESC LIMIT 5");
+
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
+        LEFT JOIN contacts ON asset_contact_id = contact_id 
+        LEFT JOIN locations ON asset_location_id = location_id
+        LEFT JOIN clients ON asset_client_id = client_id
+        WHERE asset_archived_at IS NULL
+            AND (asset_name LIKE '%$query%' OR asset_description LIKE '%$query%')
+        ORDER BY asset_name DESC LIMIT 5"
+    );
 
     $q = nullable_htmlentities($_GET['query']);
     ?>
@@ -361,7 +369,7 @@ if (isset($_GET['query'])) {
             <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Invoices</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-file-invoice mr-2"></i>Invoices</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -392,6 +400,97 @@ if (isset($_GET['query'])) {
                                     <td><?php echo $invoice_status; ?></td>
                                     <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                                     <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                </tr>
+
+                            <?php } ?>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <?php if (mysqli_num_rows($sql_assets) > 0) { ?>
+
+            <!-- Contacts-->
+
+            <div class="col-sm-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mt-1"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-borderless">
+                            <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Type</th>
+                                <th>Serial</th>
+                                <th>Client</th>
+                                <th>Assigned</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_assets)) {
+                                $asset_id = intval($row['asset_id']);
+                                $asset_type = nullable_htmlentities($row['asset_type']);
+                                $asset_name = nullable_htmlentities($row['asset_name']);
+                                $asset_description = nullable_htmlentities($row['asset_description']);
+                                if (empty($asset_description)) {
+                                    $asset_description_display = "-";
+                                } else {
+                                    $asset_description_display = $asset_description;
+                                }
+                                $asset_make = nullable_htmlentities($row['asset_make']);
+                                $asset_model = nullable_htmlentities($row['asset_model']);
+                                $asset_serial = nullable_htmlentities($row['asset_serial']);
+                                if (empty($asset_serial)) {
+                                    $asset_serial_display = "-";
+                                } else {
+                                    $asset_serial_display = $asset_serial;
+                                }
+                                $asset_mac = nullable_htmlentities($row['asset_mac']);
+                                $asset_uri = nullable_htmlentities($row['asset_uri']);
+                                $asset_status = nullable_htmlentities($row['asset_status']);
+                                $asset_created_at = nullable_htmlentities($row['asset_created_at']);
+                                $asset_location_id = intval($row['asset_location_id']);
+                                $asset_contact_id = intval($row['asset_contact_id']);
+                                $device_icon = getAssetIcon($asset_type);
+
+                                $contact_name = nullable_htmlentities($row['contact_name']);
+                                $contact_id = nullable_htmlentities($row['contact_id']);
+                                if (empty($contact_name)) {
+                                    $contact_name_display = "-";
+                                }else{
+                                    $contact_name_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>"; 
+                                }
+                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                if (empty($contact_archived_at)) {
+                                    $contact_archived_display = "";
+                                } else {
+                                    $contact_archived_display = "Archived - ";
+                                }
+
+                                $client_id = intval($row['asset_client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+
+                                ?>
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?>
+                                        <?php if(!empty($asset_uri)){ ?>
+                                        <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                        <?php } ?>
+                                    </td>
+                                    <td><?php echo $asset_type; ?></td>
+                                    <td><?php echo $asset_serial_display; ?></td>
+                                    <td><a href="client_assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><?php echo $contact_name_display; ?></td>
                                 </tr>
 
                             <?php } ?>
