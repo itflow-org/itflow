@@ -14,7 +14,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
     LEFT JOIN categories ON quote_category_id = category_id
-    WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_number LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
+    WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 

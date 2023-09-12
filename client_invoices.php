@@ -14,7 +14,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE invoice_client_id = $client_id
-    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_number LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%') 
+    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

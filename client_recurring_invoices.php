@@ -14,7 +14,7 @@ $sql = mysqli_query(
     "SELECT * FROM recurring
     LEFT JOIN categories ON recurring_category_id = category_id
     WHERE recurring_client_id = $client_id
-    AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_number LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
+    AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
