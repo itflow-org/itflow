@@ -21,6 +21,10 @@ if (isset($_GET['query'])) {
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on tickets.ticket_client_id = clients.client_id WHERE (ticket_subject LIKE '%$query%' OR ticket_number = '$ticket_num_query') ORDER BY ticket_id DESC LIMIT 5");
     $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_name LIKE '%$query%' OR login_description LIKE '%$query%') ORDER BY login_id DESC LIMIT 5");
 
+    $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id LEFT JOIN categories ON invoice_category_id = category_id
+    WHERE (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%') ORDER BY invoice_number DESC LIMIT 5"
+);
+
     $q = nullable_htmlentities($_GET['query']);
     ?>
 
@@ -266,8 +270,8 @@ if (isset($_GET['query'])) {
                             <tr>
                                 <th>Ticket ID</th>
                                 <th>Description</th>
-                                <th>Client</th>
                                 <th>Status</th>
+                                <th>Client</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -278,16 +282,16 @@ if (isset($_GET['query'])) {
                                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_client = nullable_htmlentities($row['client_name']);
                                 $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_id = intval($row['ticket_client_id']);
 
                                 ?>
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id ?>"><?php echo $ticket_prefix . $ticket_number; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
-                                    <td><?php echo $ticket_client; ?></td>
                                     <td><?php echo $ticket_status; ?></td>
-
+                                    <td><a href="client_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -337,6 +341,57 @@ if (isset($_GET['query'])) {
                                     <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button></td>
 
 
+                                </tr>
+
+                            <?php } ?>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
+
+            <!-- Contacts-->
+
+            <div class="col-sm-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Invoices</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-borderless">
+                            <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Client</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_invoices)) {
+                                $invoice_id = intval($row['invoice_id']);
+                                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                $invoice_number = intval($row['invoice_number']);
+                                $invoice_amount = floatval($row['invoice_amount']);
+                                $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+                                $invoice_status = nullable_htmlentities($row['invoice_status']);
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+
+                                ?>
+                                <tr>
+                                    <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                                    <td><?php echo $invoice_status; ?></td>
+                                    <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
