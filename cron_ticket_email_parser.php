@@ -336,7 +336,7 @@ if ($emails) {
         $email_processed = false;
 
         // Get details from message and invoke PHP Mime Mail Parser
-        $msg_to_parse = imap_fetchheader($imap, $email, FT_PREFETCHTEXT) . imap_body($imap, $email);
+        $msg_to_parse = imap_fetchheader($imap, $email, FT_PREFETCHTEXT) . imap_body($imap, $email, FT_PEEK);
         $parser = new PhpMimeMailParser\Parser();
         $parser->setText($msg_to_parse);
 
@@ -430,6 +430,7 @@ if ($emails) {
 
         // Deal with the message (move it if processed, flag it if not)
         if ($email_processed) {
+            imap_setflag_full($imap, $email, "\\Seen");
             imap_mail_move($imap, $email, $imap_folder);
         } 
 
