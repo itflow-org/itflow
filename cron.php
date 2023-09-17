@@ -212,7 +212,7 @@ $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
 if($tickets_pending_assignment > 0){
 
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'There are $ticket_pending_assignment Tickets pending Assignment', notification_action = 'tickets.php?status=Pending-Assignment'");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Pending Tickets', notification = 'There are $tickets_pending_assignment Tickets pending assignment', notification_action = 'tickets.php?status=Pending-Assignment'");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for tickets that are pending assignment'");
