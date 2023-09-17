@@ -295,9 +295,11 @@ if (isset($_GET['ticket_id'])) {
                                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                         </div>
                                         <select class="form-control select2" name="status" required>
-                                            <option <?php if ($ticket_status == 'Open') { echo "selected"; } ?> >Open</option>
-                                            <option <?php if ($ticket_status == 'Working') { echo "selected"; } ?> >Working</option>
-                                            <option <?php if ($ticket_status == 'On Hold') { echo "selected"; } ?> >On Hold</option>
+                                            <option <?php if ($ticket_status == "In-Progress") {echo "selected";}?> >In-Progress</option>
+                                            <option <?php if ($ticket_status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
+                                            <option <?php if ($ticket_status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
+                                            <option <?php if ($ticket_status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
+                                            <option <?php if ($ticket_status == "Scheduled") {echo "selected";}?> >Scheduled</option>
                                             <?php if($config_ticket_autoclose) { ?>
                                                 <option <?php if ($ticket_status == 'Auto Close') { echo "selected"; } ?> >Auto Close</option>
                                             <?php } ?>

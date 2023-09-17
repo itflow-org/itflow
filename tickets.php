@@ -14,6 +14,21 @@ if (!isset($_GET['status'])) {
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $status = 'Open';
     $ticket_status_snippet = "ticket_status != 'Closed'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'In-Progress') {
+    $status = 'In-Progress';
+    $ticket_status_snippet = "ticket_status = 'In-Progress'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Client') {
+    $status = 'Pending-Client';
+    $ticket_status_snippet = "ticket_status = 'Pending-Client'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Vendor') {
+    $status = 'Pending-Vendor';
+    $ticket_status_snippet = "ticket_status = 'Pending-Vendor'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Shipment') {
+    $status = 'Pending-Shipment';
+    $ticket_status_snippet = "ticket_status = 'Pending-Shipment'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Scheduled') {
+    $status = 'Scheduled';
+    $ticket_status_snippet = "ticket_status = 'Scheduled'";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
     $ticket_status_snippet = "ticket_status = 'Closed'";
@@ -190,7 +205,11 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <label>Ticket Status</label>
                                 <select class="form-control select2" name="status">
                                     <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
-                                    <option value="Open" <?php if ($status == "Open") {echo "selected";}?> >Open</option>
+                                    <option value="In-Progress" <?php if ($status == "In-Progress") {echo "selected";}?> >In-Progress</option>
+                                    <option value="Pending-Client" <?php if ($status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
+                                    <option value="Pending-Vendor" <?php if ($status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
+                                    <option value="Pending-Shipment" <?php if ($status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
+                                    <option value="Scheduled" <?php if ($status == "Scheduled") {echo "selected";}?> >Scheduled</option>
                                     <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
                                 </select>
                             </div>

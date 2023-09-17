@@ -946,7 +946,7 @@ $software_types_array = array(
     'Mobile',
     'System Software',
     'Operating System',
-    'Other'
+    'Misc'
 );
 
 $license_types_array = array(
@@ -964,7 +964,8 @@ $asset_status_array = array(
     'Ready to Deploy',
     'Deployed',
     'Out for Repair',
-    'Lost/Stolen',
+    'Lost',
+    'Stolen',
     'Retired'
 );
 
