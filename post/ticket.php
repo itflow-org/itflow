@@ -169,7 +169,7 @@ if (isset($_POST['assign_ticket'])) {
 
     // Allow for un-assigning tickets
     if ($assigned_to == 0) {
-        $ticket_reply = "Ticket unassigned.";
+        $ticket_reply = "Ticket unassigned, pending re-assignment.";
         $agent_name = "No One";
         $ticket_status = "Pending-Assignment";
     } else {
