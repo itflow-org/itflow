@@ -61,10 +61,14 @@ if (isset($_GET['ticket_id'])) {
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
 
         $ticket_status = nullable_htmlentities($row['ticket_status']);
-        if ($ticket_status == "Open") {
+        if ($ticket_status == "Pending-Assignment") {
+            $ticket_status_display = "<span class='p-2 badge badge-danger'>$ticket_status</span>";
+        } elseif ($ticket_status == "Assigned") {
             $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        } elseif ($ticket_status == "Working") {
+        } elseif ($ticket_status == "In-Progress") {
             $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
+        } elseif ($ticket_status == "Closed") {
+            $ticket_status_display = "<span class='p-2 badge badge-dark'>$ticket_status</span>";
         } else {
             $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
         }
