@@ -10,6 +10,11 @@ if (isset($_POST['add_ticket'])) {
 
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
+    if($assigned_to == 0){
+        $ticket_status = 'Pending-Assignment';
+    }else{
+        $ticket_status = 'Assigned';
+    }
     $contact = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
@@ -30,7 +35,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -115,7 +120,6 @@ if (isset($_POST['edit_ticket'])) {
     validateTechRole();
 
     $ticket_id = intval($_POST['ticket_id']);
-    $assigned_to = intval($_POST['assigned_to']);
     $contact_id = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
@@ -126,7 +130,7 @@ if (isset($_POST['edit_ticket'])) {
     $client_id = intval($_POST['client_id']);
     $ticket_number = intval($_POST['ticket_number']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
     // Add Watchers
     if (!empty($_POST['watchers'])) {
@@ -158,12 +162,16 @@ if (isset($_POST['assign_ticket'])) {
     // POST variables
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
+    $ticket_status = sanitizeInput($_POST['ticket_status']);
+    if($ticket_status == 'Pending-Assignment' && $assigned_to > 0){
+        $ticket_status = 'Assigned';
+    }
 
     // Allow for un-assigning tickets
     if ($assigned_to == 0) {
         $ticket_reply = "Ticket unassigned.";
         $agent_name = "No One";
-
+        $ticket_status = "Pending-Assignment";
     } else {
         // Get & verify assigned agent details
         $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assigned_to AND user_settings.user_role > 1");
@@ -209,7 +217,7 @@ if (isset($_POST['assign_ticket'])) {
     }
 
     // Update ticket & insert reply
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assigned_to WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assigned_to, ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
 
     mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_escaped', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 

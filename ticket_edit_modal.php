@@ -62,35 +62,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Assigned to</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="assigned_to">
-                                        <option value="0">Not Assigned</option>
-                                        <?php
-
-                                        $sql_assign_to_select = mysqli_query(
-                                            $mysqli,
-                                            "SELECT users.user_id, user_name FROM users
-                                            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
-                                        );
-                                        while ($row = mysqli_fetch_array($sql_assign_to_select)) {
-                                            $user_id = intval($row['user_id']);
-                                            $user_name = nullable_htmlentities($row['user_name']);
-                                            ?>
-                                            <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
-
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="pills-contacts<?php echo $ticket_id; ?>">

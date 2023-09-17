@@ -307,10 +307,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $contact_phone = formatPhoneNumber($row['contact_phone']);
                         $contact_extension = nullable_htmlentities($row['contact_extension']);
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                        if ($ticket_status == "Open") {
+                        if ($ticket_status == "Pending-Assignment") {
+                            $ticket_status_color = "danger";
+                        } elseif ($ticket_status == "Assigned") {
                             $ticket_status_color = "primary";
-                        } elseif ($ticket_status == "Working") {
+                        } elseif ($ticket_status == "In-Progress") {
                             $ticket_status_color = "success";
+                        } elseif ($ticket_status == "Closed") {
+                            $ticket_status_color = "dark";
                         } else{
                             $ticket_status_color = "secondary";
                         }

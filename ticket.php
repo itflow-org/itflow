@@ -726,6 +726,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <form action="post.php" method="post">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                    <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
                     <div class="form-group">
                         <label>Assigned to</label>
                         <div class="input-group">

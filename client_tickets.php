@@ -101,12 +101,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
-                    if ($ticket_status == "Open") {
-                        $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-                    } elseif ($ticket_status == "Working") {
-                        $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-                    } else {
-                        $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
+                    if ($ticket_status == "Pending-Assignment") {
+                            $ticket_status_color = "danger";
+                    } elseif ($ticket_status == "Assigned") {
+                        $ticket_status_color = "primary";
+                    } elseif ($ticket_status == "In-Progress") {
+                        $ticket_status_color = "success";
+                    } elseif ($ticket_status == "Closed") {
+                        $ticket_status_color = "dark";
+                    } else{
+                        $ticket_status_color = "secondary";
                     }
 
                     if ($ticket_priority == "High") {
@@ -160,7 +164,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                         <td><?php echo $contact_display; ?></td>
                         <td><?php echo $ticket_priority_display; ?></td>
-                        <td><?php echo $ticket_status_display; ?></td>
+                        <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><?php echo $ticket_assigned_to_display; ?></td>
                         <td><?php echo $ticket_updated_at_display; ?></td>
                         <td>
