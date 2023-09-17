@@ -1314,11 +1314,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.0'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.7.9') {
-    	//Insert queries here required to update to DB version 0.8.0
+    if (CURRENT_DATABASE_VERSION == '0.8.0') {
+    	//Insert queries here required to update to DB version 0.8.1
+    	mysqli_query($mysqli, "ALTER TABLE `categories` ADD `category_icon` VARCHAR(200) DEFAULT NULL AFTER `category_color`");
+    	mysqli_query($mysqli, "ALTER TABLE `categories` ADD `category_parent` INT(11) DEFAULT 0 AFTER `category_icon`");
 
     	// Then, update the database to the next sequential version
-    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.0'");
+    	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.1'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.8.1') {
+    	//Insert queries here required to update to DB version 0.8.2
+
+    	// Then, update the database to the next sequential version
+    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.2'");
     //}
 
 } else {
