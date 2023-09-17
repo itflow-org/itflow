@@ -967,3 +967,14 @@ $asset_status_array = array(
     'Lost/Stolen',
     'Retired'
 );
+
+$ticket_status_array = array(
+    'Pending-Assignment',
+    'Assigned',
+    'In-Progress',
+    'Pending-Shipment',
+    'Pending-Client',
+    'Pending-Vendor',
+    'Scheduled',
+    'Closed'
+);
