@@ -202,6 +202,22 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for asset warranties expiring'");
 
+// Notify of Tickets Pending Assignment
+// Get Ticket Pending Assignment
+$sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets
+    WHERE ticket_status = 'Pending-Assignment'"
+);
+
+$tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
+
+if($tickets_pending_assignment > 0){
+
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'There are $ticket_pending_assignment Tickets pending Assignment', notification_action = 'tickets.php?status=Pending-Assignment'");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for tickets that are pending assignment'");
+}
+
 // Scheduled tickets
 
 // Get scheduled tickets for today
