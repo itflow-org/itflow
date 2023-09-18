@@ -705,25 +705,40 @@ function removeEmoji($text){
 }
 
 function shortenClient($client) {
-    $client = trim($client);  // Remove any leading/trailing spaces
+    // Pre-process by removing any non-alphanumeric characters except for certain punctuations.
+    $cleaned = preg_replace('/[^a-zA-Z0-9&]+/', ' ', $client);
 
-    // 1. If the client name is a single word and has three or more characters:
-    if (strpos($client, ' ') === false && strlen($client) >= 3) {
-        return substr($client, 0, 3);
-    }
-
-    // 2. If the client name has multiple words:
-    $words = explode(' ', $client);
+    // Break into words.
+    $words = explode(' ', trim($cleaned));
+    
     $shortened = '';
-    foreach ($words as $word) {
-        $shortened .= $word[0];
+
+    // If there's only one word.
+    if (count($words) == 1) {
+        $word = $words[0];
+        
+        if (strlen($word) <= 3) {
+            return strtoupper($word);
+        }
+
+        // Prefer starting and ending characters.
+        $shortened = $word[0] . substr($word, -2);
+    } else {
+        // Less weightage to common words.
+        $commonWords = ['the', 'of', 'and'];
+
+        foreach ($words as $word) {
+            if (!in_array(strtolower($word), $commonWords) || strlen($shortened) < 2) {
+                $shortened .= $word[0];
+            }
+        }
+
+        // If there are still not enough characters, take from the last word.
+        while (strlen($shortened) < 3 && !empty($word)) {
+            $shortened .= substr($word, 1, 1);
+            $word = substr($word, 1);
+        }
     }
 
-    // 3. If there are still not enough characters:
-    if (strlen($shortened) < 3) {
-        $remaining = 3 - strlen($shortened);
-        $shortened .= substr($client, strlen($shortened), $remaining);
-    }
-
-    return strtoupper(substr($shortened, 0, 3));  // Return first three characters
+    return strtoupper(substr($shortened, 0, 3));
 }

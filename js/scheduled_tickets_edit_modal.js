@@ -19,7 +19,7 @@ function populateScheduledTicketEditModal(client_id, ticket_id) {
             document.getElementById("editClientId").value = client_id;
             document.getElementById("editTicketSubject").value = ticket.scheduled_ticket_subject;
             document.getElementById("editTicketNextRun").value = ticket.scheduled_ticket_next_run;
-            $('#editTicketDetails').summernote('code', ticket.scheduled_ticket_details);
+            tinyMCE.get('editTicketDetails').setContent(ticket.scheduled_ticket_details);
 
 
             // Frequency dropdown
