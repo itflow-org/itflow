@@ -67,7 +67,7 @@
                         <div class="tab-pane fade" id="pills-contacts<?php echo $ticket_id; ?>">
 
                             <div class="form-group">
-                                <label>Client Contact</label>
+                                <label>Contact</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>

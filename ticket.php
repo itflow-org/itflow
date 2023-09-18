@@ -359,7 +359,6 @@ if (isset($_GET['ticket_id'])) {
                 while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                     $ticket_reply_id = intval($row['ticket_reply_id']);
                     $ticket_reply = $purifier->purify($row['ticket_reply']);
-                    //$ticket_reply = $row['ticket_reply'];
                     $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
                     $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
                     $ticket_reply_updated_at = nullable_htmlentities($row['ticket_reply_updated_at']);
@@ -443,7 +442,7 @@ if (isset($_GET['ticket_id'])) {
                             while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
                                 $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                                 $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                                echo "<a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'>$name</a><br>";
+                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-2'></i><a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'>$name</a><div class='mt-1'><i class='fas fa-fw fa-download text-secondary mr-2'></i><a href='uploads/tickets/$ticket_id/$ref_name' download='$name'>Download</a></div>";
                             }
                             ?>
                         </div>

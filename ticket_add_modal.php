@@ -128,7 +128,7 @@
                                 <input type="hidden" name="client" value="<?php echo $client_id; ?>">
                                 
                                 <div class="form-group">
-                                    <label>Contact <strong class="text-danger">*</strong></label>
+                                    <label>Contact</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
