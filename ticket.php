@@ -326,6 +326,8 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
+                            <?php if(!empty($contact_email)){ ?>
+                            
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
@@ -334,6 +336,8 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 </div>
                             </div>
+
+                            <?php } ?>
 
                             <div class="col-md-2">
                                 <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
@@ -476,7 +480,6 @@ if (isset($_GET['ticket_id'])) {
                 </div>
 
                 <!-- Client contact card -->
-                
                 <div class="card card-body card-outline card-dark mb-3">
                     <div>
                         <h4 class="text-secondary">Contact</h4>
@@ -559,8 +562,8 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
                     </div>
                 </div>
+                <!-- End client contact card -->
 
-                
 
                 <!-- Ticket watchers card -->
                 <?php 
