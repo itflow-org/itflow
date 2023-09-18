@@ -162,10 +162,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                         </td>
-                        <td><?php echo $contact_display; ?></td>
-                        <td><?php echo $ticket_priority_display; ?></td>
+                        <td><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a></td>
+                        <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
-                        <td><?php echo $ticket_assigned_to_display; ?></td>
+                        <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
                         <td><?php echo $ticket_updated_at_display; ?></td>
                         <td>
                             <?php echo $ticket_created_at_time_ago; ?>
@@ -197,6 +197,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     require("ticket_edit_modal.php");
+                    require("ticket_assign_modal.php");
+                    require("ticket_edit_priority_modal.php");
+                    require("ticket_edit_contact_modal.php");
                 }
 
                 ?>

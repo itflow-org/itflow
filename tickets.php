@@ -358,13 +358,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                             </td>
                             <td>
-                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-                                <br>
-                                <?php echo $contact_display; ?>
+                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
+                                
+                                <div class="mt-1"><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a></div>
                             </td>
-                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></td>
+                            <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></a></td>
                             <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
-                            <td><?php echo $ticket_assigned_to_display; ?></td>
+                            <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
                             <td><?php echo $ticket_updated_at_display; ?></td>
                             <td>
                                 <?php echo $ticket_created_at_time_ago; ?>
@@ -392,6 +392,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <?php }
 
                                 require("ticket_edit_modal.php");
+                                require("ticket_assign_modal.php");
+                                require("ticket_edit_priority_modal.php");
+                                require("ticket_edit_contact_modal.php");
 
                                 ?>
                             </td>

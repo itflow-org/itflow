@@ -154,6 +154,45 @@ if (isset($_POST['edit_ticket'])) {
 
 }
 
+if (isset($_POST['edit_ticket_priority'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $priority = sanitizeInput($_POST['priority']);
+    $client_id = intval($_POST['client_id']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_priority = '$priority' WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name edited ticket priority', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket priority updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_ticket_contact'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $contact_id = intval($_POST['contact']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name changed contact for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> contact updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['assign_ticket'])) {
 
     // Role check
