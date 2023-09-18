@@ -73,7 +73,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
                                     <select class="form-control select2" name="contact">
-                                        <option value="">No One</option>
+                                        <option value="0">No One</option>
                                         <?php
                                         $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_client_contacts_select)) {

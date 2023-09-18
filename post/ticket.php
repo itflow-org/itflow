@@ -22,9 +22,10 @@ if (isset($_POST['add_ticket'])) {
     $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
+    $use_primary_contact = intval($_POST['use_primary_contact']);
 
-    // If no contact is selected automatically choose the primary contact for the client
-    if ($client_id > 0 && $contact == 0) {
+    // Add the primary contact as the ticket contact if use primary contact is checked
+    if ($use_primary_contact == 1) {
         $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
         $contact = intval($row['contact_id']);
