@@ -481,7 +481,7 @@ if (isset($_GET['ticket_id'])) {
                         <div>
                             <h4 class="text-secondary">Contact</h4>
                             <span class="">
- 							    <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-dark"><strong><?php echo $contact_name; ?></strong></a>
+ 							    <i class="fa fa-fw fa-user text-secondary ml-1 mr-2 mb-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong></a>
 							</span>
 
                             <span class="ml-1">
@@ -584,7 +584,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket Details card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h4 class="text-secondary">Details</h4>
-                    <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><?php echo $ticket_priority_display; ?></div>
+                    <div class="ml-1"><i class="fa fa-fw fa-thermometer-half text-secondary mr-2 mb-2"></i><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></div>
                     <div class="ml-1"><i class="fa fa-fw fa-calendar text-secondary mr-2 mb-2"></i>Created: <?php echo $ticket_created_at; ?></div>
                     <div class="ml-1"><i class="fa fa-fw fa-history text-secondary mr-2 mb-2"></i>Updated: <strong><?php echo $ticket_updated_at; ?></strong></div>
                     <?php
@@ -772,6 +772,8 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         require_once("ticket_edit_modal.php");
+        require_once("ticket_edit_contact_modal.php");
+        require_once("ticket_edit_priority_modal.php");
         require_once("ticket_change_client_modal.php");
         require_once("ticket_merge_modal.php");
         require_once("ticket_invoice_add_modal.php");
