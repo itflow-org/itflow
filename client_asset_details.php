@@ -144,7 +144,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
-                    <h3 class="text-bold"><?php echo $asset_name; ?></h3>
+                    <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
                     <?php if (!empty($asset_description)) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
                     <?php } ?>
