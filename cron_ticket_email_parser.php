@@ -19,6 +19,20 @@ chdir(dirname(__FILE__));
 require_once("config.php");
 require_once("functions.php");
 
+// Get system temp directory
+$temp_dir = sys_get_temp_dir();
+
+// Create the path for the lock file using the temp directory
+$lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
+
+// Check for lock file to prevent concurrent script runs
+if (file_exists($lock_file_path)) {
+    exit("Script is already running. Exiting.");
+}
+
+// Create a lock file
+file_put_contents($lock_file_path, "Locked");
+
 // Get settings for the "default" company
 require_once("get_settings.php");
 
@@ -336,7 +350,7 @@ if ($emails) {
         $email_processed = false;
 
         // Get details from message and invoke PHP Mime Mail Parser
-        $msg_to_parse = imap_fetchheader($imap, $email, FT_PREFETCHTEXT) . imap_body($imap, $email);
+        $msg_to_parse = imap_fetchheader($imap, $email, FT_PREFETCHTEXT) . imap_body($imap, $email, FT_PEEK);
         $parser = new PhpMimeMailParser\Parser();
         $parser->setText($msg_to_parse);
 
@@ -430,8 +444,14 @@ if ($emails) {
 
         // Deal with the message (move it if processed, flag it if not)
         if ($email_processed) {
-            //imap_setflag_full($imap, $email, "\\Seen");
-            imap_mail_move($imap, $email, $imap_folder);
+            // Verify if the email has been moved
+            $moved_email_check = imap_search($imap, "SUBJECT \"$subject\" IN $imap_folder");
+            if ($moved_email_check && count($moved_email_check) > 0) {
+                imap_setflag_full($imap, $email, "\\Seen");
+                imap_mail_move($imap, $email, $imap_folder);
+            } else {
+                echo "Failed to move the email: $subject";
+            }
         } else {
             echo "Failed to process email - flagging for manual review.";
             imap_setflag_full($imap, $email, "\\Flagged");
@@ -439,8 +459,10 @@ if ($emails) {
 
     }
 
-
 }
 
 imap_expunge($imap);
 imap_close($imap);
+
+// Remove the lock file
+unlink($lock_file_path);

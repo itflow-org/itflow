@@ -3,6 +3,20 @@
 require_once("config.php");
 require_once("functions.php");
 
+// Get system temp directory
+$temp_dir = sys_get_temp_dir();
+
+// Create the path for the lock file using the temp directory
+$lock_file_path = "{$temp_dir}/itflow_mail_queue_{$installation_id}.lock";
+
+// Check for lock file to prevent concurrent script runs
+if (file_exists($lock_file_path)) {
+    exit("Script is already running. Exiting.");
+}
+
+// Create a lock file
+file_put_contents($lock_file_path, "Locked");
+
 //Initialize the HTML Purifier to prevent XSS
 require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
 $purifier_config = HTMLPurifier_Config::createDefault();
@@ -147,3 +161,6 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         }   
     }
 }
+
+// Remove the lock file
+unlink($lock_file_path);
