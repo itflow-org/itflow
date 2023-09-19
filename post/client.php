@@ -1580,6 +1580,7 @@ if (isset($_POST['export_client_pdf'])) {
         };
 
 
+        //pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
         pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
 
     </script>
