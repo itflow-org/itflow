@@ -140,6 +140,7 @@ if ($item_type == "Document") {
         exit();
     }
 
+    $login_id = intval($login_row['login_id']);
     $login_name = nullable_htmlentities($login_row['login_name']);
     $login_uri = nullable_htmlentities($login_row['login_uri']);
 
@@ -152,7 +153,18 @@ if ($item_type == "Document") {
     $login_password = nullable_htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
 
     $login_otp = nullable_htmlentities($login_row['login_otp_secret']);
+
+    $login_otp_secret = nullable_htmlentities($login_row['login_otp_secret']);
+    $login_id_with_secret = '"' . $login_row['login_id'] . '","' . $login_row['login_otp_secret'] . '"';
+    if (empty($login_otp_secret)) {
+        $otp_display = "-";
+    } else {
+        $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+    }
+
     $login_notes = nullable_htmlentities($login_row['login_note']);
+
+
 
     ?>
 
@@ -170,7 +182,35 @@ if ($item_type == "Document") {
             <th>Password</th>
             <td><?php echo $login_password ?></td>
         </tr>
+        <?php if(!empty($login_otp_secret)){ ?>
+        <tr>
+            <th>2FA (TOTP)</th>
+            <td><?php echo $otp_display ?></td>
+        </tr>
+        <?php } ?>
+
     </table>
+
+    <script>
+        function showOTP(id, secret) {
+            //Send a GET request to ajax.php as ajax.php?get_totp_token=true&totp_secret=SECRET
+            jQuery.get(
+                "ajax.php",
+                {get_totp_token: 'true', totp_secret: secret},
+                function(data) {
+                    //If we get a response from post.php, parse it as JSON
+                    const token = JSON.parse(data);
+
+                    document.getElementById("otp_" + id).innerText = token
+
+                }
+            );
+        }
+
+        function generatePassword() {
+            document.getElementById("password").value = "<?php echo randomString(); ?>"
+        }
+    </script>
 
 
     <?php
