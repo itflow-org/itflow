@@ -444,14 +444,8 @@ if ($emails) {
 
         // Deal with the message (move it if processed, flag it if not)
         if ($email_processed) {
-            // Verify if the email has been moved
-            $moved_email_check = imap_search($imap, "SUBJECT \"$subject\" IN $imap_folder");
-            if ($moved_email_check && count($moved_email_check) > 0) {
-                imap_setflag_full($imap, $email, "\\Seen");
-                imap_mail_move($imap, $email, $imap_folder);
-            } else {
-                echo "Failed to move the email: $subject";
-            }
+            imap_setflag_full($imap, $email, "\\Seen");
+            imap_mail_move($imap, $email, $imap_folder);
         } else {
             echo "Failed to process email - flagging for manual review.";
             imap_setflag_full($imap, $email, "\\Flagged");
