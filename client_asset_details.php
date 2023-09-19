@@ -10,7 +10,7 @@ if (isset($_GET['asset_id'])) {
         LEFT JOIN locations ON asset_location_id = location_id 
         LEFT JOIN logins ON login_asset_id = asset_id
         WHERE asset_id = $asset_id
-        AMD asset_client_id = $client_id
+        AND asset_client_id = $client_id
     ");
 
     $row = mysqli_fetch_array($sql);
@@ -85,49 +85,56 @@ if (isset($_GET['asset_id'])) {
         $location_archived_display = "Archived - ";
     }
 
-    $login_id = intval($row['login_id']);
-    $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-    $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+    //$login_id = intval($row['login_id']);
+    //$login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+    //$login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
-    // Related tickets
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
-    $ticket_count = mysqli_num_rows($sql_tickets);
+    // Related Tickets Query
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
+        LEFT JOIN users on ticket_assigned_to = user_id
+        WHERE ticket_asset_id = $asset_id
+        ORDER BY ticket_number DESC"
+    );
+    $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     // Related Documents
-    $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM documents, asset_documents WHERE documents.document_id = asset_documents.document_id AND document_archived_at IS NULL AND asset_documents.asset_id = $asset_id ORDER BY documents.document_name DESC");
+    $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents 
+        LEFT JOIN documents ON asset_documents.document_id = documents.document_id
+        WHERE asset_documents.asset_id = $asset_id 
+        AND document_archived_at IS NULL 
+        ORDER BY document_name DESC"
+    );
     $document_count = mysqli_num_rows($sql_related_documents);
 
-
-    // Related File
-    $sql_related_files = mysqli_query($mysqli, "SELECT * FROM files, asset_files WHERE files.file_id = asset_files.file_id AND asset_files.asset_id = $asset_id ORDER BY files.file_name DESC");
+    // Related Files
+    $sql_related_files = mysqli_query($mysqli, "SELECT * FROM asset_files 
+        LEFT JOIN files ON asset_files.file_id = files.file_id
+        WHERE asset_files.asset_id = $asset_id
+        AND file_archived_at IS NULL
+        ORDER BY file_name DESC"
+    );
     $file_count = mysqli_num_rows($sql_related_files);
 
-
-    //OLD RELATED
-
-    // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
-    $asset_count = mysqli_num_rows($sql_related_assets);
-
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_name DESC");
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM asset_logins 
+        LEFT JOIN logins ON asset_logins.login_id = logins.login_id
+        WHERE asset_logins.asset_id = $asset_id
+        AND login_archived_at IS NULL
+        ORDER BY login_name DESC"
+    );
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
-    //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id ORDER BY software.software_id DESC");
     $sql_related_software = mysqli_query(
         $mysqli,
-        "SELECT * FROM software_contacts 
-        LEFT JOIN software ON software_contacts.software_id = software.software_id 
-        WHERE software_contacts.contact_id = $contact_id 
-        ORDER BY software.software_id DESC"
+        "SELECT * FROM software_assets 
+        LEFT JOIN software ON software_assets.software_id = software.software_id 
+        WHERE software_assets.asset_id = $asset_id
+        AND software_archived_at IS NULL
+        ORDER BY software_name DESC"
     );
 
     $software_count = mysqli_num_rows($sql_related_software);
-
-    // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
-    $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
 
@@ -181,6 +188,16 @@ if (isset($_GET['asset_id'])) {
         </div>
 
         <div class="col-md-9">
+
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="client_assets.php?client_id=<?php echo $client_id; ?>">Assets</a>
+                </li>
+                <li class="breadcrumb-item active"><?php echo $asset_name; ?></li>
+            </ol>
 
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
