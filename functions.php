@@ -706,6 +706,8 @@ function removeEmoji($text){
 
 function shortenClient($client) {
     // Pre-process by removing any non-alphanumeric characters except for certain punctuations.
+    $client = html_entity_decode($client); // Decode any HTML entities
+    $client = str_replace("'", "", $client); // Removing all occurrences of '
     $cleaned = preg_replace('/[^a-zA-Z0-9&]+/', ' ', $client);
 
     // Break into words.
