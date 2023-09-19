@@ -75,6 +75,13 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a href="settings_maintenance.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_maintenance.php") { echo "active"; } ?>">
+            <i class="nav-icon fa fa-wrench"></i>
+            <p>Maintenance</p>
+          </a>
+        </li>
+
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">

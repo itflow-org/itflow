@@ -459,4 +459,4 @@ imap_expunge($imap);
 imap_close($imap);
 
 // Remove the lock file
-unlink($lock_file_path);
+//unlink($lock_file_path);
