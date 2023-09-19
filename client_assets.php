@@ -254,7 +254,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <th>
                                 <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                <a class="text-secondary" href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                 <?php if(!empty($asset_uri)){ ?>
                                     <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                 <?php } ?>
