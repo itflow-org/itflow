@@ -62,38 +62,107 @@ $document_folder_id = intval($row['document_folder_id']);
         <hr>
         <h5>Related</h5>
         <h6>
-          <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
-          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#associateFileToDocumentModal">
-            <i class="fas fa-fw fa-plus"></i>
-          </button>
-        </h6>
-        <h6>
-          <i class="fas fa-fw fa-key text-secondary mr-2"></i>Passwords
-          <button type="button" class="btn btn-link btn-sm">
-            <i class="fas fa-fw fa-plus"></i>
-          </button>
-        </h6>
-        <h6>
           <i class="fas fa-fw fa-users text-secondary mr-2"></i>Contacts
-          <button type="button" class="btn btn-link btn-sm">
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkContactToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
+        <ul>
+          <?php
+          $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts, contact_documents
+            WHERE contacts.contact_id = contact_documents.contact_id 
+            AND contact_documents.document_id = $document_id
+            ORDER BY contact_name ASC"
+          );
+          
+          $linked_contacts = array();
+
+          while ($row = mysqli_fetch_array($sql_contacts)) {
+            $contact_id = intval($row['contact_id']);
+            $contact_name = nullable_htmlentities($row['contact_name']);
+
+            $linked_contacts[] = $contact_id;
+
+            ?>
+            <li>
+              <?php echo $contact_name; ?> 
+              <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
+                <i class="fas fa-fw fa-times text-secondary ml-2"></i>
+              </a>
+            </li>
+            <?php
+            }
+            ?>
+        </ul>
         <h6>
           <i class="fas fa-fw fa-laptop text-secondary mr-2"></i>Assets
-          <button type="button" class="btn btn-link btn-sm">
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkAssetToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
+        <ul>
+          <?php
+          $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_documents
+            WHERE assets.asset_id = asset_documents.asset_id 
+            AND asset_documents.document_id = $document_id
+            ORDER BY asset_name ASC"
+          );
+          
+          $linked_assets = array();
+
+          while ($row = mysqli_fetch_array($sql_assets)) {
+            $asset_id = intval($row['asset_id']);
+            $asset_name = nullable_htmlentities($row['asset_name']);
+
+            $linked_assets[] = $asset_id;
+
+            ?>
+            <li>
+              <?php echo $asset_name; ?> 
+              <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
+                <i class="fas fa-fw fa-times text-secondary ml-2"></i>
+              </a>
+            </li>
+            <?php
+            }
+            ?>
+        </ul>
         <h6>
-          <i class="fas fa-fw fa-cube text-secondary mr-2"></i>Software
-          <button type="button" class="btn btn-link btn-sm">
+          <i class="fas fa-fw fa-cube text-secondary mr-2"></i>Licenses
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkSoftwareToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
+        <ul>
+          <?php
+          $sql_software = mysqli_query($mysqli, "SELECT * FROM software, software_documents
+            WHERE software.software_id = software_documents.software_id 
+            AND software_documents.document_id = $document_id
+            ORDER BY software_name ASC"
+          );
+          
+          $linked_software = array();
+
+          while ($row = mysqli_fetch_array($sql_software)) {
+            $software_id = intval($row['software_id']);
+            $software_name = nullable_htmlentities($row['software_name']);
+
+            $linked_software[] = $software_id;
+
+            ?>
+            <li>
+              <?php echo $software_name; ?> 
+              <a href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
+                <i class="fas fa-fw fa-times text-secondary ml-2"></i>
+              </a>
+            </li>
+            <?php
+            }
+            ?>
+        </ul>
         <h6>
           <i class="fas fa-fw fa-building text-secondary mr-2"></i>Vendors
-          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#associateVendorToDocumentModal">
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkVendorToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
           </button>
         </h6>
@@ -116,14 +185,14 @@ $document_folder_id = intval($row['document_folder_id']);
             ?>
             <li>
               <?php echo $vendor_name; ?> 
-              <a href="post.php?unassociate_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
+              <a href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
                 <i class="fas fa-fw fa-times text-secondary ml-2"></i>
               </a>
             </li>
-          <?php
-          }
-          ?>
-      </ul>
+            <?php
+            }
+            ?>
+        </ul>
       </div>
     </div>
 
@@ -134,8 +203,11 @@ $document_folder_id = intval($row['document_folder_id']);
 <?php
 
 require_once("client_document_edit_modal.php");
-require_once("client_document_associate_file_modal.php");
-require_once("client_document_associate_vendor_modal.php");
+require_once("client_document_link_file_modal.php");
+require_once("client_document_link_contact_modal.php");
+require_once("client_document_link_asset_modal.php");
+require_once("client_document_link_software_modal.php");
+require_once("client_document_link_vendor_modal.php");
 require_once("share_modal.php");
 require_once("footer.php");
 

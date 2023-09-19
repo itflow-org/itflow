@@ -1,8 +1,8 @@
-<div class="modal" id="associateVendorToDocumentModal" tabindex="-1">
+<div class="modal" id="linkContactToDocumentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i>Associate Vendor to <strong><?php echo $document_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>Link Contact to <strong><?php echo $document_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -15,31 +15,31 @@
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="vendor_id">
-                                <option value="">- Select a Vendor -</option>
+                            <select class="form-control select2" name="contact_id">
+                                <option value="">- Select a Contact -</option>
                                 <?php
                                 // Check if there are any associated vendors
-                                if (!empty($associated_vendors)) {
-                                    $excluded_vendor_ids = implode(",", $associated_vendors);
-                                    $exclude_condition = "AND vendor_id NOT IN ($excluded_vendor_ids)";
+                                if (!empty($linked_contacts)) {
+                                    $excluded_contact_ids = implode(",", $linked_contacts);
+                                    $exclude_condition = "AND contact_id NOT IN ($excluded_contact_ids)";
                                 } else {
                                     $exclude_condition = "";  // No condition if there are no displayed vendors
                                 }
 
-                                $sql_vendors_select = mysqli_query($mysqli, "SELECT * FROM vendors 
-                                    WHERE vendor_client_id = $client_id 
-                                    AND vendor_archived_at IS NULL
+                                $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts
+                                    WHERE contact_client_id = $client_id 
+                                    AND contact_archived_at IS NULL
                                     $exclude_condition
-                                    ORDER BY vendor_name ASC"
+                                    ORDER BY contact_name ASC"
                                 );
-                                while ($row = mysqli_fetch_array($sql_vendors_select)) {
-                                    $vendor_id = intval($row['vendor_id']);
-                                    $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                while ($row = mysqli_fetch_array($sql_contacts_select)) {
+                                    $contact_id = intval($row['contact_id']);
+                                    $contact_name = nullable_htmlentities($row['contact_name']);
 
                                     ?>
-                                    <option value="<?php echo $vendor_id ?>"><?php echo $vendor_name; ?></option>
+                                    <option value="<?php echo $contact_id ?>"><?php echo $contact_name; ?></option>
                                     <?php
                                 }
                                 ?>
@@ -49,7 +49,7 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="associate_vendor_to_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Associate</button>
+                    <button type="submit" name="link_contact_to_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Link</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>

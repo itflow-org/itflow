@@ -132,7 +132,7 @@ if (isset($_POST['move_document'])) {
 
 }
 
-if (isset($_POST['associate_vendor_to_document'])) {
+if (isset($_POST['link_vendor_to_document'])) {
 
     validateTechRole();
 
@@ -144,15 +144,15 @@ if (isset($_POST['associate_vendor_to_document'])) {
     mysqli_query($mysqli,"INSERT INTO vendor_documents SET vendor_id = $vendor_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created Document Vendor Relation', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Vendor link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Vendor associated with Document";
+    $_SESSION['alert_message'] = "Vendor linked with Document";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_GET['unassociate_vendor_from_document'])) {
+if (isset($_GET['unlink_vendor_from_document'])) {
 
     validateTechRole();
     $vendor_id = intval($_GET['vendor_id']);
@@ -161,9 +161,120 @@ if (isset($_GET['unassociate_vendor_from_document'])) {
     mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id AND document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = 'Document Vendor relationship removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Vendor link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Vendor has been unassciated";
+    $_SESSION['alert_message'] = "Vendor has been unlinked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_contact_to_document'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $document_id = intval($_POST['document_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Contact link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Contact linked with Document";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_contact_from_document'])) {
+
+    validateTechRole();
+    $contact_id = intval($_GET['contact_id']);
+    $document_id = intval($_GET['document_id']);
+
+    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE contact_id = $contact_id AND document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Contact link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Contact has been unlinked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_asset_to_document'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $document_id = intval($_POST['document_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Asset link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset linked with Document";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_asset_from_document'])) {
+
+    validateTechRole();
+    $asset_id = intval($_GET['asset_id']);
+    $document_id = intval($_GET['document_id']);
+
+    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id AND document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Asset link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset has been unlinked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_software_to_document'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $document_id = intval($_POST['document_id']);
+    $software_id = intval($_POST['software_id']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO software_documents SET software_id = $software_id, document_id = $document_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Software link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Contact linked with Document";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_software_from_document'])) {
+
+    validateTechRole();
+    $software_id = intval($_GET['software_id']);
+    $document_id = intval($_GET['document_id']);
+
+    mysqli_query($mysqli,"DELETE FROM software_documents WHERE software_id = $software_id AND document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Software link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Software has been unlinked";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
