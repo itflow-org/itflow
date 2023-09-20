@@ -132,6 +132,43 @@ if (isset($_POST['move_document'])) {
 
 }
 
+if (isset($_POST['link_file_to_document'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $document_id = intval($_POST['document_id']);
+    $file_id = intval($_POST['file_id']);
+
+    // Document add query
+    mysqli_query($mysqli,"INSERT INTO document_files SET file_id = $file_id, document_id = $document_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document File link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "File linked with Document";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_file_from_document'])) {
+
+    validateTechRole();
+    $file_id = intval($_GET['file_id']);
+    $document_id = intval($_GET['document_id']);
+
+    mysqli_query($mysqli,"DELETE FROM document_files WHERE file_id = $file_id AND document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document File link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "File has been unlinked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['link_vendor_to_document'])) {
 
     validateTechRole();

@@ -62,6 +62,39 @@ $document_folder_id = intval($row['document_folder_id']);
         <hr>
         <h5>Related</h5>
         <h6>
+          <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
+          <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkFileToDocumentModal">
+            <i class="fas fa-fw fa-plus"></i>
+          </button>
+        </h6>
+        <ul>
+          <?php
+          $sql_files = mysqli_query($mysqli, "SELECT * FROM files, document_files
+            WHERE document_files.file_id = files.file_id 
+            AND document_files.document_id = $document_id
+            ORDER BY file_name ASC"
+          );
+          
+          $linked_files = array();
+
+          while ($row = mysqli_fetch_array($sql_files)) {
+            $file_id = intval($row['file_id']);
+            $file_name = nullable_htmlentities($row['file_name']);
+
+            $linked_files[] = $file_id;
+
+            ?>
+            <li>
+              <?php echo $file_name; ?> 
+              <a href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
+                <i class="fas fa-fw fa-times text-secondary ml-2"></i>
+              </a>
+            </li>
+            <?php
+            }
+            ?>
+        </ul>
+        <h6>
           <i class="fas fa-fw fa-users text-secondary mr-2"></i>Contacts
           <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkContactToDocumentModal">
             <i class="fas fa-fw fa-plus"></i>
