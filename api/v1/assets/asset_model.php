@@ -72,6 +72,14 @@ if (isset($_POST['asset_mac'])) {
     $mac = '';
 }
 
+if (isset($_POST['asset_uri'])) {
+    $uri = sanitizeInput($_POST['asset_uri']);
+} elseif (isset($asset_row) && isset($asset_row['asset_uri'])) {
+    $uri = $asset_row['asset_uri'];
+} else {
+    $uri = '';
+}
+
 if (isset($_POST['asset_status'])) {
     $status = sanitizeInput($_POST['asset_status']);
 } elseif (isset($asset_row) && isset($asset_row['asset_status'])) {

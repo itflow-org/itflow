@@ -37,6 +37,12 @@ if (isset($_GET['asset_id'])) {
     $mac = mysqli_real_escape_string($mysqli, $_GET['asset_mac']);
     $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_mac = '$mac' AND asset_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 
+} elseif (isset($_GET['asset_uri'])) {
+    // Asset query via mac
+
+    $mac = mysqli_real_escape_string($mysqli, $_GET['asset_uri']);
+    $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_uri = '$uri' AND asset_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
+
 }
 // All assets
 else {
