@@ -107,11 +107,11 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS
 $recurring_invoices_added = intval($row['recurring_invoices_added']);
 
 //Get Total Clients added
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
 $clients_added = intval($row['clients_added']);
 
 //Get Total Vendors added
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL"));
 $vendors_added = intval($row['vendors_added']);
 
 ?>
