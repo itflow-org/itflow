@@ -200,6 +200,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
                                                 <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameDocumentModal<?php echo $document_id; ?>">
+                                                    <i class="fas fa-fw fa-pencil-alt mr-2"></i>Rename
+                                                </a>
+                                                <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveDocumentModal<?php echo $document_id; ?>">
                                                     <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                                 </a>
@@ -221,6 +225,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php
 
                             require("client_document_move_modal.php");
+                            require("client_document_rename_modal.php");
 
                             }
 
