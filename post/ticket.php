@@ -52,7 +52,7 @@ if (isset($_POST['add_ticket'])) {
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_details, ticket_client_id FROM tickets 
+        $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
               LEFT JOIN clients ON ticket_client_id = client_id 
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               WHERE ticket_id = $ticket_id");
@@ -62,8 +62,11 @@ if (isset($_POST['add_ticket'])) {
         $contact_name = $row['contact_name'];
         $ticket_prefix = $row['ticket_prefix'];
         $ticket_number = intval($row['ticket_number']);
+        $ticket_category = $row['ticket_category'];
         $ticket_subject = $row['ticket_subject'];
         $ticket_details = $row['ticket_details'];
+        $ticket_priority = $row['ticket_priority'];
+        $ticket_status = $row['ticket_status'];
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -80,12 +83,31 @@ if (isset($_POST['add_ticket'])) {
 
         $sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
 
-        $company_phone = formatPhoneNumber($row['company_phone']);
+        $company_phone = formatPhoneNumber($row['company_phone']); // TODO: Check if this even works
 
         // Verify contact email is valid
         if (filter_var($contact_email_escaped, FILTER_VALIDATE_EMAIL)) {
 
-            $subject_escaped = mysqli_escape_string($mysqli, "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject");
+            $email_custom_vars = array(
+                "#TICKET_CONTACT_NAME#" => $contact_name,
+                "#TICKET_PREFIX#" => $ticket_prefix,
+                "#TICKET_NUMBER#" => $ticket_number,
+                "#TICKET_URL#" => "https://$config_base_url/portal/ticket.php?id=$ticket_id",
+                "#TICKET_SUBJECT#" => $ticket_subject,
+                "#TICKET_PRIORITY#" => $ticket_priority,
+                "#TICKET_STATUS#" => $ticket_status,
+                "#TICKET_CATEGORY#" => $ticket_category,
+                "#TICKET_AGENT#", // todo
+                "#TICKET_COMPANY_NAME#" => $session_company_name,
+                "#TICKET_COMPANY_EMAIL" => $config_ticket_from_email,
+            );
+            $ticket_subject_base = "Ticket created - [#TICKET_PREFIX##TICKET_NUMBER#] - #TICKET_SUBJECT#"; // Eventually this will come from the DB instead
+
+            foreach ($email_custom_vars as $key => $item) {
+                $ticket_subject_base = str_replace($key, $item, $ticket_subject_base);
+            }
+
+            $subject_escaped = mysqli_escape_string($mysqli, "$ticket_subject_base");
             $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
            // Email Ticket Contact
