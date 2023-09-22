@@ -564,7 +564,9 @@ if (isset($_GET['ticket_id'])) {
                     while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
                         $ticket_watcher_email = $ticket_watcher_row['watcher_email'];
                     ?>
-                        <div class='mt-1'><?php echo $ticket_watcher_email; ?></div>
+                        <div class='mt-1'>
+                            <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>
+                        </div>
                     <?php } ?>
                 
                 </div>

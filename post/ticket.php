@@ -216,6 +216,95 @@ if (isset($_POST['edit_ticket_contact'])) {
 
 }
 
+if (isset($_POST['edit_ticket_watchers'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
+
+    // Add Watchers
+    if (!empty($_POST['watchers'])) {
+
+        // Remove all watchers first
+        mysqli_query($mysqli,"DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+
+        //Add the Watchers
+        foreach($_POST['watchers'] as $watcher) {
+            $watcher_email = sanitizeInput($watcher);
+            mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+        }
+    }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name added watchers to ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> watchers updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_ticket_asset'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $asset_id = intval($_POST['asset']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name edited asset for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> asset updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_ticket_vendor'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $vendor_id = intval($_POST['vendor']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_vendor_id = $vendor_id WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name edited vendor for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> vendor updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_ticket_priority'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $priority = sanitizeInput($_POST['priority']);
+    $client_id = intval($_POST['client_id']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_priority = '$priority' WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name edited ticket priority', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket priority updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['assign_ticket'])) {
 
     // Role check
