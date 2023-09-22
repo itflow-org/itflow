@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $revenue_date = nullable_htmlentities($row['revenue_date']);
                     $revenue_payment_method = nullable_htmlentities($row['revenue_payment_method']);
-                    $revenue_amount = floatval($row['revenue_amount']);
+                    $revenue_amount = number_format(floatval($row['revenue_amount']),2);
                     $revenue_currency_code = nullable_htmlentities($row['revenue_currency_code']);
                     $revenue_created_at = nullable_htmlentities($row['revenue_created_at']);
                     $account_id = intval($row['account_id']);

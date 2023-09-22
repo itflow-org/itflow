@@ -55,7 +55,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                     </div>
-                                    <input type="number" step="0.01" min="0" class="form-control" name="price" value="<?php echo $product_price; ?>" required>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" name="price" value="<?php echo $product_price; ?>" placeholder="0.00" required>
                                 </div>
                             </div>
                         </div>

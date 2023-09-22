@@ -744,3 +744,25 @@ function shortenClient($client) {
 
     return strtoupper(substr($shortened, 0, 3));
 }
+
+function roundUpToNearest15($time) {
+    // Extract hours, minutes, and seconds from the time string
+    list($hours, $minutes, $seconds) = explode(':', $time);
+    
+    // Convert everything to seconds for easier calculation
+    $totalSeconds = ($hours * 3600) + ($minutes * 60) + $seconds;
+    
+    // Calculate the remainder when divided by 900 seconds (15 minutes)
+    $remainder = $totalSeconds % 900;
+    
+    // If there's any remainder, round up to the next 15 minutes
+    if ($remainder > 0) {
+        $totalSeconds += (900 - $remainder);
+    }
+    
+    // Convert total seconds to the decimal format
+    $decimalHours = $totalSeconds / 3600;
+    
+    // Return the formatted string
+    return number_format($decimalHours, 2);
+}

@@ -25,7 +25,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" value="<?php echo $item_name; ?>" required>
+              <input type="text" class="form-control" name="name" value="<?php echo $item_name; ?>" placeholder="Enter item name" required>
             </div>
           </div>
 
@@ -33,12 +33,12 @@
             <div class="col-sm">
 
               <div class="form-group">
-                <label>QTY <strong class="text-danger">*</strong></label>
+                <label>Quantity <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                   </div>
-                  <input type="number" class="form-control" step="0.01" min="0" name="qty" value="<?php echo $item_quantity; ?>" required>
+                  <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo number_format($item_quantity,2); ?>" placeholder="0.00" required>
                 </div>
               </div>
 
@@ -52,7 +52,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                   </div>
-                  <input type="number" class="form-control" step="0.01" name="price" value="<?php echo $item_price; ?>" required>
+                  <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format($item_price,2); ?>" placeholder="0.00" required>
                 </div>
               </div>
             
@@ -63,7 +63,7 @@
           <div class="form-group">
             <label>Description</label>
             <div class="input-group">
-              <textarea class="form-control" rows="5" name="description"><?php echo $item_description; ?></textarea>
+              <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?php echo $item_description; ?></textarea>
             </div>
           </div>
 

@@ -119,7 +119,7 @@ if (isset($_POST['edit_profile'])) {
 if (isset($_POST['verify'])) {
 
     require_once("rfc6238.php");
-    $currentcode = sanitizeInput($_POST['code']);  //code to validate, for example received from device
+    $currentcode = intval($_POST['code']);  //code to validate, for example received from device
 
     if (TokenAuth6238::verify($session_token, $currentcode)) {
         $_SESSION['alert_message'] = "VALID!";

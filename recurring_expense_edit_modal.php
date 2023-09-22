@@ -56,7 +56,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                 </div>
-                                <input type="number" class="form-control " name="day" min="1" max="28" placeholder="Enter a day (1-28)" value="<?php echo $recurring_expense_day; ?>" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="(1[0-9]|2[0-8]|[1-9])" name="day" placeholder="Enter a day (1-28)" value="<?php echo $recurring_expense_day; ?>" required>
                             </div>
                         </div>
 
@@ -70,7 +70,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="number" class="form-control" step="0.01" name="amount" value="<?php echo $recurring_expense_amount; ?>" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($recurring_expense_amount,2); ?>" required>
                             </div>
                         </div>
 

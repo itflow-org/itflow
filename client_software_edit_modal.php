@@ -92,7 +92,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" name="seats" placeholder="Number of seats" value="<?php echo $software_seats; ?>">
+                                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="seats" placeholder="Number of seats" value="<?php echo $software_seats; ?>">
                                 </div>
                             </div>
 

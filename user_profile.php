@@ -132,7 +132,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="code" placeholder="Verify 2FA Code" required>
                                 <div class="input-group-append">
                                     <button type="submit" name="verify" class="btn btn-success">Verify</button>
                                 </div>

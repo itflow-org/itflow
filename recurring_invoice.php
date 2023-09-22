@@ -191,7 +191,7 @@ if (isset($_GET['recurring_id'])) {
                                         <th class="d-print-none"></th>
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th class="text-center">Qty</th>
+                                        <th class="text-center">Quantity</th>
                                         <th class="text-right">Price</th>
                                         <th class="text-right">Tax</th>
                                         <th class="text-right">Total</th>
@@ -207,7 +207,7 @@ if (isset($_GET['recurring_id'])) {
                                     $item_id = intval($row['item_id']);
                                     $item_name = nullable_htmlentities($row['item_name']);
                                     $item_description = nullable_htmlentities($row['item_description']);
-                                    $item_quantity = floatval($row['item_quantity']);
+                                    $item_quantity = number_format(floatval($row['item_quantity']),2);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
@@ -251,10 +251,18 @@ if (isset($_GET['recurring_id'])) {
                                         <form action="post.php" method="post">
                                             <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
                                             <td></td>
-                                            <td><input type="text" class="form-control" id="name" name="name" placeholder="Item" required></td>
-                                            <td><textarea class="form-control"  rows="1" id="desc" name="description" placeholder="Description"></textarea></td>
-                                            <td><input type="number" step="0.01" min="0" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="QTY"></td>
-                                            <td><input type="number" step="0.01" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price"></td>
+                                            <td>
+                                                <input type="text" class="form-control" id="name" name="name" placeholder="Item" required>
+                                            </td>
+                                            <td>
+                                                <textarea class="form-control"  rows="2" id="desc" name="description" placeholder="Enter a Description"></textarea>
+                                            </td>
+                                            <td>
+                                                <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Quantity">
+                                            </td>
+                                            <td>
+                                                <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $recurring_currency_code; ?>)">
+                                            </td>
                                             <td>
                                                 <select class="form-control" name="tax_id" required>
                                                     <option value="0">No Tax</option>

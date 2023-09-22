@@ -36,7 +36,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                   </div>
-                  <input type="number" class="form-control" step="0.01" min="0" name="amount" value="<?php echo $balance; ?>" required>
+                  <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($balance,2); ?>" placeholder="0.00" required>
                 </div>
               </div>
 
@@ -113,7 +113,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
               </div>
-              <input type="text" class="form-control" name="reference" placeholder="Enter a reference">
+              <input type="text" class="form-control" name="reference" placeholder="Check #, Trans #, etc">
             </div>
           </div>
           

@@ -28,7 +28,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                                 </div>
-                                <input type="number" step="0.1" min="0" class="form-control" name="miles" placeholder="Enter miles" required autofocus>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,1}" name="miles" placeholder="0.0" required autofocus>
                                 <div class="input-group-append">
                                     <div class="input-group-text">
                                         <input type="checkbox" name="roundtrip" value="1">

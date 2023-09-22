@@ -91,7 +91,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-chair"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" name="seats" placeholder="Number of seats">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" name="seats" placeholder="Number of seats">
                                 </div>
                             </div>
 

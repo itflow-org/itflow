@@ -27,7 +27,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
-              <input type="number" class="form-control" name="vlan" placeholder="ex. 20" data-inputmask="'mask': '9999'">
+              <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="vlan" placeholder="ex. 20">
             </div>
           </div>
           
