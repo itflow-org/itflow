@@ -188,7 +188,7 @@ if (isset($_POST['login'])) {
             // HTML code for the token input field
             $token_field = "
                     <div class='input-group mb-3'>
-                        <input type='number' class='form-control' placeholder='Enter your 2FA code' name='current_code' required autofocus>
+                        <input type='text' inputmode='numeric' pattern='[0-9]*' class='form-control' placeholder='Enter your 2FA code' name='current_code' required autofocus>
                         <div class='input-group-append'>
                           <div class='input-group-text'>
                             <span class='fas fa-key'></span>
