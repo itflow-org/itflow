@@ -27,7 +27,7 @@
                             Contacts
                             <?php
                             if ($num_contacts > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_contacts; ?></span>
+                                <span class="right badge text-light"><?php echo $num_contacts; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -40,7 +40,7 @@
                             Locations
                             <?php
                             if ($num_locations > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_locations; ?></span>
+                                <span class="right badge text-light"><?php echo $num_locations; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -55,7 +55,7 @@
                             Assets
                             <?php
                             if ($num_assets > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_assets; ?></span>
+                                <span class="right badge text-light"><?php echo $num_assets; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -68,7 +68,7 @@
                             Licenses
                             <?php
                             if ($num_software > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_software; ?></span>
+                                <span class="right badge text-light"><?php echo $num_software; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -81,7 +81,7 @@
                             Passwords
                             <?php
                             if ($num_logins > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_logins; ?></span>
+                                <span class="right badge text-light"><?php echo $num_logins; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -94,7 +94,7 @@
                             Networks
                             <?php
                             if ($num_networks > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_networks; ?></span>
+                                <span class="right badge text-light"><?php echo $num_networks; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -108,11 +108,7 @@
 
                             <?php
                             if ($num_certificates > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_certificates; ?></span>
-                            <?php } ?>
-
-                            <?php if ($num_certs_expiring > 0) { ?>
-                                <span class="right fa fa-fw fa-circle text-warning"></span>
+                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_certificates; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -126,13 +122,8 @@
 
                             <?php
                             if ($num_domains > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_domains; ?></span>
+                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_domains; ?></span>
                             <?php } ?>
-
-                            <?php if ($num_domains_expiring > 0) { ?>
-                                <span class="right fa fa-fw fa-circle text-warning"></span>
-                            <?php } ?>
-
                         </p>
                     </a>
                 </li>
@@ -145,14 +136,9 @@
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>
                                 Tickets
-
                                 <?php
                                 if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_active_tickets; ?></span>
-                                <?php } ?>
-
-                                <?php if ($num_active_tickets > 0) { ?>
-                                    <span class="right fa fa-fw fa-circle text-danger"></span>
+                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
                                 <?php } ?>
 
                             </p>
@@ -164,10 +150,9 @@
                             <i class="nav-icon fas fa-calendar-check"></i>
                             <p>
                                 Schedule Ticket
-
                                 <?php
                                 if ($num_scheduled_tickets > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_scheduled_tickets; ?></span>
+                                    <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
                                 <?php } ?>
 
                             </p>
@@ -183,7 +168,7 @@
                             Services
                             <?php
                             if ($num_services > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_services; ?></span>
+                                <span class="right badge text-light"><?php echo $num_services; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -196,7 +181,7 @@
                             Vendors
                             <?php
                             if ($num_vendors > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_vendors; ?></span>
+                                <span class="right badge text-light"><?php echo $num_vendors; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -209,7 +194,7 @@
                             Events
                             <?php
                             if ($num_events > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_events; ?></span>
+                                <span class="right badge text-light"><?php echo $num_events; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -222,7 +207,7 @@
                             Files
                             <?php
                             if ($num_files > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_files; ?></span>
+                                <span class="right badge text-light"><?php echo $num_files; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -235,7 +220,7 @@
                             Documents
                             <?php
                             if ($num_documents > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_documents; ?></span>
+                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -250,16 +235,10 @@
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>
                                 Invoices
-
                                 <?php
                                 if ($num_invoices > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_invoices; ?></span>
+                                    <span class="right badge <?php if ($num_invoices_open > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_invoices; ?></span>
                                 <?php } ?>
-
-                                <?php if ($num_invoices_open > 0) { ?>
-                                    <span class="right fa fa-fw fa-circle text-danger"></span>
-                                <?php } ?>
-
                             </p>
                         </a>
                     </li>
@@ -271,7 +250,7 @@
                                 Rec. Invoices
                                 <?php
                                 if ($num_recurring > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_recurring; ?></span>
+                                    <span class="right badge text-light"><?php echo $num_recurring; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -284,7 +263,7 @@
                                 Quotes
                                 <?php
                                 if ($num_quotes > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_quotes; ?></span>
+                                    <span class="right badge text-light"><?php echo $num_quotes; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -297,7 +276,7 @@
                                 Payments
                                 <?php
                                 if ($num_payments > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_payments; ?></span>
+                                    <span class="right badge text-light"><?php echo $num_payments; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -310,7 +289,7 @@
                                 Trips
                                 <?php
                                 if ($num_trips > 0) { ?>
-                                    <span class="right badge badge-light"><?php echo $num_trips; ?></span>
+                                    <span class="right badge text-light"><?php echo $num_trips; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -327,7 +306,7 @@
                             Shared Links
                             <?php
                             if ($num_shared_links > 0) { ?>
-                                <span class="right badge badge-light"><?php echo $num_shared_links; ?></span>
+                                <span class="right badge text-light"><?php echo $num_shared_links; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -336,7 +315,13 @@
                 <li class="nav-item">
                     <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-history"></i>
-                        <p>Audit Logs</p>
+                        <p>
+                            Audit Logs
+                            <?php
+                            if ($num_logs > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_logs; ?></span>
+                            <?php } ?>
+                        </p>
                     </a>
                 </li>
 
