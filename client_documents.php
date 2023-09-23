@@ -83,7 +83,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <hr>
                     <ul class="nav nav-pills flex-column bg-light">
                         <li class="nav-item">
-                            <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
+                            <div class="row">
+                                <div class="col-10">
+                                    
+                                    <?php
+                                    // Get a count of documents that have no folder
+                                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = 0 AND document_client_id = $client_id AND document_archived_at IS NULL"));
+                                    $num_documents = intval($row['num']);
+                                    ?>
+                                    <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/ <?php if ($num_documents > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?></a>
+                                </div>
+                                <div class="col-2">
+                                </div>
+                            </div>
                         </li>
                         <?php
                         $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
