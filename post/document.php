@@ -113,6 +113,22 @@ if (isset($_POST['edit_document'])) {
     // Link all exisiting links with old document with new document
     mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id, document_archived_at = NOW() WHERE document_parent = $document_id");
 
+    // Update Links to the new parent document
+    // document files
+    mysqli_query($mysqli,"UPDATE document_files SET document_id = $new_document_id WHERE document_id = $document_id");
+
+    // contact documents
+    mysqli_query($mysqli,"UPDATE contact_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+
+    // asset documents
+    mysqli_query($mysqli,"UPDATE asset_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+
+    // software documents
+    mysqli_query($mysqli,"UPDATE software_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+
+    // vendor documents
+    mysqli_query($mysqli,"UPDATE vendor_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Edit', log_description = '$session_name Edited document $name previous version was kept', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_document_id");
 
