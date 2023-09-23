@@ -23,6 +23,7 @@ $document_name = nullable_htmlentities($row['document_name']);
 $document_content = $purifier->purify($row['document_content']);
 $document_created_at = nullable_htmlentities($row['document_created_at']);
 $document_updated_at = nullable_htmlentities($row['document_updated_at']);
+$document_archived_at = nullable_htmlentities($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
 $document_parent = intval($row['document_parent']);
 
@@ -41,7 +42,7 @@ $document_parent = intval($row['document_parent']);
     <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder_name; ?></a>
   </li>
   <?php } ?>
-  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?></li>
+  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?> <?php if(!empty($document_archived_at)){ echo "<span class='text-danger ml-2'>(ARCHIVED on $document_archived_at)</span>"; } ?></li>
 </ol>
 
 <div class="row">
