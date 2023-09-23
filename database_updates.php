@@ -1339,11 +1339,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.3'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.8.3') {
+    if (CURRENT_DATABASE_VERSION == '0.8.3') {
     	//Insert queries here required to update to DB version 0.8.4
 
+    	mysqli_query($mysqli, "UPDATE `documents` SET `document_parent` = `document_id`");
+
     	// Then, update the database to the next sequential version
-    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.4'");
+    	mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.4'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.8.4') {
+    	//Insert queries here required to update to DB version 0.8.5
+
+    	// Then, update the database to the next sequential version
+    	//mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.5'");
     //}
 
 } else {

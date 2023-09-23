@@ -232,29 +232,20 @@ $document_parent = intval($row['document_parent']);
     <div class="card card-body bg-light">
       <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
       <?php
-      if($document_parent == 0){
 
-        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
-          WHERE document_parent = $document_id
-          OR document_id = $document_id
-          ORDER BY document_created_at DESC"
-        );
-      } else {
-        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
-          WHERE document_parent = $document_parent
-          OR document_id = $document_parent
-          ORDER BY document_created_at DESC"
-        );
-      }
+      $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
+        WHERE document_parent = $document_parent
+        ORDER BY document_created_at DESC"
+      );
 
       while ($row = mysqli_fetch_array($sql_document_revisions)) {
         $revision_document_id = intval($row['document_id']);
         $revision_document_name = nullable_htmlentities($row['document_name']);
-        $revision_document_archived_date = nullable_htmlentities($row['document_archived_at']);
+        $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
 
         ?>
         <div class="mt-1 <?php if($document_id == $revision_document_id){ echo "text-bold"; } ?>">
-          <i class="fas fa-fw fa-clock text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "$revision_document_archived_date - $revision_document_name"; ?></a>
+          <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "$revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo " (Parent)"; } ?>
           <a href="post.php?delete_document=<?php echo $revision_document_id; ?>">
             <i class="fas fa-fw fa-times text-danger ml-2"></i>
           </a>

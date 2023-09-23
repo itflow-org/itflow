@@ -20,6 +20,9 @@ if (isset($_POST['add_document'])) {
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id");
     $document_id = mysqli_insert_id($mysqli);
 
+    // Update field document_parent to be the same id as document ID as this is the only version of the document.
+    mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
+
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
@@ -73,7 +76,7 @@ if (isset($_POST['add_document_from_template'])) {
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id");
 
     $document_id = mysqli_insert_id($mysqli);
 
@@ -91,6 +94,7 @@ if (isset($_POST['edit_document'])) {
     validateTechRole();
 
     $document_id = intval($_POST['document_id']);
+    $document_parent = intval($_POST['document_parent']);
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
     $content = mysqli_real_escape_string($mysqli,$_POST['content']);
@@ -103,16 +107,11 @@ if (isset($_POST['edit_document'])) {
 
     $new_document_id = mysqli_insert_id($mysqli);
 
-    // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id, document_archived_at = NOW() WHERE document_id = $document_id");
+    // Update the parent ID of the new document to match its new document ID
+    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id WHERE document_id = $new_document_id");
 
-    // Update all Previous versions with the new parent document ID
-    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_parent = $document_id");
-
-        while ($row = mysqli_fetch_array($sql_documents)) {
-            $old_document_id = intval($row['document_id']);
-            mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id WHERE document_id = $old_document_id");
-    }
+    // Link all exisiting links with old document with new document
+    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id, document_archived_at = NOW() WHERE document_parent = $document_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Edit', log_description = '$session_name Edited document $name previous version was kept', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_document_id");
