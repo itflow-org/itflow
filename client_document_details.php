@@ -24,6 +24,8 @@ $document_content = $purifier->purify($row['document_content']);
 $document_created_at = nullable_htmlentities($row['document_created_at']);
 $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 $document_folder_id = intval($row['document_folder_id']);
+$document_parent = intval($row['document_parent']);
+
 
 ?>
 
@@ -59,8 +61,7 @@ $document_folder_id = intval($row['document_folder_id']);
       </button>
       <button type="button" class="btn btn-secondary btn-block" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
       <hr>
-      <h5 class="mb-0">Related</h5>
-      <hr>
+      <h5 class="mb-3">Related</h5>
       <h6>
         <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkFileToDocumentModal">
@@ -230,6 +231,37 @@ $document_folder_id = intval($row['document_folder_id']);
 
     <div class="card card-body bg-light">
       <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
+      <?php
+      if($document_parent == 0){
+
+        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
+          WHERE document_parent = $document_id
+          OR document_id = $document_id
+          ORDER BY document_created_at DESC"
+        );
+      } else {
+        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
+          WHERE document_parent = $document_parent
+          OR document_id = $document_parent
+          ORDER BY document_created_at DESC"
+        );
+      }
+
+      while ($row = mysqli_fetch_array($sql_document_revisions)) {
+        $revision_document_id = intval($row['document_id']);
+        $revision_document_name = nullable_htmlentities($row['document_name']);
+        $revision_document_archived_date = nullable_htmlentities($row['document_archived_at']);
+
+        ?>
+        <div class="mt-1 <?php if($document_id == $revision_document_id){ echo "text-bold"; } ?>">
+          <i class="fas fa-fw fa-clock text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "$revision_document_archived_date - $revision_document_name"; ?></a>
+          <a href="post.php?delete_document=<?php echo $revision_document_id; ?>">
+            <i class="fas fa-fw fa-times text-danger ml-2"></i>
+          </a>
+        </div>
+        <?php
+        }
+        ?>
     </div>
 
 	</div>

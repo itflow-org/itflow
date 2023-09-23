@@ -427,6 +427,20 @@ CREATE TABLE `custom_values` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_files`
+--
+
+DROP TABLE IF EXISTS `document_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `document_files` (
+  `document_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_id`,`file_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `documents`
 --
 
@@ -438,6 +452,7 @@ CREATE TABLE `documents` (
   `document_name` varchar(200) NOT NULL,
   `document_content` longtext NOT NULL,
   `document_content_raw` longtext NOT NULL,
+  `document_parent` int(11) NOT NULL DEFAULT 0,
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
@@ -1700,4 +1715,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-17 17:15:39
+-- Dump completed on 2023-09-23 15:54:04

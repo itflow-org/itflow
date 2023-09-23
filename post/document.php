@@ -98,17 +98,29 @@ if (isset($_POST['edit_document'])) {
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $folder = intval($_POST['folder']);
 
+    // Document add query
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_client_id = $client_id");
+
+    $new_document_id = mysqli_insert_id($mysqli);
+
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_content = '$content', document_content_raw = '$content_raw', document_folder_id = $folder WHERE document_id = $document_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id, document_archived_at = NOW() WHERE document_id = $document_id");
+
+    // Update all Previous versions with the new parent document ID
+    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_parent = $document_id");
+
+        while ($row = mysqli_fetch_array($sql_documents)) {
+            $old_document_id = intval($row['document_id']);
+            mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id WHERE document_id = $old_document_id");
+    }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name updated document $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Edit', log_description = '$session_name Edited document $name previous version was kept', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_document_id");
 
 
-    $_SESSION['alert_message'] = "Document <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Document <strong>$name</strong> updated, previous version kept";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    header("Location: client_document_details.php?client_id=$client_id&document_id=$new_document_id");
 }
 
 if (isset($_POST['move_document'])) {
