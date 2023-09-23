@@ -71,7 +71,7 @@ if (isset($_GET['deactivate_shared_item'])) {
     $item_client_id = intval($row['item_client_id']);
 
     // Deactivate item id
-    mysqli_query($mysqli, "UPDATE shared_items SET item_active = '0' WHERE item_id = '$item_id'");
+    mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_id = $item_id");
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Sharing', log_action = 'Delete', log_description = '$session_name deactivated shared $item_type link. Item ID: $item_related_id. Share ID $item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $item_client_id, log_user_id = $session_user_id, log_entity_id = $item_id");
