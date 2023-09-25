@@ -450,6 +450,7 @@ DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `document_id` int(11) NOT NULL AUTO_INCREMENT,
   `document_name` varchar(200) NOT NULL,
+  `document_description` text DEFAULT NULL,
   `document_content` longtext NOT NULL,
   `document_content_raw` longtext NOT NULL,
   `document_parent` int(11) NOT NULL DEFAULT 0,
@@ -459,6 +460,8 @@ CREATE TABLE `documents` (
   `document_accessed_at` datetime DEFAULT NULL,
   `document_template` tinyint(1) NOT NULL DEFAULT 0,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
+  `document_created_by` int(11) NOT NULL DEFAULT 0,
+  `document_updated_by` int(11) NOT NULL DEFAULT 0,
   `document_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`document_id`),
   FULLTEXT KEY `document_content_raw` (`document_content_raw`)
@@ -1715,4 +1718,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-23 15:54:04
+-- Dump completed on 2023-09-24 20:31:22
