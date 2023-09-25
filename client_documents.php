@@ -35,6 +35,7 @@ $folder_location = 0;
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+    LEFT JOIN users ON document_created_by = user_id
     WHERE document_client_id = $client_id
     AND document_template = 0
     AND document_folder_id = $folder
@@ -189,7 +190,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             while ($row = mysqli_fetch_array($sql)) {
                                 $document_id = intval($row['document_id']);
                                 $document_name = nullable_htmlentities($row['document_name']);
+                                $document_description = nullable_htmlentities($row['document_description']);
                                 $document_content = nullable_htmlentities($row['document_content']);
+                                $document_created_by_name = nullable_htmlentities($row['user_name']);
                                 $document_created_at = date("m/d/Y",strtotime($row['document_created_at']));
                                 $document_updated_at = date("m/d/Y",strtotime($row['document_updated_at']));
                                 $document_folder_id = intval($row['document_folder_id']);
@@ -200,7 +203,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <td>
                                         <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
                                     </td>
-                                    <td><?php echo $document_created_at; ?></td>
+                                    <td><?php echo "$document_created_at by $document_created_by_name"; ?></td>
                                     <td><?php echo $document_updated_at; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">

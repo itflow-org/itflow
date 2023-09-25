@@ -11,6 +11,7 @@
                 <input type="hidden" name="document_id" value="<?php if($document_parent == 0){ echo $document_id; } else { echo $document_parent; } ?>">
                 <input type="hidden" name="document_parent" value="<?php echo $document_parent; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="created_by" value="<?php echo $document_created_by_id; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -40,6 +41,10 @@
                                 ?>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="description" value="<?php echo $document_description; ?>" placeholder="Short summary of changes">
                     </div>
 
                 </div>

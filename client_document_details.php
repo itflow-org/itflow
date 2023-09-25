@@ -14,19 +14,25 @@ if (isset($_GET['document_id'])) {
 
 $folder_location = 0;
 
-$sql_document = mysqli_query($mysqli, "SELECT * FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_id = $client_id AND document_id = $document_id");
+$sql_document = mysqli_query($mysqli, "SELECT * FROM documents 
+  LEFT JOIN folders ON document_folder_id = folder_id
+  LEFT JOIN users ON document_created_by = user_id
+  WHERE document_client_id = $client_id AND document_id = $document_id"
+);
 
 $row = mysqli_fetch_array($sql_document);
 
 $folder_name = nullable_htmlentities($row['folder_name']);
 $document_name = nullable_htmlentities($row['document_name']);
+$document_description = nullable_htmlentities($row['document_description']);
 $document_content = $purifier->purify($row['document_content']);
+$document_created_by_id = intval($row['document_created_by']);
+$document_created_by_name = nullable_htmlentities($row['user_name']);
 $document_created_at = nullable_htmlentities($row['document_created_at']);
 $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 $document_archived_at = nullable_htmlentities($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
 $document_parent = intval($row['document_parent']);
-
 
 ?>
 
@@ -48,6 +54,11 @@ $document_parent = intval($row['document_parent']);
 <div class="row">
 
   <div class="col-md-9">
+    <h3><?php echo $document_name; ?></h3>
+    <small class="text-secondary"><?php echo $document_description; ?></small>
+    <div class=""><strong>Date:</strong> <?php echo $document_created_at; ?></div>
+    <div class="mt-1"><strong>Prepared By:</strong> <?php echo $document_created_by_name; ?></div>
+    <div class="mt-1"><strong>Revision:</strong></div>
     <div class="tinymcePreview"><?php echo $document_content; ?></div>
   </div>
 
@@ -235,6 +246,7 @@ $document_parent = intval($row['document_parent']);
       <?php
 
       $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
+        LEFT JOIN users ON document_created_by = user_id
         WHERE document_parent = $document_parent
         ORDER BY document_created_at DESC"
       );
@@ -242,6 +254,9 @@ $document_parent = intval($row['document_parent']);
       while ($row = mysqli_fetch_array($sql_document_revisions)) {
         $revision_document_id = intval($row['document_id']);
         $revision_document_name = nullable_htmlentities($row['document_name']);
+        $revision_document_description = nullable_htmlentities($row['document_description']);
+        $revision_document_created_by_name = nullable_htmlentities($row['user_name']);
+        $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
         $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
 
         ?>
