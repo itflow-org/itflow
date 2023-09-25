@@ -176,10 +176,12 @@ if (isset($_GET['undo_archive_client'])) {
 
 if (isset($_GET['delete_client'])) {
 
+    // Removing this function from the frontend as this is extremely destructive. Its best to use Archive, use this for development or test purposes only.
+
     validateAdminRole();
 
     // CSRF Check
-    validateCSRFToken($_GET['csrf_token']);
+    // validateCSRFToken($_GET['csrf_token']);
 
     $client_id = intval($_GET['delete_client']);
 
