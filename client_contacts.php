@@ -11,7 +11,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
     LEFT JOIN locations ON location_id = contact_location_id
-    WHERE contact_archived_at IS NULL 
+    WHERE contact_$archive_query
     AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%')
     AND contact_client_id = $client_id 
     ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
@@ -47,6 +47,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="show_archived" value="<?php echo $show_archived; ?>">
                 <div class="row">
 
                     <div class="col-md-4">
@@ -59,6 +60,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-md-8">
+                        <div class="float-right">
+                            <?php if($show_archived == 1){ ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&show_archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Show Archived</a>
+                            <?php } else { ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&show_archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>
+                            Show Archived</a>
+                            <?php } ?>
+                        </div>
                     </div>
 
                 </div>
