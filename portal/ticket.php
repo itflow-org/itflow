@@ -56,7 +56,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 </h4>
             </div>
 
-            <div class="card-body">
+            <div class="card-body prettyContent">
                 <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
                 <hr>
                 <p>
@@ -161,7 +161,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     </h3>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body prettyContent">
                     <?php echo $ticket_reply; ?>
                 </div>
             </div>
@@ -171,6 +171,8 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         }
 
         ?>
+
+        <script src="../js/pretty_content.js"></script>
 
         <?php
     } else {
@@ -182,3 +184,4 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 }
 
 require_once("portal_footer.php");
+
