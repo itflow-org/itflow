@@ -269,7 +269,7 @@ if (isset($_GET['ticket_id'])) {
                         <h3 class="card-title text-bold"><?php echo $ticket_subject; ?></h3>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body prettyContent">
                         <?php echo $ticket_details; ?>
 
                         <?php
@@ -402,11 +402,13 @@ if (isset($_GET['ticket_id'])) {
 
                                     <div class="media-body">
                                         <?php echo $ticket_reply_by_display; ?>
-                                        <br>
-                                        <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if (!empty($ticket_reply_updated_at)) { echo "modified: $ticket_reply_updated_at"; } ?></small>
-                                        <br>
+                                        <div>
+                                            <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if (!empty($ticket_reply_updated_at)) { echo "modified: $ticket_reply_updated_at"; } ?></small>
+                                        </div>
                                         <?php if ($ticket_reply_type !== "Client") { ?>
-                                            <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
+                                            <div>
+                                                <small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
+                                            </div>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -435,7 +437,7 @@ if (isset($_GET['ticket_id'])) {
 
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body prettyContent">
                             <?php echo $ticket_reply; ?>
 
                             <?php
@@ -823,3 +825,5 @@ if ($ticket_status !== "Closed") { ?>
 <?php } ?>
 
 <script src="js/ticket_add_remove_watchers.js"></script>
+
+<script src="js/pretty_content.js"></script>

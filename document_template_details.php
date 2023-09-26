@@ -48,22 +48,14 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
       </button>
     </div>
   </div>
-  <div class="card-body" id="formatTables">
+  <div class="card-body prettyContent">
     <?php echo $document_content; ?>
   </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  let tables = document.querySelectorAll('div#formatTables');
-  tables.forEach(function(table){
-    table.classList.add('table');
-  });
-});
-</script>
+<script src="js/pretty_content.js"></script>
 
 <?php
 
 require_once("document_template_edit_modal.php");
-
 require_once("footer.php");

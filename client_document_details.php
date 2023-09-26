@@ -66,7 +66,7 @@ $document_parent = intval($row['document_parent']);
           <?php } ?>
         </div>
       </div>
-      <div class="card-body" id="formatTables">
+      <div class="card-body prettyContent">
         <?php echo $document_content; ?>
       </div>
     </div>
@@ -285,14 +285,7 @@ $document_parent = intval($row['document_parent']);
 
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  let tables = document.querySelectorAll('div#formatTables');
-  tables.forEach(function(table){
-    table.classList.add('table');
-  });
-});
-</script>
+<script src="js/pretty_content.js"></script>
 
 <?php
 
@@ -304,5 +297,3 @@ require_once("client_document_link_software_modal.php");
 require_once("client_document_link_vendor_modal.php");
 require_once("share_modal.php");
 require_once("footer.php");
-
-?>
