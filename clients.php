@@ -289,13 +289,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
-                                            <!-- Removing this function from the frontend as this is extremely destructive. Its best to use Archive, use this for development or test purposes only.
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_client=<?php echo $client_id; ?>">
-
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                            -->
                                         </div>
                                     </div>
                                 </td>

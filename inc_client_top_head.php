@@ -22,12 +22,12 @@
                         <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-archive mr-2"></i>Archive Client
                         </a>
-                        <!-- Removing this function from the frontend as this is extremely destructive. Its best to use Archive, use this for development or test purposes only.
+                        <?php if ($session_user_role == 3) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger text-bold confirm-link" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-trash mr-2"></i>Delete Client
                         </a>
-                        -->
+                        <?php } ?>
                     </div>
                 </div>
                 <?php } ?>
