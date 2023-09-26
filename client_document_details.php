@@ -61,8 +61,9 @@ $document_parent = intval($row['document_parent']);
         
         <div class="row">
           <div class="col"><strong>Date:</strong> <?php echo date('Y-m-d', strtotime($document_created_at)); ?></div>
+          <?php if(!empty($document_created_by_name)){ ?>
           <div class="col"><strong>Prepared By:</strong> <?php echo $document_created_by_name; ?></div>
-          <div class="col"><strong>Revision:</strong></div>
+          <?php } ?>
         </div>
       </div>
       <div class="card-body" id="formatTables">
