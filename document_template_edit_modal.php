@@ -19,6 +19,10 @@
                         <textarea class="form-control tinymce" name="content"><?php echo $document_content; ?></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="description" value="<?php echo $document_description; ?>" placeholder="Short summary">
+                    </div>
+
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="edit_document_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>

@@ -128,6 +128,13 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a href="settings_document_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_document_templates.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-file"></i>
+            <p>Document Templates</p>
+          </a>
+        </li>
+
         <li class="nav-header mt-3">SETTINGS</li>
 
         <li class="nav-item">

@@ -53,11 +53,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2">
                 <i class="fa fa-fw fa-folder mr-2"></i>Documents
             </h3>
-            <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item text-dark" href="client_document_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
-            </div>
-
             <div class="card-tools">
 
                 <div class="btn-group">

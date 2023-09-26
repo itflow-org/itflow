@@ -382,7 +382,7 @@ if (isset($_POST['edit_document_template'])) {
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw' WHERE document_id = $document_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_updated_by = $session_user_id WHERE document_id = $document_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Modify', log_description = '$session_name modified document template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $document_id");

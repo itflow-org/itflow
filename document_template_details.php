@@ -1,6 +1,6 @@
 <?php
 
-require_once("inc_all_client.php");
+require_once("inc_all_settings.php");
 
 //Initialize the HTML Purifier to prevent XSS
 require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
@@ -17,8 +17,8 @@ $sql_document = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_te
 $row = mysqli_fetch_array($sql_document);
 
 $document_name = nullable_htmlentities($row['document_name']);
+$document_description = nullable_htmlentities($row['document_description']);
 $document_content = $purifier->purify($row['document_content']);
-//$document_content = $row['document_content'];
 $document_created_at = nullable_htmlentities($row['document_created_at']);
 $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
@@ -26,23 +26,16 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
-    <a href="invoices.php">Home</a>
+    <a href="clients.php">Home</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="clients.php">Clients</a>
+    <a href="users.php">Settings</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+    <a href="settings_document_templates.php">Document Templates</a>
   </li>
-  <li class="breadcrumb-item">
-    <a href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
-  </li>
-  <li class="breadcrumb-item">
-    <a href="client_document_templates.php?client_id=<?php echo $client_id; ?>">Templates</a>
-  </li>
-  <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?></li>
+  <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_name; ?></li>
 </ol>
-
 
 <div class="card card-dark">
   <div class="card-header">
@@ -53,9 +46,6 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">
         <i class="fas fa-edit mr-2"></i>Edit
       </button>
-      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editDocumentModal">
-        <i class="fas fa-copy mr-2"></i>Copy
-      </button>
     </div>
   </div>
   <div class="card-body">
@@ -65,6 +55,6 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 <?php
 
-require_once("client_document_template_edit_modal.php");
+require_once("document_template_edit_modal.php");
 
 require_once("footer.php");

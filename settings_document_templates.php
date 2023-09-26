@@ -4,7 +4,7 @@
 $sort = "document_name";
 $order = "ASC";
 
-require_once("inc_all_client.php");
+require_once("inc_all_settings.php");
 
 // Search query SQL snippet
 if (!empty($q)) {
@@ -31,10 +31,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
   <div class="card-header py-2">
     <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i>Document Templates</h3>
-    <button type="button" class="btn btn-dark dropdown-toggle ml-1" data-toggle="dropdown"></button>
-    <div class="dropdown-menu">
-      <a class="dropdown-item text-dark" href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
-    </div>
     <div class="card-tools">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentTemplateModal">
         <i class="fas fa-plus mr-2"></i>New Template
@@ -44,7 +40,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
   <div class="card-body">
 
     <form autocomplete="off">
-      <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
       <div class="input-group">
         <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search templates">
         <div class="input-group-append">
@@ -78,6 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
           while ($row = mysqli_fetch_array($sql)) {
             $document_id = intval($row['document_id']);
             $document_name = nullable_htmlentities($row['document_name']);
+            $document_description = nullable_htmlentities($row['document_description']);
             $document_content = nullable_htmlentities($row['document_content']);
             $document_created_at = nullable_htmlentities($row['document_created_at']);
             $document_updated_at = nullable_htmlentities($row['document_updated_at']);
@@ -87,7 +83,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <tr>
             <td>
-              <a href="client_document_template_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+              <a href="document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+              <small class="text-secondary mt-1"><?php echo $document_description; ?></small>
             </td>
             <td><?php echo $document_created_at; ?></td>
             <td><?php echo $document_updated_at; ?></td>
@@ -113,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("client_document_template_edit_modal.php");
+          include("document_template_edit_modal.php");
           }
 
           ?>
@@ -127,6 +124,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 
-<?php include("client_document_template_add_modal.php"); ?>
+<?php include("document_template_add_modal.php"); ?>
 
 <?php include("footer.php"); ?>
