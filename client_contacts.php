@@ -32,6 +32,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite Contact</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importContactModal">
+                            <i class="fa fa-fw fa-upload mr-2"></i>Import
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportContactModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
                     </div>
                 </div>
             </div>
@@ -51,10 +59,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-md-8">
-                        <div class="float-right">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportContactModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importContactModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
-                        </div>
                     </div>
 
                 </div>
