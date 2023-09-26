@@ -197,8 +197,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <tr>
                                     <td>
                                         <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+                                        <div class="text-secondary mt-1"><?php echo $document_description; ?>
                                     </td>
-                                    <td><?php echo "$document_created_at by $document_created_by_name"; ?></td>
+                                    <td>
+                                        <?php echo $document_created_at; ?>
+                                        <div class="text-secondary mt-1"><?php echo $document_created_by_name; ?>
+                                    </td>
                                     <td><?php echo $document_updated_at; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">

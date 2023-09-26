@@ -54,12 +54,21 @@ $document_parent = intval($row['document_parent']);
 <div class="row">
 
   <div class="col-md-9">
-    <h3><?php echo $document_name; ?></h3>
-    <small class="text-secondary"><?php echo $document_description; ?></small>
-    <div class=""><strong>Date:</strong> <?php echo $document_created_at; ?></div>
-    <div class="mt-1"><strong>Prepared By:</strong> <?php echo $document_created_by_name; ?></div>
-    <div class="mt-1"><strong>Revision:</strong></div>
-    <div class="tinymcePreview"><?php echo $document_content; ?></div>
+    <div class="card">
+      <div class="card-header bg-dark">
+        
+        <h3><?php echo $document_name; ?> <small><?php echo $document_description; ?></small></h3>
+        
+        <div class="row">
+          <div class="col"><strong>Date:</strong> <?php echo date('Y-m-d', strtotime($document_created_at)); ?></div>
+          <div class="col"><strong>Prepared By:</strong> <?php echo $document_created_by_name; ?></div>
+          <div class="col"><strong>Revision:</strong></div>
+        </div>
+      </div>
+      <div class="card-body" id="formatTables">
+        <?php echo $document_content; ?>
+      </div>
+    </div>
   </div>
 
 	<div class="col-md-3 d-print-none">
@@ -274,6 +283,15 @@ $document_parent = intval($row['document_parent']);
 	</div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  let tables = document.querySelectorAll('div#formatTables');
+  tables.forEach(function(table){
+    table.classList.add('table');
+  });
+});
+</script>
 
 <?php
 
