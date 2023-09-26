@@ -19,6 +19,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+    LEFT JOIN users ON document_created_by = user_id
     WHERE document_template = 1
     $query_snippet
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -75,6 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             $document_name = nullable_htmlentities($row['document_name']);
             $document_description = nullable_htmlentities($row['document_description']);
             $document_content = nullable_htmlentities($row['document_content']);
+            $document_created_by_name = nullable_htmlentities($row['user_name']);
             $document_created_at = nullable_htmlentities($row['document_created_at']);
             $document_updated_at = nullable_htmlentities($row['document_updated_at']);
             $document_folder_id = intval($row['document_folder_id']);
@@ -83,10 +85,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <tr>
             <td>
-              <a href="document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
-              <small class="text-secondary mt-1"><?php echo $document_description; ?></small>
+              <a class="text-bold" href="document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_name; ?></a>
+              <div class="mt-1 text-secondary"><?php echo $document_description; ?></div>
             </td>
-            <td><?php echo $document_created_at; ?></td>
+            <td>
+              <?php echo $document_created_at; ?>
+              <div class="text-secondary"><?php echo $document_created_by_name; ?></div>
+            </td>
             <td><?php echo $document_updated_at; ?></td>
             <td>
               <div class="dropdown dropleft text-center">
