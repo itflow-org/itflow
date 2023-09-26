@@ -141,7 +141,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo roundUpToNearest15($ticket_total_reply_time); ?>" required>
+                                    <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo roundToNearest15($ticket_total_reply_time); ?>" required>
                                 </div>
                             </div>
 
@@ -155,7 +155,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format(roundUpToNearest15($ticket_total_reply_time) * $client_rate,2); ?>" required>
+                                    <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format(roundToNearest15($ticket_total_reply_time) * $client_rate,2); ?>" required>
                                 </div>
                             </div>
 
