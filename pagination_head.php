@@ -99,15 +99,15 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtt = date('Y-m-d');
 }
 
-
 // Archived
 
-$show_archived = 0;
-if (isset($_GET['show_archived'])) {
-    $show_archived = intval($_GET['show_archived']);
+$archived = 0;
+
+if (isset($_GET['archived'])) {
+    $archived = intval($_GET['archived']);
 }
 
-if($show_archived == 1){
+if($archived == 1){
     $archive_query = "archived_at IS NOT NULL";
 } else {
     $archive_query = "archived_at IS NULL";
