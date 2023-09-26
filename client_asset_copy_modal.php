@@ -204,12 +204,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label>IP</label>
+                                <label>IP Address or DHCP</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

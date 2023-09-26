@@ -17,6 +17,9 @@ if (isset($_POST['add_asset'])) {
     $serial = sanitizeInput($_POST['serial']);
     $os = sanitizeInput($_POST['os']);
     $ip = sanitizeInput($_POST['ip']);
+    if($_POST['dhcp'] == 1){
+        $ip = 'DHCP';
+    }
     $mac = sanitizeInput($_POST['mac']);
     $uri = sanitizeInput($_POST['uri']);
     $status = sanitizeInput($_POST['status']);
@@ -89,6 +92,9 @@ if (isset($_POST['edit_asset'])) {
     $serial = sanitizeInput($_POST['serial']);
     $os = sanitizeInput($_POST['os']);
     $ip = sanitizeInput($_POST['ip']);
+    if($_POST['dhcp'] == 1){
+        $ip = 'DHCP';
+    }
     $mac = sanitizeInput($_POST['mac']);
     $uri = sanitizeInput($_POST['uri']);
     $status = sanitizeInput($_POST['status']);
