@@ -557,7 +557,7 @@ if (isset($_GET['ticket_id'])) {
                     <h4 class="text-secondary">Watchers</h4>
 
                     <div>
-                        <a href="#" data-toggle="modal" data-target="#editTicketWatchersModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
+                        <a href="#" data-toggle="modal" data-target="#addTicketWatcherModal"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
                     </div>
 
                     <?php
@@ -803,7 +803,7 @@ if (isset($_GET['ticket_id'])) {
         require_once("ticket_edit_contact_modal.php");
         require_once("ticket_edit_asset_modal.php");
         require_once("ticket_edit_vendor_modal.php");
-        require_once("ticket_edit_watchers_modal.php");
+        require_once("ticket_add_watcher_modal.php");
         require_once("ticket_edit_priority_modal.php");
         require_once("ticket_change_client_modal.php");
         require_once("ticket_merge_modal.php");
@@ -823,7 +823,5 @@ if ($ticket_status !== "Closed") { ?>
     <script src="js/ticket_collision_detection.js"></script>
     <script src="js/ticket_button_respond_note.js"></script>
 <?php } ?>
-
-<script src="js/ticket_add_remove_watchers.js"></script>
 
 <script src="js/pretty_content.js"></script>

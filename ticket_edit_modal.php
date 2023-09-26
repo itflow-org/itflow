@@ -105,35 +105,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Watchers</label>
-
-                                <div class="watchers">
-                
-                                    <?php
-                                    $sql_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-                                    while ($row = mysqli_fetch_array($sql_watchers)) {
-                                        $watcher_id = intval($row['ticket_watcher_id']);
-                                        $watcher_email = nullable_htmlentities($row['watcher_email']);
-                                    ?>
-                                    <div class="input-group mb-3">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="watchers[]" value="<?php echo $watcher_email; ?>">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-danger" onclick="removeWatcher(this)"><i class="fas fa-fw fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <?php
-                                    }
-                                    ?>
-
-                                </div>
-
-                                <button class="btn btn-primary" type="button" onclick="addWatcher(this)"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
-                            </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="pills-assets<?php echo $ticket_id; ?>">

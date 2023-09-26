@@ -155,19 +155,6 @@ if (isset($_POST['edit_ticket'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
-    // Add Watchers
-    if (!empty($_POST['watchers'])) {
-
-        // Remove all watchers first
-        mysqli_query($mysqli,"DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-
-        //Add the Watchers
-        foreach($_POST['watchers'] as $watcher) {
-            $watcher_email = sanitizeInput($watcher);
-            mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
-        }
-    }
-
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
@@ -211,6 +198,26 @@ if (isset($_POST['edit_ticket_contact'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name changed contact for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> contact updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['add_ticket_watcher'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $client_id = intval($_POST['client_id']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
+    $watcher_email = sanitizeInput($_POST['watcher_email']);
+    
+    mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name added watcher $watcher_email to ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "You added $watcher_email as a watcher to Ticket <strong>$ticket_number</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
