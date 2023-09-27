@@ -525,8 +525,8 @@ if (isset($_GET['ticket_id'])) {
                         $row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
 
                         $prev_ticket_id = intval($row['ticket_id']);
-                        $prev_ticket_subject = htmlentities($row['ticket_subject']);
-                        $prev_ticket_status = htmlentities($row['ticket_status']);
+                        $prev_ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                        $prev_ticket_status = nullable_htmlentities($row['ticket_status']);
                         ?>
 
                         <div>
@@ -564,7 +564,7 @@ if (isset($_GET['ticket_id'])) {
                     // Get Watchers
                     $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
                     while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
-                        $ticket_watcher_email = $ticket_watcher_row['watcher_email'];
+                        $ticket_watcher_email = nullable_htmlentities($ticket_watcher_row['watcher_email']);
                     ?>
                         <div class='mt-1'>
                             <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>

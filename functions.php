@@ -746,8 +746,13 @@ function shortenClient($client) {
 }
 
 function roundToNearest15($time) {
-    // Extract hours, minutes, and seconds from the time string
-    list($hours, $minutes, $seconds) = explode(':', $time);
+    // Validate the input time format
+    if (!preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $time, $matches)) {
+        return false; // or throw an exception
+    }
+
+    // Extract hours, minutes, and seconds from the matched time string
+    list(, $hours, $minutes, $seconds) = $matches;
     
     // Convert everything to seconds for easier calculation
     $totalSeconds = ($hours * 3600) + ($minutes * 60) + $seconds;
@@ -755,18 +760,15 @@ function roundToNearest15($time) {
     // Calculate the remainder when divided by 900 seconds (15 minutes)
     $remainder = $totalSeconds % 900;
     
-    // If the total seconds is less than 15 minutes, round up to 15 minutes
-    if ($totalSeconds < 900) {
-        $totalSeconds = 900;
-    } else if ($remainder > 450) {  // If remainder is more than 7.5 minutes (450 seconds), round up
+    if ($remainder > 450) {  // If remainder is more than 7.5 minutes (450 seconds), round up
         $totalSeconds += (900 - $remainder);
     } else {  // Else round down
         $totalSeconds -= $remainder;
     }
     
-    // Convert total seconds to the decimal format
+    // Convert total seconds to decimal hours
     $decimalHours = $totalSeconds / 3600;
     
-    // Return the formatted string
+    // Return the decimal hours
     return number_format($decimalHours, 2);
 }
