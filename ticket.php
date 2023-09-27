@@ -778,22 +778,20 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 </form>
 
-                <?php if ($config_module_enable_accounting) { ?>
-                    <div class="card card-body card-outline card-dark mb-2">
-                        <div class="">
-                            <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
-                                <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
-                            </a>
-                            <?php
-                            if ($ticket_status !== "Closed") { ?>
-                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
-                                    <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
-                                </a>
-                            <?php } ?>
-                        </div>
-                    </div>
-                <?php } ?>
-
+                <div class="card card-body card-outline card-dark mb-2">
+                    <?php if ($config_module_enable_accounting) { ?>
+                        <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                            <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
+                        </a>
+                    <?php }
+        
+                    if ($ticket_status !== "Closed") { ?>
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
+                            <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
+                        </a>
+                    <?php } ?>
+                </div>
+    
             </div>
 
         </div>
