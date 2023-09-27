@@ -1,5 +1,8 @@
 <?php
 
+// Set working directory to the directory this cron script lives at.
+chdir(dirname(__FILE__));
+
 require_once("config.php");
 require_once("functions.php");
 

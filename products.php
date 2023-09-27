@@ -66,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
                         }
-                        $product_price = number_format(floatval($row['product_price']),2);
+                        $product_price = floatval($row['product_price']);
                         $product_currency_code = nullable_htmlentities($row['product_currency_code']);
                         $product_created_at = nullable_htmlentities($row['product_created_at']);
                         $category_id = intval($row['category_id']);
