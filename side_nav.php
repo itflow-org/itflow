@@ -185,9 +185,7 @@
         </nav>
         <!-- /.sidebar-menu -->
 
-        <div class="sidebar-custom mb-3">
-
-        </div>
+        <div class="mb-3"></div>
 
     </div>
     <!-- /.sidebar -->
