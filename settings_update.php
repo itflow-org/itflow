@@ -24,10 +24,15 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
         </div>
         <div class="card-body" style="text-align: center;">
 
-            <!-- Check if git fetch result is zero (success) -->
+            <!-- Check if git fetch result was successful (0), if not show a warning -->
             <?php if ($result !== 0) { ?>
                 <div class="alert alert-danger" role="alert">
-                    <strong>Warning: Could not find execute 'git fetch'. Do you have git installed?</strong>
+                    <strong>WARNING: Could not find execute 'git fetch'.</strong>
+                    <br><br>
+                    <i>Error details:- <?php echo shell_exec("git fetch 2>&1"); ?></i>
+                    <br>
+                    <br>Things to check: Is Git installed? Is the Git origin/remote correct? Are web server file permissions too strict?
+                    <br>Seek support on the <a href="https://forum.itflow.org">Forum</a> if required - include relevant PHP error logs & ITFlow debug output
                 </div>
             <?php } ?>
 

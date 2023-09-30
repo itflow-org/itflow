@@ -234,6 +234,15 @@ if (isset($_GET['share_generate_link'])) {
     $item_note = sanitizeInput($_GET['note']);
     $item_view_limit = intval($_GET['views']);
     $item_expires = sanitizeInput($_GET['expires']);
+    $item_expires_friendly = "never"; // default never
+    if ($item_expires == "30 MINUTE") {
+        $item_expires_friendly = "30 minutes";
+    } elseif ($item_expires == "24 HOUR") {
+        $item_expires_friendly = "24 hours";
+    } elseif ($item_expires == "72 HOUR") {
+        $item_expires_friendly = "72 hours (3 days)";
+    }
+
     $item_key = randomString(156);
 
     if ($item_type == "Document") {
@@ -281,8 +290,11 @@ if (isset($_GET['share_generate_link'])) {
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
 
-        $subject = "Time sensitive encrypted link enclosed";
-        $body = "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive encrypted link which will expire in <strong>$item_expires</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. The sender will receive a notification when the link is viewed. Please click the link below to view your shared secret<br><br><strong><a href='$url'>Click Here</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $subject = "Time sensitive - $session_company_name secure link enclosed";
+        if ($item_expires_friendly == "never") {
+            $subject = "$session_company_name secure link enclosed";
+        }
+        $body = "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive secure link regarding '$item_name'.<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href='$url'>Click here to access your secure content</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
 
         $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
             $config_mail_from_email, $config_mail_from_name,

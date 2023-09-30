@@ -56,9 +56,9 @@ $document_parent = intval($row['document_parent']);
   <div class="col-md-9">
     <div class="card">
       <div class="card-header bg-dark">
-        
-        <h3><?php echo $document_name; ?> <small><?php echo $document_description; ?></small></h3>
-        
+
+        <h3><?php echo $document_name; ?> <?php if (!empty($document_description)) { ?><span class="h6 text-muted">(<?php echo $document_description; ?>)</span><?php } ?></h3>
+
         <div class="row">
           <div class="col"><strong>Date:</strong> <?php echo date('Y-m-d', strtotime($document_created_at)); ?></div>
           <?php if(!empty($document_created_by_name)){ ?>
@@ -97,7 +97,7 @@ $document_parent = intval($row['document_parent']);
           AND document_files.document_id = $document_id
           ORDER BY file_name ASC"
         );
-        
+
         $linked_files = array();
 
         while ($row = mysqli_fetch_array($sql_files)) {
@@ -108,7 +108,7 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $file_name; ?> 
+            <?php echo $file_name; ?>
             <a href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
@@ -130,7 +130,7 @@ $document_parent = intval($row['document_parent']);
           AND contact_documents.document_id = $document_id
           ORDER BY contact_name ASC"
         );
-        
+
         $linked_contacts = array();
 
         while ($row = mysqli_fetch_array($sql_contacts)) {
@@ -141,7 +141,7 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $contact_name; ?> 
+            <?php echo $contact_name; ?>
             <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
@@ -163,7 +163,7 @@ $document_parent = intval($row['document_parent']);
           AND asset_documents.document_id = $document_id
           ORDER BY asset_name ASC"
         );
-        
+
         $linked_assets = array();
 
         while ($row = mysqli_fetch_array($sql_assets)) {
@@ -174,7 +174,7 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $asset_name; ?> 
+            <?php echo $asset_name; ?>
             <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
@@ -196,7 +196,7 @@ $document_parent = intval($row['document_parent']);
           AND software_documents.document_id = $document_id
           ORDER BY software_name ASC"
         );
-        
+
         $linked_software = array();
 
         while ($row = mysqli_fetch_array($sql_software)) {
@@ -207,7 +207,7 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $software_name; ?> 
+            <?php echo $software_name; ?>
             <a href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
@@ -229,7 +229,7 @@ $document_parent = intval($row['document_parent']);
           AND vendor_documents.document_id = $document_id
           ORDER BY vendor_name ASC"
         );
-        
+
         $associated_vendors = array();
 
         while ($row = mysqli_fetch_array($sql_vendors)) {
@@ -240,7 +240,7 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $vendor_name; ?> 
+            <?php echo $vendor_name; ?>
             <a href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
