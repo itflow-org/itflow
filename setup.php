@@ -1542,7 +1542,7 @@ if (isset($_POST['add_telemetry'])) {
                                 <hr>
 
                                 <h5>Post installation steps: </h5>
-                                <p>A few <a href="https://docs.itflow.org/installation#post-installation_essential_housekeeping">housekeeping steps</a> are required to keep to ensure everything runs smoothly, namely:</p>
+                                <p>A few <a href="https://docs.itflow.org/installation#post-installation_essential_housekeeping">housekeeping steps</a> are required to ensure everything runs smoothly, namely:</p>
                                 <ul>
                                     <li><a href="https://docs.itflow.org/backups">Setup backups</a></li>
                                     <li><a href="https://docs.itflow.org/cron">Setup cron</a></li>
@@ -1568,7 +1568,7 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                         <div class="card-body">
                             <h2><b>Thank you</b> for choosing to try ITFlow!</h2>
-                            <p>This is the start of your journey towards amazing client management. </p>
+                            <p>This is the start of your journey towards amazing client management </p>
                             <p>A few tips:</p>
                             <ul>
                                 <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
