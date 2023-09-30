@@ -150,7 +150,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Assigned To</label>
+                                <label>Assign To</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
