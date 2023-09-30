@@ -64,6 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">Email</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">Role</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">Status</a></th>
+                    <th class="text-center">MFA</th>
                     <th>Last Login</th>
                     <th class="text-center">Action</th>
                 </tr>
@@ -85,6 +86,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_avatar = nullable_htmlentities($row['user_avatar']);
                     $user_token = nullable_htmlentities($row['user_token']);
+                    if(empty($user_token)) {
+                        $mfa_status_display = "-";
+                    } else {
+                        $mfa_status_display = "<i class='fas fa-fw fa-check text-success'></i>";
+                    }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = $row['user_role'];
                     if ($user_role == 3) {
@@ -134,6 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
                         <td><?php echo $user_role_display; ?></td>
                         <td><?php echo $user_status_display; ?></td>
+                        <td class="text-center"><?php echo $mfa_status_display; ?></td>
                         <td><?php echo $last_login; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
