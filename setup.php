@@ -1234,31 +1234,10 @@ if (isset($_POST['add_telemetry'])) {
                             <?php if (file_exists('config.php')) { ?>
                                 Database is already configured. Any further changes should be made by editing the config.php file,
                                 or deleting it and refreshing this page.
-                            <?php }else{ ?>
+                            <?php } else { ?>
                                 <form method="post" autocomplete="off">
-                                
-                                    <div class="form-group">
-                                        <label>Database User <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                            </div>
-                                            <input type="text" class="form-control" name="username" placeholder="Database User" autofocus required>
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label>Database Password <strong class="text-danger">*</strong></label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                            </div>
-                                            <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Database Password" autocomplete="new-password" required>
-                                            <div class="input-group-append">
-                                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <h5>Database Connection Details</h5>
 
                                     <div class="form-group">
                                         <label>Database Name <strong class="text-danger">*</strong></label>
@@ -1266,7 +1245,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="database" placeholder="Database Name" required>
+                                            <input type="text" class="form-control" name="database" placeholder="Database name" required>
                                         </div>
                                     </div>
 
@@ -1277,6 +1256,32 @@ if (isset($_POST['add_telemetry'])) {
                                                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                             </div>
                                             <input type="text" class="form-control" name="host" value="localhost" placeholder="Database Host" required>
+                                        </div>
+                                    </div>
+
+                                    <br>
+                                    <h5>Database Authentication Details</h5>
+
+                                    <div class="form-group">
+                                        <label>Database User <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" name="username" placeholder="Database user account" autofocus required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Database Password <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Database user password" autocomplete="new-password" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1536,7 +1541,13 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <hr>
 
-                                <p>Housekeeping: <b>Post installation, <a href="https://docs.itflow.org/installation#essential_housekeeping">a few additional steps</a> are required</b></p>
+                                <h5>Post installation steps: </h5>
+                                <p>A few <a href="https://docs.itflow.org/installation#post-installation_essential_housekeeping">housekeeping steps</a> are required to ensure everything runs smoothly, namely:</p>
+                                <ul>
+                                    <li><a href="https://docs.itflow.org/backups">Setup backups</a></li>
+                                    <li><a href="https://docs.itflow.org/cron">Setup cron</a></li>
+                                    <li>Star ITFlow on <a href="https://github.com/itflow-org/itflow">Github</a> :)</li>
+                                </ul>
 
                                 <hr>
 
@@ -1556,9 +1567,15 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-cube mr-2"></i>ITFlow Setup</h3>
                         </div>
                         <div class="card-body">
-                            <p><b>Thank you for choosing to try ITFlow!</b> Feel free to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you have any questions.</p>
-                            <p>A database must be created before proceeding - click on the button below to get started! </p>
-                            <hr>
+                            <h2><b>Thank you</b> for choosing to try ITFlow!</h2>
+                            <p>This is the start of your journey towards amazing client management </p>
+                            <p>A few tips:</p>
+                            <ul>
+                                <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
+                                <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
+                            </ul>
+                            <br><p>A database must be created before proceeding - click on the button below to get started</p>
+                            <br><hr>
                             <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
                             <?php
                             // Check that there is access to write to the current directory
