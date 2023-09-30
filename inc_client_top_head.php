@@ -24,7 +24,7 @@
                         </a>
                         <?php if ($session_user_role == 3) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
+                        <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-trash mr-2"></i>Delete Client
                         </a>
                         <?php } ?>
@@ -33,11 +33,11 @@
                 <?php } ?>
             </div>
         </div>
-        
+
         <div class="collapse show" id="clientHeader">
 
             <div class="row">
-                
+
                 <div class="col-md border-top">
                     <h5 class="text-secondary mt-1">Primary Location</h5>
                     <?php if (!empty($location_address)) { ?>
@@ -131,7 +131,7 @@
                 </div>
                 <?php } ?>
 
-                
+
                 <div class="col-md border-left border-top">
                     <h5 class="text-secondary mt-1">Support</h5>
                     <div class="ml-1 text-secondary">Open Tickets
@@ -146,7 +146,7 @@
                     <?php echo $client_tags_display; ?>
                     <?php } ?>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -155,6 +155,7 @@
 <?php
 
 require_once("client_edit_modal.php");
+require_once("client_delete_modal.php");
 require_once("client_download_pdf_modal.php");
 require_once("category_quick_add_modal.php");
 
