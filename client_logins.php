@@ -95,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if (empty($login_otp_secret)) {
                         $otp_display = "-";
                     } else {
-                        $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+                        $otp_display = "<span onmouseenter='showOTPViaLoginID($login_id)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                     }
                     $login_note = nullable_htmlentities($row['login_note']);
                     $login_important = intval($row['login_important']);
@@ -157,6 +157,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <script>
+    // TODO: Remove this
     function showOTP(id, secret) {
         //Send a GET request to ajax.php as ajax.php?get_totp_token=true&totp_secret=SECRET
         jQuery.get(
@@ -167,6 +168,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 const token = JSON.parse(data);
 
                 document.getElementById("otp_" + id).innerText = token
+
+            }
+        );
+    }
+
+    function showOTPViaLoginID(login_id) {
+        // Send a GET request to ajax.php as ajax.php?get_totp_token_via_id=true&login_id=ID
+        jQuery.get(
+            "ajax.php",
+            {get_totp_token_via_id: 'true', login_id: login_id},
+            function(data) {
+                //If we get a response from post.php, parse it as JSON
+                const token = JSON.parse(data);
+
+                document.getElementById("otp_" + login_id).innerText = token
 
             }
         );
