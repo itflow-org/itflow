@@ -759,6 +759,7 @@ CREATE TABLE `logins` (
   `login_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `login_archived_at` datetime DEFAULT NULL,
   `login_accessed_at` datetime DEFAULT NULL,
+  `login_password_changed_at` datetime DEFAULT current_timestamp(),
   `login_contact_id` int(11) NOT NULL DEFAULT 0,
   `login_vendor_id` int(11) NOT NULL DEFAULT 0,
   `login_asset_id` int(11) NOT NULL DEFAULT 0,
