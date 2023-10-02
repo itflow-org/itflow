@@ -417,11 +417,39 @@ if (isset($_GET['get_client_contacts'])) {
 }
 
 /*
- * Dynamic TOTP for client login page
+ * Dynamic TOTP "resolver"
  * When provided with a TOTP secret, returns a 6-digit code
+ * // TODO: Check if this can now be removed
  */
 if (isset($_GET['get_totp_token'])) {
     $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
 
     echo json_encode($otp);
+}
+
+/*
+ * NEW TOTP getter for client login/passwords page
+ * When provided with a login ID, checks permissions and returns the 6-digit code
+ */
+if (isset($_GET['get_totp_token_via_id'])) {
+    validateTechRole();
+
+    $login_id = intval($_GET['login_id']);
+
+    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT login_name, login_otp_secret, login_client_id FROM logins WHERE login_id = $login_id"));
+    $name = sanitizeInput($sql['login_name']);
+    $totp_secret = $sql['login_otp_secret'];
+    $client_id = intval($sql['login_client_id']);
+
+    $otp = TokenAuth6238::getTokenCode(strtoupper($totp_secret));
+    echo json_encode($otp);
+
+    // Logging
+    //  Only log the TOTP view if the user hasn't already viewed this specific login entry recently, this prevents logs filling if a user hovers across an entry a few times
+    $check_recent_totp_view_logged_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_totp_view FROM logs WHERE log_type = 'Login' AND log_action = 'View TOTP' AND log_user_id = $session_user_id AND log_entity_id = $login_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+    $recent_totp_view_logged_count = intval($check_recent_totp_view_logged_sql['recent_totp_view']);
+
+    if ($recent_totp_view_logged_count == 0) {
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'View TOTP', log_description = '$session_name viewed login TOTP code for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+    }
 }
