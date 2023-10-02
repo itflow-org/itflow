@@ -143,6 +143,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td class="text-center"><?php echo $mfa_status_display; ?></td>
                         <td><?php echo $last_login; ?></td>
                         <td>
+                            <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -166,6 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                 </div>
                             </div>
+                            <?php } ?>
                         </td>
                     </tr>
 
