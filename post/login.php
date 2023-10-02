@@ -4,7 +4,7 @@
  * ITFlow - GET/POST request handler for client logins / passwords
  */
 
-if(isset($_POST['add_login'])){
+if (isset($_POST['add_login'])) {
 
     validateTechRole();
 
@@ -14,7 +14,7 @@ if(isset($_POST['add_login'])){
 
     $login_id = mysqli_insert_id($mysqli);
 
-    //Logging
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
     $_SESSION['alert_message'] = "Login <strong>$name</strong> created";
@@ -23,7 +23,7 @@ if(isset($_POST['add_login'])){
 
 }
 
-if(isset($_POST['edit_login'])){
+if (isset($_POST['edit_login'])) {
 
     validateTechRole();
 
@@ -31,9 +31,18 @@ if(isset($_POST['edit_login'])){
 
     $login_id = intval($_POST['login_id']);
 
+    // Determine if the password has actually changed (salt is rotated on all updates, so have to dencrypt both and compare)
+    $current_password = decryptLoginEntry(mysqli_fetch_row(mysqli_query($mysqli, "SELECT login_password FROM logins WHERE login_id = $login_id"))[0]); // Get current login password
+    $new_password = decryptLoginEntry($password); // Get the new password being set (already encrypted by the login model)
+    if ($current_password !== $new_password) {
+        // The password has been changed - update the DB to track
+        mysqli_query($mysqli, "UPDATE logins SET login_password_changed_at = NOW() WHERE login_id = $login_id");
+    }
+
+    // Update the login entry with the new details
     mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
 
-    //Logging
+    // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
     $_SESSION['alert_message'] = "Login <strong>$name</strong> updated";
@@ -42,7 +51,7 @@ if(isset($_POST['edit_login'])){
 
 }
 
-if(isset($_GET['delete_login'])){
+if (isset($_GET['delete_login'])) {
 
     validateAdminRole();
 
@@ -65,7 +74,7 @@ if(isset($_GET['delete_login'])){
 
 }
 
-if(isset($_POST['export_client_logins_csv'])){
+if (isset($_POST['export_client_logins_csv'])) {
 
     validateAdminRole();
 
@@ -79,7 +88,7 @@ if(isset($_POST['export_client_logins_csv'])){
 
     $num_rows = mysqli_num_rows($sql);
 
-    if($num_rows > 0) {
+    if ($num_rows > 0) {
         $delimiter = ",";
         $filename = strtoAZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
 
@@ -91,7 +100,7 @@ if(isset($_POST['export_client_logins_csv'])){
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
+        while($row = $sql->fetch_assoc()) {
             $login_username = decryptLoginEntry($row['login_username']);
             $login_password = decryptLoginEntry($row['login_password']);
             $lineData = array($row['login_name'], $row['login_description'], $login_username, $login_password, $row['login_uri']);
@@ -116,7 +125,7 @@ if(isset($_POST['export_client_logins_csv'])){
 
 }
 
-if(isset($_POST["import_client_logins_csv"])){
+if (isset($_POST["import_client_logins_csv"])) {
 
     validateTechRole();
 
@@ -127,13 +136,13 @@ if(isset($_POST["import_client_logins_csv"])){
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
     $allowed_file_extensions = array('csv');
-    if(in_array($file_extension,$allowed_file_extensions) === false){
+    if (in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
         $_SESSION['alert_message'] = "Bad file extension";
     }
 
     //Check file isn't empty
-    elseif($_FILES["file"]["size"] < 1){
+    elseif ($_FILES["file"]["size"] < 1){
         $error = true;
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
@@ -141,40 +150,40 @@ if(isset($_POST["import_client_logins_csv"])){
     //(Else)Check column count
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if(!$error & count($f_columns) != 5) {
+    if (!$error & count($f_columns) != 5) {
         $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
 
     //Else, parse the file
-    if(!$error){
+    if (!$error){
         $file = fopen($file_name, "r");
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
-            if(isset($column[0])){
+            if (isset($column[0])) {
                 $name = sanitizeInput($column[0]);
-                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0){
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM logins WHERE login_name = '$name' AND login_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            if(isset($column[1])){
+            if (isset($column[1])) {
                 $description = sanitizeInput($column[1]);
             }
-            if(isset($column[2])){
+            if (isset($column[2])) {
                 $username = sanitizeInput(encryptLoginEntry($column[2]));
             }
-            if(isset($column[3])){
+            if (isset($column[3])) {
                 $password = sanitizeInput(encryptLoginEntry($column[3]));
             }
-            if(isset($column[4])){
+            if (isset($column[4])) {
                 $uri = sanitizeInput($column[4]);
             }
 
             // Check if duplicate was detected
-            if($duplicate_detect == 0){
+            if ($duplicate_detect == 0){
                 //Add
                 mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_username = '$username', login_password = '$password', login_client_id = $client_id");
                 $row_count = $row_count + 1;
@@ -191,13 +200,13 @@ if(isset($_POST["import_client_logins_csv"])){
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
     //Check for any errors, if there are notify user and redirect
-    if($error) {
+    if ($error) {
         $_SESSION['alert_type'] = "warning";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
 
-if(isset($_GET['download_client_logins_csv_template'])){
+if (isset($_GET['download_client_logins_csv_template'])) {
     $client_id = intval($_GET['download_client_logins_csv_template']);
 
     //get records from database
