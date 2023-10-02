@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
 
-    <a class="brand-link pb-1 mt-1" href="clients.php">    
+    <a class="brand-link pb-1 mt-1" href="clients.php">
         <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Reports</strong></p>
     </a>
 
@@ -86,6 +86,12 @@
                             <p>Tickets by Client</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="report_password_rotation.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_password_rotation.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>Password rotation</p>
+                        </a>
+                    </li>
 
                 <?php } // End technical reports IF statement ?>
 
@@ -95,9 +101,9 @@
         <!-- /.sidebar-menu -->
 
         <div class="sidebar-custom mb-3">
-            
+
         </div>
-        
+
     </div>
     <!-- /.sidebar -->
 </aside>
