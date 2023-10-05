@@ -1317,6 +1317,10 @@ if (isset($_POST['export_client_pdf'])) {
                                     style: 'itemHeader'
                                 },
                                 {
+                                    text: 'License Key',
+                                    style: 'itemHeader'
+                                },
+                                {
                                     text: 'Notes',
                                     style: 'itemHeader'
                                 }
@@ -1326,6 +1330,7 @@ if (isset($_POST['export_client_pdf'])) {
                             while($row = mysqli_fetch_array($sql_software)){
                             $software_name = $row['software_name'];
                             $software_type = $row['software_type'];
+                            $software_key = $row['software_key'];
                             $software_license_type = $row['software_license_type'];
                             $software_notes = $row['software_notes'];
                             ?>
@@ -1343,6 +1348,11 @@ if (isset($_POST['export_client_pdf'])) {
                                     text: <?php echo json_encode($software_license_type); ?>,
                                     style: 'item'
                                 },
+                                {
+                                    text: <?php echo json_encode($software_key); ?>,
+                                    style: 'item'
+                                },
+
                                 {
                                     text: <?php echo json_encode($software_notes); ?>,
                                     style: 'item'
