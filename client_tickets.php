@@ -18,7 +18,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
+    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
