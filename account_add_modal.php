@@ -21,7 +21,26 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Opening Balance</label>
+                        <label>Account Type <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                            </div>
+                            <select class="form-control select2" name="type" required>
+                                <option value="">- Select -</option>
+                                <option value="11">Current Assets</option>
+                                <option value="12">Fixed Assets</option>
+                                <option value="13">Other Assets</option>
+                                <option value="21">Current Liabilities</option>
+                                <option value="22">Long Term Liabilities</option>
+                                <option value="23">Other Liabilities</option>
+                                <option value="30">Equity</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opening Balance <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
