@@ -1020,7 +1020,7 @@ if (isset($_POST['add_company_settings'])) {
 
     //Create Some Data
 
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = '11', account_currency_code = '$currency_code'");
 
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red'");
