@@ -26,6 +26,7 @@ $result_accounts = mysqli_query($mysqli, $sql_accounts);
 $total_assets = 0;
 $total_liabilities = 0;
 $total_equity = 0;
+$currency = $session_company_currency;
 ?>
 
 <div class="card card-dark">
@@ -107,7 +108,7 @@ $total_equity = 0;
                     mysqli_data_seek($result_accounts, 0); // Reset the result pointer to the start
                     while ($row = mysqli_fetch_array($result_accounts)) {
                         $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
-                        $account_type = $row['account_type'];
+                        $account_type = $row['account_type'];     
                         if ($account_type >= 30) {
                             // Display equity account row
                             echoAccountRow($row, $balance);
@@ -120,6 +121,18 @@ $total_equity = 0;
                         <th></th>
                         <th class="text-uppercase">Total Equity</th>
                         <th class="text-right"><?php echo $formatted_total_equity; ?></th>
+                    </tr>
+                    <!-- Total Equity and Liabilities -->
+
+                    <?php
+                        $total_liabilities_and_equity = $total_liabilities + $total_equity;
+                        $formatted_total_liabilities_and_equity = numfmt_format_currency($currency_format, $total_liabilities_and_equity, $currency);
+                    ?>
+
+                    <tr>
+                        <th></th>
+                        <th class="text-uppercase">Total Liabilities and Equity</th>
+                        <th class="text-right"><?php echo $formatted_total_liabilities_and_equity; ?></th>
                     </tr>
                 </tbody>
             </table>
