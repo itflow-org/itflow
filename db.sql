@@ -28,6 +28,7 @@ CREATE TABLE `accounts` (
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `account_currency_code` varchar(200) NOT NULL,
   `account_notes` text DEFAULT NULL,
+  `account_type` int(6) NOT NULL DEFAULT 11,
   `account_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `account_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `account_archived_at` datetime DEFAULT NULL,
