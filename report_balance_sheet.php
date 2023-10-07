@@ -96,7 +96,7 @@ $total_equity = 0;
                     <tr>
                         <th></th>
                         <th class="text-uppercase">Total Liabilities</th>
-                        <th class="text-right"><?php echo $formatted_total_assets; ?></th>
+                        <th class="text-right"><?php echo $formatted_total_liabilities; ?></th>
                     </tr>
 
                     <!-- Equity Section -->
