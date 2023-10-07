@@ -280,3 +280,47 @@ if (isset($_POST['export_users_csv'])) {
     exit;
 
 }
+
+if (isset($_POST['ir_reset_user_password'])) {
+
+    // Incident response: allow mass reset of agent passwords
+
+    validateAdminRole();
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    // Confirm logged-in user password, for security
+    $admin_password = $_POST['admin_password'];
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
+    $userRow = mysqli_fetch_array($sql);
+    if (!password_verify($admin_password, $userRow['user_password'])) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Incorrect password.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+    }
+
+    // Get agents/users, other than the current user
+    $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE (user_archived_at IS NULL AND user_id != $session_user_id)");
+
+    // Reset passwords
+    while ($row = mysqli_fetch_array($sql_users)) {
+        $user_id = intval($row['user_id']);
+        $user_email = sanitizeInput($row['user_email']);
+        $new_password = randomString();
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($new_password));
+
+        echo $user_email . " -- " . $new_password; // Show
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
+
+        echo "<br><br>";
+    }
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name reset ALL user passwords', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+
+    exit; // Stay on the plain text password page
+
+}
