@@ -326,8 +326,8 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <?php if(!empty($contact_email)){ ?>
-                            
+                            <?php if(!empty($contact_email && $contact_email !== $session_email)){ ?>
+
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
@@ -483,7 +483,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Contact card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h4 class="text-secondary">Contact</h4>
-                    
+
                     <?php if (!empty($contact_id)) { ?>
 
                         <div>
@@ -542,7 +542,7 @@ if (isset($_GET['ticket_id'])) {
                                 <span class="text-success"><?php echo $prev_ticket_status; ?></span>
                             <?php } ?>
                         </div>
-                        
+
                     <?php } else { ?>
                         <div>
                             <a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Contact</a>
@@ -570,7 +570,7 @@ if (isset($_GET['ticket_id'])) {
                             <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>
                         </div>
                     <?php } ?>
-                
+
                 </div>
                 <!-- End Ticket watchers card -->
 
@@ -586,14 +586,14 @@ if (isset($_GET['ticket_id'])) {
                     <div class="mt-2">
                         <i class="fa fa-fw fa-history text-secondary ml-1 mr-2"></i>Updated: <strong><?php echo $ticket_updated_at; ?></strong>
                     </div>
-                    
+
                     <?php
                     if ($ticket_status == "Closed") {
                         $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
                         $row = mysqli_fetch_array($sql_closed_by);
-                        $ticket_closed_by_display = nullable_htmlentities($row['user_name']); 
+                        $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
                     ?>
-                        
+
                         <div class="mt-1">
                             <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i>Closed by: <?php echo ucwords($ticket_closed_by_display); ?>
                         </div>
@@ -601,7 +601,7 @@ if (isset($_GET['ticket_id'])) {
                             <i class="fa fa-fw fa-comment-dots text-secondary ml-1 mr-2"></i>Feedback: <?php echo $ticket_feedback; ?>
                         </div>
                     <?php } ?>
-                    
+
                     <?php if (!empty($ticket_total_reply_time)) { ?>
                         <div class="mt-1">
                             <i class="far fa-fw fa-clock text-secondary ml-1 mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
@@ -613,13 +613,13 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Asset card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h4 class="text-secondary">Asset</h4>
-                    
+
                     <?php if ($asset_id == 0) { ?>
-                    
+
                         <div>
                             <a href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add an Asset</a>
                         </div>
-                    
+
                     <?php } else { ?>
 
                         <div>
@@ -699,13 +699,13 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                         <?php } // End Ticket asset Count ?>
-                   
+
                     <?php } // End if asset_id == 0 else ?>
 
                 </div>
                 <!-- End Asset card -->
 
-                <!-- Vendor card --> 
+                <!-- Vendor card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h4 class="text-secondary">Vendor</h4>
                     <?php if (empty($vendor_id)) { ?>
@@ -784,14 +784,14 @@ if (isset($_GET['ticket_id'])) {
                             <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
                         </a>
                     <?php }
-        
+
                     if ($ticket_status !== "Closed") { ?>
                         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
                         </a>
                     <?php } ?>
                 </div>
-    
+
             </div>
 
         </div>
