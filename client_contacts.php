@@ -210,7 +210,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-user-secret mr-2"></i>Anonymize & Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
