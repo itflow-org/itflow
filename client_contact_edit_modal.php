@@ -13,6 +13,7 @@
                 <input type="hidden" name="contact_important" value="0">
                 <input type="hidden" name="contact_billing" value="0">
                 <input type="hidden" name="contact_technical" value="0">
+                <input type="hidden" name="send_email" value="0">
                 <!-- End prevent undefined errors -->
                 <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
@@ -198,7 +199,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                         </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password">
+                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password" minlength="8">
                                         <div class="input-group-append">
                                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                         </div>
@@ -207,7 +208,7 @@
                             </div>
 
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="send_email" value=""/>
+                                <input type="checkbox" class="form-check-input" name="send_email" value="1"/>
                                 <label class="form-check-label">Send user e-mail with login details?</label>
                             </div>
 
