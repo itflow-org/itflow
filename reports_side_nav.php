@@ -70,6 +70,12 @@
                             <p>Profit & Loss</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="report_balance_sheet.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_balance_sheet.php") { echo "active"; } ?>">
+                            <i class="fas fa-balance-scale nav-icon"></i>
+                            <p>Balance Sheet</p>
+                        </a>
+                    </li>
                 <?php } // End financial reports IF statement ?>
 
                 <?php  if ($session_user_role == 2 || $session_user_role == 3) { ?>
