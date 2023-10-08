@@ -72,6 +72,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $domain_webhost = intval($row['domain_webhost']);
                         $domain_expire = nullable_htmlentities($row['domain_expire']);
                         $domain_registrar_name = nullable_htmlentities($row['vendor_name']);
+                        $domain_created_at = nullable_htmlentities($row['domain_created_at']);
                         if (empty($domain_registrar_name)) {
                             $domain_registrar_name = "-";
                         }
@@ -82,7 +83,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($row) {
                             $domain_webhost_name = nullable_htmlentities($row['vendor_name']);
                         }
-                        $domain_created_at = nullable_htmlentities($row['domain_created_at']);
 
                         ?>
                         <tr>
