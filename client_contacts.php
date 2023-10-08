@@ -111,14 +111,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($contact_phone)) {
                             $contact_phone_display = "";
                         } else {
-                            $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i>$contact_phone$contact_extension_display</div>";
+                            $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
                         }
 
                         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
                         } else {
-                            $contact_mobile_display = "<div class='mt-2'><i class='fas fa-fw fa-mobile-alt mr-2'></i>$contact_mobile</div>";
+                            $contact_mobile_display = "<div class='mt-2'><i class='fas fa-fw fa-mobile-alt mr-2'></i><a href='tel:$contact_mobile'>$contact_mobile</a></div>";
                         }
                         $contact_email = nullable_htmlentities($row['contact_email']);
                         if (empty($contact_email)) {
