@@ -17,6 +17,7 @@ We attempt to follow security best practices where possible, including [automate
 | Version | Supported          |
 | ------- | ------------------ |
 | Beta    | :white_check_mark: |
+| 1.0     | Yet to be released |
 
 ## Reporting a Vulnerability via GitHub Security Advisories
 
