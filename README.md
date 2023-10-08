@@ -83,20 +83,10 @@
   * FullCalendar.io
 
 <!-- GETTING STARTED -->
-## Getting Started / Installation
+## Getting Started
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation), but the main steps are:
+ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation).
 
-1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
-   ```sh
-   sudo apt install git apache2 php libapache2-mod-php php-intl php-imap php-mailparse php-mysqli php-curl mariadb-server
-   ```  
-2. Clone the repo
-   ```sh
-   git clone https://github.com/itflow-org/itflow.git /var/www/html
-   ```
-3. Create a MariaDB Database
-4. Point your browser to your HTTPS web server to begin setup
 
 <!-- EASY INSTALL -->
 ## Installation via Script (Recommended Method)
@@ -108,9 +98,6 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   Need to report a security issue? Check the [security policy](https://github.com/itflow-org/itflow/security/policy)
 
   ITFlow comes with ABSOLUTELY NO WARRANTY, to the extent permitted by applicable law
-
-  ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation), but the TLDR is:
-
   
   **Requirements**
   - Clean Install of Debian 12 or Ubuntu 22.04
