@@ -16,9 +16,9 @@ jobs:
           issue-message: |
             Hello & Welcome! :)
             
-            Thanks for taking the time to get in touch. We'll review this issue shortly.
+            Thanks for taking the time to get in touch.
             
-            Whilst you're waiting, please feel free to check out the [forum](https://forum.itflow.org).
+            We ask that all bugs/feature/support requests are raised via the [forum](https://forum.itflow.org). We'll be in touch shortly to confirm.
           pr-message: |
             Hello & Welcome! :)
             
