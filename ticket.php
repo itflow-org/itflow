@@ -326,14 +326,14 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <?php if(!empty($contact_email)){ ?>
 
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" checked>
-                                            <label class="custom-control-label" for="ticket_reply_type_checkbox">Email contact<br><small class="text-secondary">(Public Update)</small></label>
-                                        </div>
+                            <?php if(!empty($contact_email && $contact_email !== $session_email)){ ?>
+
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" checked>
+                                        <label class="custom-control-label" for="ticket_reply_type_checkbox">Email contact<br><small class="text-secondary">(Public Update)</small></label>
                                     </div>
                                 </div>
 
@@ -538,14 +538,9 @@ if (isset($_GET['ticket_id'])) {
                             </div>
                             <div class="mt-1">
                                 <i class="fa fa-fw fa-hourglass-start text-secondary ml-1 mr-2"></i><strong>Status:</strong>
-                                <?php if ($prev_ticket_status == 'Open') { ?>
-                                    <span class="text-danger"><?php echo $prev_ticket_status; ?></span>
-                                <?php } else { ?>
-                                    <span class="text-success"><?php echo $prev_ticket_status; ?></span>
-                                <?php } ?>
-                            </div>
-
-                        <?php } ?> <!-- End previous ticket IF statement -->
+                                <span class="text-success"><?php echo $prev_ticket_status; ?></span>
+                            <?php } ?>
+                        </div>
 
                     <?php } else { ?>
                         <div>
@@ -596,7 +591,8 @@ if (isset($_GET['ticket_id'])) {
                         $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
                         $row = mysqli_fetch_array($sql_closed_by);
                         $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
-                        ?>
+                    ?>
+
 
                         <div class="mt-1">
                             <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i>Closed by: <?php echo ucwords($ticket_closed_by_display); ?>
