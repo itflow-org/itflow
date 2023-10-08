@@ -33,6 +33,8 @@
     <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
+    ·
+    <a href="https://github.com/itflow-org/itflow/security/policy">Security</a>
   </p>
 </div>
 
@@ -89,16 +91,8 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
 
 <!-- EASY INSTALL -->
-## Installation via Script (Recommended Method)
-  
-  **Security message**
-  This project is currently in Beta with many ongoing changes.
-
-  Whilst we're confident the majority of code is safe, nothing in life is 100% safe or risk-free. Writing functional, secure code is very difficult. The current fast pace of development/change may unintentionally introduce bugs/security issues. Use your best judgment before storing highly confidential information in the app. You may wish to consider running ITFlow on it's own server, using a web-app firewall, restricting access (except /portal) to trusted IP addresses, etc.
-  Need to report a security issue? Check the [security policy](https://github.com/itflow-org/itflow/security/policy)
-
-  ITFlow comes with ABSOLUTELY NO WARRANTY, to the extent permitted by applicable law
-  
+### Installation via Script (Recommended Method)
+     
   **Requirements**
   - Clean Install of Debian 12 or Ubuntu 22.04
   - A public IP Address
@@ -107,20 +101,10 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
   **Process**
   - Login as root
-  - Download Script
+  - Download & run install script
     ```
-    wget https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh
-    ```
-  - Read over script to understand purpose and function
-  ```
-    nano itflow.sh
-  ```
-  - Close nano with `ctrl + 'X'`
-  - Run Scipt
-  ```
-    bash itflow_install.sh
-  ```
-  - Follow Instructions
+    wget https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh && bash itflow_install.sh
+  - Follow Instructions & navigate to setup URL shown
   - Leave us feedback in the [forum](https://forum.itflow.org/d/11-road-map)
 
 <!-- FEATURES -->
