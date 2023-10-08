@@ -33,6 +33,8 @@
     <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
+    ·
+    <a href="https://github.com/itflow-org/itflow/security/policy">Security</a>
   </p>
 </div>
 
@@ -83,20 +85,28 @@
   * FullCalendar.io
 
 <!-- GETTING STARTED -->
-## Getting Started / Installation
+## Getting Started
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation), but the main steps are:
+ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation).
 
-1. Install a LAMP stack (Linux, Apache, MariaDB, PHP)
-   ```sh
-   sudo apt install git apache2 php libapache2-mod-php php-intl php-imap php-mailparse php-mysqli php-curl mariadb-server
-   ```  
-2. Clone the repo
-   ```sh
-   git clone https://github.com/itflow-org/itflow.git /var/www/html
-   ```
-3. Create a MariaDB Database
-4. Point your browser to your HTTPS web server to begin setup
+
+<!-- EASY INSTALL -->
+### Installation via Script (Recommended Method)
+     
+  **Requirements**
+  - Clean Install of Debian 12 or Ubuntu 22.04
+  - A public IP Address
+  - Ports 80 (HTTP) and 443 (HTTPS) TCP accessible from the outside in
+  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com, NOT itflow.xyz.example.com
+
+  **Process**
+  - Login as root
+  - Download & run install script
+    ```
+    wget -O - https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh | bash
+    ```
+  - Follow Instructions & navigate to setup URL shown
+  - Leave us feedback in the [forum](https://forum.itflow.org/d/11-road-map)
 
 <!-- FEATURES -->
 ## Key Features
