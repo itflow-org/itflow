@@ -336,6 +336,7 @@ if (isset($_GET['ticket_id'])) {
                                         <label class="custom-control-label" for="ticket_reply_type_checkbox">Email contact<br><small class="text-secondary">(Public Update)</small></label>
                                     </div>
                                 </div>
+                            </div>
 
                             <?php } ?>
 
