@@ -1,17 +1,24 @@
 ---
 name: Support
-about: Please visit the Forum or Discord for support
-title: ''
+about: Please request support on the Forum @ https://forum.itflow.org/t/support
+title: 'Please visit the Forum for support'
 labels: Support
 assignees: ''
 
 ---
 
-Please visit the Forum or Discord for support
+We're now using GitHub Issues exclusively for development.
+-
 
-Forum - https://forum.itflow.org/
+Going forward, GitHub Issues will be used to track confirmed bugs & planned features via Github Projects. This allows us to keep GitHub clean & tidy, whilst maintaining an active and relaxed community experience on the Forum.
 
-Discord - https://discord.gg/ZjCcBzTUDr
+Please use the forum for support queries/issues: https://forum.itflow.org/t/support
+
+All new support requests raised here will be closed.
+
+Thanks,
+
+The ITFlow team :)
 
 --
 
