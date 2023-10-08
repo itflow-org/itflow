@@ -98,6 +98,44 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 3. Create a MariaDB Database
 4. Point your browser to your HTTPS web server to begin setup
 
+<!-- EASY INSTALL -->
+## Installation via Script (Recommended Method)
+  
+  **Security message**
+  This project is currently in Beta with many ongoing changes.
+
+  Whilst we're confident the majority of code is safe, nothing in life is 100% safe or risk-free. Writing functional, secure code is very difficult. The current fast pace of development/change may unintentionally introduce bugs/security issues. Use your best judgment before storing highly confidential information in the app. You may wish to consider running ITFlow on it's own server, using a web-app firewall, restricting access (except /portal) to trusted IP addresses, etc.
+  Need to report a security issue? Check the [security policy](https://github.com/itflow-org/itflow/security/policy)
+
+  ITFlow comes with ABSOLUTELY NO WARRANTY, to the extent permitted by applicable law
+
+  ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation), but the TLDR is:
+
+  
+  **Requirements**
+  - Clean Install of Debian 12 or Ubuntu 22.04
+  - A public IP Address
+  - Ports 80 (HTTP) and 443 (HTTPS) TCP accessible from the outside in
+  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com, NOT itflow.xyz.example.com
+
+  **Process**
+  - Login as root
+  - Download Script
+    ```
+    wget https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh
+    ```
+  - Read over script to understand purpose and function
+  ```
+    nano itflow.sh
+  ```
+  - Close nano with `ctrl + 'X'`
+  - Run Scipt
+  ```
+    bash itflow_install.sh
+  ```
+  - Follow Instructions
+  - Leave us feedback in the [forum](https://forum.itflow.org/d/11-road-map)
+
 <!-- FEATURES -->
 ## Key Features
 * Client documentation - assets, contacts, domains, docs, files, passwords, and more 
