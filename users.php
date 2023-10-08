@@ -33,6 +33,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
+                    <?php if ($num_rows[0] > 1) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#resetAllUserPassModal"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -197,4 +201,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 require_once("user_add_modal.php");
 require_once("user_invite_modal.php");
 require_once("user_export_modal.php");
+require_once("user_all_reset_password_modal.php");
 require_once("footer.php");
