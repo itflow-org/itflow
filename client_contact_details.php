@@ -96,10 +96,10 @@ if (isset($_GET['contact_id'])) {
                         <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
+                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo "$contact_phone $contact_extension"; ?></a></div>
                     <?php }
                     if (!empty($contact_mobile)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
+                        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
                     <?php }
                     if (!empty($contact_pin)) { ?>
                         <div class="mb-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
@@ -549,36 +549,36 @@ if (isset($_GET['contact_id'])) {
 
 <?php } ?>
 
-<script>
-    function updateContactNotes(contact_id) {
-        var notes = document.getElementById("contactNotes").value;
+    <script>
+        function updateContactNotes(contact_id) {
+            var notes = document.getElementById("contactNotes").value;
 
-        // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-        jQuery.post(
-            "ajax.php",
-            {
-                contact_set_notes: 'TRUE',
-                contact_id: contact_id,
-                notes: notes
-            }
-        )
-    }
-</script>
+            // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
+            jQuery.post(
+                "ajax.php",
+                {
+                    contact_set_notes: 'TRUE',
+                    contact_id: contact_id,
+                    notes: notes
+                }
+            )
+        }
+    </script>
 
-<!-- JavaScript to Show/Hide Password Form Group -->
-<script>
-    $(document).ready(function() {
-        $('.authMethod').on('change', function() {
-            var $form = $(this).closest('.authForm');
-            if ($(this).val() === 'local') {
-                $form.find('.passwordGroup').show();
-            } else {
-                $form.find('.passwordGroup').hide();
-            }
+    <!-- JavaScript to Show/Hide Password Form Group -->
+    <script>
+        $(document).ready(function() {
+            $('.authMethod').on('change', function() {
+                var $form = $(this).closest('.authForm');
+                if ($(this).val() === 'local') {
+                    $form.find('.passwordGroup').show();
+                } else {
+                    $form.find('.passwordGroup').hide();
+                }
+            });
+            $('.authMethod').trigger('change');
         });
-        $('.authMethod').trigger('change');
-    });
-</script>
+    </script>
 
 <?php
 require_once("footer.php");
