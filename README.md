@@ -103,7 +103,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   - Login as root
   - Download & run install script
     ```
-    wget https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh && bash itflow_install.sh
+    wget -O - https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh | bash
     ```
   - Follow Instructions & navigate to setup URL shown
   - Leave us feedback in the [forum](https://forum.itflow.org/d/11-road-map)
