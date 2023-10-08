@@ -516,7 +516,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
         $smtp_auth = true;
     }
 
-    try{
+    try {
         // Mail Server Settings
         $mail->CharSet = "UTF-8";                                   // Specify UTF-8 charset to ensure symbols ($/£) load correctly
         $mail->SMTPDebug = 0;                                       // No Debugging
@@ -712,13 +712,13 @@ function shortenClient($client) {
 
     // Break into words.
     $words = explode(' ', trim($cleaned));
-    
+
     $shortened = '';
 
     // If there's only one word.
     if (count($words) == 1) {
         $word = $words[0];
-        
+
         if (strlen($word) <= 3) {
             return strtoupper($word);
         }
@@ -753,22 +753,22 @@ function roundToNearest15($time) {
 
     // Extract hours, minutes, and seconds from the matched time string
     list(, $hours, $minutes, $seconds) = $matches;
-    
+
     // Convert everything to seconds for easier calculation
     $totalSeconds = ($hours * 3600) + ($minutes * 60) + $seconds;
-    
+
     // Calculate the remainder when divided by 900 seconds (15 minutes)
     $remainder = $totalSeconds % 900;
-    
+
     if ($remainder > 450) {  // If remainder is more than 7.5 minutes (450 seconds), round up
         $totalSeconds += (900 - $remainder);
     } else {  // Else round down
         $totalSeconds -= $remainder;
     }
-    
+
     // Convert total seconds to decimal hours
     $decimalHours = $totalSeconds / 3600;
-    
+
     // Return the decimal hours
     return number_format($decimalHours, 2);
 }

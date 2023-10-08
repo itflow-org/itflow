@@ -94,9 +94,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
     // Prep ticket details
     $message = nl2br($message);
-    $message = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
+    $message_escaped = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Pending-Assignment', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_escaped', ticket_priority = 'Low', ticket_status = 'Pending-Assignment', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -141,27 +141,16 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     // E-mail client notification that ticket has been created
     if ($config_ticket_client_general_notifications == 1) {
 
-        $email_subject = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $email_body    = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+        // Insert email into queue (first, escape vars)
+        $contact_email_escaped = sanitizeInput($contact_email);
+        $contact_name_escaped = sanitizeInput($contact_name);
+        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
 
-        $mail = sendSingleEmail(
-            $config_smtp_host,
-            $config_smtp_username,
-            $config_smtp_password,
-            $config_smtp_encryption,
-            $config_smtp_port,
-            $config_ticket_from_email,
-            $config_ticket_from_name,
-            $contact_email,
-            $contact_name,
-            $email_subject,
-            $email_body
-        );
+        $subject_escaped = mysqli_escape_string($mysqli, "Ticket created - [$config_ticket_prefix$ticket_number] - $subject");
+        $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
-        if ($mail !== true) {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
-        }
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
 
     }
 
@@ -173,8 +162,10 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
 
-        $details = removeEmoji($message);
-        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
+        // TODO: Fix Emojis and HTML opening tags sometimes breaking this "forwarding"
+        $details = removeEmoji($message_escaped);
+
+        $email_subject = mysqli_escape_string($mysqli, "ITFlow - New Ticket - $client_name: $subject");
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
         mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
@@ -366,9 +357,17 @@ if ($emails) {
         $date = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($parser->getHeader('date')))));
         $attachments = $parser->getAttachments();
 
+        // Get the message content
+        //  (first try HTML parsing, but switch to plain text if the email is empty/plain-text only)
+//        $message = $parser->getMessageBody('htmlEmbedded');
+//        if (empty($message)) {
+//            echo "DEBUG: Switching to plain text parsing for this message ($subject)";
+//            $message = $parser->getMessageBody('text');
+//        }
+
+        // TODO: Default to getting HTML and fallback to plaintext, but HTML emails seem to break the forward/agent notifications
+
         $message = $parser->getMessageBody('text');
-        // If below is enabled and up above is enabled text based emails get cut out
-        //$message = $parser->getMessageBody('htmlEmbedded');
 
         // Check if we can identify a ticket number (in square brackets)
         if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
@@ -407,14 +406,14 @@ if ($emails) {
                 // Couldn't match this email to an existing ticket or an existing client contact
                 // Checking to see if the sender domain matches a client website
 
-                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM clients WHERE client_website = '$from_domain' LIMIT 1"));
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain' LIMIT 1"));
 
-                if ($row && $from_domain == $row['client_website']) {
+                if ($row && $from_domain == $row['domain_name']) {
 
                     // We found a match - create a contact under this client and raise a ticket for them
 
                     // Client details
-                    $client_id = intval($row['client_id']);
+                    $client_id = intval($row['domain_client_id']);
 
                     // Contact details
                     $password = password_hash(randomString(), PASSWORD_DEFAULT);

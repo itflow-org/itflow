@@ -1,35 +1,22 @@
 ---
 name: Bug report
-about: Something not working quite right? Create a report to help us improve!
-title: ''
-labels: ''
+about: Please report bugs on the Forum @ https://forum.itflow.org/t/bug
+title: 'Please report bugs on the Forum'
+labels: Support
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+We're now using GitHub Issues exclusively for development.
+-
 
-**Can you reproduce this on the demo at demo.itflow.org**
-Yes/No/NA
+Going forward, GitHub Issues will be used to track confirmed bugs & planned features via Github Projects. This allows us to keep GitHub clean & tidy, whilst maintaining an active and relaxed community experience on the Forum.
 
-**Are you on the latest available version of ITFlow, with an up-to-date database structure?**
-Yes/No
+Please raise bugs on the forum @ https://forum.itflow.org/t/bug. Make sure to mention whether you can replicate the bug on demo.itflow.org. 
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-4. See error
+Thanks,
 
-**Expected behavior**
-A clear and concise description of what you expected to happen, if not obvious.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Additional context**
-Add any other context about the problem here.
+The ITFlow team :)
 
 --
 

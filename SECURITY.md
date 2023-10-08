@@ -1,5 +1,9 @@
 # Security Policy
 
+## **Please do NOT report security concerns/vulnerabilities publicly (Github issues/forum)**
+
+---
+
 ## In Beta
 
 ITFlow is currently in beta and is a work in progress. 
@@ -13,11 +17,12 @@ We attempt to follow security best practices where possible, including [automate
 | Version | Supported          |
 | ------- | ------------------ |
 | Beta    | :white_check_mark: |
+| 1.0     | Yet to be released |
 
-## Reporting a Vulnerability
-
-**<ins>Please do not report security vulnerabilities through public GitHub issues.</ins>**
-
-If you have discovered a security issue, please [report it](https://github.com/itflow-org/itflow/security/advisories/new) to us in as much detail as possible, so we can fix it. You should expect to receive an initial acknowledgement within 72 hours.
+## Reporting a Vulnerability via GitHub Security Advisories
 
 **Security contact: [GitHub Security Advisories](https://github.com/itflow-org/itflow/security/advisories/new)**
+
+If you have discovered a security issue, please **[report it](https://github.com/itflow-org/itflow/security/advisories/new)** to us in as much detail as possible, so we can fix it. 
+
+You should expect to receive an initial acknowledgement within 72 hours. If you don't receive any feedback, we may have missed the initial email from GitHub (we're human!). Please raise a private forum discussion with johnny and wrongecho quoting ONLY the assigned GHSA ref.
