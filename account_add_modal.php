@@ -30,7 +30,7 @@
                                 <option value="">- Select -</option>
                                 <!-- Loop through the associative array to generate the options -->
                                 <?php 
-                                    mysqli_query($mysqli,"SELECT * FROM account_types ORDER BY account_type_id ASC");
+                                    $result_account_types = mysqli_query($mysqli,"SELECT * FROM account_types ORDER BY account_type_id ASC");
                                     
                                     while ($row = mysqli_fetch_array($result_account_types)) {
                                         $account_type_id = $row['account_type_id'];
@@ -59,9 +59,11 @@
                             </div>
                             <select class="form-control select2" name="currency_code" required>
                                 <option value="">- Currency -</option>
+                                test
                                 <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
                                     <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                                 <?php } ?>
+                                test
                             </select>
                         </div>
                     </div>
