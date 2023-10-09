@@ -155,11 +155,12 @@ function echoAccountRow($accountRow, $balance) {
         30 => "Equity"
     ];
     $account_type_string = $account_type_strings[$accountRow['account_type']] ?? "Unknown";
-    $account_name_encoded_numml = urlencode($accountRow['account_name']);
+    $account_name_encoded_nulled = nullable_htmlentities(urlencode($accountRow['account_name']));
+    $account_name_nulled = nullable_htmlentities($accountRow['account_name']);
     echo "
     <tr>
         <td>$account_type_string</td>
-        <td><a class=\"text-dark\" href=\"account_details.php?account_name=$account_name_encoded\">{$accountRow['account_name']}</a></td>
+        <td><a class=\"text-dark\" href=\"account_details.php?account_name=$account_name_encoded_nulled\">$account_name_nulled</a></td>
         <td class=\"text-right\">" . numfmt_format_currency($currency_format, $balance, $accountRow['account_currency_code']) . "</td>
     </tr>
     ";
