@@ -45,17 +45,17 @@ if ($session_user_role == 3) {
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 
 $session_company_name = $row['company_name'];
 $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
-$session_company_timezone = $row['company_timezone'];
+$session_timezone = $row['settings_timezone'];
 
 // Set Timezone to the companies timezone
-date_default_timezone_set('$session_company_timezone');
+date_default_timezone_set('$session_timezone');
 
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
