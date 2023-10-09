@@ -58,7 +58,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $opening_balance = floatval($row['opening_balance']);
                         $account_currency_code = nullable_htmlentities($row['account_currency_code']);
                         $account_notes = nullable_htmlentities($row['account_notes']);
-                        $account_type = intval($row['account_type']);
+                        $account_type_id = intval($row['account_type']);
+
+                        //Find account type name
+                        $account_type = mysqli_query($mysqli, "SELECT * FROM account_types WHERE account_type_id = $account_type_id");
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);
@@ -77,34 +80,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
-                            <td class="text-center">
-                                <?php
-                                switch ($account_type) {
-                                    case 11:
-                                        echo "Current Assets";
-                                        break;
-                                    case 12:
-                                        echo "Fixed Assets";
-                                        break;
-                                    case 13:
-                                        echo "Other Assets";
-                                        break;
-                                    case 21:
-                                        echo "Current Liabilities";
-                                        break;
-                                    case 22:
-                                        echo "Long Term Liabilities";
-                                        break;
-                                    case 23:
-                                        echo "Other Liabilities";
-                                        break;
-                                    case 30:
-                                        echo "Equity";
-                                        break;
-                                    default:
-                                        echo "Unknown Account Type";
-                                }
-                                ?>
+                            <td class="text-center"> <?php echo nullable_htmlentities(mysqli_fetch_array($account_type)['account_type_name']); ?>
                             </td>
                             <td><?php echo $account_currency_code; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?></td>
