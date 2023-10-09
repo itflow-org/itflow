@@ -1,32 +1,32 @@
 <?php
-require_once("inc_all_reports.php");
-validateAccountantRole();
+    require_once("inc_all_reports.php");
+    validateAccountantRole();
 
-// Fetch Accounts and their balances
-$sql_accounts = "
-    SELECT 
-        a.account_id, 
-        a.account_name, 
-        a.opening_balance, 
-        a.account_currency_code, 
-        a.account_notes, 
-        a.account_type,
-        COALESCE(SUM(p.payment_amount), 0) AS total_payments,
-        COALESCE(SUM(r.revenue_amount), 0) AS total_revenues,
-        COALESCE(SUM(e.expense_amount), 0) AS total_expenses
-    FROM accounts a
-    LEFT JOIN payments p ON a.account_id = p.payment_account_id
-    LEFT JOIN revenues r ON a.account_id = r.revenue_account_id
-    LEFT JOIN expenses e ON a.account_id = e.expense_account_id
-    GROUP BY a.account_id
-    ORDER BY a.account_type, a.account_name ASC";
+    // Fetch Accounts and their balances
+    $sql_accounts = "
+        SELECT 
+            a.account_id, 
+            a.account_name, 
+            a.opening_balance, 
+            a.account_currency_code, 
+            a.account_notes, 
+            a.account_type,
+            COALESCE(SUM(p.payment_amount), 0) AS total_payments,
+            COALESCE(SUM(r.revenue_amount), 0) AS total_revenues,
+            COALESCE(SUM(e.expense_amount), 0) AS total_expenses
+        FROM accounts a
+        LEFT JOIN payments p ON a.account_id = p.payment_account_id
+        LEFT JOIN revenues r ON a.account_id = r.revenue_account_id
+        LEFT JOIN expenses e ON a.account_id = e.expense_account_id
+        GROUP BY a.account_id
+        ORDER BY a.account_type, a.account_name ASC";
 
-$result_accounts = mysqli_query($mysqli, $sql_accounts);
+    $result_accounts = mysqli_query($mysqli, $sql_accounts);
 
-$total_assets = 0;
-$total_liabilities = 0;
-$total_equity = 0;
-$currency = $session_company_currency;
+    $total_assets = 0;
+    $total_liabilities = 0;
+    $total_equity = 0;
+    $currency = $session_company_currency;
 ?>
 
 <div class="card card-dark">
@@ -155,7 +155,7 @@ function echoAccountRow($accountRow, $balance) {
         30 => "Equity"
     ];
     $account_type_string = $account_type_strings[$accountRow['account_type']] ?? "Unknown";
-    $account_name_encoded = urlencode($accountRow['account_name']);
+    $account_name_encoded_numml = urlencode($accountRow['account_name']);
     echo "
     <tr>
         <td>$account_type_string</td>
