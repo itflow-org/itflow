@@ -61,14 +61,14 @@
                     </tr>
                     <?php
                         while ($row = mysqli_fetch_array($result_accounts)) {
-                            $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
                             $account_type = $row['account_type'];
                             if ($account_type >= 11 && $account_type <= 19) {
-                                // Display assets account row
-                                echoAccountRow($row, $balance);
+                                $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
+                                print_row($row, $balance, $currency_format);
                                 $total_assets += $balance;
                                 $formatted_total_assets = numfmt_format_currency($currency_format, $total_assets, $row['account_currency_code']);
                             }
+                            
                         }
                         ?>
                         <tr>
@@ -87,8 +87,8 @@
                         $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
                         $account_type = $row['account_type'];
                         if ($account_type >= 21 && $account_type <= 29) {
-                            // Display liabilities account row
-                            echoAccountRow($row, $balance);
+                            $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
+                            print_row($row, $balance, $currency_format);                            
                             $total_liabilities += $balance;
                             $formatted_total_liabilities = numfmt_format_currency($currency_format, $total_liabilities, $row['account_currency_code']);
                         }
@@ -110,8 +110,8 @@
                         $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
                         $account_type = $row['account_type'];     
                         if ($account_type >= 30) {
-                            // Display equity account row
-                            echoAccountRow($row, $balance);
+                            $balance = $row['opening_balance'] + $row['total_payments'] + $row['total_revenues'] - $row['total_expenses'];
+                            print_row($row, $balance, $currency_format);                            
                             $total_equity += $balance;
                             $formatted_total_equity = numfmt_format_currency($currency_format, $total_equity, $row['account_currency_code']);
                         }
@@ -134,36 +134,35 @@
                         <th class="text-uppercase">Total Liabilities and Equity</th>
                         <th class="text-right"><?php echo $formatted_total_liabilities_and_equity; ?></th>
                     </tr>
+
+                    <tr>
+                        <th>
+                            Unbalanced:
+                            <div><?php 
+                            $unbalanced = $total_assets + $total_liabilities_and_equity; 
+                            echo numfmt_format_currency($currency_format, $unbalanced, $currency);
+                            ?>
+                            </div>
+                        </th>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<?php require_once("footer.php"); ?>
+<?php require_once("footer.php");
 
-<?php
-function echoAccountRow($accountRow, $balance) {
-    global $currency_format;
-    $account_type_strings = [
-        11 => "Current Assets",
-        12 => "Fixed Assets",
-        13 => "Other Assets",
-        21 => "Current Liabilities",
-        22 => "Long Term Liabilities",
-        23 => "Other Liabilities",
-        30 => "Equity"
-    ];
-    $account_type_string = $account_type_strings[$accountRow['account_type']] ?? "Unknown";
-    $account_name_encoded_nulled = nullable_htmlentities(urlencode($accountRow['account_name']));
-    $account_name_nulled = nullable_htmlentities($accountRow['account_name']);
-    echo "
-    <tr>
-        <td>$account_type_string</td>
-        <td><a class=\"text-dark\" href=\"account_details.php?account_name=$account_name_encoded_nulled\">$account_name_nulled</a></td>
-        <td class=\"text-right\">" . numfmt_format_currency($currency_format, $balance, $accountRow['account_currency_code']) . "</td>
-    </tr>
-    ";
+function print_row($row, $balance, $currency_format) {
+    $account_name = nullable_htmlentities($row['account_name']);
+    $formatted_balance = numfmt_format_currency($currency_format, $balance, $row['account_currency_code']);
+    
+    echo "<tr>";
+    echo "<td></td>";
+    echo "<td>$account_name</td>";
+    echo "<td class='text-right'>$formatted_balance</td>";
+    echo "</tr>";
 }
+
 
 ?>
