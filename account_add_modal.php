@@ -28,13 +28,16 @@
                             </div>
                             <select class="form-control select2" name="type" required>
                                 <option value="">- Select -</option>
-                                <option value="11">Current Assets</option>
-                                <option value="12">Fixed Assets</option>
-                                <option value="13">Other Assets</option>
-                                <option value="21">Current Liabilities</option>
-                                <option value="22">Long Term Liabilities</option>
-                                <option value="23">Other Liabilities</option>
-                                <option value="30">Equity</option>
+                                <!-- Loop through the associative array to generate the options -->
+                                <?php 
+                                    mysqli_query($mysqli,"SELECT * FROM account_types ORDER BY account_type_id ASC");
+                                    
+                                    while ($row = mysqli_fetch_array($result_account_types)) {
+                                        $account_type_id = $row['account_type_id'];
+                                        $account_type_name = $row['account_type_name'];
+                                        echo "<option value='$account_type_id'>$account_type_name</option>";
+                                    }
+                                ?>
                             </select>
                         </div>
                     </div>
