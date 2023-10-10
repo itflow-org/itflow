@@ -26,18 +26,15 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                             </div>
-                            <select class="form-control select2" name="type" required>
-                                <option value="">- Select -</option>
-                                <!-- Loop through the associative array to generate the options -->
-                                <?php 
-                                    $result_account_types = mysqli_query($mysqli,"SELECT * FROM account_types ORDER BY account_type_id ASC");
-                                    
-                                    while ($row = mysqli_fetch_array($result_account_types)) {
-                                        $account_type_id = $row['account_type_id'];
-                                        $account_type_name = $row['account_type_name'];
-                                        echo "<option value='$account_type_id'>$account_type_name</option>";
-                                    }
-                                ?>
+                            <select class="form-control select" name="type" required>
+                            <option value="">- Select -</option>
+                            <?php
+                            $sql_account_types = mysqli_query($mysqli, "SELECT * FROM account_types ORDER BY account_type_name ASC");
+                            while ($row = mysqli_fetch_array($sql_account_types)) {
+                                $account_type_id = intval($row['account_type_id']);
+                                $account_type_name = nullable_htmlentities($row['account_type_name']);
+                                if($account_type_id % 10 != 0) {
+                                    echo "<option value='$account_type_id'>$account_type_name</option>";}}?>
                             </select>
                         </div>
                     </div>
