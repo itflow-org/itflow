@@ -1,16 +1,25 @@
 ---
 name: Feature request
 about: Please discuss new features on the Forum @ https://forum.itflow.org/t/features
-title: ''
+title: 'Please discuss new features on the Forum'
 labels: Support
 assignees: ''
 
 ---
 
-We're now using GitHub just to track features we're definitely planning to implement (and bugs!).
+We're now using GitHub Issues exclusively for development.
+-
 
-Please discuss new feature requests on the forum @ https://forum.itflow.org/t/features. This allows us to gather interest & feedback on the features people feel are most important, whilst keeping GitHub cleaner and more about the code.
+Going forward, GitHub Issues will be used to track confirmed bugs & planned features via Github Projects. This allows us to keep GitHub clean & tidy, whilst maintaining an active and relaxed community experience on the Forum.
 
-New feature requests here will be closed.
+Please discuss new feature requests on the forum @ https://forum.itflow.org/t/features. When creating discussions, try to imagine how your proposed feature would also benefit other users.
 
-Thanks :)
+All new feature requests raised here will be closed, unless agreed otherwise.
+
+Thanks,
+
+The ITFlow team :)
+
+--
+
+To privately discuss a security issue, please see https://github.com/itflow-org/itflow/security

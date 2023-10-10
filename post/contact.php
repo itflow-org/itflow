@@ -17,7 +17,7 @@ if (isset($_POST['add_contact'])) {
         // Set a random password
         $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
     }
-    
+
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
@@ -68,6 +68,7 @@ if (isset($_POST['edit_contact'])) {
     require_once('post/contact_model.php');
 
     $contact_id = intval($_POST['contact_id']);
+    $send_email = intval($_POST['send_email']);
 
     // Get Exisiting Contact Photo
     $sql = mysqli_query($mysqli,"SELECT contact_photo FROM contacts WHERE contact_id = $contact_id");
@@ -93,7 +94,7 @@ if (isset($_POST['edit_contact'])) {
     }
 
     // Send contact a welcome e-mail, if specified
-    if (isset($_POST['send_email']) && !empty($auth_method) && !empty($config_smtp_host)) {
+    if ($send_email && !empty($auth_method) && !empty($config_smtp_host)) {
 
         // Un-sanitizied used in body of email
         $contact_name = $_POST['name'];
@@ -102,14 +103,18 @@ if (isset($_POST['edit_contact'])) {
         $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
         $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
 
+        // Authentication info (azure, reset password, or tech-provided temporary password)
+
         if ($auth_method == 'azure') {
             $password_info = "Login with your Microsoft (Azure AD) account.";
+        } elseif (empty($_POST['contact_password'])) {
+            $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
         } else {
-            $password_info = $_POST['contact_password'];
+            $password_info = $_POST['contact_password'] . " -- Please change on first login";
         }
 
-        $subject = sanitizeInput("Your new $session_company_name ITFlow account");
-        $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>An ITFlow account has been set up for you. <br><br>Username: $email <br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
+        $subject = sanitizeInput("Your new $session_company_name support portal account");
+        $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>$session_company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
 
         // Queue Mail
         mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$email', email_recipient_name = '$name', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
