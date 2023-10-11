@@ -377,20 +377,20 @@ if (isset($_POST['export_client_pdf'])) {
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
-    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-    $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
-    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+    $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
+    $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+    $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
     $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
-    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id ORDER BY asset_type ASC");
-    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') ORDER BY asset_name ASC");
-    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'server' ORDER BY asset_name ASC");
-    $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' ORDER BY asset_name ASC");
-    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') ORDER BY asset_type ASC");
-    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') ORDER BY asset_type ASC");
-    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
-    $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id ORDER BY domain_name ASC");
-    $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
-    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'server' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC");
+    $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC");
+    $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC");
+    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name ASC");
 
     ?>
 
