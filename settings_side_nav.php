@@ -112,13 +112,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="settings_account_types.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_account_types.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-money-bill-wave"></i>
-            <p>Account Types</p>  
-          </a>
-        </li>
-
         <li class="nav-header mt-3">TEMPLATES</li>
 
         <li class="nav-item">
