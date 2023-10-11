@@ -1374,12 +1374,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.6'");
     }
 
-    //if (CURRENT_DATABASE_VERSION == '0.8.6') {
+    // Update DB to 0.8.7
+    if (CURRENT_DATABASE_VERSION == '0.8.6') {
     // Insert queries here required to update to DB version 0.8.7
+    mysqli_query($mysqli, "ALTER TABLE `accounts` ADD `account_type` int(6) DEFAULT NULL AFTER `account_notes`");
+    mysqli_query($mysqli, "CREATE TABLE `account_types` (`account_type_id` int(11) NOT NULL AUTO_INCREMENT,`account_type_name` varchar(255) NOT NULL,`account_type_description` text DEFAULT NULL,`account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),`account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`account_type_archived_at` datetime DEFAULT NULL,PRIMARY KEY (`account_type_id`))");
 
     // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
+    }
+
+    // Be sure to change database_version.php to reflect the version you are updating to here
+    // Please add this same comment block to the bottom of this file, and update the version number.
+    // Uncomment Below Lines, to add additional database updates
+    //
+    //if (CURRENT_DATABASE_VERSION == '0.8.7') {
+    // Insert queries here required to update to DB version 0.8.9
+    //
+    // Then, update the database to the next sequential version
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.8'");
     //}
+    //
 
 } else {
     // Up-to-date

@@ -43,6 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Name</a></th>
+                        <th class="text-center">Type</th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_currency_code&order=<?php echo $disp; ?>">Currency</a></th>
                         <th class="text-right">Balance</th>
                         <th class="text-center">Action</th>
@@ -57,6 +58,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $opening_balance = floatval($row['opening_balance']);
                         $account_currency_code = nullable_htmlentities($row['account_currency_code']);
                         $account_notes = nullable_htmlentities($row['account_notes']);
+                        $account_type_id = intval($row['account_type']);
+
+                        //Find account type name
+                        $account_type = mysqli_query($mysqli, "SELECT * FROM account_types WHERE account_type_id = $account_type_id");
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);
@@ -75,6 +80,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
+                            <td class="text-center"> <?php echo nullable_htmlentities(mysqli_fetch_array($account_type)['account_type_name']); ?>
+                            </td>
                             <td><?php echo $account_currency_code; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?></td>
                             <td>
@@ -88,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_account=<?php echo $account_id; ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                         <?php } ?>
