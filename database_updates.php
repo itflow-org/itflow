@@ -1384,15 +1384,32 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
     }
 
+    // Update DB to 0.8.8
+    if (CURRENT_DATABASE_VERSION == '0.8.7') {
+        //Create Main Account Types
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Asset', account_type_id= '10', account_type_description = 'Assets are economic resources which are expected to benefit the business in the future.'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Liability', account_type_id= '20', account_type_description = 'Liabilities are obligations of the business entity. They are usually classified as current liabilities (due within one year or less) and long-term liabilities (due after one year).'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Equity', account_type_id= '30', account_type_description = 'Equity represents the owners stake in the business after liabilities have been deducted.'");
+        //Create Secondary Account Types
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Current Asset', account_type_id= '11', account_type_description = 'Current assets are expected to be consumed within one year or less.'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Fixed Asset', account_type_id= '12', account_type_description = 'Fixed assets are expected to benefit the business for more than one year.'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Other Asset', account_type_id= '19', account_type_description = 'Other assets are assets that do not fit into any of the other asset categories.'");
+
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Current Liability', account_type_id= '21', account_type_description = 'Current liabilities are expected to be paid within one year or less.'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Long Term Liability', account_type_id= '22', account_type_description = 'Long term liabilities are expected to be paid after one year.'");
+        mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Other Liability', account_type_id= '29', account_type_description = 'Other liabilities are liabilities that do not fit into any of the other liability categories.'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.8'");
+    }
+
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    //if (CURRENT_DATABASE_VERSION == '0.8.7') {
+    //if (CURRENT_DATABASE_VERSION == '0.8.8') {
     // Insert queries here required to update to DB version 0.8.9
     //
     // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.8'");
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
     //}
     //
 
