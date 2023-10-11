@@ -97,18 +97,25 @@
             <p>Categories</p>
           </a>
         </li>
-
+        <!-- ---------------------- TODO: Custom Fields ----------------------
         <li class="nav-item">
-          <a href="settings_custom_fields.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_custom_fields.php") { echo "active"; } ?>">
+          <a href="settings_custom_fields.php" class="nav-link <?php //if (basename($_SERVER["PHP_SELF"]) == "settings_custom_fields.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-th-list"></i>
             <p>Custom Fields</p>
           </a>
         </li>
-
+        -->
         <li class="nav-item">
           <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-tags"></i>
             <p>Tags</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="settings_account_types.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_account_types.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-money-bill-wave"></i>
+            <p>Account Types</p>  
           </a>
         </li>
 
