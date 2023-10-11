@@ -28,10 +28,15 @@
                     <li class="nav-item">
                         <a href="dashboard_financial.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_financial.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
+                            <p>Administrative Dashboard</p>
                         </a>
                     </li>
-
+                    <li class="nav-item">
+                        <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-cogs"></i>
+                            <p>Technical Dashboard</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <!-- End dashboard item (tech/financial) -->
 
