@@ -12,8 +12,8 @@
             a.account_notes, 
             a.account_type,
             COALESCE(SUM(p.payment_amount), 0) AS total_payments,
-            COALESCE(SUM(CASE WHEN r.revenue_category_id = 0 THEN r.revenue_amount ELSE 0 END), 0) AS total_revenues
-            COALESCE(SUM(CASE WHEN e.expense_vendor_id = 0 THEN e.expense_amount ELSE 0 END), 0) AS total_expenses
+            COALESCE(SUM(CASE WHEN e.expense_vendor_id <> 0 THEN e.expense_amount ELSE 0 END), 0) AS total_expenses,
+            COALESCE(SUM(CASE WHEN r.revenue_category_id <> 0 THEN r.revenue_amount ELSE 0 END), 0) AS total_revenues
         FROM accounts a
         LEFT JOIN payments p ON a.account_id = p.payment_account_id
         LEFT JOIN revenues r ON a.account_id = r.revenue_account_id
