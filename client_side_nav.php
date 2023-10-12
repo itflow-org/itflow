@@ -62,20 +62,6 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-folder"></i>
-                        <p>
-                            Documents
-                            <?php
-                            if ($num_documents > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
-
-                <li class="nav-item">
                     <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-certificate"></i>
                         <p>
@@ -143,6 +129,33 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="client_services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_services.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-stream"></i>
+                        <p>
+                            Services
+                            <?php
+                            if ($num_services > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_services; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-folder"></i>
+                        <p>
+                            Documents
+                            <?php
+                            if ($num_documents > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
                     <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-paperclip"></i>
                         <p>
@@ -189,18 +202,6 @@
 
                 <?php } ?>
 
-                <li class="nav-item">
-                    <a href="client_services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_services.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-stream"></i>
-                        <p>
-                            Services
-                            <?php
-                            if ($num_services > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_services; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
 
                 <li class="nav-item">
                     <a href="client_vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_vendors.php") { echo "active"; } ?>">
