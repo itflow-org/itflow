@@ -46,7 +46,68 @@
                     </a>
                 </li>
 
-                <li class="nav-header mt-3">Documentation</li>
+                
+                <li class="nav-header mt-3">SUPPORT</li>
+
+                <?php if ($config_module_enable_ticketing == 1) { ?>
+                    <li class="nav-item">
+                        <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>
+                                Tickets
+                                <?php
+                                if ($num_active_tickets > 0) { ?>
+                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
+                                <?php } ?>
+
+                            </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-calendar-check"></i>
+                            <p>
+                                Schedule Ticket
+                                <?php
+                                if ($num_scheduled_tickets > 0) { ?>
+                                    <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
+                                <?php } ?>
+
+                            </p>
+                        </a>
+                    </li>
+
+                <?php } ?>
+
+
+                <li class="nav-item">
+                    <a href="client_vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_vendors.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>
+                            Vendors
+                            <?php
+                            if ($num_vendors > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_vendors; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="client_events.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_events.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>
+                            Events
+                            <?php
+                            if ($num_events > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_events; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-header mt-3">DOCUMENTATION</li>
 
                 <li class="nav-item">
                     <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
@@ -60,20 +121,6 @@
                         </p>
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-folder"></i>
-                        <p>
-                            Documents
-                            <?php
-                            if ($num_documents > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
 
                 <li class="nav-item">
                     <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
@@ -143,53 +190,6 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-paperclip"></i>
-                        <p>
-                            Files
-                            <?php
-                            if ($num_files > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_files; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
-
-                <li class="nav-header mt-3">SUPPORT</li>
-
-                <?php if ($config_module_enable_ticketing == 1) { ?>
-                    <li class="nav-item">
-                        <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>
-                                Tickets
-                                <?php
-                                if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
-                                <?php } ?>
-
-                            </p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar-check"></i>
-                            <p>
-                                Schedule Ticket
-                                <?php
-                                if ($num_scheduled_tickets > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
-                                <?php } ?>
-
-                            </p>
-                        </a>
-                    </li>
-
-                <?php } ?>
-
-                <li class="nav-item">
                     <a href="client_services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_services.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-stream"></i>
                         <p>
@@ -203,26 +203,27 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_vendors.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-building"></i>
+                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-folder"></i>
                         <p>
-                            Vendors
+                            Documents
                             <?php
-                            if ($num_vendors > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_vendors; ?></span>
+                            if ($num_documents > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
                             <?php } ?>
                         </p>
                     </a>
                 </li>
 
+
                 <li class="nav-item">
-                    <a href="client_events.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_events.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
+                    <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-paperclip"></i>
                         <p>
-                            Events
+                            Files
                             <?php
-                            if ($num_events > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_events; ?></span>
+                            if ($num_files > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_files; ?></span>
                             <?php } ?>
                         </p>
                     </a>
