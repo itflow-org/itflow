@@ -66,6 +66,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $service_notes = nullable_htmlentities($row['service_notes']);
                         $service_updated_at = nullable_htmlentities($row['service_updated_at']);
                         $service_review_due = nullable_htmlentities($row['service_review_due']);
+                        $service_cost = nullable_htmlentities($row['service_cost']);
+                        $service_price = nullable_htmlentities($row['service_price']);
+                        $service_seats = nullable_htmlentities($row['service_seats']);
+                        $service_billable = nullable_htmlentities($row['service_billable']);
 
                         // Service Importance
                         if ($service_importance == "High") {

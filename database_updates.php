@@ -1418,11 +1418,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `service_template_seats` int(11) NOT NULL DEFAULT 0,
             `service_template_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
             `service_template_price` decimal(15,2) NOT NULL DEFAULT 0.00,
-            `service_template_currency_code` varchar(200) NOT NULL,
+            `service_template_currency_code` varchar(200) DEFAULT NULL,
             `service_template_client_id` int(11) NOT NULL,
             PRIMARY KEY (`service_template_id`)
           )");
             
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_template_id` INT(11) NOT NULL DEFAULT 0 AFTER `service_client_id`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_billable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `service_template_id`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_seats` INT(11) NOT NULL DEFAULT 0 AFTER `service_billable`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_cost` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `service_seats`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_price` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `service_cost`");
+        mysqli_query($mysqli, "ALTER TABLE `services` ADD `service_currency_code` VARCHAR(200) DEFAULT NULL AFTER `service_price`");
         
 
     // Then, update the database to the next sequential version

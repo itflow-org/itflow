@@ -1176,7 +1176,7 @@ CREATE TABLE `service_templates` (
   `service_template_seats` int(11) NOT NULL DEFAULT 0,
   `service_template_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
   `service_template_price` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `service_template_currency_code` varchar(200) NOT NULL,
+  `service_template_currency_code` varchar(200) DEFAULT NULL,
   `service_template_client_id` int(11) NOT NULL,
   PRIMARY KEY (`service_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;

@@ -93,6 +93,31 @@ if (isset($_POST['add_service'])) {
             }
         }
 
+        if (!empty($_POST['cost'])) {
+            $service_cost = floatval($_POST['cost']);
+            mysqli_query($mysqli, "UPDATE services SET service_cost = $service_cost WHERE service_id = $service_id");
+            if ($service_cost > 0) {
+                mysqli_query($mysqli, "UPDATE services SET service_billable = 1 WHERE service_id = $service_id");
+            }
+        }
+
+        if (!empty($_POST['price'])) {
+            $service_price = floatval($_POST['price']);
+            mysqli_query($mysqli, "UPDATE services SET service_price = $service_price WHERE service_id = $service_id");
+            if ($service_price > 0) {
+                mysqli_query($mysqli, "UPDATE services SET service_billable = 1 WHERE service_id = $service_id");
+            }
+        }
+
+
+
+        if (!empty($_POST['seats'])) {
+            $service_seats = intval($_POST['seats']);
+            mysqli_query($mysqli, "UPDATE services SET service_seats = $service_seats WHERE service_id = $service_id");
+        }
+
+
+
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Create', log_description = '$session_name created service $service_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
@@ -201,6 +226,28 @@ if (isset($_POST['edit_service'])) {
             }
         }
     }
+
+    if (!empty($_POST['cost'])) {
+        $service_cost = floatval($_POST['cost']);
+        mysqli_query($mysqli, "UPDATE services SET service_cost = $service_cost WHERE service_id = $service_id");
+        if ($service_cost > 0) {
+            mysqli_query($mysqli, "INSERT INTO service_billable SET service_id = $service_id, billing_type = 'Cost', billing_amount = $service_cost");
+        }
+    }
+
+    if (!empty($_POST['price'])) {
+        $service_price = floatval($_POST['price']);
+        mysqli_query($mysqli, "UPDATE services SET service_price = $service_price WHERE service_id = $service_id");
+        if ($service_price > 0) {
+            mysqli_query($mysqli, "INSERT INTO service_billable SET service_id = $service_id, billing_type = 'Price', billing_amount = $service_price");
+        }
+    }
+
+    if (!empty($_POST['seats'])) {
+        $service_seats = intval($_POST['seats']);
+        mysqli_query($mysqli, "UPDATE services SET service_seats = $service_seats WHERE service_id = $service_id");
+    }
+
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Modify', log_description = '$session_name modified service $service_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
