@@ -33,6 +33,7 @@ require_once("post/profile.php");
 require_once("post/quote.php");
 require_once("post/revenue.php");
 require_once("post/service.php");
+require_once("post/service_template.php");
 require_once("post/setting.php");
 require_once("post/software.php");
 require_once("post/tag.php");
