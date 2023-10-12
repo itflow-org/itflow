@@ -46,7 +46,7 @@
                     </a>
                 </li>
 
-                <li class="nav-header mt-3">ASSETS</li>
+                <li class="nav-header mt-3">Documentation</li>
 
                 <li class="nav-item">
                     <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
@@ -60,6 +60,20 @@
                         </p>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-folder"></i>
+                        <p>
+                            Documents
+                            <?php
+                            if ($num_documents > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
 
                 <li class="nav-item">
                     <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
@@ -127,6 +141,20 @@
                         </p>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-paperclip"></i>
+                        <p>
+                            Files
+                            <?php
+                            if ($num_files > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_files; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
 
                 <li class="nav-header mt-3">SUPPORT</li>
 
@@ -200,31 +228,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-paperclip"></i>
-                        <p>
-                            Files
-                            <?php
-                            if ($num_files > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_files; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-folder"></i>
-                        <p>
-                            Documents
-                            <?php
-                            if ($num_documents > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_documents; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
 
                 <?php if ($session_user_role == 1 || $session_user_role > 2 && $config_module_enable_accounting == 1) { ?>
 
