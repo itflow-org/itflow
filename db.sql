@@ -46,7 +46,6 @@ CREATE TABLE `accounts` (
   `account_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `account_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`account_id`),
-  CONSTRAINT `fk_accounts_account_type_id` FOREIGN KEY (`account_type`) REFERENCES `account_types` (`account_type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
