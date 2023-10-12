@@ -232,30 +232,30 @@ if (isset($_GET['ticket_id'])) {
                 <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
             </div>
             <?php if ($ticket_status != "Closed") { ?>
-                <div class="col-3">
-                    <div class="dropdown dropleft text-center">
-                        <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
-                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+            <div class="col-3">
+                <div class="dropdown dropleft text-center">
+                    <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                        <i class="fas fa-fw fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                        </a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
+                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                        </a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
+                            <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
+                        </a>
+                        <?php if ($session_user_role == 3) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
                             </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
-                                <i class="fas fa-fw fa-clone mr-2"></i>Merge
-                            </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
-                                <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
-                            </a>
-                            <?php if ($session_user_role == 3) { ?>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                </a>
-                            <?php } ?>
-                        </div>
+                        <?php } ?>
                     </div>
                 </div>
+            </div>
             <?php } ?>
         </div>
 
@@ -540,8 +540,8 @@ if (isset($_GET['ticket_id'])) {
                             <div class="mt-1">
                                 <i class="fa fa-fw fa-hourglass-start text-secondary ml-1 mr-2"></i><strong>Status:</strong>
                                 <span class="text-success"><?php echo $prev_ticket_status; ?></span>
-                            <?php } ?>
-                        </div>
+                            </div>
+                            <?php } ?>   
 
                     <?php } else { ?>
                         <div>
