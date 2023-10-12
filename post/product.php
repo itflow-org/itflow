@@ -32,7 +32,7 @@ if (isset($_POST['edit_product'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$name', log_user_id = $session_user_id");
 
     //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$session_name modifyed product $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Modify', log_description = '$session_name modified product $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> modified";
 
