@@ -46,7 +46,7 @@
                     </a>
                 </li>
 
-                <li class="nav-header mt-3">Documentation</li>
+                <li class="nav-header mt-3">DOCUMENTATION</li>
 
                 <li class="nav-item">
                     <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
