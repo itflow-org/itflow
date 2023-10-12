@@ -19,6 +19,19 @@
 -- Table structure for table `accounts`
 --
 
+DROP TABLE IF EXISTS `account_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_types` (
+  `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_type_name` varchar(200) NOT NULL,
+  `account_type_description` text DEFAULT NULL,
+  `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `account_type_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`account_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 DROP TABLE IF EXISTS `accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -36,20 +49,6 @@ CREATE TABLE `accounts` (
   CONSTRAINT `fk_accounts_account_type_id` FOREIGN KEY (`account_type`) REFERENCES `account_types` (`account_type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
-
-DROP TABLE IF EXISTS `account_types`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `account_types` (
-  `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `account_type_name` varchar(200) NOT NULL,
-  `account_type_description` text DEFAULT NULL,
-  `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `account_type_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`account_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `api_keys`
