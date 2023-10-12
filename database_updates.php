@@ -1401,15 +1401,44 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.8'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '0.8.8') {
+    // Insert queries here required to update to DB version 0.8.9
+    
+        mysqli_query($mysqli, "CREATE TABLE `service_templates` (
+            `service_template_id` int(11) NOT NULL AUTO_INCREMENT,
+            `service_template_name` varchar(200) NOT NULL,
+            `service_template_description` varchar(200) NOT NULL,
+            `service_template_category` varchar(20) NOT NULL,
+            `service_template_importance` varchar(10) NOT NULL,
+            `service_template_backup` varchar(200) NOT NULL,
+            `service_template_notes` text NOT NULL,
+            `service_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `service_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+            `service_template_billable` tinyint(1) NOT NULL DEFAULT 0,
+            `service_template_seats` int(11) NOT NULL DEFAULT 0,
+            `service_template_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+            `service_template_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+            `service_template_currency_code` varchar(200) NOT NULL,
+            `service_template_client_id` int(11) NOT NULL,
+            PRIMARY KEY (`service_template_id`)
+          )");
+            
+        
+
+    // Then, update the database to the next sequential version
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
+    }
+    
+
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    //if (CURRENT_DATABASE_VERSION == '0.8.8') {
-    // Insert queries here required to update to DB version 0.8.9
+    //if (CURRENT_DATABASE_VERSION == '0.8.9') {
+    // Insert queries here required to update to DB version 0.8.10
     //
     // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
+    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.10'");
     //}
     //
 

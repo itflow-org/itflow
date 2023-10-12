@@ -1154,6 +1154,33 @@ CREATE TABLE `service_logins` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `service_templates`
+--
+
+DROP TABLE IF EXISTS `service_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_templates` (
+  `service_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_template_name` varchar(200) NOT NULL,
+  `service_template_description` varchar(200) NOT NULL,
+  `service_template_category` varchar(20) NOT NULL,
+  `service_template_importance` varchar(10) NOT NULL,
+  `service_template_backup` varchar(200) DEFAULT NULL,
+  `service_template_notes` text NOT NULL,
+  `service_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `service_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `service_template_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `service_template_seats` int(11) NOT NULL DEFAULT 0,
+  `service_template_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `service_template_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `service_template_currency_code` varchar(200) NOT NULL,
+  `service_template_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
 --
 -- Table structure for table `service_vendors`
 --
@@ -1186,6 +1213,12 @@ CREATE TABLE `services` (
   `service_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `service_accessed_at` datetime DEFAULT NULL,
   `service_review_due` date DEFAULT NULL,
+  `service_template_id` int(11) NOT NULL DEFAULT 0,
+  `service_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `service_seats` int(11) NOT NULL DEFAULT 0,
+  `service_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `service_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `service_currency_code` varchar(200) NOT NULL,
   `service_client_id` int(11) NOT NULL,
   PRIMARY KEY (`service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
