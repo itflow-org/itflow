@@ -169,7 +169,7 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <div class="small-box bg-success">
+        <a class="small-box bg-success" href="report_profit_loss.php">
             <div class="inner">
                 <h3><?php echo numfmt_format_currency($currency_format, $profit, "$session_company_currency"); ?></h3>
                 <p>Profit</p>
@@ -177,13 +177,13 @@ $vendors_added = intval($row['vendors_added']);
             <div class="icon">
                 <i class="fa fa-heart"></i>
             </div>
-        </div>
+        </a>
     </div>
     <!-- ./col -->
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <div class="small-box bg-info">
+        <a class="small-box bg-info" href="report_recurring_by_client.php">
             <div class="inner">
                 <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?></h3>
                 <p>Monthly Recurring Income</p>
@@ -191,13 +191,13 @@ $vendors_added = intval($row['vendors_added']);
             <div class="icon">
                 <i class="fa fa-sync-alt"></i>
             </div>
-        </div>
+        </a>
     </div>
     <!-- ./col -->
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <div class="small-box bg-pink">
+        <a class="small-box bg-pink" href="report_expense_by_vendor.php">
             <div class="inner">
                 <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?></h3>
                 <p>Monthly Recurring Expense</p>
@@ -205,7 +205,7 @@ $vendors_added = intval($row['vendors_added']);
             <div class="icon">
                 <i class="fa fa-clock"></i>
             </div>
-        </div>
+        </a>
     </div>
     <!-- ./col -->
 
