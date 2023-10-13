@@ -63,17 +63,15 @@
                     </div>
 
                     <div class="form-row">
-
                         <div class="form-group col-md">
                             <label>Amount <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($recurring_expense_amount,2); ?>" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="^(?:\d{1,3}(?:,\d{3})*|\d+)(?:\.\d{0,2})?$" name="amount" value="<?php echo number_format($recurring_expense_amount,2); ?>" required>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="form-row">
