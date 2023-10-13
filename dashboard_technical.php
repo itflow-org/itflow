@@ -126,7 +126,7 @@ $expiring_certificates = $sql_certs_expiring['expiring_certs'];
     <!-- ./col -->
 
     <div class="col-lg-4 col-6">
-        <a class="small-box bg-info">
+        <a class="small-box bg-info" href="/report_all_assets_by_client.php">
         <div class="inner">
             <h3><?php echo $assets_added; ?></h3>
             <p>New Assets</p>
