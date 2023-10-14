@@ -107,26 +107,6 @@ $timezones = DateTimeZone::listIdentifiers();
                     </div>
                 </div>
 
-                <!--Timezone-->
-                                
-                <div class="form-group">
-                    <label>Timezone</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <!--clock-->
-                            <span class="input-group-text"><i class="fab fa-fw ffa-business-time"></i></span>
-                        </div>
-                        <select class="form-control select2" name="timezone">
-                            <option value="">- Timezone -</option>
-                            <?php foreach($timezones as $timezone_name) { ?>
-                                <option <?php if ($company_timezone == $timezone_name) { echo "selected"; } ?>><?php echo $timezone_name; ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-
-
                 <div class="form-group">
                     <label>Phone</label>
                     <div class="input-group">
