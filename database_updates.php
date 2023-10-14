@@ -1407,6 +1407,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     //
     //if (CURRENT_DATABASE_VERSION == '0.8.8') {
     // Insert queries here required to update to DB version 0.8.9
+    // mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order_id` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
     //
     // Then, update the database to the next sequential version
     //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
