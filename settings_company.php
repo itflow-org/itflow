@@ -17,8 +17,11 @@ $company_website = nullable_htmlentities($row['company_website']);
 $company_logo = nullable_htmlentities($row['company_logo']);
 $company_locale = nullable_htmlentities($row['company_locale']);
 $company_currency = nullable_htmlentities($row['company_currency']);
-
+$company_timezone = nullable_htmlentities($row['company_timezone']);
 $company_initials = nullable_htmlentities(initials($company_name));
+
+$timezones = DateTimeZone::listIdentifiers();
+
 
 ?>
 
@@ -103,6 +106,26 @@ $company_initials = nullable_htmlentities(initials($company_name));
                         </select>
                     </div>
                 </div>
+
+                <!--Timezone-->
+                                
+                <div class="form-group">
+                    <label>Timezone</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <!--clock-->
+                            <span class="input-group-text"><i class="fab fa-fw ffa-business-time"></i></span>
+                        </div>
+                        <select class="form-control select2" name="timezone">
+                            <option value="">- Timezone -</option>
+                            <?php foreach($timezones as $timezone_name) { ?>
+                                <option <?php if ($company_timezone == $timezone_name) { echo "selected"; } ?>><?php echo $timezone_name; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+
 
                 <div class="form-group">
                     <label>Phone</label>

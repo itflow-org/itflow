@@ -13,6 +13,16 @@ if (isset($_POST['edit_company'])) {
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $existing_file_name = sanitizeInput($row['company_logo']);
+    $name = sanitizeInput($_POST['name']);
+    $address = sanitizeInput($_POST['address']);
+    $city = sanitizeInput($_POST['city']);
+    $state = sanitizeInput($_POST['state']);
+    $zip = sanitizeInput($_POST['zip']);
+    $country = sanitizeInput($_POST['country']);
+    $phone = sanitizeInput($_POST['phone']);
+    $email = sanitizeInput($_POST['email']);
+    $website = sanitizeInput($_POST['website']);
+    $timezone = sanitizeInput($_POST['timezone']);
 
     // Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -39,7 +49,7 @@ if (isset($_POST['edit_company'])) {
         }
     }
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_timezone = '$timezone' WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

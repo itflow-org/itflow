@@ -303,6 +303,7 @@ CREATE TABLE `companies` (
   `company_zip` varchar(200) DEFAULT NULL,
   `company_country` varchar(200) DEFAULT NULL,
   `company_phone` varchar(200) DEFAULT NULL,
+  `company_timezone` varchar(200) DEFAULT NULL,
   `company_email` varchar(200) DEFAULT NULL,
   `company_website` varchar(200) DEFAULT NULL,
   `company_logo` varchar(250) DEFAULT NULL,

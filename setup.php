@@ -960,7 +960,7 @@ if (isset($_POST['add_company_settings'])) {
     $currency_code = sanitizeInput($_POST['currency_code']);
     $timezone = sanitizeInput($_POST['timezone']);
 
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code', company_timezone = '$timezone'");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
