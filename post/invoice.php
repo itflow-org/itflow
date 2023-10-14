@@ -396,7 +396,7 @@ if (isset($_POST['add_invoice_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
-    $item_order_id = intval($_POST['item_order_id']);
+    $item_order = intval($_POST['item_order']);
 
     $subtotal = $price * $qty;
 
@@ -411,7 +411,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order_id = $item_order_id, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
 
     //Update Invoice Balances
 
@@ -1098,7 +1098,7 @@ if (isset($_POST['update_invoice_item_order'])) {
         $new_item_order = $item_order - 1;
 
         //Check if new item order is used
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order_id = $new_item_order");
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
 
         //Redo the entire order of list
         while ($row = mysqli_fetch_array($sql)) {
@@ -1107,13 +1107,13 @@ if (isset($_POST['update_invoice_item_order'])) {
 
             $new_item_order = $item_order + 1;
 
-            mysqli_query($mysqli,"UPDATE invoice_items SET item_order_id = $new_item_order WHERE item_id = $item_id");
+            mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
         }
 
 
 
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order_id = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order_id = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order_id = $new_item_order WHERE item_id = $item_id");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
 
         $_SESSION['alert_message'] = "Item moved up";
 
@@ -1131,8 +1131,8 @@ if (isset($_POST['update_invoice_item_order'])) {
 
         $new_item_order = $item_order + 1;
 
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order_id = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order_id = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order_id = $new_item_order WHERE item_id = $item_id");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
+        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
 
         $_SESSION['alert_message'] = "Item moved down";
 

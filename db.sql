@@ -682,7 +682,7 @@ CREATE TABLE `invoice_items` (
   `item_subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_tax` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_total` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `item_order_id` int(11) NOT NULL DEFAULT 0,
+  `item_order` int(11) NOT NULL DEFAULT 0,
   `item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `item_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `item_archived_at` datetime DEFAULT NULL,

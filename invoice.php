@@ -247,7 +247,7 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
 
-            <?php $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order_id ASC"); ?>
+            <?php $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -284,7 +284,7 @@ if (isset($_GET['invoice_id'])) {
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
-                                    $item_order_id = intval($row['item_order_id']);
+                                    $item_order = intval($row['item_order']);
 
                                     ?>
 
@@ -295,7 +295,7 @@ if (isset($_GET['invoice_id'])) {
                                                 <form action="post.php" method="post">
                                                     <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
                                                     <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                    <input type="hidden" name="item_order_id" value="<?php echo $item_order_id; ?>">
+                                                    <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
                                                     <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up"><i class="fa fa-fw fa-arrow-up"></i></button>
                                                     <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down"><i class="fa fa-fw fa-arrow-down"></i></button>
                                                 </form>
@@ -340,7 +340,7 @@ if (isset($_GET['invoice_id'])) {
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled") { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-                                        <input type="hidden" name="item_order_id" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
+                                        <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
                                         <td></td>
                                         <td></td>
                                         <td>

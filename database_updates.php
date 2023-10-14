@@ -1407,19 +1407,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     //
     if (CURRENT_DATABASE_VERSION == '0.8.8') {
     // Insert queries here required to update to DB version 0.8.9
-    mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order_id` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
-    // Update existing invoices so that item_order_id is set to item_id
+    mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
+    // Update existing invoices so that item_order is set to item_id
     $sql_invoices = mysqli_query($mysqli, "SELECT invoice_id FROM invoices WHERE invoice_id IS NOT NULL");
     foreach ($sql_invoices as $row) {
         $invoice_id = $row['invoice_id'];
         $sql_invoice_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_invoice_id = '$invoice_id' ORDER BY item_id ASC");
-        $item_order_id = 1;
+        $item_order = 1;
         foreach ($sql_invoice_items as $row) {
             $item_id = $row['item_id'];
-            mysqli_query($mysqli, "UPDATE invoice_items SET item_order_id = '$item_order_id' WHERE item_id = '$item_id'");
-            $item_order_id++;
+            mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
+            $item_order++;
             //Log changes made to invoice
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Updated item_order_id to item_id: $item_order_id'");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
 
         }
     }
