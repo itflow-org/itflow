@@ -116,6 +116,13 @@ function fetchDatabaseStructureFromServer() {
     return $tables;
 }
 
+//function to get current crontab and return it as an array
+function get_crontab() {
+    $crontab = shell_exec('crontab -l');
+    $crontab = explode(PHP_EOL, $crontab);
+    return $crontab;
+}
+
 // URL to the SQL dump file
 $fileURL = "https://raw.githubusercontent.com/itflow-org/itflow/master/db.sql";
 
@@ -281,6 +288,28 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
 
             <hr>
 
+            <h3>PHP Info</h3>
+            <?php
+            //Output phpinfo, but in a way that doesnt mess up the page
+            ob_start();
+            phpinfo();
+            $phpinfo = ob_get_contents();
+            ob_end_clean();
+
+            //Remove everything before the body tag
+            $phpinfo = preg_replace('%^.*<body>(.*)</body>.*$%ms', '$1', $phpinfo);
+
+            //Remove everything after the body tag
+            $phpinfo = preg_replace('%^(.*)</body>.*$%ms', '$1', $phpinfo);
+
+            //Remove the body tag itself
+            $phpinfo = preg_replace('%^<body>(.*)$%ms', '$1', $phpinfo);
+
+            //Output the result
+            echo $phpinfo;
+            ?>
+            
+            <hr>
         </div>
     </div>
 
