@@ -299,9 +299,7 @@ if (isset($_GET['invoice_id'])) {
                                                     <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up"><i class="fa fa-fw fa-arrow-up"></i></button>
                                                     <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down"><i class="fa fa-fw fa-arrow-down"></i></button>
                                                 </form>
-                                                <?php } 
-                                                    echo $item_order_id;
-                                                ?>
+                                                <?php } ?>
 
                                             </div>
                                         </td>
