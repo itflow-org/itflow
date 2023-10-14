@@ -116,7 +116,7 @@ if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status
 }
 
 // Invoice individual items
-$sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
+$sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
 
 ?>
 

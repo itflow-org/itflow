@@ -1405,12 +1405,29 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    //if (CURRENT_DATABASE_VERSION == '0.8.8') {
+    if (CURRENT_DATABASE_VERSION == '0.8.8') {
     // Insert queries here required to update to DB version 0.8.9
+    mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
+    // Update existing invoices so that item_order is set to item_id
+    $sql_invoices = mysqli_query($mysqli, "SELECT invoice_id FROM invoices WHERE invoice_id IS NOT NULL");
+    foreach ($sql_invoices as $row) {
+        $invoice_id = $row['invoice_id'];
+        $sql_invoice_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_invoice_id = '$invoice_id' ORDER BY item_id ASC");
+        $item_order = 1;
+        foreach ($sql_invoice_items as $row) {
+            $item_id = $row['item_id'];
+            mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
+            $item_order++;
+            //Log changes made to invoice
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
+
+        }
+    }
+
     //
     // Then, update the database to the next sequential version
-    //mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
-    //}
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
+    }
     //
 
 } else {
