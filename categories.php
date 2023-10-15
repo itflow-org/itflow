@@ -15,28 +15,20 @@ if (isset($_GET['category'])) {
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-if (isset($_GET['archived'])) {
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT SQL_CALC_FOUND_ROWS * FROM categories
-        WHERE category_name LIKE '%$q%'
-        AND category_archived_at IS NOT NULL
-        ORDER BY $sort $order LIMIT $record_from, $record_to"
-    );
-    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-    $category = "Archived";
-} else {
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT SQL_CALC_FOUND_ROWS * FROM categories
-        WHERE category_name LIKE '%$q%'
-        AND category_type = '$category'
-        AND category_archived_at IS NULL
-        ORDER BY $sort $order LIMIT $record_from, $record_to"
-    );
-    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-}
 
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT SQL_CALC_FOUND_ROWS * FROM categories
+    WHERE category_name LIKE '%$q%'
+    AND category_type = '$category'
+    AND category_$archive_query
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
+);
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+
+if (isset($_GET['archived'])) {
+    $category = "Archived";
+}
 
 $colors_used_array = [];
 
@@ -45,7 +37,7 @@ $sql_colors_used = mysqli_query(
     $mysqli,
     "SELECT category_color FROM categories 
     WHERE category_type = '$category'
-    AND category_archived_at IS NULL"
+    AND category_$archive_query"
 );
 
 while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
@@ -115,7 +107,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                                 echo 'btn-default';
                             } ?>">Payment
                             Method</a>
-                        <a href="?archived"
+                        <a href="?archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';
                             } else {
