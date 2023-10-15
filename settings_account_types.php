@@ -25,11 +25,11 @@ if (isset($_GET['account_type'])) {
             $account_type_id_max = "39";
     }
 } else {
-        $account_type_id_min = "10";
-        $account_type_id_max = "39";
+    $account_type_id_min = "10";
+    $account_type_id_max = "39";
 }
 
- 
+
 
 $sql = mysqli_query(
     $mysqli,
@@ -37,6 +37,7 @@ $sql = mysqli_query(
     WHERE account_type_$archive_query
     AND account_type_id >= $account_type_id_min
     AND account_type_id <= $account_type_id_max
+    AND (account_type_name LIKE '%$q%' OR account_type_description LIKE '%$q%' OR account_type_id LIKE '%$q%')
     ORDER BY $sort $order"
 );
 
@@ -53,35 +54,50 @@ $num_rows = mysqli_num_rows($sql);
         </div>
     </div>
     <div class="card-body">
-        <div class="col-sm-8">
-            <div class="btn-group float-right">
-                <a href="settings_account_types.php" class="btn <?php if (!isset($_GET['account_type']) && !isset($_GET['archived'])) {
-                    echo 'btn-primary';
-                } else {
-                    echo 'btn-default';
-                } ?>">All</a>
-                <a href="?account_type=Assets" class="btn <?php if ($account_type == 'Assets') {
-                    echo 'btn-primary';
-                } else {
-                    echo 'btn-default';
-                } ?>">Assets</a>
-                <a href="?account_type=Liabilities" class="btn <?php if ($account_type == 'Liabilities') {
-                    echo 'btn-primary';
-                } else {
-                    echo 'btn-default';
-                } ?>">Liabilities</a>
-                <a href="?account_type=Equity" class="btn <?php if ($account_type == 'Equity') {
-                    echo 'btn-primary';
-                } else {
-                    echo 'btn-default';
-                } ?>">Equity</a>
-                <a href="?archived=1" class="btn <?php if ($_GET['archived']) {
-                    echo 'btn-primary';
-                } else {
-                    echo 'btn-default';
-                } ?>"><i class="fas fa-fw fa-archive mr-2"></i>Archived</a>
+        <form autocomplete="off">
+            <div class="row">
+                <div class="col-sm-4 mb-2">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
+                            echo stripslashes(nullable_htmlentities($q));
+                        } ?>" placeholder="Search Categories">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="btn-group float-right">
+                        <a href="settings_account_types.php" class="btn <?php if (!isset($_GET['account_type']) && !isset($_GET['archived'])) {
+                            echo 'btn-primary';
+                        } else {
+                            echo 'btn-default';
+                        } ?>">All</a>
+                        <a href="?account_type=Assets" class="btn <?php if ($account_type == 'Assets') {
+                            echo 'btn-primary';
+                        } else {
+                            echo 'btn-default';
+                        } ?>">Assets</a>
+                        <a href="?account_type=Liabilities" class="btn <?php if ($account_type == 'Liabilities') {
+                            echo 'btn-primary';
+                        } else {
+                            echo 'btn-default';
+                        } ?>">Liabilities</a>
+                        <a href="?account_type=Equity" class="btn <?php if ($account_type == 'Equity') {
+                            echo 'btn-primary';
+                        } else {
+                            echo 'btn-default';
+                        } ?>">Equity</a>
+                        <a href="?archived=1" class="btn <?php if ($_GET['archived']) {
+                            echo 'btn-primary';
+                        } else {
+                            echo 'btn-default';
+                        } ?>"><i class="fas fa-fw fa-archive mr-2"></i>Archived</a>
+                    </div>
+
+                </div>
             </div>
-        </div>
+        </form>
         <form action="post.php" method="post" autocomplete="off">
             <table class="table table-striped table-borderless table-hover">
                 <thead>
@@ -123,17 +139,17 @@ $num_rows = mysqli_num_rows($sql);
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if ($archived == NULL) { ?>
-                                        <a class="dropdown-item text-danger confirm-link"
-                                            href="post.php?archive_account_type=<?php echo $account_type_id; ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                        </a>
+                                            <a class="dropdown-item text-danger confirm-link"
+                                                href="post.php?archive_account_type=<?php echo $account_type_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
                                         <?php } else { ?>
-                                        <a class="dropdown-item text-success confirm-link"
-                                            href="post.php?unarchive_account_type=<?php echo $account_type_id; ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Unarchive
-                                        </a>
+                                            <a class="dropdown-item text-success confirm-link"
+                                                href="post.php?unarchive_account_type=<?php echo $account_type_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Unarchive
+                                            </a>
                                         <?php } ?>
-                                        
+
                                     </div>
                                 </div>
                             </td>
