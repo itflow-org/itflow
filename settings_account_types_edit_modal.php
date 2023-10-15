@@ -13,7 +13,7 @@
 
                     <div>
                         <label>Type Group</label>
-                        <input type="text" class="form-control" name="type_group" value="<?php echo $account_type_group; ?>" readonly>
+                        <input type="text" class="form-control" name="type_group" value="<?php echo $account_type; ?>" readonly>
 
                     </div>
                     <div class="form-group">
