@@ -55,6 +55,11 @@ $num_rows = mysqli_num_rows($sql);
     <div class="card-body">
         <div class="col-sm-8">
             <div class="btn-group float-right">
+                <a href="settings_account_types.php" class="btn <?php if (!isset($_GET['account_type']) && !isset($_GET['archived'])) {
+                    echo 'btn-primary';
+                } else {
+                    echo 'btn-default';
+                } ?>">All</a>
                 <a href="?account_type=Assets" class="btn <?php if ($account_type == 'Assets') {
                     echo 'btn-primary';
                 } else {
