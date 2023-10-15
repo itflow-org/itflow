@@ -52,10 +52,10 @@ $session_company_name = $row['company_name'];
 $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
-$session_timezone = $row['settings_timezone'];
+$session_timezone = $row['config_timezone'];
 
 // Set Timezone to the companies timezone
-date_default_timezone_set('$session_timezone');
+date_default_timezone_set($session_timezone);
 
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
