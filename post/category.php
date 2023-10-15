@@ -50,6 +50,20 @@ if (isset($_GET['archive_category'])) {
 
 }
 
+if (isset($_GET['unarchive_category'])) {
+    $category_id = intval($_GET['unarchive_category']);
+
+    mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NULL WHERE category_id = $category_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Unarchive', log_description = '$category_id'");
+
+    $_SESSION['alert_message'] = "Category Unarchived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_category'])) {
     $category_id = intval($_GET['delete_category']);
 
