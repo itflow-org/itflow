@@ -25,10 +25,8 @@ if (isset($_GET['account_type'])) {
             $account_type_id_max = "39";
     }
 } else {
-    if (isset($_GET['archived'])) {
         $account_type_id_min = "10";
-        $account_type_id_max = "39";    }
-
+        $account_type_id_max = "39";
 }
 
  
