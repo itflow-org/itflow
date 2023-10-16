@@ -1085,59 +1085,37 @@ if (isset($_POST['export_client_payments_csv'])) {
 }
 
 
-if (isset($_POST['update_invoice_item_order'])) {  
-
-    if ($_POST['update_invoice_item_order'] == 'up') {
-        $item_id = intval($_POST['item_id']);
-        $item_invoice_id = intval($_POST['item_invoice_id']);
-
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-        $row = mysqli_fetch_array($sql);
-        $item_order = intval($row['item_order']);
-
-        $new_item_order = $item_order - 1;
-
-        //Check if new item order is used
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
-
-        //Redo the entire order of list
-        while ($row = mysqli_fetch_array($sql)) {
-            $item_id = intval($row['item_id']);
-            $item_order = intval($row['item_order']);
-
-            $new_item_order = $item_order + 1;
-
-            mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-        }
-
-
-
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-
-        $_SESSION['alert_message'] = "Item moved up";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-    }
+if (isset($_POST['update_invoice_item_order'])) {
     
-    if ($_POST['update_invoice_item_order'] == 'down') {
-        $item_id = intval($_POST['item_id']);
-        $item_invoice_id = intval($_POST['item_invoice_id']);
+    $item_id = intval($_POST['item_id']);
+    $item_invoice_id = intval($_POST['item_invoice_id']);
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-        $row = mysqli_fetch_array($sql);
-        $item_order = intval($row['item_order']);
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $current_order = intval($row['item_order']);
+    $update_direction = sanitizeInput($_POST['update_invoice_item_order']);
 
-        $new_item_order = $item_order + 1;
-
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_invoice_id = $item_invoice_id AND item_order = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-
-        $_SESSION['alert_message'] = "Item moved down";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    switch ($update_direction)
+    {
+        case 'up':
+            $new_order = $current_order - 1;
+            break;
+        case 'down':
+            $new_order = $current_order + 1;
+            break;
     }
 
+    //Find item_id of current item in $new_order
+    $other_sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order = $new_order");
+    $other_row = mysqli_fetch_array($other_sql);
+    $other_item_id = intval($other_row['item_id']);
+    $other_row_str = strval($other_row['item_name']);
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_order WHERE item_id = $item_id");
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
+
+    $_SESSION['alert_message'] = "Invoice Item Order Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
