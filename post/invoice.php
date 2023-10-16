@@ -247,6 +247,7 @@ if (isset($_POST['add_recurring_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
+    $item_order = intval($_POST['item_order']);
 
     $subtotal = $price * $qty;
 
@@ -261,7 +262,7 @@ if (isset($_POST['add_recurring_item'])) {
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_recurring_id = $recurring_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_recurring_id = $recurring_id");
 
     //Update Recurring Balances
 
@@ -1085,6 +1086,42 @@ if (isset($_POST['export_client_payments_csv'])) {
 }
 
 
+
+if (isset($_POST['update_recurring_item_order'])) {
+    
+    $item_id = intval($_POST['item_id']);
+    $item_recurring_id = intval($_POST['item_recurring_id']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $current_order = intval($row['item_order']);
+    $update_direction = sanitizeInput($_POST['update_recurring_item_order']);
+
+    switch ($update_direction)
+    {
+        case 'up':
+            $new_order = $current_order - 1;
+            break;
+        case 'down':
+            $new_order = $current_order + 1;
+            break;
+    }
+
+    //Find item_id of current item in $new_order
+    $other_sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $item_recurring_id AND item_order = $new_order");
+    $other_row = mysqli_fetch_array($other_sql);
+    $other_item_id = intval($other_row['item_id']);
+    $other_row_str = strval($other_row['item_name']);
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_order WHERE item_id = $item_id");
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
+
+    $_SESSION['alert_message'] = "recurring Item Order Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['update_invoice_item_order'])) {
     
     $item_id = intval($_POST['item_id']);
@@ -1119,3 +1156,4 @@ if (isset($_POST['update_invoice_item_order'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+

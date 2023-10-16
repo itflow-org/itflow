@@ -239,7 +239,7 @@ if (isset($_GET['quote_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_id ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -267,6 +267,7 @@ if (isset($_GET['quote_id'])) {
                                     $item_id = intval($row['item_id']);
                                     $item_name = nullable_htmlentities($row['item_name']);
                                     $item_description = nullable_htmlentities($row['item_description']);
+                                    $item_order = intval($row['item_order']);
                                     $item_quantity = number_format(floatval($row['item_quantity']),2);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
@@ -276,11 +277,36 @@ if (isset($_GET['quote_id'])) {
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
 
-                                    ?>
+                                    // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
+                                    $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                    $row = mysqli_fetch_array($sql);
+                                    $max_item_order = intval($row['item_order']);
 
+                                    $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                    $row = mysqli_fetch_array($sql);
+                                    $min_item_order = intval($row['item_order']);
+
+                                    if ($item_order == $max_item_order) {
+                                        $down_hidden = "hidden";
+                                    } else {
+                                        $down_hidden = "";
+                                    }
+
+                                    if ($item_order == $min_item_order) {
+                                        $up_hidden = "hidden";
+                                    } else {
+                                        $up_hidden = "";
+                                    }
+
+
+                                    
+                                    //This is prefered over the screen seen in the invoice menu.
+                                    ?>
+                                    
                                     <tr>
                                         <td class="d-print-none">
                                             <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
+                                                <?php echo $item_order; ?>
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
@@ -293,6 +319,14 @@ if (isset($_GET['quote_id'])) {
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
                                                             <i class="fa fa-fw fa-times mr-2"></i>Remove
                                                         </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <form class="dropdown-item" action="post.php" method="post">
+                                                            <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
+                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
+                                                            <button class="btn btn-sm btn-light" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i></button>
+                                                            <button class="btn btn-sm btn-light" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i></button>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             <?php } ?>
@@ -318,6 +352,13 @@ if (isset($_GET['quote_id'])) {
                                 <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+                                        <input type="hidden" name="item_order" value="<?php 
+                                        //find largest order number and add 1
+                                        $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                        $row = mysqli_fetch_array($sql);
+                                        $item_order = intval($row['item_order']) + 1;
+                                        echo $item_order;
+                                        ?>">
                                         <td></td>
                                         <td>
                                             <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
