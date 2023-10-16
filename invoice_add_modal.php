@@ -34,8 +34,8 @@
                                 <select class="form-control select2" name="client" required>
                                     <option value="">- Client -</option>
                                     <?php
-
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                    //select unarchived clients
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $client_id = intval($row['client_id']);
                                         $client_name = nullable_htmlentities($row['client_name']);
