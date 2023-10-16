@@ -1086,6 +1086,7 @@ if (isset($_POST['export_client_payments_csv'])) {
 }
 
 
+
 if (isset($_POST['update_recurring_item_order'])) {
     
     $item_id = intval($_POST['item_id']);
@@ -1117,6 +1118,41 @@ if (isset($_POST['update_recurring_item_order'])) {
     mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
 
     $_SESSION['alert_message'] = "recurring Item Order Updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['update_invoice_item_order'])) {
+    
+    $item_id = intval($_POST['item_id']);
+    $item_invoice_id = intval($_POST['item_invoice_id']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $current_order = intval($row['item_order']);
+    $update_direction = sanitizeInput($_POST['update_invoice_item_order']);
+
+    switch ($update_direction)
+    {
+        case 'up':
+            $new_order = $current_order - 1;
+            break;
+        case 'down':
+            $new_order = $current_order + 1;
+            break;
+    }
+
+    //Find item_id of current item in $new_order
+    $other_sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order = $new_order");
+    $other_row = mysqli_fetch_array($other_sql);
+    $other_item_id = intval($other_row['item_id']);
+    $other_row_str = strval($other_row['item_name']);
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_order WHERE item_id = $item_id");
+
+    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
+
+    $_SESSION['alert_message'] = "Invoice Item Order Updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
