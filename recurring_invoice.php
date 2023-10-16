@@ -179,7 +179,7 @@ if (isset($_GET['recurring_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -250,7 +250,6 @@ if (isset($_GET['recurring_id'])) {
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
                                                     <div class="dropdown-divider"></div>
-                                                    <?php echo $item_order;?>
                                                     <form class="dropdown-item" action="post.php" method="post">
                                                         <input type="hidden" name="item_recurring_id" value="<?php echo $recurring_id; ?>">
                                                         <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
