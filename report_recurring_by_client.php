@@ -4,7 +4,7 @@ require_once("inc_all_reports.php");
 validateAccountantRole();
 
 $sql = mysqli_query($mysqli, "
-    SELECT clients.client_name,
+    SELECT clients.client_id, clients.client_name,
         SUM(CASE WHEN recurring.recurring_frequency = 'month' THEN recurring.recurring_amount
             WHEN recurring.recurring_frequency = 'year' THEN recurring.recurring_amount / 12 END) AS recurring_monthly_total
     FROM clients
@@ -45,7 +45,7 @@ $sql = mysqli_query($mysqli, "
 
 
                     <tr>
-                        <td><?php echo $client_name; ?></td>
+                        <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></td>
                     </tr>
                     <?php
