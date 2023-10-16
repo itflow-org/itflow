@@ -290,14 +290,32 @@ if (isset($_GET['invoice_id'])) {
 
                                     <tr>
                                         <td>
-                                            <div class="d-print-none">
+                                            <div class="d-print-none row">
                                                 <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
                                                 <form action="post.php" method="post">
-                                                    <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+                                                    <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
                                                     <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
                                                     <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up"><i class="fa fa-fw fa-arrow-up"></i></button>
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down"><i class="fa fa-fw fa-arrow-down"></i></button>
+                                                    <?php 
+                                                        // Logic to check if top or bottom arrow should be hidden
+                                                        if ($item_order == 1) {
+                                                            $up_hidden = "hidden";
+                                                        } else {
+                                                            $up_hidden = "";
+                                                        }
+
+                                                        if ($item_order == mysqli_num_rows($sql_invoice_items)) {
+                                                            $down_hidden = "hidden";
+                                                        } else {
+                                                            $down_hidden = "";
+                                                        }
+                                                    ?>
+                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>>
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    </button> 
+                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>>
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </button>
                                                 </form>
                                                 <?php } ?>
 
