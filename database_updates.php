@@ -1435,18 +1435,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     // Uncomment Below Lines, to add additional database updates
     //
     if (CURRENT_DATABASE_VERSION == '0.8.9') {
-        // Insert queries here required to update to DB version 0.8.9
+        // Insert queries here required to update to DB version 0.9.0
         // Update existing quotes and recurrings so that item_order is set to item_id
         $sql_quotes = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_id IS NOT NULL");
         $sql_recurrings = mysqli_query($mysqli, "SELECT recurring_id FROM recurring WHERE recurring_id IS NOT NULL");
 
         foreach ($sql_quotes as $row) {
             $quote_id = $row['quote_id'];
-            $sql_quote_items = mysqli_query($mysqli, "SELECT item_id FROM quote_items WHERE item_quote_id = '$quote_id' ORDER BY item_id ASC");
+            $sql_quote_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_quote_id = '$quote_id' ORDER BY item_id ASC");
             $item_order = 1;
             foreach ($sql_quote_items as $row) {
                 $item_id = $row['item_id'];
-                mysqli_query($mysqli, "UPDATE quote_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
+                mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
                 $item_order++;
                 //Log changes made to quote
                 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
@@ -1455,11 +1455,11 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         foreach ($sql_recurrings as $row) {
             $recurring_id = $row['recurring_id'];
-            $sql_recurring_items = mysqli_query($mysqli, "SELECT item_id FROM recurring_items WHERE item_recurring_id = '$recurring_id' ORDER BY item_id ASC");
+            $sql_recurring_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_recurring_id = '$recurring_id' ORDER BY item_id ASC");
             $item_order = 1;
             foreach ($sql_recurring_items as $row) {
                 $item_id = $row['item_id'];
-                mysqli_query($mysqli, "UPDATE recurring_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
+                mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
                 $item_order++;
                 //Log changes made to recurring
                 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
@@ -1469,7 +1469,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         //
         // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.10'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.0'");
         }
         //
 

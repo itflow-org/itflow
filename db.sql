@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.11.3-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.4-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.11.3-MariaDB-1
+-- Server version	10.11.4-MariaDB-1~deb12u1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,24 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `account_types`
+--
+
+DROP TABLE IF EXISTS `account_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_types` (
+  `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_type_name` varchar(255) NOT NULL,
+  `account_type_description` text DEFAULT NULL,
+  `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `account_type_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`account_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `accounts`
@@ -28,26 +46,13 @@ CREATE TABLE `accounts` (
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `account_currency_code` varchar(200) NOT NULL,
   `account_notes` text DEFAULT NULL,
-  `account_type` int(6) NOT NULL DEFAULT 0,
+  `account_type` int(6) DEFAULT NULL,
   `account_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `account_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `account_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
-DROP TABLE IF EXISTS `account_types`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `account_types` (
-  `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `account_type_name` varchar(200) NOT NULL,
-  `account_type_description` text DEFAULT NULL,
-  `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `account_type_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`account_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `api_keys`
@@ -1734,4 +1739,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-09-24 20:31:22
+-- Dump completed on 2023-10-16 17:19:49
