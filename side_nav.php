@@ -69,6 +69,12 @@
 
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
+                        <a href="client_leads.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_leads.php" || basename($_SERVER["PHP_SELF"]) == "client_leads.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-bullhorn"></i>
+                            <p>Leads</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="quotes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-comment-dollar"></i>
                             <p>Quotes</p>
