@@ -25,6 +25,7 @@ $sql = mysqli_query(
            OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
       AND clients.client_archived_at IS NULL
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
+      AND clients.client_lead = 0
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
