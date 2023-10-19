@@ -4,6 +4,9 @@
 $sort = "client_accessed_at";
 $order = "DESC";
 
+global $lead;
+$lead = 1;
+
 require_once("inc_all.php");
 
 //Rebuild URL
@@ -24,8 +27,8 @@ $sql = mysqli_query(
            OR locations.location_city LIKE '%$q%' OR locations.location_state LIKE '%$q%' OR locations.location_zip LIKE '%$q%'
            OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
       AND clients.client_archived_at IS NULL
+      AND clients.client_lead = 1
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
-      AND clients.client_lead = 0
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
@@ -37,10 +40,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i>Client Management</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i>Lead Management</h3>
             <div class="card-tools">
                 <?php if ($session_user_role == 3) { ?>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus mr-2"></i>New Client</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus mr-2"></i>New Lead</button>
                 <?php } ?>
             </div>
         </div>
@@ -50,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search clients" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search leads" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -104,7 +107,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">Primary address </a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Primary contact</a></th>
-                        <?php if (($session_user_role == 3 || $session_user_role == 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
                         <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
                     </tr>
                     </thead>
@@ -143,6 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = nullable_htmlentities($row['client_updated_at']);
                         $client_archive_at = nullable_htmlentities($row['client_archived_at']);
+                        $client_is_lead = intval($row['client_lead']);
 
                         // Client Tags
 
@@ -163,7 +166,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $client_tag_id_array[] = $client_tag_id;
-                            $client_tag_name_display_array[] = "<a href='clients.php?q=$client_tag_name'><span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a> ";
+                            $client_tag_name_display_array[] = "<a href='client_leads.php?q=$client_tag_name'><span class='badge bg-$client_tag_color'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a> ";
                         }
                         $client_tags_display = implode('', $client_tag_name_display_array);
 
@@ -256,24 +259,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 <?php } ?>
                             </td>
-
-                            <!-- Show Billing for Admin/Accountant roles only and if accounting module is enabled -->
-                            <?php if (($session_user_role == 3 || $session_user_role == 1) && $config_module_enable_accounting == 1) { ?>
-                                <td class="text-right">
-                                    <div class="mt-1">
-                                        <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="text-secondary">Hourly Rate</span> <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
-                                    </div>
-                                </td>
-                            <?php } ?>
 
                             <!-- Show actions for Admin role only -->
                             <?php if ($session_user_role == 3) { ?>

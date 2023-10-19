@@ -6,3 +6,4 @@
  */
 
 DEFINE("LATEST_DATABASE_VERSION", "0.9.2");
+

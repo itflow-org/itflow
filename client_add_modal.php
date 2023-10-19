@@ -2,12 +2,15 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create client</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create <?php if (isset($lead)){ echo "Lead";} else { echo "Client";}?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="client_lead" value="<?php 
+                if (isset($lead)){ echo "1";} else { echo "0";}
+                ?>">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -224,7 +227,9 @@
 
                         <div class="tab-pane fade" id="pills-additional">
 
-                            <?php if ($config_module_enable_accounting) { ?>
+                            <?php if ($config_module_enable_accounting) {
+                                    if (!isset($lead)) {
+                                ?>
 
                                 <div class="form-group">
                                     <label>Hourly Rate</label>
@@ -278,7 +283,7 @@
                             <?php } else { ?>
                                 <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
                                 <input type="hidden" name="net_terms" value="0">
-                            <?php } ?>
+                            <?php } }?>
 
                             <div class="form-group">
                                 <label>Notes</label>

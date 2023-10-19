@@ -8,3 +8,4 @@ $currency_code = sanitizeInput($_POST['currency_code']);
 $net_terms = intval($_POST['net_terms']);
 $tax_id_number = sanitizeInput($_POST['tax_id_number']);
 $notes = sanitizeInput($_POST['notes']);
+$lead = intval($_POST['lead']);

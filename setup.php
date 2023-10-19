@@ -16,7 +16,7 @@ if ($config_enable_setup == 0) {
     exit;
 }
 
-include_once("settings_localization_arrays.php");
+include_once("settings_localization_array.php");
 // Get a list of all available timezones
 $timezones = DateTimeZone::listIdentifiers();
 

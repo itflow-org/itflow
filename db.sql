@@ -275,6 +275,7 @@ DROP TABLE IF EXISTS `clients`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clients` (
   `client_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_lead` tinyint(1) NOT NULL DEFAULT 0,
   `client_name` varchar(200) NOT NULL,
   `client_type` varchar(200) DEFAULT NULL,
   `client_website` varchar(200) DEFAULT NULL,

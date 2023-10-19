@@ -466,7 +466,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.3.1'");
     }
 
-
     if (CURRENT_DATABASE_VERSION == '0.3.1') {
 
         // Assets
@@ -1104,8 +1103,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.5.9'");
     }
 
-
-
     if (CURRENT_DATABASE_VERSION == '0.5.9') {
 
         // Copy primary_location and primary_contact to their new vars in their own respecting tables
@@ -1374,7 +1371,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.6'");
     }
 
-    // Update DB to 0.8.7
     if (CURRENT_DATABASE_VERSION == '0.8.6') {
     // Insert queries here required to update to DB version 0.8.7
     mysqli_query($mysqli, "ALTER TABLE `accounts` ADD `account_type` int(6) DEFAULT NULL AFTER `account_notes`");
@@ -1384,7 +1380,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
     }
 
-    // Update DB to 0.8.8
     if (CURRENT_DATABASE_VERSION == '0.8.7') {
         //Create Main Account Types
         mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Asset', account_type_id= '10', account_type_description = 'Assets are economic resources which are expected to benefit the business in the future.'");
@@ -1401,10 +1396,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.8'");
     }
 
-    // Be sure to change database_version.php to reflect the version you are updating to here
-    // Please add this same comment block to the bottom of this file, and update the version number.
-    // Uncomment Below Lines, to add additional database updates
-    //
+
     if (CURRENT_DATABASE_VERSION == '0.8.8') {
     // Insert queries here required to update to DB version 0.8.9
     mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
@@ -1430,10 +1422,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
     //
 
-    // Be sure to change database_version.php to reflect the version you are updating to here
-    // Please add this same comment block to the bottom of this file, and update the version number.
-    // Uncomment Below Lines, to add additional database updates
-    //
+
     if (CURRENT_DATABASE_VERSION == '0.8.9') {
         // Insert queries here required to update to DB version 0.9.0
         // Update existing quotes and recurrings so that item_order is set to item_id
@@ -1483,6 +1472,24 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     }
 
+    // Be sure to change database_version.php to reflect the version you are updating to here
+    // Please add this same comment block to the bottom of this file, and update the version number.
+    // Uncomment Below Lines, to add additional database updates
+    //
+    if (CURRENT_DATABASE_VERSION == '0.9.0') {
+        //add leads column to clients table
+        mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_lead` TINYINT(1) NOT NULL DEFAULT 0 AFTER `client_id`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.1'");
+    }
+
+    //if (CURRENT_DATABASE_VERSION == '0.9.1') {
+        // Insert queries here required to update to DB version 0.9.0
+
+        // Then, update the database to the next sequential version
+    //    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.2'");
+    //}
 } else {
     // Up-to-date
 }
