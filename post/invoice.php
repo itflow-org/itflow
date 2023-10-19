@@ -43,7 +43,18 @@ if (isset($_POST['edit_invoice'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $due = sanitizeInput($_POST['due']);
 
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category WHERE invoice_id = $invoice_id");
+    //Calculate new total
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $invoice_amount = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $invoice_amount = $invoice_amount + $item_total;
+    }
+    $invoice_amount = $invoice_amount - $invoice_discount;
+
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = '$invoice_discount', invoice_amount = '$invoice_amount' WHERE invoice_id = $invoice_id");
+
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = '$invoice_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -414,12 +425,24 @@ if (isset($_POST['add_invoice_item'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
 
-    //Update Invoice Balances
+    //Get Discount
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql);
-
-    $new_invoice_amount = floatval($row['invoice_amount']) + $total;
+    if($invoice_id > 0){
+        $invoice_discount = floatval($row['invoice_discount_amount']);
+    } else {
+        $invoice_discount = 0;
+    }
+    
+    //add up all line items
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $invoice_total = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $invoice_total = $invoice_total + $item_total;
+    }
+    $new_invoice_amount = $invoice_total - $invoice_discount;
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
@@ -471,10 +494,15 @@ if (isset($_POST['edit_item'])) {
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
 
     if ($invoice_id > 0) {
+        //Get Discount Amount
+        $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql);
+        $invoice_discount = floatval($row['invoice_discount_amount']);
+
         //Update Invoice Balances by tallying up invoice items
         $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
         $row = mysqli_fetch_array($sql_invoice_total);
-        $new_invoice_amount = floatval($row['invoice_total']);
+        $new_invoice_amount = floatval($row['invoice_total']) - $invoice_discount;
 
         mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 

@@ -54,6 +54,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $invoice_status = nullable_htmlentities($row['invoice_status']);
     $invoice_date = nullable_htmlentities($row['invoice_date']);
     $invoice_due = nullable_htmlentities($row['invoice_due']);
+    $invoice_discount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
@@ -120,12 +121,17 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                     </tbody>
                 </table>
             </div>
+            <br>
+            <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); } ?>
+            </i>
+            <br>
             <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); } ?></i>
         </div>
         <!-- End invoice details-->
 
         <!-- Show Stripe payment form -->
         <div class="col-sm offset-sm-1">
+            <h1>Payment Total:</h1>
             <form id="payment-form">
                 <h1><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></h1>
                 <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">

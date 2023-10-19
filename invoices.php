@@ -232,6 +232,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $invoice_status = nullable_htmlentities($row['invoice_status']);
                         $invoice_date = nullable_htmlentities($row['invoice_date']);
                         $invoice_due = nullable_htmlentities($row['invoice_due']);
+                        $invoice_discount = floatval($row['invoice_discount_amount']);
                         $invoice_amount = floatval($row['invoice_amount']);
                         $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
                         $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
