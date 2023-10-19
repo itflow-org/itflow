@@ -30,6 +30,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_date = nullable_htmlentities($row['invoice_date']);
     $invoice_due = nullable_htmlentities($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_discount = floatval($row['invoice_discount_amount']);
     $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
     $invoice_note = nullable_htmlentities($row['invoice_note']);
     $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
@@ -424,6 +425,19 @@ if (isset($_GET['invoice_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
+
+                        <?php
+                        if ($invoice_discount > 0) {
+                            ?>
+                            <tr class="border-bottom">
+                                <td>Discount</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                            </tr>
+
+                            <?php
+                            $sub_total = $sub_total - $invoice_discount;
+                        }
+                        ?>
                         <tr class="border-bottom">
                             <td>Subtotal</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
@@ -433,13 +447,14 @@ if (isset($_GET['invoice_id'])) {
                                 <td>Tax</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
-                        <?php if ($amount_paid > 0) { ?>
+                        <?php } 
+                        if ($amount_paid > 0) { ?>
                             <tr class="border-bottom">
                                 <td><div class="text-success">Paid</div></td>
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
+                        
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
