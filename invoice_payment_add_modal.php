@@ -51,38 +51,37 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                             </div>
                             <select class="form-control select2" name="account" required>
-                                <option value="">- Account -</option>
+                                <option value="">- Select an Account -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type WHERE account_type_parent = 1 AND account_archived_at IS NULL ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $account_type = nullable_htmlentities($row['account_type']);
-                                    if ($account_type < 19 && $account_type > 10) {
-                                        $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
-                                        $opening_balance = floatval($row['opening_balance']);
+                                    $account_id = intval($row['account_id']);
+                                    $account_name = nullable_htmlentities($row['account_name']);
+                                    $opening_balance = floatval($row['opening_balance']);
 
-                                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                                        $row = mysqli_fetch_array($sql_payments);
-                                        $total_payments = floatval($row['total_payments']);
+                                    $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
+                                    $row = mysqli_fetch_array($sql_payments);
+                                    $total_payments = floatval($row['total_payments']);
 
-                                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                                        $row = mysqli_fetch_array($sql_revenues);
-                                        $total_revenues = floatval($row['total_revenues']);
+                                    $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
+                                    $row = mysqli_fetch_array($sql_revenues);
+                                    $total_revenues = floatval($row['total_revenues']);
 
-                                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                                        $row = mysqli_fetch_array($sql_expenses);
-                                        $total_expenses = floatval($row['total_expenses']);
+                                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
+                                    $row = mysqli_fetch_array($sql_expenses);
+                                    $total_expenses = floatval($row['total_expenses']);
 
-                                        $account_balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
+                                    $account_balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                                 ?>
-                                        <option <?php if ($config_default_payment_account == $account_id) {
-                                                    echo "selected";
-                                                } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($account_balance, 2); ?>]</option>
+                                    <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?>
+                                        value="<?php echo $account_id; ?>">
+                                        <?php echo $account_name; ?> [$<?php echo number_format($account_balance, 2); ?>]
+                                    </option>
 
                                 <?php
-                                    }
                                 }
                                 ?>
                             </select>
