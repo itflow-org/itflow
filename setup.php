@@ -262,7 +262,7 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = $account_type_id, account_currency_code = '$currency_code'");
 
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Liability', account_type_parent = 2, account_type_description = 'Liabilities are obligations of the business entity. They are usually classified as current liabilities (due within one year or less) and long-term liabilities (due after one year).'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Equity', account_type_parent= 3, account_type_description = 'Equity represents the owners stake in the business after liabilities have been deducted.'");
+    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Equity', account_type_parent = 3, account_type_description = 'Equity represents the owners stake in the business after liabilities have been deducted.'");
     //Create Secondary Account Types
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Current Asset', account_type_parent = 1, account_type_description = 'Current assets are expected to be consumed within one year or less.'");
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Fixed Asset', account_type_parent = 1, account_type_description = 'Fixed assets are expected to benefit the business for more than one year.'");

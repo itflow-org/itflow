@@ -80,7 +80,7 @@ if ( $argv[1] !== $config_cron_key ) {
  */
 
 //Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron started for $company_name'");
+mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron Started");
 
 
 
@@ -109,7 +109,7 @@ mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
 
 //Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data'");
 
 /*
  * ###############################################################################################################
@@ -146,7 +146,7 @@ foreach ($domainAlertArray as $day) {
 
 }
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for domain expiring'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for domain expiring'");
 
 // CERTIFICATES EXPIRING
 
@@ -176,7 +176,7 @@ foreach ($certificateAlertArray as $day) {
 
 }
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for certificates expiring'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for certificates expiring'");
 
 // Asset Warranties Expiring
 
@@ -205,7 +205,7 @@ foreach ($warranty_alert_array as $day) {
 
 }
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for asset warranties expiring'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for asset warranties expiring'");
 
 // Notify of Tickets Pending Assignment
 // Get Ticket Pending Assignment
@@ -327,7 +327,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 }
 
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets'");
 
 
 // AUTO CLOSE TICKET - CLOSE
@@ -491,7 +491,7 @@ foreach ($invoiceAlertArray as $day) {
 
 }
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for past due invoices and sent out notifications to the primary contacts email'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for past due invoices and sent out notifications to the primary contacts email'");
 
 // Send Recurring Invoices that match todays date and are active
 
@@ -629,7 +629,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     } //End if Autosend is on
 } //End Recurring Invoices Loop
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created invoices from recurring invoices and sent emails out'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created invoices from recurring invoices and sent emails out'");
 
 // Recurring Expenses
 // Loop through all recurring expenses that match today's date and is active
@@ -673,7 +673,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
    
 } //End Recurring Invoices Loop
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created expenses from recurring expenses'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created expenses from recurring expenses'");
 
 // TELEMETRY
 
@@ -926,7 +926,7 @@ if ($config_telemetry == 1) {
  */
 
 // Send Alert to inform Cron was run
-mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron.php successfully executed', notification_action = 'logs.php'");
+mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron successfully executed', notification_action = 'logs.php'");
 
 // Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully for $company_name'");
+mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully'");
