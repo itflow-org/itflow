@@ -251,11 +251,16 @@ if (isset($_POST['add_company_settings'])) {
         unlink('uploads/tmp/cronkey.php');
     }
 
-    //Create Default Accounts
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = '11', account_currency_code = '$currency_code'");
+    
 
-    //Create Main Account Types
+    // Create Main Account Types
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Asset', account_type_parent = 1, account_type_description = 'Assets are economic resources which are expected to benefit the business in the future.'");
+
+    $account_type_id = mysqli_insert_id($mysqli);
+
+    // Create Default Cash Account
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = $account_type_id, account_currency_code = '$currency_code'");
+
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Liability', account_type_parent = 2, account_type_description = 'Liabilities are obligations of the business entity. They are usually classified as current liabilities (due within one year or less) and long-term liabilities (due after one year).'");
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Equity', account_type_parent= 3, account_type_description = 'Equity represents the owners stake in the business after liabilities have been deducted.'");
     //Create Secondary Account Types
