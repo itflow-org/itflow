@@ -33,8 +33,11 @@
                             while ($row = mysqli_fetch_array($sql_account_types)) {
                                 $account_type_id = intval($row['account_type_id']);
                                 $account_type_name = nullable_htmlentities($row['account_type_name']);
-                                if($account_type_id % 10 != 0) {
-                                    echo "<option value='$account_type_id'>$account_type_name</option>";}}?>
+
+                                echo "<option value='$account_type_id'>$account_type_name</option>";
+                                
+                            }
+                            ?>
                             </select>
                         </div>
                     </div>

@@ -12,7 +12,8 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
-    WHERE account_name LIKE '%$q%'
+    LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type 
+    WHERE (account_name LIKE '%$q%' OR account_type_name LIKE '%$q%')
     AND account_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -43,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th class="text-center">Type</th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_type_name&order=<?php echo $disp; ?>">Type</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_currency_code&order=<?php echo $disp; ?>">Currency</a></th>
                         <th class="text-right">Balance</th>
                         <th class="text-center">Action</th>
@@ -58,10 +59,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $opening_balance = floatval($row['opening_balance']);
                         $account_currency_code = nullable_htmlentities($row['account_currency_code']);
                         $account_notes = nullable_htmlentities($row['account_notes']);
-                        $account_type_id = intval($row['account_type']);
-
-                        //Find account type name
-                        $account_type = mysqli_query($mysqli, "SELECT * FROM account_types WHERE account_type_id = $account_type_id");
+                        $account_type = intval($row['account_type']);
+                        $account_type_name = nullable_htmlentities($row['account_type_name']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);
@@ -80,8 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
-                            <td class="text-center"> <?php echo nullable_htmlentities(mysqli_fetch_array($account_type)['account_type_name']); ?>
-                            </td>
+                            <td><?php echo $account_type_name; ?></td>
                             <td><?php echo $account_currency_code; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?></td>
                             <td>
