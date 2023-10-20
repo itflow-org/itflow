@@ -13,6 +13,8 @@
 
 <p class="text-center"><?php echo nullable_htmlentities($session_company_name); ?></p>
 
+<?php require_once "../inc_confirm_modal.php"; ?>
+
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>
 
@@ -53,3 +55,5 @@
     });
 
 </script>
+
+<script src="../js/confirm_modal.js"></script>
