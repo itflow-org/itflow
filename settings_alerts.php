@@ -32,30 +32,16 @@ require_once "inc_all_settings.php";
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1" id="alertDomainExpireSwitch">
-                        <label class="custom-control-label" for="alertDomainExpireSwitch">Enable Domain Expiration Alerts</label>
+                        <label class="custom-control-label" for="alertDomainExpireSwitch">Enable Domain Expiration Alerts <small>(This setting triggers a notification when a domain is approaching its expiration date, specifically at 1, 7, 14, 30, 90, and 120 days prior to expiry.)</small></label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if ($config_send_invoice_reminders == 1) { echo "checked"; } ?> value="1" id="sendInvoiceRemindersSwitch">
-                        <label class="custom-control-label" for="sendInvoiceRemindersSwitch">Send Invoice Reminders</label>
+                        <label class="custom-control-label" for="sendInvoiceRemindersSwitch">Email Invoice Reminders <small>(This will automatically dispatch a reminder email for the invoice to the primary contact's email every 30 days following the invoice's due date.)</small></label>
                     </div>
                 </div>
-
-                <?php if ($config_send_invoice_reminders == 1) { ?>
-
-                    <div class="form-group">
-                        <label>Overdue Reminders</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="config_invoice_overdue_reminders" placeholder="Send After Due Days" value="<?php echo nullable_htmlentities($config_invoice_overdue_reminders); ?>">
-                        </div>
-                    </div>
-
-                <?php } ?>
 
                 <hr>
 

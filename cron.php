@@ -32,6 +32,8 @@ $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_from_name = $row['config_invoice_from_name'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
+
+// Mail Settings
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
@@ -50,13 +52,17 @@ $config_ticket_client_general_notifications = intval($row['config_ticket_client_
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 
-//Get Config for Telemetry
+// Get Config for Telemetry
 $config_theme = $row['config_theme'];
 $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = $row['config_module_enable_accounting'];
 $config_telemetry = intval($row['config_telemetry']);
+
+// Alerts
+$config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_expire']);
+$config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 
 // Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -121,32 +127,35 @@ mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE()
 
 // DOMAINS EXPIRING
 
-$domainAlertArray = [1,7,14,30,90,120];
+if($config_enable_alert_domain_expire == 1){
 
-foreach ($domainAlertArray as $day) {
+    $domainAlertArray = [1,7,14,30,90,120];
 
-    //Get Domains Expiring
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT * FROM domains
-        LEFT JOIN clients ON domain_client_id = client_id 
-        WHERE domain_expire = CURDATE() + INTERVAL $day DAY"
-    );
+    foreach ($domainAlertArray as $day) {
 
-    while ($row = mysqli_fetch_array($sql)) {
-        $domain_id = intval($row['domain_id']);
-        $domain_name = sanitizeInput($row['domain_name']);
-        $domain_expire = sanitizeInput($row['domain_expire']);
-        $client_id = intval($row['client_id']);
-        $client_name = sanitizeInput($row['client_name']);
+        //Get Domains Expiring
+        $sql = mysqli_query(
+            $mysqli,
+            "SELECT * FROM domains
+            LEFT JOIN clients ON domain_client_id = client_id 
+            WHERE domain_expire = CURDATE() + INTERVAL $day DAY"
+        );
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain Expiring', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_action = 'client_domains.php?client_id=$client_id', notification_client_id = $client_id");
+        while ($row = mysqli_fetch_array($sql)) {
+            $domain_id = intval($row['domain_id']);
+            $domain_name = sanitizeInput($row['domain_name']);
+            $domain_expire = sanitizeInput($row['domain_expire']);
+            $client_id = intval($row['client_id']);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Domain Expiring', notification = 'Domain $domain_name for $client_name will expire in $day Days on $domain_expire', notification_action = 'client_domains.php?client_id=$client_id', notification_client_id = $client_id");
+
+        }
 
     }
-
+    // Logging
+    //mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for domain expiring'");
 }
-// Logging
-//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for domain expiring'");
 
 // CERTIFICATES EXPIRING
 
@@ -404,91 +413,93 @@ if ($config_ticket_autoclose == 1) {
     }
 }
 
+if ($config_send_invoice_reminders == 1) {
 
-// PAST DUE INVOICE Notifications
-//$invoiceAlertArray = [$config_invoice_overdue_reminders];
-$invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
+    // PAST DUE INVOICE Notifications
+    //$invoiceAlertArray = [$config_invoice_overdue_reminders];
+    $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
 
-foreach ($invoiceAlertArray as $day) {
+    foreach ($invoiceAlertArray as $day) {
 
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT * FROM invoices
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        WHERE invoice_status != 'Draft'
-        AND invoice_status != 'Paid'
-        AND invoice_status != 'Cancelled'
-        AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
-        ORDER BY invoice_number DESC"
-    );
-
-    while ($row = mysqli_fetch_array($sql)) {
-        $invoice_id = intval($row['invoice_id']);
-        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_status = $row['invoice_status'];
-        $invoice_date = $row['invoice_date'];
-        $invoice_due = $row['invoice_due'];
-        $invoice_url_key = $row['invoice_url_key'];
-        $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_currency_code = $row['invoice_currency_code'];
-        $client_id = intval($row['client_id']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
-
-        // Late Charges
-
-        if ($config_invoice_late_fee_enable == 1) {
-            
-            $todays_date = date('Y-m-d');
-            $late_fee_amount = ($invoice_amount * $config_invoice_late_fee_percent) / 100;
-            $new_invoice_amount = $invoice_amount + $late_fee_amount;
-
-            mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-
-            //Insert Items into New Invoice
-            mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_invoice_id = $invoice_id");
-
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late charge', history_invoice_id = $invoice_id");
-
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
-        
-        }
-
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
-
-        $subject = "Overdue Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
-            <br><br>
-            Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-        $mail = sendSingleEmail(
-            $config_smtp_host,
-            $config_smtp_username,
-            $config_smtp_password,
-            $config_smtp_encryption,
-            $config_smtp_port,
-            $config_invoice_from_email,
-            $config_invoice_from_name,
-            $contact_email,
-            $contact_name,
-            $subject,
-            $body
+        $sql = mysqli_query(
+            $mysqli,
+            "SELECT * FROM invoices
+            LEFT JOIN clients ON invoice_client_id = client_id
+            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+            WHERE invoice_status != 'Draft'
+            AND invoice_status != 'Paid'
+            AND invoice_status != 'Cancelled'
+            AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
+            ORDER BY invoice_number DESC"
         );
 
-        if ($mail === true) {
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
-        } else {
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_invoice_id = $invoice_id");
+        while ($row = mysqli_fetch_array($sql)) {
+            $invoice_id = intval($row['invoice_id']);
+            $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+            $invoice_number = intval($row['invoice_number']);
+            $invoice_status = $row['invoice_status'];
+            $invoice_date = $row['invoice_date'];
+            $invoice_due = $row['invoice_due'];
+            $invoice_url_key = $row['invoice_url_key'];
+            $invoice_amount = floatval($row['invoice_amount']);
+            $invoice_currency_code = $row['invoice_currency_code'];
+            $client_id = intval($row['client_id']);
+            $client_name = sanitizeInput($row['client_name']);
+            $contact_name = $row['contact_name'];
+            $contact_email = $row['contact_email'];
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
+            // Late Charges
+
+            if ($config_invoice_late_fee_enable == 1) {
+                
+                $todays_date = date('Y-m-d');
+                $late_fee_amount = ($invoice_amount * $config_invoice_late_fee_percent) / 100;
+                $new_invoice_amount = $invoice_amount + $late_fee_amount;
+
+                mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
+
+                //Insert Items into New Invoice
+                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_invoice_id = $invoice_id");
+
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late charge', history_invoice_id = $invoice_id");
+
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
+            
+            }
+
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
+
+            $subject = "Overdue Invoice $invoice_prefix$invoice_number";
+            $body    = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
+                <br><br>
+                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+            $mail = sendSingleEmail(
+                $config_smtp_host,
+                $config_smtp_username,
+                $config_smtp_password,
+                $config_smtp_encryption,
+                $config_smtp_port,
+                $config_invoice_from_email,
+                $config_invoice_from_name,
+                $contact_email,
+                $contact_name,
+                $subject,
+                $body
+            );
+
+            if ($mail === true) {
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
+            } else {
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_invoice_id = $invoice_id");
+
+                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
+            }
+
         }
 
     }
-
 }
 // Logging
 //mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for past due invoices and sent out notifications to the primary contacts email'");
