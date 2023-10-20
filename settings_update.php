@@ -1,7 +1,10 @@
 <?php
-require_once("inc_all_settings.php");
-require_once("database_version.php");
-require_once("config.php");
+require_once "inc_all_settings.php";
+
+require_once "database_version.php";
+
+require_once "config.php";
+
 
 // Fetch the latest code changes but don't apply them
 exec("git fetch", $output, $result);
@@ -83,4 +86,5 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
 <?php
 
-require_once("footer.php");
+require_once "footer.php";
+

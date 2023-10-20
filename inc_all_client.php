@@ -1,10 +1,15 @@
 <?php
 
-require_once("config.php");
-require_once("functions.php");
-require_once("check_login.php");
-require_once("header.php");
-require_once("top_nav.php");
+require_once "config.php";
+
+require_once "functions.php";
+
+require_once "check_login.php";
+
+require_once "header.php";
+
+require_once "top_nav.php";
+
 
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
@@ -20,7 +25,8 @@ if (isset($_GET['client_id'])) {
     );
 
     if (mysqli_num_rows($sql) == 0) {
-        require_once("header.php");
+        require_once "header.php";
+
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
     } else {
 
@@ -222,8 +228,13 @@ if (isset($_GET['client_id'])) {
     }
 }
 
-require_once("client_side_nav.php");
-require_once("inc_wrapper.php");
-require_once("inc_alert_feedback.php");
-require_once("inc_client_top_head.php");
-require_once("pagination_head.php");
+require_once "client_side_nav.php";
+
+require_once "inc_wrapper.php";
+
+require_once "inc_alert_feedback.php";
+
+require_once "inc_client_top_head.php";
+
+require_once "pagination_head.php";
+

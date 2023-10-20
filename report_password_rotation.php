@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateTechRole();
 
 // TODO: Default to 90 but allow input field to change this
@@ -70,4 +71,5 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
     </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

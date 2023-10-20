@@ -1,6 +1,7 @@
 <?php
 
-require_once('guest_header.php');
+require_once 'guest_header.php';
+
 
 // Define wording
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
@@ -15,7 +16,8 @@ $config_stripe_account = intval($stripe_vars['config_stripe_account']);
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
     echo "<br><h2>Stripe payments not enabled/configured</h2>";
-    require_once('guest_footer.php');
+    require_once 'guest_footer.php';
+
     exit();
 }
 
@@ -42,7 +44,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Ensure we have a valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
         echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once('guest_footer.php');
+        require_once 'guest_footer.php';
+
         exit();
     }
 
@@ -170,7 +173,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_cs = $_GET['payment_intent_client_secret'];
 
     // Initialize stripe
-    require_once('vendor/stripe-php-10.5.0/init.php');
+    require_once 'vendor/stripe-php-10.5.0/init.php';
+
     \Stripe\Stripe::setApiKey($config_stripe_secret);
 
     // Check details of the PI
@@ -315,4 +319,5 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 }
 
 
-require_once('guest_footer.php');
+require_once 'guest_footer.php';
+

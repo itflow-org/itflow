@@ -6,7 +6,8 @@
 
 if (isset($_POST['add_expense'])) {
 
-    require_once('post/expense_model.php');
+    require_once 'post/expense_model.php';
+
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference'");
 
@@ -43,7 +44,8 @@ if (isset($_POST['add_expense'])) {
 
 if (isset($_POST['edit_expense'])) {
 
-    require_once('post/expense_model.php');
+    require_once 'post/expense_model.php';
+
 
     $expense_id = intval($_POST['expense_id']);
 

@@ -6,10 +6,14 @@
  * Always returns data in JSON format, unless otherwise specified
  */
 
-require_once("config.php");
-require_once("functions.php");
-require_once("check_login.php");
-require_once("rfc6238.php");
+require_once "config.php";
+
+require_once "functions.php";
+
+require_once "check_login.php";
+
+require_once "rfc6238.php";
+
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)

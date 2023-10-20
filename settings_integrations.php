@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all_settings.php"); ?>
+require_once "inc_all_settings.php";
+ ?>
 
     <div class="card card-dark">
         <div class="card-header py-3">
@@ -37,4 +38,5 @@ require_once("inc_all_settings.php"); ?>
         </div>
     </div>
 
-<?php require_once("footer.php");
+<?php require_once "footer.php";
+

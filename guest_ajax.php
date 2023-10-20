@@ -6,8 +6,10 @@
  * Always returns data in JSON format, unless otherwise specified
  */
 
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 /*
  * Creates & Returns a Stripe Payment Intent for a particular invoice ID
@@ -60,7 +62,8 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     // Setup Stripe
-    require_once('vendor/stripe-php-10.5.0/init.php');
+    require_once 'vendor/stripe-php-10.5.0/init.php';
+
 
     $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
     if ($row['config_stripe_enable'] == 0 || $row['config_stripe_account'] == 0) {

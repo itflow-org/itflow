@@ -4,8 +4,10 @@
  * OAuth Login via Microsoft IDP
  */
 
-require_once('../config.php');
-require_once('../functions.php');
+require_once '../config.php';
+
+require_once '../functions.php';
+
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies

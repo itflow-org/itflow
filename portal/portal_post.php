@@ -4,7 +4,8 @@
  * Process GET/POST requests
  */
 
-require_once("inc_portal.php");
+require_once "inc_portal.php";
+
 
 if (isset($_POST['add_ticket'])) {
 

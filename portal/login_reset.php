@@ -7,9 +7,12 @@
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
 $session_company_id = 1;
-require_once('../config.php');
-require_once('../functions.php');
-require_once('../get_settings.php');
+require_once '../config.php';
+
+require_once '../functions.php';
+
+require_once '../get_settings.php';
+
 
 if (empty($config_smtp_host)) {
     header("Location: login.php");

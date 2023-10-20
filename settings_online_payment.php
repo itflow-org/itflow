@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 ?>
 
@@ -76,4 +77,5 @@ require_once("inc_all_settings.php");
     </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

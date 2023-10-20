@@ -6,7 +6,8 @@
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
-require_once("inc_portal.php");
+require_once "inc_portal.php";
+
 
 // Ticket status from GET
 if (!isset($_GET['status'])) {
@@ -133,4 +134,5 @@ $total_tickets = intval($row['total_tickets']);
     </div>
 </div>
 
-<?php require_once("portal_footer.php"); ?>
+<?php require_once "portal_footer.php";
+ ?>

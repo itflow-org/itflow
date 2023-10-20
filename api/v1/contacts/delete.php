@@ -1,7 +1,9 @@
 <?php
 
-require_once('../validate_api_key.php');
-require_once('../require_post_method.php');
+require_once '../validate_api_key.php';
+
+require_once '../require_post_method.php';
+
 
 // Parse ID
 $contact_id = intval($_POST['contact_id']);
@@ -25,4 +27,5 @@ if (!empty($contact_id)) {
 }
 
 // Output
-require_once('../delete_output.php');
+require_once '../delete_output.php';
+

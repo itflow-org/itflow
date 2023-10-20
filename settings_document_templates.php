@@ -4,7 +4,8 @@
 $sort = "document_name";
 $order = "ASC";
 
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 // Search query SQL snippet
 if (!empty($q)) {
@@ -115,7 +116,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <?php
 
-          include("document_template_edit_modal.php");
+          include "document_template_edit_modal.php";
+
           }
 
           ?>
@@ -124,11 +126,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
       </table>
       <br>
     </div>
-    <?php include("pagination.php"); ?>
+    <?php include "pagination.php";
+ ?>
   </div>
 </div>
 
 
-<?php include("document_template_add_modal.php"); ?>
+<?php include "document_template_add_modal.php";
+ ?>
 
-<?php include("footer.php"); ?>
+<?php include "footer.php";
+ ?>

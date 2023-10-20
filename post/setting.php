@@ -8,7 +8,8 @@ if (isset($_POST['edit_company'])) {
 
     validateAdminRole();
 
-    require_once('post/setting_company_model.php');
+    require_once 'post/setting_company_model.php';
+
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);

@@ -1,7 +1,10 @@
 <?php
-require_once("inc_all_settings.php");
-require_once("database_version.php");
-require_once("config.php");
+require_once "inc_all_settings.php";
+
+require_once "database_version.php";
+
+require_once "config.php";
+
 
 $folderPath = 'uploads';
 
@@ -315,4 +318,5 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
 
 <?php
 
-require_once("footer.php");
+require_once "footer.php";
+

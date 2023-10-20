@@ -8,7 +8,8 @@ if (!file_exists('config.php')) {
     exit;
 }
 
-require_once("config.php");
+require_once "config.php";
+
 
 // Check if the application is configured for HTTPS-only access
 if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') && (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')) {
@@ -16,8 +17,10 @@ if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'o
     exit;
 }
 
-require_once("functions.php");
-require_once("rfc6238.php");
+require_once "functions.php";
+
+require_once "rfc6238.php";
+
 
 // IP & User Agent for logging
 $ip = sanitizeInput(getIP());

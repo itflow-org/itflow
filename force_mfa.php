@@ -1,8 +1,12 @@
 <?php
-require_once("config.php");
-include_once("functions.php");
-require_once("check_login.php");
-require_once("header.php");
+require_once "config.php";
+
+include_once "functions.php";
+
+require_once "check_login.php";
+
+require_once "header.php";
+
 ?>
 
 <div class="card card-dark">
@@ -24,7 +28,8 @@ require_once("header.php");
             <center>
                 <?php
 
-                require_once('rfc6238.php');
+                require_once 'rfc6238.php';
+
 
                 //Generate a base32 Key
                 $secretkey = key32gen();
@@ -64,4 +69,5 @@ require_once("header.php");
 </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

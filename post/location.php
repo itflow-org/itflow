@@ -8,7 +8,8 @@ if(isset($_POST['add_location'])){
 
     validateAdminRole();
 
-    require_once('post/client_locations_model.php');
+    require_once 'post/client_locations_model.php';
+
 
     if(!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
@@ -58,7 +59,8 @@ if(isset($_POST['edit_location'])){
 
     validateAdminRole();
 
-    require_once('post/client_locations_model.php');
+    require_once 'post/client_locations_model.php';
+
 
     $location_id = intval($_POST['location_id']);
 

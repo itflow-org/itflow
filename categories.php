@@ -4,7 +4,8 @@
 $sort = "category_name";
 $order = "ASC";
 
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 if (isset($_GET['category'])) {
     $category = sanitizeInput($_GET['category']);
@@ -188,7 +189,8 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
 
                         //$colors_diff = array_diff($colors_array,$colors_used_array);
                     
-                        include("category_edit_modal.php");
+                        include "category_edit_modal.php";
+
 
                     }
 
@@ -197,10 +199,12 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                 </tbody>
             </table>
         </div>
-        <?php require_once("pagination.php"); ?>
+        <?php require_once "pagination.php";
+ ?>
     </div>
 </div>
 
 <?php
-require_once("category_add_modal.php");
-require_once("footer.php");
+require_once "category_add_modal.php";
+
+require_once "footer.php";

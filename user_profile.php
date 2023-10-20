@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 $sql_recent_logins = mysqli_query($mysqli, "SELECT * FROM logs
     WHERE log_type = 'Login' OR log_type = 'Login 2FA' AND log_action = 'Success' AND log_user_id = $session_user_id
@@ -105,7 +106,8 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                     <center>
                         <?php
 
-                        require_once('rfc6238.php');
+                        require_once 'rfc6238.php';
+
 
                         //Generate a base32 Key
                         $secretkey = key32gen();
@@ -230,4 +232,5 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

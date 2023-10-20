@@ -4,7 +4,8 @@
 $sort = "file_name";
 $order = "ASC";
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 // Folder
 if (!empty($_GET['folder_id'])) {
@@ -131,12 +132,14 @@ $num_of_files = mysqli_num_rows($sql);
                         </li>
 
                         <?php
-                        require("folder_rename_modal.php");
+                        require "folder_rename_modal.php";
+
 
                     }
                     ?>
                 </ul>
-                <?php require_once("folder_create_modal.php"); ?>
+                <?php require_once "folder_create_modal.php";
+ ?>
             </div>
 
             <div class="col-md-9">
@@ -202,7 +205,8 @@ $num_of_files = mysqli_num_rows($sql);
                         </div>
 
                         <?php
-                        require("client_file_view_modal.php");
+                        require "client_file_view_modal.php";
+
                     }
                     ?>
                 </div>
@@ -288,8 +292,10 @@ $num_of_files = mysqli_num_rows($sql);
                                 </td>
                             </tr>
                             <?php
-                            require("client_file_rename_modal.php");
-                            require("client_file_move_modal.php");
+                            require "client_file_rename_modal.php";
+
+                            require "client_file_move_modal.php";
+
                         }
                         ?>
                         </tbody>
@@ -300,7 +306,8 @@ $num_of_files = mysqli_num_rows($sql);
 
                 <?php } ?>
 
-                <?php require_once("pagination.php"); ?>
+                <?php require_once "pagination.php";
+ ?>
 
             </div>
         </div>
@@ -308,8 +315,12 @@ $num_of_files = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once("client_file_upload_modal.php");
-require_once("share_modal.php");
-require_once("client_file_delete_modal.php");
-require_once("footer.php");
+require_once "client_file_upload_modal.php";
+
+require_once "share_modal.php";
+
+require_once "client_file_delete_modal.php";
+
+require_once "footer.php";
+
 

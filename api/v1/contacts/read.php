@@ -1,7 +1,9 @@
 <?php
 
-require_once('../validate_api_key.php');
-require_once('../require_get_method.php');
+require_once '../validate_api_key.php';
+
+require_once '../require_get_method.php';
+
 
 // Specific contact via ID (single)
 if (isset($_GET['contact_id'])) {
@@ -21,4 +23,5 @@ if (isset($_GET['contact_id'])) {
 }
 
 // Output
-require_once("../read_output.php");
+require_once "../read_output.php";
+

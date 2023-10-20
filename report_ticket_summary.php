@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateTechRole();
 
 if (isset($_GET['year'])) {
@@ -82,7 +83,8 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
     </div>
 </div>
 
-<?php require_once("footer.php"); ?>
+<?php require_once "footer.php";
+ ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling

@@ -920,7 +920,8 @@ if (isset($_POST['add_scheduled_ticket'])) {
 
     validateTechRole();
 
-    require_once('post/scheduled_ticket_model.php');
+    require_once 'post/scheduled_ticket_model.php';
+
     $start_date = sanitizeInput($_POST['start_date']);
 
     // If no contact is selected automatically choose the primary contact for the client
@@ -948,7 +949,8 @@ if (isset($_POST['edit_scheduled_ticket'])) {
 
     validateTechRole();
 
-    require_once('post/scheduled_ticket_model.php');
+    require_once 'post/scheduled_ticket_model.php';
+
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
 

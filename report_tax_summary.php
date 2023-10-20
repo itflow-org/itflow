@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
@@ -291,4 +292,5 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
         </div>
     </div>
 
-<?php require_once("footer.php");
+<?php require_once "footer.php";
+

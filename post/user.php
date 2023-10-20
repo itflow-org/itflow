@@ -6,7 +6,8 @@
 
 if (isset($_POST['add_user'])) {
 
-    require_once('post/user_model.php');
+    require_once 'post/user_model.php';
+
 
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
@@ -75,7 +76,8 @@ if (isset($_POST['add_user'])) {
 
 if (isset($_POST['edit_user'])) {
 
-    require_once('post/user_model.php');
+    require_once 'post/user_model.php';
+
 
     validateAdminRole();
 

@@ -4,7 +4,8 @@
 $sort = "api_key_name";
 $order = "ASC";
 
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -143,12 +144,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </form>
 
             </div>
-            <?php require_once("pagination.php"); ?>
+            <?php require_once "pagination.php";
+ ?>
         </div>
     </div>
 
     <script src="js/multi_actions.js"></script>
 
 <?php
-require_once("api_key_add_modal.php");
-require_once("footer.php");
+require_once "api_key_add_modal.php";
+
+require_once "footer.php";
+

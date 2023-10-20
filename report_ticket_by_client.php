@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateTechRole();
 
 function secondsToTime($inputSeconds) {
@@ -132,4 +133,5 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
     </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

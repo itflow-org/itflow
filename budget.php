@@ -4,7 +4,8 @@
 $sort = "budget_year";
 $order = "DESC";
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -131,7 +132,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                        require("budget_edit_modal.php");
+                        require "budget_edit_modal.php";
+
 
                     }
 
@@ -140,10 +142,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once("pagination.php"); ?>
+            <?php require_once "pagination.php";
+ ?>
         </div>
     </div>
 
 <?php
-require_once("budget_create_modal.php");
-require_once("footer.php");
+require_once "budget_create_modal.php";
+
+require_once "footer.php";
+

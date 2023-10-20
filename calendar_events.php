@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 if (isset($_GET['calendar_id'])) {
     $calendar_selected_id = intval($_GET['calendar_id']);
@@ -20,9 +21,12 @@ if (isset($_GET['calendar_id'])) {
 
 <?php
 
-require_once("calendar_event_add_modal.php");
-require_once("calendar_add_modal.php");
-require_once("category_quick_add_modal.php");
+require_once "calendar_event_add_modal.php";
+
+require_once "calendar_add_modal.php";
+
+require_once "category_quick_add_modal.php";
+
 
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
@@ -38,13 +42,15 @@ while ($row = mysqli_fetch_array($sql)) {
     $calendar_color = nullable_htmlentities($row['calendar_color']);
     $client_id = intval($row['event_client_id']);
 
-    require("calendar_event_edit_modal.php");
+    require "calendar_event_edit_modal.php";
+
 
 }
 
 ?>
 
-<?php require_once("footer.php"); ?>
+<?php require_once "footer.php";
+ ?>
 
 <script src='plugins/fullcalendar/main.min.js'></script>
 

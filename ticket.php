@@ -1,8 +1,10 @@
 <?php
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 //Initialize the HTML Purifier to prevent XSS
-require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
@@ -25,7 +27,8 @@ if (isset($_GET['ticket_id'])) {
     if (mysqli_num_rows($sql) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include_once("footer.php");
+        include_once "footer.php";
+
 
     } else {
 
@@ -454,7 +457,8 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
 
-                    require("ticket_reply_edit_modal.php");
+                    require "ticket_reply_edit_modal.php";
+
 
                 }
 
@@ -798,21 +802,31 @@ if (isset($_GET['ticket_id'])) {
         </div>
 
         <?php
-        require_once("ticket_edit_modal.php");
-        require_once("ticket_edit_contact_modal.php");
-        require_once("ticket_edit_asset_modal.php");
-        require_once("ticket_edit_vendor_modal.php");
-        require_once("ticket_add_watcher_modal.php");
-        require_once("ticket_edit_priority_modal.php");
-        require_once("ticket_change_client_modal.php");
-        require_once("ticket_merge_modal.php");
-        require_once("ticket_invoice_add_modal.php");
+        require_once "ticket_edit_modal.php";
+
+        require_once "ticket_edit_contact_modal.php";
+
+        require_once "ticket_edit_asset_modal.php";
+
+        require_once "ticket_edit_vendor_modal.php";
+
+        require_once "ticket_add_watcher_modal.php";
+
+        require_once "ticket_edit_priority_modal.php";
+
+        require_once "ticket_change_client_modal.php";
+
+        require_once "ticket_merge_modal.php";
+
+        require_once "ticket_invoice_add_modal.php";
+
 
     }
 
 }
 
-require_once("footer.php");
+require_once "footer.php";
+
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->

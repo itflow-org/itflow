@@ -4,10 +4,12 @@
  * Ticket detail page
  */
 
-require_once("inc_portal.php");
+require_once "inc_portal.php";
+
 
 //Initialize the HTML Purifier to prevent XSS
-require("../plugins/htmlpurifier/HTMLPurifier.standalone.php");
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
@@ -183,5 +185,6 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
     header("Location: index.php");
 }
 
-require_once("portal_footer.php");
+require_once "portal_footer.php";
+
 

@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 $sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 
@@ -73,4 +74,5 @@ $timezones = DateTimeZone::listIdentifiers();
     </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+
