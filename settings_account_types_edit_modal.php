@@ -11,14 +11,18 @@
                 <input type="hidden" name="account_type_id" value="<?php echo $account_type_id; ?>">
                 <div class="modal-body bg-white">
 
-                    <div>
-                        <label>Type Group</label>
-                        <input type="text" class="form-control" name="type_group" value="<?php echo $account_type; ?>" readonly>
-
-                    </div>
                     <div class="form-group">
                         <label>Name <strong class="text-danger">*</strong></label>
                         <input type="text" class="form-control" name="name" value="<?php echo $account_type_name; ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select class="form-control select2" name="type" required>
+                            <option value="1" <?php if ($account_parent == 1) echo 'selected'; ?>>Assets</option>
+                            <option value="2" <?php if ($account_parent == 2) echo 'selected'; ?>>Liabilities</option>
+                            <option value="3" <?php if ($account_parent == 3) echo 'selected'; ?>>Equity</option>
+                        </select>
                     </div>
 
                     <div class="form-group">

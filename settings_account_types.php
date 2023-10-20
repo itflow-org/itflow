@@ -9,36 +9,28 @@ if (isset($_GET['account_type'])) {
     $account_type = sanitizeInput($_GET['account_type']);
     switch ($account_type) {
         case "Assets":
-            $account_type_id_min = "10";
-            $account_type_id_max = "19";
+            $account_type_parent = "1";
             break;
         case "Liabilities":
-            $account_type_id_min = "20";
-            $account_type_id_max = "29";
+            $account_type_parent = "2";
             break;
         case "Equity":
-            $account_type_id_min = "30";
-            $account_type_id_max = "39";
+            $account_type_parent = "3";
             break;
         default:
-            $account_type_id_min = "10";
-            $account_type_id_max = "39";
+            $account_type_parent = "1";
     }
 } else {
-    $account_type_id_min = "10";
-    $account_type_id_max = "39";
+    $account_type_parent = "%";
 }
-
-
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT * FROM account_types
     WHERE account_type_$archive_query
-    AND account_type_id >= $account_type_id_min
-    AND account_type_id <= $account_type_id_max
-    AND (account_type_name LIKE '%$q%' OR account_type_description LIKE '%$q%' OR account_type_id LIKE '%$q%')
-    ORDER BY $sort $order"
+    AND account_type_parent LIKE '$account_type_parent'
+    AND (account_type_name LIKE '%$q%' OR account_type_description LIKE '%$q%')
+    ORDER BY account_type_parent ASC, $sort $order"
 );
 
 $num_rows = mysqli_num_rows($sql);
@@ -49,8 +41,9 @@ $num_rows = mysqli_num_rows($sql);
     <div class="card-header py-3">
         <h3 class="card-title"><i class="fas fa-fw fa-money-bill-wave mr-2"></i>Finance Account Types</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountTypeModal"><i
-                    class="fas fa-plus mr-2"></i>Create Account Type</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAccountTypeModal">
+                <i class="fas fa-plus mr-2"></i>Create Account Type
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -102,7 +95,7 @@ $num_rows = mysqli_num_rows($sql);
             <table class="table table-striped table-borderless table-hover">
                 <thead>
                     <tr>
-                        <th>Account Type ID</th>
+                        <th>Account Type Parent</th>
                         <th>Account Type Name</th>
                         <th>Description</th>
                         <th></th>
@@ -112,14 +105,22 @@ $num_rows = mysqli_num_rows($sql);
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $account_type_id = nullable_htmlentities($row['account_type_id']);
+                        $account_type_id = intval($row['account_type_id']);
+                        $account_type_parent = intval($row['account_type_parent']);
+                        if($account_type_parent == 1) {
+                            $account_type_parent_name = "Assets";
+                        } elseif($account_type_parent == 2) {
+                            $account_type_parent_name = "Liabilities";
+                        } else {
+                            $account_type_parent_name = "Equity";
+                        }
                         $account_type_name = nullable_htmlentities($row['account_type_name']);
                         $account_type_description = nullable_htmlentities($row['account_type_description']);
                         ?>
                         <tr>
                             <td><a class="text-dark text-bold" href="#" data-toggle="modal"
                                     data-target="#editAccountTypeModal<?php echo $account_type_id; ?>">
-                                    <?php echo $account_type_id; ?>
+                                    <?php echo $account_type_parent_name; ?>
                                 </a></td>
                             <td>
                                 <?php echo $account_type_name; ?>
