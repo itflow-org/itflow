@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateAccountantRole();
 
 ?>
@@ -79,4 +80,5 @@ validateAccountantRole();
 </div>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

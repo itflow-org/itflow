@@ -6,7 +6,8 @@
 
 if (isset($_POST['add_invoice'])) {
 
-    require_once('post/invoice_model.php');
+    require_once 'post/invoice_model.php';
+
 
     $client = intval($_POST['client']);
 
@@ -38,7 +39,8 @@ if (isset($_POST['add_invoice'])) {
 
 if (isset($_POST['edit_invoice'])) {
 
-    require_once('post/invoice_model.php');
+    require_once 'post/invoice_model.php';
+
 
     $invoice_id = intval($_POST['invoice_id']);
     $due = sanitizeInput($_POST['due']);

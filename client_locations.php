@@ -4,7 +4,8 @@
 $sort = "location_name";
 $order = "ASC";
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -129,7 +130,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php } ?>
                                 </div>
                             </div>
-                            <?php require("client_location_edit_modal.php"); ?>
+                            <?php require "client_location_edit_modal.php";
+ ?>
                         </td>
                     </tr>
 
@@ -138,13 +140,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php require_once("pagination.php"); ?>
+        <?php require_once "pagination.php";
+ ?>
     </div>
 </div>
 
 <?php
 
-require_once("client_location_add_modal.php");
-require_once("client_location_import_modal.php");
-require_once("client_location_export_modal.php");
-require_once("footer.php");
+require_once "client_location_add_modal.php";
+
+require_once "client_location_import_modal.php";
+
+require_once "client_location_export_modal.php";
+
+require_once "footer.php";
+

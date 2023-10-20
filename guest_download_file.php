@@ -1,7 +1,9 @@
 <?php
 // Not including the guest header as we don't want any HTML output
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);

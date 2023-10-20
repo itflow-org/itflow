@@ -26,8 +26,10 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     }
 }
 
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 // IP & User Agent for logging
 $ip = santizeInput(getIP());

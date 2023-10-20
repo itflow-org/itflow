@@ -1,7 +1,9 @@
 <?php
 
-require_once('../validate_api_key.php');
-require_once('../require_get_method.php');
+require_once '../validate_api_key.php';
+
+require_once '../require_get_method.php';
+
 
 // Expenses aren't stored against client IDs, so we instead validate the API key is for All Clients
 
@@ -18,4 +20,5 @@ if (isset($_GET['expense_id']) && $client_id == "%") {
 }
 
 // Output
-require_once("../read_output.php");
+require_once "../read_output.php";
+

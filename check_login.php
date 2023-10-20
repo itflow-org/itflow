@@ -60,7 +60,8 @@ date_default_timezone_set($session_timezone);
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
-require_once("get_settings.php");
+require_once "get_settings.php";
+
 
 //Detects if using an Apple device and uses Apple Maps instead of google
 $iPod = stripos($_SERVER['HTTP_USER_AGENT'], "iPod");

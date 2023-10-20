@@ -1,10 +1,13 @@
 <?php
 
-require_once('../validate_api_key.php');
-require_once('../require_post_method.php');
+require_once '../validate_api_key.php';
+
+require_once '../require_post_method.php';
+
 
 // Ticket-related settings
-require_once("../../../get_settings.php");
+require_once "../../../get_settings.php";
+
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
 $company_name = $row['company_name'];
@@ -12,7 +15,8 @@ $company_phone = formatPhoneNumber($row['company_phone']);
 
 // Parse Info
 $ticket_row = false; // Creation, not an update
-require_once('ticket_model.php');
+require_once 'ticket_model.php';
+
 
 // Default
 $insert_id = false;
@@ -45,4 +49,5 @@ if (!empty($subject) && !empty($client_id)) {
 }
 
 // Output
-require_once('../create_output.php');
+require_once '../create_output.php';
+

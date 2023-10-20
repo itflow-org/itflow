@@ -118,7 +118,8 @@ if (isset($_POST['edit_profile'])) {
 
 if (isset($_POST['verify'])) {
 
-    require_once("rfc6238.php");
+    require_once "rfc6238.php";
+
     $currentcode = intval($_POST['code']);  //code to validate, for example received from device
 
     if (TokenAuth6238::verify($session_token, $currentcode)) {

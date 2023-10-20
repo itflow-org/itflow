@@ -24,7 +24,8 @@ if (isset($_POST['add_calendar'])) {
 
 if (isset($_POST['add_event'])) {
 
-    require_once('post/event_model.php');
+    require_once 'post/event_model.php';
+
 
     mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client");
 
@@ -86,7 +87,8 @@ if (isset($_POST['add_event'])) {
 
 if (isset($_POST['edit_event'])) {
 
-    require_once('post/event_model.php');
+    require_once 'post/event_model.php';
+
 
     $event_id = intval($_POST['event_id']);
 

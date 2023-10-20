@@ -6,7 +6,8 @@
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
-require_once('inc_portal.php');
+require_once 'inc_portal.php';
+
 ?>
 
     <h2>Profile</h2>
@@ -45,4 +46,5 @@ require_once('inc_portal.php');
 <?php endif ?>
 
 <?php
-require_once('portal_footer.php');
+require_once 'portal_footer.php';
+

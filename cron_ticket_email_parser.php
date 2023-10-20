@@ -16,8 +16,10 @@ TODO:
 chdir(dirname(__FILE__));
 
 // Get ITFlow config & helper functions
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 // Get system temp directory
 $temp_dir = sys_get_temp_dir();
@@ -34,7 +36,8 @@ if (file_exists($lock_file_path)) {
 file_put_contents($lock_file_path, "Locked");
 
 // Get settings for the "default" company
-require_once("get_settings.php");
+require_once "get_settings.php";
+
 
 // Get company name & phone
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
@@ -67,15 +70,24 @@ if (!function_exists('mailparse_msg_parse_file')) {
 // PHP Mail Parser
 use PhpMimeMailParser\Parser;
 
-require_once("plugins/php-mime-mail-parser/src/Contracts/CharsetManager.php");
-require_once("plugins/php-mime-mail-parser/src/Contracts/Middleware.php");
-require_once("plugins/php-mime-mail-parser/src/Attachment.php");
-require_once("plugins/php-mime-mail-parser/src/Charset.php");
-require_once("plugins/php-mime-mail-parser/src/Exception.php");
-require_once("plugins/php-mime-mail-parser/src/Middleware.php");
-require_once("plugins/php-mime-mail-parser/src/MiddlewareStack.php");
-require_once("plugins/php-mime-mail-parser/src/MimePart.php");
-require_once("plugins/php-mime-mail-parser/src/Parser.php");
+require_once "plugins/php-mime-mail-parser/src/Contracts/CharsetManager.php";
+
+require_once "plugins/php-mime-mail-parser/src/Contracts/Middleware.php";
+
+require_once "plugins/php-mime-mail-parser/src/Attachment.php";
+
+require_once "plugins/php-mime-mail-parser/src/Charset.php";
+
+require_once "plugins/php-mime-mail-parser/src/Exception.php";
+
+require_once "plugins/php-mime-mail-parser/src/Middleware.php";
+
+require_once "plugins/php-mime-mail-parser/src/MiddlewareStack.php";
+
+require_once "plugins/php-mime-mail-parser/src/MimePart.php";
+
+require_once "plugins/php-mime-mail-parser/src/Parser.php";
+
 
 // Allowed attachment extensions
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');

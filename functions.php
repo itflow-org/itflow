@@ -4,9 +4,12 @@
 DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 
 // PHP Mailer Libs
-require_once("plugins/PHPMailer/src/Exception.php");
-require_once("plugins/PHPMailer/src/PHPMailer.php");
-require_once("plugins/PHPMailer/src/SMTP.php");
+require_once "plugins/PHPMailer/src/Exception.php";
+
+require_once "plugins/PHPMailer/src/PHPMailer.php";
+
+require_once "plugins/PHPMailer/src/SMTP.php";
+
 // Initiate PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -310,7 +313,8 @@ function generateUserSessionKey($site_encryption_master_key)
     $_SESSION['user_encryption_session_iv'] = $user_encryption_session_iv;
 
     // Give the user "their" key as a cookie
-    include('config.php');
+    include 'config.php';
+
     if ($config_https_only) {
         setcookie("user_encryption_session_key", "$user_encryption_session_key", ['path' => '/','secure' => true,'httponly' => true,'samesite' => 'None']);
     } else{

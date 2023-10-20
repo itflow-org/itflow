@@ -4,7 +4,8 @@
 $sort = "document_name";
 $order = "ASC";
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 // Folder
 if (!empty($_GET['folder_id'])) {
@@ -140,12 +141,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </li>
 
                             <?php
-                            require("folder_rename_modal.php");
+                            require "folder_rename_modal.php";
+
 
                         }
                         ?>
                     </ul>
-                    <?php require_once("folder_create_modal.php"); ?>
+                    <?php require_once "folder_create_modal.php";
+ ?>
                 </div>
 
                 <div class="col-md-9">
@@ -238,8 +241,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require("client_document_move_modal.php");
-                            require("client_document_rename_modal.php");
+                            require "client_document_move_modal.php";
+
+                            require "client_document_rename_modal.php";
+
 
                             }
 
@@ -249,7 +254,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </table>
                         <br>
                     </div>
-                    <?php require_once("pagination.php"); ?>
+                    <?php require_once "pagination.php";
+ ?>
                 </div>
             </div>
         </div>
@@ -257,7 +263,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 
 <?php
-require_once("share_modal.php");
-require_once("client_document_add_modal.php");
-require_once("client_document_add_from_template_modal.php");
-require_once("footer.php");
+require_once "share_modal.php";
+
+require_once "client_document_add_modal.php";
+
+require_once "client_document_add_from_template_modal.php";
+
+require_once "footer.php";
+

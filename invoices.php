@@ -4,7 +4,8 @@
 $sort = "invoice_number";
 $order = "DESC";
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent'"));
 $sent_count = $row['num'];
@@ -301,8 +302,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
 
-                        require("invoice_edit_modal.php");
-                        require("invoice_copy_modal.php");
+                        require "invoice_edit_modal.php";
+
+                        require "invoice_copy_modal.php";
+
 
                     }
 
@@ -311,11 +314,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once("pagination.php"); ?>
+            <?php require_once "pagination.php";
+ ?>
         </div>
     </div>
 
 <?php
-require_once("invoice_add_modal.php");
-require_once("category_quick_add_modal.php");
-require_once("footer.php");
+require_once "invoice_add_modal.php";
+
+require_once "category_quick_add_modal.php";
+
+require_once "footer.php";
+

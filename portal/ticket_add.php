@@ -4,7 +4,8 @@
  * New ticket form
  */
 
-require_once('inc_portal.php');
+require_once 'inc_portal.php';
+
 ?>
 
     <ol class="breadcrumb d-print-none">
@@ -57,4 +58,5 @@ require_once('inc_portal.php');
     </div>
 
 <?php
-require_once('portal_footer.php');
+require_once 'portal_footer.php';
+

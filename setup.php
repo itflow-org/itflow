@@ -1,11 +1,14 @@
 <?php
 
 if (file_exists("config.php")) {
-    include("config.php");
+    include "config.php";
+
 }
 
-include("functions.php");
-include("database_version.php");
+include "functions.php";
+
+include "database_version.php";
+
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
@@ -16,7 +19,8 @@ if ($config_enable_setup == 0) {
     exit;
 }
 
-include_once("settings_localization_array.php");
+include_once "settings_localization_array.php";
+
 // Get a list of all available timezones
 $timezones = DateTimeZone::listIdentifiers();
 
@@ -58,7 +62,8 @@ if (isset($_POST['add_database'])) {
 
     if (file_put_contents("config.php", $new_config) !== false && file_exists('config.php')) {
 
-        include("config.php");
+        include "config.php";
+
 
         // Name of the file
         $filename = 'db.sql';
@@ -238,7 +243,8 @@ if (isset($_POST['add_company_settings'])) {
 
     # Used only for the install script to grab the generated cronkey and insert into the db
     if (file_exists("uploads/tmp/cronkey.php")) {
-        include("uploads/tmp/cronkey.php");
+        include "uploads/tmp/cronkey.php";
+
 
         mysqli_query($mysqli,"UPDATE settings SET config_cron_key = '$itflow_install_script_generated_cronkey'");
 

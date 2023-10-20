@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 $sql_recent_activities = mysqli_query(
     $mysqli,
@@ -353,4 +354,5 @@ $sql_asset_retire = mysqli_query(
 
 <?php
 
-require_once("footer.php");
+require_once "footer.php";
+

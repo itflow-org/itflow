@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
@@ -110,7 +111,8 @@ if (isset($_GET['contact_id'])) {
                         <i class="fas fa-fw fa-user-edit"></i> Edit
                     </button>
 
-                    <?php require_once("client_contact_edit_modal.php"); ?>
+                    <?php require_once "client_contact_edit_modal.php";
+ ?>
 
                 </div>
             </div>
@@ -250,9 +252,12 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                require("client_asset_edit_modal.php");
-                                require("client_asset_copy_modal.php");
-                                require("client_asset_interface_add_modal.php");
+                                require "client_asset_edit_modal.php";
+
+                                require "client_asset_copy_modal.php";
+
+                                require "client_asset_interface_add_modal.php";
+
 
                             }
 
@@ -357,7 +362,8 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                require("client_login_edit_modal.php");
+                                require "client_login_edit_modal.php";
+
                             }
 
                             ?>
@@ -543,7 +549,8 @@ if (isset($_GET['contact_id'])) {
 
     <?php
 
-    require_once("share_modal.php");
+    require_once "share_modal.php";
+
 
     ?>
 
@@ -581,4 +588,5 @@ if (isset($_GET['contact_id'])) {
     </script>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

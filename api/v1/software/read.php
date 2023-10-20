@@ -1,7 +1,9 @@
 <?php
 
-require_once('../validate_api_key.php');
-require_once('../require_get_method.php');
+require_once '../validate_api_key.php';
+
+require_once '../require_get_method.php';
+
 
 // Specific software via ID (single)
 if (isset($_GET['software_id'])) {
@@ -38,4 +40,5 @@ if (isset($_GET['software_id'])) {
 }
 
 // Output
-require_once("../read_output.php");
+require_once "../read_output.php";
+

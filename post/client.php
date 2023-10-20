@@ -6,7 +6,8 @@
 
 if (isset($_POST['add_client'])) {
 
-    require_once('post/client_model.php');
+    require_once 'post/client_model.php';
+
 
     validateAdminRole();
 
@@ -107,7 +108,8 @@ if (isset($_POST['add_client'])) {
 
 if (isset($_POST['edit_client'])) {
 
-    require_once('post/client_model.php');
+    require_once 'post/client_model.php';
+
 
     validateAdminRole();
 

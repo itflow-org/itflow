@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 if (isset($_GET['invoice_id'])) {
 
@@ -17,7 +18,8 @@ if (isset($_GET['invoice_id'])) {
 
     if (mysqli_num_rows($sql) == 0) {
         echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
-        require_once("footer.php");
+        require_once "footer.php";
+
         exit();
     }
 
@@ -349,7 +351,8 @@ if (isset($_GET['invoice_id'])) {
                                     <?php
 
                                     if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") {
-                                        require("item_edit_modal.php");
+                                        require "item_edit_modal.php";
+
                                     }
 
                                 }
@@ -572,15 +575,22 @@ if (isset($_GET['invoice_id'])) {
     </div>
 
     <?php
-    include_once("invoice_payment_add_modal.php");
-    include_once("invoice_copy_modal.php");
-    include_once("invoice_recurring_add_modal.php");
-    include_once("invoice_edit_modal.php");
-    include_once("invoice_note_modal.php");
-    include_once("category_quick_add_modal.php");
+    include_once "invoice_payment_add_modal.php";
+
+    include_once "invoice_copy_modal.php";
+
+    include_once "invoice_recurring_add_modal.php";
+
+    include_once "invoice_edit_modal.php";
+
+    include_once "invoice_note_modal.php";
+
+    include_once "category_quick_add_modal.php";
+
 }
 
-require_once("footer.php");
+require_once "footer.php";
+
 
 ?>
 

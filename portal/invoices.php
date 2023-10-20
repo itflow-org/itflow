@@ -6,7 +6,8 @@
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
-require_once("inc_portal.php");
+require_once "inc_portal.php";
+
 
 if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
     header("Location: portal_post.php?logout");
@@ -118,4 +119,5 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
 
 
 <?php
-require_once("portal_footer.php");
+require_once "portal_footer.php";
+

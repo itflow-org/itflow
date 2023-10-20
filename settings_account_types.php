@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 // Default Column Sortby Filter
 $sort = "account_type_id";
@@ -157,7 +158,8 @@ $num_rows = mysqli_num_rows($sql);
 
                         <?php
 
-                        require("settings_account_types_edit_modal.php");
+                        require "settings_account_types_edit_modal.php";
+
                     }
 
                     if ($num_rows == 0) {
@@ -172,7 +174,9 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once("settings_account_types_add_modal.php");
-require_once("footer.php");
+require_once "settings_account_types_add_modal.php";
+
+require_once "footer.php";
+
 
 ?>

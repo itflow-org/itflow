@@ -96,7 +96,8 @@ If you want to use tFPDF, your have to update your composer.json respectively to
 If you do not use composer, just require the autoload.php in the /src folder:
 
 ```php
-require_once('src/autoload.php');
+require_once 'src/autoload.php';
+
 ```
 
 If you have a PSR-4 autoloader implemented, just register the src path as follows:
@@ -149,7 +150,8 @@ use setasign\Fpdi\Fpdi;
 // use setasign\Fpdi\Tfpdf\Fpdi;
 
 // setup the autoload function
-require_once('vendor/autoload.php');
+require_once 'vendor/autoload.php';
+
 
 // initiate FPDI
 $pdf = new Fpdi();

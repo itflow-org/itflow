@@ -1,4 +1,5 @@
-<?php require_once("inc_confirm_modal.php"); ?>
+<?php require_once "inc_confirm_modal.php";
+ ?>
 
 </div><!-- /.container-fluid -->
 </div>

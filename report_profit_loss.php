@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
@@ -432,4 +433,5 @@ $sql_categories_expense = mysqli_query($mysqli, "SELECT * FROM categories WHERE 
         </div>
     </div>
 
-<?php require_once("footer.php");
+<?php require_once "footer.php";
+

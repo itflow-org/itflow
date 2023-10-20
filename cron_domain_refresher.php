@@ -1,7 +1,9 @@
 <?php
 
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE settings.company_id = 1");
 

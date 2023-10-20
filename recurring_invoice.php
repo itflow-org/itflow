@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 if (isset($_GET['recurring_id'])) {
 
@@ -270,7 +271,8 @@ if (isset($_GET['recurring_id'])) {
 
                                     <?php
 
-                                    require("item_edit_modal.php");
+                                    require "item_edit_modal.php";
+
 
                                     }
 
@@ -419,13 +421,17 @@ if (isset($_GET['recurring_id'])) {
 
     <?php
 
-    require_once("recurring_invoice_edit_modal.php");
-    require_once("recurring_invoice_note_modal.php");
-    require_once("category_quick_add_modal.php");
+    require_once "recurring_invoice_edit_modal.php";
+
+    require_once "recurring_invoice_note_modal.php";
+
+    require_once "category_quick_add_modal.php";
+
 
 }
 
-require_once("footer.php");
+require_once "footer.php";
+
 
 ?>
 

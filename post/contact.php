@@ -8,7 +8,8 @@ if (isset($_POST['add_contact'])) {
 
     validateTechRole();
 
-    require_once('post/contact_model.php');
+    require_once 'post/contact_model.php';
+
 
     // Set password
     if (!empty($_POST['contact_password'])) {
@@ -65,7 +66,8 @@ if (isset($_POST['edit_contact'])) {
 
     validateTechRole();
 
-    require_once('post/contact_model.php');
+    require_once 'post/contact_model.php';
+
 
     $contact_id = intval($_POST['contact_id']);
     $send_email = intval($_POST['send_email']);

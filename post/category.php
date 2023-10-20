@@ -6,7 +6,8 @@
 
 if (isset($_POST['add_category'])) {
 
-    require_once('post/category_model.php');
+    require_once 'post/category_model.php';
+
 
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = '$name', category_type = '$type', category_color = '$color'");
 
@@ -21,7 +22,8 @@ if (isset($_POST['add_category'])) {
 
 if (isset($_POST['edit_category'])) {
 
-    require_once('post/category_model.php');
+    require_once 'post/category_model.php';
+
 
     $category_id = intval($_POST['category_id']);
 

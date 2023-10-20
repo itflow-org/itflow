@@ -1,5 +1,6 @@
 <?php
-    require_once("inc_all_reports.php");
+    require_once "inc_all_reports.php";
+
     validateAccountantRole();
 
     // Fetch Accounts and their balances
@@ -151,7 +152,8 @@
     </div>
 </div>
 
-<?php require_once("footer.php");
+<?php require_once "footer.php";
+
 
 function print_row($row, $balance, $currency_format) {
     $account_name = nullable_htmlentities($row['account_name']);

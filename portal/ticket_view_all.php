@@ -4,7 +4,8 @@
  * Primary contact view: all tickets
  */
 
-require_once('inc_portal.php');
+require_once 'inc_portal.php';
+
 
 if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
     header("Location: portal_post.php?logout");
@@ -76,4 +77,5 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
     </div>
 
 <?php
-require_once('portal_footer.php');
+require_once 'portal_footer.php';
+

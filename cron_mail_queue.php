@@ -1,7 +1,9 @@
 <?php
 
-require_once("config.php");
-require_once("functions.php");
+require_once "config.php";
+
+require_once "functions.php";
+
 
 // Get system temp directory
 $temp_dir = sys_get_temp_dir();
@@ -18,7 +20,8 @@ if (file_exists($lock_file_path)) {
 file_put_contents($lock_file_path, "Locked");
 
 //Initialize the HTML Purifier to prevent XSS
-require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);

@@ -4,7 +4,8 @@
 $sort = "payment_date";
 $order = "DESC";
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -137,8 +138,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once("pagination.php"); ?>
+            <?php require_once "pagination.php";
+ ?>
         </div>
     </div>
 
-<?php require_once("footer.php"); ?>
+<?php require_once "footer.php";
+ ?>

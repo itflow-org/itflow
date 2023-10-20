@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_reports.php");
+require_once "inc_all_reports.php";
+
 validateAccountantRole();
 
 if (isset($_GET['year'])) {
@@ -114,7 +115,8 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
     </div>
 </div>
 
-<?php require_once("footer.php"); ?>
+<?php require_once "footer.php";
+ ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling

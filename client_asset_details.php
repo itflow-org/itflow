@@ -1,6 +1,7 @@
 <?php
 
-require_once("inc_all_client.php");
+require_once "inc_all_client.php";
+
 
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
@@ -171,7 +172,8 @@ if (isset($_GET['asset_id'])) {
                         <i class="fas fa-fw fa-edit"></i> Edit
                     </button>
 
-                    <?php require_once("client_asset_edit_modal.php"); ?>
+                    <?php require_once "client_asset_edit_modal.php";
+ ?>
 
                 </div>
             </div>
@@ -291,7 +293,8 @@ if (isset($_GET['asset_id'])) {
 
                                 <?php
 
-                                require("client_login_edit_modal.php");
+                                require "client_login_edit_modal.php";
+
                             }
 
                             ?>
@@ -477,7 +480,8 @@ if (isset($_GET['asset_id'])) {
 
     <?php
 
-    require_once("share_modal.php");
+    require_once "share_modal.php";
+
 
     ?>
 
@@ -515,4 +519,5 @@ if (isset($_GET['asset_id'])) {
 </script>
 
 <?php
-require_once("footer.php");
+require_once "footer.php";
+

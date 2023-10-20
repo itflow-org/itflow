@@ -4,7 +4,8 @@
 $sort = "ticket_number";
 $order = "DESC";
 
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 // Ticket status from GET
 if (!isset($_GET['status'])) {
@@ -391,10 +392,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                     </div>
                                 <?php }
 
-                                require("ticket_edit_modal.php");
-                                require("ticket_assign_modal.php");
-                                require("ticket_edit_priority_modal.php");
-                                require("ticket_edit_contact_modal.php");
+                                require "ticket_edit_modal.php";
+
+                                require "ticket_assign_modal.php";
+
+                                require "ticket_edit_priority_modal.php";
+
+                                require "ticket_edit_contact_modal.php";
+
 
                                 ?>
                             </td>
@@ -409,13 +414,16 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     </tbody>
                 </table>
             </div>
-            <?php require_once("pagination.php"); ?>
+            <?php require_once "pagination.php";
+ ?>
         </div>
     </div>
 
 <?php
-require_once("ticket_add_modal.php");
-require_once("footer.php");
+require_once "ticket_add_modal.php";
+
+require_once "footer.php";
+
 ?>
 
 <script src="js/ticket_add_remove_watchers.js"></script>

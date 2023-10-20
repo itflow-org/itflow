@@ -1,9 +1,11 @@
 <?php
 
-require_once("inc_all_settings.php");
+require_once "inc_all_settings.php";
+
 
 //Initialize the HTML Purifier to prevent XSS
-require("plugins/htmlpurifier/HTMLPurifier.standalone.php");
+require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
@@ -57,5 +59,7 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 <?php
 
-require_once("document_template_edit_modal.php");
-require_once("footer.php");
+require_once "document_template_edit_modal.php";
+
+require_once "footer.php";
+

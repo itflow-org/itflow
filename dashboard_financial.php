@@ -1,5 +1,6 @@
 <?php
-require_once("inc_all.php");
+require_once "inc_all.php";
+
 
 // Enforce accountant / admin role for the financial dashboard
 if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
@@ -490,7 +491,8 @@ $vendors_added = intval($row['vendors_added']);
     </div>
 </div> <!-- row -->
 
-<?php require_once("footer.php"); ?>
+<?php require_once "footer.php";
+ ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling

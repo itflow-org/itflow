@@ -7,7 +7,8 @@
 // Products
 if (isset($_POST['add_product'])) {
 
-    require_once('post/product_model.php');
+    require_once 'post/product_model.php';
+
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category");
 
@@ -22,7 +23,8 @@ if (isset($_POST['add_product'])) {
 
 if (isset($_POST['edit_product'])) {
 
-    require_once('post/product_model.php');
+    require_once 'post/product_model.php';
+
 
     $product_id = intval($_POST['product_id']);
 
