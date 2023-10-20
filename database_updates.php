@@ -1461,6 +1461,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.0'");
     }
 
+    // Be sure to change database_version.php to reflect the version you are updating to here
+    // Please add this same comment block to the bottom of this file, and update the version number.
+    // Uncomment Below Lines, to add additional database updates
+    //
+    if (CURRENT_DATABASE_VERSION == '0.9.0') {
+        //add leads column to clients table
+        mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_lead` TINYINT(1) NOT NULL DEFAULT 0 AFTER `client_id`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.1'");
+    }
+
     if (CURRENT_DATABASE_VERSION == '0.9.1') {
         // Insert queries here required to update to DB version 0.9.2
         mysqli_query($mysqli, "ALTER TABLE `invoices` ADD `invoice_discount_amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `invoice_due`");
@@ -1472,16 +1484,11 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     }
 
-    // Be sure to change database_version.php to reflect the version you are updating to here
-    // Please add this same comment block to the bottom of this file, and update the version number.
-    // Uncomment Below Lines, to add additional database updates
-    //
-    if (CURRENT_DATABASE_VERSION == '0.9.0') {
-        //add leads column to clients table
-        mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_lead` TINYINT(1) NOT NULL DEFAULT 0 AFTER `client_id`");
+    if (CURRENT_DATABASE_VERSION == '0.9.2') {
+        mysqli_query($mysqli, "ALTER TABLE `account_types` ADD `account_type_parent` INT(11) NOT NULL DEFAULT 1 AFTER `account_type_id`");
 
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.1'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.3'");
+
     }
 
     //if (CURRENT_DATABASE_VERSION == '0.9.1') {

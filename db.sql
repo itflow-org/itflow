@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS `account_types`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_types` (
   `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_type_parent` int(11) NOT NULL DEFAULT 1,
   `account_type_name` varchar(255) NOT NULL,
   `account_type_description` text DEFAULT NULL,
   `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -715,7 +716,7 @@ CREATE TABLE `invoices` (
   `invoice_status` varchar(200) NOT NULL,
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
-  `invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00, 
+  `invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_currency_code` varchar(200) NOT NULL,
   `invoice_note` text DEFAULT NULL,
@@ -938,9 +939,9 @@ CREATE TABLE `quotes` (
   `quote_number` int(11) NOT NULL,
   `quote_scope` varchar(255) DEFAULT NULL,
   `quote_status` varchar(200) NOT NULL,
+  `quote_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_date` date NOT NULL,
   `quote_expire` date DEFAULT NULL,
-  `quote_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_currency_code` varchar(200) NOT NULL,
   `quote_note` text DEFAULT NULL,
@@ -1743,4 +1744,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-16 17:19:49
+-- Dump completed on 2023-10-20 14:53:11
