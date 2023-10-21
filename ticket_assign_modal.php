@@ -19,7 +19,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                             </div>
                             <select class="form-control select2" name="assigned_to">
-                                <option value="0">No One</option>
+                                <option value="0">Not Assigned</option>
                                 <?php
                                 $sql_users_select = mysqli_query($mysqli, "SELECT * FROM users 
                                     LEFT JOIN user_settings on users.user_id = user_settings.user_id
@@ -30,7 +30,7 @@
                                 while ($row = mysqli_fetch_array($sql_users_select)) {
                                     $user_id_select = intval($row['user_id']);
                                     $user_name_select = nullable_htmlentities($row['user_name']);
-                                    
+
                                     ?>
                                     <option value="<?php echo $user_id_select; ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>
                                 <?php } ?>
