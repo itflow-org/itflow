@@ -628,12 +628,14 @@ function checkFileUpload($file, $allowed_extensions) {
 
     // Check a file is actually attached/uploaded
     if ($tmp === '') {
-        return "No file was uploaded.";
+        // No file uploaded
+        return false;
     }
 
     // Check the extension is allowed
     if (!in_array($extension, $allowed_extensions)) {
-        return "File extension not allowed.";
+        // Extension not allowed
+        return false;
     }
 
     // Check the size is under 500 MB
@@ -649,7 +651,7 @@ function checkFileUpload($file, $allowed_extensions) {
     $hashedContent = hash('sha256', $fileContent);
 
     // Generate a secure filename using the hashed content
-    $secureFilename = $hashedContent . '.' . $extension;
+    $secureFilename = $hashedContent . randomString(2) . '.' . $extension;
 
     return $secureFilename;
 }

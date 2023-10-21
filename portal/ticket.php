@@ -6,13 +6,14 @@
 
 require_once "inc_portal.php";
 
-
 //Initialize the HTML Purifier to prevent XSS
 require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
+
+$allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
 
 if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
@@ -75,10 +76,13 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <?php if ($ticket_status !== "Closed") { ?>
 
-            <form action="portal_post.php" method="post">
+            <form action="portal_post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
                 <div class="form-group">
                     <textarea class="form-control tinymce" name="comment" placeholder="Add comments.."></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                 </div>
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Reply</button>
             </form>
