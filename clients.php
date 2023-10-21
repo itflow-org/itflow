@@ -144,6 +144,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = nullable_htmlentities($row['client_updated_at']);
                         $client_archive_at = nullable_htmlentities($row['client_archived_at']);
+                        $client_is_lead = intval($row['client_lead']);
 
                         // Client Tags
 
@@ -205,7 +206,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td>
                                 <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <i class="fas fa-fw fa-arrow-circle-right"></i></a>
-                                
+
                                 <?php
                                 if (!empty($client_type)) {
                                 ?>
@@ -222,7 +223,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="mt-1 text-secondary">
                                     <small><strong>Created:</strong> <?php echo $client_created_at; ?></small>
                                 </div>
-                                
+
                             </td>
                             <td><?php echo $location_address_display; ?></td>
                             <td>
