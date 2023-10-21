@@ -24,6 +24,7 @@
 <script src="plugins/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <script src="plugins/clipboardjs/clipboard.min.js"></script>
+<script src="js/keepalive.js"></script>
 
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
