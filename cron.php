@@ -86,7 +86,7 @@ if ( $argv[1] !== $config_cron_key ) {
  */
 
 //Logging
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron Started");
+mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Started', log_description = 'Cron Started'");
 
 
 
