@@ -63,9 +63,7 @@
             $notification_action = nullable_htmlentities($row['notification_action']);
             $notification_timestamp = date('M d g:ia',strtotime($row['notification_timestamp']));
             $notification_client_id = intval($row['notification_client_id']);
-            if(!empty($notification_action)){
-              $notification_action = $notification_action;
-            } else {
+            if(empty($notification_action)){
               $notification_action = "#";
             }
         ?>
