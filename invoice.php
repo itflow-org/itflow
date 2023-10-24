@@ -103,6 +103,8 @@ if (isset($_GET['invoice_id'])) {
         $json_products = json_encode($products);
     }
 
+
+    
     ?>
 
     <ol class="breadcrumb d-print-none">
@@ -259,7 +261,6 @@ if (isset($_GET['invoice_id'])) {
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th class="text-left">Sort</th>
                                     <th class="d-print-none"></th>
                                     <th>Item</th>
                                     <th>Description</th>
@@ -289,37 +290,25 @@ if (isset($_GET['invoice_id'])) {
                                     $sub_total = $item_price * $item_quantity + $sub_total;
                                     $item_order = intval($row['item_order']);
 
+                                    // Logic to check if top or bottom arrow should be hidden
+                                    if ($item_order == 1) {
+                                        $up_hidden = "hidden";
+                                    } else {
+                                        $up_hidden = "";
+                                    }
+
+                                    if ($item_order == mysqli_num_rows($sql_invoice_items)) {
+                                        $down_hidden = "hidden";
+                                    } else {
+                                        $down_hidden = "";
+                                    }
+
                                     ?>
 
                                     <tr>
                                         <td>
                                             <div class="d-print-none row">
                                                 <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
-                                                <form action="post.php" method="post">
-                                                    <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
-                                                    <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                    <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                    <?php 
-                                                        // Logic to check if top or bottom arrow should be hidden
-                                                        if ($item_order == 1) {
-                                                            $up_hidden = "hidden";
-                                                        } else {
-                                                            $up_hidden = "";
-                                                        }
-
-                                                        if ($item_order == mysqli_num_rows($sql_invoice_items)) {
-                                                            $down_hidden = "hidden";
-                                                        } else {
-                                                            $down_hidden = "";
-                                                        }
-                                                    ?>
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>>
-                                                        <i class="fas fa-arrow-up"></i>
-                                                    </button> 
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>>
-                                                        <i class="fas fa-arrow-down"></i>
-                                                    </button>
-                                                </form>
                                                 <?php } ?>
 
                                             </div>
@@ -335,6 +324,18 @@ if (isset($_GET['invoice_id'])) {
                                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <form action="post.php" method="post">
+                                                            <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
+                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
+                                                            <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>>
+                                                                <i class="fas fa-arrow-up"></i>
+                                                            </button> 
+                                                            <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>>
+                                                                <i class="fas fa-arrow-down"></i>
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </div>  
                                                 
