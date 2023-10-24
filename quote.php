@@ -308,7 +308,6 @@ if (isset($_GET['quote_id'])) {
                                     <tr>
                                         <td class="d-print-none">
                                             <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
-                                                <?php echo $item_order; ?>
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
