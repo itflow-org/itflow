@@ -76,18 +76,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function pauseForEdit() {
-        wasRunningBeforeEdit = !isPaused; // check if timer was running
-        pauseTimer();
-    }
-
-    function restartAfterEdit() {
-        if (wasRunningBeforeEdit) {
-            startTimer();
-        }
-    }
-
-
     // Start timer when page is loaded
     startTimer();
 
@@ -96,11 +84,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Toggle timer when button is clicked
     document.getElementById("toggleTimer").addEventListener('click', toggleTimer);
-
-    // Function to pause the timer when the time input is clicked
-    document.getElementById("time_worked").addEventListener('focus', pauseForEdit);
-    
-    // Function to restart the timer when the time input is clicked away from
-    document.getElementById("time_worked").addEventListener('blur', restartAfterEdit);
-
 });
