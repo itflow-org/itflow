@@ -306,14 +306,6 @@ if (isset($_GET['invoice_id'])) {
                                     ?>
 
                                     <tr>
-                                        <td>
-                                            <div class="d-print-none row">
-                                                <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
-                                                <?php } ?>
-
-                                            </div>
-                                        </td>
-
                                         <td class="d-print-none">
                                             <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
                                                 <div class="dropdown">
