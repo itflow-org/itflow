@@ -299,9 +299,6 @@ if (isset($_GET['quote_id'])) {
                                     } else {
                                         $up_hidden = "";
                                     }
-
-
-                                    
                                     //This is prefered over the screen seen in the invoice menu.
                                     ?>
                                     
