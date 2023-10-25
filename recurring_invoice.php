@@ -255,8 +255,9 @@ if (isset($_GET['recurring_id'])) {
                                                         <input type="hidden" name="item_recurring_id" value="<?php echo $recurring_id; ?>">
                                                         <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
                                                         <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                        <button class="btn btn-sm btn-light" type="submit" name="update_recurring_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i></button>
-                                                        <button class="btn btn-sm btn-light" type="submit" name="update_recurring_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i></button>
+                                                        <button class="btn btn-sm btn-light" type="submit" name="update_recurring_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i> Move Up</button>
+                                                        <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
+                                                        <button class="btn btn-sm btn-light" type="submit" name="update_recurring_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i> Move Down</button>
                                                     </form>
                                                 </div>
                                             </div>  
