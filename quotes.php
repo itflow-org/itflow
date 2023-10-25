@@ -110,6 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $quote_date = nullable_htmlentities($row['quote_date']);
                         $quote_expire = nullable_htmlentities($row['quote_expire']);
                         $quote_amount = floatval($row['quote_amount']);
+                        $quote_discount = floatval($row['quote_discount']);
                         $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
                         $quote_created_at = nullable_htmlentities($row['quote_created_at']);
                         $client_id = intval($row['client_id']);

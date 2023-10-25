@@ -105,6 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $recurring_scope = nullable_htmlentities($row['recurring_scope']);
                     $recurring_frequency = nullable_htmlentities($row['recurring_frequency']);
                     $recurring_status = nullable_htmlentities($row['recurring_status']);
+                    $recurring_discount = floatval($row['recurring_discount_amount']);
                     $recurring_last_sent = $row['recurring_last_sent'];
                     if ($recurring_last_sent == 0) {
                         $recurring_last_sent = "-";

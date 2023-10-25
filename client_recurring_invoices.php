@@ -83,6 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $recurring_next_date = nullable_htmlentities($row['recurring_next_date']);
                     $recurring_amount = floatval($row['recurring_amount']);
+                    $recurring_discount = floatval($row['recurring_discount_amount']);
                     $recurring_currency_code = nullable_htmlentities($row['recurring_currency_code']);
                     $recurring_created_at = nullable_htmlentities($row['recurring_created_at']);
                     $category_id = intval($row['category_id']);
@@ -106,9 +107,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $category_name; ?></td>
                         <td>
-                   <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
-                    <?php echo $status; ?>
-                  </span>
+                        <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
+                        <?php echo $status; ?>
+                        </span>
                         </td>
                         <td>
                             <div class="dropdown dropleft text-center">
