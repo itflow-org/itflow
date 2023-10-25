@@ -1,107 +1,146 @@
-document.addEventListener("DOMContentLoaded", function() {
+// Description: This file contains the javascript for the ticket time tracking feature
 
-    // Default values
-    var hours = 0;
-    var minutes = 0;
-    var seconds = 0;
-    var timerInterval = null;  // variable to hold interval id
-    var isPaused = false;  // variable to track if the timer is paused
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize variables
+    var timerInterval = null;
+    var isPaused = false;
+    var ticketID = getCurrentTicketID();
+    var elapsedSecs = getElapsedSeconds();
+    
+    // Get the ticket ID from the URL
+    // Inputs: None
+    // Outputs: The ticket ID from the URL
+    // Document Interactions: None
+
+    function getCurrentTicketID() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('ticket_id');
+    }
+
+    
+    // Get the local storage key for the ticket
+    // Inputs: The suffix to append to the key
+    // Outputs: The local storage key for the ticket
+    // Document Interactions: None
+
+    function getLocalStorageKey(suffix) {
+        return ticketID + "-" + suffix;
+    }
+
+    
+    // Get the elapsed seconds from local storage
+    // Inputs: None
+    // Outputs: The elapsed seconds from local storage
+    // Document Interactions: None
+
+    function getElapsedSeconds() {
+        let storedStartTime = localStorage.getItem(getLocalStorageKey("startTime"));
+        let pausedTime = parseInt(localStorage.getItem(getLocalStorageKey("pausedTime")) || "0");
+        // If there is no start time, return the paused time
+        if (!storedStartTime) return pausedTime;
+        // Otherwise, return the paused time plus the time since the start time
+        let timeSinceStart = Math.floor((Date.now() - parseInt(storedStartTime)) / 1000);
+        return pausedTime + timeSinceStart;
+    }
+
+    // Display the elapsed time
+    // Inputs: None
+    // Outputs: None
+    // Document Interactions: Updates the time worked input
+
+    function displayTime() {
+        let totalSeconds = elapsedSecs;
+        let hours = Math.floor(totalSeconds / 3600);
+        totalSeconds %= 3600;
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+        // Update the time worked input
+        document.getElementById("time_worked").value = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+    
+    // Pad a number with a leading zero if it is less than 10
+    // Inputs: The number to pad
+    // Outputs: The padded number
+    // Document Interactions: None
+    
+    function pad(val) {
+        return val < 10 ? "0" + val : val;
+    }
+
+    // Count the time
+    // Inputs: None
+    // Outputs: None
+    // Document Interactions: Updates the elapsed time
+
+    function countTime() {
+        elapsedSecs++;
+        displayTime();
+    }
+
+    
+    // Start the timer
+    // Inputs: None
+    // Outputs: None
+    // Document Interactions: None
 
     function startTimer() {
-        if(timerInterval === null) {
+        if (!localStorage.getItem(getLocalStorageKey("startTime"))) {
+            localStorage.setItem(getLocalStorageKey("startTime"), Date.now().toString());
+        }
+        if (!isPaused && timerInterval === null) {
             timerInterval = setInterval(countTime, 1000);
         }
     }
 
-    // Counter
-    function countTime() {
-        ++seconds;
-        if (seconds == 60) {
-            seconds = 0;
-            minutes++;
-        }
-        if (minutes == 60) {
-            minutes = 0;
-            hours++;
-        }
+    // Pause the timer
+    // Inputs: None
+    // Outputs: None
+    // Document Interactions: None
 
-        // Total time worked
-        var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
-        document.getElementById("time_worked").value = time_worked;
-    }
-
-    // Allows manually adjusting the timer
-    function setTime() {
-        var time_as_text = document.getElementById("time_worked").value;
-        const time_text_array = time_as_text.split(":");
-        hours = parseInt(time_text_array[0]);
-        minutes = parseInt(time_text_array[1]);
-        seconds = parseInt(time_text_array[2]);
-        if (!isPaused) {
-            startTimer();  // start the timer when time is manually adjusted
-        }
-    }
-
-    // This function "pads" out the values, adding zeros if they are required
-    function pad(val) {
-        var valString = val + "";
-        if (valString.length < 2) {
-            return "0" + valString;
-        } else {
-            return valString;
-        }
-    }
-
-    // Function to pause the timer
     function pauseTimer() {
-        if(timerInterval !== null) {
+        if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
         }
+        let currentElapsed = getElapsedSeconds();
+        localStorage.setItem(getLocalStorageKey("pausedTime"), currentElapsed.toString());
+        localStorage.removeItem(getLocalStorageKey("startTime"));
     }
 
-    // Function to toggle the timer
-    function toggleTimer() {
-        var button = document.getElementById("toggleTimer");
-        if(isPaused) {
-            // If timer is paused, then start the timer and change the button icon to pause
+    // Clear the time storage
+    // Inputs: None
+    // Outputs: None
+    // Document Interactions: None
+
+    function clearTimeStorage() {
+        localStorage.removeItem(getLocalStorageKey("startTime"));
+        localStorage.removeItem(getLocalStorageKey("pausedTime"));
+    }
+
+    // Add event listeners
+
+    // When toggleTimer is clicked, toggle the timer
+    document.getElementById("toggleTimer").addEventListener('click', function() {
+        if (isPaused) {
+            // If the timer is paused, start it
             startTimer();
-            button.innerHTML = '<i class="fas fa-pause"></i>';
             isPaused = false;
         } else {
-            // If timer is running, then pause the timer and change the button icon to play
+            // If the timer is running, pause it
             pauseTimer();
-            button.innerHTML = '<i class="fas fa-play"></i>';
             isPaused = true;
         }
-    }
+    });
 
-
-    function pauseForEdit() {
-        wasRunningBeforeEdit = !isPaused; // check if timer was running
+    // When the ticket is submitted, clear the time storage
+    document.getElementById("ticket_add_reply").addEventListener('click', function() {
         pauseTimer();
-    }
+        clearTimeStorage();
+    });
 
-    function restartAfterEdit() {
-        if (wasRunningBeforeEdit) {
-            startTimer();
-        }
-    }
-
-
-    // Start timer when page is loaded
+    // Initialize on page load
+    // If the timer is paused, start it
+    displayTime();
     startTimer();
-
-    // Set setTime as the onchange event handler for the time input
-    document.getElementById("time_worked").addEventListener('change', setTime);
-
-    // Toggle timer when button is clicked
-    document.getElementById("toggleTimer").addEventListener('click', toggleTimer);
-
-    // Function to pause the timer when the time input is clicked
-    document.getElementById("time_worked").addEventListener('focus', pauseForEdit);
-    
-    // Function to restart the timer when the time input is clicked away from
-    document.getElementById("time_worked").addEventListener('blur', restartAfterEdit);
 
 });
