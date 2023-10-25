@@ -122,6 +122,7 @@ if (isset($_POST['add_invoice_copy'])) {
     header("Location: invoice.php?invoice_id=$new_invoice_id");
 
 }
+
 if (isset($_POST['add_invoice_recurring'])) {
 
     $invoice_id = intval($_POST['invoice_id']);
@@ -172,8 +173,6 @@ if (isset($_POST['add_invoice_recurring'])) {
 
 }
 
-
-
 if (isset($_POST['add_recurring'])) {
 
     $client = intval($_POST['client']);
@@ -210,8 +209,18 @@ if (isset($_POST['edit_recurring'])) {
     $category = intval($_POST['category']);
     $scope = sanitizeInput($_POST['scope']);
     $status = intval($_POST['status']);
+    $recurring_discount = floatval($_POST['recurring_discount']);
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$next_date', recurring_category_id = $category, recurring_status = $status WHERE recurring_id = $recurring_id");
+    //Calculate new total
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id");
+    $recurring_amount = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $recurring_amount = $recurring_amount + $item_total;
+    }
+    $recurring_amount = $recurring_amount - $recurring_discount;
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$next_date', recurring_category_id = $category, recurring_discount_amount = $recurring_discount, recurring_amount = $recurring_amount, recurring_status = $status WHERE recurring_id = $recurring_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring modified', history_recurring_id = $recurring_id");
 
@@ -277,14 +286,23 @@ if (isset($_POST['add_recurring_item'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_recurring_id = $recurring_id");
 
-    //Update Recurring Balances
+    //Get Discount 
 
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
     $row = mysqli_fetch_array($sql);
+    $recurring_discount = floatval($row['recurring_discount_amount']);
 
-    $new_recurring_amount = floatval($row['recurring_amount']) + $total;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $new_recurring_amount WHERE recurring_id = $recurring_id");
+    //add up all the items
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id");
+    $recurring_amount = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $recurring_amount = $recurring_amount + $item_total;
+    }
+    $recurring_amount = $recurring_amount - $recurring_discount;
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $recurring_amount WHERE recurring_id = $recurring_id");
 
     $_SESSION['alert_message'] = "Recurring Invoice Updated";
 
@@ -509,19 +527,28 @@ if (isset($_POST['edit_item'])) {
         mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
     }elseif ($quote_id > 0) {
+        //Get Discount Amount
+        $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+        $row = mysqli_fetch_array($sql);
+        $quote_discount = floatval($row['quote_discount_amount']);
+
         //Update Quote Balances by tallying up items
         $sql_quote_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS quote_total FROM invoice_items WHERE item_quote_id = $quote_id");
         $row = mysqli_fetch_array($sql_quote_total);
-        $new_quote_amount = floatval($row['quote_total']);
+        $new_quote_amount = floatval($row['quote_total']) - $quote_discount;
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
     } else {
-        //Update Invoice Balances by tallying up invoice items
+        //Get Discount Amount
+        $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+        $row = mysqli_fetch_array($sql);
+        $recurring_discount = floatval($row['recurring_discount_amount']);
 
+        //Update Invoice Balances by tallying up invoice items
         $sql_recurring_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS recurring_total FROM invoice_items WHERE item_recurring_id = $recurring_id");
         $row = mysqli_fetch_array($sql_recurring_total);
-        $new_recurring_amount = floatval($row['recurring_total']);
+        $new_recurring_amount = floatval($row['recurring_total']) - $recurring_discount;
 
         mysqli_query($mysqli,"UPDATE recurring SET recurring_amount = $new_recurring_amount WHERE recurring_id = $recurring_id");
 
@@ -990,7 +1017,7 @@ if (isset($_GET['force_recurring'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
-} //End Force Recurring
+}
 
 if (isset($_POST['export_client_invoices_csv'])) {
     $client_id = intval($_POST['client_id']);

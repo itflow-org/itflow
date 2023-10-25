@@ -143,7 +143,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 }
 
 if (isset($_POST['add_quote_item'])) {
-
+    
+    include 'post/quote_model.php';
     $quote_id = intval($_POST['quote_id']);
 
     $name = sanitizeInput($_POST['name']);
@@ -168,13 +169,22 @@ if (isset($_POST['add_quote_item'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_quote_id = $quote_id");
 
-    //Update Invoice Balances
-
+    //Get Discount
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
 
-    $new_quote_amount = floatval($row['quote_amount']) + $total;
+    $quote_discount_amount = floatval($row['quote_discount_amount']);
 
+
+    //add up the total of all items
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $quote_amount = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $quote_amount = $quote_amount + $item_total;
+    }
+    $new_quote_amount = $quote_amount - $quote_discount_amount;
+    
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
     $_SESSION['alert_message'] = "Item added";
@@ -203,7 +213,17 @@ if (isset($_POST['edit_quote'])) {
 
     $quote_id = intval($_POST['quote_id']);
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_category_id = $category WHERE quote_id = $quote_id");
+    //Calculate the new quote amount
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
+    $quote_amount = 0;
+    while($row = mysqli_fetch_array($sql)) {
+        $item_total = floatval($row['item_total']);
+        $quote_amount = $quote_amount + $item_total;
+    }
+    $quote_amount = $quote_amount - $quote_discount;
+
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_discount_amount = '$quote_discount', quote_amount = '$quote_amount', quote_category_id = $category WHERE quote_id = $quote_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

@@ -40,6 +40,7 @@ $quote_number = intval($row['quote_number']);
 $quote_status = nullable_htmlentities($row['quote_status']);
 $quote_date = nullable_htmlentities($row['quote_date']);
 $quote_expire = nullable_htmlentities($row['quote_expire']);
+$quote_discount = floatval($row['quote_discount_amount']);
 $quote_amount = floatval($row['quote_amount']);
 $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
 $quote_note = nullable_htmlentities($row['quote_note']);
@@ -232,6 +233,17 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
+                        <?php
+                        if ($quote_discount > 0) {
+                            ?>
+                            <tr class="border-bottom">
+                                <td>Discount</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
+                            </tr>
+                            <?php
+                            $sub_total = $sub_total - $quote_discount;
+                        }
+                        ?>
                         <tr class="border-bottom">
                             <td>Subtotal</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>

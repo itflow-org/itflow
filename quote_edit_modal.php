@@ -47,6 +47,17 @@
                         </div>
                     </div>
 
+                    
+                    <div class='form-group'>
+                        <label>Discount Amount</label>
+                        <div class='input-group'>
+                            <div class='input-group-prepend'>
+                                <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
+                            </div>
+                            <input type='number' class='form-control' step="0.01" name='quote_discount' placeholder='Discount Amount' value='<?php echo $quote_discount; ?>'>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Scope</label>
                         <div class="input-group">

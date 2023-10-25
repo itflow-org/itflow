@@ -28,6 +28,7 @@ if (isset($_GET['recurring_id'])) {
     }
     $recurring_next_date = nullable_htmlentities($row['recurring_next_date']);
     $recurring_amount = floatval($row['recurring_amount']);
+    $recurring_discount = floatval($row['recurring_discount_amount']);
     $recurring_currency_code = nullable_htmlentities($row['recurring_currency_code']);
     $recurring_note = nullable_htmlentities($row['recurring_note']);
     $category_id = intval($row['recurring_category_id']);
@@ -353,20 +354,32 @@ if (isset($_GET['recurring_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code); ?></td>
-                        </tr>
-                        <?php if ($total_tax > 0) { ?>
+                            <?php
+                            if ($recurring_discount > 0) {
+                                ?>
+                                <tr class="border-bottom">
+                                    <td>Discount</td>
+                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_discount, $recurring_currency_code); ?></td>
+                                </tr>
+
+                                <?php
+                                $sub_total = $sub_total - $invoice_discount;
+                            }
+                            ?>
                             <tr class="border-bottom">
-                                <td>Tax</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code); ?></td>
+                                <td>Subtotal</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
-                        <tr class="border-bottom">
-                            <td><strong>Total</strong></td>
-                            <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></strong></td>
-                        </tr>
+                            <?php if ($total_tax > 0) { ?>
+                                <tr class="border-bottom">
+                                    <td>Tax</td>
+                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_currency_code); ?></td>
+                                </tr>
+                            <?php } ?>
+                            <tr class="border-bottom">
+                                <td><strong>Total</strong></td>
+                                <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></strong></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
