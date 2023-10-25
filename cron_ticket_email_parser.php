@@ -20,7 +20,6 @@ require_once "config.php";
 
 require_once "functions.php";
 
-
 // Get system temp directory
 $temp_dir = sys_get_temp_dir();
 
@@ -29,7 +28,15 @@ $lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
 
 // Check for lock file to prevent concurrent script runs
 if (file_exists($lock_file_path)) {
-    exit("Script is already running. Exiting.");
+    $file_age = time() - filemtime($lock_file_path);
+    
+    // If file is older than 10 minutes (600 seconds), delete and continue
+    if ($file_age > 600) {
+        unlink($lock_file_path);
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Delete', log_description = 'Cron Email Parser detected a lock file was present but was over 10 minutes old so it removed it'");
+    } else {
+        exit("Script is already running. Exiting.");
+    }
 }
 
 // Create a lock file
