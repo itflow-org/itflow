@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", function() {
         localStorage.setItem(getLocalStorageKey(), JSON.stringify(timeData));
     }
 
+    function clearTimeStorage() {
+        localStorage.removeItem(getLocalStorageKey());
+    }
+
     function startTimer() {
         if (timerInterval === null) {
             timerInterval = setInterval(countTime, 1000);
@@ -121,5 +125,8 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("toggleTimer").addEventListener('click', toggleTimer);
     document.getElementById("time_worked").addEventListener('focus', pauseForEdit);
     document.getElementById("time_worked").addEventListener('blur', restartAfterEdit);
+    document.getElementById("ticket_add_reply").addEventListener('click', function() {
+        clearTimeStorage();
+    });
 
 });
