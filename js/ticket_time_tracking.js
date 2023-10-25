@@ -1,132 +1,89 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    var hours = 0;
-    var minutes = 0;
-    var seconds = 0;
     var timerInterval = null;
     var isPaused = false;
-
     var ticketID = getCurrentTicketID();
-
-    // Load stored time if available
-    loadTimeFromStorage();
+    var elapsedSecs = getElapsedSeconds();
 
     function getCurrentTicketID() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('ticket_id');
     }
 
-    function getLocalStorageKey() {
-        return 'time-' + ticketID;
+    function getLocalStorageKey(suffix) {
+        return ticketID + "-" + suffix;
     }
 
-    function loadTimeFromStorage() {
-        var storedTime = localStorage.getItem(getLocalStorageKey());
-        if (storedTime) {
-            var parsed = JSON.parse(storedTime);
-            hours = parsed.hours || 0;
-            minutes = parsed.minutes || 0;
-            seconds = parsed.seconds || 0;
-        }
+    function getElapsedSeconds() {
+        let storedStartTime = localStorage.getItem(getLocalStorageKey("startTime"));
+        let pausedTime = parseInt(localStorage.getItem(getLocalStorageKey("pausedTime")) || "0");
+
+        if (!storedStartTime) return pausedTime;
+
+        let timeSinceStart = Math.floor((Date.now() - parseInt(storedStartTime)) / 1000);
+        return pausedTime + timeSinceStart;
     }
 
-    function storeTimeToStorage() {
-        var timeData = {
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds
-        };
-        localStorage.setItem(getLocalStorageKey(), JSON.stringify(timeData));
+    function displayTime() {
+        let totalSeconds = elapsedSecs;
+        let hours = Math.floor(totalSeconds / 3600);
+        totalSeconds %= 3600;
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+
+        document.getElementById("time_worked").value = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
-    function clearTimeStorage() {
-        localStorage.removeItem(getLocalStorageKey());
+    function pad(val) {
+        return val < 10 ? "0" + val : val;
+    }
+
+    function countTime() {
+        elapsedSecs++;
+        displayTime();
     }
 
     function startTimer() {
-        if (timerInterval === null) {
+        if (!localStorage.getItem(getLocalStorageKey("startTime"))) {
+            localStorage.setItem(getLocalStorageKey("startTime"), Date.now().toString());
+        }
+        if (!isPaused && timerInterval === null) {
             timerInterval = setInterval(countTime, 1000);
         }
     }
 
-    function countTime() {
-        ++seconds;
-        if (seconds == 60) {
-            seconds = 0;
-            minutes++;
-        }
-        if (minutes == 60) {
-            minutes = 0;
-            hours++;
-        }
-
-        var time_worked = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
-        document.getElementById("time_worked").value = time_worked;
-        storeTimeToStorage();
-    }
-
-    function pad(val) {
-        var valString = val + "";
-        if (valString.length < 2) {
-            return "0" + valString;
-        } else {
-            return valString;
-        }
-    }
-
     function pauseTimer() {
-        if (timerInterval !== null) {
+        if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
         }
+        let currentElapsed = getElapsedSeconds();
+        localStorage.setItem(getLocalStorageKey("pausedTime"), currentElapsed.toString());
+        localStorage.removeItem(getLocalStorageKey("startTime"));
     }
 
-    function toggleTimer() {
-        var button = document.getElementById("toggleTimer");
+    function clearTimeStorage() {
+        localStorage.removeItem(getLocalStorageKey("startTime"));
+        localStorage.removeItem(getLocalStorageKey("pausedTime"));
+    }
+
+    document.getElementById("toggleTimer").addEventListener('click', function() {
         if (isPaused) {
             startTimer();
-            button.innerHTML = '<i class="fas fa-pause"></i>';
             isPaused = false;
         } else {
             pauseTimer();
-            button.innerHTML = '<i class="fas fa-play"></i>';
             isPaused = true;
         }
-    }
+    });
 
-    function setTime() {
-        var time_as_text = document.getElementById("time_worked").value;
-        const time_text_array = time_as_text.split(":");
-        hours = parseInt(time_text_array[0]);
-        minutes = parseInt(time_text_array[1]);
-        seconds = parseInt(time_text_array[2]);
-        if (!isPaused) {
-            startTimer();
-        }
-    }
-
-    function pauseForEdit() {
-        var wasRunningBeforeEdit = !isPaused; 
-        pauseTimer();
-    }
-
-    function restartAfterEdit() {
-        var wasRunningBeforeEdit = !isPaused;
-        if (wasRunningBeforeEdit) {
-            startTimer();
-        }
-    }
-
-    // Start timer when page is loaded
-    startTimer();
-
-    // Event listeners
-    document.getElementById("time_worked").addEventListener('change', setTime);
-    document.getElementById("toggleTimer").addEventListener('click', toggleTimer);
-    document.getElementById("time_worked").addEventListener('focus', pauseForEdit);
-    document.getElementById("time_worked").addEventListener('blur', restartAfterEdit);
     document.getElementById("ticket_add_reply").addEventListener('click', function() {
+        pauseTimer();
         clearTimeStorage();
     });
+
+    // Initialize on page load
+    displayTime();
+    startTimer();
 
 });
