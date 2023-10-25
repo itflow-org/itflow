@@ -298,17 +298,11 @@ if (isset($_GET['quote_id'])) {
                                         $up_hidden = "hidden";
                                     } else {
                                         $up_hidden = "";
-                                    }
-
-
-                                    
-                                    //This is prefered over the screen seen in the invoice menu.
-                                    ?>
+                                    }?>
                                     
                                     <tr>
                                         <td class="d-print-none">
                                             <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
-                                                <?php echo $item_order; ?>
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
@@ -326,8 +320,9 @@ if (isset($_GET['quote_id'])) {
                                                             <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
                                                             <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
                                                             <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="btn btn-sm btn-light" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i></button>
-                                                            <button class="btn btn-sm btn-light" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i></button>
+                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i>Move Up</button>
+                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
+                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i>Move Down</button>
                                                         </form>
                                                     </div>
                                                 </div>

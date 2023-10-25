@@ -259,7 +259,6 @@ if (isset($_GET['invoice_id'])) {
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th class="text-left">Sort</th>
                                     <th class="d-print-none"></th>
                                     <th>Item</th>
                                     <th>Description</th>
@@ -288,43 +287,19 @@ if (isset($_GET['invoice_id'])) {
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
                                     $item_order = intval($row['item_order']);
-
+                                    // Logic to check if top or bottom arrow should be hidden
+                                    if ($item_order == 1) {
+                                        $up_hidden = "hidden";
+                                    } else {
+                                        $up_hidden = "";
+                                    }
+                                    if ($item_order == mysqli_num_rows($sql_invoice_items)) {
+                                        $down_hidden = "hidden";
+                                    } else {
+                                        $down_hidden = "";
+                                    }
                                     ?>
-
                                     <tr>
-                                        <td>
-                                            <div class="d-print-none row">
-                                                <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
-                                                <form action="post.php" method="post">
-                                                    <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
-                                                    <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                    <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                    <?php 
-                                                        // Logic to check if top or bottom arrow should be hidden
-                                                        if ($item_order == 1) {
-                                                            $up_hidden = "hidden";
-                                                        } else {
-                                                            $up_hidden = "";
-                                                        }
-
-                                                        if ($item_order == mysqli_num_rows($sql_invoice_items)) {
-                                                            $down_hidden = "hidden";
-                                                        } else {
-                                                            $down_hidden = "";
-                                                        }
-                                                    ?>
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>>
-                                                        <i class="fas fa-arrow-up"></i>
-                                                    </button> 
-                                                    <button class="btn btn-sm btn-light" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>>
-                                                        <i class="fas fa-arrow-down"></i>
-                                                    </button>
-                                                </form>
-                                                <?php } ?>
-
-                                            </div>
-                                        </td>
-
                                         <td class="d-print-none">
                                             <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
                                                 <div class="dropdown">
@@ -335,6 +310,15 @@ if (isset($_GET['invoice_id'])) {
                                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-times mr-2"></i>Remove</a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <form action="post.php" method="post">
+                                                            <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
+                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
+                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-arrow-up"></i> Move Up</button> 
+                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
+                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>><i class="fas fa-arrow-down"></i> Move down</button>
+                                                        </form>
                                                     </div>
                                                 </div>  
                                                 
@@ -347,23 +331,16 @@ if (isset($_GET['invoice_id'])) {
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
                                     </tr>
-
                                     <?php
-
                                     if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") {
                                         require "item_edit_modal.php";
-
                                     }
-
                                 }
-
                                 ?>
-
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled") { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
                                         <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
-                                        <td></td>
                                         <td></td>
                                         <td>
                                             <input type="text" class="form-control" id="name" name="name" placeholder="Item" required>
@@ -381,7 +358,6 @@ if (isset($_GET['invoice_id'])) {
                                             <select class="form-control select2" name="tax_id" required>
                                                 <option value="0">No Tax</option>
                                                 <?php
-
                                                 $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_array($taxes_sql)) {
                                                     $tax_id = intval($row['tax_id']);
@@ -389,7 +365,6 @@ if (isset($_GET['invoice_id'])) {
                                                     $tax_percent = floatval($row['tax_percent']);
                                                     ?>
                                                     <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
-
                                                     <?php
                                                 }
                                                 ?>
@@ -408,7 +383,6 @@ if (isset($_GET['invoice_id'])) {
                     </div>
                 </div>
             </div>
-
             <div class="row mb-4">
                 <div class="col-sm-7">
                     <div class="card">
@@ -466,13 +440,10 @@ if (isset($_GET['invoice_id'])) {
                     </table>
                 </div>
             </div>
-
             <hr class="d-none d-print-block mt-5">
-
             <div class="d-none d-print-block text-center"><?php echo nl2br(nullable_htmlentities($config_invoice_footer)); ?></div>
         </div>
     </div>
-
     <div class="row d-print-none mb-3">
         <div class="col-sm">
             <div class="card">
@@ -573,7 +544,6 @@ if (isset($_GET['invoice_id'])) {
             </div>
         </div>
     </div>
-
     <?php
     include_once "invoice_payment_add_modal.php";
 
