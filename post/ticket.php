@@ -459,8 +459,17 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_reply = $_POST['ticket_reply'];
     $ticket_status_escaped = sanitizeInput($_POST['status']);
     $ticket_status = $_POST['status'];
-    $ticket_reply_time_worked_escaped = sanitizeInput($_POST['time']);
-    $ticket_reply_time_worked = $_POST['time'];
+    // Handle the time inputs for hours, minutes, and seconds
+    $hours = intval($_POST['hours']);
+    $minutes = intval($_POST['minutes']);
+    $seconds = intval($_POST['seconds']);
+
+    //var_dump($_POST);
+    //exit;
+
+    // Combine into a single time string
+    $ticket_reply_time_worked = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+    $ticket_reply_time_worked_escaped = sanitizeInput($ticket_reply_time_worked);
 
     $client_id = intval($_POST['client_id']);
 
