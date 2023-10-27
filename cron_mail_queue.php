@@ -20,7 +20,7 @@ if (file_exists($lock_file_path)) {
         unlink($lock_file_path);
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Delete', log_description = 'Cron Mail Queuer detected a lock file was present but was over 10 minutes old so it removed it.'");
     } else {
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Locked', log_description = 'Cron Mail Queuer attempted to execute but was already executing so instead it terminated.");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Locked', log_description = 'Cron Mail Queuer attempted to execute but was already executing so instead it terminated.'");
         exit("Script is already running. Exiting.");
     }
 }
