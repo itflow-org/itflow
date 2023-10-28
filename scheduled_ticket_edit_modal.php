@@ -13,6 +13,18 @@
                     <input type="hidden" name="client" id="editClientId">
 
                     <div class="form-group">
+                        <label>Contact <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            </div>
+                            <select class="form-control select2" name="contact" id="editTicketContact" required>
+                                <option value="">- Contact -</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>Frequency <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">

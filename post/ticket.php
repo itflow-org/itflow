@@ -211,7 +211,7 @@ if (isset($_POST['add_ticket_watcher'])) {
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
     $watcher_email = sanitizeInput($_POST['watcher_email']);
-    
+
     mysqli_query($mysqli,"INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
 
     //Logging
@@ -963,8 +963,15 @@ if (isset($_POST['edit_scheduled_ticket'])) {
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
 
+    // If no contact is selected automatically choose the primary contact for the client
+    if ($client_id > 0 && $contact_id == 0) {
+        $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
+        $row = mysqli_fetch_array($sql);
+        $contact_id = intval($row['contact_id']);
+    }
+
     // Edit scheduled ticket
-    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id, scheduled_ticket_contact_id = $contact_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Modify', log_description = '$session_name modified scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");

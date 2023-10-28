@@ -10,6 +10,7 @@ function populateScheduledTicketEditModal(client_id, ticket_id) {
             const response = JSON.parse(data);
 
             // Access the ticket info, and all potential assets
+            const contacts = response.contacts;
             const ticket = response.ticket[0];
             const assets = response.assets;
 
@@ -21,6 +22,27 @@ function populateScheduledTicketEditModal(client_id, ticket_id) {
             document.getElementById("editTicketNextRun").value = ticket.scheduled_ticket_next_run;
             tinyMCE.get('editTicketDetails').setContent(ticket.scheduled_ticket_details);
 
+            // Contact dropdown
+            var contactDropdown = document.getElementById("editTicketContact");
+
+            // Clear contact dropdown
+            var i, L = contactDropdown.options.length -1;
+            for(i = L; i >= 0; i--) {
+                contactDropdown.remove(i);
+            }
+            contactDropdown[contactDropdown.length] = new Option('- Contact -', '0');
+
+
+            // Populate dropdown
+            contacts.forEach(contact => {
+                if(parseInt(contact.contact_id) == parseInt(ticket.scheduled_ticket_contact_id)){
+                    // Selected contact
+                    contactDropdown[contactDropdown.length] = new Option(contact.contact_name, contact.contact_id, true, true);
+                }
+                else{
+                    contactDropdown[contactDropdown.length] = new Option(contact.contact_name, contact.contact_id);
+                }
+            });
 
             // Frequency dropdown
             var frequencyDropdown = document.querySelector("#editTicketFrequency");
