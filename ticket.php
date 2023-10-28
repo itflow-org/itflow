@@ -315,17 +315,41 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                                        </div>
-                                        <input class="form-control timepicker" id="time_worked" name="time" type="text" value="00:00:00" onchange="setTime()"/>
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-dark" id="toggleTimer"><i class="fas fa-pause"></i></button>
-                                        </div>
+                            <!-- Time Tracking: Hours -->
+                            <div class="col-md-2">
+                                <div class="input-group mb-3">
+                                    <input type="number" class="form-control" id="hours" name="hours" placeholder="Hours" min="0" max="23">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Hrs</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Time Tracking: Minutes -->
+                            <div class="col-md-2">
+                                <div class="input-group mb-3">
+                                    <input type="number" class="form-control" id="minutes" name="minutes" placeholder="Minutes" min="0" max="59">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Mins</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Time Tracking: Seconds -->
+                            <div class="col-md-2">
+                                <div class="input-group mb-3">
+                                    <input type="number" class="form-control" id="seconds" name="seconds" placeholder="Seconds" min="0" max="59">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Secs</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timer Controls -->
+                            <div class="col-md-2">
+                                <div class="btn-group mt-2" role="group">
+                                    <button type="button" class="btn btn-success" id="startStopTimer">Pause</button>
+                                    <button type="button" class="btn btn-danger" id="resetTimer">Reset</button>
                                 </div>
                             </div>
 
