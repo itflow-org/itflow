@@ -329,8 +329,8 @@ if (isset($_GET['scheduled_ticket_get_json_details'])) {
     $client_id = intval($_GET['client_id']);
     $ticket_id = intval($_GET['ticket_id']);
 
-    $contact_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts 
-    WHERE contact_client_id = $client_id 
+    $contact_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts
+    WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
     ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC"
     );
