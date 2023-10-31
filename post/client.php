@@ -26,7 +26,7 @@ if (isset($_POST['add_client'])) {
 
     $extended_log_description = '';
 
-    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = '$lead', client_notes = '$notes', client_accessed_at = NOW()");
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_notes = '$notes', client_accessed_at = NOW()");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -115,7 +115,7 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = '$lead', client_notes = '$notes' WHERE client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_notes = '$notes' WHERE client_id = $client_id");
 
     //Tags
     //Delete existing tags

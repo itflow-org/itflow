@@ -2,15 +2,13 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create <?php if (isset($lead)){ echo "Lead";} else { echo "Client";}?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="client_lead" value="<?php 
-                if (isset($lead)){ echo "1";} else { echo "0";}
-                ?>">
+                <input type="hidden" name="lead" value="0">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -94,11 +92,10 @@
                                 <label><i class="fas fa-fw fa-bullhorn mr-2"></i>Is Lead</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <input type="checkbox" name="lead" value="1">
+                                        <input type="checkbox" name="lead" value="1" <?php if($leads == 1){ echo "checked"; } ?>>
                                     </div>
                                 </div>
                             </div>
-
 
                         </div>
 
@@ -236,9 +233,7 @@
 
                         <div class="tab-pane fade" id="pills-additional">
 
-                            <?php if ($config_module_enable_accounting) {
-                                    if (!isset($lead)) {
-                                ?>
+                            <?php if ($config_module_enable_accounting) { ?>
 
                                 <div class="form-group">
                                     <label>Hourly Rate</label>
@@ -292,7 +287,7 @@
                             <?php } else { ?>
                                 <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
                                 <input type="hidden" name="net_terms" value="0">
-                            <?php } }?>
+                            <?php } ?>
 
                             <div class="form-group">
                                 <label>Notes</label>

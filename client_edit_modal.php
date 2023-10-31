@@ -11,6 +11,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="lead" value="0">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -18,12 +19,10 @@
                             <a class="nav-link active" data-toggle="pill"
                                 href="#pills-client-details<?php echo $client_id; ?>">Details</a>
                         </li>
-                        <?php if (!isset($lead)) { ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill"
                                 href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
                         </li>
-                        <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill"
                                 href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
