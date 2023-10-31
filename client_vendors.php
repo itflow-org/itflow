@@ -14,7 +14,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM vendors
     WHERE vendor_client_id = $client_id
-    AND vendor_archived_at IS NULL
+    AND vendor_$archive_query
     AND vendor_template = 0
     AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%') ORDER BY $sort $order LIMIT $record_from, $record_to");
 
@@ -34,7 +34,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addVendorFromTemplateModal">From Template</a>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addVendorFromTemplateModal">
+                            <i class="fa fa-fw fa-puzzle-piece mr-2"></i>Create from Template
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportVendorModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
                     </div>
                 </div>
             </div>
@@ -42,6 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
 
                     <div class="col-md-4">
@@ -54,8 +61,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-md-8">
-                        <div class="float-right">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportVendorModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                         <div class="float-right">
+                            <?php if($archived == 1){ ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                            <?php } else { ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                            <?php } ?>
                         </div>
                     </div>
 

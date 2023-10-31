@@ -14,7 +14,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM locations 
     WHERE location_client_id = $client_id
-    AND location_archived_at IS NULL
+    AND location_$archive_query
     AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
@@ -27,12 +27,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Locations</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal"><i class="fas fa-plus mr-2"></i>New Location</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal">
+                    <i class="fas fa-plus mr-2"></i>New Location
+                </button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importLocationModal">
+                        <i class="fa fa-fw fa-upload mr-2"></i>Import
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportLocationModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-body">
         <form autocomplete="off">
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -46,8 +61,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportLocationModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importLocationModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
+                        <?php if($archived == 1){ ?>
+                        <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                        <?php } else { ?>
+                        <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                        <?php } ?>
                     </div>
                 </div>
 

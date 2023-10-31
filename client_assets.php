@@ -63,7 +63,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON asset_location_id = location_id 
     LEFT JOIN logins ON login_asset_id = asset_id
     WHERE asset_client_id = $client_id
-    AND asset_archived_at IS NULL
+    AND asset_$archive_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
     AND ($type_query)
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -77,13 +77,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal"><i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?></button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">
+                        <i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>
+                    </button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetModal">
+                            <i class="fa fa-fw fa-upload mr-2"></i>Import
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <input type="hidden" name="type" value="<?php echo stripslashes(nullable_htmlentities($_GET['type'])); ?>">
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
 
                     <div class="col-md-4">
@@ -123,8 +138,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-2">
                         <div class="float-right">
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportAssetModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importAssetModal"><i class="fa fa-fw fa-upload mr-2"></i>Import</button>
+                            <?php if($archived == 1){ ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                            <?php } else { ?>
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                            <?php } ?>
                         </div>
                     </div>
 
