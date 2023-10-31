@@ -99,6 +99,27 @@
             }
         }
 
+        function updateTimeFromInput() {
+            const hours = parseInt(document.getElementById("hours").value, 10) || 0;
+            const minutes = parseInt(document.getElementById("minutes").value, 10) || 0;
+            const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
+            elapsedSecs = (hours * 3600) + (minutes * 60) + seconds;
+            
+            // Update local storage so the manually entered time is retained even if the page is reloaded.
+            if (!timerInterval) {
+                localStorage.setItem(getLocalStorageKey("pausedTime"), elapsedSecs.toString());
+            } else {
+                const newStartTime = Date.now() - (elapsedSecs * 1000);
+                localStorage.setItem(getLocalStorageKey("startTime"), newStartTime.toString());
+                localStorage.removeItem(getLocalStorageKey("pausedTime"));
+            }
+        }
+        
+        document.getElementById("hours").addEventListener('change', updateTimeFromInput);
+        document.getElementById("minutes").addEventListener('change', updateTimeFromInput);
+        document.getElementById("seconds").addEventListener('change', updateTimeFromInput);
+        
+
         document.getElementById("hours").addEventListener('focus', handleInputFocus);
         document.getElementById("minutes").addEventListener('focus', handleInputFocus);
         document.getElementById("seconds").addEventListener('focus', handleInputFocus);
