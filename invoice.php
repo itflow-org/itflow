@@ -730,7 +730,7 @@ require_once "footer.php";
                         $total_tax = 0.00;
                         $sub_total = 0.00;
 
-                        $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
+                        $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
 
                         while ($row = mysqli_fetch_array($sql_invoice_items)) {
                         $item_name = $row['item_name'];
