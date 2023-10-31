@@ -84,11 +84,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-md-8">
                         <div class="float-right">
-                            <?php if($leads == 1){ ?>
-                            <a href="?leads=0" class="btn btn-primary"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
-                            <?php } else { ?>
-                            <a href="?leads=1" class="btn btn-default"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
-                            <?php } ?>
+                            <a href="?leads=0" class="btn btn-<?php if($leads == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
+                            <a href="?leads=1" class="btn btn-<?php if($leads == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
                         </div>
                     </div>
                 </div>
