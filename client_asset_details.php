@@ -86,9 +86,9 @@ if (isset($_GET['asset_id'])) {
         $location_archived_display = "Archived - ";
     }
 
-    //$login_id = intval($row['login_id']);
-    //$login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-    //$login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+    $login_id = intval($row['login_id']);
+    $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+    $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
     // Related Tickets Query
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
