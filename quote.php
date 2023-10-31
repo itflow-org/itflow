@@ -309,22 +309,22 @@ if (isset($_GET['quote_id'])) {
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
+                                                        <form action="post.php" method="post">
+                                                            <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
+                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
+                                                            <button class="dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i>Move Up</button>
+                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
+                                                            <button class="dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i>Move Down</button>
+                                                        </form>
+                                                        <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>">
                                                             <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                         </a>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
-                                                            <i class="fa fa-fw fa-times mr-2"></i>Remove
+                                                            <i class="fa fa-fw fa-trash mr-2"></i>Delete
                                                         </a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <form class="dropdown-item" action="post.php" method="post">
-                                                            <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
-                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up"></i>Move Up</button>
-                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
-                                                            <button class="btn btn-sm btn-light dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down"></i>Move Down</button>
-                                                        </form>
                                                     </div>
                                                 </div>
                                             <?php } ?>
