@@ -13,37 +13,17 @@
 
             <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
 
-                <!-- Dashboard item (tech/financial) -->
-                <?php if ($session_user_role == 2 || $config_module_enable_accounting == 0) { ?>
-
-                    <li class="nav-item">
-                        <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-
-                <?php } else { ?>
-
-                    <li class="nav-item">
-                        <a href="dashboard_financial.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_financial.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Administrative Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-cogs"></i>
-                            <p>Technical Dashboard</p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <!-- End dashboard item (tech/financial) -->
+                <li class="nav-item">
+                    <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard.php" || basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php" || basename($_SERVER["PHP_SELF"]) == "dashboard_financial.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-user-friends"></i>
-                        <p>Client Management</p>
+                        <p>Clients</p>
                     </a>
                 </li>
 
@@ -53,7 +33,7 @@
                     <li class="nav-item">
                         <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Support Tickets</p>
+                            <p>Tickets</p>
                         </a>
                     </li>
                     <li class="nav-item">

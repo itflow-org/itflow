@@ -2,6 +2,7 @@
 
 require_once "inc_all.php";
 
+require_once "dashboard_nav.php";
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);

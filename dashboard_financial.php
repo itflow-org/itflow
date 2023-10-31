@@ -1,6 +1,8 @@
 <?php
 require_once "inc_all.php";
 
+require_once "dashboard_nav.php";
+
 
 // Enforce accountant / admin role for the financial dashboard
 if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
