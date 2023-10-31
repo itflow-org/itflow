@@ -6,6 +6,19 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Leads Query
+
+$leads = 0;
+
+if (isset($_GET['leads'])) {
+    $leads = intval($_GET['leads']);
+}
+
+if($leads == 1){
+    $leads_query = 1;
+} else {
+    $leads_query = 0;
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -26,7 +39,7 @@ $sql = mysqli_query(
            OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
       AND clients.client_archived_at IS NULL
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
-      AND clients.client_lead = 0
+      AND clients.client_lead = $leads
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
@@ -41,13 +54,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i>Client Management</h3>
             <div class="card-tools">
                 <?php if ($session_user_role == 3) { ?>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal"><i class="fas fa-plus mr-2"></i>New Client</button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal">
+                            <i class="fas fa-plus mr-2"></i>New Client
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportClientModal">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        </div>
+                    </div>
                 <?php } ?>
             </div>
         </div>
 
         <div class="card-body p-2 p-md-3">
             <form class="mb-4" autocomplete="off">
+                <input type="hidden" name="leads" value="<?php echo $leads; ?>">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
@@ -60,7 +84,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-md-8">
                         <div class="float-right">
-                            <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#exportClientModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                            <?php if($leads == 1){ ?>
+                            <a href="?leads=0" class="btn btn-primary"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
+                            <?php } else { ?>
+                            <a href="?leads=1" class="btn btn-default"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>

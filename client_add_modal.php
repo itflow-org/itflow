@@ -90,6 +90,15 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label><i class="fas fa-fw fa-bullhorn mr-2"></i>Is Lead</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <input type="checkbox" name="lead" value="1">
+                                    </div>
+                                </div>
+                            </div>
+
 
                         </div>
 
