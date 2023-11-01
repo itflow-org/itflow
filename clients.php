@@ -263,7 +263,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 }
 
                                 if (!empty($contact_name)) { ?>
-                                    <div>
+                                    <div class="text-bold">
                                         <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $contact_name; ?>
                                     </div>
                                 <?php } else {
