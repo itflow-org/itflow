@@ -20,29 +20,6 @@ require_once "config.php";
 
 require_once "functions.php";
 
-// Get system temp directory
-$temp_dir = sys_get_temp_dir();
-
-// Create the path for the lock file using the temp directory
-$lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
-
-// Check for lock file to prevent concurrent script runs
-if (file_exists($lock_file_path)) {
-    $file_age = time() - filemtime($lock_file_path);
-    
-    // If file is older than 10 minutes (600 seconds), delete and continue
-    if ($file_age > 600) {
-        unlink($lock_file_path);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Delete', log_description = 'Cron Email Parser detected a lock file was present but was over 10 minutes old so it removed it'");
-    } else {
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Locked', log_description = 'Cron Email Parser attempted to execute but was already executing, so instead it terminated.'");
-        exit("Script is already running. Exiting.");
-    }
-}
-
-// Create a lock file
-file_put_contents($lock_file_path, "Locked");
-
 // Get settings for the "default" company
 require_once "get_settings.php";
 
@@ -74,6 +51,29 @@ if (!function_exists('imap_open')) {
 if (!function_exists('mailparse_msg_parse_file')) {
     exit("Email Parser: PHP mailparse extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
+
+// Get system temp directory
+$temp_dir = sys_get_temp_dir();
+
+// Create the path for the lock file using the temp directory
+$lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
+
+// Check for lock file to prevent concurrent script runs
+if (file_exists($lock_file_path)) {
+    $file_age = time() - filemtime($lock_file_path);
+    
+    // If file is older than 10 minutes (600 seconds), delete and continue
+    if ($file_age > 600) {
+        unlink($lock_file_path);
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Delete', log_description = 'Cron Email Parser detected a lock file was present but was over 10 minutes old so it removed it'");
+    } else {
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Locked', log_description = 'Cron Email Parser attempted to execute but was already executing, so instead it terminated.'");
+        exit("Script is already running. Exiting.");
+    }
+}
+
+// Create a lock file
+file_put_contents($lock_file_path, "Locked");
 
 // PHP Mail Parser
 use PhpMimeMailParser\Parser;
@@ -333,8 +333,10 @@ $imap = imap_open("{{$imap_mailbox}}INBOX", $config_imap_username, $config_imap_
 // Check connection
 if (!$imap) {
     // Logging
-    $extended_log_description = var_export(imap_errors(), true);
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Email parser: Failed to connect to IMAP. Details: $extended_log_description'");
+    //$extended_log_description = var_export(imap_errors(), true);
+    // Remove the lock file
+    unlink($lock_file_path);
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Email parser: Failed to connect to IMAP. Details'");
     exit("Could not connect to IMAP");
 }
 
