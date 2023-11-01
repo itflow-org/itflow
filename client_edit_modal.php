@@ -129,7 +129,7 @@
                                         </div>
                                         <input type="text" class="form-control" inputmode="numeric"
                                             pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
-                                            value="<?php echo $client_rate; ?>">
+                                            value="<?php echo number_format($client_rate, 2, '.', ''); ?>">
                                     </div>
                                 </div>
 

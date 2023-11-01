@@ -67,7 +67,7 @@
                             <div class='input-group-prepend'>
                                 <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                             </div>
-                            <input type='number' class='form-control' step="0.01" name='invoice_discount' placeholder='Discount Amount' value='<?php echo $invoice_discount; ?>'>
+                            <input type='text' class='form-control' inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name='invoice_discount' placeholder='0.00' value="<?php echo number_format($invoice_discount, 2, '.', ''); ?>">
                         </div>
                     </div>
 

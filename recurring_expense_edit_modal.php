@@ -69,7 +69,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo $recurring_expense_amount; ?>" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($recurring_expense_amount, 2, '.', ''); ?>" required>
                             </div>
                         </div>
                     </div>
