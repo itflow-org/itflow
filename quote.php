@@ -422,21 +422,16 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                        <?php
-                        if ($quote_discount > 0) {
-                            ?>
-                            <tr class="border-bottom">
-                                <td>Discount</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
-                            </tr>
-                            <?php
-                            $sub_total = $sub_total - $quote_discount;
-                        }
-                        ?>
                         <tr class="border-bottom">
                             <td>Subtotal</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
                         </tr>
+                        <?php if ($quote_discount > 0) { ?>
+                            <tr class="border-bottom">
+                                <td>Discount</td>
+                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
+                            </tr>
+                        <?php } ?>
                         <?php if ($total_tax > 0) { ?>
                             <tr class="border-bottom">
                                 <td>Tax</td>
@@ -642,11 +637,11 @@ require_once "footer.php";
                             {},
                             {
                                 text: 'Expire',
-                                style: 'invoiceDateTitle'
+                                style: 'invoiceDueDateTitle'
                             },
                             {
                                 text: <?php echo json_encode(html_entity_decode($quote_expire)) ?>,
-                                style: 'invoiceDateValue'
+                                style: 'invoiceDueDateValue'
                             },
                         ],
                     ]
@@ -765,7 +760,7 @@ require_once "footer.php";
                         ],
                         [
                             {
-                                rowSpan: 3,
+                                rowSpan: '*',
                                 text: <?php echo json_encode(html_entity_decode($quote_note)) ?>,
                                 style: 'notesText'
                             },
@@ -778,6 +773,20 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php if ($quote_discount > 0) { ?>
+                        [
+                            {},
+                            {
+                                text: 'Discount',
+                                style: 'itemsFooterSubTitle'
+                            },
+                            {
+                                text: <?php echo json_encode(numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code)) ?>,
+                                style: 'itemsFooterSubValue'
+                            }
+                        ],
+                        <?php } ?>
+                        <?php if ($total_tax > 0) { ?>
                         [
                             {},
                             {
@@ -789,15 +798,16 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php } ?>
                         [
                             {},
                             {
                                 text: 'Total',
-                                style: 'itemsFooterSubTitle'
+                                style: 'itemsFooterTotalTitle'
                             },
                             {
                                 text: <?php echo json_encode(numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code)) ?>,
-                                style: 'itemsFooterSubValue'
+                                style: 'itemsFooterTotalValue'
                             }
                         ],
                     ]
@@ -861,6 +871,19 @@ require_once "footer.php";
             },
             invoiceDateValue: {
                 fontSize: 10,
+                alignment: 'right',
+                margin: [0,5,0,5]
+            },
+            // Invoice Due Dates
+            invoiceDueDateTitle: {
+                fontSize: 10,
+                bold: true,
+                alignment: 'left',
+                margin: [0,5,0,5]
+            },
+            invoiceDueDateValue: {
+                fontSize: 10,
+                bold: true,
                 alignment: 'right',
                 margin: [0,5,0,5]
             },
