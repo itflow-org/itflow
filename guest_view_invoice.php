@@ -185,7 +185,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             <td>Date</td>
                             <td class="text-right"><?php echo $invoice_date; ?></td>
                         </tr>
-                        <tr>
+                        <tr class="text-bold">
                             <td>Due</td>
                             <td class="text-right"><div class="<?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></td>
                         </tr>
@@ -212,7 +212,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 <?php
 
                                 $total_tax = 0.00;
-                                $sub_total = 0.00;
+                                $sub_total = 0.00 - $invoice_discount;
 
                                 while ($row = mysqli_fetch_array($sql_invoice_items)) {
                                     $item_id = intval($row['item_id']);
@@ -258,28 +258,30 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
+                        <tr class="border-bottom">
+                            <td>Subtotal</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
+                        </tr>
                         <?php
                         if ($invoice_discount > 0) {
                             ?>
                             <tr class="border-bottom">
                                 <td>Discount</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
                             </tr>
-
-                            <?php
-                            $sub_total = $sub_total - $invoice_discount;
+                        <?php
                         }
                         ?>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
-                        </tr>
                         <?php if ($total_tax > 0) { ?>
                             <tr class="border-bottom">
                                 <td>Tax</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
+                        <tr class="border-bottom">
+                            <td>Total</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                        </tr>
                         <?php if ($amount_paid > 0) { ?>
                             <tr class="border-bottom">
                                 <td><div class="text-success">Paid</div></td>
@@ -397,11 +399,11 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 {},
                                 {
                                     text: 'Due',
-                                    style: 'invoiceDateTitle'
+                                    style: 'invoiceDueDateTitle'
                                 },
                                 {
                                     text: <?php echo json_encode(html_entity_decode($invoice_due)) ?>,
-                                    style: 'invoiceDateValue'
+                                    style: 'invoiceDueDateValue'
                                 },
                             ],
                         ]
@@ -520,7 +522,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             ],
                             [
                                 {
-                                    rowSpan: 5,
+                                    rowSpan: '*',
                                     text: <?php echo json_encode(html_entity_decode($invoice_note)) ?>,
                                     style: 'notesText'
                                 },
@@ -533,6 +535,20 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'itemsFooterSubValue'
                                 }
                             ],
+                            <?php if ($invoice_discount > 0) { ?>
+                            [
+                                {},
+                                {
+                                    text: 'Discount',
+                                    style: 'itemsFooterSubTitle'
+                                },
+                                {
+                                    text: <?php echo json_encode(numfmt_format_currency($currency_format, -$invoice_discount, $invoice_currency_code)) ?>,
+                                    style: 'itemsFooterSubValue'
+                                }
+                            ],
+                            <?php } ?>
+                            <?php if ($total_tax > 0) { ?>
                             [
                                 {},
                                 {
@@ -544,6 +560,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'itemsFooterSubValue'
                                 }
                             ],
+                            <?php } ?>
                             [
                                 {},
                                 {
@@ -555,6 +572,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'itemsFooterSubValue'
                                 }
                             ],
+                            <?php if ($amount_paid > 0) { ?>
                             [
                                 {},
                                 {
@@ -566,6 +584,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                     style: 'itemsFooterSubValue'
                                 }
                             ],
+                            <?php } ?>
                             [
                                 {},
                                 {
@@ -631,7 +650,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                     alignment: 'right',
                     margin: [0,0,0,30]
                 },
-                // Invoice Dates
+                // Invoice Date
                 invoiceDateTitle: {
                     fontSize: 10,
                     alignment: 'left',
@@ -639,6 +658,19 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                 },
                 invoiceDateValue: {
                     fontSize: 10,
+                    alignment: 'right',
+                    margin: [0,5,0,5]
+                },
+                // Invoice Due Date
+                invoiceDueDateTitle: {
+                    fontSize: 10,
+                    bold: true,
+                    alignment: 'left',
+                    margin: [0,5,0,5]
+                },
+                invoiceDueDateValue: {
+                    fontSize: 10,
+                    bold: true,
                     alignment: 'right',
                     margin: [0,5,0,5]
                 },

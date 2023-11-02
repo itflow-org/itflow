@@ -234,7 +234,7 @@ if (isset($_GET['quote_id'])) {
                             <td>Date</td>
                             <td class="text-right"><?php echo $quote_date; ?></td>
                         </tr>
-                        <tr>
+                        <tr class="text-bold">
                             <td>Expire</td>
                             <td class="text-right"><?php echo $quote_expire; ?></td>
                         </tr>

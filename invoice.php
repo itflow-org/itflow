@@ -242,7 +242,7 @@ if (isset($_GET['invoice_id'])) {
                             <td>Date</td>
                             <td class="text-right"><?php echo $invoice_date; ?></td>
                         </tr>
-                        <tr>
+                        <tr class="text-bold">
                             <td>Due</td>
                             <td class="text-right"><?php echo $invoice_due; ?></td>
                         </tr>
@@ -403,28 +403,31 @@ if (isset($_GET['invoice_id'])) {
                     <table class="table table-borderless">
                         <tbody>
 
+                        <tr class="border-bottom">
+                            <td>Subtotal</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
+                        </tr>
                         <?php
                         if ($invoice_discount > 0) {
                             ?>
                             <tr class="border-bottom">
                                 <td>Discount</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
                             </tr>
-
-                            <?php
-                            $sub_total = $sub_total - $invoice_discount;
+                        <?php    
                         }
                         ?>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
-                        </tr>
                         <?php if ($total_tax > 0) { ?>
                             <tr class="border-bottom">
                                 <td>Tax</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php } 
+                        <?php } ?>
+                        <tr class="border-bottom">
+                            <td>Total</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                        </tr>
+                        <?php
                         if ($amount_paid > 0) { ?>
                             <tr class="border-bottom">
                                 <td><div class="text-success">Paid</div></td>
@@ -680,11 +683,11 @@ require_once "footer.php";
                             {},
                             {
                                 text: 'Due',
-                                style: 'invoiceDateTitle'
+                                style: 'invoiceDueDateTitle'
                             },
                             {
                                 text: <?php echo json_encode($invoice_due) ?>,
-                                style: 'invoiceDateValue'
+                                style: 'invoiceDueDateValue'
                             },
                         ],
                     ]
@@ -803,7 +806,7 @@ require_once "footer.php";
                         ],
                         [
                             {
-                                rowSpan: 5,
+                                rowSpan: '*',
                                 text: <?php echo json_encode(html_entity_decode($invoice_note)) ?>,
                                 style: 'notesText'
                             },
@@ -816,6 +819,20 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php if ($invoice_discount > 0) { ?>
+                        [
+                            {},
+                            {
+                                text: 'Discount',
+                                style: 'itemsFooterSubTitle'
+                            },
+                            {
+                                text: <?php echo json_encode(numfmt_format_currency($currency_format, -$invoice_discount, $invoice_currency_code)) ?>,
+                                style: 'itemsFooterSubValue'
+                            }
+                        ],
+                        <?php } ?>
+                        <?php if ($total_tax > 0) { ?>
                         [
                             {},
                             {
@@ -827,6 +844,7 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php } ?>
                         [
                             {},
                             {
@@ -838,6 +856,7 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php if ($amount_paid > 0) { ?>
                         [
                             {},
                             {
@@ -849,6 +868,7 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
+                        <?php } ?>
                         [
                             {},
                             {
@@ -858,7 +878,7 @@ require_once "footer.php";
                             {
                                 text: <?php echo json_encode(numfmt_format_currency($currency_format, $balance, $invoice_currency_code)) ?>,
 
-                                style: 'itemsFooterTotalTitle'
+                                style: 'itemsFooterTotalValue'
                             }
                         ],
                     ]
@@ -914,7 +934,7 @@ require_once "footer.php";
                 alignment: 'right',
                 margin: [0,0,0,30]
             },
-            // Invoice Dates
+            // Invoice Date
             invoiceDateTitle: {
                 fontSize: 10,
                 alignment: 'left',
@@ -922,6 +942,19 @@ require_once "footer.php";
             },
             invoiceDateValue: {
                 fontSize: 10,
+                alignment: 'right',
+                margin: [0,5,0,5]
+            },
+            // Invoice Due Date
+            invoiceDueDateTitle: {
+                fontSize: 10,
+                bold: true,
+                alignment: 'left',
+                margin: [0,5,0,5]
+            },
+            invoiceDueDateValue: {
+                fontSize: 10,
+                bold: true,
                 alignment: 'right',
                 margin: [0,5,0,5]
             },
