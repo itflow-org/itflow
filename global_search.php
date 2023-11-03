@@ -261,6 +261,7 @@ if (isset($_GET['query'])) {
                             <tr>
                                 <th>Name</th>
                                 <th>Expiry</th>
+                                <th>>Client</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -271,10 +272,13 @@ if (isset($_GET['query'])) {
                                 $domain_expiry = nullable_htmlentities($row['domain_expire']);
                                 $domain_id = intval($row['domain_id']);
                                 $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                                
                                 ?>
                                 <tr>
                                     <td><a href="client_domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
                                     <td><?php echo $domain_expiry; ?></td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
