@@ -32,6 +32,7 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_array($sql);
         $client_name = nullable_htmlentities($row['client_name']);
+        $client_is_lead = intval($row['client_lead']);
         $client_type = nullable_htmlentities($row['client_type']);
         $client_website = nullable_htmlentities($row['client_website']);
         $client_referral = nullable_htmlentities($row['client_referral']);
