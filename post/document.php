@@ -134,6 +134,9 @@ if (isset($_POST['edit_document'])) {
     // vendor documents
     mysqli_query($mysqli,"UPDATE vendor_documents SET document_id = $new_document_id WHERE document_id = $document_id");
 
+    // Service document
+    mysqli_query($mysqli,"UPDATE service_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Edit', log_description = '$session_name Edited document $name previous version was kept', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_document_id");
 
@@ -424,6 +427,9 @@ if (isset($_GET['archive_document'])) {
     // Vendor Associations
     mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
 
+    // Service Associations
+    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
+
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Archive', log_description = '$session_name archived document $document_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
 
@@ -457,6 +463,9 @@ if (isset($_GET['delete_document'])) {
 
     // Vendor Associations
     mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
+
+    // Service Associations
+    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
