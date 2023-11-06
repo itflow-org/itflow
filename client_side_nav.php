@@ -47,39 +47,38 @@
                 </li>
 
                 
+                <?php if ($config_module_enable_ticketing == 1) { ?>
                 <li class="nav-header mt-3">SUPPORT</li>
 
-                <?php if ($config_module_enable_ticketing == 1) { ?>
-                    <li class="nav-item">
-                        <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>
-                                Tickets
-                                <?php
-                                if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
-                                <?php } ?>
+                <li class="nav-item">
+                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-life-ring"></i>
+                        <p>
+                            Tickets
+                            <?php
+                            if ($num_active_tickets > 0) { ?>
+                                <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
+                            <?php } ?>
 
-                            </p>
-                        </a>
-                    </li>
+                        </p>
+                    </a>
+                </li>
 
-                    <li class="nav-item">
-                        <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar-check"></i>
-                            <p>
-                                Schedule Ticket
-                                <?php
-                                if ($num_scheduled_tickets > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
-                                <?php } ?>
+                <li class="nav-item">
+                    <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-check"></i>
+                        <p>
+                            Schedule Ticket
+                            <?php
+                            if ($num_scheduled_tickets > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
+                            <?php } ?>
 
-                            </p>
-                        </a>
-                    </li>
+                        </p>
+                    </a>
+                </li>
 
                 <?php } ?>
-
 
                 <li class="nav-item">
                     <a href="client_vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_vendors.php") { echo "active"; } ?>">
@@ -106,6 +105,8 @@
                         </p>
                     </a>
                 </li>
+
+                <?php if ($config_module_enable_dcoumentation == 1) { ?>
 
                 <li class="nav-header mt-3">DOCUMENTATION</li>
 
@@ -229,6 +230,7 @@
                     </a>
                 </li>
 
+                <?php } ?>
 
                 <?php if ($session_user_role == 1 || $session_user_role > 2 && $config_module_enable_accounting == 1) { ?>
 
