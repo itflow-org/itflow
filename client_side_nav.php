@@ -106,12 +106,12 @@
                     </a>
                 </li>
 
-                <?php if ($config_module_enable_dcoumentation == 1) { ?>
+                <?php if ($config_module_enable_itdoc == 1) { ?>
 
                 <li class="nav-header mt-3">DOCUMENTATION</li>
 
                 <li class="nav-item">
-                    <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php") { echo "active"; } ?>">
+                    <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php" || basename($_SERVER["PHP_SELF"]) == "client_asset_details.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-desktop"></i>
                         <p>
                             Assets
