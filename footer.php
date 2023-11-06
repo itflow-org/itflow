@@ -9,6 +9,16 @@
 </div>
 <!-- ./wrapper -->
 
+<!-- reset values in modals after hiding/dismissal -->
+<script>
+$(document).ready(function() {
+    $('body').on('hidden.bs.modal', '.modal', function () {
+       // reset the form
+       $(this).find('form').trigger('reset');
+    });
+});
+</script>
+
 <!-- REQUIRED SCRIPTS -->
 
 <!-- Bootstrap 4 -->
