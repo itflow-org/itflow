@@ -12,7 +12,8 @@
 <!-- reset values in modals after hiding/dismissal -->
 <script>
 $(document).ready(function() {
-    $('body').on('hidden.bs.modal', '.modal', function () {
+    // exclude modals having an ID starting with 'add'
+    $('body').on('hidden.bs.modal', 'div.modal:not([id^="add"])', function () {
        // reset the form
        $(this).find('form').trigger('reset');
     });
