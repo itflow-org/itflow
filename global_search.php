@@ -253,7 +253,7 @@ if (isset($_GET['query'])) {
             <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-box mr-2"></i>Domains</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-globe mr-2"></i>Domains</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -261,7 +261,7 @@ if (isset($_GET['query'])) {
                             <tr>
                                 <th>Name</th>
                                 <th>Expiry</th>
-                                <th>>Client</th>
+                                <th>Client</th>
                             </tr>
                             </thead>
                             <tbody>
