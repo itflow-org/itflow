@@ -241,7 +241,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00">
+                                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
                                     </div>
                                 </div>
 

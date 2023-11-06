@@ -36,6 +36,7 @@ $config_default_payment_method = $row['config_default_payment_method'];
 $config_default_expense_payment_method = $row['config_default_expense_payment_method'];
 $config_default_calendar = intval($row['config_default_calendar']);
 $config_default_net_terms = intval($row['config_default_net_terms']);
+$config_default_hourly_rate = floatval($row['config_default_hourly_rate']);
 
 // Invoice
 $config_invoice_prefix = $row['config_invoice_prefix'];

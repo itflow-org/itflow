@@ -197,6 +197,16 @@ require_once "inc_all_settings.php";
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Client Hourly Rate</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    </div>
+                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="hourly_rate" value="<?php echo number_format($config_default_hourly_rate, 2, '.', ''); ?>" placeholder="0.00" required>
+                </div>
+            </div>
+
             <hr>
 
             <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
