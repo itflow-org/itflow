@@ -57,7 +57,6 @@
                                 <option value="">- Select or Input Destination Address -</option>
                                 <?php
 
-                                // WIP Need to only show users within the session company
                                 $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                 while ($row = mysqli_fetch_array($sql_locations)) {
                                     $location_name = nullable_htmlentities($row['location_name']);

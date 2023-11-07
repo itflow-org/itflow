@@ -60,7 +60,6 @@
                                 <option><?php echo $trip_destination; ?></option>
                                 <?php
 
-                                // WIP Need to only show users within the session company
                                 $sql_locations_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                 while ($row = mysqli_fetch_array($sql_locations_select)) {
                                     $location_name = nullable_htmlentities($row['location_name']);
@@ -95,8 +94,10 @@
                                 <option value="">- Driver -</option>
                                 <?php
 
-                                // WIP Need to only show users within the session company
-                                $sql_trips = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
+                                    LEFT JOIN user_settings on users.user_id = user_settings.user_id
+                                    WHERE user_role > 1 AND user_archived_at > trip_created_at ORDER BY user_name ASC"
+                                );
                                 while ($row = mysqli_fetch_array($sql_trips)) {
                                     $user_id_select = intval($row['user_id']);
                                     $user_name_select = nullable_htmlentities($row['user_name']);
