@@ -110,7 +110,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
                 header("Location: index.php");
 
             } else {
-                $_SESSION['login_message'] = 'Something went wrong with login. Ensure you are setup for SSO.';
+                $_SESSION['login_message'] = 'Something went wrong with logging you in: Your account is not configured for Azure SSO. Please ensure you are setup in ITFlow as a contact and have Azure SSO configured.';
                 header("Location: index.php");
             }
         }
