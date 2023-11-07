@@ -25,11 +25,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill"
-                                href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill"
-                                href="#pills-client-tag<?php echo $client_id; ?>">Tag</a>
+                                href="#pills-client-more<?php echo $client_id; ?>">More</a>
                         </li>
                     </ul>
 
@@ -193,56 +189,33 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">
+                        <div class="tab-pane fade" id="pills-client-more<?php echo $client_id; ?>">
 
                             <div class="form-group">
                                 <textarea class="form-control" rows="8" placeholder="Enter some notes"
                                     name="notes"><?php echo $client_notes; ?></textarea>
                             </div>
 
-                        </div>
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="tags[]" data-tags="true" data-placeholder="Add some tags" multiple>
+                                        <?php
 
-                        <div class="tab-pane fade" id="pills-client-tag<?php echo $client_id; ?>">
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                            $tag_id_select = intval($row['tag_id']);
+                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                            ?>
+                                            <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                        <?php } ?>
 
-                            <ul class="list-group">
-
-                                <?php
-
-                                $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-
-                                while ($row = mysqli_fetch_array($sql_tags_select)) {
-                                    $tag_id_select = intval($row['tag_id']);
-                                    $tag_name_select = nullable_htmlentities($row['tag_name']);
-                                    $tag_color_select = nullable_htmlentities($row['tag_color']);
-                                    if (empty($tag_color_select)) {
-                                        $tag_color_select = "dark";
-                                    }
-                                    $tag_icon_select = nullable_htmlentities($row['tag_icon']);
-                                    if (empty($tag_icon_select)) {
-                                        $tag_icon_select = "tag";
-                                    }
-
-                                    ?>
-                                    <li class="list-group-item">
-                                        <div class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" type="checkbox"
-                                                id="tagCheckbox<?php echo "$tag_id_select$client_id"; ?>" name="tags[]"
-                                                value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) {
-                                                       echo "checked";
-                                                   } ?>>
-                                            <label for="tagCheckbox<?php echo "$tag_id_select$client_id"; ?>"
-                                                class="custom-control-label">
-                                                <span class="badge bg-<?php echo $tag_color_select; ?>">
-                                                    <?php echo "<i class='fa fw fa-$tag_icon_select mr-2'></i>"; ?>
-                                                    <?php echo $tag_name_select; ?>
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </li>
-
-                                <?php } ?>
-
-                            </ul>
+                                    </select>
+                                </div>
+                            </div>
 
                             <?php if (mysqli_num_rows($sql_tags_select) == 0) { ?>
 

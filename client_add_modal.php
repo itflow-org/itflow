@@ -22,10 +22,10 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-additional">Additional</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-tag">Tag</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more">More</a>
                         </li>
                     </ul>
 
@@ -231,7 +231,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-additional">
+                        <div class="tab-pane fade" id="pills-billing">
 
                             <?php if ($config_module_enable_accounting) { ?>
 
@@ -289,57 +289,35 @@
                                 <input type="hidden" name="net_terms" value="0">
                             <?php } ?>
 
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-more">
+
                             <div class="form-group">
                                 <label>Notes</label>
                                 <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"></textarea>
                             </div>
 
-                        </div>
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="tags[]" data-tags="true" data-placeholder="Add some tags" multiple>
+                                        <?php
 
-                        <div class="tab-pane fade" id="pills-tag">
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                            $tag_id_select = intval($row['tag_id']);
+                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                            ?>
+                                            <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                        <?php } ?>
 
-                            <ul class="list-group">
-
-                                <?php
-                                $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-
-                                while ($row = mysqli_fetch_array($sql_tags_select)) {
-                                    $tag_id_select = intval($row['tag_id']);
-                                    $tag_name_select = nullable_htmlentities($row['tag_name']);
-                                    $tag_color_select = nullable_htmlentities($row['tag_color']);
-                                    if (empty($tag_color_select)) {
-                                        $tag_color_select = "dark";
-                                    }
-                                    $tag_icon_select = nullable_htmlentities($row['tag_icon']);
-                                    if (empty($tag_icon_select)) {
-                                        $tag_icon_select = "tag";
-                                    }
-
-                                    ?>
-                                    <li class="list-group-item">
-                                        <div class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" type="checkbox" id="tagCheckbox<?php echo $tag_id_select; ?>" name="tags[]" value="<?php echo $tag_id_select; ?>">
-                                            <label for="tagCheckbox<?php echo $tag_id_select; ?>" class="custom-control-label">
-                                            <span class="badge bg-<?php echo $tag_color_select; ?>">
-                                                <?php echo "<i class='fa fw fa-$tag_icon_select mr-2'></i>"; ?><?php echo $tag_name_select; ?>
-                                            </span>
-                                            </label>
-                                        </div>
-                                    </li>
-
-                                <?php } ?>
-
-                            </ul>
-
-                            <?php if (mysqli_num_rows($sql_tags_select) == 0){ ?>
-
-                                <div class='my-3 text-center'>
-                                    <i class='fa fa-fw fa-6x fa-tags text-secondary'></i>
-                                    <h3 class='text-secondary mt-3'>No Tags Found!</h3>
-                                    <a href="settings_tags.php">Try adding a few <b>Settings > Tags</b></a>
+                                    </select>
                                 </div>
-
-                            <?php } ?>
+                            </div>
 
                         </div>
 
