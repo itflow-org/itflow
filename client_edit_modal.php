@@ -200,7 +200,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="tags[]" data-tags="true" data-placeholder="Add some tags" multiple>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                                         <?php
 
                                         $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
