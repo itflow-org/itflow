@@ -9,6 +9,8 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="lead" value="0">
+                <input type="hidden" name="net_terms" value="0">
+                <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -21,9 +23,11 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
                         </li>
+                        <?php if ($config_module_enable_accounting) { ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
                         </li>
+                        <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-more">More</a>
                         </li>
@@ -231,65 +235,62 @@
 
                         </div>
 
+                        <?php if ($config_module_enable_accounting) { ?>
+
                         <div class="tab-pane fade" id="pills-billing">
 
-                            <?php if ($config_module_enable_accounting) { ?>
-
-                                <div class="form-group">
-                                    <label>Hourly Rate</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
+                            <div class="form-group">
+                                <label>Hourly Rate</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
+                                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Currency <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="currency_code" required>
-                                            <option value="">- Currency -</option>
-                                            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                                <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                                            <?php } ?>
-                                        </select>
+                            <div class="form-group">
+                                <label>Currency <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="currency_code" required>
+                                        <option value="">- Currency -</option>
+                                        <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                                            <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Payment Terms</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="net_terms">
-                                            <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                                <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                                            <?php } ?>
-                                        </select>
+                            <div class="form-group">
+                                <label>Payment Terms</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="net_terms">
+                                        <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                                            <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Tax ID</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
+                            <div class="form-group">
+                                <label>Tax ID</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                                     </div>
+                                    <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
                                 </div>
-
-                            <?php } else { ?>
-                                <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
-                                <input type="hidden" name="net_terms" value="0">
-                            <?php } ?>
+                            </div>
 
                         </div>
+
+                        <?php } ?>
 
                         <div class="tab-pane fade" id="pills-more">
 

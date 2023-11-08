@@ -13,12 +13,6 @@ $('.select2').select2({
   theme: 'bootstrap4'
 });
 
-// Initialize Select2 Elements
-$('.select2Tag').select2({
-  theme: 'bootstrap4',
-  tags: true
-});
-
 // Initialize TinyMCE
 tinymce.init({
     selector: '.tinymce',

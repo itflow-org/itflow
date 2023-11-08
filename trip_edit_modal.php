@@ -56,7 +56,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
                             </div>
-                            <select class="form-control select2Tag" name="destination" required>
+                            <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
                                 <option><?php echo $trip_destination; ?></option>
                                 <?php
 

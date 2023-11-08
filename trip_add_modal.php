@@ -53,8 +53,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
                             </div>
-                            <select class="form-control select2Tag" name="destination" required>
-                                <option value="">- Select or Input Destination Address -</option>
+                            <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
+                                <option value=""></option>
                                 <?php
 
                                 $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
