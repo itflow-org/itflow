@@ -135,10 +135,10 @@ if (isset($_GET['quote_id'])) {
                     <?php } ?>
 
                     <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
-                        <a class="btn btn-success" href="post.php?accept_quote=<?php echo $quote_id; ?>">
+                        <a class="btn btn-primary" href="post.php?accept_quote=<?php echo $quote_id; ?>">
                             <i class="fas fa-thumbs-up mr-2"></i>Accept
                         </a>
-                        <a class="btn btn-outline-danger" href="post.php?decline_quote=<?php echo $quote_id; ?>">
+                        <a class="btn btn-default" href="post.php?decline_quote=<?php echo $quote_id; ?>">
                             <i class="fas fa-thumbs-down mr-2"></i>Decline
                         </a>
                     <?php } ?>
