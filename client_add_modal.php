@@ -65,7 +65,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="referral">
+                                    <select class="form-control select2" data-tags="true" name="referral">
                                         <option value="">N/A</option>
                                         <?php
 
@@ -76,9 +76,6 @@
                                         <?php } ?>
 
                                     </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickReferralModal"><i class="fas fa-fw fa-plus"></i></button>
-                                    </div>
                                 </div>
                             </div>
 
