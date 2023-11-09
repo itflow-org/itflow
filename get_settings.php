@@ -212,6 +212,32 @@ $ticket_status_array = array (
     'Closed'
 );
 
+$industry_select_array = array(
+    "Accounting",
+    "Agriculture",
+    "Automotive",
+    "Construction",
+    "Education",
+    "Entertainent",
+    "Finance",
+    "Government",
+    "Healthcare",
+    "Hospititality",
+    "Information Technology",
+    "Insurance",
+    "Pharmacy",
+    "Law",
+    "Manufacturing",
+    "Marketing & Advertising",
+    "Military",
+    "Non-Profit",
+    "Real Estate",
+    "Retail",
+    "Services",
+    "Transportation",
+    "Other" // An 'Other' option for industries not listed
+);
+
 $start_page_select_array = array (
     'dashboard.php'=>'Personal Dashboard',
     'dashboard_financial.php'=>'Administrative Dashboard',
@@ -220,3 +246,4 @@ $start_page_select_array = array (
     'tickets.php'=> 'Support Tickets',
     'invoices.php' => 'Invoices'
 );
+
