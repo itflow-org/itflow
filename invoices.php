@@ -326,7 +326,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 require_once "invoice_add_modal.php";
 
-require_once "category_quick_add_modal.php";
-
 require_once "footer.php";
 

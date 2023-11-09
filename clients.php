@@ -347,7 +347,5 @@ require_once "client_add_modal.php";
 
 require_once "client_export_modal.php";
 
-require_once "category_quick_add_modal.php";
-
 require_once "footer.php";
 

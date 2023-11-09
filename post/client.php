@@ -26,14 +26,6 @@ if (isset($_POST['add_client'])) {
 
     $extended_log_description = '';
 
-    // Create Referral if it doesn't exist
-    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
-    if(mysqli_num_rows($sql) == 0) {
-        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-        // Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-    }
-
     // Create client
     mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_notes = '$notes', client_accessed_at = NOW()");
 
@@ -42,6 +34,14 @@ if (isset($_POST['add_client'])) {
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
         file_put_contents("uploads/clients/$client_id/index.php", "");
+    }
+
+    // Create Referral if it doesn't exist
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if(mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
+        // Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
     }
 
     // Create Location
@@ -125,17 +125,25 @@ if (isset($_POST['edit_client'])) {
 
     mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_notes = '$notes' WHERE client_id = $client_id");
 
-    //Tags
-    //Delete existing tags
+    // Create Referral if it doesn't exist
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if(mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
+        // Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    }
+
+    // Tags
+    // Delete existing tags
     mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_tag_client_id = $client_id");
 
-    //Add new tags
+    // Add new tags
     foreach($_POST['tags'] as $tag) {
         $tag = intval($tag);
         mysqli_query($mysqli, "INSERT INTO client_tags SET client_tag_client_id = $client_id, client_tag_tag_id = $tag");
     }
 
-    //Logging
+    // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $client_id");
 
     $_SESSION['alert_message'] = "Client <strong>$client_name</strong> updated";

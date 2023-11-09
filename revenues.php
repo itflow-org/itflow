@@ -161,10 +161,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 require_once "revenue_add_modal.php";
 
-require_once "category_quick_add_modal.php";
-
-
 require_once "footer.php";
-
-
-?>

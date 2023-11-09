@@ -25,9 +25,6 @@ require_once "calendar_event_add_modal.php";
 
 require_once "calendar_add_modal.php";
 
-require_once "category_quick_add_modal.php";
-
-
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
 while ($row = mysqli_fetch_array($sql)) {
@@ -43,7 +40,6 @@ while ($row = mysqli_fetch_array($sql)) {
     $client_id = intval($row['event_client_id']);
 
     require "calendar_event_edit_modal.php";
-
 
 }
 

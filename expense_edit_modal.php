@@ -102,7 +102,7 @@
                                     ?>
                                 </select>
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickVendorModal"><i class="fas fa-fw fa-plus"></i></button>
+                                    <a class="btn btn-secondary" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +147,7 @@
                                     ?>
                                 </select>
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryExpenseModal"><i class="fas fa-fw fa-plus"></i></button>
+                                    <a class="btn btn-secondary" href="categories.php?category=Expense" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                                 </div>
                             </div>
                         </div>

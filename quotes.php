@@ -207,7 +207,5 @@ require_once "quote_add_modal.php";
 
 require_once "quote_edit_modal.php";
 
-require_once "category_quick_add_modal.php";
-
 require_once "footer.php";
 
