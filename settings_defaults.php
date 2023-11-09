@@ -16,7 +16,17 @@ require_once "inc_all_settings.php";
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="start_page" value="<?php echo nullable_htmlentities($config_start_page); ?>">
+                    <select class="form-control select2" name="start_page" data-tags="true" required>
+                        <?php if (!in_array($config_start_page, array_keys($start_page_select_array))) { ?>
+                            <option selected> <?php echo nullable_htmlentities($config_start_page); ?></option>
+                        <?php } ?>
+                        <?php foreach ($start_page_select_array as $start_page_value => $start_page_name) { ?>
+                            <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?> 
+                                value="<?php echo nullable_htmlentities($start_page_value); ?>">
+                                <?php echo nullable_htmlentities($start_page_name); ?>
+                            </option>
+                        <?php }?>
+                    </select>
                 </div>
             </div>
 
