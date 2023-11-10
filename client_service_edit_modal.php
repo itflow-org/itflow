@@ -96,9 +96,10 @@
             </div>
 
             <div class="tab-pane fade" id="pills-general<?php echo $service_id ?>">
+
               <div class="form-group">
                 <label for="contacts">Contacts</label>
-                <select multiple class="form-control" id="contacts" name="contacts[]">
+                <select multiple class="form-control select2" name="contacts[]">
                   <?php
                   // Get just the currently selected contact IDs
                   $selected_ids = array_column(mysqli_fetch_all($sql_contacts, MYSQLI_ASSOC), "contact_id");
@@ -125,7 +126,7 @@
 
               <div class="form-group">
                 <label for="vendors">Vendors</label>
-                <select multiple class="form-control" id="vendors" name="vendors[]">
+                <select multiple class="form-control select2" name="vendors[]">
                   <?php
                   $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
@@ -147,7 +148,7 @@
 
               <div class="form-group">
                 <label for="documents">Documents</label>
-                <select multiple class="form-control" id="documents" name="documents[]">
+                <select multiple class="form-control select2" name="documents[]">
                   <?php
                   $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
@@ -175,113 +176,95 @@
 
             <div class="tab-pane fade" id="pills-assets<?php echo $service_id ?>">
 
-              <div class="row">
+              <div class="form-group">
+                <label for="assets">Assets</label>
+                <select multiple class="form-control select2" name="assets[]">
+                  <?php
+                  $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
-                <div class="col">
-                  <div class="form-group">
-                    <label for="assets">Assets</label>
-                    <select multiple class="form-control" id="assets" name="assets[]">
-                      <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
+                    $asset_id = intval($row_all['asset_id']);
+                    $asset_name = nullable_htmlentities($row_all['asset_name']);
 
-                      $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
-                      while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $asset_id = intval($row_all['asset_id']);
-                        $asset_name = nullable_htmlentities($row_all['asset_name']);
-
-                        if (in_array($asset_id, $selected_ids)) {
-                          echo "<option value=\"$asset_id\" selected>$asset_name</option>";
-                        }
-                        else{
-                          echo "<option value=\"$asset_id\">$asset_name</option>";
-                        }
-                      }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="col">
-                  <div class="form-group">
-                    <label for="logins">Logins</label>
-                    <select multiple class="form-control" id="logins" name="logins[]">
-                      <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_logins, MYSQLI_ASSOC), "login_id");
-
-                      $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_archived_at > '$service_created_at' OR login_archived_at IS NULL) AND login_client_id = $client_id");
-                      while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $login_id = intval($row_all['login_id']);
-                        $login_name = nullable_htmlentities($row_all['login_name']);
-
-                        if (in_array($login_id, $selected_ids)) {
-                          echo "<option value=\"$login_id\" selected>$login_name</option>";
-                        }
-                        else{
-                          echo "<option value=\"$login_id\">$login_name</option>";
-                        }
-                      }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-
+                    if (in_array($asset_id, $selected_ids)) {
+                      echo "<option value=\"$asset_id\" selected>$asset_name</option>";
+                    }
+                    else{
+                      echo "<option value=\"$asset_id\">$asset_name</option>";
+                    }
+                  }
+                  ?>
+                </select>
               </div>
 
+              <div class="form-group">
+                <label for="logins">Logins</label>
+                <select multiple class="form-control select2" name="logins[]">
+                  <?php
+                  $selected_ids = array_column(mysqli_fetch_all($sql_logins, MYSQLI_ASSOC), "login_id");
 
-              <div class="row">
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_archived_at > '$service_created_at' OR login_archived_at IS NULL) AND login_client_id = $client_id");
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
+                    $login_id = intval($row_all['login_id']);
+                    $login_name = nullable_htmlentities($row_all['login_name']);
 
-                <div class="col">
-                  <div class="form-group">
-                    <label for="domains">Domains</label>
-                    <select multiple class="form-control" id="domains" name="domains[]">
-                      <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
-
-                      $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
-                      while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $domain_id = intval($row_all['domain_id']);
-                        $domain_name = nullable_htmlentities($row_all['domain_name']);
-
-                        if (in_array($domain_id, $selected_ids)) {
-                          echo "<option value=\"$domain_id\" selected>$domain_name</option>";
-                        }
-                        else{
-                          echo "<option value=\"$domain_id\">$domain_name</option>";
-                        }
-                      }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="col">
-                  <div class="form-group">
-                    <label for="certificates">Certificates</label>
-                    <select multiple class="form-control" id="certificates" name="certificates[]">
-                      <?php
-                      $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
-
-                      $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
-                      while ($row_all = mysqli_fetch_array($sql_all)) {
-                        $cert_id = intval($row_all['certificate_id']);
-                        $cert_name = nullable_htmlentities($row_all['certificate_name']);
-
-                        if (in_array($cert_id, $selected_ids)) {
-                          echo "<option value=\"$cert_id\" selected>$cert_name</option>";
-                        }
-                        else{
-                          echo "<option value=\"$cert_id\">$cert_name</option>";
-                        }
-                      }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-
+                    if (in_array($login_id, $selected_ids)) {
+                      echo "<option value=\"$login_id\" selected>$login_name</option>";
+                    }
+                    else{
+                      echo "<option value=\"$login_id\">$login_name</option>";
+                    }
+                  }
+                  ?>
+                </select>
               </div>
 
+              <div class="form-group">
+                <label for="domains">Domains</label>
+                <select multiple class="form-control select2" name="domains[]">
+                  <?php
+                  $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
+
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
+                    $domain_id = intval($row_all['domain_id']);
+                    $domain_name = nullable_htmlentities($row_all['domain_name']);
+
+                    if (in_array($domain_id, $selected_ids)) {
+                      echo "<option value=\"$domain_id\" selected>$domain_name</option>";
+                    }
+                    else{
+                      echo "<option value=\"$domain_id\">$domain_name</option>";
+                    }
+                  }
+                  ?>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="certificates">Certificates</label>
+                <select multiple class="form-control select2" name="certificates[]">
+                  <?php
+                  $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
+
+                  $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
+                  while ($row_all = mysqli_fetch_array($sql_all)) {
+                    $cert_id = intval($row_all['certificate_id']);
+                    $cert_name = nullable_htmlentities($row_all['certificate_name']);
+
+                    if (in_array($cert_id, $selected_ids)) {
+                      echo "<option value=\"$cert_id\" selected>$cert_name</option>";
+                    }
+                    else{
+                      echo "<option value=\"$cert_id\">$cert_name</option>";
+                    }
+                  }
+                  ?>
+                </select>
+              </div>
             </div>
-
+            
           </div>
         </div>
         <div class="modal-footer bg-white">
