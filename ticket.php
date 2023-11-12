@@ -316,7 +316,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Hours -->
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="input-group mb-3">
                                     <input type="number" class="form-control" id="hours" name="hours" placeholder="Hours" min="0" max="23">
                                     <div class="input-group-append">
@@ -326,7 +326,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Minutes -->
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="input-group mb-3">
                                     <input type="number" class="form-control" id="minutes" name="minutes" placeholder="Minutes" min="0" max="59">
                                     <div class="input-group-append">
@@ -336,7 +336,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Seconds -->
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="input-group mb-3">
                                     <input type="number" class="form-control" id="seconds" name="seconds" placeholder="Seconds" min="0" max="59">
                                     <div class="input-group-append">
@@ -346,7 +346,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Timer Controls -->
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="btn-group mt-2" role="group">
                                     <button type="button" class="btn btn-success" id="startStopTimer">Pause</button>
                                     <button type="button" class="btn btn-danger" id="resetTimer">Reset</button>

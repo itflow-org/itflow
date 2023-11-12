@@ -8,6 +8,8 @@
         var ticketID = getCurrentTicketID();
         var elapsedSecs = getElapsedSeconds();
 
+        updateRunningTicketsCount();
+
         function getCurrentTicketID() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ticket_id');
@@ -53,6 +55,9 @@
             timerInterval = setInterval(countTime, 1000);
             isPaused = false;
             document.getElementById("startStopTimer").innerText = "Pause";
+            updateRunningTicketsCount();
+            localStorage.setItem("ticket-timer-running-" + ticketID, "true");
+
         }
 
         function pauseTimer() {
@@ -65,6 +70,9 @@
             localStorage.removeItem(getLocalStorageKey("startTime"));
             isPaused = true;
             document.getElementById("startStopTimer").innerText = "Start";
+            updateRunningTicketsCount();
+            localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+
         }
 
         function clearTimeStorage() {
@@ -81,6 +89,8 @@
                 displayTime();
                 document.getElementById("startStopTimer").innerText = "Start";
             }
+            localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+            updateRunningTicketsCount();
         }
 
         function forceResetTimer() {
@@ -114,6 +124,18 @@
                 localStorage.removeItem(getLocalStorageKey("pausedTime"));
             }
         }
+
+        function updateRunningTicketsCount() {
+            var runningTickets = parseInt(document.getElementById('runningTicketsCount').innerText, 10);
+
+            if (!isPaused && timerInterval) {
+                runningTickets += 1;
+            } else {
+                runningTickets = Math.max(0, runningTickets - 1);
+            }
+
+        document.getElementById('runningTicketsCount').innerText = runningTickets.toString();
+        }   
         
         document.getElementById("hours").addEventListener('change', updateTimeFromInput);
         document.getElementById("minutes").addEventListener('change', updateTimeFromInput);

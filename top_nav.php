@@ -37,6 +37,14 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="badge badge-danger" id="runningTicketsCount">0</span>
+            </a>
+        </li>
+
+
         <!-- New Notifications Dropdown -->
         <?php
     $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
@@ -151,4 +159,6 @@
 
     </ul>
 </nav>
+
+<?php include_once "top_nav_tickets_modal.php"; ?>
 <!-- /.navbar -->
