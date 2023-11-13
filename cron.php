@@ -506,13 +506,14 @@ if ($config_send_invoice_reminders == 1) {
 
 // Send Recurring Invoices that match todays date and are active
 
-//Loop through all recurring that match today's date and is active
-$sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date = CURDATE() AND recurring_status = 1");
+//Loop through all recurring that is equal to or less than todays date and is active
+$sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring LEFT JOIN clients ON client_id = recurring_client_id WHERE recurring_next_date <= CURDATE() AND recurring_status = 1");
 
 while ($row = mysqli_fetch_array($sql_recurring)) {
     $recurring_id = intval($row['recurring_id']);
     $recurring_scope = sanitizeInput($row['recurring_scope']);
     $recurring_frequency = sanitizeInput($row['recurring_frequency']);
+    $recurring_frequency_number = intval($row['recurring_frequency_number']);
     $recurring_status = sanitizeInput($row['recurring_status']);
     $recurring_last_sent = sanitizeInput($row['recurring_last_sent']);
     $recurring_next_date = sanitizeInput($row['recurring_next_date']);
@@ -523,7 +524,6 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     $client_id = intval($row['recurring_client_id']);
     $client_name = sanitizeInput($row['client_name']); //Escape SQL just in case a name is like Safran's etc
     $client_net_terms = intval($row['client_net_terms']);
-
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $sql_invoice_number = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
@@ -566,7 +566,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
     //Update recurring dates
 
-    mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL $recurring_frequency_number $recurring_frequency) WHERE recurring_id = $recurring_id");
 
     if ($config_recurring_auto_send_invoice == 1) {
         $sql = mysqli_query(

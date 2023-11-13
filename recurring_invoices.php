@@ -104,6 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $recurring_number = intval($row['recurring_number']);
                     $recurring_scope = nullable_htmlentities($row['recurring_scope']);
                     $recurring_frequency = nullable_htmlentities($row['recurring_frequency']);
+                    $recurring_frequency_number = intval($row['recurring_frequency_number']);
                     $recurring_status = nullable_htmlentities($row['recurring_status']);
                     $recurring_discount = floatval($row['recurring_discount_amount']);
                     $recurring_last_sent = $row['recurring_last_sent'];
@@ -137,7 +138,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $recurring_scope; ?></td>
                         <td class="text-bold"><a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
-                        <td><?php echo ucwords($recurring_frequency); ?>ly</td>
+                        <td>Every <?php echo $recurring_frequency_number; ?> <?php echo ucwords($recurring_frequency); ?>s</td>
                         <td><?php echo $recurring_last_sent; ?></td>
                         <td><?php echo $category_name; ?></td>
                         <td>

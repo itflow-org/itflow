@@ -20,6 +20,7 @@ if (isset($_GET['recurring_id'])) {
     $recurring_number = intval($row['recurring_number']);
     $recurring_scope = nullable_htmlentities($row['recurring_scope']);
     $recurring_frequency = nullable_htmlentities($row['recurring_frequency']);
+    $recurring_frequency_number = intval($row['recurring_frequency_number']);
     $recurring_status = nullable_htmlentities($row['recurring_status']);
     $recurring_created_at = date('Y-m-d', strtotime($row['recurring_created_at']));
     $recurring_last_sent = nullable_htmlentities($row['recurring_last_sent']);
