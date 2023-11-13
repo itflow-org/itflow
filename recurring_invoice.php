@@ -435,7 +435,7 @@ if (isset($_GET['recurring_id'])) {
 
     require_once "recurring_invoice_note_modal.php";
 
-    require_once "category_quick_add_modal.php";
+    include_once "category_quick_add_modal.php";
 
 
 }
