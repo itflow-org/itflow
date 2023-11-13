@@ -515,8 +515,6 @@ if (isset($_GET['quote_id'])) {
     require_once "quote_copy_modal.php";
 
     require_once "quote_note_modal.php";
-
-    include_once "category_quick_add_modal.php";
 }
 
 require_once "footer.php";
