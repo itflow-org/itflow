@@ -18,6 +18,12 @@ if (!empty($_GET['status'])) {
     $ticket_statuses = array();
 }
 
+// Set Status Clause for SQL Query
+if (empty($ticket_statuses)) {
+    $ticket_status_clause = "ticket_status != 'Closed'";
+} else {
+    $ticket_status_clause = "ticket_status IN ('" . implode("','", $ticket_statuses) . "')";
+}
 // Ticket assignment status filter
 if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     if ($_GET['assigned'] == 'unassigned') {
