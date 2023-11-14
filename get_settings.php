@@ -36,6 +36,7 @@ $config_default_payment_method = $row['config_default_payment_method'];
 $config_default_expense_payment_method = $row['config_default_expense_payment_method'];
 $config_default_calendar = intval($row['config_default_calendar']);
 $config_default_net_terms = intval($row['config_default_net_terms']);
+$config_default_hourly_rate = floatval($row['config_default_hourly_rate']);
 
 // Invoice
 $config_invoice_prefix = $row['config_invoice_prefix'];
@@ -106,7 +107,10 @@ $config_theme_mode = "dark_mode";
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);
 
-$colors_array = array(
+
+// Select Arrays
+
+$colors_array = array (
     'blue',
     'green',
     'cyan',
@@ -128,7 +132,7 @@ $colors_array = array(
     'olive'
 );
 
-$net_terms_array = array(
+$net_terms_array = array (
     '0'=>'On Receipt',
     '7'=>'7 Days',
     '10'=>'10 Days',
@@ -139,19 +143,19 @@ $net_terms_array = array(
     '90'=>'90 Days'
 );
 
-$records_per_page_array = array('5','10','15','20','30','50','100');
+$records_per_page_array = array ('5','10','15','20','30','50','100');
 
 include_once "settings_localization_array.php";
 
 
-$category_types_array = array(
+$category_types_array = array (
     'Expense',
     'Income',
     'Payment Method',
     'Referral'
 );
 
-$asset_types_array = array(
+$asset_types_array = array (
     'Laptop'=>'fa-laptop',
     'Desktop'=>'fa-desktop',
     'Server'=>'fa-server',
@@ -168,7 +172,7 @@ $asset_types_array = array(
     'Other'=>'fa-tag'
 );
 
-$software_types_array = array(
+$software_types_array = array (
     'SaaS',
     'Application',
     'Mobile',
@@ -177,18 +181,18 @@ $software_types_array = array(
     'Misc'
 );
 
-$license_types_array = array(
+$license_types_array = array (
     'Device',
     'User'
 );
 
-$document_types_array = array(
+$document_types_array = array (
     '0'=>'Document',
     '1'=>'Template',
     '2'=>'Global Template'
 );
 
-$asset_status_array = array(
+$asset_status_array = array (
     'Ready to Deploy',
     'Deployed',
     'Out for Repair',
@@ -197,7 +201,7 @@ $asset_status_array = array(
     'Retired'
 );
 
-$ticket_status_array = array(
+$ticket_status_array = array (
     'Pending-Assignment',
     'Assigned',
     'In-Progress',
@@ -207,3 +211,39 @@ $ticket_status_array = array(
     'Scheduled',
     'Closed'
 );
+
+$industry_select_array = array(
+    "Accounting",
+    "Agriculture",
+    "Automotive",
+    "Construction",
+    "Education",
+    "Entertainent",
+    "Finance",
+    "Government",
+    "Healthcare",
+    "Hospititality",
+    "Information Technology",
+    "Insurance",
+    "Pharmacy",
+    "Law",
+    "Manufacturing",
+    "Marketing & Advertising",
+    "Military",
+    "Non-Profit",
+    "Real Estate",
+    "Retail",
+    "Services",
+    "Transportation",
+    "Other" // An 'Other' option for industries not listed
+);
+
+$start_page_select_array = array (
+    'dashboard.php'=>'Personal Dashboard',
+    'dashboard_financial.php'=>'Administrative Dashboard',
+    'dashboard_technical.php' => 'Technical Dashboard',
+    'clients.php'=> 'Client Management',
+    'tickets.php'=> 'Support Tickets',
+    'invoices.php' => 'Invoices'
+);
+

@@ -169,8 +169,22 @@
 
                                 <div class="form-group">
                                     <label>Watchers</label>
-                                    <div class="watchers"></div>
-                                    <button type="button" class="btn btn-primary" onclick="addWatcher(this)"><i class="fas fa-fw fa-plus"></i> Add Watcher</button>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="watchers[]" data-tags="true" data-placeholder="Enter or select email address" multiple>
+                                            <option value="">aa</option>
+                                            <?php
+                                            $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
+                                            while ($row = mysqli_fetch_array($sql)) {
+                                                $contact_email = nullable_htmlentities($row['contact_email']);
+                                                ?>
+                                                <option><?php echo $contact_email; ?></option>
+
+                                            <?php } ?>
+                                        </select>
+                                    </div>
                                 </div>
 
                             </div>

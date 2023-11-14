@@ -310,6 +310,12 @@ if (isset($_POST['login'])) {
                         </div>
                     </div>
                 </div>
+                <div class="form-group mb-3">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="remember_me">
+                        <label class="custom-control-label" for="remember_me">Remember Me</label>
+                    </div>
+                </div>
                 <?php if (isset($token_field)) { echo $token_field; } ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>

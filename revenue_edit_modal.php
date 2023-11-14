@@ -44,7 +44,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo $revenue_amount; ?>" placeholder="0.00" required>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($revenue_amount, 2, '.', ''); ?>" placeholder="0.00" required>
                             </div>
                         </div>
 
@@ -120,7 +120,7 @@
                                     ?>
                                 </select>
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                    <a class="btn btn-secondary" href="categories.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                                 </div>
                             </div>
                         </div>

@@ -61,7 +61,7 @@ $lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
 // Check for lock file to prevent concurrent script runs
 if (file_exists($lock_file_path)) {
     $file_age = time() - filemtime($lock_file_path);
-    
+
     // If file is older than 10 minutes (600 seconds), delete and continue
     if ($file_age > 600) {
         unlink($lock_file_path);
@@ -371,7 +371,13 @@ if ($emails) {
 
         $from_array = $parser->getAddresses('from')[0];
         $from_name = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['display']))));
-        $from_email = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['address']))));
+
+        // Handle blank 'From' emails
+        $from_email = "itflow-guest@example.com";
+        if (filter_var($from_array['address'], FILTER_VALIDATE_EMAIL)) {
+            $from_email = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['address']))));
+        }
+
         $from_domain = explode("@", $from_array['address']);
         $from_domain = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags(end($from_domain))))); // Use the final element in the array (as technically legal to have multiple @'s)
 

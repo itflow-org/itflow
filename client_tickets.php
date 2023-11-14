@@ -232,5 +232,3 @@ require_once "client_ticket_export_modal.php";
 require_once "footer.php";
 
 ?>
-
-<script src="js/ticket_add_remove_watchers.js"></script>

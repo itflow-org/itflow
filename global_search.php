@@ -39,6 +39,13 @@ if (isset($_GET['query'])) {
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
         ORDER BY vendor_id DESC LIMIT 5"
     );
+
+    $sql_domains = mysqli_query($mysqli, "SELECT * FROM domains
+        LEFT JOIN clients ON domain_client_id = client_id
+        WHERE domain_archived_at IS NULL
+            AND domain_name LIKE '%$query%'
+        ORDER BY domain_id DESC LIMIT 5"
+    );
     
     $sql_products = mysqli_query($mysqli, "SELECT * FROM products
         WHERE product_archived_at IS NULL
@@ -240,6 +247,50 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
+        <?php if (mysqli_num_rows($sql_domains) > 0) { ?>
+
+            <!-- Domains -->
+            <div class="col-sm-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mt-1"><i class="fas fa-fw fa-globe mr-2"></i>Domains</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-borderless">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Expiry</th>
+                                <th>Client</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_domains)) {
+                                $domain_name = nullable_htmlentities($row['domain_name']);
+                                $domain_expiry = nullable_htmlentities($row['domain_expire']);
+                                $domain_id = intval($row['domain_id']);
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                                
+                                ?>
+                                <tr>
+                                    <td><a href="client_domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
+                                    <td><?php echo $domain_expiry; ?></td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                </tr>
+
+                            <?php } ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+        
         <?php if (mysqli_num_rows($sql_products) > 0) { ?>
 
             <!-- Products -->

@@ -59,11 +59,11 @@ if (isset($_GET['delete_trip'])) {
 if (isset($_POST['export_trips_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
-    if(!empty($date_from) && !empty($date_to)){
-        $date_query = "AND DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
+    if (!empty($date_from) && !empty($date_to)){
+        $date_query = "DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
-    }else{
-        $date_query = "";
+    } else {
+        $date_query = "trip_date IS NOT NULL";
         $file_name_date = date('Y-m-d');
     }
 

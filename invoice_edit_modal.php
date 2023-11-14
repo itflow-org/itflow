@@ -56,7 +56,7 @@
                                 ?>
                             </select>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                <a class="btn btn-secondary" href="categories.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                             <div class='input-group-prepend'>
                                 <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                             </div>
-                            <input type='number' class='form-control' step="0.01" name='invoice_discount' placeholder='Discount Amount' value='<?php echo $invoice_discount; ?>'>
+                            <input type='text' class='form-control' inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name='invoice_discount' placeholder='0.00' value="<?php echo number_format($invoice_discount, 2, '.', ''); ?>">
                         </div>
                     </div>
 

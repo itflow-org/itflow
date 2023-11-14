@@ -43,9 +43,16 @@
                         </a>
                     </li>
 
-                <?php }
+                <?php } ?>
 
-                if ($config_module_enable_accounting == 1) { ?>
+                <li class="nav-item">
+                    <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Calendar</p>
+                    </a>
+                </li>
+
+                <?php if ($config_module_enable_accounting == 1) { ?>
 
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
@@ -126,24 +133,16 @@
                             <p>Budget</p>
                         </a>
                     </li>
-
-                <?php } ?>
-
-                <li class="nav-header mt-3">MORE</li>
-
-                <li class="nav-item">
-                    <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Calendar</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
+                    <li class="nav-item">
                     <a href="trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-route"></i>
                         <p>Trips</p>
                     </a>
                 </li>
+
+                <?php } ?>
+
+                <li class="nav-header mt-3">MORE</li>
 
                 <li class="nav-item">
                     <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
