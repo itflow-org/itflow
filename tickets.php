@@ -6,39 +6,28 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Get Statuses from DB
+$statuses = array();
+$query = "SELECT DISTINCT ticket_status FROM tickets ORDER BY ticket_status";
+$result = mysqli_query($mysqli, $query);
+while ($row = mysqli_fetch_assoc($result)) {
+    $statuses[] = $row['ticket_status'];
+}
 
-// Ticket status from GET
-if (!isset($_GET['status'])) {
-    // If nothing is set, assume we only want to see open tickets
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'In-Progress') {
-    $status = 'In-Progress';
-    $ticket_status_snippet = "ticket_status = 'In-Progress'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Client') {
-    $status = 'Pending-Client';
-    $ticket_status_snippet = "ticket_status = 'Pending-Client'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Vendor') {
-    $status = 'Pending-Vendor';
-    $ticket_status_snippet = "ticket_status = 'Pending-Vendor'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Shipment') {
-    $status = 'Pending-Shipment';
-    $ticket_status_snippet = "ticket_status = 'Pending-Shipment'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Scheduled') {
-    $status = 'Scheduled';
-    $ticket_status_snippet = "ticket_status = 'Scheduled'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
-    $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
-} else if (isset($_GET['status']) && ($_GET['status']) == 'Client-Replied') {
-    $status = 'Client-Replied';
-    $ticket_status_snippet = "ticket_status = 'Client-Replied'";
+// Set Ticket statuses sort
+if (isset($_GET['status']) && !empty($_GET['status'])) {
+    $ticket_statuses = $_GET['status'];
+    $ticket_status_clause = "ticket_status != 'Closed'";
 } else {
-    $status = '%';
-    $ticket_status_snippet = "ticket_status LIKE '%'";
+    $ticekt_status = "Open";
+    $ticket_status_clause = "ticket_status IN ('" . implode("','", $ticket_statuses) . "')";
+}
+
+// Make array no matter if one or none items selected.
+if (!empty($_GET['status'])) {
+    $ticket_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
+} else {
+    $ticket_statuses = array();
 }
 
 // Ticket assignment status filter
@@ -53,8 +42,9 @@ if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     $ticket_assigned_filter = '';
 }
 
+
 //Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status' => $status, 'assigned' => $ticket_assigned_filter)));
+$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status[]' => $ticket_statuses, 'assigned' => $ticket_assigned_filter)));
 
 // Main ticket query:
 $sql = mysqli_query(
@@ -67,7 +57,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_assigned_to LIKE '%$ticket_assigned_filter%'
-    AND $ticket_status_snippet
+    AND $ticket_status_clause
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -207,15 +197,19 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Ticket Status</label>
-                                <select class="form-control select2" name="status">
-                                    <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
-                                    <option value="In-Progress" <?php if ($status == "In-Progress") {echo "selected";}?> >In-Progress</option>
-                                    <option value="Client-Replied" <?php if ($status == "Client-Replied") {echo "selected";}?> >Client-Replied</option>
-                                    <option value="Pending-Client" <?php if ($status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
-                                    <option value="Pending-Vendor" <?php if ($status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
-                                    <option value="Pending-Shipment" <?php if ($status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
-                                    <option value="Scheduled" <?php if ($status == "Scheduled") {echo "selected";}?> >Scheduled</option>
-                                    <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
+                                <select class="form-control select2" name="status[]" multiple>
+                                    <?php
+                                        foreach ($statuses as $statusValue) {
+                                            echo '<option value="' . htmlspecialchars($statusValue) . '"';
+
+                                            // Check if the current status is in the array of selected statuses
+                                            if (in_array($statusValue, $ticket_statuses)) {
+                                                echo ' selected';
+                                            }
+
+                                            echo '>' . htmlspecialchars($statusValue) . '</option>';
+                                        }
+                                    ?>
                                 </select>
                             </div>
                         </div>
