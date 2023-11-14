@@ -204,6 +204,7 @@ $asset_status_array = array (
 $ticket_status_array = array (
     'Pending-Assignment',
     'Assigned',
+    'Client-Replied',
     'In-Progress',
     'Pending-Shipment',
     'Pending-Client',

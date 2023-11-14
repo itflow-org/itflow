@@ -6,33 +6,22 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
-// Get Statuses from DB
-$statuses = array();
-$query = "SELECT DISTINCT ticket_status FROM tickets ORDER BY ticket_status";
-$result = mysqli_query($mysqli, $query);
-while ($row = mysqli_fetch_assoc($result)) {
-    $statuses[] = $row['ticket_status'];
-}
 
-// Set Ticket statuses sort
-if (isset($_GET['status']) && !empty($_GET['status'])) {
-    $ticket_statuses = $_GET['status'];
+// Set Statuses from URL
+if (!empty($_GET['status'])) {
+    $raw_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
+    $ticket_statuses = array_map(function($status) use ($mysqli) {
+        return mysqli_real_escape_string($mysqli, $status);
+    }, $raw_statuses);
 } else {
-    $ticekt_status = "Open";
+    $ticket_statuses = array();
 }
 
 // Set Status Clause for SQL Query
-if (!isset($_GET['status']) || empty($_GET['status'])) {
+if (empty($ticket_statuses)) {
     $ticket_status_clause = "ticket_status != 'Closed'";
 } else {
     $ticket_status_clause = "ticket_status IN ('" . implode("','", $ticket_statuses) . "')";
-}
-
-// Set Statuses
-if (!empty($_GET['status'])) {
-    $ticket_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
-} else {
-    $ticket_statuses = array();
 }
 
 // Ticket assignment status filter
@@ -204,7 +193,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <label>Ticket Status</label>
                                 <select class="form-control select2" name="status[]" multiple>
                                     <?php
-                                        foreach ($statuses as $statusValue) {
+                                        foreach ($ticket_status_array as $statusValue) {
                                             echo '<option value="' . htmlspecialchars($statusValue) . '"';
 
                                             // Check if the current status is in the array of selected statuses
