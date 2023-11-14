@@ -24,7 +24,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-plus mr-2"></i>New Certificate</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-plus mr-2"></i>New Certificate</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportCertificateModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -43,22 +51,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportCertificateModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
-                    </div>
-
-
-                    <div class="dropdown float-right" id="multiActionButton" hidden>
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
-                        </button>
-                        <div class="dropdown-menu">
-                            <button class="dropdown-item text-danger text-bold"
-                                    type="submit" form="multi_actions" name="bulk_delete_certificates">
-                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                        <div class="dropdown" id="multiActionButton" hidden>
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
                             </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item text-danger text-bold"
+                                        type="submit" form="multi_actions" name="bulk_delete_certificates">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-
                 </div>
 
             </div>

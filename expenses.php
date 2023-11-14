@@ -49,7 +49,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-sm-8">
                         <div class="float-right">
-                            <button type="button" class="btn btn-default btn-lg" data-toggle="modal" data-target="#exportExpensesModal"><i class="fas fa-fw fa-download mr-2"></i>Export</button>
                         </div>
                     </div>
                 </div>
@@ -81,6 +80,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date To</label>
                                 <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="float-right">
+                                <br>
+                                <button type="button" class="btn btn-default mt-2" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                             </div>
                         </div>
                     </div>
