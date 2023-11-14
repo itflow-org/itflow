@@ -33,6 +33,9 @@ if (!isset($_GET['status'])) {
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
     $ticket_status_snippet = "ticket_status = 'Closed'";
+} else if (isset($_GET['status']) && ($_GET['status']) == 'Client-Replied') {
+    $status = 'Client-Replied';
+    $ticket_status_snippet = "ticket_status = 'Client-Replied'";
 } else {
     $status = '%';
     $ticket_status_snippet = "ticket_status LIKE '%'";
@@ -207,6 +210,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <select class="form-control select2" name="status">
                                     <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
                                     <option value="In-Progress" <?php if ($status == "In-Progress") {echo "selected";}?> >In-Progress</option>
+                                    <option value="Client-Replied" <?php if ($status == "Client-Replied") {echo "selected";}?> >Client-Replied</option>
                                     <option value="Pending-Client" <?php if ($status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
                                     <option value="Pending-Vendor" <?php if ($status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
                                     <option value="Pending-Shipment" <?php if ($status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
