@@ -321,7 +321,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="[0-9]|1[0-9]|2[0-3]">
+                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                     <div class="input-group-append">
                                         <span class="input-group-text">H</span>
                                     </div>
