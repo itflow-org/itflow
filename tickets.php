@@ -17,13 +17,18 @@ while ($row = mysqli_fetch_assoc($result)) {
 // Set Ticket statuses sort
 if (isset($_GET['status']) && !empty($_GET['status'])) {
     $ticket_statuses = $_GET['status'];
-    $ticket_status_clause = "ticket_status != 'Closed'";
 } else {
     $ticekt_status = "Open";
+}
+
+// Set Status Clause for SQL Query
+if (!isset($_GET['status']) || empty($_GET['status'])) {
+    $ticket_status_clause = "ticket_status != 'Closed'";
+} else {
     $ticket_status_clause = "ticket_status IN ('" . implode("','", $ticket_statuses) . "')";
 }
 
-// Make array no matter if one or none items selected.
+// Set Statuses
 if (!empty($_GET['status'])) {
     $ticket_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
 } else {
