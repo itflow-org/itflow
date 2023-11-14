@@ -321,7 +321,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23">
+                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="[0-9]|1[0-9]|2[0-3]">
                                     <div class="input-group-append">
                                         <span class="input-group-text">H</span>
                                     </div>
@@ -331,7 +331,7 @@ if (isset($_GET['ticket_id'])) {
                             <!-- Time Tracking: Minutes -->
                             <div class="col-sm-1">
                                 <div class="input-group input-group-sm mb-3">
-                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59">
+                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
                                         <span class="input-group-text">M</span>
                                     </div>
@@ -341,7 +341,7 @@ if (isset($_GET['ticket_id'])) {
                             <!-- Time Tracking: Seconds -->
                             <div class="col-sm-1">
                                 <div class="input-group input-group-sm mb-3">
-                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59">
+                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
                                         <span class="input-group-text">S</span>
                                     </div>
