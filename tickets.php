@@ -6,31 +6,14 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
-// Get Statuses from DB
-$statuses = array();
-$query = "SELECT DISTINCT ticket_status FROM tickets ORDER BY ticket_status";
-$result = mysqli_query($mysqli, $query);
-while ($row = mysqli_fetch_assoc($result)) {
-    $statuses[] = $row['ticket_status'];
-}
 
-// Set Ticket statuses sort
-if (isset($_GET['status']) && !empty($_GET['status'])) {
-    $ticket_statuses = $_GET['status'];
-} else {
-    $ticekt_status = "Open";
-}
-
-// Set Status Clause for SQL Query
-if (!isset($_GET['status']) || empty($_GET['status'])) {
-    $ticket_status_clause = "ticket_status != 'Closed'";
-} else {
-    $ticket_status_clause = "ticket_status IN ('" . implode("','", $ticket_statuses) . "')";
-}
-
-// Set Statuses
+// Set Statuses from URL
 if (!empty($_GET['status'])) {
-    $ticket_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
+    $raw_statuses = is_array($_GET['status']) ? $_GET['status'] : array($_GET['status']);
+    // Escape and quote each status
+    $ticket_statuses = array_map(function($status) use ($mysqli) {
+        return mysqli_real_escape_string($mysqli, $status);
+    }, $raw_statuses);
 } else {
     $ticket_statuses = array();
 }
@@ -51,22 +34,37 @@ if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
 //Rebuild URL
 $url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status[]' => $ticket_statuses, 'assigned' => $ticket_assigned_filter)));
 
-// Main ticket query:
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM tickets
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    LEFT JOIN locations ON ticket_location_id = location_id
-    LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-    WHERE ticket_assigned_to LIKE '%$ticket_assigned_filter%'
-    AND $ticket_status_clause
-    AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
-);
+$sql = "SELECT SQL_CALC_FOUND_ROWS * FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        LEFT JOIN assets ON ticket_asset_id = asset_id
+        LEFT JOIN locations ON ticket_location_id = location_id
+        LEFT JOIN vendors ON ticket_vendor_id = vendor_id
+        WHERE DATE(ticket_created_at) BETWEEN ? AND ?
+        AND (CONCAT(ticket_prefix,ticket_number) LIKE ? OR client_name LIKE ? OR ticket_subject LIKE ? OR ticket_status LIKE ? OR ticket_priority LIKE ? OR user_name LIKE ? OR contact_name LIKE ? OR asset_name LIKE ? OR vendor_name LIKE ? OR ticket_vendor_ticket_number LIKE ?)";
+
+// Adding ticket status conditions dynamically
+if (!empty($ticket_statuses)) {
+    $statusPlaceholders = implode(', ', array_fill(0, count($ticket_statuses), '?'));
+    $sql .= " AND ticket_status IN ($statusPlaceholders)";
+}
+
+// Adding ORDER BY and LIMIT clauses
+$sql .= " ORDER BY " . mysqli_real_escape_string($mysqli, $sort) . " " . mysqli_real_escape_string($mysqli, $order);
+$sql .= " LIMIT ?, ?";
+
+$stmt = $mysqli->prepare($sql);
+
+// Bind Parameters
+$like_q = "%{$q}%";
+$bindTypes = 'ssssssssssss' . str_repeat('s', count($ticket_statuses)) . 'ii';
+$bindParams = array_merge([$dtf, $dtt, $like_q, $like_q, $like_q, $like_q, $like_q, $like_q, $like_q, $like_q, $like_q, $like_q], $ticket_statuses, [$record_from, $record_to]);
+call_user_func_array([$stmt, 'bind_param'], array_merge([$bindTypes], $bindParams));
+
+// Execute and retrieve results
+$stmt->execute();
+$result = $stmt->get_result();
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -204,7 +202,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <label>Ticket Status</label>
                                 <select class="form-control select2" name="status[]" multiple>
                                     <?php
-                                        foreach ($statuses as $statusValue) {
+                                        foreach ($ticket_status_array as $statusValue) {
                                             echo '<option value="' . htmlspecialchars($statusValue) . '"';
 
                                             // Check if the current status is in the array of selected statuses
@@ -279,7 +277,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     <tbody>
                     <?php
 
-                    while ($row = mysqli_fetch_array($sql)) {
+                    while ($row = $result->fetch_assoc()) {
                         $ticket_id = intval($row['ticket_id']);
                         $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                         $ticket_number = intval($row['ticket_number']);
