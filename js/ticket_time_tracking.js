@@ -114,6 +114,16 @@
                 localStorage.removeItem(getLocalStorageKey("pausedTime"));
             }
         }
+
+
+        // Function to check status and pause timer
+        function checkStatusAndPauseTimer() {
+            var status = document.querySelector('select[name="status"]').value;
+            if (status.includes("Pending")) {
+                pauseTimer();
+            }
+        }
+
         
         document.getElementById("hours").addEventListener('change', updateTimeFromInput);
         document.getElementById("minutes").addEventListener('change', updateTimeFromInput);
@@ -123,6 +133,9 @@
         document.getElementById("hours").addEventListener('focus', handleInputFocus);
         document.getElementById("minutes").addEventListener('focus', handleInputFocus);
         document.getElementById("seconds").addEventListener('focus', handleInputFocus);
+
+        document.querySelector('select[name="status"]').addEventListener('change', checkStatusAndPauseTimer);
+
 
         document.getElementById("startStopTimer").addEventListener('click', function() {
             if (timerInterval === null) {
@@ -140,16 +153,17 @@
             // Wait for other synchronous actions (if any) to complete before resetting the timer.
             setTimeout(forceResetTimer, 100); // 100ms delay should suffice, but you can adjust as needed.
         });
-
+ 
         try {
             displayTime();
             if (!localStorage.getItem(getLocalStorageKey("startTime")) && !localStorage.getItem(getLocalStorageKey("pausedTime"))) {
-                // If first time, start the timer automatically
                 startTimer();
             } else if (localStorage.getItem(getLocalStorageKey("startTime"))) {
-                // Continue timer if it was running before
                 startTimer();
             }
+    
+            // Check and pause timer if status is pending
+            checkStatusAndPauseTimer();
         } catch (error) {
             console.error("There was an issue initializing the timer:", error);
         }
