@@ -60,7 +60,7 @@
                 ticketDiv.innerHTML = `
                     <div class="card-header">
                         <h3 class="card-title">Ticket ID: ${ticketID}</h3>
-                        <a href="https://develop.twe.tech/ticket.php?ticket_id=${ticketID}" class="btn btn-primary float-right">View Ticket</a>
+                        <a href="/ticket.php?ticket_id=${ticketID}" class="btn btn-primary float-right">View Ticket</a>
                     </div>
                     <div class="card-body">
                         <p id="time-${ticketID}">Total Time: ${timeString}</p>
