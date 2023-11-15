@@ -101,6 +101,7 @@ if (isset($_GET['ticket_id'])) {
         $asset_ip = nullable_htmlentities($row['asset_ip']);
         $asset_name = nullable_htmlentities($row['asset_name']);
         $asset_type = nullable_htmlentities($row['asset_type']);
+        $asset_uri = nullable_htmlentities($row['asset_uri']);
         $asset_make = nullable_htmlentities($row['asset_make']);
         $asset_model = nullable_htmlentities($row['asset_model']);
         $asset_serial = nullable_htmlentities($row['asset_serial']);
@@ -655,7 +656,7 @@ if (isset($_GET['ticket_id'])) {
                     <?php } else { ?>
 
                         <div>
-                            <i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                            <a href='client_asset_details.php?client_id=<?php echo $client_id?>&asset_id=<?php echo $asset_id?>' ><i class="fa fa-fw fa-desktop text-secondary ml-1 mr-2"></i><strong><?php echo $asset_name; ?></strong></a>
                         </div>
 
                         <?php if (!empty($asset_os)) { ?>
@@ -687,6 +688,12 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="far fa-fw fa-calendar-alt text-secondary ml-1 mr-2"></i>Warranty expires: <strong><?php echo $asset_warranty_expire ?></strong>
                             </div>
                         <?php }
+
+                        if (!empty($asset_uri)) { ?>
+                            <div class="mt-1">
+                                <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank"><?php echo $asset_uri; ?></a>
+                            </div>
+                        <?php } 
 
                         if ($ticket_asset_count > 0) { ?>
 
