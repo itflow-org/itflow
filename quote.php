@@ -99,7 +99,7 @@ if (isset($_GET['quote_id'])) {
         $json_products = json_encode($products);
     }
 
-    ?>
+?>
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
@@ -167,8 +167,7 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
-                            <a class="dropdown-item" href="#"
-                                onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number")); ?>');">
+                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number")); ?>');">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
@@ -207,7 +206,9 @@ if (isset($_GET['quote_id'])) {
             <div class="row mb-4">
                 <div class="col">
                     <ul class="list-unstyled">
-                        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
+                        <li>
+                            <h4><strong><?php echo $company_name; ?></strong></h4>
+                        </li>
                         <li><?php echo $company_address; ?></li>
                         <li><?php echo "$company_city $company_state $company_zip"; ?></li>
                         <li><?php echo $company_phone; ?></li>
@@ -216,7 +217,9 @@ if (isset($_GET['quote_id'])) {
                 </div>
                 <div class="col">
                     <ul class="list-unstyled text-right">
-                        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
+                        <li>
+                            <h4><strong><?php echo $client_name; ?></strong></h4>
+                        </li>
                         <li><?php echo $location_address; ?></li>
                         <li><?php echo "$location_city $location_state $location_zip"; ?></li>
                         <li><?php echo "$contact_phone $contact_extension"; ?></li>
@@ -250,151 +253,154 @@ if (isset($_GET['quote_id'])) {
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                <tr>
-                                    <th class="d-print-none"></th>
-                                    <th>Item</th>
-                                    <th>Description</th>
-                                    <th class="text-center">Quantity</th>
-                                    <th class="text-right">Price</th>
-                                    <th class="text-right">Tax</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
+                                    <tr>
+                                        <th class="d-print-none"></th>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-right">Price</th>
+                                        <th class="text-right">Tax</th>
+                                        <th class="text-right">Total</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <?php
+                                    <?php
 
-                                $total_tax = 0.00;
-                                $sub_total = 0.00;
+                                    $total_tax = 0.00;
+                                    $sub_total = 0.00;
 
-                                while ($row = mysqli_fetch_array($sql_items)) {
-                                    $item_id = intval($row['item_id']);
-                                    $item_name = nullable_htmlentities($row['item_name']);
-                                    $item_description = nullable_htmlentities($row['item_description']);
-                                    $item_order = intval($row['item_order']);
-                                    $item_quantity = number_format(floatval($row['item_quantity']),2);
-                                    $item_price = floatval($row['item_price']);
-                                    $item_tax = floatval($row['item_tax']);
-                                    $item_total = floatval($row['item_total']);
-                                    $item_created_at = nullable_htmlentities($row['item_created_at']);
-                                    $tax_id = intval($row['item_tax_id']);
-                                    $total_tax = $item_tax + $total_tax;
-                                    $sub_total = $item_price * $item_quantity + $sub_total;
+                                    while ($row = mysqli_fetch_array($sql_items)) {
+                                        $item_id = intval($row['item_id']);
+                                        $item_name = nullable_htmlentities($row['item_name']);
+                                        $item_description = nullable_htmlentities($row['item_description']);
+                                        $item_order = intval($row['item_order']);
+                                        $item_quantity = number_format(floatval($row['item_quantity']), 2);
+                                        $item_price = floatval($row['item_price']);
+                                        $item_tax = floatval($row['item_tax']);
+                                        $item_total = floatval($row['item_total']);
+                                        $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                        $tax_id = intval($row['item_tax_id']);
+                                        $total_tax = $item_tax + $total_tax;
+                                        $sub_total = $item_price * $item_quantity + $sub_total;
 
-                                    // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
-                                    $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $max_item_order = intval($row['item_order']);
+                                        // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
+                                        $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                        $row = mysqli_fetch_array($sql);
+                                        $max_item_order = intval($row['item_order']);
 
-                                    $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $min_item_order = intval($row['item_order']);
+                                        $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                        $row = mysqli_fetch_array($sql);
+                                        $min_item_order = intval($row['item_order']);
 
-                                    if ($item_order == $max_item_order) {
-                                        $down_hidden = "hidden";
-                                    } else {
-                                        $down_hidden = "";
-                                    }
+                                        if ($item_order == $max_item_order) {
+                                            $down_hidden = "hidden";
+                                        } else {
+                                            $down_hidden = "";
+                                        }
 
-                                    if ($item_order == $min_item_order) {
-                                        $up_hidden = "hidden";
-                                    } else {
-                                        $up_hidden = "";
-                                    }?>
-                                    
-                                    <tr>
-                                        <td class="d-print-none">
-                                            <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
-                                                        <i class="fas fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <form action="post.php" method="post">
-                                                            <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
-                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i>Move Up</button>
-                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
-                                                            <button class="dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i>Move Down</button>
-                                                        </form>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>">
-                                                            <i class="fa fa-fw fa-edit mr-2"></i>Edit
-                                                        </a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
-                                                            <i class="fa fa-fw fa-trash mr-2"></i>Delete
-                                                        </a>
+                                        if ($item_order == $min_item_order) {
+                                            $up_hidden = "hidden";
+                                        } else {
+                                            $up_hidden = "";
+                                        } ?>
+
+                                        <tr>
+                                            <td class="d-print-none">
+                                                <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <form action="post.php" method="post">
+                                                                <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
+                                                                <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+                                                                <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
+                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i>Move Up</button>
+                                                                <?php if ($up_hidden == "" && $down_hidden == "") {
+                                                                    echo '<div class="dropdown-divider"></div>';
+                                                                } ?>
+                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i>Move Down</button>
+                                                            </form>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>">
+                                                                <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                            </a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
+                                                                <i class="fa fa-fw fa-trash mr-2"></i>Delete
+                                                            </a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            <?php } ?>
-                                        </td>
-                                        <td><?php echo $item_name; ?></td>
-                                        <td><?php echo nl2br($item_description); ?></td>
-                                        <td class="text-center"><?php echo $item_quantity; ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>
-                                    </tr>
+                                                <?php } ?>
+                                            </td>
+                                            <td><?php echo $item_name; ?></td>
+                                            <td><?php echo nl2br($item_description); ?></td>
+                                            <td class="text-center"><?php echo $item_quantity; ?></td>
+                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
+                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
+                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>
+                                        </tr>
 
                                     <?php
 
-                                    if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
-                                        require "item_edit_modal.php";
-
+                                        if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
+                                            require "item_edit_modal.php";
+                                        }
                                     }
 
-                                }
+                                    ?>
 
-                                ?>
+                                    <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") {
+                                                                    echo "hidden";
+                                                                } ?>>
+                                        <form action="post.php" method="post" autocomplete="off">
+                                            <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+                                            <input type="hidden" name="item_order" value="<?php
+                                                                                            //find largest order number and add 1
+                                                                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                                                                            $row = mysqli_fetch_array($sql);
+                                                                                            $item_order = intval($row['item_order']) + 1;
+                                                                                            echo $item_order;
+                                                                                            ?>">
+                                            <td></td>
+                                            <td>
+                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
+                                            </td>
+                                            <td>
+                                                <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Quantity">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)">
+                                            </td>
+                                            <td>
+                                                <select class="form-control select2" id="tax" name="tax_id" required>
+                                                    <option value="0">No Tax</option>
+                                                    <?php
 
-                                <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") { echo "hidden"; } ?>>
-                                    <form action="post.php" method="post" autocomplete="off">
-                                        <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
-                                        <input type="hidden" name="item_order" value="<?php 
-                                        //find largest order number and add 1
-                                        $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                        $row = mysqli_fetch_array($sql);
-                                        $item_order = intval($row['item_order']) + 1;
-                                        echo $item_order;
-                                        ?>">
-                                        <td></td>
-                                        <td>
-                                            <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
-                                        </td>
-                                        <td>
-                                            <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Quantity">
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)"></td>
-                                        <td>
-                                            <select class="form-control select2" id="tax" name="tax_id" required>
-                                                <option value="0">No Tax</option>
-                                                <?php
-
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
-                                                while ($row = mysqli_fetch_array($taxes_sql)) {
-                                                    $tax_id = intval($row['tax_id']);
-                                                    $tax_name = nullable_htmlentities($row['tax_name']);
-                                                    $tax_percent = floatval($row['tax_percent']);
+                                                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
+                                                    while ($row = mysqli_fetch_array($taxes_sql)) {
+                                                        $tax_id = intval($row['tax_id']);
+                                                        $tax_name = nullable_htmlentities($row['tax_name']);
+                                                        $tax_percent = floatval($row['tax_percent']);
                                                     ?>
-                                                    <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                                        <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
 
                                                     <?php
-                                                }
-                                                ?>
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-light text-success" type="submit" name="add_quote_item">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                        </td>
-                                    </form>
-                                </tr>
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-light text-success" type="submit" name="add_quote_item">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </td>
+                                        </form>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -422,26 +428,26 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
-                        </tr>
-                        <?php if ($quote_discount > 0) { ?>
                             <tr class="border-bottom">
-                                <td>Discount</td>
-                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
+                                <td>Subtotal</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
-                        <?php if ($total_tax > 0) { ?>
+                            <?php if ($quote_discount > 0) { ?>
+                                <tr class="border-bottom">
+                                    <td>Discount</td>
+                                    <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
+                                </tr>
+                            <?php } ?>
+                            <?php if ($total_tax > 0) { ?>
+                                <tr class="border-bottom">
+                                    <td>Tax</td>
+                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
+                                </tr>
+                            <?php } ?>
                             <tr class="border-bottom">
-                                <td>Tax</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
+                                <td><strong>Total</strong></td>
+                                <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
                             </tr>
-                        <?php } ?>
-                        <tr class="border-bottom">
-                            <td><strong>Total</strong></td>
-                            <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
-                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -470,29 +476,29 @@ if (isset($_GET['quote_id'])) {
                 <div class="card-body">
                     <table class="table">
                         <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Description</th>
-                        </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <?php
+                            <?php
 
-                        while ($row = mysqli_fetch_array($sql_history)) {
-                            $history_created_at = nullable_htmlentities($row['history_created_at']);
-                            $history_status = nullable_htmlentities($row['history_status']);
-                            $history_description = nullable_htmlentities($row['history_description']);
+                            while ($row = mysqli_fetch_array($sql_history)) {
+                                $history_created_at = nullable_htmlentities($row['history_created_at']);
+                                $history_status = nullable_htmlentities($row['history_status']);
+                                $history_description = nullable_htmlentities($row['history_description']);
 
                             ?>
-                            <tr>
-                                <td><?php echo $history_created_at; ?></td>
-                                <td><?php echo $history_status; ?></td>
-                                <td><?php echo $history_description; ?></td>
-                            </tr>
+                                <tr>
+                                    <td><?php echo $history_created_at; ?></td>
+                                    <td><?php echo $history_status; ?></td>
+                                    <td><?php echo $history_description; ?></td>
+                                </tr>
                             <?php
-                        }
-                        ?>
+                            }
+                            ?>
 
                         </tbody>
                     </table>
@@ -501,7 +507,7 @@ if (isset($_GET['quote_id'])) {
         </div>
     </div>
 
-    <?php
+<?php
     require_once "quote_edit_modal.php";
 
     require_once "quote_to_invoice_modal.php";
@@ -509,10 +515,6 @@ if (isset($_GET['quote_id'])) {
     require_once "quote_copy_modal.php";
 
     require_once "quote_note_modal.php";
-
-    require_once "category_quick_add_modal.php";
-
-
 }
 
 require_once "footer.php";
@@ -526,11 +528,11 @@ require_once "footer.php";
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var availableProducts = <?php echo $json_products?>;
+        var availableProducts = <?php echo $json_products ?>;
 
         $("#name").autocomplete({
             source: availableProducts,
-            select: function (event, ui) {
+            select: function(event, ui) {
                 $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
@@ -544,7 +546,6 @@ require_once "footer.php";
 <script src='plugins/pdfmake/pdfmake.min.js'></script>
 <script src='plugins/pdfmake/vfs_fonts.js'></script>
 <script>
-
     var docDefinition = {
         info: {
             title: <?php echo json_encode(html_entity_decode($company_name) . "- Quote") ?>,
@@ -557,31 +558,26 @@ require_once "footer.php";
             // Header
             {
                 columns: [
-                    <?php if (!empty($company_logo_base64)) { ?>
-                    {
-                        image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
-                        width: 120
-                    },
+                    <?php if (!empty($company_logo_base64)) { ?> {
+                            image: <?php echo json_encode("data:image;base64,$company_logo_base64") ?>,
+                            width: 120
+                        },
                     <?php } ?>
 
-                    [
-                        {
-                            text: 'Quote',
-                            style: 'invoiceTitle',
-                            width: '*'
-                        },
-                        {
-                            text: <?php echo json_encode("$quote_prefix$quote_number") ?>,
-                            style: 'invoiceNumber',
-                            width: '*'
-                        },
-                    ],
+                    [{
+                        text: 'Quote',
+                        style: 'invoiceTitle',
+                        width: '*'
+                    }, {
+                        text: <?php echo json_encode("$quote_prefix$quote_number") ?>,
+                        style: 'invoiceNumber',
+                        width: '*'
+                    }, ],
                 ],
             },
             // Billing Headers
             {
-                columns: [
-                    {
+                columns: [{
                         text: <?php echo json_encode(html_entity_decode($company_name)) ?>,
                         style: 'invoiceBillingTitle'
                     },
@@ -593,8 +589,7 @@ require_once "footer.php";
             },
             // Billing Address
             {
-                columns: [
-                    {
+                columns: [{
                         text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website")) ?>,
                         style: 'invoiceBillingAddress'
                     },
@@ -610,20 +605,18 @@ require_once "footer.php";
                     // headers are automatically repeated if the table spans over multiple pages
                     // you can declare how many rows should be treated as headers
                     headerRows: 0,
-                    widths: [ '*',80, 80 ],
+                    widths: ['*', 80, 80],
 
                     body: [
                         // Total
-                        [
-                            {
+                        [{
                                 text: '',
                                 rowSpan: 3
                             },
                             {},
                             {},
                         ],
-                        [
-                            {},
+                        [{},
                             {
                                 text: 'Date',
                                 style: 'invoiceDateTitle'
@@ -633,8 +626,7 @@ require_once "footer.php";
                                 style: 'invoiceDateValue'
                             },
                         ],
-                        [
-                            {},
+                        [{},
                             {
                                 text: 'Expire',
                                 style: 'invoiceDueDateTitle'
@@ -656,30 +648,29 @@ require_once "footer.php";
                     // headers are automatically repeated if the table spans over multiple pages
                     // you can declare how many rows should be treated as headers
                     headerRows: 1,
-                    widths: [ '*', 40, 'auto', 'auto', 80 ],
+                    widths: ['*', 40, 'auto', 'auto', 80],
 
                     body: [
                         // Table Header
-                        [
-                            {
+                        [{
                                 text: 'Product',
-                                style: [ 'itemsHeader', 'left']
+                                style: ['itemsHeader', 'left']
                             },
                             {
                                 text: 'Qty',
-                                style: [ 'itemsHeader', 'center']
+                                style: ['itemsHeader', 'center']
                             },
                             {
                                 text: 'Price',
-                                style: [ 'itemsHeader', 'right']
+                                style: ['itemsHeader', 'right']
                             },
                             {
                                 text: 'Tax',
-                                style: [ 'itemsHeader', 'right']
+                                style: ['itemsHeader', 'right']
                             },
                             {
                                 text: 'Total',
-                                style: [ 'itemsHeader', 'right']
+                                style: ['itemsHeader', 'right']
                             }
                         ],
                         // Items
@@ -690,47 +681,42 @@ require_once "footer.php";
                         $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
 
                         while ($row = mysqli_fetch_array($sql_invoice_items)) {
-                        $item_name = $row['item_name'];
-                        $item_description = $row['item_description'];
-                        $item_quantity = $row['item_quantity'];
-                        $item_price = $row['item_price'];
-                        $item_subtotal = $row['item_price'];
-                        $item_tax = $row['item_tax'];
-                        $item_total = $row['item_total'];
-                        $tax_id = $row['item_tax_id'];
-                        $total_tax = $item_tax + $total_tax;
-                        $sub_total = $item_price * $item_quantity + $sub_total;
+                            $item_name = $row['item_name'];
+                            $item_description = $row['item_description'];
+                            $item_quantity = $row['item_quantity'];
+                            $item_price = $row['item_price'];
+                            $item_subtotal = $row['item_price'];
+                            $item_tax = $row['item_tax'];
+                            $item_total = $row['item_total'];
+                            $tax_id = $row['item_tax_id'];
+                            $total_tax = $item_tax + $total_tax;
+                            $sub_total = $item_price * $item_quantity + $sub_total;
                         ?>
 
-                        // Item
-                        [
+                            // Item
                             [
-                                {
-                                    text: <?php echo json_encode($item_name) ?>,
-                                    style: 'itemTitle'
-                                },
-                                {
-                                    text: <?php echo json_encode($item_description) ?>,
-                                    style: 'itemDescription'
+                                [{
+                                        text: <?php echo json_encode($item_name) ?>,
+                                        style: 'itemTitle'
+                                    },
+                                    {
+                                        text: <?php echo json_encode($item_description) ?>,
+                                        style: 'itemDescription'
+                                    }
+                                ], {
+                                    text: <?php echo json_encode($item_quantity) ?>,
+                                    style: 'itemQty'
+                                }, {
+                                    text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_price, $quote_currency_code)) ?>,
+                                    style: 'itemNumber'
+                                }, {
+                                    text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_tax, $quote_currency_code)) ?>,
+                                    style: 'itemNumber'
+                                }, {
+                                    text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_total, $quote_currency_code)) ?>,
+                                    style: 'itemNumber'
                                 }
                             ],
-                            {
-                                text: <?php echo json_encode($item_quantity) ?>,
-                                style: 'itemQty'
-                            },
-                            {
-                                text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_price, $quote_currency_code)) ?>,
-                                style: 'itemNumber'
-                            },
-                            {
-                                text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_tax, $quote_currency_code)) ?>,
-                                style: 'itemNumber'
-                            },
-                            {
-                                text: <?php echo json_encode(numfmt_format_currency($currency_format, $item_total, $quote_currency_code)) ?>,
-                                style: 'itemNumber'
-                            }
-                        ],
 
                         <?php
                         }
@@ -746,20 +732,18 @@ require_once "footer.php";
                     // headers are automatically repeated if the table spans over multiple pages
                     // you can declare how many rows should be treated as headers
                     headerRows: 0,
-                    widths: [ '*','auto', 80 ],
+                    widths: ['*', 'auto', 80],
 
                     body: [
                         // Total
-                        [
-                            {
+                        [{
                                 text: 'Notes',
                                 style: 'notesTitle'
                             },
                             {},
                             {}
                         ],
-                        [
-                            {
+                        [{
                                 rowSpan: '*',
                                 text: <?php echo json_encode(html_entity_decode($quote_note)) ?>,
                                 style: 'notesText'
@@ -773,43 +757,28 @@ require_once "footer.php";
                                 style: 'itemsFooterSubValue'
                             }
                         ],
-                        <?php if ($quote_discount > 0) { ?>
-                        [
-                            {},
-                            {
+                        <?php if ($quote_discount > 0) { ?>[{}, {
                                 text: 'Discount',
                                 style: 'itemsFooterSubTitle'
-                            },
-                            {
+                            }, {
                                 text: <?php echo json_encode(numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code)) ?>,
                                 style: 'itemsFooterSubValue'
-                            }
-                        ],
+                            }],
                         <?php } ?>
-                        <?php if ($total_tax > 0) { ?>
-                        [
-                            {},
-                            {
+                        <?php if ($total_tax > 0) { ?>[{}, {
                                 text: 'Tax',
                                 style: 'itemsFooterSubTitle'
-                            },
-                            {
+                            }, {
                                 text: <?php echo json_encode(numfmt_format_currency($currency_format, $total_tax, $quote_currency_code)) ?>,
                                 style: 'itemsFooterSubValue'
-                            }
-                        ],
-                        <?php } ?>
-                        [
-                            {},
-                            {
-                                text: 'Total',
-                                style: 'itemsFooterTotalTitle'
-                            },
-                            {
-                                text: <?php echo json_encode(numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code)) ?>,
-                                style: 'itemsFooterTotalValue'
-                            }
-                        ],
+                            }],
+                        <?php } ?>[{}, {
+                            text: 'Total',
+                            style: 'itemsFooterTotalTitle'
+                        }, {
+                            text: <?php echo json_encode(numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code)) ?>,
+                            style: 'itemsFooterTotalValue'
+                        }],
                     ]
                 }, // table
                 layout: 'lightHorizontalLines'
@@ -824,7 +793,7 @@ require_once "footer.php";
             // Document Footer
             documentFooterCenter: {
                 fontSize: 9,
-                margin: [10,50,10,10],
+                margin: [10, 50, 10, 10],
                 alignment: 'center'
             },
             // Invoice Title
@@ -832,25 +801,25 @@ require_once "footer.php";
                 fontSize: 18,
                 bold: true,
                 alignment: 'right',
-                margin: [0,0,0,3]
+                margin: [0, 0, 0, 3]
             },
             // Invoice Number
             invoiceNumber: {
                 fontSize: 14,
-                alignment:'right'
+                alignment: 'right'
             },
             // Billing Headers
             invoiceBillingTitle: {
                 fontSize: 14,
                 bold: true,
                 alignment: 'left',
-                margin: [0,20,0,5]
+                margin: [0, 20, 0, 5]
             },
             invoiceBillingTitleClient: {
                 fontSize: 14,
                 bold: true,
                 alignment: 'right',
-                margin: [0,20,0,5]
+                margin: [0, 20, 0, 5]
             },
             // Billing Details
             invoiceBillingAddress: {
@@ -861,36 +830,36 @@ require_once "footer.php";
                 fontSize: 10,
                 lineHeight: 1.2,
                 alignment: 'right',
-                margin: [0,0,0,30]
+                margin: [0, 0, 0, 30]
             },
             // Invoice Dates
             invoiceDateTitle: {
                 fontSize: 10,
                 alignment: 'left',
-                margin: [0,5,0,5]
+                margin: [0, 5, 0, 5]
             },
             invoiceDateValue: {
                 fontSize: 10,
                 alignment: 'right',
-                margin: [0,5,0,5]
+                margin: [0, 5, 0, 5]
             },
             // Invoice Due Dates
             invoiceDueDateTitle: {
                 fontSize: 10,
                 bold: true,
                 alignment: 'left',
-                margin: [0,5,0,5]
+                margin: [0, 5, 0, 5]
             },
             invoiceDueDateValue: {
                 fontSize: 10,
                 bold: true,
                 alignment: 'right',
-                margin: [0,5,0,5]
+                margin: [0, 5, 0, 5]
             },
             // Items Header
             itemsHeader: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 bold: true,
                 alignment: 'right'
             },
@@ -898,62 +867,62 @@ require_once "footer.php";
             itemTitle: {
                 fontSize: 10,
                 bold: true,
-                margin: [0,5,0,3]
+                margin: [0, 5, 0, 3]
             },
             itemDescription: {
                 italics: true,
                 fontSize: 9,
                 lineHeight: 1.1,
-                margin: [0,3,0,5]
+                margin: [0, 3, 0, 5]
             },
             itemQty: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 alignment: 'center'
             },
             itemNumber: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 alignment: 'right'
             },
             itemTotal: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 bold: true,
                 alignment: 'right'
             },
             // Items Footer (Subtotal, Total, Tax, etc)
             itemsFooterSubTitle: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 alignment: 'right'
             },
             itemsFooterSubValue: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 bold: false,
                 alignment: 'right'
             },
             itemsFooterTotalTitle: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 bold: true,
                 alignment: 'right'
             },
             itemsFooterTotalValue: {
                 fontSize: 10,
-                margin: [0,5,0,5],
+                margin: [0, 5, 0, 5],
                 bold: true,
                 alignment: 'right'
             },
             notesTitle: {
                 fontSize: 10,
                 bold: true,
-                margin: [0,5,0,5]
+                margin: [0, 5, 0, 5]
             },
             notesText: {
                 fontSize: 9,
-                margin: [0,5,50,5]
+                margin: [0, 5, 50, 5]
             },
             left: {
                 alignment: 'left'
