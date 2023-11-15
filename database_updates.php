@@ -1492,6 +1492,13 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '0.9.3') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_default_hourly_rate` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `config_default_net_terms`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.4'");
+
+    }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.4') {
         mysqli_query($mysqli, "ALTER TABLE `recurring` ADD   `recurring_frequency_number` INT(11) NOT NULL DEFAULT 1 AFTER `recurring_frequency`");
 
 
@@ -1502,11 +1509,11 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    // if (CURRENT_DATABASE_VERSION == '0.9.4') {
-    //     // Insert queries here required to update to DB version 0.9.5
+    // if (CURRENT_DATABASE_VERSION == '0.9.5') {
+    //     // Insert queries here required to update to DB version 0.9.6
     //     
     //     // Then update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.6'");
     // }
 
 
