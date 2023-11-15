@@ -9,6 +9,8 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="lead" value="0">
+                <input type="hidden" name="net_terms" value="0">
+                <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -21,11 +23,13 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
                         </li>
+                        <?php if ($config_module_enable_accounting) { ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-additional">Additional</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
                         </li>
+                        <?php } ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-tag">Tag</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more">More</a>
                         </li>
                     </ul>
 
@@ -61,7 +65,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="referral">
+                                    <select class="form-control select2" data-tags="true" name="referral">
                                         <option value="">N/A</option>
                                         <?php
 
@@ -72,9 +76,6 @@
                                         <?php } ?>
 
                                     </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickReferralModal"><i class="fas fa-fw fa-plus"></i></button>
-                                    </div>
                                 </div>
                             </div>
 
@@ -231,115 +232,90 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-additional">
+                        <?php if ($config_module_enable_accounting) { ?>
 
-                            <?php if ($config_module_enable_accounting) { ?>
+                        <div class="tab-pane fade" id="pills-billing">
 
-                                <div class="form-group">
-                                    <label>Hourly Rate</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00">
+                            <div class="form-group">
+                                <label>Hourly Rate</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
+                                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Currency <strong class="text-danger">*</strong></label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="currency_code" required>
-                                            <option value="">- Currency -</option>
-                                            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                                <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                                            <?php } ?>
-                                        </select>
+                            <div class="form-group">
+                                <label>Currency <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="currency_code" required>
+                                        <option value="">- Currency -</option>
+                                        <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                                            <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Payment Terms</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="net_terms">
-                                            <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                                <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                                            <?php } ?>
-                                        </select>
+                            <div class="form-group">
+                                <label>Payment Terms</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="net_terms">
+                                        <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                                            <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
+                            </div>
 
-                                <div class="form-group">
-                                    <label>Tax ID</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
+                            <div class="form-group">
+                                <label>Tax ID</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                                     </div>
+                                    <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
                                 </div>
+                            </div>
 
-                            <?php } else { ?>
-                                <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
-                                <input type="hidden" name="net_terms" value="0">
-                            <?php } ?>
+                        </div>
+
+                        <?php } ?>
+
+                        <div class="tab-pane fade" id="pills-more">
 
                             <div class="form-group">
                                 <label>Notes</label>
                                 <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"></textarea>
                             </div>
 
-                        </div>
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                        <?php
 
-                        <div class="tab-pane fade" id="pills-tag">
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                            $tag_id_select = intval($row['tag_id']);
+                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                            ?>
+                                            <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                        <?php } ?>
 
-                            <ul class="list-group">
-
-                                <?php
-                                $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-
-                                while ($row = mysqli_fetch_array($sql_tags_select)) {
-                                    $tag_id_select = intval($row['tag_id']);
-                                    $tag_name_select = nullable_htmlentities($row['tag_name']);
-                                    $tag_color_select = nullable_htmlentities($row['tag_color']);
-                                    if (empty($tag_color_select)) {
-                                        $tag_color_select = "dark";
-                                    }
-                                    $tag_icon_select = nullable_htmlentities($row['tag_icon']);
-                                    if (empty($tag_icon_select)) {
-                                        $tag_icon_select = "tag";
-                                    }
-
-                                    ?>
-                                    <li class="list-group-item">
-                                        <div class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" type="checkbox" id="tagCheckbox<?php echo $tag_id_select; ?>" name="tags[]" value="<?php echo $tag_id_select; ?>">
-                                            <label for="tagCheckbox<?php echo $tag_id_select; ?>" class="custom-control-label">
-                                            <span class="badge bg-<?php echo $tag_color_select; ?>">
-                                                <?php echo "<i class='fa fw fa-$tag_icon_select mr-2'></i>"; ?><?php echo $tag_name_select; ?>
-                                            </span>
-                                            </label>
-                                        </div>
-                                    </li>
-
-                                <?php } ?>
-
-                            </ul>
-
-                            <?php if (mysqli_num_rows($sql_tags_select) == 0){ ?>
-
-                                <div class='my-3 text-center'>
-                                    <i class='fa fa-fw fa-6x fa-tags text-secondary'></i>
-                                    <h3 class='text-secondary mt-3'>No Tags Found!</h3>
-                                    <a href="settings_tags.php">Try adding a few <b>Settings > Tags</b></a>
+                                    </select>
                                 </div>
-
-                            <?php } ?>
+                            </div>
 
                         </div>
 

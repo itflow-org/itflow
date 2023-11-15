@@ -56,7 +56,26 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="destination" value="<?php echo $trip_destination; ?>" required>
+                            <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
+                                <option><?php echo $trip_destination; ?></option>
+                                <?php
+
+                                $sql_locations_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                                while ($row = mysqli_fetch_array($sql_locations_select)) {
+                                    $location_name = nullable_htmlentities($row['location_name']);
+                                    $location_address = nullable_htmlentities($row['location_address']);
+                                    $location_city = nullable_htmlentities($row['location_city']);
+                                    $location_state = nullable_htmlentities($row['location_state']);
+                                    $location_zip = nullable_htmlentities($row['location_zip']);
+                                    $location_full_address = "$location_address $location_city $location_state $location_zip";
+
+                                    ?>
+                                    <option><?php echo $location_full_address; ?></option>
+
+                                    <?php
+                                }
+                                ?>
+                            </select>
                         </div>
                     </div>
 
@@ -75,9 +94,11 @@
                                 <option value="">- Driver -</option>
                                 <?php
 
-                                // WIP Need to only show users within the session company
-                                $sql_trips = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
-                                while ($row = mysqli_fetch_array($sql_trips)) {
+                                $sql_users = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
+                                    LEFT JOIN user_settings on users.user_id = user_settings.user_id
+                                    WHERE user_role > 1 AND user_archived_at > '$trip_created_at' ORDER BY user_name ASC"
+                                );
+                                while ($row = mysqli_fetch_array($sql_users)) {
                                     $user_id_select = intval($row['user_id']);
                                     $user_name_select = nullable_htmlentities($row['user_name']);
                                     ?>

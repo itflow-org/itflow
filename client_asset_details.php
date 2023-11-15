@@ -183,7 +183,7 @@ if (isset($_GET['asset_id'])) {
                     <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
                 </div>
                 <div class="card-body p-1">
-                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>
+                    <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>
                 </div>
             </div>
 
@@ -495,8 +495,8 @@ if (isset($_GET['asset_id'])) {
         jQuery.post(
             "ajax.php",
             {
-                contact_set_notes: 'TRUE',
-                contact_id: contact_id,
+                asset_set_notes: 'TRUE',
+                asset_id: asset_id,
                 notes: notes
             }
         )

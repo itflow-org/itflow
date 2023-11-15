@@ -297,7 +297,7 @@ if (isset($_GET['ticket_id'])) {
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                         </div>
@@ -316,40 +316,43 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Hours -->
-                            <div class="col-md-2">
-                                <div class="input-group mb-3">
-                                    <input type="number" class="form-control" id="hours" name="hours" placeholder="Hours" min="0" max="23">
+                            <div class="col-sm-2">
+                                <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                     <div class="input-group-append">
-                                        <span class="input-group-text">Hrs</span>
+                                        <span class="input-group-text">H</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Time Tracking: Minutes -->
-                            <div class="col-md-2">
-                                <div class="input-group mb-3">
-                                    <input type="number" class="form-control" id="minutes" name="minutes" placeholder="Minutes" min="0" max="59">
+                            <div class="col-sm-1">
+                                <div class="input-group input-group-sm mb-3">
+                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
-                                        <span class="input-group-text">Mins</span>
+                                        <span class="input-group-text">M</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Time Tracking: Seconds -->
-                            <div class="col-md-2">
-                                <div class="input-group mb-3">
-                                    <input type="number" class="form-control" id="seconds" name="seconds" placeholder="Seconds" min="0" max="59">
+                            <div class="col-sm-1">
+                                <div class="input-group input-group-sm mb-3">
+                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
-                                        <span class="input-group-text">Secs</span>
+                                        <span class="input-group-text">S</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Timer Controls -->
-                            <div class="col-md-2">
-                                <div class="btn-group mt-2" role="group">
-                                    <button type="button" class="btn btn-success" id="startStopTimer">Pause</button>
-                                    <button type="button" class="btn btn-danger" id="resetTimer">Reset</button>
+                            <div class="col-sm-1">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-sm" id="startStopTimer"><i class="fas fa-fw fa-pause"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
                                 </div>
                             </div>
 

@@ -1516,8 +1516,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.6'");
     // }
 
-
-
 } else {
     // Up-to-date
 }

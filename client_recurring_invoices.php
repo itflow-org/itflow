@@ -26,7 +26,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Invoices</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-plus mr-2"></i>New Recurring</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringModal"><i class="fas fa-plus mr-2"></i>New Recurring</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportRecurringModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -45,7 +53,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportRecurringModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                     </div>
                 </div>
 

@@ -102,7 +102,7 @@
                                 ?>
                             </select>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                <a class="btn btn-secondary" href="categories.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                             </div>
                         </div>
                     </div>

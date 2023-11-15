@@ -16,7 +16,17 @@ require_once "inc_all_settings.php";
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="start_page" value="<?php echo nullable_htmlentities($config_start_page); ?>">
+                    <select class="form-control select2" name="start_page" data-tags="true" required>
+                        <?php if (!in_array($config_start_page, array_keys($start_page_select_array))) { ?>
+                            <option selected> <?php echo nullable_htmlentities($config_start_page); ?></option>
+                        <?php } ?>
+                        <?php foreach ($start_page_select_array as $start_page_value => $start_page_name) { ?>
+                            <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?> 
+                                value="<?php echo nullable_htmlentities($start_page_value); ?>">
+                                <?php echo nullable_htmlentities($start_page_name); ?>
+                            </option>
+                        <?php }?>
+                    </select>
                 </div>
             </div>
 
@@ -194,6 +204,16 @@ require_once "inc_all_settings.php";
                                     } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
                         <?php } ?>
                     </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Client Hourly Rate</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    </div>
+                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="hourly_rate" value="<?php echo number_format($config_default_hourly_rate, 2, '.', ''); ?>" placeholder="0.00" required>
                 </div>
             </div>
 
