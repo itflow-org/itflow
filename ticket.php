@@ -506,7 +506,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Contact card -->
                 <div class="card card-body card-outline card-dark mb-3">
-                    <h4 class="text-secondary">Contact</h4>
+                    <h5 class="text-secondary">Contact</h5>
 
                     <?php if (!empty($contact_id)) { ?>
 
@@ -577,7 +577,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Ticket watchers card -->
                 <div class="card card-body card-outline card-dark mb-3">
-                    <h4 class="text-secondary">Watchers</h4>
+                    <h5 class="text-secondary">Watchers</h5>
 
                     <div>
                         <a href="#" data-toggle="modal" data-target="#addTicketWatcherModal"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
@@ -599,7 +599,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Ticket Details card -->
                 <div class="card card-body card-outline card-dark mb-3">
-                    <h4 class="text-secondary">Details</h4>
+                    <h5 class="text-secondary">Details</h5>
                     <div>
                         <i class="fa fa-fw fa-thermometer-half text-secondary ml-1 mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a>
                     </div>
@@ -636,7 +636,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Asset card -->
                 <div class="card card-body card-outline card-dark mb-3">
-                    <h4 class="text-secondary">Asset</h4>
+                    <h5 class="text-secondary">Asset</h5>
 
                     <?php if ($asset_id == 0) { ?>
 
@@ -731,7 +731,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Vendor card -->
                 <div class="card card-body card-outline card-dark mb-3">
-                    <h4 class="text-secondary">Vendor</h4>
+                    <h5 class="text-secondary">Vendor</h5>
                     <?php if (empty($vendor_id)) { ?>
                         <div>
                             <a href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Vendor</a>
