@@ -21,12 +21,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Color</label>
+                        <label>Color <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-palette"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                             </div>
-                            <input type="color" class="form-control" name="color" required>
+                            <input type="color" class="form-control col-3" name="color" required>
                         </div>
                     </div>
 
