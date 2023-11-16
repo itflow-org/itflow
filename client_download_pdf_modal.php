@@ -55,7 +55,7 @@
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="logins" name="export_logins" value="1">
                                         <label for="logins" class="custom-control-label">
-                                            <i class='fas fa-fw fa-key mr-2'></i>Logins/Passwords
+                                            <i class='fas fa-fw fa-key mr-2'></i>Logins
                                         </label>
                                     </div>
                                 </li>
@@ -64,7 +64,7 @@
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="networks" name="export_networks" value="1" checked>
                                         <label for="networks" class="custom-control-label">
-                                            <i class='fas fa-fw fa-network-wired mr-2'></i>networks
+                                            <i class='fas fa-fw fa-network-wired mr-2'></i>Networks
                                         </label>
                                     </div>
                                 </li>

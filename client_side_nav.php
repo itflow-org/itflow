@@ -125,7 +125,7 @@
 
                 <li class="nav-item">
                     <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-certificate"></i>
+                        <i class="nav-icon fas fa-cube"></i>
                         <p>
                             Licenses
                             <?php
@@ -140,7 +140,7 @@
                     <a href="client_logins.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logins.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-key"></i>
                         <p>
-                            Passwords
+                            Logins
                             <?php
                             if ($num_logins > 0) { ?>
                                 <span class="right badge text-light"><?php echo $num_logins; ?></span>

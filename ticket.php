@@ -296,27 +296,25 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="form-row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group input-group-sm">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="status" required>
-                                            <option <?php if ($ticket_status == "In-Progress") {echo "selected";}?> >In-Progress</option>
-                                            <option <?php if ($ticket_status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
-                                            <option <?php if ($ticket_status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
-                                            <option <?php if ($ticket_status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
-                                            <option <?php if ($ticket_status == "Scheduled") {echo "selected";}?> >Scheduled</option>
-                                            <?php if($config_ticket_autoclose) { ?>
-                                                <option <?php if ($ticket_status == 'Auto Close') { echo "selected"; } ?> >Auto Close</option>
-                                            <?php } ?>
-                                        </select>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="status" required>
+                                        <option <?php if ($ticket_status == "In-Progress") {echo "selected";}?> >In-Progress</option>
+                                        <option <?php if ($ticket_status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
+                                        <option <?php if ($ticket_status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
+                                        <option <?php if ($ticket_status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
+                                        <option <?php if ($ticket_status == "Scheduled") {echo "selected";}?> >Scheduled</option>
+                                        <?php if($config_ticket_autoclose) { ?>
+                                            <option <?php if ($ticket_status == 'Auto Close') { echo "selected"; } ?> >Auto Close</option>
+                                        <?php } ?>
+                                    </select>
                                 </div>
                             </div>
 
                             <!-- Time Tracking: Hours -->
-                            <div class="col-sm-2">
+                            <div class="col-md-2">
                                 <div class="input-group input-group-sm mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
@@ -329,7 +327,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Minutes -->
-                            <div class="col-sm-1">
+                            <div class="col-md-1">
                                 <div class="input-group input-group-sm mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
@@ -339,7 +337,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Seconds -->
-                            <div class="col-sm-1">
+                            <div class="col-md-1">
                                 <div class="input-group input-group-sm mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
                                     <div class="input-group-append">
@@ -349,7 +347,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Timer Controls -->
-                            <div class="col-sm-1">
+                            <div class="col-md-2">
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-success btn-sm" id="startStopTimer"><i class="fas fa-fw fa-pause"></i></button>
                                     <button type="button" class="btn btn-danger btn-sm" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
