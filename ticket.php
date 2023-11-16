@@ -295,7 +295,7 @@ if (isset($_GET['ticket_id'])) {
                             <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response"></textarea>
                         </div>
                         <div class="form-row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
@@ -314,45 +314,39 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Hours -->
-                            <div class="col-md-2">
-                                <div class="input-group input-group-sm mb-3">
+                            <div class="col-sm-3 col-lg-2">
+                                <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                                     </div>
                                     <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">H</span>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Time Tracking: Minutes -->
-                            <div class="col-md-1">
-                                <div class="input-group input-group-sm mb-3">
+                            <div class="col-sm-1">
+                                <div class="input-group mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">M</span>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Time Tracking: Seconds -->
-                            <div class="col-md-1">
-                                <div class="input-group input-group-sm mb-3">
+                            <div class="col-sm-1">
+                                <div class="input-group mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">S</span>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Timer Controls -->
-                            <div class="col-md-2">
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-success btn-sm" id="startStopTimer"><i class="fas fa-fw fa-pause"></i></button>
-                                    <button type="button" class="btn btn-danger btn-sm" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
+                            <div class="col-sm-2">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-success" id="startStopTimer"><i class="fas fa-fw fa-pause"></i></button>
+                                    <button type="button" class="btn btn-danger" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="form-row">
 
 
                             <?php if(!empty($contact_email && $contact_email !== $session_email)){ ?>
