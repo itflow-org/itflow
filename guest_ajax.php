@@ -57,6 +57,17 @@ if (isset($_GET['stripe_create_pi'])) {
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
+    // Check config to see if client pays fees is enabled
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
+    if ($row['config_client_pays_fees'] == 1) {
+        // Get fees from config
+        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_percentage_fee, config_stripe_flat_fee FROM settings WHERE company_id = 1"));
+        $percentageFee = floatval($row['config_stripe_percentage_fee']);
+        $flatFee = floatval($row['config_stripe_flat_fee']);
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance_to_pay + $flatFee) / (1 - $percentageFee);
+    }
+
     if (intval($balance_to_pay) == 0) {
         exit("No balance outstanding");
     }
