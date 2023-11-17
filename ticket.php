@@ -315,6 +315,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Hours -->
+
                             <div class="col-sm-3 col-lg-2">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
@@ -325,6 +326,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Minutes -->
+
                             <div class="col-sm-1">
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
@@ -332,6 +334,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking: Seconds -->
+
                             <div class="col-sm-1">
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
@@ -817,7 +820,7 @@ if (isset($_GET['ticket_id'])) {
                     <?php }
 
                     if ($ticket_status !== "Closed") { ?>
-                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link" id="ticket_close">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
                         </a>
                     <?php } ?>

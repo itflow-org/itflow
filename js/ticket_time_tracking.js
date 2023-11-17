@@ -8,6 +8,8 @@
         var ticketID = getCurrentTicketID();
         var elapsedSecs = getElapsedSeconds();
 
+        updateRunningTicketsCount();
+
         function getCurrentTicketID() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ticket_id');
@@ -53,6 +55,9 @@
             timerInterval = setInterval(countTime, 1000);
             isPaused = false;
             document.getElementById("startStopTimer").innerText = "Pause";
+            updateRunningTicketsCount();
+            localStorage.setItem("ticket-timer-running-" + ticketID, "true");
+
         }
 
         function pauseTimer() {
@@ -65,11 +70,15 @@
             localStorage.removeItem(getLocalStorageKey("startTime"));
             isPaused = true;
             document.getElementById("startStopTimer").innerText = "Start";
+            updateRunningTicketsCount();
+            localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+
         }
 
         function clearTimeStorage() {
             localStorage.removeItem(getLocalStorageKey("startTime"));
             localStorage.removeItem(getLocalStorageKey("pausedTime"));
+            localStorage.removeItem("ticket-timer-running-" + ticketID);
         }
 
         function resetTimer() {
@@ -81,6 +90,8 @@
                 displayTime();
                 document.getElementById("startStopTimer").innerText = "Start";
             }
+            localStorage.setItem("ticket-timer-running-" + ticketID, "false");
+            updateRunningTicketsCount();
         }
 
         function forceResetTimer() {
@@ -116,6 +127,18 @@
         }
 
 
+        function updateRunningTicketsCount() {
+            let runningTickets = parseInt(document.getElementById('runningTicketsCount').innerText, 10);
+
+            if (!isPaused && timerInterval) {
+                runningTickets += 1;
+            } else {
+                runningTickets = Math.max(0, runningTickets - 1);
+            }
+
+        document.getElementById('runningTicketsCount').innerText = runningTickets.toString();
+        }   
+
         // Function to check status and pause timer
         function checkStatusAndPauseTimer() {
             var status = document.querySelector('select[name="status"]').value;
@@ -123,6 +146,7 @@
                 pauseTimer();
             }
         }
+
 
         
         document.getElementById("hours").addEventListener('change', updateTimeFromInput);
@@ -153,7 +177,12 @@
             // Wait for other synchronous actions (if any) to complete before resetting the timer.
             setTimeout(forceResetTimer, 100); // 100ms delay should suffice, but you can adjust as needed.
         });
- 
+
+        document.getElementById("ticket_close").addEventListener('click', function() {
+            // Wait for other synchronous actions (if any) to complete before resetting the timer.
+            setTimeout(clearTimeStorage, 100); // 100ms delay should suffice, but you can adjust as needed.
+        });
+
         try {
             displayTime();
             if (!localStorage.getItem(getLocalStorageKey("startTime")) && !localStorage.getItem(getLocalStorageKey("pausedTime"))) {

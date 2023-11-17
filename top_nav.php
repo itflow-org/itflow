@@ -36,6 +36,15 @@
                 <i class="fas fa-fw fa-question"></i>
             </a>
         </li>
+        <?php if ($config_module_enable_ticketing == 1) { ?>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span class="badge" id="runningTicketsCount">0</span>
+                </a>
+            </li>
+        <?php } ?>
+
 
         <!-- New Notifications Dropdown -->
         <?php
@@ -151,4 +160,8 @@
 
     </ul>
 </nav>
+
+<?php if ($config_module_enable_ticketing == 1) { 
+    include_once "top_nav_tickets_modal.php";
+    } ?>
 <!-- /.navbar -->
