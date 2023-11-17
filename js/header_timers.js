@@ -58,7 +58,7 @@
     }
 
     function loadOpenTickets() {
-        var openTicketsContainer = document.getElementById('openTicketsContainer');
+        let openTicketsContainer = document.getElementById('openTicketsContainer');
         openTicketsContainer.innerHTML = ''; // Clear existing content
     
         for (let i = 0; i < localStorage.length; i++) {
@@ -68,7 +68,7 @@
                 let ticketID = key.replace("ticket-timer-running-", "");
                 let isRunning = JSON.parse(localStorage.getItem(key));
     
-                var ticketDiv = document.createElement('div');
+                let ticketDiv = document.createElement('div');
                 ticketDiv.classList.add('card', 'card-outline', 'mb-3');
                 // Add class based on ticket status
                 ticketDiv.classList.add(isRunning ? 'card-info' : 'card-warning');
@@ -95,7 +95,7 @@
     }
     
     function updateRunningTickets() {
-        var runningTickets = document.querySelectorAll('[id^="ticket-"]');
+        let runningTickets = document.querySelectorAll('[id^="ticket-"]');
         runningTickets.forEach(ticket => {
             let ticketID = ticket.id.replace("ticket-", "");
             let isRunning = JSON.parse(localStorage.getItem("ticket-timer-running-" + ticketID));
@@ -135,7 +135,7 @@
 
     // Add event listener to modal
     document.addEventListener('DOMContentLoaded', function() {
-        var modal = document.getElementById('openTicketsModal');
+        let modal = document.getElementById('openTicketsModal');
         if (modal) {
             $('#openTicketsModal').on('show.bs.modal', loadOpenTickets);
         }

@@ -128,7 +128,7 @@
 
 
         function updateRunningTicketsCount() {
-            var runningTickets = parseInt(document.getElementById('runningTicketsCount').innerText, 10);
+            let runningTickets = parseInt(document.getElementById('runningTicketsCount').innerText, 10);
 
             if (!isPaused && timerInterval) {
                 runningTickets += 1;
@@ -182,7 +182,7 @@
             // Wait for other synchronous actions (if any) to complete before resetting the timer.
             setTimeout(clearTimeStorage, 100); // 100ms delay should suffice, but you can adjust as needed.
         });
- 
+
         try {
             displayTime();
             if (!localStorage.getItem(getLocalStorageKey("startTime")) && !localStorage.getItem(getLocalStorageKey("pausedTime"))) {
