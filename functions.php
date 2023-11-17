@@ -778,3 +778,59 @@ function roundToNearest15($time) {
     // Return the decimal hours
     return number_format($decimalHours, 2);
 }
+
+// Get the value of a setting from the database
+function getSettingValue($mysqli, $setting_name) {
+    //if starts with config_ then get from config table
+    if (substr($setting_name, 0, 7) == "config_") {
+        $sql = mysqli_query($mysqli, "SELECT $setting_name FROM settings");
+        $row = mysqli_fetch_array($sql);
+        return $row[$setting_name];
+    } elseif (substr($setting_name, 0, 7) == "company") {
+        $sql = mysqli_query($mysqli, "SELECT $setting_name FROM companies");
+        $row = mysqli_fetch_array($sql);
+        return $row[$setting_name];
+    } else {
+        return "Cannot Find Setting Name";
+    }
+}
+
+function getMonthlyTax($tax_name, $month, $year, $mysqli) {
+    // SQL to calculate monthly tax
+    $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items 
+            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
+            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+            WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) = $month
+            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+    $result = mysqli_query($mysqli, $sql);
+    $row = mysqli_fetch_assoc($result);
+    return $row['monthly_tax'] ?? 0;
+}
+
+function getQuarterlyTax($tax_name, $quarter, $year, $mysqli) {
+    // Calculate start and end months for the quarter
+    $start_month = ($quarter - 1) * 3 + 1;
+    $end_month = $start_month + 2;
+
+    // SQL to calculate quarterly tax
+    $sql = "SELECT SUM(item_tax) AS quarterly_tax FROM invoice_items 
+            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
+            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+            WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) BETWEEN $start_month AND $end_month
+            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+    $result = mysqli_query($mysqli, $sql);
+    $row = mysqli_fetch_assoc($result);
+    return $row['quarterly_tax'] ?? 0;
+}
+
+function getTotalTax($tax_name, $year, $mysqli) {
+    // SQL to calculate total tax
+    $sql = "SELECT SUM(item_tax) AS total_tax FROM invoice_items 
+            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
+            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+            WHERE YEAR(payments.payment_date) = $year
+            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+    $result = mysqli_query($mysqli, $sql);
+    $row = mysqli_fetch_assoc($result);
+    return $row['total_tax'] ?? 0;
+}
