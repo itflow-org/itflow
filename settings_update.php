@@ -29,7 +29,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
             <!-- Check if git fetch result was successful (0), if not show a warning -->
             <?php if ($result !== 0) { ?>
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger">
                     <strong>WARNING: Could not find execute 'git fetch'.</strong>
                     <br><br>
                     <i>Error details:- <?php echo shell_exec("git fetch 2>&1"); ?></i>
@@ -45,7 +45,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
             <?php } else {
                 if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
-                    <div class="alert alert-warning" role="alert">
+                    <div class="alert alert-warning">
                         <strong>Ensure you have a current <a href="https://docs.itflow.org/backups">app & database backup</a> before updating!</strong>
                     </div>
                     <br>
@@ -55,9 +55,10 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <br>
                     <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
                 <?php } else { ?>
-                    <h3 class="text-success text-bold">Congratulations!<br><i class="far fa-3x text-dark fa-smile-wink"></i><br><small>You are on the latest version!</small></h3>
-                    <p class="text-secondary">Current Database Version:<br><strong><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
-                    <p class="text-secondary">Current App Version:<br><strong><?php echo $current_version; ?></strong></p>
+                    <p class="text-secondary">Current Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
+                    <p class="text-secondary">Current App Version:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
+                    <p class="text-muted">You are up to date!<br>Everything is going to be alright</p>
+                    <i class="far fa-3x text-dark fa-smile-wink"></i><br>
                 <?php }
             }
 
