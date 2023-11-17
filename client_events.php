@@ -60,13 +60,13 @@ while ($row = mysqli_fetch_array($sql)) {
             defaultView: 'dayGridMonth',
             customButtons: {
                 addEvent: {
-                    bootstrapFontAwesome: 'fa fa-plus',
+                    bootstrapFontAwesome: 'fa fa-fw fa-plus',
                     click: function() {
                         $("#addCalendarEventModal").modal();
                     }
                 },
                 addCalendar: {
-                    bootstrapFontAwesome: 'fa fa-calendar-plus',
+                    bootstrapFontAwesome: 'fa fa-fw fa-calendar-plus',
                     click: function() {
                         $("#addCalendarModal").modal();
                     }

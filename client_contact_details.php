@@ -272,7 +272,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Passwords</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Logins</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm-sm">

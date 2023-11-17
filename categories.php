@@ -31,21 +31,6 @@ if (isset($_GET['archived'])) {
     $category = "Archived";
 }
 
-$colors_used_array = [];
-
-//Colors Used
-$sql_colors_used = mysqli_query(
-    $mysqli,
-    "SELECT category_color FROM categories 
-    WHERE category_type = '$category'
-    AND category_$archive_query"
-);
-
-while ($color_used_row = mysqli_fetch_array($sql_colors_used)) {
-    $colors_used_array[] = $color_used_row['category_color'];
-}
-$colors_diff = array_diff($colors_array, $colors_used_array);
-
 ?>
 
 
@@ -59,7 +44,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
         ?>
         <div class="card-tools">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i
-                    class="fas fa-plus mr-2"></i>Create</button>
+                    class="fas fa-plus mr-2"></i>New <?php echo nullable_htmlentities($category); ?> Category</button>
         </div>
         <?php
             }
@@ -75,7 +60,7 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                             value="<?php if (isset($q)) {
                                 echo stripslashes(nullable_htmlentities($q));
                             } ?>"
-                            placeholder="Search Categories">
+                            placeholder="Search <?php echo nullable_htmlentities($category); ?> Categories ">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -140,7 +125,6 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                         $category_id = intval($row['category_id']);
                         $category_name = nullable_htmlentities($row['category_name']);
                         $category_color = nullable_htmlentities($row['category_color']);
-                        //$colors_used_array[] = $row['category_color'];
                     
                         ?>
                         <tr>
@@ -186,11 +170,8 @@ $colors_diff = array_diff($colors_array, $colors_used_array);
                         </tr>
 
                         <?php
-
-                        //$colors_diff = array_diff($colors_array,$colors_used_array);
                     
                         include "category_edit_modal.php";
-
 
                     }
 

@@ -14,33 +14,22 @@
 
                     <div class="form-group">
                         <label>Name <strong class="text-danger">*</strong></label>
-                        <input type="text" class="form-control" name="name" value="<?php echo $category_name; ?>" required>
-                    </div>
-
-                    <label>Color <strong class="text-danger">*</strong></label>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="color" value="<?php echo $category_color; ?>" checked>
-                            <label class="form-check-label">
-                                <i class="fa fa-fw fa-4x fa-circle" style="color:<?php echo $category_color; ?>"></i>
-                            </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="name" value="<?php echo $category_name; ?>" required>
                         </div>
                     </div>
-                    <div class="form-row">
 
-                        <?php
-
-                        foreach($colors_diff as $color) { ?>
-                            <div class="col-3 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>">
-                                    <label class="form-check-label">
-                                        <i class="fa fa-fw fa-3x fa-circle" style="color:<?php echo $color; ?>"></i>
-                                    </label>
-                                </div>
+                    <div class="form-group">
+                        <label>Color <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                             </div>
-                        <?php } ?>
-
+                            <input type="color" class="form-control col-3" name="color" value="<?php echo $category_color; ?>" required>
+                        </div>
                     </div>
 
                 </div>

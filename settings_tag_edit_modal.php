@@ -13,7 +13,12 @@
           
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" value="<?php echo $tag_name; ?>" required>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+              </div>
+              <input type="text" class="form-control" name="name" value="<?php echo $tag_name; ?>" required>
+            </div>
           </div>
 
           <div class="form-group">
@@ -29,36 +34,24 @@
             </div>
           </div>
           
-          <label>Color</label>
-          <div class="mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="color" value="<?php echo $tag_color; ?>" checked>
-                <label class="form-check-label">
-                  <i class="fa fa-fw fa-4x fa-circle" style="color:<?php echo $tag_color; ?>"></i>
-                </label>
+          <div class="form-group">
+            <label>Color <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
               </div>
+              <input type="color" class="form-control col-3" name="color" value="<?php echo $tag_color; ?>" required>
             </div>
-          <div class="form-row">
-
-            <?php 
-
-            foreach($colors_array as $color) { 
-            ?>
-            <div class="col-3 mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="color" value="<?php echo $color; ?>">
-                <label class="form-check-label">
-                  <i class="fa fa-fw fa-3x fa-circle" style="color:<?php echo $color; ?>"></i>
-                </label>
-              </div>
-            </div>
-           
-            <?php } ?>
           </div>
 
           <div class="form-group">
             <label>Icon</label>
-            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?php echo $tag_icon; ?>">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
+              </div>
+              <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?php echo $tag_icon; ?>">
+            </div>
           </div>
         
         </div>
