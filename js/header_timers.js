@@ -20,6 +20,26 @@
         if (countDisplay) {
             countDisplay.innerText = count;
         }
+        if (count == 0) {
+            countDisplay.classList.remove('badge-danger');
+        } else {
+            //check to see if more than one ticket
+            if (count > 1) {
+                countDisplay.classList.add('badge-danger');
+            }
+            //if count is one, check to see if its open in the current window by looking at the post variable ticket_id in url
+            if (count == 1) {
+                let urlParams = new URLSearchParams(window.location.search);
+                let ticketID = urlParams.get('ticket_id');
+                console.log(ticketID);
+                // If ticket number equals one in local storage, then add badge-danger class
+                if (localStorage.getItem("ticket-timer-running-") == ticketID) {
+                    countDisplay.classList.add('badge-danger');
+                }  else {
+                    countDisplay.classList.remove('badge-danger');
+                }
+            }
+        }
     }
 
     function getElapsedSeconds(ticketID) {
@@ -74,8 +94,6 @@
         requestAnimationFrame(() => updateRunningTickets());
     }
     
-    
-
     function updateRunningTickets() {
         var runningTickets = document.querySelectorAll('[id^="ticket-"]');
         runningTickets.forEach(ticket => {
@@ -91,8 +109,29 @@
         requestAnimationFrame(updateRunningTickets);
     }
 
+    function clearAllTimers() {
+        // Collect keys to be removed
+        let keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            if (key.startsWith("ticket-timer-running-") || key.endsWith("-startTime") || key.endsWith("-pausedTime")) {
+                keysToRemove.push(key);
+            }
+        }
+    
+        // Remove collected keys
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+        // Update the display and redirect
+        updateTicketCountDisplay();
+        window.location.href = "/tickets.php";
+    }
+
     // Initial update on script load
     updateTicketCountDisplay();
+
+    // update every 10 seconds
+    setInterval(updateTicketCountDisplay, 10000);
 
     // Add event listener to modal
     document.addEventListener('DOMContentLoaded', function() {
@@ -101,5 +140,8 @@
             $('#openTicketsModal').on('show.bs.modal', loadOpenTickets);
         }
     });
+
+    // Add event listener to clear all timers button
+    document.getElementById('clearAllTimers').addEventListener('click', clearAllTimers);
 
 })();

@@ -823,7 +823,7 @@ if (isset($_GET['ticket_id'])) {
                     <?php }
 
                     if ($ticket_status !== "Closed") { ?>
-                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link">
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link" id="ticket_close">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
                         </a>
                     <?php } ?>

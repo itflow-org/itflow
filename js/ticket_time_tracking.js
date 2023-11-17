@@ -78,6 +78,7 @@
         function clearTimeStorage() {
             localStorage.removeItem(getLocalStorageKey("startTime"));
             localStorage.removeItem(getLocalStorageKey("pausedTime"));
+            localStorage.removeItem("ticket-timer-running-" + ticketID);
         }
 
         function resetTimer() {
@@ -175,6 +176,11 @@
         document.getElementById("ticket_add_reply").addEventListener('click', function() {
             // Wait for other synchronous actions (if any) to complete before resetting the timer.
             setTimeout(forceResetTimer, 100); // 100ms delay should suffice, but you can adjust as needed.
+        });
+
+        document.getElementById("ticket_close").addEventListener('click', function() {
+            // Wait for other synchronous actions (if any) to complete before resetting the timer.
+            setTimeout(clearTimeStorage, 100); // 100ms delay should suffice, but you can adjust as needed.
         });
  
         try {
