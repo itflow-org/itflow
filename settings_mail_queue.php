@@ -110,13 +110,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $email_failed_at = nullable_htmlentities($row['email_failed_at']);
                         $email_sent_at = nullable_htmlentities($row['email_sent_at']);
                         $email_status = intval($row['email_status']);
-                        if($email_status == 0){
+                        if ($email_status == 0) {
                             $email_status_display = "<div class='text-primary'>Queued</div>";
-                        }elseif($email_status == 1){
+                        } elseif($email_status == 1) {
                             $email_status_display = "<div class='text-warning'>Sending</div>";
-                        }elseif($email_status == 2){
+                        } elseif($email_status == 2) {
                             $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary'>$email_failed_at</small>";
-                        }else{
+                        } else {
                             $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary'>$email_sent_at</small>";
                         }
 
@@ -132,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $email_attempts; ?></td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#viewEmailModal<?php echo $email_id; ?>"><i class="fas fa-fw fa-eye"></i></button>
-                                
+
                                 <?php if($email_attempts > 3 && $email_status == 2) { ?>
 
                                 <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?php echo $email_id; ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
