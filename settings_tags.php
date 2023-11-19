@@ -52,7 +52,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_name&order=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_type&order=<?php echo $disp; ?>">Type</a></th>
-                        <th>Color</th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -68,9 +67,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><?php echo "<i class='fas fa-fw fa-$tag_icon mr-2'></i>"; ?><a class="text-dark" href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>"><?php echo "$tag_name"; ?></a></td>
+                            <td>
+                                <a href="#" data-toggle="modal" data-target="#editTagModal<?php echo $tag_id; ?>">
+                                    <span class='badge text-light p-2 mr-1' style="background-color: <?php echo $tag_color; ?>"><i class="fa fa-fw fa-<?php echo $tag_icon; ?> mr-2"></i><?php echo $tag_name; ?></span>
+                                </a>
+                            </td>
                             <td><?php echo $tag_type; ?></td>
-                            <td><i class="fa fa-3x fa-circle" style="color:<?php echo $tag_color; ?>;"></i></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
