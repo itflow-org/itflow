@@ -4,16 +4,18 @@ require_once "inc_all_reports.php";
 
 validateAccountantRole();
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
-}
+$year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+
+$view = isset($_GET['view']) ? $_GET['view'] : 'quarterly';
+$company_currency = getSettingValue($mysqli, 'company_currency');
+
 
 //GET unique years from expenses, payments and revenues
 $sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items ORDER BY all_years DESC");
 
-$sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
+$sql_tax = mysqli_query($mysqli, 
+    "SELECT `tax_name`
+    FROM `taxes`");
 
 ?>
 
@@ -39,253 +41,76 @@ $sql_tax = mysqli_query($mysqli, "SELECT * FROM taxes ORDER BY tax_name ASC");
                     ?>
 
                 </select>
+
+                        <!-- View Selection Dropdown -->
+                <select onchange="this.form.submit()" class="form-control" name="view">
+                    <option value="monthly" <?php if ($view == 'monthly') echo "selected"; ?>>Monthly</option>
+                    <option value="quarterly" <?php if ($view == 'quarterly') echo "selected"; ?>>Quarterly</option>
+                </select>
             </form>
+
             <div class="table-responsive-sm">
                 <table class="table table-sm">
                     <thead class="text-dark">
                     <tr>
                         <th>Tax</th>
-                        <th class="text-right">Jan-Mar</th>
-                        <th class="text-right">Apr-Jun</th>
-                        <th class="text-right">Jul-Sep</th>
-                        <th class="text-right">Oct-Dec</th>
+                        <?php
+                        if ($view == 'monthly') {
+                            for ($i = 1; $i <= 12; $i++) {
+                                echo "<th class='text-right'>" . date('M', mktime(0, 0, 0, $i, 10)) . "</th>";
+                            }
+                        } else {
+                            echo "<th class='text-right'>Jan-Mar</th>";
+                            echo "<th class='text-right'>Apr-Jun</th>";
+                            echo "<th class='text-right'>Jul-Sep</th>";
+                            echo "<th class='text-right'>Oct-Dec</th>";
+                        }
+                        ?>
                         <th class="text-right">Total</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <?php
-                    while ($row = mysqli_fetch_array($sql_tax)) {
-                        $tax_id = intval($row['tax_id']);
-                        $tax_name = nullable_htmlentities($row['tax_name']);
-                        ?>
+                        <?php
+                        while ($row = mysqli_fetch_array($sql_tax)) {
+                            echo "<tr>";
+                            echo "<td>" . $row['tax_name'] . "</td>";
 
+                            if ($view == 'monthly') {
+                                for ($i = 1; $i <= 12; $i++) {
+                                    $monthly_tax = getMonthlyTax($row['tax_name'], $i, $year, $mysqli);
+                                    echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
+                                }
+                            } else {
+                                for ($q = 1; $q <= 4; $q++) {
+                                    $quarterly_tax = getQuarterlyTax($row['tax_name'], $q, $year, $mysqli);
+                                    echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</td>";
+                                }
+                            }
+
+                            // Calculate total for row and echo bold
+                            $total_tax = getTotalTax($row['tax_name'], $year, $mysqli);
+                            echo "<td class='text-right text-bold'>" . numfmt_format_currency($currency_format, $total_tax, $company_currency) . "</td>";
+                            echo "</tr>";
+                        }
+                        ?>
                         <tr>
-                            <td><?php echo $tax_name; ?></td>
-
-                            <?php
-
-                            $tax_collected_quarter_one = 0;
-
-                            for($month = 1; $month<=3; $month++) {
-
-                                $sql_tax_collected = mysqli_query(
-                                    $mysqli,
-                                    "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                    FROM invoices, invoice_items 
-                                    WHERE item_invoice_id = invoice_id
-                                    AND invoice_status LIKE 'Paid' 
-                                    AND item_tax_id = $tax_id 
-                                    AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                                );
-
-                                $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                                $tax_collected_quarter_one = $tax_collected_quarter_one + $tax_collected_for_month;
-                            }
-
+                            <th>Total</th>
+                                <?php
+                                if ($view == 'monthly') {
+                                    for ($i = 1; $i <= 12; $i++) {
+                                        $monthly_tax = getMonthlyTax($row['tax_name'], $i, $year, $mysqli);
+                                        echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</th>";
+                                    }
+                                } else {
+                                    for ($q = 1; $q <= 4; $q++) {
+                                        $quarterly_tax = getQuarterlyTax($row['tax_name'], $q, $year, $mysqli);
+                                        echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</th>";
+                                    }
+                                }
                             ?>
-
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_quarter_one, $session_company_currency); ?></td>
-
-                            <?php
-
-                            $tax_collected_quarter_two = 0;
-
-                            for($month = 4; $month <= 6; $month ++) {
-
-                                $sql_tax_collected = mysqli_query(
-                                    $mysqli,
-                                    "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                    FROM invoices, invoice_items 
-                                    WHERE item_invoice_id = invoice_id
-                                    AND invoice_status LIKE 'Paid' 
-                                    AND item_tax_id = $tax_id 
-                                    AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                                );
-
-                                $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                                $tax_collected_quarter_two = $tax_collected_quarter_two + $tax_collected_for_month;
-                            }
-
-                            ?>
-
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_quarter_two, $session_company_currency); ?></td>
-
-                            <?php
-
-                            $tax_collected_quarter_three = 0;
-
-                            for($month = 7; $month <= 9; $month ++) {
-
-                                $sql_tax_collected = mysqli_query(
-                                    $mysqli,
-                                    "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                    FROM invoices, invoice_items 
-                                    WHERE item_invoice_id = invoice_id
-                                    AND invoice_status LIKE 'Paid' 
-                                    AND item_tax_id = $tax_id 
-                                    AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                                );
-
-                                $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                                $tax_collected_quarter_three = $tax_collected_quarter_three + $tax_collected_for_month;
-                            }
-
-                            ?>
-
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_quarter_three, $session_company_currency); ?></td>
-
-                            <?php
-
-                            $tax_collected_quarter_four = 0;
-
-                            for($month = 10; $month <= 12; $month ++) {
-
-                                $sql_tax_collected = mysqli_query(
-                                    $mysqli,
-                                    "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                    FROM invoices, invoice_items 
-                                    WHERE item_invoice_id = invoice_id
-                                    AND invoice_status LIKE 'Paid' 
-                                    AND item_tax_id = $tax_id 
-                                    AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                                );
-
-                                $row = mysqli_fetch_array($sql_tax_collected);
-                                $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                                $tax_collected_quarter_four = $tax_collected_quarter_four + $tax_collected_for_month;
-                            }
-
-                            $total_tax_collected_four_quarters = $tax_collected_quarter_one + $tax_collected_quarter_two + $tax_collected_quarter_three + $tax_collected_quarter_four;
-
-                            ?>
-
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_quarter_four, $session_company_currency); ?></td>
-
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax_collected_four_quarters, $session_company_currency); ?></td>
+                            <td></td>
                         </tr>
-
-                        <?php
-
-                    }
-
-                    ?>
-
-                    <tr>
-                        <th>Total Taxes<br><br><br></th>
-                        <?php
-
-                        $tax_collected_total_quarter_one = 0;
-
-                        for($month = 1; $month <= 3; $month ++) {
-
-                            $sql_tax_collected = mysqli_query(
-                                $mysqli,
-                                "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                FROM invoices, invoice_items 
-                                WHERE item_invoice_id = invoice_id
-                                AND invoice_status LIKE 'Paid'  
-                                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                            );
-
-                            $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                            $tax_collected_total_quarter_one = $tax_collected_total_quarter_one + $tax_collected_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_one, $session_company_currency); ?></th>
-
-                        <?php
-
-                        $tax_collected_total_quarter_two = 0;
-
-                        for($month = 4; $month <= 6; $month ++) {
-
-                            $sql_tax_collected = mysqli_query(
-                                $mysqli,
-                                "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                FROM invoices, invoice_items 
-                                WHERE item_invoice_id = invoice_id
-                                AND invoice_status LIKE 'Paid'  
-                                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                            );
-
-                            $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                            $tax_collected_total_quarter_two = $tax_collected_total_quarter_two + $tax_collected_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_two, $session_company_currency); ?></th>
-
-                        <?php
-
-                        $tax_collected_total_quarter_three = 0;
-
-                        for($month = 7; $month <= 9; $month ++) {
-
-                            $sql_tax_collected = mysqli_query(
-                                $mysqli,
-                                "SELECT SUM(item_tax) AS tax_collected_for_month 
-                                FROM invoices, invoice_items 
-                                WHERE item_invoice_id = invoice_id
-                                AND invoice_status LIKE 'Paid'  
-                                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                            );
-
-                            $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                            $tax_collected_total_quarter_three = $tax_collected_total_quarter_three + $tax_collected_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_three, $session_company_currency); ?></th>
-
-                        <?php
-
-                        $tax_collected_total_quarter_four = 0;
-
-                        for($month = 10; $month <= 12; $month ++) {
-
-                            $sql_tax_collected = mysqli_query(
-                                $mysqli,
-                                "SELECT SUM(item_tax) AS tax_collected_for_month
-                                FROM invoices, invoice_items 
-                                WHERE item_invoice_id = invoice_id
-                                AND invoice_status LIKE 'Paid'  
-                                AND YEAR(invoice_date) = $year AND MONTH(invoice_date) = $month"
-                            );
-
-                            $row = mysqli_fetch_array($sql_tax_collected);
-                            $tax_collected_for_month = floatval($row['tax_collected_for_month']);
-
-                            $tax_collected_total_quarter_four = $tax_collected_total_quarter_four + $tax_collected_for_month;
-                        }
-
-                        $tax_collected_total_all_four_quarters = $tax_collected_total_quarter_one + $tax_collected_total_quarter_two + $tax_collected_total_quarter_three + $tax_collected_total_quarter_four;
-
-                        ?>
-
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_quarter_four, $session_company_currency); ?></th>
-
-
-
-
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $tax_collected_total_all_four_quarters, $session_company_currency); ?></th>
-                    </tr>
+                        
                     </tbody>
                 </table>
             </div>
