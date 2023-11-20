@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
-  <a class="brand-link pb-1 mt-1" href="clients.php">    
+  <a class="brand-link pb-1 mt-1" href="clients.php">
     <p class="h6"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Administration</strong></p>
   </a>
 
@@ -67,7 +67,7 @@
             <p>Update</p>
           </a>
         </li>
-        
+
         <li class="nav-item">
           <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
             <i class="nav-icon fa fa-bug"></i>
@@ -75,12 +75,12 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="settings_maintenance.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_maintenance.php") { echo "active"; } ?>">
-            <i class="nav-icon fa fa-wrench"></i>
-            <p>Maintenance</p>
-          </a>
-        </li>
+<!--        <li class="nav-item">-->
+<!--          <a href="settings_maintenance.php" class="nav-link --><?php //if (basename($_SERVER["PHP_SELF"]) == "settings_maintenance.php") { echo "active"; } ?><!--">-->
+<!--            <i class="nav-icon fa fa-wrench"></i>-->
+<!--            <p>Maintenance</p>-->
+<!--          </a>-->
+<!--        </li>-->
 
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
@@ -115,7 +115,7 @@
         <li class="nav-item">
           <a href="settings_account_types.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_account_types.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-money-bill-wave"></i>
-            <p>Account Types</p>  
+            <p>Account Types</p>
           </a>
         </li>
 
@@ -255,7 +255,7 @@
     <!-- /.sidebar-menu -->
 
     <div class="mb-3"></div>
-  
+
   </div>
   <!-- /.sidebar -->
 </aside>
