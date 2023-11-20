@@ -51,6 +51,10 @@ if (isset($_GET['stripe_create_pi'])) {
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
 
+    $config_sql = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+    $config_row = mysqli_fetch_array($config_sql);
+    $config_stripe_client_pays_fees = intval($config_row['config_stripe_client_pays_fees']);
+
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
@@ -58,15 +62,16 @@ if (isset($_GET['stripe_create_pi'])) {
     $balance_to_pay = $invoice_amount - $amount_paid;
 
     // Check config to see if client pays fees is enabled
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
-    if ($row['config_client_pays_fees'] == 1) {
+    if ($config_stripe_client_pays_fees == 1) {
         // Get fees from config
-        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_percentage_fee, config_stripe_flat_fee FROM settings WHERE company_id = 1"));
-        $percentageFee = floatval($row['config_stripe_percentage_fee']);
-        $flatFee = floatval($row['config_stripe_flat_fee']);
+        $percentage_fee = 0.029; // Default Stripe fee
+        $flat_fee = 0.30; // Default Stripe fee
         // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $flatFee) / (1 - $percentageFee);
+        $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
     }
+
+    $balance_to_pay = round($balance_to_pay, 2);
+
 
     if (intval($balance_to_pay) == 0) {
         exit("No balance outstanding");

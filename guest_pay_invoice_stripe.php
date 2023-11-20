@@ -2,6 +2,14 @@
 
 require_once 'guest_header.php';
 
+function log_to_console($message)
+{
+    $message = date("H:i:s") . " - $message - ".PHP_EOL;
+    print($message);
+    flush();
+    ob_flush();
+}
+
 
 // Define wording
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
@@ -66,12 +74,28 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_locale = nullable_htmlentities($row['company_locale']);
+    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
+
+    // Check config to see if client pays fees is enabled
+    if ($config_stripe_client_pays_fees == 1) {
+            $balance_before_fees = $balance_to_pay;
+            $percentage_fee = 0.029;
+            $flat_fee = 0.30;
+            // Calculate the amount to charge the client
+            $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+            // Calculate the fee amount
+            $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+
+        }
+    
+    //Round balance to pay to 2 decimal places
+    $balance_to_pay = round($balance_to_pay, 2);
 
     // Get invoice items
     $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
@@ -119,7 +143,17 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
                         </tr>
 
+                    <?php }
+                    if ($config_stripe_client_pays_fees == 1) { ?>
+                    
+                        <tr>
+                            <td>Gateway Fees</td>
+                            <td class="text-center">-</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
+                        </tr>
                     <?php } ?>
+
+
 
                     </tbody>
                 </table>
@@ -243,6 +277,17 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = $row['amount_paid'];
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
+    // Check config to see if client pays fees is enabled
+    if ($config_stripe_client_pays_fees == 1) {
+        $percentage_fee = 0.029;
+        $flat_fee = 0.30;
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+    }
+
+    // Round balance to pay to 2 decimal places
+    $balance_to_pay = round($balance_to_pay, 2);
+
     // Sanity check that the amount paid is exactly the invoice outstanding balance
     if (intval($balance_to_pay) !== intval($pi_amount_paid)) {
         exit("Something went wrong confirming this payment. Please get in touch.");
@@ -257,6 +302,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
+    // Add Gateway fees to history if applicable
+    if ($config_stripe_client_pays_fees == 1) {
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Gateway fees of $gateway_fee has been billed', history_invoice_id = $invoice_id");
+    }
+
     // Notify
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Paid', notification = 'Invoice $invoice_prefix$invoice_number has been paid - $ip - $os - $browser', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $pi_client_id");
 
@@ -265,7 +315,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     if (!$pi_livemode) {
         $extended_log_desc = '(DEV MODE)';
     }
+    if ($config_stripe_client_pays_fees == 1) {
+        $extended_log_desc .= ' (Client Pays Fees [' . numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ']])';
+    }
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id");
+
+    
 
     // Send email receipt
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
