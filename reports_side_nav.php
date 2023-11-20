@@ -13,7 +13,7 @@
 
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
-                <?php  if ($session_user_role == 1 || $session_user_role == 3) { ?>
+                <?php  if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
                     <li class="nav-header">FINANCIAL</li>
 
                     <li class="nav-item">
