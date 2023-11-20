@@ -1267,6 +1267,7 @@ CREATE TABLE `settings` (
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
   `config_stripe_account` tinyint(1) NOT NULL DEFAULT 0,
+  `config_stripe_client_pays_fees` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,

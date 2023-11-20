@@ -1098,3 +1098,19 @@ if (isset($_GET['update_db'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
+if (isset($_POST['config_stripe_client_pays_fees'])) {
+
+    validateAdminRole();
+
+    $config_stripe_client_pays_fees = intval($_POST['config_stripe_client_pays_fees']);
+
+    mysqli_query($mysqli,"UPDATE settings SET config_stripe_client_pays_fees = $config_stripe_client_pays_fees WHERE company_id = 1");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified stripe client pays fees', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Stripe client pays fees updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}

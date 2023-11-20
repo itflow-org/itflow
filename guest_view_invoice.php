@@ -80,6 +80,7 @@ if (!empty($company_logo)) {
 $company_locale = nullable_htmlentities($row['company_locale']);
 $config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
+$config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -109,6 +110,15 @@ $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
 $balance = $invoice_amount - $amount_paid;
+
+// Check config to see if client pays fees is enabled
+if ($config_stripe_client_pays_fees == 1) {
+        $percentage_fee = 0.029;
+        $flat_fee = 0.30;
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance + $flat_fee) / (1 - $percentage_fee);
+        $stripe_fee = $balance_to_pay - $balance;
+    }
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -293,6 +303,12 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
                         </tr>
                         </tbody>
+                        <?php if (isset($stripe_fee)) {?>
+                        <tr class="border-bottom">
+                            <td>Gateway Fee:</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $stripe_fee, $invoice_currency_code); ?></td>
+                        </tr>
+                        <?php } ?>
                     </table>
                 </div>
             </div>
