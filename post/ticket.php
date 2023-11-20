@@ -10,9 +10,9 @@ if (isset($_POST['add_ticket'])) {
 
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
-    if($assigned_to == 0){
+    if ($assigned_to == 0) {
         $ticket_status = 'Pending-Assignment';
-    }else{
+    } else {
         $ticket_status = 'Assigned';
     }
     $contact = intval($_POST['contact']);
@@ -24,7 +24,7 @@ if (isset($_POST['add_ticket'])) {
     $asset_id = intval($_POST['asset']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
 
-    // Add the primary contact as the ticket contact if use primary contact is checked
+    // Add the primary contact as the ticket contact if "Use primary contact" is checked
     if ($use_primary_contact == 1) {
         $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
@@ -851,7 +851,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
         $row = mysqli_fetch_array($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
-    }else{
+    } else {
         $tax_amount = 0;
     }
 
