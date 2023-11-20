@@ -2,8 +2,6 @@
 
 require_once "inc_all_settings.php";
 
-// Get Stripe Setting for config client pays
-
 
 ?>
 
