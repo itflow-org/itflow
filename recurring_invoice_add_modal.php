@@ -67,12 +67,16 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                             </div>
-                            <select class="form-control select2" name="frequency" required>
-                                <option value="">- Frequency -</option>
-                                <option value="week">Weekly</option>
-                                <option value="month">Monthly</option>
-                                <option value="year">Yearly</option>
-                            </select>
+                            <div class="input-group-text">Every</div>
+                            <input type="number" class="form-control" name="frequency_number" min="1" max="999" value="1" required>
+                            <div class="input-group-prepend">
+                                <select class="form-control select2" name="frequency" required>
+                                    <option value="">- Frequency -</option>
+                                    <option value="week">Weeks</option>
+                                    <option value="month">Months</option>
+                                    <option value="year">Years</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

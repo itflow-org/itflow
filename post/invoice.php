@@ -177,6 +177,7 @@ if (isset($_POST['add_recurring'])) {
 
     $client = intval($_POST['client']);
     $frequency = sanitizeInput($_POST['frequency']);
+    $frequency_number = intval($_POST['frequency_number']);
     $start_date = sanitizeInput($_POST['start_date']);
     $category = intval($_POST['category']);
     $scope = sanitizeInput($_POST['scope']);
@@ -186,7 +187,7 @@ if (isset($_POST['add_recurring'])) {
     $new_config_recurring_next_number = $config_recurring_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_recurring_next_number = $new_config_recurring_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_prefix = '$config_recurring_prefix', recurring_number = $recurring_number, recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$start_date', recurring_category_id = $category, recurring_status = 1, recurring_currency_code = '$session_company_currency', recurring_client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO recurring SET recurring_prefix = '$config_recurring_prefix', recurring_number = $recurring_number, recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_frequency_number = $frequency_number, recurring_next_date = '$start_date', recurring_category_id = $category, recurring_status = 1, recurring_currency_code = '$session_company_currency', recurring_client_id = $client");
 
     $recurring_id = mysqli_insert_id($mysqli);
 
@@ -205,6 +206,7 @@ if (isset($_POST['edit_recurring'])) {
 
     $recurring_id = intval($_POST['recurring_id']);
     $frequency = sanitizeInput($_POST['frequency']);
+    $frequency_number = intval($_POST['frequency_number']);
     $next_date = sanitizeInput($_POST['next_date']);
     $category = intval($_POST['category']);
     $scope = sanitizeInput($_POST['scope']);
@@ -220,7 +222,7 @@ if (isset($_POST['edit_recurring'])) {
     }
     $recurring_amount = $recurring_amount - $recurring_discount;
 
-    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_next_date = '$next_date', recurring_category_id = $category, recurring_discount_amount = $recurring_discount, recurring_amount = $recurring_amount, recurring_status = $status WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_scope = '$scope', recurring_frequency = '$frequency', recurring_frequency_number = $frequency_number, recurring_next_date = '$next_date', recurring_category_id = $category, recurring_discount_amount = $recurring_discount, recurring_amount = $recurring_amount, recurring_status = $status WHERE recurring_id = $recurring_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring modified', history_recurring_id = $recurring_id");
 

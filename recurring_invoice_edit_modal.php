@@ -28,17 +28,25 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                             </div>
+                            <div class="input-group-text">Every</div>
+                            <input type="number" class="form-control" name="frequency_number" min="1" max="999" value="<?php 
+                            if ($recurring_frequency_number == 0) {
+                                echo "1";
+                            } else {
+                                echo $recurring_frequency_number;
+                            }
+                            ?>" required>
                             <select class="form-control select2" name="frequency" required>
                                 <option value="">- Frequency -</option>
                                 <option <?php if ($recurring_frequency == 'week') {
                                             echo "selected";
-                                        } ?> value="week">Weekly</option>
+                                        } ?> value="week">Weeks</option>
                                 <option <?php if ($recurring_frequency == 'month') {
                                             echo "selected";
-                                        } ?> value="month">Monthly</option>
+                                        } ?> value="month">Months</option>
                                 <option <?php if ($recurring_frequency == 'year') {
                                             echo "selected";
-                                        } ?> value="year">Yearly</option>
+                                        } ?> value="year">Years</option>
                             </select>
                         </div>
                     </div>

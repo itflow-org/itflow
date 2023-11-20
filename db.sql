@@ -989,6 +989,7 @@ CREATE TABLE `recurring` (
   `recurring_number` int(11) NOT NULL,
   `recurring_scope` varchar(255) DEFAULT NULL,
   `recurring_frequency` varchar(200) NOT NULL,
+  `recurring_frequency_number` int(11) NOT NULL DEFAULT 0,
   `recurring_last_sent` date DEFAULT NULL,
   `recurring_next_date` date NOT NULL,
   `recurring_status` int(1) NOT NULL,
