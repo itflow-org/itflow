@@ -68,7 +68,7 @@
                     <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-check"></i>
                         <p>
-                            Schedule Ticket
+                            Scheduled Tickets
                             <?php
                             if ($num_scheduled_tickets > 0) { ?>
                                 <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
