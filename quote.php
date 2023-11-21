@@ -90,7 +90,7 @@ if (isset($_GET['quote_id'])) {
     }
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE product_archived_at IS NULL");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -537,6 +537,7 @@ require_once "footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
+                $("#tax").val(ui.item.tax); // Tax field
                 return false;
             }
         });

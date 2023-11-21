@@ -581,7 +581,7 @@ require_once "footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax); // Product price field
+                $("#tax").val(ui.item.tax); // Product tax field
                 return false;
             }
         });

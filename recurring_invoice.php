@@ -72,7 +72,7 @@ if (isset($_GET['recurring_id'])) {
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_recurring_id = $recurring_id ORDER BY history_id DESC");
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE product_archived_at IS NULL");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -306,7 +306,7 @@ if (isset($_GET['recurring_id'])) {
                                                 <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $recurring_currency_code; ?>)">
                                             </td>
                                             <td>
-                                                <select class="form-control" name="tax_id" required>
+                                                <select class="form-control" name="tax_id" id="tax" required>
                                                     <option value="0">No Tax</option>
                                                     <?php
 
@@ -456,6 +456,7 @@ require_once "footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
+                $("#tax").val(ui.item.tax); // Product tax field
                 return false;
             }
         });
