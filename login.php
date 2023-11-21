@@ -341,10 +341,7 @@ if (isset($_POST['login'])) {
                 
                 }
 
-                ?>
-
-
-                
+                ?>    
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
