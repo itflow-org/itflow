@@ -8,37 +8,22 @@ require_once "inc_all.php";
 
 
 // Ticket status from GET
-if (!isset($_GET['status'])) {
-    // If nothing is set, assume we only want to see open tickets
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'In-Progress') {
-    $status = 'In-Progress';
-    $ticket_status_snippet = "ticket_status = 'In-Progress'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Client') {
-    $status = 'Pending-Client';
-    $ticket_status_snippet = "ticket_status = 'Pending-Client'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Vendor') {
-    $status = 'Pending-Vendor';
-    $ticket_status_snippet = "ticket_status = 'Pending-Vendor'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Pending-Shipment') {
-    $status = 'Pending-Shipment';
-    $ticket_status_snippet = "ticket_status = 'Pending-Shipment'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Scheduled') {
-    $status = 'Scheduled';
-    $ticket_status_snippet = "ticket_status = 'Scheduled'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
-    $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
-} else if (isset($_GET['status']) && ($_GET['status']) == 'Client-Replied') {
-    $status = 'Client-Replied';
-    $ticket_status_snippet = "ticket_status = 'Client-Replied'";
+if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'])) {
+    // Convert the selected statuses into a comma-separated string
+    $selectedStatuses = implode("','", $_GET['status']);
+    $ticket_status_snippet = "ticket_status IN ('$selectedStatuses')";
 } else {
-    $status = '%';
-    $ticket_status_snippet = "ticket_status LIKE '%'";
+
+    if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
+        $status = 'Open';
+        $ticket_status_snippet = "ticket_status != 'Closed'";
+    } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
+        $status = 'Closed';
+        $ticket_status_snippet = "ticket_status = 'Closed'";
+    } else {
+        $status = 'Open';
+        $ticket_status_snippet = "ticket_status != 'Closed'";
+    }
 }
 
 // Ticket assignment status filter
@@ -147,7 +132,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     </div>
                 </div>
 
-                <div class="collapse <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || is_array($_GET['status'])) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -207,15 +192,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Ticket Status</label>
-                                <select class="form-control select2" name="status">
-                                    <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
-                                    <option value="In-Progress" <?php if ($status == "In-Progress") {echo "selected";}?> >In-Progress</option>
-                                    <option value="Client-Replied" <?php if ($status == "Client-Replied") {echo "selected";}?> >Client-Replied</option>
-                                    <option value="Pending-Client" <?php if ($status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
-                                    <option value="Pending-Vendor" <?php if ($status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
-                                    <option value="Pending-Shipment" <?php if ($status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
-                                    <option value="Scheduled" <?php if ($status == "Scheduled") {echo "selected";}?> >Scheduled</option>
-                                    <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
+                                <select class="form-control select2" name="status[]" data-placeholder = "Select Status" multiple>
+                                    <option value="In-Progress" <?php if (is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) { echo 'selected'; } ?> >In-Progress</option>
+                                    <option value="Client-Replied" <?php if (is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) { echo 'selected'; } ?> >Client-Replied</option>
+                                    <option value="Pending-Client" <?php if (is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) { echo 'selected'; } ?> >Pending-Client</option>
+                                    <option value="Pending-Vendor" <?php if (is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) { echo 'selected'; } ?> >Pending-Vendor</option>
+                                    <option value="Pending-Shipment" <?php if (is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) { echo 'selected'; } ?> >Pending-Shipment</option>
+                                    <option value="Scheduled" <?php if (is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) { echo 'selected'; } ?> >Scheduled</option>
+                                    <option value="Closed" <?php if (is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?> >Closed</option>
                                 </select>
                             </div>
                         </div>
