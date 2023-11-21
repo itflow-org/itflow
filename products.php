@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $tax_name_display = $tax_name;
                         }
-                        $tax_percent = intval($row['tax_percent']);
+                        $tax_percent = floatval($row['tax_percent']);
 
 
                         ?>
