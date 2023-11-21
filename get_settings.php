@@ -211,7 +211,9 @@ $ticket_status_array = array (
     'Pending-Client',
     'Pending-Vendor',
     'Scheduled',
-    'Closed'
+    'Closed',
+    'Open',
+    'Auto Close'
 );
 
 $industry_select_array = array(
