@@ -303,12 +303,6 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
                         </tr>
                         </tbody>
-                        <?php if (isset($stripe_fee)) {?>
-                        <tr class="border-bottom">
-                            <td>Gateway Fee:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $stripe_fee, $invoice_currency_code); ?></td>
-                        </tr>
-                        <?php } ?>
                     </table>
                 </div>
             </div>
