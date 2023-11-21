@@ -111,12 +111,25 @@ if (isset($_POST['login'])) {
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
+        $remember_token = $row['user_config_remember_me_token'];
         if($force_mfa == 1 && $token == NULL) {
             $config_start_page = "user_profile.php";
         }
 
-        // Checking for user 2FA
-        if (empty($token) || TokenAuth6238::verify($token, $current_code)) {
+        $bypass_2fa = false;
+        if (isset($_COOKIE['rememberme']) && $_COOKIE['rememberme'] == $remember_token) {
+            $bypass_2fa = true;
+        } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
+            $bypass_2fa = true;
+        }
+
+        if ($bypass_2fa) {
+            if (isset($_POST['remember_me'])) {
+                $newRememberToken = bin2hex(random_bytes(64));
+                setcookie('rememberme', $newRememberToken, time() + 86400*14, "/", null, true, true);
+                $updateTokenQuery = "UPDATE user_settings SET user_config_remember_me_token = '$newRememberToken' WHERE user_id = $user_id";
+                mysqli_query($mysqli, $updateTokenQuery);
+            }
 
             // FULL LOGIN SUCCESS - 2FA not configured or was successful
 
@@ -310,14 +323,14 @@ if (isset($_POST['login'])) {
                         </div>
                     </div>
                 </div>
-                <!--
+
                 <div class="form-group mb-3">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="remember_me">
+                        <input type="checkbox" class="custom-control-input" id="remember_me" name="remember_me">
                         <label class="custom-control-label" for="remember_me">Remember Me</label>
                     </div>
                 </div>
-                !-->
+
                 <?php if (isset($token_field)) { echo $token_field; } ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>

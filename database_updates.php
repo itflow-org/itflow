@@ -1504,6 +1504,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.5'");
     }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.5') {
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_remember_me_token` VARCHAR(255) NULL DEFAULT NULL AFTER `user_role`");
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.6'");
+    }
 } else {
     // Up-to-date
 }
