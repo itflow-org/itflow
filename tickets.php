@@ -9,9 +9,16 @@ require_once "inc_all.php";
 
 // Ticket status from GET
 if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'])) {
-    // Convert the selected statuses into a comma-separated string
-    $selectedStatuses = implode("','", $_GET['status']);
-    $ticket_status_snippet = "ticket_status IN ('$selectedStatuses')";
+    // Sanitize each element of the status array
+    $sanitizedStatuses = array();
+    foreach ($_GET['status'] as $status) {
+        // Escape each status to prevent SQL injection
+        $sanitizedStatuses[] = "'" . sanitizeInput($status) . "'";
+    }
+
+    // Convert the sanitized statuses into a comma-separated string
+    $sanitizedStatusesString = implode(",", $sanitizedStatuses);
+    $ticket_status_snippet = "ticket_status IN ($sanitizedStatusesString)";
 } else {
 
     if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
