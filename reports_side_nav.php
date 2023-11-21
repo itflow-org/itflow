@@ -54,7 +54,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="report_budget.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_budget.php") { echo "active"; } ?>">
-                            <i class="fas fa-balance-scale nav-icon"></i>
+                            <i class="fas fa-list nav-icon"></i>
                             <p>Budget</p>
                         </a>
                     </li>
@@ -66,7 +66,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="report_profit_loss.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_profit_loss.php") { echo "active"; } ?>">
-                            <i class="fas fa-balance-scale nav-icon"></i>
+                            <i class="fas fa-file-invoice-dollar nav-icon"></i>
                             <p>Profit & Loss</p>
                         </a>
                     </li>
@@ -74,6 +74,12 @@
                         <a href="report_balance_sheet.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_balance_sheet.php") { echo "active"; } ?>">
                             <i class="fas fa-balance-scale nav-icon"></i>
                             <p>Balance Sheet</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="report_collections.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_collections.php") { echo "active"; } ?>">
+                            <i class="fas fa-search-dollar nav-icon"></i>
+                            <p>Collections</p>
                         </a>
                     </li>
                 <?php } // End financial reports IF statement ?>
