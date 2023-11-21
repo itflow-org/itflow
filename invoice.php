@@ -94,7 +94,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price FROM products WHERE product_archived_at IS NULL");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -355,7 +355,7 @@ if (isset($_GET['invoice_id'])) {
                                             <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $invoice_currency_code; ?>)">
                                         </td>
                                         <td>
-                                            <select class="form-control select2" name="tax_id" required>
+                                            <select class="form-control select2" name="tax_id" id="tax" required>
                                                 <option value="0">No Tax</option>
                                                 <?php
                                                 $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
@@ -581,6 +581,7 @@ require_once "footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
+                $("#tax").val(ui.item.tax); // Product price field
                 return false;
             }
         });
