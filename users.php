@@ -70,6 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">Role</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th class="text-center">MFA</th>
+                    <th class="text-center">Remember Me</th>
                     <th>Last Login</th>
                     <th class="text-center">Action</th>
                 </tr>
@@ -95,6 +96,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $mfa_status_display = "-";
                     } else {
                         $mfa_status_display = "<i class='fas fa-fw fa-check text-success'></i>";
+                    }
+                    if (empty($row['user_config_remember_me_token'])) {
+                        $remember_me_active = 0;
+                        $remember_me_display = "-";
+                    } else {
+                        $remember_me_active = 1;
+                        $remember_me_display = "<a href='post.php?revoke_remember_me=$user_id'>Enabled,<br>Revoke?</a>";
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = $row['user_role'];
@@ -146,6 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $user_role_display; ?></td>
                         <td><?php echo $user_status_display; ?></td>
                         <td class="text-center"><?php echo $mfa_status_display; ?></td>
+                        <td class="text-center"><?php echo $remember_me_display; ?></td>
                         <td><?php echo $last_login; ?></td>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
