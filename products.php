@@ -12,9 +12,11 @@ $url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $s
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM products LEFT JOIN categories ON product_category_id = category_id
+    "SELECT SQL_CALC_FOUND_ROWS * FROM products
+    LEFT JOIN categories ON product_category_id = category_id
+    LEFT JOIN taxes ON product_tax_id = tax_id
     WHERE product_archived_at IS NULL
-    AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%')
+    AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%' OR tax_percent LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -51,7 +53,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_name&order=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_description&order=<?php echo $disp; ?>">Description</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">Tax Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">Tax Rate</a></th>
                         <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_price&order=<?php echo $disp; ?>">Price</a></th>
+                        
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -73,13 +78,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $category_id = intval($row['category_id']);
                         $category_name = nullable_htmlentities($row['category_name']);
                         $product_tax_id = intval($row['product_tax_id']);
+                        $tax_name = nullable_htmlentities($row['tax_name']);
+                        if (empty($tax_name)) {
+                            $tax_name_display = "-";
+                        } else {
+                            $tax_name_display = $tax_name;
+                        }
+                        $tax_percent = intval($row['tax_percent']);
+
 
                         ?>
                         <tr>
                             <th><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></th>
                             <td><?php echo $category_name; ?></td>
                             <td><?php echo $product_description_display; ?></td>
+                            <td><?php echo $tax_name_display; ?></td>
+                            <td><?php echo $tax_percent; ?>%</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
+                            
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
