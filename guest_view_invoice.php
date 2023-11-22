@@ -302,6 +302,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
                         </tr>
+
                         </tbody>
                     </table>
                 </div>
