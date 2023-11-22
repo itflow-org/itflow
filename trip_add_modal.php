@@ -69,10 +69,6 @@
                                     <option><?php echo "$location_address $location_city $location_state $location_zip"; ?></option>
                                     <?php
                                 }
-                            }else{
-                                ?>
-                                <option value="0"></option>
-                                <?php
                             } ?>
                             </select>
                         </div>
