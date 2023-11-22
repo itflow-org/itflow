@@ -52,16 +52,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Ending Date</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                            </div>
-                            <input class="form-control" type="date" name="end_date" id="editTicketEndDate" max="2999-12-31">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Priority <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">

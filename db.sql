@@ -1077,7 +1077,6 @@ CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_frequency` varchar(10) NOT NULL,
   `scheduled_ticket_start_date` date NOT NULL,
   `scheduled_ticket_next_run` date NOT NULL,
-  `scheduled_ticket_end_date` date NOT NULL,
   `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `scheduled_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `scheduled_ticket_created_by` int(11) NOT NULL DEFAULT 0,
