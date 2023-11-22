@@ -56,21 +56,24 @@
                             <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
                                 <option value=""></option>
                                 <?php
-
-                                $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                                if (isset($_GET['client_id'])) {
+                                    $client_id = intval($_GET['client_id']);
+                                    $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                 while ($row = mysqli_fetch_array($sql_locations)) {
                                     $location_name = nullable_htmlentities($row['location_name']);
                                     $location_address = nullable_htmlentities($row['location_address']);
                                     $location_city = nullable_htmlentities($row['location_city']);
                                     $location_state = nullable_htmlentities($row['location_state']);
                                     $location_zip = nullable_htmlentities($row['location_zip']);
-
                                     ?>
                                     <option><?php echo "$location_address $location_city $location_state $location_zip"; ?></option>
-
                                     <?php
                                 }
+                            }else{
                                 ?>
+                                <option value="0"></option>
+                                <?php
+                            } ?>
                             </select>
                         </div>
                     </div>
