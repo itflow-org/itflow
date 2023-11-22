@@ -57,6 +57,9 @@
     ORDER BY
         months_behind DESC;";
     $result_client_balance_report = mysqli_query($mysqli, $sql_client_balance_report);
+
+    //get currency format from settings
+    $config_currency_code = getSettingValue($mysqli, "company_currency");
 ?>
 
 <div class="card card-dark">
@@ -97,11 +100,11 @@
                                 
                                 echo "<tr>";
                                 echo "<td><a href='client_overview.php?client_id=$client_id'>$client_name</a></td>";
-                                echo "<td class='text-right'>$formatted_balance</td>";
+                                echo "<td>$formatted_balance</td>";
                                 echo "<td>$billing_contact_phone</td>";
-                                echo "<td class='text-right'>$formatted_recurring_monthly_total</td>";
-                                echo "<td class='text-right'>$formatted_behind_amount</td>";
-                                echo "<td class='text-right'>$months_behind</td>";
+                                echo "<td>$formatted_recurring_monthly_total</td>";
+                                echo "<td>$formatted_behind_amount</td>";
+                                echo "<td>$months_behind</td>";
                                 echo "</tr>";
                             }
                         ?>
