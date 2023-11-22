@@ -100,6 +100,16 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Ending date <strong class="text-danger"></strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            </div>
+                            <input class="form-control" type="date" name="end_date" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>Priority <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">

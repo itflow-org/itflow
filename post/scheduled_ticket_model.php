@@ -23,3 +23,8 @@ $contact_id = "0";
 if (isset($_POST['contact'])) {
     $contact_id = intval($_POST['contact']);
 }
+
+$end_date = NULL;
+if (isset($_POST['end_date'])) {
+    $end_date = sanitizeInput($_POST['end_date']);
+}

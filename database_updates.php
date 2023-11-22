@@ -1510,6 +1510,24 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.6'");
     }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.6') {
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_end_date` DATE NOT NULL AFTER `scheduled_ticket_next_run`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.7'");
+    }
+
+    // Be sure to change database_version.php to reflect the version you are updating to here
+    // Please add this same comment block to the bottom of this file, and update the version number.
+    // Uncomment Below Lines, to add additional database updates
+    //
+    // if (CURRENT_DATABASE_VERSION == '0.9.7') {
+    //     // Insert queries here required to update to DB version 0.9.8
+    //
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
+    // }
+
 } else {
     // Up-to-date
 }
