@@ -38,7 +38,7 @@
                                     <input type="text" class="form-control" name="name" placeholder="Name of location" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 0) { echo "checked"; } ?>>
+                                            <input type="checkbox" name="location_primary" value="1">
                                         </div>
                                     </div>
                                 </div>
