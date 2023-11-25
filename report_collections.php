@@ -99,7 +99,7 @@
                                 $formatted_behind_amount = numfmt_format_currency($currency_format, $behind_amount, $config_currency_code);
                                 
                                 echo "<tr>";
-                                echo "<td><a href='client_details.php?client_id=$client_id'>$client_name</a></td>";
+                                echo "<td><a href='client_overview.php?client_id=$client_id'>$client_name</a></td>";
                                 echo "<td>$formatted_balance</td>";
                                 echo "<td>$billing_contact_phone</td>";
                                 echo "<td>$formatted_recurring_monthly_total</td>";
