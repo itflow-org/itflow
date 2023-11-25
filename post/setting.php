@@ -331,6 +331,7 @@ if (isset($_GET['generate_cron_key'])) {
 
 if (isset($_POST['edit_online_payment_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable']);
