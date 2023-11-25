@@ -6,6 +6,16 @@ $order = "DESC";
 
 require_once "inc_all_client.php";
 
+if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
+    $status = 'Open';
+    $ticket_status_snippet = "ticket_status != 'Closed'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
+    $status = 'Closed';
+    $ticket_status_snippet = "ticket_status = 'Closed'";
+} else {
+    $status = 'Open';
+    $ticket_status_snippet = "ticket_status != 'Closed'";
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -19,17 +29,33 @@ $sql = mysqli_query(
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
+    AND $ticket_status_snippet
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+//Get Total tickets open
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_status != 'Closed'");
+$row = mysqli_fetch_array($sql_total_tickets_open);
+$total_tickets_open = intval($row['total_tickets_open']);
+
+//Get Total tickets closed
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_status = 'Closed'");
+$row = mysqli_fetch_array($sql_total_tickets_closed);
+$total_tickets_closed = intval($row['total_tickets_closed']);
+
 ?>
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
+            <small class="ml-3">
+                <a href="?client_id=<?php echo $client_id?>&status=Open" class="text-white"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                <a href="?client_id=<?php echo $client_id?>&status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+            </small>
+        </h3>
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
@@ -110,7 +136,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
                     if ($ticket_status == "Pending-Assignment") {
-                            $ticket_status_color = "danger";
+                        $ticket_status_color = "danger";
                     } elseif ($ticket_status == "Assigned") {
                         $ticket_status_color = "primary";
                     } elseif ($ticket_status == "In-Progress") {
@@ -159,7 +185,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_display = "$contact_archived_display$contact_name<br><small class='text-secondary'>$contact_email</small>";
                     }
 
-                    
+
                     $asset_id = intval($row['ticket_asset_id']);
                     $vendor_id = intval($row['ticket_vendor_id']);
 
@@ -178,7 +204,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <?php echo $ticket_created_at_time_ago; ?>
                             <br>
-                            <small class="text-secondary"><?php echo $ticket_created_at; ?></small>        
+                            <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
                         </td>
                         <td>
                             <?php if ($ticket_status !== "Closed") { ?>
@@ -204,13 +230,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    require "ticket_edit_modal.php";
+                    if ($ticket_status !== "Closed") {
+                        // Temp performance boost for closed tickets, until we move to dynamic modals
 
-                    require "ticket_assign_modal.php";
+                        require "ticket_edit_modal.php";
 
-                    require "ticket_edit_priority_modal.php";
+                        require "ticket_assign_modal.php";
 
-                    require "ticket_edit_contact_modal.php";
+                        require "ticket_edit_priority_modal.php";
+
+                        require "ticket_edit_contact_modal.php";
+
+                    }
 
                 }
 
@@ -220,7 +251,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </table>
         </div>
         <?php require_once "pagination.php";
- ?>
+        ?>
     </div>
 </div>
 
