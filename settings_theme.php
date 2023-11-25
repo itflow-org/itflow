@@ -8,6 +8,7 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <label>Select a Theme</label>
                 <div class="form-row">

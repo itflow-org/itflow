@@ -9,6 +9,7 @@ require_once "inc_all_settings.php";
     </div>
     <div class="card-body">
         <form action="post.php" method="post" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <label>Start Page</label>
@@ -21,7 +22,7 @@ require_once "inc_all_settings.php";
                             <option selected> <?php echo nullable_htmlentities($config_start_page); ?></option>
                         <?php } ?>
                         <?php foreach ($start_page_select_array as $start_page_value => $start_page_name) { ?>
-                            <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?> 
+                            <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?>
                                 value="<?php echo nullable_htmlentities($start_page_value); ?>">
                                 <?php echo nullable_htmlentities($start_page_name); ?>
                             </option>

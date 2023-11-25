@@ -8,6 +8,7 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <label>SMTP Host</label>
@@ -80,6 +81,7 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <label>IMAP Host</label>
@@ -154,6 +156,8 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
                 <p>Each of the "From Email" Addresses need to be able to send email on behalf of the SMTP user configured above
                 <h5>System Default</h5>
                 <p class="text-secondary">(used for system tasks such as sending share links)</p>
@@ -262,6 +266,8 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
                 <div class="input-group">
                     <select class="form-control select2" name="email_from" required>
                         <option value="">- Select an Email Address to send from -</option>
@@ -308,6 +314,8 @@ require_once "inc_all_settings.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
                 <div class="input-group-append">
                     <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fas fa-fw fa-inbox mr-2"></i>Test</button>
                 </div>

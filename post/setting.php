@@ -6,6 +6,7 @@
 
 if (isset($_POST['edit_company'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     require_once 'post/setting_company_model.php';
@@ -53,6 +54,7 @@ if (isset($_POST['edit_company'])) {
 
 if (isset($_POST['edit_localization'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $locale = sanitizeInput($_POST['locale']);
@@ -74,6 +76,7 @@ if (isset($_POST['edit_localization'])) {
 
 if (isset($_POST['edit_mail_smtp_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_smtp_host = sanitizeInput($_POST['config_smtp_host']);
@@ -95,6 +98,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
 if (isset($_POST['edit_mail_imap_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_imap_host = sanitizeInput($_POST['config_imap_host']);
@@ -117,6 +121,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
 if (isset($_POST['edit_mail_from_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
@@ -144,6 +149,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
 if (isset($_POST['test_email_smtp'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
     $email_from = sanitizeInput($_POST['email_from']);
     $email_to = sanitizeInput($_POST['email_to']);
@@ -167,6 +173,7 @@ if (isset($_POST['test_email_smtp'])) {
 
 if (isset($_POST['test_email_imap'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     // Prepare connection string with encryption (TLS/SSL/<blank>)
@@ -188,6 +195,7 @@ if (isset($_POST['test_email_imap'])) {
 
 if (isset($_POST['edit_invoice_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_invoice_prefix = sanitizeInput($_POST['config_invoice_prefix']);
@@ -212,6 +220,7 @@ if (isset($_POST['edit_invoice_settings'])) {
 
 if (isset($_POST['edit_quote_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_quote_prefix = sanitizeInput($_POST['config_quote_prefix']);
@@ -254,6 +263,7 @@ if (isset($_POST['edit_ticket_settings'])) {
 
 if (isset($_POST['edit_default_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $start_page = sanitizeInput($_POST['start_page']);
@@ -279,6 +289,7 @@ if (isset($_POST['edit_default_settings'])) {
 
 if (isset($_POST['edit_theme_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $theme = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['theme']));
@@ -295,6 +306,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
 if (isset($_POST['edit_alert_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_enable_cron = intval($_POST['config_enable_cron']);
@@ -351,6 +363,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
 
 if (isset($_POST['edit_integrations_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $azure_client_id = sanitizeInput($_POST['azure_client_id']);
@@ -388,6 +401,8 @@ if (isset($_POST['edit_module_settings'])) {
 }
 
 if (isset($_POST['edit_security_settings'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_login_message = sanitizeInput($_POST['config_login_message']);
@@ -406,6 +421,7 @@ if (isset($_POST['edit_security_settings'])) {
 
 if (isset($_POST['edit_telemetry_settings'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
     $config_telemetry = intval($_POST['config_telemetry']);
@@ -697,6 +713,7 @@ if (isset($_POST['send_telemetry_data'])) {
 
 if (isset($_GET['download_database'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     validateAdminRole();
 
     // Get All Table Names From the Database
