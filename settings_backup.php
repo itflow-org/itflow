@@ -7,7 +7,7 @@ require_once "inc_all_settings.php";
             <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Download Database</h3>
         </div>
         <div class="card-body" style="text-align: center;">
-            <a class="btn btn-primary btn-lg p-3" href="post.php?download_database"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download</a>
+            <a class="btn btn-primary btn-lg p-3" href="post.php?download_database&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download</a>
         </div>
     </div>
 
