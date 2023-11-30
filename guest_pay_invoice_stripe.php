@@ -267,6 +267,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $company_name = mysqli_real_escape_string($mysqli, nullable_htmlentities($row['company_name']));
     $company_phone = nullable_htmlentities($row['company_phone']);
     $company_locale = nullable_htmlentities($row['company_locale']);
+    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
+
 
     // Set Currency Formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
