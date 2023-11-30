@@ -126,9 +126,10 @@ if (isset($_POST['add_quote_to_invoice'])) {
         $item_subtotal = floatval($row['item_subtotal']);
         $item_tax = floatval($row['item_tax']);
         $item_total = floatval($row['item_total']);
+        $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
@@ -143,10 +144,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 }
 
 if (isset($_POST['add_quote_item'])) {
-    
-    include 'post/quote_model.php';
-    $quote_id = intval($_POST['quote_id']);
 
+    $quote_id = intval($_POST['quote_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
     $qty = floatval($_POST['qty']);
@@ -184,7 +183,7 @@ if (isset($_POST['add_quote_item'])) {
         $quote_amount = $quote_amount + $item_total;
     }
     $new_quote_amount = $quote_amount - $quote_discount_amount;
-    
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
     $_SESSION['alert_message'] = "Item added";
@@ -209,7 +208,6 @@ if (isset($_POST['quote_note'])) {
 if (isset($_POST['edit_quote'])) {
 
     require_once 'post/quote_model.php';
-
 
     $quote_id = intval($_POST['quote_id']);
 
@@ -457,7 +455,7 @@ if(isset($_POST['export_client_quotes_csv'])){
 
 }
 
-if (isset($_POST['update_quote_item_order'])) {  
+if (isset($_POST['update_quote_item_order'])) {
 
     if ($_POST['update_quote_item_order'] == 'up') {
         $item_id = intval($_POST['item_id']);
@@ -492,7 +490,7 @@ if (isset($_POST['update_quote_item_order'])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
 
     }
-    
+
     if ($_POST['update_quote_item_order'] == 'down') {
         $item_id = intval($_POST['item_id']);
         $item_quote_id = intval($_POST['item_quote_id']);
