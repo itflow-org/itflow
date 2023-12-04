@@ -74,7 +74,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_locale = nullable_htmlentities($row['company_locale']);
-    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
+
+    $config_stripe_client_pays_fees = intval(getSettingValue($mysqli, 'config_stripe_client_pays_fees'));
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -267,7 +268,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $company_name = mysqli_real_escape_string($mysqli, nullable_htmlentities($row['company_name']));
     $company_phone = nullable_htmlentities($row['company_phone']);
     $company_locale = nullable_htmlentities($row['company_locale']);
-    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
+
+    $config_stripe_client_pays_fees = intval(getSettingValue($mysqli, 'config_stripe_client_pays_fees'));
 
 
     // Set Currency Formatting
