@@ -55,6 +55,14 @@ if ($row) {
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
+    if (
+        $expire === 'NULL'
+        && $row['domain_expire'] !== null
+        && (new DateTime($row['domain_expire'])) >= (new DateTime())
+    ) {
+        $expire = $row['domain_expire'];
+    }
+
     // Update the domain
     mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
 }

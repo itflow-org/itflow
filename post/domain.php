@@ -70,15 +70,13 @@ if (isset($_POST['edit_domain'])) {
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = sanitizeInput($_POST['expire']);
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
-        $expire = "'" . $expire . "'";
-    }
-    $client_id = intval($_POST['client_id']);
 
-    // Update domain expiry date
-    $expire = getDomainExpirationDate($name);
+    if (empty($expire) || (new DateTime($expire)) < (new DateTime())) {
+        // Update domain expiry date
+        $expire = getDomainExpirationDate($name);
+    }
+
+    $client_id = intval($_POST['client_id']);
 
     // Update NS, MX, A and WHOIS records/data
     $records = getDomainRecords($name);
