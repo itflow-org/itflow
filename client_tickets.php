@@ -105,7 +105,6 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a></th>
 
-                    <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,7 +115,6 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                     $ticket_number = nullable_htmlentities($row['ticket_number']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                    $ticket_details = nullable_htmlentities($row['ticket_details']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                     $ticket_status = nullable_htmlentities($row['ticket_status']);
                     $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
@@ -206,34 +204,12 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                             <br>
                             <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
                         </td>
-                        <td>
-                            <?php if ($ticket_status !== "Closed") { ?>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            <?php } ?>
-                        </td>
                     </tr>
 
                     <?php
 
                     if ($ticket_status !== "Closed") {
                         // Temp performance boost for closed tickets, until we move to dynamic modals
-
-                        require "ticket_edit_modal.php";
 
                         require "ticket_assign_modal.php";
 
