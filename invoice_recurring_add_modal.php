@@ -19,7 +19,6 @@
               </div>
               <select class="form-control select2" name="frequency" required>
                 <option value="">- Frequency -</option>
-                <option value="week">Weekly</option>
                 <option value="month">Monthly</option>
                 <option value="year">Yearly</option>
               </select>
