@@ -6,7 +6,6 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
-
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 

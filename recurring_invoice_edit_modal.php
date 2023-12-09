@@ -30,15 +30,8 @@
                             </div>
                             <select class="form-control select2" name="frequency" required>
                                 <option value="">- Frequency -</option>
-                                <option <?php if ($recurring_frequency == 'week') {
-                                            echo "selected";
-                                        } ?> value="week">Weekly</option>
-                                <option <?php if ($recurring_frequency == 'month') {
-                                            echo "selected";
-                                        } ?> value="month">Monthly</option>
-                                <option <?php if ($recurring_frequency == 'year') {
-                                            echo "selected";
-                                        } ?> value="year">Yearly</option>
+                                <option <?php if ($recurring_frequency == 'week') { echo "selected"; } ?> value="week">Weekly</option>
+                                <option <?php if ($recurring_frequency == 'month') { echo "selected"; } ?> value="month">Monthly</option>
                             </select>
                         </div>
                     </div>
