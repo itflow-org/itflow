@@ -251,7 +251,7 @@ if (isset($_GET['invoice_id'])) {
             </div>
 
             <?php $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC"); ?>
-
+            <?php $sql_invoice_taxes = mysqli_query($mysqli, "Select sum(i.item_tax) as tax, i.item_tax_id, t.tax_name, t.tax_percent from invoice_items i left join taxes t on i.item_tax_id = t.tax_id where i.item_invoice_id = $invoice_id GROUP by i.item_tax_id"); ?>
             <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="card">
@@ -418,8 +418,25 @@ if (isset($_GET['invoice_id'])) {
                         }
                         ?>
                         <?php if ($total_tax > 0) { ?>
+                            <?php
+                                if (mysqli_num_rows($sql_invoice_taxes) > 0) {
+                                    while ($row = mysqli_fetch_assoc($sql_invoice_taxes)) {
+                                        $taxName = $row['tax_name'];
+                                        $taxPercent = $row['tax_percent'];
+                                        $taxAmount = $row['tax'];
+                                        
+                                        echo ('
+                                            <tr class="border-bottom">
+                                                <td>'.$taxName. " " .$taxPercent .'%</td>
+                                                <td class="text-right">'. numfmt_format_currency($currency_format, $taxAmount, $invoice_currency_code) .'</td>
+                                            </tr>
+                                        ');
+                                    }
+                                }    
+                                ?>
+                                
                             <tr class="border-bottom">
-                                <td>Tax</td>
+                                <td>Total Tax</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
