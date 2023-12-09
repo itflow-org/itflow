@@ -562,10 +562,11 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $item_subtotal = floatval($row['item_subtotal']);
         $item_tax = floatval($row['item_tax']);
         $item_total = floatval($row['item_total']);
+        $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
         //Insert Items into New Invoice
-        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
+        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
 
     }
 
