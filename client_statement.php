@@ -1,6 +1,5 @@
 <?php
 
-include "debug.php";
 
 require_once "inc_all.php";
 
@@ -10,11 +9,11 @@ if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
 
     $sql_client_details = "
-    SELECT 
+    SELECT
         client_name,
         client_type,
         client_website,
-        client_net_terms        
+        client_net_terms
     FROM
         clients
     WHERE
@@ -29,14 +28,14 @@ if (isset($_GET['client_id'])) {
     $client_net_terms = $row_client_details['client_net_terms'];
 
     $sql_client_unpaid_invoices = "
-    SELECT 
+    SELECT
         invoice_id,
         invoice_number,
         invoice_prefix,
         invoice_date,
         invoice_due,
         invoice_amount
-    FROM 
+    FROM
         invoices
     WHERE
         invoice_client_id = $client_id
@@ -61,7 +60,7 @@ if (isset($_GET['client_id'])) {
 
     <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Statement for <?php echo($client_name)?></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Statement for <?php echo $client_name ?></h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
         </div>
