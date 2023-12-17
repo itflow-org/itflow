@@ -1,3 +1,8 @@
+<?php
+// Check if ticket_id and invoice_id are set in the URL
+$addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
+?>
+
 <div class="modal" id="addInvoiceFromTicketModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
@@ -13,10 +18,10 @@
                     
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                            <a class="nav-link <?php echo !$addToExistingInvoice ? 'active' : ''; ?>" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                            <a class="nav-link <?php echo $addToExistingInvoice ? 'active' : ''; ?>" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
                         </li>
                     </ul>
 
@@ -24,7 +29,7 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-create-invoice">
+                        <div class="tab-pane fade <?php echo !$addToExistingInvoice ? ' show active' : ''; ?>" id="pills-create-invoice">
 
                             <div class="form-group">
                                 <label>Invoice Date <strong class="text-danger">*</strong></label>
@@ -32,7 +37,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                     </div>
-                                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>">
                                 </div>
                             </div>
 
@@ -42,7 +47,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="category" required>
+                                    <select class="form-control select2" name="category">
                                         <option value="">- Category -</option>
                                         <?php
 
@@ -76,7 +81,8 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-add-to-invoice">
+                        <div class="tab-pane fade <?php echo $addToExistingInvoice ? ' show active' : ''; ?>" id="pills-add-to-invoice">
+                        
 
                             <div class="form-group">
                                 <label>Invoice</label>
@@ -84,7 +90,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="invoice_id">
+                                    <select class="form-control" name="invoice_id">
                                         <option value="0">- Invoice -</option>
                                         <?php
 
@@ -100,7 +106,7 @@
                                             $invoice_amount = floatval($row['invoice_amount']);
 
                                             ?>
-                                            <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
+                                        <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) echo "selected"; ?>><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
 
                                             <?php
                                         }

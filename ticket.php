@@ -51,6 +51,8 @@ if (isset($_GET['ticket_id'])) {
         $ticket_subject = nullable_htmlentities($row['ticket_subject']);
         $ticket_details = $purifier->purify($row['ticket_details']);
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+        $ticket_billable = intval($row['ticket_billable']);
+        
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -867,3 +869,5 @@ if ($ticket_status !== "Closed") { ?>
 <?php } ?>
 
 <script src="js/pretty_content.js"></script>
+
+<script src="js/show_modals.js"></script>
