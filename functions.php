@@ -15,8 +15,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Function to generate both crypto & URL safe random strings
-function randomString($length = 16)
-{
+function randomString($length = 16) {
     // Generate some cryptographically safe random bytes
     //  Generate a little more than requested as we'll lose some later converting
     $random_bytes = random_bytes($length + 5);
@@ -33,8 +32,7 @@ function randomString($length = 16)
 }
 
 // Older keygen function - only used for TOTP currently
-function key32gen()
-{
+function key32gen() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $chars .= "234567";
     while (1) {
@@ -256,8 +254,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) 
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password)
-{
+function encryptUserSpecificKey($user_password) {
     $iv = randomString();
     $salt = randomString();
 
@@ -871,4 +868,55 @@ function calculateAccountBalance($mysqli, $account_id) {
     }
 
     return $balance;
+}
+
+function generateReadablePassword($security_level) {
+    // Arrays of words
+    $adjectives = ['Smart', 'Swift', 'Secure', 'Stable', 'Digital', 'Virtual', 'Active', 'Dynamic', 'Innovative', 'Efficient', 'Portable', 'Wireless', 'Rapid', 'Intuitive', 'Automated', 'Robust', 'Reliable', 'Sleek', 'Modern', 'Happy', 'Funny', 'Quick', 'Bright', 'Clever', 'Gentle', 'Brave', 'Calm', 'Eager', 'Fierce', 'Kind', 'Lucky', 'Proud', 'Silly', 'Witty', 'Bold', 'Curious', 'Elated', 'Gracious', 'Honest', 'Jolly', 'Merry', 'Noble', 'Optimistic', 'Playful', 'Quirky', 'Rustic', 'Steady', 'Tranquil', 'Upbeat'];
+    $nouns = ['Computer', 'Laptop', 'Tablet', 'Server', 'Router', 'Software', 'Hardware', 'Pixel', 'Byte', 'App', 'Network', 'Cloud', 'Firewall', 'Email', 'Database', 'Folder', 'Document', 'Interface', 'Program', 'Gadget', 'Dinosaur', 'Tiger', 'Elephant', 'Kangaroo', 'Monkey', 'Unicorn', 'Dragon', 'Puppy', 'Kitten', 'Parrot', 'Lion', 'Bear', 'Fox', 'Wolf', 'Rabbit', 'Deer', 'Owl', 'Hedgehog', 'Turtle', 'Frog', 'Butterfly', 'Panda', 'Giraffe', 'Zebra', 'Peacock', 'Koala', 'Raccoon', 'Squirrel', 'Hippo', 'Rhino', 'Book', "Monitor"];
+    $verbs = ['Connects', 'Runs', 'Processes', 'Secures', 'Encrypts', 'Saves', 'Updates', 'Boots', 'Scans', 'Compiles', 'Executes', 'Restores', 'Installs', 'Configures', 'Downloads', 'Streams', 'BacksUp', 'Syncs', 'Browses', 'Navigates', 'Runs', 'Jumps', 'Flies', 'Swims', 'Dances', 'Sings', 'Hops', 'Skips', 'Races', 'Climbs', 'Crawls', 'Glides', 'Twirls', 'Swings', 'Sprints', 'Gallops', 'Trots', 'Wanders', 'Strolls', 'Marches'];
+    $adverbs = ['Quickly', 'Slowly', 'Gracefully', 'Wildly', 'Loudly', 'Silently', 'Cheerfully', 'Eagerly', 'Gently', 'Happily', 'Jovially', 'Kindly', 'Lazily', 'Merrily', 'Neatly', 'Politely', 'Quietly', 'Rapidly', 'Smoothly', 'Tightly', 'Swiftly', 'Securely', 'Efficiently', 'Rapidly', 'Smoothly', 'Reliably', 'Safely', 'Wirelessly', 'Instantly', 'Silently', 'Automatically', 'Seamlessly', 'Digitally', 'Virtually', 'Continuously', 'Regularly', 'Intelligently', 'Logically'];
+
+    // Randomly select words from arrays
+    $adj = $adjectives[array_rand($adjectives)];
+    $noun = $nouns[array_rand($nouns)];
+    $verb = $verbs[array_rand($verbs)];
+    $adv = $adverbs[array_rand($adverbs)];
+
+
+
+    // Combine to create a base password
+    if ($security_level > 2 ) {
+        $password =  "The" . $adj . $noun . $adv . $verb;
+    } else {
+        $password = $adj . $noun . $verb;
+    }
+
+    // Mapping of letters to special characters and numbers
+    $mappings = [
+        'A' => '@', 'a' => '@',
+        'E' => '3', 'e' => '3',
+        'I' => '!', 'i' => '!',
+        'O' => '0', 'o' => '0',
+        'S' => '$', 's' => '$'
+    ];
+
+    // Replace characters based on mappings
+    if ($security_level > 4) {
+        $password = strtr($password, $mappings);
+    } else {
+            // Randomly replace characters based on mappings
+        for ($i = 0; $i < strlen($password); $i++) {
+            if (array_key_exists($password[$i], $mappings) && rand(0, 1)) {
+                $password[$i] = $mappings[$password[$i]];
+            }
+        }
+    }
+
+    if ($security_level > 3) {
+        // Add a random number at the end
+        $password .= rand(0, 99);
+    }
+
+    return $password;
 }
