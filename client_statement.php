@@ -22,9 +22,9 @@ if (isset($_GET['client_id'])) {
     $result_client_details = mysqli_query($mysqli, $sql_client_details);
     $row_client_details = mysqli_fetch_assoc($result_client_details);
 
-    $client_name = nullable_html_entities($row_client_details['client_name']);
-    $client_type = nullable_html_entities($row_client_details['client_type']);
-    $client_website = nullable_html_entities($row_client_details['client_website']);
+    $client_name = nullable_htmlentities($row_client_details['client_name']);
+    $client_type = nullable_htmlentities($row_client_details['client_type']);
+    $client_website = nullable_htmlentities($row_client_details['client_website']);
     $client_net_terms = intval($row_client_details['client_net_terms']);
 
     $sql_client_unpaid_invoices = "
@@ -84,12 +84,12 @@ if (isset($_GET['client_id'])) {
                             while ($row = mysqli_fetch_assoc($result_client_unpaid_invoices)) {
                                 $invoice_number = intval($row['invoice_number']);
                                 $invoice_id = intval($row['invoice_id']);
-                                $invoice_prefix = nullable_html_entities($row['invoice_prefix']);
-                                $invoice_date = nullable_html_entities($row['invoice_date']);
+                                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                $invoice_date = nullable_htmlentities($row['invoice_date']);
                                 $invoice_amount = floatval($row['invoice_amount']);
                                 $invoice_amount_formatted = numfmt_format_currency($currency_format, $invoice_amount, $currency_code);
                                 $invoice_url = "invoice.php?invoice_id=$invoice_id";
-                                $invoice_due = nullable_html_entities($row['invoice_due']);
+                                $invoice_due = nullable_htmlentities($row['invoice_due']);
 
                                 $invoice_balance = floatval(calculateInvoiceBalance($mysqli, $invoice_id));
                                 $invoice_balance_formatted = numfmt_format_currency($currency_format, $invoice_balance, $currency_code);
@@ -151,10 +151,10 @@ if (isset($_GET['client_id'])) {
                             $result_client_payments = mysqli_query($mysqli, $sql_client_payments);
 
                             while ($row = mysqli_fetch_assoc($result_client_payments)) {
-                                $payment_date = nullable_html_entities($row['payment_date']);
+                                $payment_date = nullable_htmlentities($row['payment_date']);
                                 $payment_amount = floatval($row['payment_amount']);
-                                $payment_reference = nullable_html_entities($row['payment_reference']);
-                                $invoice_number = nullable_html_entities($row['invoice_prefix'].$row['invoice_number']);
+                                $payment_reference = nullable_htmlentities($row['payment_reference']);
+                                $invoice_number = nullable_htmlentities($row['invoice_prefix'].$row['invoice_number']);
                                 $payment_amount_formatted = numfmt_format_currency($currency_format, $payment_amount, $currency_code);
 
                                 ?>
