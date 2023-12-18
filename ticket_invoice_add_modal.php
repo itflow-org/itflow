@@ -18,10 +18,18 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                     
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link <?php echo !$addToExistingInvoice ? 'active' : ''; ?>" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                            <?php if (!$addToExistingInvoice): ?>
+                                <a class="nav-link active" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                            <?php else: ?>
+                                <a class="nav-link" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                            <?php endif; ?>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo $addToExistingInvoice ? 'active' : ''; ?>" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                            <?php if ($addToExistingInvoice): ?>
+                                <a class="nav-link active" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                            <?php else: ?>
+                                <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                            <?php endif; ?>
                         </li>
                     </ul>
 
@@ -29,7 +37,11 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade <?php echo !$addToExistingInvoice ? ' show active' : ''; ?>" id="pills-create-invoice">
+                        <?php if (!$addToExistingInvoice): ?>
+                            <div class="tab-pane fade show active" id="pills-create-invoice">
+                        <?php else: ?>
+                            <div class="tab-pane fade" id="pills-create-invoice">
+                        <?php endif; ?>
 
                             <div class="form-group">
                                 <label>Invoice Date <strong class="text-danger">*</strong></label>
@@ -81,7 +93,11 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
 
                         </div>
 
-                        <div class="tab-pane fade <?php echo $addToExistingInvoice ? ' show active' : ''; ?>" id="pills-add-to-invoice">
+                        <?php if ($addToExistingInvoice): ?>
+                            <div class="tab-pane fade show active" id="pills-add-to-invoice">
+                        <?php else: ?>
+                            <div class="tab-pane fade" id="pills-add-to-invoice">
+                        <?php endif; ?>
                         
 
                             <div class="form-group">
