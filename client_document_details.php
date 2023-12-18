@@ -104,7 +104,7 @@ $document_parent = intval($row['document_parent']);
 
         while ($row = mysqli_fetch_array($sql_files)) {
           $file_id = intval($row['file_id']);
-          $folder_id = intval($row['folder_id']);
+          $folder_id = intval($row['file_folder_id']);
           $file_name = nullable_htmlentities($row['file_name']);
 
           $linked_files[] = $file_id;
