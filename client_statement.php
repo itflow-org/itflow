@@ -88,7 +88,7 @@ if (isset($_GET['client_id'])) {
                                 $invoice_date = nullable_html_entities($row['invoice_date']);
                                 $invoice_amount = floatval($row['invoice_amount']);
                                 $invoice_amount_formatted = numfmt_format_currency($currency_format, $invoice_amount, $currency_code);
-                                $invoice_url = intval("invoice.php?invoice_id=$invoice_id");
+                                $invoice_url = "invoice.php?invoice_id=$invoice_id";
                                 $invoice_due = nullable_html_entities($row['invoice_due']);
 
                                 $invoice_balance = floatval(calculateInvoiceBalance($mysqli, $invoice_id));
