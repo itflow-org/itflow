@@ -858,6 +858,7 @@ if (isset($_GET['ticket_id'])) {
 
 require_once "footer.php";
 
+?> <script src="js/show_modals.js"></script> <?php
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->
@@ -870,4 +871,3 @@ if ($ticket_status !== "Closed") { ?>
 
 <script src="js/pretty_content.js"></script>
 
-<script src="js/show_modals.js"></script>
