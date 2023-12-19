@@ -322,6 +322,41 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         // E-mail techs assigned to the ticket to notify them of the reply
         $ticket_assigned_to = mysqli_query($mysqli, "SELECT ticket_assigned_to FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
 
+        if ($ticket_assigned_to) {
+
+            $row = mysqli_fetch_array($ticket_assigned_to);
+            $ticket_assigned_to = $row['ticket_assigned_to'];
+
+            if ($ticket_assigned_to) {
+
+                // Get tech details
+                $tech_sql = mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1");
+                $tech_row = mysqli_fetch_array($tech_sql);
+                $tech_email = $tech_row['user_email'];
+                $tech_name = $tech_row['user_name'];
+
+                // Insert email into queue (first, escape vars)
+                $tech_email_escaped = sanitizeInput($tech_email);
+                $tech_name_escaped = sanitizeInput($tech_name);
+
+                $subject_escaped = mysqli_escape_string($mysqli, "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject");
+                $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $tech_name<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+
+                $data = [
+                    [
+                        'recipient' => $tech_email_escaped,
+                        'recipient_name' => $tech_name_escaped,
+                        'subject' => $subject_escaped,
+                        'body' => $body_escaped
+                    ]
+                ];
+
+                addToMailQueue($mysqli, $data);
+
+            }
+
+        }
+
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Client-Replied' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
