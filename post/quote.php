@@ -395,10 +395,15 @@ if (isset($_GET['email_quote'])) {
     $body    = mysqli_escape_string($mysqli, "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone");
 
     // Queue Mail
-    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_quote_from_email_escaped', email_from_name = '$config_quote_from_name_escaped', email_subject = '$subject', email_content = '$body'");
-
-    // Get Email ID for reference
-    $email_id = mysqli_insert_id($mysqli);
+    $data = [
+        [
+            'recipient' => $contact_email_escaped,
+            'recipient_name' => $contact_name_escaped,
+            'subject' => $subject,
+            'body' => $body,
+        ]
+    ];
+    addToMailQueue($mysqli, $data);
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id");

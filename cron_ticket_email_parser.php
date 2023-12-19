@@ -157,21 +157,23 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
     }
 
-
+    $data = [];
     // E-mail client notification that ticket has been created
     if ($config_ticket_client_general_notifications == 1) {
 
         // Insert email into queue (first, escape vars)
         $contact_email_escaped = sanitizeInput($contact_email);
         $contact_name_escaped = sanitizeInput($contact_name);
-        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
-        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
 
         $subject_escaped = mysqli_escape_string($mysqli, "Ticket created - [$config_ticket_prefix$ticket_number] - $subject");
         $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
+        $data[] = [
+            'recipient' => $contact_email_escaped,
+            'recipient_name' => $contact_name_escaped,
+            'subject' => $subject_escaped,
+            'body' => $body_escaped
+        ];
     }
 
     // Notify agent DL of the new ticket, if populated with a valid email
@@ -188,8 +190,15 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $email_subject = mysqli_escape_string($mysqli, "ITFlow - New Ticket - $client_name: $subject");
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
+        $data[] = [
+            'recipient' => $config_ticket_new_ticket_notification_email,
+            'recipient_name' => $config_ticket_from_name,
+            'subject' => $email_subject,
+            'body' => $email_body
+        ];
     }
+
+    addToMailQueue($mysqli, $data);
 
     return true;
 
@@ -309,6 +318,9 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             }
 
         }
+
+        // E-mail techs assigned to the ticket to notify them of the reply
+        $ticket_assigned_to = mysqli_query($mysqli, "SELECT ticket_assigned_to FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Client-Replied' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");

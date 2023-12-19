@@ -663,6 +663,8 @@ if (isset($_POST['add_payment'])) {
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
 
+        $email_data = [];
+
         //Determine if invoice has been paid then set the status accordingly
         if ($invoice_balance == 0) {
 
@@ -674,7 +676,14 @@ if (isset($_POST['add_payment'])) {
                 $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+                $email = [
+                    'recipient' => $contact_email_escaped,
+                    'recipient_name' => $contact_name_escaped,
+                    'subject' => $subject,
+                    'body' => $body
+                ];
+
+                $email_data = $email;
 
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
@@ -698,7 +707,14 @@ if (isset($_POST['add_payment'])) {
                 $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>We have recieved partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone");
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+                $email = [
+                    'recipient' => $contact_email_escaped,
+                    'recipient_name' => $contact_name_escaped,
+                    'subject' => $subject,
+                    'body' => $body
+                ];
+
+                $email_data = $email;
 
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
@@ -711,6 +727,11 @@ if (isset($_POST['add_payment'])) {
 
             }
 
+        }
+
+        // Add emails to queue
+        if (!empty($email)) {
+            addToMailQueue($mysqli, $email);
         }
 
         //Update Invoice Status
@@ -840,7 +861,16 @@ if (isset($_GET['email_invoice'])) {
     }
 
     // Queue Mail
-    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+    $data = [
+        [
+            'email' => $contact_email_escaped,
+            'name' => $contact_name_escaped,
+            'subject' => $subject,
+            'body' => $body
+        ]
+    ];
+    
+    addToMailQueue($mysqli, $data);
 
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
@@ -865,20 +895,27 @@ if (isset($_GET['email_invoice'])) {
         AND contact_email != ''
         AND contact_client_id = $client_id"
     );
+
+    $data = [];
+
     while ($billing_contact = mysqli_fetch_array($sql_billing_contacts)) {
         $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
         $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
 
-        // Queue Mail
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$billing_contact_email', email_recipient_name = '$billing_contact_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
-
-        // Get Email ID for reference
-        $email_id = mysqli_insert_id($mysqli);
+        $data = [
+            [
+                'email' => $billing_contact_email,
+                'name' => $billing_contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
 
         // Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Email', log_description = 'Invoice $invoice_prefix_escaped$invoice_number queued to $billing_contact_email Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $invoice_id");
-
     }
+
+    addToMailQueue($mysqli, $data);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -62,13 +62,19 @@ if(isset($_GET['email_invoice'])){
     }
 
     // Queue Mail
-    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_invoice_from_email_escaped', email_from_name = '$config_invoice_from_name_escaped', email_subject = '$subject', email_content = '$body'");
+    $data = [
+        [
+            'recipient' => $contact_email_escaped,
+            'recipient_name' => $contact_name_escaped,
+            'subject' => $subject,
+            'body' => $body,
+        ]
+    ];
+    addToMailQueue($mysqli, $data);
 
-    // Get Email ID for reference
-    $email_id = mysqli_insert_id($mysqli);
 
     $_SESSION['alert_message'] = "Invoice has been sent";
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue.', history_invoice_id = $invoice_id");
 
     // Don't change the status to sent if the status is anything but draft
     if($invoice_status == 'Draft'){
@@ -92,8 +98,16 @@ if(isset($_GET['email_invoice'])){
         $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
 
         // Queue Mail
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$billing_contact_email', email_recipient_name = '$billing_contact_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
-
+        $data = [
+            [
+                'recipient' => $billing_contact_email,
+                'recipient_name' => $billing_contact_name,
+                'subject' => $subject,
+                'body' => $body,
+            ]
+        ];
+        addToMailQueue($mysqli, $data);
+        
         // Get Email ID for reference
         $email_id = mysqli_insert_id($mysqli);
 

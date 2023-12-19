@@ -297,6 +297,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $ticket_subject = $row['ticket_subject'];
         $ticket_details = $row['ticket_details']; // Output on settings_mail_queue.php is sanitized through HTML Purifier
 
+        $data = [];
 
         // Notify client by email their ticket has been raised, if general notifications are turned on & there is a valid contact email
         if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -304,7 +305,15 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
             $email_subject = mysqli_real_escape_string($mysqli, "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)");
             $email_body    = mysqli_real_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$email_subject', email_content = '$email_body'");
+            $email = [
+                    'recipient' => $contact_email_escaped,
+                    'recipient_name' => $contact_name_escaped,
+                    'subject' => $email_subject,
+                    'body' => $email_body
+            ];
+
+            $data[] = $email;
+
         }
 
 
@@ -314,8 +323,18 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
             $email_subject = mysqli_real_escape_string($mysqli, "ITFlow - New Scheduled Ticket - $client_name: $ticket_subject");
             $email_body = mysqli_real_escape_string($mysqli, "Hello, <br><br>This is a notification that a new scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details");
 
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
+            $email = [
+                    'recipient' => $config_ticket_new_ticket_notification_email,
+                    'recipient_name' => $config_ticket_from_name_escaped,
+                    'subject' => $email_subject,
+                    'body' => $email_body
+            ];
+
+            $data[] = $email;
         }
+
+        // Add to the mail queue
+        addToMailQueue($mysqli, $data);
 
 
         // Set the next run date
