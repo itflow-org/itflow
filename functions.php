@@ -889,6 +889,8 @@ function addToMailQueue($mysqli, $data) {
 
     return true;
 
+}
+
 function calculateInvoiceBalance($mysqli, $invoice_id) {
     $sql_invoice = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_invoice);
