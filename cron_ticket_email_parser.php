@@ -240,20 +240,17 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             $email_subject = "Action required: This ticket is already closed";
             $email_body    = "Hi there, <br><br>You've tried to reply to a ticket that is closed - we won't see your response. <br><br>Please raise a new ticket by sending a fresh e-mail to our support address. <br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
-
-            sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $config_ticket_from_email,
-                $config_ticket_from_name,
-                $from_email,
-                $from_email,
-                $email_subject,
-                $email_body
-            );
+            
+            $data = [
+                [
+                    'recipient' => $from_email,
+                    'recipient_name' => $from_email,
+                    'subject' => $email_subject,
+                    'body' => $email_body
+                ]
+            ];
+            
+            addToMailQueue($mysqli, $data);
 
             return false;
         }

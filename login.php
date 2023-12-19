@@ -145,19 +145,15 @@ if (isset($_POST['login'])) {
                 $subject = "$config_app_name new login for $user_name";
                 $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                $mail = sendSingleEmail(
-                    $config_smtp_host,
-                    $config_smtp_username,
-                    $config_smtp_password,
-                    $config_smtp_encryption,
-                    $config_smtp_port,
-                    $config_mail_from_email,
-                    $config_mail_from_name,
-                    $user_email,
-                    $user_name,
-                    $subject,
-                    $body
-                );
+                $data = [
+                    [
+                        'recipient' => $user_email,
+                        'recipient_name' => $user_name,
+                        'subject' => $subject,
+                        'body' => $body
+                    ]
+                ];
+                addToMailQueue($mysqli, $data);
             }
 
 
@@ -222,20 +218,15 @@ if (isset($_POST['login'])) {
                 if (!empty($config_smtp_host)) {
                     $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
                     $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
-
-                    $mail = sendSingleEmail(
-                        $config_smtp_host,
-                        $config_smtp_username,
-                        $config_smtp_password,
-                        $config_smtp_encryption,
-                        $config_smtp_port,
-                        $config_mail_from_email,
-                        $config_mail_from_name,
-                        $user_email,
-                        $user_name,
-                        $subject,
-                        $body
-                    );
+                    $data = [
+                        [
+                            'recipient' => $user_email,
+                            'recipient_name' => $user_name,
+                            'subject' => $subject,
+                            'body' => $body
+                        ]
+                    ];
+                    $mail = addToMailQueue($mysqli, $data);
                 }
 
                 // HTML feedback for incorrect 2FA code

@@ -41,10 +41,15 @@ if (isset($_POST['edit_profile'])) {
         $subject = "$config_app_name account update confirmation for $name";
         $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $user_old_email, $name,
-            $subject, $body);
+        $data = [
+            [
+                'recipient' => $user_old_email,
+                'recipient_name' => $name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
     }
 
     // Check to see if a file is attached
@@ -166,10 +171,15 @@ if(isset($_POST['disable_2fa'])){
         $subject = "$config_app_name account update confirmation for $session_name";
         $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $session_email, $session_name,
-            $subject, $body);
+        $data = [
+            [
+                'recipient' => $session_email,
+                'recipient_name' => $session_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
     }
 
     $_SESSION['alert_type'] = "error";

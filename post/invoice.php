@@ -1030,10 +1030,16 @@ if (isset($_GET['force_recurring'])) {
         $subject = "Invoice $invoice_prefix$invoice_number";
         $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_invoice_from_email, $config_invoice_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
+        
+        $data = [
+            [
+                'email' => $contact_email,
+                'name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail === true) {
             // Add send history

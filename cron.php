@@ -426,10 +426,15 @@ if ($config_ticket_autoclose == 1) {
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
         $body    = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
+        $data = [
+            [
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
@@ -502,19 +507,14 @@ if ($config_send_invoice_reminders == 1) {
                 <br><br>
                 Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-            $mail = sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $config_invoice_from_email,
-                $config_invoice_from_name,
-                $contact_email,
-                $contact_name,
-                $subject,
-                $body
-            );
+            $mail = addToMailQueue($mysqli, [
+                [
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+                ]);
 
             if ($mail === true) {
                 mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
@@ -622,19 +622,14 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $subject = "Invoice $invoice_prefix$invoice_number";
         $body    = "Hello $contact_name,<br><br>Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail(
-            $config_smtp_host,
-            $config_smtp_username,
-            $config_smtp_password,
-            $config_smtp_encryption,
-            $config_smtp_port,
-            $config_invoice_from_email,
-            $config_invoice_from_name,
-            $contact_email,
-            $contact_name,
-            $subject,
-            $body
-        );
+        $mail = addToMailQueue($mysqli, [
+            [
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ]);
 
         if ($mail === true) {
             mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_invoice_id = $new_invoice_id");
@@ -660,10 +655,16 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
             $billing_contact_name = $billing_contact['contact_name'];
             $billing_contact_email = $billing_contact['contact_email'];
 
-            sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                $config_invoice_from_email, $config_invoice_from_name,
-                $billing_contact_email, $billing_contact_name,
-                $subject, $body);
+            $data = [
+                [
+                    'recipient' => $billing_contact_email,
+                    'recipient_name' => $billing_contact_name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+            ];
+
+            addToMailQueue($mysqli, $data);
         }
 
     } //End if Autosend is on
