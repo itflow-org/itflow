@@ -20,3 +20,4 @@ plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/.gitkeep
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/.gitkeep
+.vscode/settings.json
