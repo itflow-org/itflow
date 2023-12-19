@@ -170,8 +170,6 @@ if (isset($_POST['edit_software'])) {
         $expire = "'" . $expire . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
-    $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
 
     mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes' WHERE software_id = $software_id");
 
@@ -196,10 +194,15 @@ if (isset($_POST['edit_software'])) {
 
     //If login exists then update the login
     if ($login_id > 0) {
+        $username = encryptLoginEntry($_POST['username']);
+        $password = encryptLoginEntry($_POST['password']);
+        
         mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id");
     }else{
         //If Username is filled in then add a login
-        if (!empty($username)) {
+        if (!empty($_POST['username'])) {
+        $username = encryptLoginEntry($_POST['username']);
+        $password = encryptLoginEntry($_POST['password']);
 
             mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id");
 

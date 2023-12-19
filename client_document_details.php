@@ -104,14 +104,15 @@ $document_parent = intval($row['document_parent']);
 
         while ($row = mysqli_fetch_array($sql_files)) {
           $file_id = intval($row['file_id']);
+          $folder_id = intval($row['file_folder_id']);
           $file_name = nullable_htmlentities($row['file_name']);
 
           $linked_files[] = $file_id;
 
           ?>
           <li>
-            <?php echo $file_name; ?>
-            <a href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
+            <a href="client_files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>&q=<?php echo $file_name; ?>" target="_blank"><?php echo $file_name; ?><i class="fas fa-external-link-alt ml-1"></i></a>
+            <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
           </li>
@@ -143,8 +144,8 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $contact_name; ?>
-            <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
+            <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank"><?php echo $contact_name; ?><i class="fas fa-external-link-alt ml-1"></i></a>
+            <a class="confirm-link" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
           </li>
@@ -161,7 +162,7 @@ $document_parent = intval($row['document_parent']);
       <ul>
         <?php
         $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_documents
-          WHERE assets.asset_id = asset_documents.asset_id 
+          WHERE assets.asset_id = asset_documents.asset_id
           AND asset_documents.document_id = $document_id
           ORDER BY asset_name ASC"
         );
@@ -176,8 +177,8 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $asset_name; ?>
-            <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
+            <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?><i class="fas fa-external-link-alt ml-1"></i></a>
+            <a class="confirm-link" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
           </li>
@@ -209,8 +210,8 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $software_name; ?>
-            <a href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
+            <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?><i class="fas fa-external-link-alt ml-1"></i></a>
+            <a class="confirm-link" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
           </li>
@@ -242,8 +243,8 @@ $document_parent = intval($row['document_parent']);
 
           ?>
           <li>
-            <?php echo $vendor_name; ?>
-            <a href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
+            <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>" target="_blank"><?php echo $vendor_name; ?><i class="fas fa-external-link-alt ml-1"></i></a>
+            <a class="confirm-link" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
               <i class="fas fa-fw fa-times text-secondary ml-2"></i>
             </a>
           </li>
