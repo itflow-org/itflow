@@ -879,10 +879,10 @@ function addToMailQueue($mysqli, $data) {
     $config_invoice_from_name = strval(getSettingValue($mysqli, 'config_invoice_from_name'));
 
     foreach ($data as $email) {
-        $recipient = $email['email'];
-        $recipient_name = $email['name'];
-        $subject = $email['subject'];
-        $body = $email['body'];
+        $recipient = strval($email['email']);
+        $recipient_name = strval($email['name']);
+        $subject = strval($email['subject']);
+        $body = strval($email['body']);
 
         mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
     }
