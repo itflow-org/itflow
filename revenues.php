@@ -82,14 +82,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=revenue_date&order=<?php echo $disp; ?>">Date</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                    <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=revenue_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=revenue_payment_method&order=<?php echo $disp; ?>">Method</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=revenue_reference&order=<?php echo $disp; ?>">Reference</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a></th>
+                    <?php
+                    $revenueColumns = [
+                        'revenue_date' => 'Date',
+                        'category_name' => 'Category',
+                        'revenue_amount' => 'Amount',
+                        'revenue_payment_method' => 'Method',
+                        'revenue_reference' => 'Reference',
+                        'account_name' => 'Account'
+                    ];
+
+                    foreach ($revenueColumns as $sortParam => $columnName) {
+                        $class = ($sortParam === 'revenue_amount') ? 'text-right' : '';
+                        echo "<th class='$class'><a class='text-dark'
+                        href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
                     <th class="text-center">Action</th>
                 </tr>
+
                 </thead>
                 <tbody>
                 <?php

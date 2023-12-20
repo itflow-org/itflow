@@ -81,14 +81,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_date&order=<?php echo $disp; ?>">Payment Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Invoice Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Invoice</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method&order=<?php echo $disp; ?>">Payment Method</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_reference&order=<?php echo $disp; ?>">Reference</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a></th>
+                        <?php
+                        $paymentColumns = [
+                            'payment_date' => 'Payment Date',
+                            'invoice_date' => 'Invoice Date',
+                            'invoice_number' => 'Invoice',
+                            'client_name' => 'Client',
+                            'payment_amount' => 'Amount',
+                            'payment_method' => 'Payment Method',
+                            'payment_reference' => 'Reference',
+                            'account_name' => 'Account'
+                        ];
+
+                        foreach ($paymentColumns as $sortParam => $columnName) {
+                            $class = ($sortParam === 'payment_amount') ? 'text-right' : '';
+                            echo "<th class='$class'><a class='text-dark'
+                            href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                        }
+                        ?>
                     </tr>
                     </thead>
                     <tbody>

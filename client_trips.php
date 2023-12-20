@@ -68,33 +68,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=trip_date&order=<?php echo $disp; ?>">Date</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=user_name&order=<?php echo $disp; ?>">Driver</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=trip_purpose&order=<?php echo $disp; ?>">Purpose</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=trip_source&order=<?php echo $disp; ?>">From</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=trip_destination&order=<?php echo $disp; ?>">To</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=trip_miles&order=<?php echo $disp; ?>">Miles</a>
-                        </th>
-                        <th class="text-center">Action</th>
-                    </tr>
+                <tr>
+                    <?php
+                    $tripColumns = [
+                        'trip_date' => 'Date',
+                        'user_name' => 'Driver',
+                        'trip_purpose' => 'Purpose',
+                        'trip_source' => 'From',
+                        'trip_destination' => 'To',
+                        'trip_miles' => 'Miles'
+                    ];
+
+                    foreach ($tripColumns as $sortParam => $columnName) {
+                        echo "<th><a class='text-dark'
+                        href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
+                    <th class="text-center">Action</th>
+                </tr>
+
                 </thead>
                 <tbody>
                     <?php

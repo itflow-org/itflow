@@ -58,40 +58,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm border">
             <table class="table table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_created_at&order=<?php echo $disp; ?>">Timestamp</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=user_name&order=<?php echo $disp; ?>">User</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_type&order=<?php echo $disp; ?>">Type</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_action&order=<?php echo $disp; ?>">Action</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_description&order=<?php echo $disp; ?>">Description</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_ip&order=<?php echo $disp; ?>">IP
-                                Address</a></th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_user_agent&order=<?php echo $disp; ?>">User
-                                Agent</a></th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=log_entity_id&order=<?php echo $disp; ?>">Entity
-                                ID</a></th>
-                    </tr>
+                <tr>
+                    <?php
+                    $logColumns = [
+                        'log_created_at' => 'Timestamp',
+                        'user_name' => 'User',
+                        'log_type' => 'Type',
+                        'log_action' => 'Action',
+                        'log_description' => 'Description',
+                        'log_ip' => 'IP Address',
+                        'log_user_agent' => 'User Agent',
+                        'log_entity_id' => 'Entity ID'
+                    ];
+
+                    foreach ($logColumns as $sortParam => $columnName) {
+                        echo "<th><a class='text-dark' href='?
+                        $url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
+                </tr>
                 </thead>
                 <tbody>
                     <?php

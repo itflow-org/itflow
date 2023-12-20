@@ -82,13 +82,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_date&order=<?php echo $disp; ?>">Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_from&order=<?php echo $disp; ?>">From Account</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_to&order=<?php echo $disp; ?>">To Account</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_notes&order=<?php echo $disp; ?>">Notes</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_amount&order=<?php echo $disp; ?>">Amount</a></th>
+                        <?php
+                        $transferColumns = [
+                            'transfer_date' => 'Date',
+                            'transfer_account_from' => 'From Account',
+                            'transfer_account_to' => 'To Account',
+                            'transfer_notes' => 'Notes',
+                            'transfer_amount' => 'Amount'
+                        ];
+
+                        foreach ($transferColumns as $sortParam => $columnName) {
+                            $class = ($sortParam === 'transfer_amount') ? 'text-right' : '';
+                            echo "<th class='$class'><a class='text-dark' href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                        }
+                        ?>
                         <th class="text-center">Action</th>
                     </tr>
+
                     </thead>
                     <tbody>
                     <?php

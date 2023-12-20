@@ -50,15 +50,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_description&order=<?php echo $disp; ?>">Description</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">Tax Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">Tax Rate</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_price&order=<?php echo $disp; ?>">Price</a></th>
-                        
+                        <?php
+                        $productColumns = [
+                            'product_name' => 'Name',
+                            'category_name' => 'Category',
+                            'product_description' => 'Description',
+                            'tax_name' => 'Tax Name',
+                            'tax_percent' => 'Tax Rate',
+                            'product_price' => 'Price'
+                        ];
+
+                        foreach ($productColumns as $sortParam => $columnName) {
+                            $class = ($sortParam === 'product_price') ? 'text-right' : '';
+                            echo "<th class='$class'><a class='text-dark'
+                            href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                        }
+                        ?>
                         <th class="text-center">Action</th>
                     </tr>
+
                     </thead>
                     <tbody>
                     <?php

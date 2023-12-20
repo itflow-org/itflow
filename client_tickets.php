@@ -114,41 +114,26 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_number&order=<?php echo $disp; ?>">Number</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=contact_name&order=<?php echo $disp; ?>">Contact</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_status&order=<?php echo $disp; ?>">Status</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=user_name&order=<?php echo $disp; ?>">Assigned</a>
-                        </th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_updated_at&order=<?php echo $disp; ?>">Last
-                                Response</a></th>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>
-                                &sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a>
-                        </th>
+                <tr>
+                    <?php
+                    $ticketColumns = [
+                        'ticket_number' => 'Number',
+                        'ticket_subject' => 'Subject',
+                        'contact_name' => 'Contact',
+                        'ticket_priority' => 'Priority',
+                        'ticket_status' => 'Status',
+                        'user_name' => 'Assigned',
+                        'ticket_updated_at' => 'Last Response',
+                        'ticket_created_at' => 'Created'
+                    ];
 
-                    </tr>
+                    foreach ($ticketColumns as $sortParam => $columnName) {
+                        echo "<th><a class='text-dark' href='?
+                        $url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
+                </tr>
+
                 </thead>
                 <tbody>
                     <?php

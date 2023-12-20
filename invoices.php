@@ -209,17 +209,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                        <tr>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Number</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_scope&order=<?php echo $disp; ?>">Scope</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
-                            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Date</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_due&order=<?php echo $disp; ?>">Due</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_status&order=<?php echo $disp; ?>">Status</a></th>
-                            <th class="text-center">Action</th>
-                        </tr>
+                    <tr>
+                        <?php
+                        $invoiceColumns = [
+                            'invoice_number' => 'Number',
+                            'invoice_scope' => 'Scope',
+                            'client_name' => 'Client',
+                            'invoice_amount' => 'Amount',
+                            'invoice_date' => 'Date',
+                            'invoice_due' => 'Due',
+                            'category_name' => 'Category',
+                            'invoice_status' => 'Status'
+                        ];
+
+                        foreach ($invoiceColumns as $sortParam => $columnName) {
+                            $class = ($sortParam === 'invoice_amount') ? 'text-right' : '';
+                            echo "<th class='$class'><a class='text-dark'
+                            href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                        }
+                        ?>
+                        <th class="text-center">Action</th>
+                    </tr>
+
                     </thead>
                     <tbody>
                     <?php

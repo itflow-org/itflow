@@ -80,30 +80,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th id="sort-location-name"
-                        ><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sort; ?>&
-                                sort=location_name&order=<?php echo $disp; ?>">Name</a>
-                        </th>
-                        <th id="sort-location-address"
-                        ><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sort; ?>&
-                                sort=location_address&order=<?php echo $disp; ?>">Address</a>
-                        </th>
-                        <th id="sort-location-phone"
-                        ><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sort; ?>&
-                                sort=location_phone&order=<?php echo $disp; ?>">Phone</a>
-                        </th>
-                        <th id="sort-location-hours"
-                        ><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sort; ?>&
-                                sort=location_hours&order=<?php echo $disp; ?>">Hours</a>
-                        </th>
-                        <th id="sort-location-action"
-                        class="text-center">Action</th>
-                    </tr>
+                <tr>
+                    <?php
+                    $locationColumns = [
+                        'location_name' => ['Name', 'sort-location-name'],
+                        'location_address' => ['Address', 'sort-location-address'],
+                        'location_phone' => ['Phone', 'sort-location-phone'],
+                        'location_hours' => ['Hours', 'sort-location-hours']
+                    ];
+
+                    foreach ($locationColumns as $sortParam => $columnData) {
+                        list($columnName, $columnId) = $columnData;
+                        echo "<th id='$columnId'><a class='text-secondary' href='?
+                        $url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
+                    <th id="sort-location-action" class="text-center">Action</th>
+                </tr>
+
                 </thead>
                 <tbody>
                     <?php

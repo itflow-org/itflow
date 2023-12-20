@@ -75,33 +75,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=network_name&order=<?php echo $disp; ?>">Name</a>
-                        </th>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=network_vlan&order=<?php echo $disp; ?>">vLAN</a>
-                        </th>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=network&order=<?php echo $disp; ?>">Network</a>
-                        </th>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=network_gateway&order=<?php echo $disp; ?>">Gateway</a>
-                        </th>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=network_dhcp_range&order=<?php echo $disp; ?>">DHCP
-                                Range</a></th>
-                        <th><a class="text-secondary"
-                                href="?<?php echo $url_query_strings_sb; ?>
-                                &sort=location_name&order=<?php echo $disp; ?>">Location</a>
-                        </th>
-                        <th class="text-center">Action</th>
-                    </tr>
+                <tr>
+                    <?php
+                    $networkColumns = [
+                        'network_name' => 'Name',
+                        'network_vlan' => 'vLAN',
+                        'network' => 'Network',
+                        'network_gateway' => 'Gateway',
+                        'network_dhcp_range' => 'DHCP Range',
+                        'location_name' => 'Location'
+                    ];
+
+                    foreach ($networkColumns as $sortParam => $columnName) {
+                        echo "<th><a class='text-secondary' href='?
+                        $url_query_strings_sb&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
+                    <th class="text-center">Action</th>
+                </tr>
+
                 </thead>
                 <tbody>
                     <?php

@@ -53,12 +53,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">Template</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">Type</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">License Type</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Seats</a></th>
+                    <?php
+                    $softwareColumns = [
+                        'software_name' => 'Template',
+                        'software_type' => 'Type',
+                        'software_license_type' => 'License Type',
+                        'software_seats' => 'Seats'
+                    ];
+
+                    foreach ($softwareColumns as $sortParam => $columnName) {
+                        echo "<th><a class='text-secondary'
+                        href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                    }
+                    ?>
                     <th class="text-center">Action</th>
                 </tr>
+
                 </thead>
                 <tbody>
                 <?php
