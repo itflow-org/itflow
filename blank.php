@@ -1,5 +1,4 @@
-<?php require_once "inc_all.php";
- ?>
+<?php require_once "inc_all.php"; ?>
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">

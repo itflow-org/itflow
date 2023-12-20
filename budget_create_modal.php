@@ -42,7 +42,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="^[0-9]{4}$" name="year" placeholder="2024" required>
+                                <input type="text" class="form-control" inputmode="numeric"
+                                    pattern="^[0-9]{4}$" name="year" placeholder="2024" required>
                             </div>
                         </div>
 
@@ -54,7 +55,8 @@
 
                     <div class="form-group">
                         <label>Description <strong class="text-danger">*</strong></label>
-                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required></textarea>
+                        <textarea class="form-control" rows="6" name="description"
+                            placeholder="Enter a description" required></textarea>
                     </div>
 
                     <div class="form-row">
@@ -65,7 +67,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
+                                <input type="text" class="form-control" inputmode="numeric"
+                                    pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
                             </div>
                         </div>
                         
@@ -79,13 +82,19 @@
                                     <option value="">- Category -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                    $sql = mysqli_query(
+                                        $mysqli,
+                                        "SELECT category_id, category_name FROM categories
+                                        WHERE category_type = 'Expense' AND category_archived_at IS NULL
+                                        ORDER BY category_name ASC"
+                                    );
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = nullable_htmlentities($row['category_name']);
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
-
+                                        <option value="<?php echo $category_id; ?>">
+                                            <?php echo $category_name; ?>
+                                        </option>
                                         <?php
                                     }
                                     ?>
@@ -99,8 +108,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="create_budget" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="create_budget" class="btn btn-primary text-bold">
+                        <i class="fa fa-fw fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

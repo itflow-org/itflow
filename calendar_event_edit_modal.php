@@ -15,13 +15,19 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>">
+                            <i class="fa fa-fw fa-calendar mr-2"></i>Event
+                        </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-more<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more<?php echo $event_id; ?>">
+                            <i class="fa fa-fw fa-info-circle mr-2"></i>More
+                        </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>">
+                            <i class="fa fa-fw fa-users mr-2"></i>Attendees
+                        </a>
                         </li>
                     </ul>
 
@@ -37,7 +43,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="title" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
+                                    <input type="text" class="form-control" name="title"
+                                        value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
                                 </div>
                             </div>
 
@@ -50,14 +57,23 @@
                                     <select class="form-control select2" name="calendar" required>
                                         <?php
 
-                                        $sql_calendars_select = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
+                                        $sql_calendars_select = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM calendars ORDER BY calendar_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql_calendars_select)) {
                                             $calendar_id_select = intval($row['calendar_id']);
                                             $calendar_name_select = nullable_htmlentities($row['calendar_name']);
                                             $calendar_color_select = nullable_htmlentities($row['calendar_color']);
                                             ?>
-                                            <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if ($calendar_id == $calendar_id_select) { echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
-
+                                            <option data-content="<i class='fa fa-circle mr-2'
+                                                style='color:<?php echo $calendar_color_select; ?>;'></i>
+                                                <?php echo $calendar_name_select; ?>"
+                                                <?php if ($calendar_id == $calendar_id_select) {
+                                                    echo "selected";
+                                                } ?> value="<?php echo $calendar_id_select; ?>">
+                                                <?php echo $calendar_name_select; ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -66,16 +82,21 @@
                             <label>Start / End <strong class="text-danger">*</strong></label>
                             <div class="form-row">
                                 <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
+                                    <input type="datetime-local" class="form-control form-control-sm" name="start"
+                                        value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>"required>
+                                    <input type="datetime-local" class="form-control form-control-sm" name="end"
+                                        value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>"required>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea class="form-control" rows="4" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                                <textarea class="form-control" rows="4" name="description"
+                                    placeholder="Enter a description">
+                                    <?php echo $event_description; ?>
+                                </textarea>
                             </div>
 
                         </div>
@@ -89,11 +110,23 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
                                     <select class="form-control select2" name="repeat">
-                                        <option <?php if (empty($event_repeat)) { echo "selected"; } ?> value="">Never</option>
-                                        <option <?php if ($event_repeat == "Day") { echo "selected"; } ?>>Day</option>
-                                        <option <?php if ($event_repeat == "Week") { echo "selected"; } ?>>Week</option>
-                                        <option <?php if ($event_repeat == "Month") { echo "selected"; } ?>>Month</option>
-                                        <option <?php if ($event_repeat == "Year") { echo "selected"; } ?>>Year</option>
+                                        <?php
+                                        $repeatOptions = [
+                                            '' => 'Never',
+                                            'Day' => 'Day',
+                                            'Week' => 'Week',
+                                            'Month' => 'Month',
+                                            'Year' => 'Year'
+                                        ];
+
+                                        foreach ($repeatOptions as $value => $label) {
+                                            echo '<option value="' . htmlspecialchars($value) . '"';
+                                            if (!empty($event_repeat) && $event_repeat == $value) {
+                                                echo ' selected';
+                                            }
+                                            echo '>' . htmlspecialchars($label) . '</option>';
+                                        }
+                                        ?>
                                     </select>
                                 </div>
                             </div>
@@ -116,13 +149,22 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
+                                            $sql_clients = mysqli_query(
+                                                $mysqli,
+                                                "SELECT * FROM clients
+                                                LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id
+                                                AND contact_primary = 1 ORDER BY client_name ASC"
+                                                );
                                             while ($row = mysqli_fetch_array($sql_clients)) {
                                                 $client_id_select = intval($row['client_id']);
                                                 $client_name_select = nullable_htmlentities($row['client_name']);
                                                 $contact_email_select = nullable_htmlentities($row['contact_email']);
                                                 ?>
-                                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                                <option <?php if ($client_id == $client_id_select) {
+                                                    echo "selected";
+                                                    } ?> value="<?php echo $client_id_select; ?>">
+                                                    <?php echo $client_name_select; ?>
+                                                </option>
 
                                             <?php } ?>
 
@@ -134,8 +176,11 @@
 
                             <?php if (!empty($config_smtp_host)) { ?>
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?php echo $event_id; ?>" name="email_event" value="1" >
-                                    <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>
+                                    <input type="checkbox" class="custom-control-input"
+                                        id="customControlAutosizing<?php echo $event_id; ?>"
+                                        name="email_event" value="1" >
+                                    <label class="custom-control-label"
+                                        for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>
                                 </div>
                             <?php } ?>
 
@@ -145,9 +190,16 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <a class="btn btn-default text-danger mr-auto" href="post.php?delete_event=<?php echo $event_id; ?>"><i class="fa fa-calendar-times mr-2"></i>Delete</a>
-                    <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <a class="btn btn-default text-danger mr-auto"
+                        href="post.php?delete_event=<?php echo $event_id; ?>">
+                        <i class="fa fa-calendar-times mr-2"></i>Delete
+                    </a>
+                    <button type="submit" name="edit_event" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Save
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

@@ -127,10 +127,14 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject, ticket_priority, ticket_status, client_name, contact_name FROM tickets
-      LEFT JOIN clients ON ticket_client_id = client_id 
-      LEFT JOIN contacts ON ticket_contact_id = contact_id
-      WHERE ticket_number = $merge_into_ticket_number");
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject,
+        ticket_priority, ticket_status, client_name, contact_name FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        WHERE ticket_number = $merge_into_ticket_number"
+        );
 
     if (mysqli_num_rows($sql) == 0) {
         //Do nothing.
@@ -164,7 +168,7 @@ if (isset($_GET['network_get_json_details'])) {
     $locations_sql = mysqli_query(
         $mysqli,
         "SELECT location_id, location_name FROM locations
-         WHERE location_client_id = '$client_id'"
+        WHERE location_client_id = '$client_id'"
     );
     while ($row = mysqli_fetch_array($locations_sql)) {
         $response['locations'][] = $row;
@@ -183,7 +187,7 @@ if (isset($_POST['client_set_notes'])) {
     // Logging
     mysqli_query(
         $mysqli,
-        "INSERT INTO logs SET 
+        "INSERT INTO logs SET
         log_type = 'Client',
         log_action = 'Modify',
         log_description = '$session_name modified client notes'
@@ -223,7 +227,16 @@ if (isset($_POST['asset_set_notes'])) {
     mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $asset_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Assets', log_action = 'Modify', log_description = '$session_name modified asset notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Assets',
+        log_action = 'Modify',
+        log_description = '$session_name modified asset notes',
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id"
+    );
 
 }
 
@@ -308,17 +321,29 @@ if (isset($_GET['share_generate_link'])) {
     $item_key = randomString(156);
 
     if ($item_type == "Document") {
-        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"));
+        $row = mysqli_fetch_array(mysqli_query(
+            $mysqli,
+            "SELECT document_name FROM documents
+            WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"
+        ));
         $item_name = sanitizeInput($row['document_name']);
     }
 
     if ($item_type == "File") {
-        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"));
+        $row = mysqli_fetch_array(mysqli_query(
+            $mysqli,
+            "SELECT file_name FROM files
+            WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"
+        ));
         $item_name = sanitizeInput($row['file_name']);
     }
 
     if ($item_type == "Login") {
-        $login = mysqli_query($mysqli, "SELECT login_name, login_username, login_password FROM logins WHERE login_id = $item_id AND login_client_id = $client_id LIMIT 1");
+        $login = mysqli_query(
+            $mysqli,
+            "SELECT login_name,login_username, login_password FROM logins
+            WHERE login_id = $item_id AND login_client_id = $client_id LIMIT 1"
+        );
         $row = mysqli_fetch_array($login);
 
         $item_name = sanitizeInput($row['login_name']);
@@ -378,8 +403,22 @@ if (isset($_GET['share_generate_link'])) {
             $subject, $body);
 
         if ($mail !== true) {
-            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $item_email'");
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $item_email regarding $subject. $item_mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+            mysqli_query(
+                $mysqli,
+                "INSERT INTO notifications SET
+                notification_type = 'Mail',
+                notification = 'Failed to send email to $item_email'"
+            );
+            mysqli_query(
+                $mysqli,
+                "INSERT INTO logs SET
+                log_type = 'Mail',
+                log_action = 'Error',
+                log_description = 'Failed to send email to $item_email regarding $subject. $item_mail',
+                log_ip = '$session_ip',
+                log_user_agent = '$session_user_agent',
+                log_user_id = $session_user_id"
+            );
         }
 
     }
@@ -388,7 +427,17 @@ if (isset($_GET['share_generate_link'])) {
 
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - $item_name', log_client_id = $client_id, log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Sharing',
+        log_action = 'Create',
+        log_description = '$session_name created shared link for $item_type - $item_name',
+        log_client_id = $client_id,
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id"
+    );
 
 }
 
@@ -418,7 +467,11 @@ if (isset($_GET['scheduled_ticket_get_json_details'])) {
         $response['ticket'][] = $row;
     }
 
-    $asset_sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL");
+    $asset_sql = mysqli_query(
+        $mysqli,
+        "SELECT asset_id, asset_name FROM assets
+        WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"
+    );
     while ($row = mysqli_fetch_array($asset_sql)) {
         $response['assets'][] = $row;
     }
@@ -522,7 +575,9 @@ if (isset($_GET['get_totp_token_via_id'])) {
 
     $login_id = intval($_GET['login_id']);
 
-    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT login_name, login_otp_secret, login_client_id FROM logins WHERE login_id = $login_id"));
+    $sql = mysqli_fetch_assoc(mysqli_query(
+        $mysqli,
+        "SELECT login_name, login_otp_secret, login_client_id FROM logins WHERE login_id = $login_id"));
     $name = sanitizeInput($sql['login_name']);
     $totp_secret = $sql['login_otp_secret'];
     $client_id = intval($sql['login_client_id']);
@@ -531,11 +586,30 @@ if (isset($_GET['get_totp_token_via_id'])) {
     echo json_encode($otp);
 
     // Logging
-    //  Only log the TOTP view if the user hasn't already viewed this specific login entry recently, this prevents logs filling if a user hovers across an entry a few times
-    $check_recent_totp_view_logged_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_totp_view FROM logs WHERE log_type = 'Login' AND log_action = 'View TOTP' AND log_user_id = $session_user_id AND log_entity_id = $login_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+    //  Only log the TOTP view if the user hasn't already viewed this specific login entry recently.
+    //  This prevents logs filling if a user hovers across an entry a few times
+
+    $check_recent_totp_view_logged_sql = mysqli_fetch_assoc(mysqli_query(
+        $mysqli,
+        "SELECT COUNT(log_id) AS recent_totp_view FROM logs
+        WHERE log_type = 'Login' AND log_action = 'View TOTP'
+        AND log_user_id = $session_user_id AND log_entity_id = $login_id
+        AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"
+    ));
     $recent_totp_view_logged_count = intval($check_recent_totp_view_logged_sql['recent_totp_view']);
 
     if ($recent_totp_view_logged_count == 0) {
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'View TOTP', log_description = '$session_name viewed login TOTP code for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+        mysqli_query(
+            $mysqli,
+            "INSERT INTO logs SET
+            log_type = 'Login',
+            log_action = 'View TOTP',
+            log_description = '$session_name viewed login TOTP code for $name',
+            log_ip = '$session_ip',
+            log_user_agent = '$session_user_agent',
+            log_client_id = $client_id,
+            log_user_id = $session_user_id,
+            log_entity_id = $login_id"
+        );
     }
 }

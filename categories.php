@@ -111,8 +111,8 @@ if (isset($_GET['archived'])) {
                     echo "d-none";
                 } ?>">
                     <tr>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Name</a>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>
+                            &sort=category_name&order=<?php echo $disp; ?>">Name</a>
                         </th>
                         <th>Color</th>
                         <th class="text-center">Action</th>

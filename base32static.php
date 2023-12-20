@@ -2,7 +2,8 @@
 /**
  * Encode in Base32 based on RFC 4648.
  * Requires 20% more space than base64
- * Great for case-insensitive filesystems like Windows and URL's  (except for = char which can be excluded using the pad option for urls)
+ * Great for case-insensitive filesystems like Windows and URL's
+ * (except for = char which can be excluded using the pad option for urls)
  *
  * @package default
  * @author Bryan Ruiz
@@ -30,7 +31,7 @@ class Base32Static {
      * @author Bryan Ruiz
      **/
     public static function encode($input, $padding = true) {
-        if (empty($input)) return "";
+        if (empty($input)) { return ""; }
 
         $input = str_split($input);
         $binaryString = "";
@@ -49,26 +50,28 @@ class Base32Static {
         }
 
         if ($padding && ($x = strlen($binaryString) % 40) != 0) {
-            if ($x == 8) $base32 .= str_repeat(self::$map[32], 6);
-            elseif ($x == 16) $base32 .= str_repeat(self::$map[32], 4);
-            elseif ($x == 24) $base32 .= str_repeat(self::$map[32], 3);
-            elseif ($x == 32) $base32 .= self::$map[32];
+            if ($x == 8) { $base32 .= str_repeat(self::$map[32], 6); }
+            elseif ($x == 16) { $base32 .= str_repeat(self::$map[32], 4); }
+            elseif ($x == 24) { $base32 .= str_repeat(self::$map[32], 3); }
+            elseif ($x == 32) { $base32 .= self::$map[32]; }
         }
 
         return $base32;
     }
 
     public static function decode($input) {
-        if (empty($input)) return;
+        if (empty($input)) { return; }
 
         $paddingCharCount = substr_count($input, self::$map[32]);
         $allowedValues = array(6,4,3,1,0);
 
-        if (!in_array($paddingCharCount, $allowedValues)) return false;
+        if (!in_array($paddingCharCount, $allowedValues)) { return false; }
 
         for ($i=0; $i<4; $i++){
             if ($paddingCharCount == $allowedValues[$i] &&
-                substr($input, -($allowedValues[$i])) != str_repeat(self::$map[32], $allowedValues[$i])) return false;
+                substr($input, -($allowedValues[$i])) != str_repeat(self::$map[32], $allowedValues[$i])) {
+                    return false;
+            }
         }
 
         $input = str_replace('=', '', $input);
@@ -78,7 +81,7 @@ class Base32Static {
         for ($i=0; $i < count($input); $i = $i+8) {
             $x = "";
 
-            if (!in_array($input[$i], self::$map)) return false;
+            if (!in_array($input[$i], self::$map)) { return false; }
 
             for ($j=0; $j < 8; $j++) {
                 $x .= str_pad(base_convert(@self::$flippedMap[@$input[$i + $j]], 10, 2), 5, '0', STR_PAD_LEFT);

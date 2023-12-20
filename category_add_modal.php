@@ -2,7 +2,9 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <?php echo nullable_htmlentities($category); ?> Category</h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-list-ul mr-2"></i>New <?php echo nullable_htmlentities($category); ?> Category
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -18,7 +20,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Category name" required autofocus>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="Category name" required autofocus>
                         </div>
                     </div>
 
@@ -34,8 +37,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_category" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_category" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

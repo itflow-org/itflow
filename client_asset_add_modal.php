@@ -2,7 +2,14 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags($_GET['type'])); }else{ echo "Asset"; } ?></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-desktop mr-2"></i>New
+                    <?php if (!empty($_GET['type'])) {
+                            echo ucwords(strip_tags($_GET['type']));
+                        }else{
+                            echo "Asset";
+                        } ?>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -44,7 +51,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Asset name or asset tag" required autofocus>
+                                    <input type="text" class="form-control" name="name"
+                                        placeholder="Asset name or asset tag" required autofocus>
                                 </div>
                             </div>
 
@@ -54,7 +62,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Description of the asset">
+                                    <input type="text" class="form-control" name="description"
+                                        placeholder="Description of the asset">
                                 </div>
                             </div>
 
@@ -101,7 +110,8 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="serial" placeholder="Serial number">
+                                        <input type="text" class="form-control" name="serial"
+                                            placeholder="Serial number">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -113,7 +123,8 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
+                                        <input type="text" class="form-control" name="os"
+                                            placeholder="ex Windows 10 Pro">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -132,12 +143,18 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM locations
+                                            WHERE location_archived_at IS NULL AND location_client_id = $client_id
+                                            ORDER BY location_name ASC"
+                                            );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $location_id = intval($row['location_id']);
                                             $location_name = nullable_htmlentities($row['location_name']);
                                             ?>
-                                            <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                            <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?>
+                                            </option>
                                         <?php } ?>
 
                                     </select>
@@ -154,12 +171,18 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM contacts
+                                            WHERE contact_archived_at IS NULL AND contact_client_id = $client_id
+                                            ORDER BY contact_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $contact_id = intval($row['contact_id']);
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                             ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                                            <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
+                                            </option>
 
                                         <?php } ?>
 
@@ -192,14 +215,21 @@
                                         <option value="">- Network -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM networks
+                                            WHERE network_archived_at IS NULL AND network_client_id = $client_id
+                                            ORDER BY network_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $network_id = intval($row['network_id']);
                                             $network_name = nullable_htmlentities($row['network_name']);
                                             $network = nullable_htmlentities($row['network']);
 
                                             ?>
-                                            <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
+                                            <option value="<?php echo $network_id; ?>">
+                                                <?php echo $network_name; ?> - <?php echo $network; ?>
+                                            </option>
 
                                         <?php } ?>
                                     </select>
@@ -212,7 +242,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250"
+                                        data-inputmask="'alias': 'ip'" data-mask>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="dhcp" value="1">
@@ -227,7 +258,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address"
+                                        data-inputmask="'alias': 'mac'" data-mask>
                                 </div>
                             </div>
 
@@ -237,7 +269,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                                    <input type="text" class="form-control" name="uri"
+                                        placeholder="URI http:// ftp:// ssh: etc">
                                 </div>
                             </div>
 
@@ -255,12 +288,20 @@
                                         <option value="">- Vendor -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM vendors
+                                            WHERE vendor_archived_at IS NULL
+                                            AND vendor_client_id = $client_id AND vendor_template = 0
+                                            ORDER BY vendor_name ASC"
+                                            );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $vendor_id = intval($row['vendor_id']);
                                             $vendor_name = nullable_htmlentities($row['vendor_name']);
                                             ?>
-                                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                            <option value="<?php echo $vendor_id; ?>">
+                                                <?php echo $vendor_name; ?>
+                                            </option>
 
                                         <?php } ?>
                                     </select>
@@ -282,7 +323,9 @@
                                     <label>Purchase Date</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                                            <span class="input-group-text">
+                                                <i class="fa fa-fw fa-shopping-cart"></i>
+                                            </span>
                                         </div>
                                         <input type="date" class="form-control" name="purchase_date" max="2999-12-31">
                                     </div>
@@ -291,7 +334,9 @@
                                     <label>Warranty Expire</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                                            <span class="input-group-text">
+                                                <i class="fa fa-fw fa-calendar-times"></i>
+                                            </span>
                                         </div>
                                         <input type="date" class="form-control" name="warranty_expire" max="2999-12-31">
                                     </div>
@@ -318,7 +363,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="new-password">
+                                    <input type="text" class="form-control" name="password"
+                                        placeholder="Password" autocomplete="new-password">
                                 </div>
                             </div>
 
@@ -327,7 +373,8 @@
                         <div class="tab-pane fade" id="pills-notes">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
+                                <textarea class="form-control" rows="8"
+                                    placeholder="Enter some notes" name="notes"></textarea>
                             </div>
 
                         </div>
@@ -335,8 +382,12 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_asset" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

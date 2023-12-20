@@ -28,7 +28,11 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 $session_user_id = intval($_SESSION['user_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT * FROM users, user_settings
+    WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id"
+);
 $row = mysqli_fetch_array($sql);
 $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
@@ -45,7 +49,11 @@ if ($session_user_role == 3) {
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT * FROM companies, settings
+    WHERE settings.company_id = companies.company_id AND companies.company_id = 1"
+);
 $row = mysqli_fetch_array($sql);
 
 $session_company_name = $row['company_name'];
@@ -75,7 +83,12 @@ if ($iPod || $iPhone || $iPad) {
 }
 
 //Get Notification Count for the badge on the top nav
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('notification_id') AS num FROM notifications
+    WHERE (notification_user_id = $session_user_id OR notification_user_id = 0)
+    AND notification_dismissed_at IS NULL"
+));
 $num_notifications = $row['num'];
 
 // FORCE MFA Setup

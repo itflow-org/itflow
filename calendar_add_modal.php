@@ -16,7 +16,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Name your calendar" required autofocus>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="Name your calendar" required autofocus>
                         </div>
                     </div>
 
@@ -32,8 +33,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_calendar" class="btn btn-primary"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_calendar" class="btn btn-primary">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

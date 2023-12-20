@@ -12,13 +12,19 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-event"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-event">
+                                <i class="fa fa-fw fa-calendar mr-2"></i>Event
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-more"><i class="fa fa-fw fa-info-circle mr-2"></i>More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-more">
+                                <i class="fa fa-fw fa-info-circle mr-2"></i>More
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-attendees"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-attendees">
+                                <i class="fa fa-fw fa-users mr-2"></i>Attendees
+                            </a>
                         </li>
                     </ul>
 
@@ -34,7 +40,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="title" placeholder="Title of the event" required autofocus>
+                                    <input type="text" class="form-control"
+                                        name="title" placeholder="Title of the event" required autofocus>
                                 </div>
                             </div>
 
@@ -48,13 +55,22 @@
                                         <option value="">- Calendar -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM calendars ORDER BY calendar_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $calendar_id = intval($row['calendar_id']);
                                             $calendar_name = nullable_htmlentities($row['calendar_name']);
                                             $calendar_color = nullable_htmlentities($row['calendar_color']);
                                             ?>
-                                            <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color; ?>;'></i> <?php echo $calendar_name; ?>" value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+                                            <option <?php if ($config_default_calendar == $calendar_id) {
+                                                    echo "selected";
+                                                } ?> data-content="<i class='fa fa-circle mr-2'
+                                                style='color:<?php echo $calendar_color; ?>;'></i>
+                                                <?php echo $calendar_name; ?>" value="<?php echo $calendar_id; ?>">
+                                                <?php echo $calendar_name; ?>
+                                            </option>
                                         <?php } ?>
 
                                     </select>
@@ -64,16 +80,19 @@
                             <label>Start / End <strong class="text-danger">*</strong></label>
                             <div class="form-row">
                                 <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
+                                    <input type="datetime-local" class="form-control form-control-sm"
+                                        id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" id="event_add_end" name="end" required>
+                                    <input type="datetime-local" class="form-control form-control-sm"
+                                        id="event_add_end" name="end" required>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea class="form-control" rows="4" name="description" placeholder="Enter a description"></textarea>
+                                <textarea class="form-control" rows="4" name="description"
+                                    placeholder="Enter a description"></textarea>
                             </div>
 
                         </div>
@@ -114,13 +133,21 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
+                                            $sql = mysqli_query(
+                                                $mysqli,
+                                                "SELECT * FROM clients
+                                                LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id
+                                                AND contact_primary = 1
+                                                ORDER BY client_name ASC"
+                                            );
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']);
                                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                                 ?>
-                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option value="<?php echo $client_id; ?>">
+                                                    <?php echo $client_name; ?>
+                                                </option>
 
                                             <?php } ?>
                                         </select>
@@ -132,7 +159,8 @@
                             <?php if (!empty($config_smtp_host)) { ?>
                                 <div class="form-group">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="emailEventCheckbox" name="email_event" value="1" >
+                                        <input type="checkbox" class="custom-control-input"
+                                            id="emailEventCheckbox" name="email_event" value="1">
                                         <label class="custom-control-label" for="emailEventCheckbox">Email Event</label>
                                     </div>
                                 </div>
@@ -144,8 +172,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_event" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_event" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

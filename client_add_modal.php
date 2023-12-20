@@ -2,7 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-user-plus mr-2"></i>
+                    Create <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -45,7 +48,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name or Company" required autofocus>
+                                    <input type="text" class="form-control" name="name"
+                                        placeholder="Name or Company" required autofocus>
                                 </div>
                             </div>
 
@@ -69,7 +73,12 @@
                                         <option value="">N/A</option>
                                         <?php
 
-                                        $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                        $referral_sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM categories
+                                            WHERE category_type = 'Referral' AND category_archived_at IS NULL
+                                            ORDER BY category_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($referral_sql)) {
                                             $referral = nullable_htmlentities($row['category_name']); ?>
                                             <option><?php echo $referral; ?></option>
@@ -93,7 +102,8 @@
                                 <label><i class="fas fa-fw fa-bullhorn mr-2"></i>Is Lead</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <input type="checkbox" name="lead" value="1" <?php if($leads == 1){ echo "checked"; } ?>>
+                                        <input type="checkbox" name="lead"
+                                            value="1" <?php if($leads == 1){ echo "checked"; } ?>>
                                     </div>
                                 </div>
                             </div>
@@ -109,7 +119,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number">
+                                    <input type="text" class="form-control" name="location_phone"
+                                        placeholder="Location's Phone Number">
                                 </div>
                             </div>
 
@@ -139,7 +150,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province">
+                                    <input type="text" class="form-control" name="state"
+                                        placeholder="State or Province">
                                 </div>
                             </div>
 
@@ -162,7 +174,11 @@
                                     <select class="form-control select2" name="country">
                                         <option value="">- Country -</option>
                                         <?php foreach($countries_array as $country_name) { ?>
-                                            <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                                            <option
+                                                <?php if ($session_company_country == $country_name) {
+                                                    echo "selected";
+                                                    } ?> ><?php echo $country_name; ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -178,7 +194,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" required autofocus>
+                                    <input type="text" class="form-control" id="primaryContact" name="contact"
+                                        placeholder="Primary Contact Person" required autofocus>
                                 </div>
                             </div>
 
@@ -200,12 +217,14 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="contact_phone" placeholder="Contact's Phone Number">
+                                            <input type="text" class="form-control" name="contact_phone"
+                                                placeholder="Contact's Phone Number">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="contact_extension" placeholder="Extension">
+                                    <input type="text" class="form-control" name="contact_extension"
+                                        placeholder="Extension">
                                 </div>
                             </div>
 
@@ -216,7 +235,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="contact_mobile" placeholder="Contact's Mobile Number">
+                                    <input type="text" class="form-control" name="contact_mobile"
+                                        placeholder="Contact's Mobile Number">
                                 </div>
                             </div>
 
@@ -226,7 +246,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address">
+                                    <input type="email" class="form-control" name="contact_email"
+                                        placeholder="Contact's Email Address">
                                 </div>
                             </div>
 
@@ -242,7 +263,9 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
+                                    <input type="text" class="form-control" inputmode="numeric"
+                                        pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
+                                        value="<?php echo "$config_default_hourly_rate"; ?>">
                                 </div>
                             </div>
 
@@ -255,7 +278,11 @@
                                     <select class="form-control select2" name="currency_code" required>
                                         <option value="">- Currency -</option>
                                         <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                            <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                            <option <?php if ($session_company_currency == $currency_code) {
+                                                echo "selected";
+                                                } ?> value="<?php echo $currency_code; ?>">
+                                                <?php echo "$currency_code - $currency_name"; ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -269,7 +296,11 @@
                                     </div>
                                     <select class="form-control select2" name="net_terms">
                                         <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                            <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                            <option <?php if ($config_default_net_terms == $net_term_value) {
+                                                echo "selected";
+                                                } ?> value="<?php echo $net_term_value; ?>">
+                                                <?php echo $net_term_name; ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -281,7 +312,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
+                                    <input type="text" class="form-control" name="tax_id_number"
+                                        placeholder="Tax ID Number">
                                 </div>
                             </div>
 
@@ -293,7 +325,8 @@
 
                             <div class="form-group">
                                 <label>Notes</label>
-                                <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"></textarea>
+                                <textarea class="form-control" rows="6" name="notes"
+                                    placeholder="Enter some notes"></textarea>
                             </div>
 
                             <div class="form-group">
@@ -302,15 +335,23 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                    <select class="form-control select2" name="tags[]"
+                                        data-placeholder="Add some tags" multiple>
                                         <?php
 
-                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        $sql_tags_select = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM tags
+                                            WHERE tag_type = 1
+                                            ORDER BY tag_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql_tags_select)) {
                                             $tag_id_select = intval($row['tag_id']);
                                             $tag_name_select = nullable_htmlentities($row['tag_name']);
                                             ?>
-                                            <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                            <option value="<?php echo $tag_id_select; ?>">
+                                                <?php echo $tag_name_select; ?>
+                                            </option>
                                         <?php } ?>
 
                                     </select>
@@ -322,8 +363,13 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
+                    <button type="submit" name="add_client" class="btn btn-primary text-bold"
+                        onclick="promptPrimaryContact()">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Close
+                    </button>
                 </div>
             </form>
         </div>
