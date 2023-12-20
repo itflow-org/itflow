@@ -10,7 +10,12 @@ if (isset($_POST['add_account_type'])) {
     $type = intval($_POST['type']);
     $description = sanitizeInput($_POST['description']);
 
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_parent = $type, account_type_name = '$name', account_type_description = '$description'");
+    mysqli_query($mysqli,
+        "INSERT INTO account_types SET
+        account_type_parent = $type,
+        account_type_name = '$name',
+        account_type_description = '$description'"
+    );
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account Type', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

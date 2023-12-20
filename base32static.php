@@ -50,9 +50,9 @@ class Base32Static {
 
         if ($padding && ($x = strlen($binaryString) % 40) != 0) {
             if ($x == 8) $base32 .= str_repeat(self::$map[32], 6);
-            else if ($x == 16) $base32 .= str_repeat(self::$map[32], 4);
-            else if ($x == 24) $base32 .= str_repeat(self::$map[32], 3);
-            else if ($x == 32) $base32 .= self::$map[32];
+            elseif ($x == 16) $base32 .= str_repeat(self::$map[32], 4);
+            elseif ($x == 24) $base32 .= str_repeat(self::$map[32], 3);
+            elseif ($x == 32) $base32 .= self::$map[32];
         }
 
         return $base32;

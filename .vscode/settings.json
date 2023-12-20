@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "twetech",
+        "projectKey": "twetech_itflow"
+    }
+}

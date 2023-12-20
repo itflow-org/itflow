@@ -16,7 +16,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Account name" required autofocus>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="Account name" required autofocus>
                         </div>
                     </div>
 
@@ -29,7 +30,9 @@
                             <select class="form-control select" name="type" required>
                             <option value="">- Select -</option>
                             <?php
-                            $sql_account_types = mysqli_query($mysqli, "SELECT * FROM account_types ORDER BY account_type_name ASC");
+                            $sql_account_types = mysqli_query($mysqli,
+                                "SELECT * FROM account_types ORDER BY account_type_name ASC"
+                            );
                             while ($row = mysqli_fetch_array($sql_account_types)) {
                                 $account_type_id = intval($row['account_type_id']);
                                 $account_type_name = nullable_htmlentities($row['account_type_name']);
@@ -48,7 +51,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                             </div>
-                            <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="opening_balance" placeholder="0.00" required>
+                            <input type="text" class="form-control" inputmode="numeric"
+                                pattern="-?[0-9]*\.?[0-9]{0,2}" name="opening_balance" placeholder="0.00" required>
                     </div>
 
                     <div class="form-group">
@@ -60,7 +64,11 @@
                             <select class="form-control select2" name="currency_code" required>
                                 <option value="">- Currency -</option>
                                 <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
-                                    <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+
+                                    <option <?php if ($session_company_currency == $currency_code) {
+                                        echo "selected"; } ?> value="<?php echo $currency_code; ?>">
+                                        <?php echo "$currency_code - $currency_name"; ?></option>
+
                                 <?php } ?>
                             </select>
                         </div>
@@ -73,8 +81,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_account" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_account" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

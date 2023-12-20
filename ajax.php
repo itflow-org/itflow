@@ -68,13 +68,20 @@ if (isset($_GET['certificate_get_json_details'])) {
     $client_id = intval($_GET['client_id']);
 
     // Individual certificate lookup
-    $cert_sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
+    $cert_sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id"
+    );
+    
     while ($row = mysqli_fetch_array($cert_sql)) {
         $response['certificate'][] = $row;
     }
 
     // Get all domains for this client that could be linked to this certificate
-    $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id");
+    $domains_sql = mysqli_query(
+        $mysqli,
+        "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id"
+    );
     while ($row = mysqli_fetch_array($domains_sql)) {
         $response['domains'][] = $row;
     }
@@ -92,13 +99,19 @@ if (isset($_GET['domain_get_json_details'])) {
     $client_id = intval($_GET['client_id']);
 
     // Individual domain lookup
-    $cert_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
+    $cert_sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id"
+    );
     while ($row = mysqli_fetch_array($cert_sql)) {
         $response['domain'][] = $row;
     }
 
     // Get all registrars/webhosts (vendors) for this client that could be linked to this domain
-    $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id");
+    $vendor_sql = mysqli_query(
+        $mysqli,
+        "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id"
+    );
     while ($row = mysqli_fetch_array($vendor_sql)) {
         $response['vendors'][] = $row;
     }
@@ -139,7 +152,10 @@ if (isset($_GET['network_get_json_details'])) {
     $client_id = intval($_GET['client_id']);
 
     // Individual network lookup
-    $network_sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
+    $network_sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM networks WHERE network_id = $network_id AND network_client_id = $client_id"
+    );
     while ($row = mysqli_fetch_array($network_sql)) {
         $response['network'][] = $row;
     }
@@ -165,8 +181,17 @@ if (isset($_POST['client_set_notes'])) {
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
-
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET 
+        log_type = 'Client',
+        log_action = 'Modify',
+        log_description = '$session_name modified client notes'
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_client_id = $client_id,
+        log_user_id = $session_user_id"
+    );
 }
 
 if (isset($_POST['contact_set_notes'])) {
@@ -177,7 +202,16 @@ if (isset($_POST['contact_set_notes'])) {
     mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Contact',
+        log_action = 'Modify',
+        log_description = '$session_name modified contact notes',
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id"
+    );
 
 }
 
@@ -201,7 +235,13 @@ if (isset($_POST['asset_set_notes'])) {
 if (isset($_GET['ticket_add_view'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
-    mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = $ticket_id, view_user_id = $session_user_id, view_timestamp = NOW()");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO ticket_views SET
+        view_ticket_id = $ticket_id,
+        view_user_id = $session_user_id,
+        view_timestamp = NOW()"
+    );
 }
 
 /*
@@ -212,7 +252,13 @@ if (isset($_GET['ticket_add_view'])) {
 if (isset($_GET['ticket_query_views'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
-    $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
+    $query = mysqli_query(
+        $mysqli,
+        "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id
+        WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(),
+        INTERVAL 2 MINUTE)"
+    );
+
     while ($row = mysqli_fetch_array($query)) {
         $users[] = $row['user_name'];
     }
@@ -292,7 +338,21 @@ if (isset($_GET['share_generate_link'])) {
     }
 
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires, item_client_id = $client_id");
+    $sql = mysqli_query(
+        $mysqli,
+        "INSERT INTO shared_items SET
+        item_active = 1,
+        item_key = '$item_key',
+        item_type = '$item_type',
+        item_related_id = $item_id,
+        item_encrypted_username = '$item_encrypted_username',
+        item_encrypted_credential = '$item_encrypted_credential',
+        item_note = '$item_note',
+        item_views = 0,
+        item_view_limit = $item_view_limit,
+        item_expire_at = NOW() + INTERVAL + $item_expires,
+        item_client_id = $client_id
+    ");
     $share_id = $mysqli->insert_id;
 
     // Return URL
