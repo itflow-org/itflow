@@ -22,15 +22,18 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
+                            <a class="nav-link active" data-toggle="pill"
+                                href="#pills-client-details<?php echo $client_id; ?>">Details</a>
                         </li>
                         <?php if ($config_module_enable_accounting) { ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
+                            <a class="nav-link" data-toggle="pill"
+                                href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
                         </li>
                         <?php } ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-client-more<?php echo $client_id; ?>">More</a>
+                            <a class="nav-link" data-toggle="pill"
+                                href="#pills-client-more<?php echo $client_id; ?>">More</a>
                         </li>
                     </ul>
 
@@ -72,17 +75,24 @@
                                         <option value="">N/A</option>
                                         <?php
 
-                                        $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND (category_archived_at > '$client_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                                        $referral_sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM categories
+                                            WHERE category_type = 'Referral'
+                                            AND (category_archived_at > '$client_created_at'
+                                            OR category_archived_at IS NULL)
+                                            ORDER BY category_name ASC"
+                                            );
                                         while ($row = mysqli_fetch_array($referral_sql)) {
                                             $referral = nullable_htmlentities($row['category_name']);
                                             ?>
-                                            <option <?php if ($client_referral == $referral) {
+                                        <option <?php if ($client_referral == $referral) {
                                                 echo "selected";
                                             } ?>>
-                                                <?php echo $referral; ?>
-                                            </option>
+                                            <?php echo $referral; ?>
+                                        </option>
 
-                                            <?php
+                                        <?php
                                         }
                                         ?>
                                     </select>
@@ -104,7 +114,7 @@
                                 <label>Is Lead <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <input type="checkbox" name="lead" value="1"<?php if ($client_is_lead == 1) {
+                                        <input type="checkbox" name="lead" value="1" <?php if ($client_is_lead == 1) {
                                             echo "checked";
                                         } ?>>
                                     </div>
@@ -115,7 +125,7 @@
 
                         <?php if ($config_module_enable_accounting) { ?>
 
-                        <div class="tab-pane fade" id="pills-client-billing<?php echo $client_id; ?>">     
+                        <div class="tab-pane fade" id="pills-client-billing<?php echo $client_id; ?>">
 
                             <div class="form-group">
                                 <label>Hourly Rate</label>
@@ -138,11 +148,11 @@
                                     <select class="form-control select2" name="currency_code" required>
                                         <option value="">- Currency -</option>
                                         <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
-                                            <option <?php if ($client_currency_code == $currency_code) {
+                                        <option <?php if ($client_currency_code == $currency_code) {
                                                 echo "selected";
                                             } ?> value="<?php echo $currency_code; ?>">
-                                                <?php echo "$currency_code - $currency_name"; ?>
-                                            </option>
+                                            <?php echo "$currency_code - $currency_name"; ?>
+                                        </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -157,11 +167,11 @@
                                     <select class="form-control select2" name="net_terms">
                                         <option value="">- Net Terms -</option>
                                         <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                            <option <?php if ($net_term_value == $client_net_terms) {
+                                        <option <?php if ($net_term_value == $client_net_terms) {
                                                 echo "selected";
                                             } ?> value="<?php echo $net_term_value; ?>">
-                                                <?php echo $net_term_name; ?>
-                                            </option>
+                                            <?php echo $net_term_name; ?>
+                                        </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -195,15 +205,23 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags"
+                                        multiple>
                                         <?php
 
-                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        $sql_tags_select = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC"
+                                        );
                                         while ($row = mysqli_fetch_array($sql_tags_select)) {
                                             $tag_id_select = intval($row['tag_id']);
                                             $tag_name_select = nullable_htmlentities($row['tag_name']);
                                             ?>
-                                            <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                        <option value="<?php echo $tag_id_select; ?>"
+                                            <?php if (in_array($tag_id_select, $client_tag_id_array)) {
+                                                echo "selected";
+                                                } ?>>
+                                            <?php echo $tag_name_select; ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -215,8 +233,10 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="edit_client" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="edit_client" class="btn btn-primary text-bold"><i
+                            class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
+                            class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

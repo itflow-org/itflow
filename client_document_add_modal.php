@@ -27,13 +27,20 @@
                             <select class="form-control" name="folder">
                                 <option value="0">/</option>
                                 <?php
-                                $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                                $sql_folders = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM folders
+                                    WHERE folder_location = $folder_location
+                                    AND folder_client_id = $client_id
+                                    ORDER BY folder_name ASC");
                                 while ($row = mysqli_fetch_array($sql_folders)) {
                                     $folder_id = intval($row['folder_id']);
                                     $folder_name = nullable_htmlentities($row['folder_name']);
 
                                     ?>
-                                    <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                                    <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) {
+                                        echo "selected";
+                                    } ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
                                     <?php
                                 }
                                 ?>
@@ -48,13 +55,18 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="description" placeholder="Short summary of the document">
+                            <input type="text" class="form-control" name="description"
+                                placeholder="Short summary of the document">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_document" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

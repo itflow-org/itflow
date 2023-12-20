@@ -30,12 +30,14 @@
                         <div class="tab-pane fade show active" id="pills-address">
 
                             <div class="form-group">
-                                <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
+                                <label>Location Name <strong class="text-danger">*</strong> / <span
+                                        class="text-secondary">Primary</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of location" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of location"
+                                        required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="location_primary" value="1">
@@ -70,7 +72,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province">
+                                    <input type="text" class="form-control" name="state"
+                                        placeholder="State or Province">
                                 </div>
                             </div>
 
@@ -93,7 +96,11 @@
                                     <select class="form-control select2" name="country">
                                         <option value="">- Country -</option>
                                         <?php foreach($countries_array as $country_name) { ?>
-                                            <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                                        <option
+                                            <?php if ($session_company_country == $country_name) {
+                                                echo "selected";
+                                                } ?>>
+                                            <?php echo $country_name; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -113,12 +120,17 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_contacts = mysqli_query(
+                                            $mysqli,
+                                            "SELECT * FROM contacts
+                                            WHERE contact_archived_at IS NULL
+                                            AND contact_client_id = $client_id
+                                            ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id = $row['contact_id'];
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                             ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                                        <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -141,12 +153,14 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="hours" placeholder="Hours of operation">
+                                    <input type="text" class="form-control" name="hours"
+                                        placeholder="Hours of operation">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="6" name="notes" placeholder="Enter some notes"></textarea>
+                                <textarea class="form-control" rows="6" name="notes"
+                                    placeholder="Enter some notes"></textarea>
                             </div>
 
                         </div>
@@ -163,8 +177,10 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_location" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_location" class="btn btn-primary text-bold"><i
+                            class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
+                            class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

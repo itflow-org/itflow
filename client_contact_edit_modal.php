@@ -173,7 +173,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="pin" placeholder="Security code or pin" value="<?php echo $contact_pin; ?>">
+                                    <input type="text" class="form-control" name="pin"
+                                        placeholder="Security code or pin" value="<?php echo $contact_pin; ?>">
                                 </div>
                             </div>
 
@@ -183,12 +184,18 @@
                                     <label>Login</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                                            <span class="input-group-text">
+                                                <i class="fa fa-fw fa-user-circle"></i>
+                                            </span>
                                         </div>
                                         <select class="form-control select2 authMethod" name="auth_method">
                                             <option value="">- None -</option>
-                                            <option value="local" <?php if ($auth_method == "local") {echo "selected";} ?>>Local</option>
-                                            <option value="azure" <?php if ($auth_method == "azure") {echo "selected";} ?>>Azure</option>
+                                            <option value="local" <?php if ($auth_method == "local") {
+                                                echo "selected";
+                                                } ?>>Local</option>
+                                            <option value="azure" <?php if ($auth_method == "azure") {
+                                                echo "selected";
+                                                } ?>>Azure</option>
                                         </select>
                                     </div>
                                 </div>
@@ -199,7 +206,9 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                         </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password" minlength="8">
+                                        <input type="password" class="form-control" data-toggle="password"
+                                            name="contact_password" placeholder="Leave blank for no change"
+                                                autocomplete="new-password" minlength="8">
                                         <div class="input-group-append">
                                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                         </div>

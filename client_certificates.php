@@ -11,10 +11,10 @@ require_once "inc_all_client.php";
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates 
-  WHERE certificate_archived_at IS NULL
-  AND certificate_client_id = $client_id 
-  AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
-  ORDER BY $sort $order LIMIT $record_from, $record_to");
+    WHERE certificate_archived_at IS NULL
+    AND certificate_client_id = $client_id 
+    AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
+    ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -25,10 +25,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-plus mr-2"></i>New Certificate</button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal">
+                    <i class="fas fa-plus mr-2"></i>New Certificate</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportCertificateModal">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal"
+                        data-target="#exportCertificateModal">
                         <i class="fa fa-fw fa-download mr-2"></i>Export
                     </a>
                 </div>
@@ -42,7 +45,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Certificates">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { 
+                            echo stripslashes(nullable_htmlentities($q));
+                            } ?>" placeholder="Search Certificates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -81,11 +86,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
                             </div>
                         </td>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_domain&order=<?php echo $disp; ?>">Domain</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_issued_by&order=<?php echo $disp; ?>">Issued By</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_expire&order=<?php echo $disp; ?>">Expire</a></th>
-                        <th class="text-center">Action</th>
+                        <?php
+                        $columns = [
+                            'certificate_name' => 'Name',
+                            'certificate_domain' => 'Domain',
+                            'certificate_issued_by' => 'Issued By',
+                            'certificate_expire' => 'Expire'
+                        ];
+
+                        foreach ($columns as $sortParam => $columnName) {
+                            echo "<th><a class='text-secondary' 
+                                href='?$url_query_strings_sort&sort=$sortParam&order=$disp'>$columnName</a></th>";
+                        }
+                        ?>
+                        <th class="text-center" id="CeritficatesTableAction">Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -103,11 +117,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
+                                    <input class="form-check-input" type="checkbox" name="certificate_ids[]"
+                                    value="<?php echo $certificate_id ?>">
                                 </div>
                             </td>
 
-                            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
+                            <td><a class="text-dark" href="#" data-toggle="modal" onclick="
+                                populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)"
+                                data-target="#editCertificateModal"><?php echo $certificate_name; ?>
+                            </a></td>
 
                             <td><?php echo $certificate_domain; ?></td>
 
@@ -121,16 +139,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                            onclick="populateCertificateEditModal(
+                                            <?php echo $client_id, ",", $certificate_id ?>)"
+                                            data-target="#editCertificateModal">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_certificate=<?php echo $certificate_id; ?>">
+                                            <a class="dropdown-item text-danger" 
+                                                href="post.php?archive_certificate=<?php echo $certificate_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold"
+                                                href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>

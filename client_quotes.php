@@ -15,7 +15,10 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM quotes
     LEFT JOIN categories ON category_id = quote_category_id
     WHERE quote_client_id = $client_id
-    AND (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%')
+    AND (CONCAT(quote_prefix,quote_number) LIKE '%$q%'
+    OR quote_scope LIKE '%$q%'
+    OR category_name LIKE '%$q%'
+    OR quote_status LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -23,58 +26,83 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-comment-dollar mr-2"></i>Quotes</h3>
-            <div class="card-tools">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i class="fas fa-plus mr-2"></i>New Quote</button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportQuoteModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
-                    </div>
-                </div>         
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-comment-dollar mr-2"></i>Quotes</h3>
+        <div class="card-tools">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i
+                        class="fas fa-plus mr-2"></i>New Quote</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportQuoteModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="card-body">
-            <form autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <div class="row">
+    </div>
+    <div class="card-body">
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <div class="row">
 
-                    <div class="col-md-4">
-                        <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Quotes">
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                            </div>
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                            placeholder="Search Quotes">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-
-                    <div class="col-md-8">
-                        <div class="float-right">
-                        </div>
-                    </div>
-
                 </div>
-            </form>
-            <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+
+                <div class="col-md-8">
+                    <div class="float-right">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_number&order=<?php echo $disp; ?>">Number</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_scope&order=<?php echo $disp; ?>">Scope</a></th>
-                        <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_date&order=<?php echo $disp; ?>">Date</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_expire&order=<?php echo $disp; ?>">Expire</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_status&order=<?php echo $disp; ?>">Status</a></th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_number&order=<?php echo $disp; ?>">Number</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_scope&order=<?php echo $disp; ?>">Scope</a>
+                        </th>
+                        <th class="text-right"><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_amount&order=<?php echo $disp; ?>">Amount</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_date&order=<?php echo $disp; ?>">Date</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_expire&order=<?php echo $disp; ?>">Expire</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=category_name&order=<?php echo $disp; ?>">Category</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=quote_status&order=<?php echo $disp; ?>">Status</a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
@@ -114,46 +142,56 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
 
-                        <tr>
-                            <td class="text-bold"><a href="quote.php?quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
-                            <td><?php echo $quote_scope_display; ?></td>
-                            <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
-                            <td><?php echo $quote_date; ?></td>
-                            <td><?php echo $quote_expire; ?></td>
-                            <td><?php echo $category_name; ?></td>
-                            <td>
-                                <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
-                                    <?php echo $quote_status; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateQuoteEditModal(<?php echo $quote_id ?>)" data-target="#editQuoteModal">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
-                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <?php if (!empty($config_smtp_host)) { ?>
-                                            <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                        <?php } ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>&client_id=<?php echo $client_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    </div>
+                    <tr>
+                        <td class="text-bold"><a
+                                href="quote.php?quote_id=<?php echo $quote_id; ?>">
+                                <?php echo "$quote_prefix$quote_number"; ?></a>
+                        </td>
+                        <td><?php echo $quote_scope_display; ?></td>
+                        <td class="text-right text-bold">
+                            <?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?>
+                        </td>
+                        <td><?php echo $quote_date; ?></td>
+                        <td><?php echo $quote_expire; ?></td>
+                        <td><?php echo $category_name; ?></td>
+                        <td>
+                            <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
+                                <?php echo $quote_status; ?>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        onclick="populateQuoteEditModal(<?php echo $quote_id ?>)"
+                                        data-target="#editQuoteModal">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                        <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <?php if (!empty($config_smtp_host)) { ?>
+                                    <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <?php } ?>
+                                    <a class="dropdown-item text-danger text-bold confirm-link"
+                                        href="post.php?delete_quote=<?php echo $quote_id; ?>
+                                        &client_id=<?php echo $client_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
+                    <?php
 
                         require "quote_copy_modal.php";
 
@@ -161,13 +199,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "pagination.php";
- ?>
+                </tbody>
+            </table>
         </div>
+        <?php require_once "pagination.php"; ?>
     </div>
+</div>
 
 <?php
 require_once "quote_add_modal.php";
@@ -177,4 +214,3 @@ require_once "quote_edit_modal.php";
 require_once "client_quote_export_modal.php";
 
 require_once "footer.php";
-

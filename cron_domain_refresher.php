@@ -41,7 +41,10 @@ if ( $argv[1] !== $config_cron_key ) {
 // END ERROR
 // REFRESH DOMAIN WHOIS DATA (1 a day)
 //  Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
-$row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name FROM `domains` ORDER BY domain_updated_at LIMIT 1"));
+$row = mysqli_fetch_array(mysqli_query(
+    $mysqli,
+    "SELECT domain_id, domain_name FROM `domains`
+    ORDER BY domain_updated_at LIMIT 1"));
 
 if ($row) {
     $domain_id = intval($row['domain_id']);
@@ -64,7 +67,16 @@ if ($row) {
     }
 
     // Update the domain
-    mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    mysqli_query(
+        $mysqli,
+        "UPDATE domains SET
+        domain_name = '$domain_name',
+        domain_expire = '$expire',
+        domain_ip = '$a',
+        domain_name_servers = '$ns',
+        domain_mail_servers = '$mx',
+        domain_txt = '$txt',
+        domain_raw_whois = '$whois'
+        WHERE domain_id = $domain_id");
 }
 
-// TODO: Re-add the cert refresher

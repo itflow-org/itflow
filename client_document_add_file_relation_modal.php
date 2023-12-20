@@ -2,7 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-paperclip mr-2"></i>Associate File to <strong><?php echo $document_name; ?></strong></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-paperclip mr-2"></i>
+                    Associate File to <strong><?php echo $document_name; ?></strong>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -20,7 +23,7 @@
                             <select class="form-control select2" name="file_id">
                                 <option value="">- Select a File -</option>
                                 <?php
-                                $sql_files_select = mysqli_query($mysqli, "SELECT * FROM files 
+                                $sql_files_select = mysqli_query($mysqli, "SELECT * FROM files
                                     LEFT JOIN folders ON folder_id = file_folder_id
                                     WHERE file_client_id = $client_id ORDER BY folder_name ASC, file_name ASC");
                                 while ($row = mysqli_fetch_array($sql_files_select)) {
@@ -29,7 +32,9 @@
                                     $folder_name = nullable_htmlentities($row['folder_name']);
 
                                     ?>
-                                    <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>
+                                    <option value="<?php echo $file_id ?>">
+                                        <?php echo "$folder_name/$file_name"; ?>
+                                    </option>
                                     <?php
                                 }
                                 ?>
@@ -39,8 +44,12 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="associate_file_to_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Associate</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="associate_file_to_document" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Associate
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

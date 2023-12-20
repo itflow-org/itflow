@@ -12,12 +12,16 @@
                 <div class="modal-body bg-white">
 
                     <?php require_once "inc_export_warning.php";
- ?>
+?>
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="export_client_domains_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="export_client_domains_csv" class="btn btn-primary text-bold">
+                        <i class="fas fa-fw fa-download mr-2"></i>Download CSV
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

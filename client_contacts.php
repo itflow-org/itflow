@@ -13,8 +13,15 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM contacts 
     LEFT JOIN locations ON location_id = contact_location_id
     WHERE contact_$archive_query
-    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%')
-    AND contact_client_id = $client_id 
+    AND (contact_name LIKE '%$q%'
+    OR contact_title LIKE '%$q%'
+    OR location_name LIKE '%$q%'
+    OR contact_email LIKE '%$q%'
+    OR contact_department LIKE '%$q%'
+    OR contact_phone LIKE '%$phone_query%'
+    OR contact_extension LIKE '%$q%'
+    OR contact_mobile LIKE '%$phone_query%')
+    AND contact_client_id = $client_id
     ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 

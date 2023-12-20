@@ -17,7 +17,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Certificate name" required autofocus>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="Certificate name" required autofocus>
                         </div>
                     </div>
 
@@ -27,9 +28,11 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
                             </div>
-                            <input type="text" class="form-control" name="domain" id="domain" placeholder="FQDN" required>
+                            <input type="text" class="form-control" name="domain"
+                                id="domain" placeholder="FQDN" required>
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" onclick="fetchSSL('new')"><i class="fas fa-fw fa-sync-alt"></i></button>
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="fetchSSL('new')"><i class="fas fa-fw fa-sync-alt"></i></button>
                             </div>
                         </div>
                     </div>
@@ -40,7 +43,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="issued_by" id="issuedBy" placeholder="Issued By">
+                            <input type="text" class="form-control" name="issued_by" id="issuedBy"
+                                placeholder="Issued By">
                         </div>
                     </div>
 
@@ -60,7 +64,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                             </div>
-                            <textarea class="form-control" name="public_key" id="publicKey" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                            <textarea class="form-control" name="public_key" id="publicKey"
+                                placeholder="-----BEGIN CERTIFICATE-----"></textarea>
                         </div>
                     </div>
 
@@ -73,7 +78,12 @@
                             <select class="form-control select2" name="domain_id">
                                 <option value="">- Domain -</option>
                                 <?php
-                                $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
+                                $domains_sql = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM domains
+                                    WHERE domain_archived_at IS NULL AND domain_client_id = $client_id
+                                    ORDER BY domain_name ASC"
+                                    );
                                 while ($domain_row = mysqli_fetch_array($domains_sql)) {
                                     $domain_id = intval($domain_row['domain_id']);
                                     $domain_name = nullable_htmlentities($domain_row['domain_name']);
@@ -86,8 +96,12 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_certificate" class="btn btn-primary text-bold"><i class="fa fa-check"></i> Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_certificate" class="btn btn-primary text-bold">
+                        <i class="fa fa-check"></i> Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

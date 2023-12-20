@@ -22,39 +22,42 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Services</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i class="fas fa-plus mr-2"></i>New Service</button>
-            </div>
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Services</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i
+                    class="fas fa-plus mr-2"></i>New Service</button>
         </div>
+    </div>
 
-        <div class="card-body">
+    <div class="card-body">
 
-            <form autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Services">
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-8">
-                        <div class="float-right">
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                            placeholder="Search Services">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>
-            </form>
-            <hr>
 
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <div class="col-md-8">
+                    <div class="float-right">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <hr>
+
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark">Name</a></th>
                         <th><a class="text-dark">Category</a></th>
@@ -62,8 +65,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark">Importance</a></th>
                         <th class="text-center">Action</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
@@ -79,46 +82,53 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Service Importance
                         if ($service_importance == "High") {
-                            $service_importance_display = "<span class='p-2 badge badge-danger'>$service_importance</span>";
+                            $service_importance_display = "
+                            <span class='p-2 badge badge-danger'>$service_importance</span>";
                         } elseif ($service_importance == "Medium") {
-                            $service_importance_display = "<span class='p-2 badge badge-warning'>$service_importance</span>";
+                            $service_importance_display = "
+                            <span class='p-2 badge badge-warning'>$service_importance</span>";
                         } elseif ($service_importance == "Low") {
-                            $service_importance_display = "<span class='p-2 badge badge-info'>$service_importance</span>";
+                            $service_importance_display = "
+                            <span class='p-2 badge badge-info'>$service_importance</span>";
                         } else {
                             $service_importance_display = "-";
                         }
 
                         ?>
 
-                        <tr>
-                            <!-- Name/Category/Updated/Importance from DB -->
-                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
-                            <td><?php echo $service_category ?></td>
-                            <td><?php echo $service_updated_at ?></td>
-                            <td><?php echo $service_importance ?></td>
+                    <tr>
+                        <!-- Name/Category/Updated/Importance from DB -->
+                        <td class="text-bold"><a href="#" data-toggle="modal"
+                                data-target="#viewServiceModal<?php echo $service_id; ?>">
+                                <?php echo $service_name ?></a></td>
+                        <td><?php echo $service_category ?></td>
+                        <td><?php echo $service_updated_at ?></td>
+                        <td><?php echo $service_importance ?></td>
 
-                            <!-- Action -->
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?php echo $service_id; ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                        <?php } ?>
-                                    </div>
+                        <!-- Action -->
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        data-target="#editServiceModal<?php echo $service_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link"
+                                        href="post.php?delete_service=<?php echo $service_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
+                                    <?php } ?>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
+                    <?php
 
                         // Associated Assets (and their logins/networks/locations)
                         $sql_assets = mysqli_query(
@@ -190,16 +200,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once 'pagination.php';
- ?>
+                </tbody>
+            </table>
         </div>
+        <?php require_once 'pagination.php';
+ ?>
     </div>
+</div>
 
 <?php
 require_once "client_service_add_modal.php";
 
 require_once "footer.php";
-

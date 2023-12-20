@@ -2,7 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold" id="editHeader"></span></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-globe mr-2"></i>
+                    Editing domain: <span class="text-bold" id="editHeader"></span>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -33,7 +36,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" id="editDomainName" placeholder="Domain name example.com" value="" required>
+                                    <input type="text" class="form-control" name="name" id="editDomainName"
+                                        placeholder="Domain name example.com" value="" required>
                                 </div>
                             </div>
 
@@ -65,7 +69,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                                     </div>
-                                    <input type="date" class="form-control" id="editExpire" name="expire" max="2999-12-31">
+                                    <input type="date" class="form-control" id="editExpire"
+                                        name="expire" max="2999-12-31">
                                 </div>
                             </div>
 
@@ -77,9 +82,12 @@
                                 <label>Domain IP(s)</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                                        <span class="input-group-text">
+                                            <i class="fa fa-fw fa-project-diagram">
+                                            </i></span>
                                     </div>
-                                    <textarea class="form-control" id="editDomainIP" name="domain_ip" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editDomainIP" name="domain_ip"
+                                        rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -89,7 +97,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editNameServers" name="name_servers" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editNameServers"
+                                        name="name_servers" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -99,7 +108,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editMailServers" name="mail_servers" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editMailServers"
+                                        name="mail_servers" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -109,7 +119,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editTxtRecords" name="txt_records" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editTxtRecords"
+                                        name="txt_records" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -119,7 +130,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editRawWhois" name="raw_whois" rows="6" disabled></textarea>
+                                    <textarea class="form-control" id="editRawWhois"
+                                        name="raw_whois" rows="6" disabled></textarea>
                                 </div>
                             </div>
 
@@ -129,8 +141,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="edit_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="edit_domain" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Save
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

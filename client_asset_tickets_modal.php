@@ -2,7 +2,9 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> <?php echo $asset_name; ?></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> <?php echo $asset_name; ?>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -22,12 +24,16 @@
                     ?>
                     <p>
                         <i class="fas fa-fw fa-ticket-alt"></i>
-                        Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number" ?></a> on <?php echo $ticket_created_at; ?> <?php echo $ticket_subject; ?>
+                        Ticket: <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                        <?php echo "$ticket_prefix$ticket_number" ?></a> on <?php echo $ticket_created_at; ?> 
+                        <?php echo $ticket_subject; ?>
                     </p>
                 <?php } ?>
             </div>
             <div class="modal-footer bg-white">
-                <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
             </div>
 
         </div>

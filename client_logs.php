@@ -14,7 +14,12 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM logs
     LEFT JOIN users ON log_user_id = user_id
-    WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%')
+    WHERE (log_type LIKE '%$q%'
+    OR log_action LIKE '%$q%'
+    OR log_description LIKE '%$q%'
+    OR log_ip LIKE '%$q%'
+    OR log_user_agent LIKE '%$q%'
+    OR user_name LIKE '%$q%')
     AND log_client_id = $client_id
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -35,7 +40,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Logs">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                            placeholder="Search Logs">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -51,19 +58,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm border">
             <table class="table table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_created_at&order=<?php echo $disp; ?>">Timestamp</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">User</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_type&order=<?php echo $disp; ?>">Type</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_action&order=<?php echo $disp; ?>">Action</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_description&order=<?php echo $disp; ?>">Description</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_ip&order=<?php echo $disp; ?>">IP Address</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_user_agent&order=<?php echo $disp; ?>">User Agent</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_entity_id&order=<?php echo $disp; ?>">Entity ID</a></th>
-                </tr>
+                    <tr>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_created_at&order=<?php echo $disp; ?>">Timestamp</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=user_name&order=<?php echo $disp; ?>">User</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_type&order=<?php echo $disp; ?>">Type</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_action&order=<?php echo $disp; ?>">Action</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_description&order=<?php echo $disp; ?>">Description</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_ip&order=<?php echo $disp; ?>">IP
+                                Address</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_user_agent&order=<?php echo $disp; ?>">User
+                                Agent</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>
+                                &sort=log_entity_id&order=<?php echo $disp; ?>">Entity
+                                ID</a></th>
+                    </tr>
                 </thead>
                 <tbody>
-                <?php
+                    <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $log_id = intval($row['log_id']);
@@ -111,4 +142,3 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "footer.php";
-

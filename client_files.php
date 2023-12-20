@@ -57,16 +57,17 @@ $num_of_files = mysqli_num_rows($sql);
 ?>
 
 <div class="card card-dark">
-    
+
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip mr-2"></i>Files</h3>
-        
+
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFilesModal">
                     <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
                         <i class="fa fa-fw fa-folder-plus mr-2"></i>Create Folder
@@ -75,7 +76,7 @@ $num_of_files = mysqli_num_rows($sql);
             </div>
         </div>
     </div>
-    
+
     <div class="card-body">
         <div class="row">
             <div class="col-md-3 border-right mb-3">
@@ -83,55 +84,73 @@ $num_of_files = mysqli_num_rows($sql);
                 <hr>
                 <ul class="nav nav-pills flex-column bg-light">
                     <li class="nav-item">
-                        <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
+                        <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>"
+                            href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
                     </li>
                     <?php
-                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                    $sql_folders = mysqli_query(
+                        $mysqli,
+                        "SELECT * FROM folders
+                        WHERE folder_location = $folder_location AND folder_client_id = $client_id
+                        ORDER BY folder_name ASC"
+                        );
                     while ($row = mysqli_fetch_array($sql_folders)) {
                         $folder_id = intval($row['folder_id']);
                         $folder_name = nullable_htmlentities($row['folder_name']);
 
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_archived_at IS NULL AND file_folder_id = $folder_id"));
+                        $row = mysqli_fetch_assoc(mysqli_query(
+                            $mysqli,
+                            "SELECT COUNT('file_id') AS num FROM files
+                            WHERE file_archived_at IS NULL AND file_folder_id = $folder_id"
+                            ));
                         $num_files = intval($row['num']);
 
                         ?>
 
-                        <li class="nav-item">
-                            <div class="row">
-                                <div class="col-10">
-                                    <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>&view=<?php echo $view; ?>">
-                                        <?php
+                    <li class="nav-item">
+                        <div class="row">
+                            <div class="col-10">
+                                <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> "
+                                    href="?client_id=<?php echo $client_id; ?>&
+                                    folder_id=<?php echo $folder_id; ?>&view=<?php echo $view; ?>">
+                                    <?php
                                         if ($get_folder_id == $folder_id) { ?>
-                                            <i class="fas fa-fw fa-folder-open"></i>
-                                        <?php } else { ?>
-                                            <i class="fas fa-fw fa-folder"></i>
-                                        <?php } ?>
+                                    <i class="fas fa-fw fa-folder-open"></i>
+                                    <?php } else { ?>
+                                    <i class="fas fa-fw fa-folder"></i>
+                                    <?php } ?>
 
-                                        <?php echo $folder_name; ?> <?php if ($num_files > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_files</span>"; } ?>
-                                    </a>
-                                </div>
-                                <div class="col-2">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Rename
-                                            </a>
-                                            <?php if ($session_user_role == 3 && $num_files == 0) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                </a>
-                                            <?php } ?>
-                                        </div>
+                                    <?php echo $folder_name; ?>
+                                    <?php if ($num_files > 0) {
+                                        echo "<span class='badge badge-pill badge-dark
+                                        float-right mt-1'>$num_files</span>";
+                                        } ?>
+                                </a>
+                            </div>
+                            <div class="col-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                            data-target="#renameFolderModal<?php echo $folder_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Rename
+                                        </a>
+                                        <?php if ($session_user_role == 3 && $num_files == 0) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link"
+                                            href="post.php?delete_folder=<?php echo $folder_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
+                                        <?php } ?>
                                     </div>
                                 </div>
                             </div>
-                        </li>
+                        </div>
+                    </li>
 
-                        <?php
+                    <?php
                         require "folder_rename_modal.php";
 
 
@@ -143,14 +162,16 @@ $num_of_files = mysqli_num_rows($sql);
             </div>
 
             <div class="col-md-9">
-        
+
                 <form autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <input type="hidden" name="view" value="<?php echo $view; ?>">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="input-group mb-3 mb-md-0">
-                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Files">
+                                <input type="search" class="form-control" name="q"
+                                    value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                                    placeholder="Search Files">
                                 <div class="input-group-append">
                                     <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                                 </div>
@@ -158,13 +179,25 @@ $num_of_files = mysqli_num_rows($sql);
                         </div>
                         <div class="col-md-8">
                             <div class="float-right">
-                                <a href="?<?php echo $url_query_strings_sort; ?>&view=0" class="btn <?php if($view == 0){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-list-ul"></i></a>
-                                <a href="?<?php echo $url_query_strings_sort; ?>&view=1" class="btn <?php if($view == 1){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-th-large"></i></a>
+                                <a href="?<?php echo $url_query_strings_sort; ?>&view=0"
+                                    class="btn <?php if($view == 0){
+                                        echo "btn-primary";
+                                        } else {
+                                            echo "btn-outline-secondary";
+                                            } ?>"><i
+                                        class="fas fa-list-ul"></i></a>
+                                <a href="?<?php echo $url_query_strings_sort; ?>&view=1"
+                                    class="btn <?php if($view == 1){
+                                        echo "btn-primary";
+                                        } else {
+                                            echo "btn-outline-secondary";
+                                            } ?>"><i
+                                        class="fas fa-th-large"></i></a>
                             </div>
                         </div>
                     </div>
                 </form>
-                
+
                 <hr>
 
                 <?php
@@ -188,23 +221,31 @@ $num_of_files = mysqli_num_rows($sql);
 
                         ?>
 
-                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                            <div class="card">
-                                <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">
-                                    <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
-                                </a>
-                                <div class="card-footer bg-dark text-white p-1" style="text-align: center;">
-                                    <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
-                                    <a href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)" class="text-white float-left ml-1"><i class="fa fa-share"></i></a>
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                        <div class="card">
+                            <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">
+                                <img class="img-fluid"
+                                    src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>"
+                                    alt="<?php echo $file_reference_name ?>">
+                            </a>
+                            <div class="card-footer bg-dark text-white p-1" style="text-align: center;">
+                                <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>"
+                                    download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i
+                                        class="fa fa-cloud-download-alt"></i></a>
+                                <a href="#" data-toggle="modal" data-target="#shareModal"
+                                    onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)"
+                                    class="text-white float-left ml-1"><i class="fa fa-share"></i></a>
 
-                                    <small><?php echo $file_name; ?></small>
+                                <small><?php echo $file_name; ?></small>
 
-                                    <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
-                                </div>
+                                <a href="#" data-toggle="modal" data-target="#deleteFileModal"
+                                    onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)"
+                                    class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
                             </div>
                         </div>
+                    </div>
 
-                        <?php
+                    <?php
                         require "client_file_view_modal.php";
 
                     }
@@ -215,18 +256,24 @@ $num_of_files = mysqli_num_rows($sql);
 
                 <div class="table-responsive-sm">
                     <table class="table border">
-                        
+
                         <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                        <tr>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_name&order=<?php echo $disp; ?>">Name</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_created_at&order=<?php echo $disp; ?>">Uploaded</a></th>
-                            <th class="text-center">Action</th>
-                        </tr>
+                            <tr>
+                                <th><a class="text-secondary"
+                                        href="?<?php echo $url_query_strings_sort; ?>&
+                                        sort=file_name&order=<?php echo $disp; ?>">Name</a>
+                                </th>
+                                <th><a class="text-secondary"
+                                        href="?<?php echo $url_query_strings_sort; ?>&
+                                        sort=file_created_at&order=<?php echo $disp; ?>">Uploaded</a>
+                                </th>
+                                <th class="text-center">Action</th>
+                            </tr>
                         </thead>
-                        
+
                         <tbody>
 
-                        <?php
+                            <?php
                         while ($row = mysqli_fetch_array($sql)) {
                             $file_id = intval($row['file_id']);
                             $file_name = nullable_htmlentities($row['file_name']);
@@ -234,7 +281,13 @@ $num_of_files = mysqli_num_rows($sql);
                             $file_ext = nullable_htmlentities($row['file_ext']);
                             if ($file_ext == 'pdf') {
                                 $file_icon = "file-pdf";
-                            } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
+                            } elseif (
+                                $file_ext == 'gz' ||
+                                $file_ext == 'tar' ||
+                                $file_ext == 'zip' ||
+                                $file_ext == '7z' ||
+                                $file_ext == 'rar') {
+
                                 $file_icon = "file-archive";
                             } elseif ($file_ext == 'txt' || $file_ext == 'md') {
                                 $file_icon = "file-alt";
@@ -250,7 +303,14 @@ $num_of_files = mysqli_num_rows($sql);
                                 $file_icon = "file-audio";
                             } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
                                 $file_icon = "file-video";
-                            } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
+                            } elseif (
+                                $file_ext == 'jpg' ||
+                                $file_ext == 'jpeg' ||
+                                $file_ext == 'png' ||
+                                $file_ext == 'gif' ||
+                                $file_ext == 'webp' ||
+                                $file_ext == 'bmp' ||
+                                $file_ext == 'tif') {
                                 $file_icon = "file-image";
                             } else {
                                 $file_icon = "file";
@@ -259,7 +319,10 @@ $num_of_files = mysqli_num_rows($sql);
                             ?>
 
                             <tr>
-                                <td><a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
+                                <td><a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>"
+                                        target="_blank" class="text-secondary"><i
+                                            class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i>
+                                        <?php echo basename($file_name); ?></a></td>
                                 <td><?php echo $file_created_at; ?></td>
                                 <td>
                                     <div class="dropdown dropleft text-center">
@@ -267,24 +330,35 @@ $num_of_files = mysqli_num_rows($sql);
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                            <a class="dropdown-item"
+                                                href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>"
+                                                download="<?php echo $file_name; ?>">
                                                 <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                data-target="#shareModal"
+                                                onclick="populateShareModal(
+                                                    <?php echo "$client_id, 'File', $file_id"; ?>)">
                                                 <i class="fas fa-fw fa-share mr-2"></i>Share
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFileModal<?php echo $file_id; ?>">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                data-target="#renameFileModal<?php echo $file_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveFileModal<?php echo $file_id; ?>">
+                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                data-target="#moveFileModal<?php echo $file_id; ?>">
                                                 <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link"
+                                                href="post.php?archive_file=<?php echo $file_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
+                                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal"
+                                                data-target="#deleteFileModal"
+                                                onclick="populateFileDeleteModal(
+                                                    <?php echo "$file_id , '$file_name'" ?>)">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         </div>
@@ -302,7 +376,7 @@ $num_of_files = mysqli_num_rows($sql);
 
                     </table>
                 </div>
-                
+
 
                 <?php } ?>
 
@@ -322,5 +396,3 @@ require_once "share_modal.php";
 require_once "client_file_delete_modal.php";
 
 require_once "footer.php";
-
-

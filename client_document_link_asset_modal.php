@@ -2,7 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Link Asset to <strong><?php echo $document_name; ?></strong></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-desktop mr-2"></i>
+                    Link Asset to <strong><?php echo $document_name; ?></strong>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -49,8 +52,12 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="link_asset_to_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Link</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="link_asset_to_document" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Link
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

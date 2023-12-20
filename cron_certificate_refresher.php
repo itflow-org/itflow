@@ -54,6 +54,11 @@ while ($row = mysqli_fetch_array($sql_certificates)) {
     echo "$expire\n";
     echo "$public_key\n\n";
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
-
+    mysqli_query(
+        $mysqli,
+        "UPDATE certificates SET
+        certificate_issued_by = '$issued_by',
+        certificate_expire = $expire,
+        certificate_public_key = '$public_key'
+        WHERE certificate_id = $certificate_id");
 }

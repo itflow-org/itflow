@@ -9,7 +9,7 @@
             </div>
 
             <div style="text-align: center;">
-                <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>">
+                <img class="img-fluid" alt="image" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>">
             </div>
 
         </div>

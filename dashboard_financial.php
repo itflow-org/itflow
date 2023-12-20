@@ -129,9 +129,9 @@ $vendors_added = intval($row['vendors_added']);
                 $year_select = date('Y');
             }
             ?>
-            <option <?php if ($year == $year_select) { echo "selected"; } ?> > <?php echo $year_select; ?></option>
+        <option <?php if ($year == $year_select) { echo "selected"; } ?>> <?php echo $year_select; ?></option>
 
-            <?php
+        <?php
         }
         ?>
 
@@ -142,12 +142,16 @@ $vendors_added = intval($row['vendors_added']);
 <div class="row">
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-primary"
+            href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
-                <h3><?php echo numfmt_format_currency($currency_format, $total_income, "$session_company_currency"); ?></h3>
+                <h3><?php echo numfmt_format_currency($currency_format, $total_income, "$session_company_currency"); ?>
+                </h3>
                 <p>Income</p>
                 <hr>
-                <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></h3></small>
+                <small>Receivables:
+                    <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?>
+                    </h3></small>
             </div>
             <div class="icon">
                 <i class="fa fa-money-check"></i>
@@ -158,9 +162,11 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-danger"
+            href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
-                <h3><?php echo numfmt_format_currency($currency_format, $total_expenses, "$session_company_currency"); ?></h3>
+                <h3><?php echo numfmt_format_currency($currency_format, $total_expenses, "$session_company_currency"); ?>
+                </h3>
                 <p>Expenses</p>
             </div>
             <div class="icon">
@@ -188,7 +194,8 @@ $vendors_added = intval($row['vendors_added']);
         <!-- small box -->
         <a class="small-box bg-info" href="report_recurring_by_client.php">
             <div class="inner">
-                <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?></h3>
+                <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?>
+                </h3>
                 <p>Monthly Recurring Income</p>
             </div>
             <div class="icon">
@@ -202,7 +209,8 @@ $vendors_added = intval($row['vendors_added']);
         <!-- small box -->
         <a class="small-box bg-pink" href="report_expense_by_vendor.php">
             <div class="inner">
-                <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?></h3>
+                <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?>
+                </h3>
                 <p>Monthly Recurring Expense</p>
             </div>
             <div class="icon">
@@ -214,7 +222,8 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-secondary"
+            href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
                 <h3><?php echo $recurring_invoices_added; ?></h3>
                 <p>Recurring Invoices Added</p>
@@ -228,7 +237,8 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-6">
         <!-- small box -->
-        <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-secondary"
+            href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
                 <h3><?php echo $clients_added; ?></h3>
                 <p>New Clients</p>
@@ -242,7 +252,8 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-6">
         <!-- small box -->
-        <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-secondary"
+            href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
                 <h3><?php echo $vendors_added; ?></h3>
                 <p>New Vendors</p>
@@ -256,7 +267,8 @@ $vendors_added = intval($row['vendors_added']);
 
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
-        <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+        <a class="small-box bg-secondary"
+            href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
             <div class="inner">
                 <h3><?php echo number_format($total_miles, 2); ?></h3>
                 <p>Miles Traveled</p>
@@ -290,7 +302,8 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category <small>(Top 5)</small></h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category <small>(Top
+                        5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -306,7 +319,8 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category <small>(Top 5)</small></h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category <small>(Top
+                        5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -322,7 +336,8 @@ $vendors_added = intval($row['vendors_added']);
     <div class="col-lg-4">
         <div class="card card-dark mb-3">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
+                <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor <small>(Top
+                        5)</small></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="remove">
                         <i class="fas fa-times"></i>
@@ -348,7 +363,7 @@ $vendors_added = intval($row['vendors_added']);
             <div class="table-responsive">
                 <table class="table">
                     <tbody>
-                    <?php
+                        <?php
                     while ($row = mysqli_fetch_array($sql_accounts)) {
                         $account_id = intval($row['account_id']);
                         $account_name = nullable_htmlentities($row['account_name']);
@@ -376,7 +391,9 @@ $vendors_added = intval($row['vendors_added']);
                                 $balance = '0.00';
                             }
                             ?>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
+                            <td class="text-right">
+                                <?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?>
+                            </td>
                         </tr>
                         <?php
                     }
@@ -400,15 +417,15 @@ $vendors_added = intval($row['vendors_added']);
             <div class="table-responsive">
                 <table class="table table-borderless table-sm">
                     <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Invoice</th>
-                        <th class="text-right">Amount</th>
-                    </tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Invoice</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <?php
+                        <?php
                     while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
                         $payment_date = nullable_htmlentities($row['payment_date']);
                         $payment_amount = floatval($row['payment_amount']);
@@ -420,7 +437,9 @@ $vendors_added = intval($row['vendors_added']);
                             <td><?php echo $payment_date; ?></td>
                             <td><?php echo $client_name; ?></td>
                             <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
+                            <td class="text-right">
+                                <?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?>
+                            </td>
                         </tr>
                         <?php
                     }
@@ -443,15 +462,15 @@ $vendors_added = intval($row['vendors_added']);
             <div class="table-responsive">
                 <table class="table table-sm table-borderless">
                     <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Vendor</th>
-                        <th>Category</th>
-                        <th class="text-right">Amount</th>
-                    </tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Category</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <?php
+                        <?php
                     while ($row = mysqli_fetch_array($sql_latest_expenses)) {
                         $expense_date = nullable_htmlentities($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
@@ -463,7 +482,9 @@ $vendors_added = intval($row['vendors_added']);
                             <td><?php echo $expense_date; ?></td>
                             <td><?php echo $vendor_name; ?></td>
                             <td><?php echo $category_name; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
+                            <td class="text-right">
+                                <?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?>
+                            </td>
                         </tr>
                         <?php
                     }
@@ -497,17 +518,18 @@ $vendors_added = intval($row['vendors_added']);
  ?>
 
 <script>
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Area Chart Example
-    var ctx = document.getElementById("cashFlow");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
+// Area Chart Example
+var ctx = document.getElementById("cashFlow");
+var myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
                 label: "Income",
                 fill: false,
                 borderColor: "#007bff",
@@ -546,18 +568,18 @@ $vendors_added = intval($row['vendors_added']);
 
                 ],
             },
-                {
-                    label: "LY Income",
-                    fill: false,
-                    borderColor: "#9932CC",
-                    pointBackgroundColor: "#9932CC",
-                    pointBorderColor: "#9932CC",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#9932CC",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
+            {
+                label: "LY Income",
+                fill: false,
+                borderColor: "#9932CC",
+                pointBackgroundColor: "#9932CC",
+                pointBorderColor: "#9932CC",
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "#9932CC",
+                pointHitRadius: 50,
+                pointBorderWidth: 2,
+                data: [
+                    <?php
                         for($month = 1; $month<=12; $month++) {
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month");
                         $row = mysqli_fetch_array($sql_payments);
@@ -575,28 +597,28 @@ $vendors_added = intval($row['vendors_added']);
 
 
                         ?>
-                        <?php echo "$income_for_month,"; ?>
+                    <?php echo "$income_for_month,"; ?>
 
-                        <?php
+                    <?php
 
                         }
 
                         ?>
 
-                    ],
-                },
-                {
-                    label: "Projected",
-                    fill: false,
-                    borderColor: "black",
-                    pointBackgroundColor: "black",
-                    pointBorderColor: "black",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "black",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
+                ],
+            },
+            {
+                label: "Projected",
+                fill: false,
+                borderColor: "black",
+                pointBackgroundColor: "black",
+                pointBorderColor: "black",
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "black",
+                pointHitRadius: 50,
+                pointBorderWidth: 2,
+                data: [
+                    <?php
 
                         $largest_invoice_month = 0;
 
@@ -610,29 +632,29 @@ $vendors_added = intval($row['vendors_added']);
                         }
 
                         ?>
-                        <?php echo "$invoice_for_month,"; ?>
+                    <?php echo "$invoice_for_month,"; ?>
 
-                        <?php
+                    <?php
 
                         }
 
                         ?>
 
-                    ],
-                },
-                {
-                    label: "Expense",
-                    lineTension: 0.3,
-                    fill: false,
-                    borderColor: "#dc3545",
-                    pointBackgroundColor: "#dc3545",
-                    pointBorderColor: "#dc3545",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#dc3545",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
+                ],
+            },
+            {
+                label: "Expense",
+                lineTension: 0.3,
+                fill: false,
+                borderColor: "#dc3545",
+                pointBackgroundColor: "#dc3545",
+                pointBorderColor: "#dc3545",
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "#dc3545",
+                pointHitRadius: 50,
+                pointBorderWidth: 2,
+                data: [
+                    <?php
 
                         $largest_expense_month = 0;
 
@@ -647,71 +669,73 @@ $vendors_added = intval($row['vendors_added']);
 
 
                         ?>
-                        <?php echo "$expenses_for_month,"; ?>
+                    <?php echo "$expenses_for_month,"; ?>
 
-                        <?php
+                    <?php
 
                         }
 
                         ?>
 
-                    ],
-                }],
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
-                    },
-                    gridLines: {
-                        display: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 12
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
-                        maxTicksLimit: 5
-                    },
-                    gridLines: {
-                        color: "rgba(0, 0, 0, .125)",
-                    }
-                }],
-            },
-            legend: {
-                display: true
+                ],
             }
+        ],
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false
+                },
+                ticks: {
+                    maxTicksLimit: 12
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
+                    maxTicksLimit: 5
+                },
+                gridLines: {
+                    color: "rgba(0, 0, 0, .125)",
+                }
+            }],
+        },
+        legend: {
+            display: true
         }
-    });
+    }
+});
 
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Area Chart Example
-    var ctx = document.getElementById("tripFlow");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
-                label: "Trip",
-                lineTension: 0.3,
-                backgroundColor: "red",
-                borderColor: "darkred",
-                pointRadius: 5,
-                pointBackgroundColor: "red",
-                pointBorderColor: "red",
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: "darkred",
-                pointHitRadius: 50,
-                pointBorderWidth: 2,
-                data: [
-                    <?php
+// Area Chart Example
+var ctx = document.getElementById("tripFlow");
+var myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
+            label: "Trip",
+            lineTension: 0.3,
+            backgroundColor: "red",
+            borderColor: "darkred",
+            pointRadius: 5,
+            pointBackgroundColor: "red",
+            pointBorderColor: "red",
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "darkred",
+            pointHitRadius: 50,
+            pointBorderWidth: 2,
+            data: [
+                <?php
                     for($month = 1; $month<=12; $month++) {
                     $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month");
                     $row = mysqli_fetch_array($sql_trips);
@@ -724,58 +748,59 @@ $vendors_added = intval($row['vendors_added']);
 
 
                     ?>
-                    <?php echo "$trip_miles_for_month,"; ?>
+                <?php echo "$trip_miles_for_month,"; ?>
 
-                    <?php
+                <?php
 
                     }
 
                     ?>
 
-                ],
+            ],
+        }],
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                time: {
+                    unit: 'date'
+                },
+                gridLines: {
+                    display: false
+                },
+                ticks: {
+                    maxTicksLimit: 12
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
+                    maxTicksLimit: 5
+                },
+                gridLines: {
+                    color: "rgba(0, 0, 0, .125)",
+                }
             }],
         },
-        options: {
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
-                    },
-                    gridLines: {
-                        display: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 12
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
-                        maxTicksLimit: 5
-                    },
-                    gridLines: {
-                        color: "rgba(0, 0, 0, .125)",
-                    }
-                }],
-            },
-            legend: {
-                display: false
-            }
+        legend: {
+            display: false
         }
-    });
+    }
+});
 
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Pie Chart Example
-    var ctx = document.getElementById("incomeByCategoryPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
+// Pie Chart Example
+var ctx = document.getElementById("incomeByCategoryPieChart");
+var myPieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            <?php
                 mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories SELECT category_name, category_id, SUM(invoice_amount) AS total_income FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year GROUP BY category_name, category_id ORDER BY total_income DESC LIMIT 5");
                 $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
                 while ($row = mysqli_fetch_array($sql_categories)) {
@@ -791,10 +816,10 @@ $vendors_added = intval($row['vendors_added']);
                 }
                 ?>
 
-            ],
-            datasets: [{
-                data: [
-                    <?php
+        ],
+        datasets: [{
+            data: [
+                <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT total_income FROM TopCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $total_income = floatval($row['total_income']);
@@ -805,9 +830,9 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-                backgroundColor: [
-                    <?php
+            ],
+            backgroundColor: [
+                <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopCategories JOIN categories ON TopCategories.category_id = categories.category_id");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $category_color = json_encode($row['category_color']);
@@ -818,28 +843,29 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
+            ],
+        }],
+    },
+    options: {
+        legend: {
+            display: true,
+            position: 'right'
         }
-    });
+    }
+});
 
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
 
-    // Pie Chart Example
-    var ctx = document.getElementById("expenseByCategoryPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
+// Pie Chart Example
+var ctx = document.getElementById("expenseByCategoryPieChart");
+var myPieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            <?php
                 mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopExpenseCategories SELECT category_name, category_id, SUM(expense_amount) AS total_expense FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year GROUP BY category_name, category_id ORDER BY total_expense DESC LIMIT 5");
                 $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopExpenseCategories");
                 while ($row = mysqli_fetch_array($sql_categories)) {
@@ -855,10 +881,10 @@ $vendors_added = intval($row['vendors_added']);
                 }
                 ?>
 
-            ],
-            datasets: [{
-                data: [
-                    <?php
+        ],
+        datasets: [{
+            data: [
+                <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT total_expense FROM TopExpenseCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $total_expense = floatval($row['total_expense']);
@@ -869,9 +895,9 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-                backgroundColor: [
-                    <?php
+            ],
+            backgroundColor: [
+                <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopExpenseCategories JOIN categories ON TopExpenseCategories.category_id = categories.category_id");
                     while ($row = mysqli_fetch_array($sql_categories)) {
                         $category_color = json_encode($row['category_color']);
@@ -882,24 +908,24 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
+            ],
+        }],
+    },
+    options: {
+        legend: {
+            display: true,
+            position: 'right'
         }
-    });
+    }
+});
 
-    // Pie Chart Example
-    var ctx = document.getElementById("expenseByVendorPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
+// Pie Chart Example
+var ctx = document.getElementById("expenseByVendorPieChart");
+var myPieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            <?php
                 mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopVendors SELECT vendor_name, vendor_id, SUM(expense_amount) AS total_expense FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year GROUP BY vendor_name, vendor_id ORDER BY total_expense DESC LIMIT 5");
                 $sql_vendors = mysqli_query($mysqli, "SELECT vendor_name FROM TopVendors");
                 while ($row = mysqli_fetch_array($sql_vendors)) {
@@ -915,10 +941,10 @@ $vendors_added = intval($row['vendors_added']);
                 }
                 ?>
 
-            ],
-            datasets: [{
-                data: [
-                    <?php
+        ],
+        datasets: [{
+            data: [
+                <?php
                     $sql_vendors = mysqli_query($mysqli, "SELECT total_expense FROM TopVendors");
                     while ($row = mysqli_fetch_array($sql_vendors)) {
                         $total_expense = floatval($row['total_expense']);
@@ -929,9 +955,9 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-                backgroundColor: [
-                    <?php
+            ],
+            backgroundColor: [
+                <?php
                     $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id FROM TopVendors");
                     while ($row = mysqli_fetch_array($sql_vendors)) {
                         // Generate random color for each vendor
@@ -942,15 +968,14 @@ $vendors_added = intval($row['vendors_added']);
                     }
                     ?>
 
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
-            }
+            ],
+        }],
+    },
+    options: {
+        legend: {
+            display: true,
+            position: 'right'
         }
-    });
-
+    }
+});
 </script>

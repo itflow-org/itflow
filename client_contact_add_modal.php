@@ -19,16 +19,24 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-user mr-2"></i>Details</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-details">
+                                <i class="fa fa-fw fa-user mr-2"></i>Details
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-photo"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-photo">
+                                <i class="fa fa-fw fa-image mr-2"></i>Photo
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-secure"><i class="fa fa-fw fa-lock mr-2"></i>Secure</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-secure">
+                                <i class="fa fa-fw fa-lock mr-2"></i>Secure
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-notes"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-notes">
+                                <i class="fa fa-fw fa-edit mr-2"></i>Notes
+                            </a>
                         </li>
                     </ul>
 
@@ -39,12 +47,15 @@
                         <div class="tab-pane fade show active" id="pills-details">
 
                             <div class="form-group">
-                                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary Contact</span></label>
+                                <label>Name <strong class="text-danger">*</strong> /
+                                    <span class="text-secondary">Primary Contact</span>
+                                </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
+                                    <input type="text" class="form-control" name="name"
+                                        placeholder="Full Name" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="contact_primary" value="1">
@@ -81,7 +92,8 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                                            <input type="text" class="form-control" name="phone"
+                                                placeholder="Phone Number">
                                         </div>
                                     </div>
                                 </div>
@@ -96,7 +108,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number">
+                                    <input type="text" class="form-control" name="mobile"
+                                        placeholder="Mobile Phone Number">
                                 </div>
                             </div>
 
@@ -120,12 +133,18 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql = mysqli_query(
+                                            $mysqli,
+                                            "SELECT location_id, location_name FROM locations
+                                            WHERE location_archived_at IS NULL AND location_client_id = $client_id
+                                            ORDER BY location_name ASC"
+                                            );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $location_id = intval($row['location_id']);
                                             $location_name = nullable_htmlentities($row['location_name']);
                                             ?>
-                                            <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                            <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?>
+                                            </option>
                                         <?php } ?>
 
                                     </select>
@@ -137,24 +156,30 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1" >
-                                            <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="contactImportantCheckbox" name="contact_important" value="1" >
+                                            <label class="custom-control-label"
+                                                for="contactImportantCheckbox">Important</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1" >
-                                            <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="contactBillingCheckbox" name="contact_billing" value="1" >
+                                            <label class="custom-control-label"
+                                                for="contactBillingCheckbox">Billing</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1" >
-                                            <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="contactTechnicalCheckbox" name="contact_technical" value="1" >
+                                            <label class="custom-control-label"
+                                                for="contactTechnicalCheckbox">Technical</label>
                                         </div>
                                     </div>
                                 </div>
@@ -180,7 +205,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="pin" placeholder="Security code or pin">
+                                    <input type="text" class="form-control" name="pin"
+                                        placeholder="Security code or pin">
                                 </div>
                             </div>
                             <?php if($config_client_portal_enable == 1) { ?>
@@ -189,7 +215,9 @@
                                     <label>Login</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                                            <span class="input-group-text">
+                                                <i class="fa fa-fw fa-user-circle"></i>
+                                            </span>
                                         </div>
                                         <select class="form-control select2 authMethod" name="auth_method">
                                             <option value="">- None -</option>
@@ -206,7 +234,9 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                         </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Enter a password" autocomplete="new-password">
+                                        <input type="password" class="form-control"
+                                            data-toggle="password" name="contact_password"
+                                            placeholder="Enter a password" autocomplete="new-password">
                                         <div class="input-group-append">
                                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                         </div>
@@ -220,7 +250,8 @@
                         <div class="tab-pane fade" id="pills-notes">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"></textarea>
+                                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes">
+                                </textarea>
                             </div>
 
                         </div>
@@ -229,8 +260,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_contact" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_contact" class="btn btn-primary text-bold">
+                        <i class="fas fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

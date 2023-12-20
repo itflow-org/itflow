@@ -6,9 +6,9 @@ require_once "inc_all_client.php";
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM assets 
-        LEFT JOIN contacts ON asset_contact_id = contact_id 
-        LEFT JOIN locations ON asset_location_id = location_id 
+    $sql = mysqli_query($mysqli, "SELECT * FROM assets
+        LEFT JOIN contacts ON asset_contact_id = contact_id
+        LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN logins ON login_asset_id = asset_id
         WHERE asset_id = $asset_id
         AND asset_client_id = $client_id

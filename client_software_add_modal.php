@@ -38,7 +38,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Software name" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Software name"
+                                        required>
                                 </div>
                             </div>
 
@@ -48,7 +49,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="version" placeholder="Software version">
+                                    <input type="text" class="form-control" name="version"
+                                        placeholder="Software version">
                                 </div>
                             </div>
 
@@ -61,7 +63,7 @@
                                     <select class="form-control select2" name="type" required>
                                         <option value="">- Type -</option>
                                         <?php foreach ($software_types_array as $software_type) { ?>
-                                            <option><?php echo $software_type; ?></option>
+                                        <option><?php echo $software_type; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -80,7 +82,7 @@
                                     <select class="form-control select2" name="license_type">
                                         <option value="">- Select a License Type -</option>
                                         <?php foreach ($license_types_array as $license_type) { ?>
-                                            <option><?php echo $license_type; ?></option>
+                                        <option><?php echo $license_type; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -92,7 +94,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-chair"></i></span>
                                     </div>
-                                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" name="seats" placeholder="Number of seats">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control"
+                                        name="seats" placeholder="Number of seats">
                                 </div>
                             </div>
 
@@ -132,10 +135,14 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="assets[]" data-placeholder="Select licensed Assets" multiple>
+                                    <select class="form-control select2" name="assets[]"
+                                        data-placeholder="Select licensed Assets" multiple>
                                         <?php
 
-                                       $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql = mysqli_query($mysqli,
+                                        "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id
+                                        WHERE asset_archived_at IS NULL AND asset_client_id = $client_id
+                                        ORDER BY asset_name ASC");
 
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $asset_id = intval($row['asset_id']);
@@ -143,7 +150,8 @@
                                             $asset_type = nullable_htmlentities($row['asset_type']);
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                         ?>
-                                            <option value="<?php echo $asset_id; ?>"><?php echo "$asset_name - $contact_name"; ?></option>
+                                        <option value="<?php echo $asset_id; ?>">
+                                            <?php echo "$asset_name - $contact_name"; ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -156,10 +164,14 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="contacts[]" data-placeholder="Select licensed Users" multiple>
+                                    <select class="form-control select2" name="contacts[]"
+                                        data-placeholder="Select licensed Users" multiple>
                                         <?php
 
-                                       $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql = mysqli_query($mysqli,
+                                        "SELECT * FROM contacts WHERE contact_archived_at IS NULL
+                                        AND contact_client_id = $client_id
+                                        ORDER BY contact_name ASC");
 
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $contact_id = intval($row['contact_id']);
@@ -167,7 +179,8 @@
                                             $contact_email = nullable_htmlentities($row['contact_email']);
                                             
                                             ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo "$contact_name - $contact_email"; ?></option>
+                                        <option value="<?php echo $contact_id; ?>">
+                                            <?php echo "$contact_name - $contact_email"; ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -178,7 +191,8 @@
 
                         <div class="tab-pane fade" id="pills-notes">
 
-                            <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
+                            <textarea class="form-control" rows="8" placeholder="Enter some notes"
+                                name="notes"></textarea>
 
                         </div>
 
@@ -200,7 +214,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" name="password"
+                                        placeholder="Password" autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -213,8 +228,10 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_software" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_software" class="btn btn-primary text-bold"><i
+                            class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
+                            class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

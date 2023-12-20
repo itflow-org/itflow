@@ -15,7 +15,9 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE invoice_client_id = $client_id
-    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%') 
+    AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%'
+    OR invoice_scope LIKE '%$q%' OR category_name LIKE '%$q%'
+    OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -23,58 +25,83 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
-            <div class="card-tools"> 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoiceModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
-                    </div>
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
+        <div class="card-tools">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i
+                        class="fas fa-plus mr-2"></i>New Invoice</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoiceModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="card-body">
-            <form autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <div class="row">
+    </div>
+    <div class="card-body">
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <div class="row">
 
-                    <div class="col-md-4">
-                        <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Invoices">
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                            </div>
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                            placeholder="Search Invoices">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
-
-                    <div class="col-md-8">
-                        <div class="float-right">
-                        </div>
-                    </div>
-
                 </div>
-            </form>
-            <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+
+                <div class="col-md-8">
+                    <div class="float-right">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Number</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_scope&order=<?php echo $disp; ?>">Scope</a></th>
-                        <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Date</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_due&order=<?php echo $disp; ?>">Due</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_status&order=<?php echo $disp; ?>">Status</a></th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_number&order=<?php echo $disp; ?>">Number</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_scope&order=<?php echo $disp; ?>">Scope</a>
+                        </th>
+                        <th class="text-right"><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_amount&order=<?php echo $disp; ?>">Amount</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_date&order=<?php echo $disp; ?>">Date</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_due&order=<?php echo $disp; ?>">Due</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=category_name&order=<?php echo $disp; ?>">Category</a>
+                        </th>
+                        <th><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=invoice_status&order=<?php echo $disp; ?>">Status</a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
@@ -97,7 +124,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $category_id = intval($row['category_id']);
                         $category_name = nullable_htmlentities($row['category_name']);
 
-                        if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) < time()) {
+                        if (
+                            ($invoice_status == "Sent" ||
+                            $invoice_status == "Partial" ||
+                            $invoice_status == "Viewed") 
+                            && strtotime($invoice_due) < time()) {
                             $overdue_color = "text-danger font-weight-bold";
                         } else {
                             $overdue_color = "";
@@ -120,46 +151,60 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
 
-                        <tr>
-                            <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                            <td><?php echo $invoice_scope_display; ?></td>
-                            <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                            <td><?php echo $invoice_date; ?></td>
-                            <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
-                            <td><?php echo $category_name; ?></td>
-                            <td>
-                                <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                                    <?php echo $invoice_status; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <?php if (!empty($config_smtp_host)) { ?>
-                                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                        <?php } ?>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">
-                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    </div>
+                    <tr>
+                        <td class="text-bold"><a
+                                href="invoice.php?invoice_id=<?php echo $invoice_id; ?>">
+                                <?php echo "$invoice_prefix$invoice_number"; ?></a>
+                        </td>
+                        <td><?php echo $invoice_scope_display; ?></td>
+                        <td class="text-bold text-right">
+                            <?php echo numfmt_format_currency(
+                                $currency_format,
+                                $invoice_amount,
+                                $invoice_currency_code
+                                ); ?>
+                        </td>
+                        <td><?php echo $invoice_date; ?></td>
+                        <td>
+                            <div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div>
+                        </td>
+                        <td><?php echo $category_name; ?></td>
+                        <td>
+                            <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
+                                <?php echo $invoice_status; ?>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <?php if (!empty($config_smtp_host)) { ?>
+                                    <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <?php } ?>
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        data-target="#editInvoiceModal<?php echo $invoice_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">
+                                        <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link"
+                                        href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
+                    <?php
 
                         require "invoice_copy_modal.php";
 
@@ -169,13 +214,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "pagination.php";
- ?>
+                </tbody>
+            </table>
         </div>
+        <?php require_once "pagination.php";
+ ?>
     </div>
+</div>
 
 <?php
 require_once "invoice_add_modal.php";
@@ -183,4 +228,3 @@ require_once "invoice_add_modal.php";
 require_once "client_invoice_export_modal.php";
 
 require_once "footer.php";
-

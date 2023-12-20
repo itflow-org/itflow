@@ -2,7 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-ethernet"></i> <i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> <?php echo $asset_name; ?></h5>
+                <h5 class="modal-title">
+                    <i class="fa fa-fw fa-ethernet"></i>
+                    <i class="fa fa-fw fa-<?php echo $device_icon; ?>"></i> <?php echo $asset_name; ?>
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -17,10 +20,12 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-interfaces<?php echo $asset_id; ?>">Interfaces</a>
+                            <a class="nav-link active" data-toggle="pill"
+                                href="#pills-interfaces<?php echo $asset_id; ?>">Interfaces</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-create<?php echo $asset_id; ?>">Create</a>
+                            <a class="nav-link" data-toggle="pill"
+                                href="#pills-create<?php echo $asset_id; ?>">Create</a>
                         </li>
                     </ul>
 
@@ -41,7 +46,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="interface_number" placeholder="Port number">
+                                    <input type="text" class="form-control" name="interface_number"
+                                        placeholder="Port number">
                                 </div>
                             </div>
 
@@ -51,7 +57,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="interface_description" placeholder="Description">
+                                    <input type="text" class="form-control" name="interface_description"
+                                        placeholder="Description">
                                 </div>
                             </div>
 
@@ -61,7 +68,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="interface_connected_asset" placeholder="Connected Device">
+                                    <input type="text" class="form-control" name="interface_connected_asset"
+                                        placeholder="Connected Device">
                                 </div>
                             </div>
 
@@ -75,14 +83,20 @@
                                         <option value="">- None -</option>
                                         <?php
 
-                                        $sql_network_select = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+                                        $sql_network_select = mysqli_query($mysqli,
+                                        "SELECT * FROM networks
+                                        WHERE network_archived_at IS NULL AND network_client_id = $client_id
+                                        ORDER BY network_name ASC"
+                                    );
                                         while ($row = mysqli_fetch_array($sql_network_select)) {
                                             $network_id = $row['network_id'];
                                             $network_name = nullable_htmlentities($row['network_name']);
                                             $network = nullable_htmlentities($row['network']);
 
                                             ?>
-                                            <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
+                                            <option value="<?php echo $network_id; ?>">
+                                                <?php echo $network_name; ?> - <?php echo $network; ?>
+                                            </option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -94,7 +108,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="interface_ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="interface_ip"
+                                        placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
                                 </div>
                             </div>
 
@@ -104,7 +119,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="interface_mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                    <input type="text" class="form-control" name="interface_mac"
+                                        placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
                                 </div>
                             </div>
 
@@ -114,7 +130,9 @@
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_asset_interface" class="btn btn-primary"><i class="fa fa-check"></i> Create</button>
+                    <button type="submit" name="add_asset_interface" class="btn btn-primary">
+                        <i class="fa fa-check"></i> Create
+                    </button>
                 </div>
             </form>
         </div>

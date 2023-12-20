@@ -17,7 +17,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="example.com" required autofocus>
+                            <input type="text" class="form-control" name="name"
+                                placeholder="example.com" required autofocus>
                         </div>
                     </div>
 
@@ -31,7 +32,13 @@
                                 <option value="">- Vendor -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                $sql = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM vendors
+                                    WHERE vendor_archived_at IS NULL
+                                    AND vendor_client_id = $client_id
+                                    ORDER BY vendor_name ASC"
+                                );
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $vendor_id = intval($row['vendor_id']);
                                     $vendor_name = nullable_htmlentities($row['vendor_name']);
@@ -52,7 +59,13 @@
                                 <option value="">- Vendor -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                $sql = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM vendors
+                                    WHERE vendor_archived_at IS NULL
+                                    AND vendor_client_id = $client_id
+                                    ORDER BY vendor_name ASC"
+                                    );
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $vendor_id = intval($row['vendor_id']);
                                     $vendor_name = nullable_htmlentities($row['vendor_name']);
@@ -75,8 +88,12 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_domain" class="btn btn-primary text-bold">
+                        <i class="fa fa-check mr-2"></i>Create
+                    </button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">
+                        <i class="fa fa-times mr-2"></i>Cancel
+                    </button>
                 </div>
             </form>
         </div>

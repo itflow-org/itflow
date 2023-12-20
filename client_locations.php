@@ -12,10 +12,10 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM locations 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM locations
     WHERE location_client_id = $client_id
     AND location_$archive_query
-    AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
+    AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%')
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -31,7 +31,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal">
                     <i class="fas fa-plus mr-2"></i>New Location
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importLocationModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
@@ -52,7 +53,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Locations">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                            placeholder="Search Locations">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -62,9 +65,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-8">
                     <div class="float-right">
                         <?php if($archived == 1){ ?>
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                        <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i
+                                class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                         <?php } else { ?>
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                        <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i
+                                class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                         <?php } ?>
                     </div>
                 </div>
@@ -75,16 +80,33 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_address&order=<?php echo $disp; ?>">Address</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_phone&order=<?php echo $disp; ?>">Phone</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_hours&order=<?php echo $disp; ?>">Hours</a></th>
-                    <th class="text-center">Action</th>
-                </tr>
+                    <tr>
+                        <th id="sort-location-name"
+                        ><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=location_name&order=<?php echo $disp; ?>">Name</a>
+                        </th>
+                        <th id="sort-location-address"
+                        ><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=location_address&order=<?php echo $disp; ?>">Address</a>
+                        </th>
+                        <th id="sort-location-phone"
+                        ><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=location_phone&order=<?php echo $disp; ?>">Phone</a>
+                        </th>
+                        <th id="sort-location-hours"
+                        ><a class="text-secondary"
+                                href="?<?php echo $url_query_strings_sort; ?>&
+                                sort=location_hours&order=<?php echo $disp; ?>">Hours</a>
+                        </th>
+                        <th id="sort-location-action"
+                        class="text-center">Action</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <?php
+                    <?php
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $location_id = intval($row['location_id']);
@@ -119,12 +141,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
                     <tr>
-                        <th>
+                        <th id="location-<?php echo $location_id; ?>">
                             <i class="fa fa-fw fa-map-marker-alt text-secondary"></i>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
+                            <a class="text-dark" href="#" data-toggle="modal"
+                                data-target="#editLocationModal<?php echo $location_id; ?>">
+                                <?php echo $location_name; ?></a>
                             <?php echo $location_primary_display; ?>
                         </th>
-                        <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
+                        <td><a href="//maps.<?php echo $session_map_source; ?>.com?
+                            q=<?php echo "$location_address $location_zip"; ?>"
+                                target="_blank"><?php echo $location_address; ?><br>
+                                <?php echo "$location_city $location_state $location_zip"; ?>
+                            </a>
+                        </td>
                         <td><?php echo $location_phone_display; ?></td>
                         <td><?php echo $location_hours_display; ?></td>
                         <td>
@@ -133,18 +162,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                        data-target="#editLocationModal<?php echo $location_id; ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?php echo $location_id; ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?php echo $location_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger confirm-link"
+                                        href="post.php?archive_location=<?php echo $location_id; ?>">
+                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link"
+                                        href="post.php?delete_location=<?php echo $location_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -153,7 +185,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                     </tr>
 
-                <?php } ?>
+                    <?php } ?>
 
                 </tbody>
             </table>
@@ -172,4 +204,3 @@ require_once "client_location_import_modal.php";
 require_once "client_location_export_modal.php";
 
 require_once "footer.php";
-

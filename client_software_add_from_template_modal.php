@@ -20,13 +20,19 @@
                             <select class="form-control" name="software_template_id" required>
                                 <option value="">- Select Template -</option>
                                 <?php
-                                $sql_software_templates = mysqli_query($mysqli, "SELECT * FROM software WHERE software_template = 1 AND software_archived_at IS NULL ORDER BY software_name ASC");
+                                $sql_software_templates = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM software
+                                    WHERE software_template = 1
+                                    AND software_archived_at IS NULL
+                                    ORDER BY software_name ASC");
                                 while ($row = mysqli_fetch_array($sql_software_templates)) {
                                     $software_template_id = intval($row['software_id']);
                                     $software_template_name = nullable_htmlentities($row['software_name']);
 
                                     ?>
-                                    <option value="<?php echo $software_template_id ?>"><?php echo $software_template_name; ?></option>
+                                <option value="<?php echo $software_template_id ?>">
+                                    <?php echo $software_template_name; ?></option>
                                 <?php } ?>
 
                             </select>
@@ -36,8 +42,10 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i
+                            class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
+                            class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>
