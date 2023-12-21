@@ -7,17 +7,21 @@ if (isset($_GET['year'])) {
     $year = date('Y');
 }
 
-if (isset($_GET['enable_financial']) == 1) {
-    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_financial_enable = 1 WHERE user_id = $session_user_id");
-} else {
-     mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_financial_enable = 0 WHERE user_id = $session_user_id");
+if (isset($_GET['enable_financial'])) {
+    $enable_financial = intval($_GET['enable_financial']);
+    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_financial_enable = $enable_financial WHERE user_id = $session_user_id");
 }
 
-if (isset($_GET['enable_technical']) == 1) {
-    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_technical_enable = 1 WHERE user_id = $session_user_id");
-} else {
-     mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_technical_enable = 0 WHERE user_id = $session_user_id");
+if (isset($_GET['enable_technical'])) {
+    $enable_technical = intval($_GET['enable_technical']);
+    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_technical_enable = $enable_technical WHERE user_id = $session_user_id");
 }
+
+// Fetch User Dashboard Settings
+$sql_user_dashboard_settings = mysqli_query($mysqli, "SELECT * FROM user_settings WHERE user_id = $session_user_id");
+$row = mysqli_fetch_array($sql_user_dashboard_settings);
+$user_config_dashboard_financial_enable = intval($row['user_config_dashboard_financial_enable']);
+$user_config_dashboard_technical_enable = intval($row['user_config_dashboard_technical_enable']);
 
 //GET unique years from expenses, payments invoices and revenues
 $sql_years_select = mysqli_query(
@@ -35,6 +39,8 @@ $sql_years_select = mysqli_query(
 ?>
 
 <form class="form-inline">
+    <input type="hidden" name="enable_financial" value="0">
+    <input type="hidden" name="enable_technical" value="0">
 
     <select onchange="this.form.submit()" class="form-control mb-3 mr-sm-3 col-sm-2" name="year">
         <?php
