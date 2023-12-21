@@ -587,6 +587,16 @@ $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query(
 ));
 $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
+$sql_your_tickets = mysqli_query(
+    $mysqli,
+    "SELECT * FROM tickets
+    LEFT JOIN clients ON ticket_client_id = client_id
+    LEFT JOIN contacts ON ticket_contact_id = contact_id
+    WHERE ticket_assigned_to = $session_user_id
+    AND ticket_status != 'Closed'
+    ORDER BY ticket_number DESC"
+);
+
 ?>
 
 <!-- Icon Cards-->
@@ -672,6 +682,120 @@ $expiring_certificates = $sql_certs_expiring['expiring_certs'];
     <!-- ./col -->
 
 </div> <!-- rows -->
+
+<?php if ($sql_your_tickets) { ?>
+<div class="row">
+    <div class="col-12">
+        <div class="card card-dark mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Your Open Tickets</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive-sm">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Subject</th>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Last Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_your_tickets)) {
+                            $ticket_id = intval($row['ticket_id']);
+                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                            $ticket_number = intval($row['ticket_number']);
+                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                            $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                            $ticket_status = nullable_htmlentities($row['ticket_status']);
+                            $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                            $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
+                            $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                            $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
+                            if (empty($ticket_updated_at)) {
+                                if ($ticket_status == "Closed") {
+                                    $ticket_updated_at_display = "<p>Never</p>";
+                                } else {
+                                    $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                                }
+                            } else {
+                                $ticket_updated_at_display = "$ticket_updated_at_time_ago";
+                            }
+                            $client_id = intval($row['ticket_client_id']);
+                            $client_name = nullable_htmlentities($row['client_name']);
+                            $contact_id = intval($row['ticket_contact_id']);
+                            $contact_name = nullable_htmlentities($row['contact_name']);
+                            if ($ticket_status == "Pending-Assignment") {
+                                $ticket_status_color = "danger";
+                            } elseif ($ticket_status == "Assigned") {
+                                $ticket_status_color = "primary";
+                            } elseif ($ticket_status == "In-Progress") {
+                                $ticket_status_color = "success";
+                            } elseif ($ticket_status == "Closed") {
+                                $ticket_status_color = "dark";
+                            } else{
+                                $ticket_status_color = "secondary";
+                            }
+
+                            if ($ticket_priority == "High") {
+                                $ticket_priority_color = "danger";
+                            } elseif ($ticket_priority == "Medium") {
+                                $ticket_priority_color = "warning";
+                            } else{
+                                $ticket_priority_color = "info";
+                            }
+
+                            if (empty($contact_name)) {
+                                $contact_display = "-";
+                            } else {
+                                $contact_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                            }
+
+                        ?>
+
+                        <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
+                            <td><a class="text-dark" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                            <td>
+                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                            </td>
+                            <td>
+                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
+                            </td>
+                            <td><?php echo $contact_display; ?></td>
+                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>
+                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
+                            <td><?php echo $ticket_updated_at_display; ?></td>
+                        </tr>
+
+                        <?php
+
+                        }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php } ?>
+
+
 
 <?php } ?>
 
