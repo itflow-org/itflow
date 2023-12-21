@@ -8,7 +8,6 @@ if (isset($_POST['add_invoice'])) {
 
     require_once 'post/invoice_model.php';
 
-
     $client = intval($_POST['client']);
 
     //Get Net Terms
@@ -40,7 +39,6 @@ if (isset($_POST['add_invoice'])) {
 if (isset($_POST['edit_invoice'])) {
 
     require_once 'post/invoice_model.php';
-
 
     $invoice_id = intval($_POST['invoice_id']);
     $due = sanitizeInput($_POST['due']);
@@ -857,7 +855,6 @@ if (isset($_POST['add_bulk_payment'])) {
         $contact_name = $row['contact_name'];
         $contact_email = $row['contact_email'];
 
-        $invoice_prefix_escaped = sanitizeInput($row['invoice_prefix']);
         $contact_name_escaped = sanitizeInput($row['contact_name']);
         $contact_email_escaped = sanitizeInput($row['contact_email']);
 
