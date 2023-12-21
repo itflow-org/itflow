@@ -44,6 +44,8 @@ if ($session_user_role == 3) {
 }
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
+$user_config_dashboard_financial_enable = intval($row['user_config_dashboard_financial_enable']);
+$user_config_dashboard_technical_enable = intval($row['user_config_dashboard_technical_enable']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
