@@ -24,6 +24,7 @@ if (isset($_POST['add_ticket'])) {
     $asset_id = intval($_POST['asset']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
 
+
     // Add the primary contact as the ticket contact if "Use primary contact" is checked
     if ($use_primary_contact == 1) {
         $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
@@ -31,12 +32,18 @@ if (isset($_POST['add_ticket'])) {
         $contact = intval($row['contact_id']);
     }
 
+    if (!isset($_POST['billable'])) {
+        $billable = 1;
+    } else {
+        $billable = intval($_POST['billable']);
+    }
+
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, ticket_invoice_id = 0");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -145,15 +152,17 @@ if (isset($_POST['edit_ticket'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
+    $billable = intval($_POST['billable']);
     $priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli,$_POST['details']);
     $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
+
     $client_id = intval($_POST['client_id']);
     $ticket_number = intval($_POST['ticket_number']);
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
@@ -870,8 +879,9 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $ticket_prefix$ticket_number', history_invoice_id = $invoice_id");
 
-    // Add internal note to ticket
+    // Add internal note to ticket, and link to invoice in database
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created invoice <a href=\"invoice.php?invoice_id=$invoice_id\">$config_invoice_prefix$invoice_number</a> for this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$config_invoice_prefix$invoice_number created from Ticket $ticket_prefix$ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

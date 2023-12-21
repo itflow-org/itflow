@@ -413,6 +413,9 @@ if (isset($_GET['delete_invoice'])) {
         mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
     }
 
+    //unlink tickets from invoice
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Delete', log_description = '$invoice_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
@@ -1353,3 +1356,24 @@ if (isset($_POST['update_invoice_item_order'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['link_invoice_to_ticket'])) {
+    $invoice_id = intval($_POST['invoice_id']);
+    $ticket_id = intval($_POST['ticket_id']);
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_ticket_id = $ticket_id WHERE invoice_id = $invoice_id");
+
+    $_SESSION['alert_message'] = "Invoice linked to ticket";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['add_ticket_to_invoice'])) {
+    $invoice_id = intval($_POST['invoice_id']);
+    $ticket_id = intval($_POST['ticket_id']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket linked to invoice";
+
+    header("Location: post.php?add_ticket_to_invoice=$invoice_id");
+}

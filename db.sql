@@ -1559,6 +1559,7 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
+  `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_vendor_ticket_number` varchar(255) DEFAULT NULL,
   `ticket_feedback` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1573,6 +1574,7 @@ CREATE TABLE `tickets` (
   `ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `ticket_location_id` int(11) NOT NULL DEFAULT 0,
   `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

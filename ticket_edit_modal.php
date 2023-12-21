@@ -62,6 +62,20 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>Billable</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="billable">
+                                        <option <?php if ($ticket_billable == 1) { echo "selected"; } ?> value="1">Yes</option>
+                                        <option <?php if ($ticket_billable == 0) { echo "selected"; } ?> value="0">No</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-contacts<?php echo $ticket_id; ?>">
