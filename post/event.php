@@ -61,10 +61,15 @@ if (isset($_POST['add_event'])) {
         $subject = "New Calendar Event";
         $body    = "Hello $contact_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
+        $data = [
+            [
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
 
         // Logging for email (success/fail)
         if ($mail === true) {
@@ -120,11 +125,15 @@ if (isset($_POST['edit_event'])) {
         $subject = "Calendar Event Rescheduled";
         $body    = "Hello $contact_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
-
+        $data = [
+            [
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
         // Logging for email (success/fail)
         if ($mail === true) {
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name Emailed modified event $title to $client_name email $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

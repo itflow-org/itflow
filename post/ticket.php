@@ -119,10 +119,13 @@ if (isset($_POST['add_ticket'])) {
 
            // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data = [];
+            $data[] = [
+                'recipient' => $contact_email_escaped,
+                'recipient_name' => $contact_name_escaped,
+                'subject' => $subject_escaped,
+                'body' => $body_escaped,
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -131,8 +134,14 @@ if (isset($_POST['add_ticket'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data[] = [
+                    'recipient' => $watcher_email_escaped,
+                    'recipient_name' => $watcher_email_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ];
             }
+            addToMailQueue($mysqli, $data);
         }
     }
 
@@ -410,10 +419,15 @@ if (isset($_POST['assign_ticket'])) {
 
             // Email Ticket Agent
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$agent_email_escaped', email_recipient_name = '$agent_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data = [
+                [
+                    'recipient' => $agent_email_escaped,
+                    'recipient_name' => $agent_name_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ]
+            ];
+            addToMailQueue($mysqli, $data);
         }
 
     }
@@ -554,12 +568,16 @@ if (isset($_POST['add_ticket_reply'])) {
 
             }
 
+            $data = [];
+
             // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data[] = [
+                'recipient' => $contact_email_escaped,
+                'recipient_name' => $contact_name_escaped,
+                'subject' => $subject_escaped,
+                'body' => $body_escaped,
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -568,9 +586,14 @@ if (isset($_POST['add_ticket_reply'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data[] = [
+                    'recipient' => $watcher_email_escaped,
+                    'recipient_name' => $watcher_email_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ];
             }
-
+            addToMailQueue($mysqli, $data);
         }
     }
     //End Mail IF
@@ -763,15 +786,20 @@ if (isset($_GET['close_ticket'])) {
         // Check email valid
         if (filter_var($contact_email_escaped, FILTER_VALIDATE_EMAIL)) {
 
+            $data = [];
+
             $subject_escaped = mysqli_escape_string($mysqli, "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)");
             $body_escaped    = mysqli_escape_string($mysqli, "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
 
-            // Get Email ID for reference
-            $email_queue_id = mysqli_insert_id($mysqli);
+            $data[] = [
+                'recipient' => $contact_email_escaped,
+                'recipient_name' => $contact_name_escaped,
+                'subject' => $subject_escaped,
+                'body' => $body_escaped,
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -780,8 +808,15 @@ if (isset($_GET['close_ticket'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data[] = [
+                    'recipient' => $watcher_email_escaped,
+                    'recipient_name' => $watcher_email_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ];
             }
+
+            addToMailQueue($mysqli, $data);
 
         }
 

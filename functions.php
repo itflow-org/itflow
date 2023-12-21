@@ -873,6 +873,24 @@ function calculateAccountBalance($mysqli, $account_id) {
     return $balance;
 }
 
+
+function addToMailQueue($mysqli, $data) {
+    $config_invoice_from_email = strval(getSettingValue($mysqli, 'config_invoice_from_email'));
+    $config_invoice_from_name = strval(getSettingValue($mysqli, 'config_invoice_from_name'));
+
+    foreach ($data as $email) {
+        $recipient = strval($email['email']);
+        $recipient_name = strval($email['name']);
+        $subject = strval($email['subject']);
+        $body = strval($email['body']);
+
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
+    }
+
+    return true;
+
+}
+
 function calculateInvoiceBalance($mysqli, $invoice_id) {
     $sql_invoice = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_array($sql_invoice);
@@ -890,4 +908,5 @@ function calculateInvoiceBalance($mysqli, $invoice_id) {
     }
 
     return $balance;
+
 }

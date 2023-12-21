@@ -119,8 +119,15 @@ if (isset($_POST['edit_contact'])) {
         $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>$session_company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
 
         // Queue Mail
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$email', email_recipient_name = '$name', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject', email_content = '$body'");
-
+        $data = [
+            [
+                'recipient' => $email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body,
+            ]
+        ];
+        addToMailQueue($mysqli, $data);
         // Get Email ID for reference
         $email_id = mysqli_insert_id($mysqli);
 
