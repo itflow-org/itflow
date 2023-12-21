@@ -63,6 +63,8 @@ if (isset($_POST['add_event'])) {
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,
@@ -127,6 +129,8 @@ if (isset($_POST['edit_event'])) {
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,

@@ -55,6 +55,8 @@ if (isset($_POST['add_user'])) {
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $email,
                 'recipient_name' => $name,
                 'subject' => $subject,

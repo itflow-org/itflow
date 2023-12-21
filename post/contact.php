@@ -121,6 +121,8 @@ if (isset($_POST['edit_contact'])) {
         // Queue Mail
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,

@@ -43,6 +43,8 @@ if (isset($_POST['edit_profile'])) {
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $user_old_email,
                 'recipient_name' => $name,
                 'subject' => $subject,
@@ -173,6 +175,8 @@ if(isset($_POST['disable_2fa'])){
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $session_email,
                 'recipient_name' => $session_name,
                 'subject' => $subject,
