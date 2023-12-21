@@ -140,7 +140,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 </div>
             </div>
 
-            <div class="collapse <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || is_array($_GET['status'])) { echo "show"; } ?>" id="advancedFilter">
+            <div class="collapse <?php if (!empty($_GET['dtf']) || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") || (isset($_GET['status']) && is_array($_GET['status']))) { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
@@ -201,13 +201,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="form-group">
                             <label>Ticket Status</label>
                             <select class="form-control select2" name="status[]" data-placeholder = "Select Status" multiple>
-                                <option value="In-Progress" <?php if (is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) { echo 'selected'; } ?> >In-Progress</option>
-                                <option value="Client-Replied" <?php if (is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) { echo 'selected'; } ?> >Client-Replied</option>
-                                <option value="Pending-Client" <?php if (is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) { echo 'selected'; } ?> >Pending-Client</option>
-                                <option value="Pending-Vendor" <?php if (is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) { echo 'selected'; } ?> >Pending-Vendor</option>
-                                <option value="Pending-Shipment" <?php if (is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) { echo 'selected'; } ?> >Pending-Shipment</option>
-                                <option value="Scheduled" <?php if (is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) { echo 'selected'; } ?> >Scheduled</option>
-                                <option value="Closed" <?php if (is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?> >Closed</option>
+                                <option value="In-Progress" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) { echo 'selected'; } ?> >In-Progress</option>
+                                <option value="Client-Replied" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) { echo 'selected'; } ?> >Client-Replied</option>
+                                <option value="Pending-Client" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) { echo 'selected'; } ?> >Pending-Client</option>
+                                <option value="Pending-Vendor" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) { echo 'selected'; } ?> >Pending-Vendor</option>
+                                <option value="Pending-Shipment" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) { echo 'selected'; } ?> >Pending-Shipment</option>
+                                <option value="Scheduled" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) { echo 'selected'; } ?> >Scheduled</option>
+                                <option value="Closed" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?> >Closed</option>
                             </select>
                         </div>
                     </div>
