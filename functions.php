@@ -875,16 +875,16 @@ function calculateAccountBalance($mysqli, $account_id) {
 
 
 function addToMailQueue($mysqli, $data) {
-    $config_invoice_from_email = strval(getSettingValue($mysqli, 'config_invoice_from_email'));
-    $config_invoice_from_name = strval(getSettingValue($mysqli, 'config_invoice_from_name'));
-
+    
     foreach ($data as $email) {
+        $from = strval($email['from']);
+        $from_name = strval($email['from_name']);
         $recipient = strval($email['recipient']);
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
         $body = strval($email['body']);
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body'");
     }
 
     return true;

@@ -314,6 +314,8 @@ if (isset($_GET['share_generate_link'])) {
 
         $data = [
             [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
                 'recipient' => $item_email,
                 'recipient_name' => $item_email,
                 'subject' => $subject,

@@ -306,6 +306,8 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
             $email_body    = mysqli_real_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             $email = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $contact_email_escaped,
                     'recipient_name' => $contact_name_escaped,
                     'subject' => $email_subject,
@@ -324,6 +326,8 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
             $email_body = mysqli_real_escape_string($mysqli, "Hello, <br><br>This is a notification that a new scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details");
 
             $email = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $config_ticket_new_ticket_notification_email,
                     'recipient_name' => $config_ticket_from_name_escaped,
                     'subject' => $email_subject,
@@ -428,6 +432,8 @@ if ($config_ticket_autoclose == 1) {
 
         $data = [
             [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,
@@ -509,6 +515,8 @@ if ($config_send_invoice_reminders == 1) {
 
             $mail = addToMailQueue($mysqli, [
                 [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
                     'recipient' => $contact_email,
                     'recipient_name' => $contact_name,
                     'subject' => $subject,
@@ -624,6 +632,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
         $mail = addToMailQueue($mysqli, [
             [
+                'from' => $config_invoice_from_email,
+                'from_name' => $config_invoice_from_name,
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,
@@ -657,6 +667,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
             $data = [
                 [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
                     'recipient' => $billing_contact_email,
                     'recipient_name' => $billing_contact_name,
                     'subject' => $subject,

@@ -346,6 +346,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
             $data = [
                 [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
                     'recipient' => $contact_email,
                     'recipient_name' => $contact_name,
                     'subject' => $subject,

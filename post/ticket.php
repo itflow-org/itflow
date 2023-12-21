@@ -121,6 +121,8 @@ if (isset($_POST['add_ticket'])) {
             // Queue Mail
             $data = [
                 [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $contact_email_escaped,
                     'recipient_name' => $contact_name_escaped,
                     'subject' => $subject_escaped,
@@ -137,6 +139,8 @@ if (isset($_POST['add_ticket'])) {
                 // Queue Mail
                 $data = [
                     [    
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
                         'recipient' => $watcher_email_escaped,
                         'recipient_name' => $watcher_email_escaped,
                         'subject' => $subject_escaped,
@@ -424,6 +428,8 @@ if (isset($_POST['assign_ticket'])) {
             // Queue Mail
             $data = [
                 [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $agent_email_escaped,
                     'recipient_name' => $agent_name_escaped,
                     'subject' => $subject_escaped,
@@ -576,6 +582,8 @@ if (isset($_POST['add_ticket_reply'])) {
             // Email Ticket Contact
             // Queue Mail
             $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
                 'recipient' => $contact_email_escaped,
                 'recipient_name' => $contact_name_escaped,
                 'subject' => $subject_escaped,
@@ -590,6 +598,8 @@ if (isset($_POST['add_ticket_reply'])) {
 
                 // Queue Mail
                 $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $watcher_email_escaped,
                     'recipient_name' => $watcher_email_escaped,
                     'subject' => $subject_escaped,
@@ -798,6 +808,8 @@ if (isset($_GET['close_ticket'])) {
             // Queue Mail
 
             $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
                 'recipient' => $contact_email_escaped,
                 'recipient_name' => $contact_name_escaped,
                 'subject' => $subject_escaped,
@@ -812,6 +824,8 @@ if (isset($_GET['close_ticket'])) {
 
                 // Queue Mail
                 $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $watcher_email_escaped,
                     'recipient_name' => $watcher_email_escaped,
                     'subject' => $subject_escaped,

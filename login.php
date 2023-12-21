@@ -147,6 +147,8 @@ if (isset($_POST['login'])) {
 
                 $data = [
                     [
+                        'from' => $config_mail_from_email,
+                        'from_name' => $config_mail_from_name,
                         'recipient' => $user_email,
                         'recipient_name' => $user_name,
                         'subject' => $subject,
@@ -220,6 +222,8 @@ if (isset($_POST['login'])) {
                     $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
                     $data = [
                         [
+                            'from' => $config_mail_from_email,
+                            'from_name' => $config_mail_from_name,
                             'recipient' => $user_email,
                             'recipient_name' => $user_name,
                             'subject' => $subject,

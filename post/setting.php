@@ -158,6 +158,8 @@ if (isset($_POST['test_email_smtp'])) {
 
     $data = [
         [
+            'from' => $email_from,
+            'from_name' => $email_from,
             'recipient' => $email_to,
             'recipient_name' => 'Chap',
             'subject' => $subject,

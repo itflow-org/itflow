@@ -169,6 +169,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
         $data[] = [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
             'recipient' => $contact_email_escaped,
             'recipient_name' => $contact_name_escaped,
             'subject' => $subject_escaped,
@@ -191,6 +193,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
         $data[] = [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
             'recipient' => $config_ticket_new_ticket_notification_email,
             'recipient_name' => $config_ticket_from_name,
             'subject' => $email_subject,
@@ -243,6 +247,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             
             $data = [
                 [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
                     'recipient' => $from_email,
                     'recipient_name' => $from_email,
                     'subject' => $email_subject,
@@ -341,6 +347,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
                 $data = [
                     [
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
                         'recipient' => $tech_email_escaped,
                         'recipient_name' => $tech_name_escaped,
                         'subject' => $subject_escaped,

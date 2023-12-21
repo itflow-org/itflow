@@ -397,6 +397,8 @@ if (isset($_GET['email_quote'])) {
     // Queue Mail
     $data = [
         [
+            'from' => $config_quote_from_email,
+            'from_name' => $config_quote_from_name,
             'recipient' => $contact_email_escaped,
             'recipient_name' => $contact_name_escaped,
             'subject' => $subject,
