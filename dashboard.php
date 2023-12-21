@@ -22,6 +22,9 @@ $sql_years_select = mysqli_query(
     UNION DISTINCT SELECT YEAR(payment_date) FROM payments
     UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues
     UNION DISTINCT SELECT YEAR(invoice_date) FROM invoices
+    UNION DISTINCT SELECT YEAR(ticket_created_at) FROM tickets
+    UNION DISTINCT SELECT YEAR(client_created_at) FROM clients
+    UNION DISTINCT SELECT YEAR(user_created_at) FROM users
     ORDER BY all_years DESC
 ");
 
