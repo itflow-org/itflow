@@ -29,7 +29,7 @@ $sql_years_select = mysqli_query(
 
 <form class="form-inline">
 
-    <select onchange="this.form.submit()" class="form-control mb-2 mr-sm-2" name="year">
+    <select onchange="this.form.submit()" class="form-control mb-3 mr-sm-3 col-sm-2" name="year">
         <?php
 
         while ($row = mysqli_fetch_array($sql_years_select)) {
@@ -46,14 +46,14 @@ $sql_years_select = mysqli_query(
     </select>
 
     <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
-    <div class="custom-control custom-switch mr-sm-2 mb-2">
+    <div class="custom-control custom-switch mr-sm-3 mb-3">
         <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="show_financial" value="1" <?php if($show_financial == 1) { echo "checked"; } ?>>
         <label class="custom-control-label" for="customSwitch1">Toggle Financial</label>
     </div>
 	<?php } ?>
 
 	<?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
-    <div class="custom-control custom-switch mb-2">
+    <div class="custom-control custom-switch mb-3">
         <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="show_technical" value="1" <?php if($show_technical == 1) { echo "checked"; } ?>>
         <label class="custom-control-label" for="customSwitch2">Toggle Technical</label>
     </div>
