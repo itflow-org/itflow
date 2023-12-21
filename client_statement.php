@@ -1,7 +1,7 @@
 <?php
 
 
-require_once "inc_all.php";
+require_once "inc_all_client.php";
 
 
 if (isset($_GET['client_id'])) {
