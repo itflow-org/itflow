@@ -119,12 +119,13 @@ if (isset($_POST['add_ticket'])) {
 
            // Email Ticket Contact
             // Queue Mail
-            $data = [];
-            $data[] = [
-                'recipient' => $contact_email_escaped,
-                'recipient_name' => $contact_name_escaped,
-                'subject' => $subject_escaped,
-                'body' => $body_escaped,
+            $data = [
+                [
+                    'recipient' => $contact_email_escaped,
+                    'recipient_name' => $contact_name_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ]
             ];
 
             // Also Email all the watchers
@@ -134,11 +135,13 @@ if (isset($_POST['add_ticket'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                $data[] = [
-                    'recipient' => $watcher_email_escaped,
-                    'recipient_name' => $watcher_email_escaped,
-                    'subject' => $subject_escaped,
-                    'body' => $body_escaped,
+                $data = [
+                    [    
+                        'recipient' => $watcher_email_escaped,
+                        'recipient_name' => $watcher_email_escaped,
+                        'subject' => $subject_escaped,
+                        'body' => $body_escaped,
+                    ]
                 ];
             }
             addToMailQueue($mysqli, $data);

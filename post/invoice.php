@@ -1002,8 +1002,8 @@ if (isset($_GET['email_invoice'])) {
     // Queue Mail
     $data = [
         [
-            'email' => $contact_email_escaped,
-            'name' => $contact_name_escaped,
+            'recipient' => $contact_email_escaped,
+            'recipient_name' => $contact_name_escaped,
             'subject' => $subject,
             'body' => $body
         ]
@@ -1043,8 +1043,8 @@ if (isset($_GET['email_invoice'])) {
 
         $data = [
             [
-                'email' => $billing_contact_email,
-                'name' => $billing_contact_name,
+                'recipient' => $billing_contact_email,
+                'recipient_name' => $billing_contact_name,
                 'subject' => $subject,
                 'body' => $body
             ]
@@ -1172,8 +1172,8 @@ if (isset($_GET['force_recurring'])) {
         
         $data = [
             [
-                'email' => $contact_email,
-                'name' => $contact_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
                 'subject' => $subject,
                 'body' => $body
             ]

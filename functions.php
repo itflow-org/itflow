@@ -879,8 +879,8 @@ function addToMailQueue($mysqli, $data) {
     $config_invoice_from_name = strval(getSettingValue($mysqli, 'config_invoice_from_name'));
 
     foreach ($data as $email) {
-        $recipient = strval($email['email']);
-        $recipient_name = strval($email['name']);
+        $recipient = strval($email['recipient']);
+        $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
         $body = strval($email['body']);
 
