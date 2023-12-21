@@ -53,6 +53,8 @@ if (isset($_POST['add_ticket'])) {
         // Queue Mail
         $data = [
             [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
                 'recipient' => $config_ticket_new_ticket_notification_email,
                 'recipient_name' => $config_ticket_from_name,
                 'subject' => $email_subject,

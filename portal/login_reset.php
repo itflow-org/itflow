@@ -73,12 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             $data = [
                 [
+                    'from' => $config_mail_from_email,
+                    'from_name' => $config_mail_from_name,
                     'recipient' => $email,
                     'recipient_name' => $name,
                     'subject' => $subject,
                     'body' => $body
                 ]
-                ];
+            ];
             $mail = addToMailQueue($mysqli, $data);
 
             // Error handling
@@ -128,6 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             $data = [
                 [
+                    'from' => $config_mail_from_email,
+                    'from_name' => $config_mail_from_name,
                     'recipient' => $email,
                     'recipient_name' => $name,
                     'subject' => $subject,

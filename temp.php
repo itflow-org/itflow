@@ -64,6 +64,8 @@ if(isset($_GET['email_invoice'])){
     // Queue Mail
     $data = [
         [
+            'from' => $config_invoice_from_email,
+            'from_name' => $config_invoice_from_name,
             'recipient' => $contact_email_escaped,
             'recipient_name' => $contact_name_escaped,
             'subject' => $subject,
@@ -100,6 +102,8 @@ if(isset($_GET['email_invoice'])){
         // Queue Mail
         $data = [
             [
+                'from' => $config_invoice_from_email,
+                'from_name' => $config_invoice_from_name,
                 'recipient' => $billing_contact_email,
                 'recipient_name' => $billing_contact_name,
                 'subject' => $subject,
