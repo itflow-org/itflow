@@ -637,6 +637,21 @@ if (isset($_GET['ticket_id'])) {
                             <i class="far fa-fw fa-clock text-secondary ml-1 mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
                         </div>
                     <?php } ?>
+
+                    <?php if (!empty($ticket_billable)) { ?>
+                        <div class="mt-1">
+                            <i class="fa fa-fw fa-dollar-sign text-secondary ml-1 mr-2"></i>Billable:
+                            <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                                <?php
+                                if ($ticket_billable == 1) {
+                                    echo "<span class='badge badge-pill badge-success p-2'>$</span>";
+                                } else {
+                                    echo "<span class='badge badge-pill badge-secondary p-2'>X</span>";
+                                }
+                                ?>
+                            </a>
+                        </div>
+                    <?php } ?>
                 </div>
                 <!-- End Ticket details card -->
 
@@ -850,6 +865,8 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_merge_modal.php";
 
         require_once "ticket_invoice_add_modal.php";
+
+        require_once "ticket_edit_billable_modal.php";
 
 
     }

@@ -1097,3 +1097,35 @@ if (isset($_POST['bulk_delete_scheduled_tickets'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
+if(isset($_POST['set_billable_status'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $billable_status = sanitizeInput($_POST['billable_status']);
+
+    mysqli_query($mysqli,
+    "UPDATE tickets SET
+    ticket_billable = '$billable_status'
+    WHERE ticket_id = $ticket_id"
+    );
+
+    //Logging
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Ticket',
+        log_action = 'Modify',
+        log_description = '$session_name modified ticket billable status',
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id,
+        log_entity_id = $ticket_id"
+        );
+
+    $_SESSION['alert_message'] = "Ticket billable status updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}

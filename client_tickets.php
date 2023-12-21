@@ -1,5 +1,6 @@
 <?php
 
+
 // Default Column Sortby Filter
 $sort = "ticket_number";
 $order = "DESC";
@@ -99,6 +100,7 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Contact</a></th>
+                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a></th>
@@ -117,6 +119,7 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                     $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_billable = intval($row['ticket_billable']);
                     $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
@@ -195,6 +198,15 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                             <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                         </td>
                         <td><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a></td>
+                        <td class="text-center">
+                            <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                            <?php
+                        if ($ticket_billable == 1) {
+                            echo "<span class='badge badge-pill badge-success'>$</span>";
+                        } else {
+                            echo "<span class='badge badge-pill badge-secondary'>X</span>";
+                        }
+                        ?></td>
                         <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
@@ -216,6 +228,8 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                         require "ticket_edit_priority_modal.php";
 
                         require "ticket_edit_contact_modal.php";
+
+                        require "ticket_edit_billable_modal.php";
 
                     }
 
