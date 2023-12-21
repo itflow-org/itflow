@@ -68,3 +68,4 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 require_once "document_template_edit_modal.php";
 
 require_once "footer.php";
+

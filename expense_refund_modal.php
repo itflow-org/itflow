@@ -31,14 +31,18 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                                 </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="-0.00" required>
+                                <input type="text" class="form-control" inputmode="numeric"
+                                    pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount"
+                                    value="-<?php echo number_format($expense_amount, 2, '.', ''); ?>"
+                                    placeholder="-0.00" required>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
+                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description"
+                            required>Refund: <?php echo $expense_description; ?></textarea>
                     </div>
 
                     <div class="form-group">
@@ -47,7 +51,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="reference" placeholder="Enter a reference" value="<?php echo $expense_reference; ?>">
+                            <input type="text" class="form-control" name="reference" placeholder="Enter a reference"
+                                value="<?php echo $expense_reference; ?>">
                         </div>
                     </div>
 
@@ -58,8 +63,10 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Refund</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i
+                            class="fas fa-check mr-2"></i>Refund</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
+                            class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
         </div>
