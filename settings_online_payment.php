@@ -12,6 +12,7 @@ require_once "inc_all_settings.php";
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="config_stripe_client_pays_fees" value="0">
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
