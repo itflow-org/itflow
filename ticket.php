@@ -638,7 +638,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     <?php } ?>
 
-                    <?php if (!empty($ticket_billable)) { ?>
+                    <?php if ($config_module_enable_accounting) { ?>
                         <div class="mt-1">
                             <i class="fa fa-fw fa-dollar-sign text-secondary ml-1 mr-2"></i>Billable:
                             <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
@@ -830,7 +830,7 @@ if (isset($_GET['ticket_id'])) {
                 </form>
 
                 <div class="card card-body card-outline card-dark mb-2">
-                    <?php if ($config_module_enable_accounting) { ?>
+                    <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
                         <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                             <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
                         </a>
@@ -864,10 +864,10 @@ if (isset($_GET['ticket_id'])) {
 
         require_once "ticket_merge_modal.php";
 
-        require_once "ticket_invoice_add_modal.php";
-
-        require_once "ticket_edit_billable_modal.php";
-
+        if ($config_module_enable_accounting) {
+            require_once "ticket_edit_billable_modal.php";
+            require_once "ticket_invoice_add_modal.php";
+        }
 
     }
 
