@@ -370,7 +370,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             <div class="mt-1"><?php echo $contact_display; ?></div>
                         </td>
-                        <?php if ($config_module_enabled_accounting) {
+                        <?php if ($config_module_enable_accounting) {
                                 ?>
                         <td class="text-center">
                             <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
