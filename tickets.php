@@ -313,6 +313,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_status_color = "success";
                     } elseif ($ticket_status == "Closed") {
                         $ticket_status_color = "dark";
+                    } elseif ($ticket_status == "Auto Close") {
+                        $ticket_status_color = "dark";
                     } elseif ($ticket_status == "Client-Replied") {
                         $ticket_status_color = "warning";
                     } else{
