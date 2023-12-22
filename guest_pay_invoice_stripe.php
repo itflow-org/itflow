@@ -15,14 +15,22 @@ function log_to_console($message)
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
 
 // Setup Stripe
-$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
+$stripe_vars = mysqli_fetch_array(mysqli_query(
+    $mysqli,
+    "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account
+    FROM settings 
+    WHERE company_id = 1"
+    ));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
 
 // Check Stripe is configured
-if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
+if ($config_stripe_enable == 0 ||
+    $config_stripe_account == 0 ||
+    empty($config_stripe_publishable) ||
+    empty($config_stripe_secret)) {
     echo "<br><h2>Stripe payments not enabled/configured</h2>";
     require_once 'guest_footer.php';
 
@@ -71,14 +79,23 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
     
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM companies, settings
+        WHERE companies.company_id = settings.company_id
+        AND companies.company_id = 1"
+        );
     $row = mysqli_fetch_array($sql);
     $company_locale = nullable_htmlentities($row['company_locale']);
 
     $config_stripe_client_pays_fees = intval(getSettingValue($mysqli, 'config_stripe_client_pays_fees'));
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
+    $sql_amount_paid = mysqli_query(
+        $mysqli,
+        "SELECT SUM(payment_amount) AS amount_paid FROM payments
+        WHERE payment_invoice_id = $invoice_id"
+        );
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
@@ -99,7 +116,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $balance_to_pay = round($balance_to_pay, 2);
 
     // Get invoice items
-    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query(
+        $mysqli,
+        "SELECT * FROM invoice_items
+        WHERE item_invoice_id = $invoice_id
+        ORDER BY item_id ASC");
 
     // Set Currency Formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -141,7 +162,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <tr>
                             <td><?php echo $item_name; ?></td>
                             <td class="text-center"><?php echo $item_quantity; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?php echo numfmt_format_currency(
+                                $currency_format,
+                                $item_total,
+                                $invoice_currency_code
+                                ); ?></td>
                         </tr>
 
                     <?php }
@@ -150,7 +175,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <tr>
                             <td>Gateway Fees</td>
                             <td class="text-center">-</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?php echo numfmt_format_currency(
+                                $currency_format,
+                                $gateway_fee,
+                                $invoice_currency_code
+                                ); ?></td>
                         </tr>
                     <?php } ?>
 
@@ -160,10 +189,18 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                 </table>
             </div>
             <br>
-            <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); } ?>
+            <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency(
+                $currency_format,
+                $invoice_discount,
+                $invoice_currency_code
+                ); } ?>
             </i>
             <br>
-            <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); } ?></i>
+            <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency(
+                $currency_format,
+                $amount_paid,
+                $invoice_currency_code);
+                } ?></i>
         </div>
         <!-- End invoice details-->
 
@@ -171,7 +208,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm offset-sm-1">
             <h1>Payment Total:</h1>
             <form id="payment-form">
-                <h1><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></h1>
+                <h1><?php echo numfmt_format_currency(
+                    $currency_format,
+                    $balance_to_pay,
+                    $invoice_currency_code
+                    ); ?></h1>
                 <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
                 <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
                 <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
@@ -276,7 +317,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice already (if any)
-    $sql_amount_paid_previously = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
+    $sql_amount_paid_previously = mysqli_query(
+        $mysqli,
+        "SELECT SUM(payment_amount) AS amount_paid FROM payments
+        WHERE payment_invoice_id = $invoice_id"
+        );
     $row = mysqli_fetch_array($sql_amount_paid_previously);
     $amount_paid_previously = $row['amount_paid'];
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
@@ -303,7 +348,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
 
     // Add Payment to History
-    mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO payments SET
+        payment_date = '$pi_date',
+        payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
     // Add Gateway fees to history if applicable

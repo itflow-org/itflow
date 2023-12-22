@@ -12,7 +12,13 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
     $item_key = sanitizeInput($_GET['key']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM shared_items
+        WHERE item_id = $item_id
+        AND item_key = '$item_key'
+        AND item_expire_at > NOW() LIMIT 1"
+        );
     $row = mysqli_fetch_array($sql);
 
     // Check result
@@ -39,7 +45,12 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
         $item_views = intval($row['item_views']);
     }
 
-    $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id LIMIT 1");
+    $file_sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM files
+        WHERE file_id = $item_related_id
+        AND file_client_id = $client_id LIMIT 1"
+        );
     $file_row = mysqli_fetch_array($file_sql);
 
     if (mysqli_num_rows($file_sql) !== 1 || !$file_row) {
@@ -63,6 +74,15 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent'");
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Sharing',
+        log_action = 'View',
+        log_description = 'Downloaded shared file $file_name via link',
+        log_client_id = $client_id,
+        log_ip = '$ip',
+        log_user_agent = '$user_agent'"
+        );
 
 }

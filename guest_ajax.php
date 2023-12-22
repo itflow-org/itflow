@@ -81,7 +81,12 @@ if (isset($_GET['stripe_create_pi'])) {
     require_once 'vendor/stripe-php-10.5.0/init.php';
 
 
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
+    $row = mysqli_fetch_array(mysqli_query(
+        $mysqli,
+        "SELECT config_stripe_enable, config_stripe_secret, config_stripe_account
+        FROM settings
+        WHERE company_id = 1"
+        ));
     if ($row['config_stripe_enable'] == 0 || $row['config_stripe_account'] == 0) {
         exit("Stripe not enabled / configured");
     }

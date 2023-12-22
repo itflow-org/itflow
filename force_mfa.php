@@ -19,10 +19,12 @@ require_once "header.php";
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
             <?php if (empty($session_token)) { ?>
-                <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
+            <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i
+                    class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
             <?php } else { ?>
-                <p>You have set up 2FA. Your QR code is below.</p>
-                <button type="submit" name="disable_2fa" class="btn btn-danger btn-block mt-3"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
+            <p>You have set up 2FA. Your QR code is below.</p>
+            <button type="submit" name="disable_2fa" class="btn btn-danger btn-block mt-3"><i
+                    class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
             <?php } ?>
 
             <center>
@@ -37,7 +39,12 @@ require_once "header.php";
                 if (!empty($session_token)) {
 
                     //Generate QR Code based off the generated key
-                    print sprintf('<img src="%s"/>', TokenAuth6238::getBarCodeUrl($session_name, ' ', $session_token, $_SERVER['SERVER_NAME']));
+                    print sprintf('<img src="%s"/>', TokenAuth6238::getBarCodeUrl(
+                        $session_name,
+                        ' ',
+                        $session_token,
+                        $_SERVER['SERVER_NAME']
+                    ));
 
                     echo "<p class='text-secondary'>$session_token</p>";
                 }
@@ -50,24 +57,23 @@ require_once "header.php";
         </form>
 
         <?php if (!empty($session_token)) { ?>
-            <form action="post.php" method="post" autocomplete="off">
-                <div class="form-group">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
-                        <div class="input-group-append">
-                            <button type="submit" name="verify" class="btn btn-success">Verify</button>
-                        </div>
+        <form action="post.php" method="post" autocomplete="off">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="code" placeholder="Verify 2FA Code" required>
+                    <div class="input-group-append">
+                        <button type="submit" name="verify" class="btn btn-success">Verify</button>
                     </div>
                 </div>
+            </div>
 
-            </form>
+        </form>
         <?php } ?>
     </div>
 </div>
 
 <?php
 require_once "footer.php";
-
