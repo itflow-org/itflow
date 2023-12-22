@@ -477,7 +477,7 @@ if (isset($_GET['delete_ticket'])) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted";
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        header("Location: tickets.php");
     }
 
 }
