@@ -864,7 +864,7 @@ if (isset($_GET['ticket_id'])) {
 
         require_once "ticket_merge_modal.php";
 
-        if ($config_module_enabled_accounting) {
+        if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
             require_once "ticket_invoice_add_modal.php";
         }

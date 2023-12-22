@@ -62,7 +62,7 @@
                                 </div>
                             </div>
 
-                            <?php if ($config_module_enabled_accounting) {
+                            <?php if ($config_module_enable_accounting) {
                                 ?>
                             <div class="form-group">
                                 <label>Billable</label>
