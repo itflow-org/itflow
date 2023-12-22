@@ -241,12 +241,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </table>
             </div>
             <?php require_once "pagination.php";
- ?>
+?>
         </div>
     </div>
 
 <!-- JavaScript to Show/Hide Password Form Group -->
 <script>
+
+    function generatePassword(type, id) {
+        var url = '/ajax.php?get_readable_pass=true';
+
+        // Make an AJAX request to the server
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var password = xhr.responseText;
+
+                // Set the password value based on the type
+                if (type == "add") {
+                    document.getElementById("password-add").value = password;
+                } else if (type == "edit") {
+                    console.log("password-edit-"+id.toString());
+                    document.getElementById("password-edit-"+id.toString()).value = password;
+                }
+            }
+        };
+        xhr.send();
+    }
+
     $(document).ready(function() {
         $('.authMethod').on('change', function() {
             var $form = $(this).closest('.authForm');
@@ -257,6 +281,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             }
         });
         $('.authMethod').trigger('change');
+
     });
 </script>
 
