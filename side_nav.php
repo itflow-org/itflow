@@ -14,7 +14,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
 
                 <li class="nav-item">
-                    <a href="dashboard_technical.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard.php" || basename($_SERVER["PHP_SELF"]) == "dashboard_technical.php" || basename($_SERVER["PHP_SELF"]) == "dashboard_financial.php") { echo "active"; } ?>">
+                    <a href="dashboard.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>

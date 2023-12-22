@@ -119,10 +119,16 @@ if (isset($_POST['add_ticket'])) {
 
            // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data = [
+                [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $contact_email_escaped,
+                    'recipient_name' => $contact_name_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ]
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -131,8 +137,18 @@ if (isset($_POST['add_ticket'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data = [
+                    [    
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
+                        'recipient' => $watcher_email_escaped,
+                        'recipient_name' => $watcher_email_escaped,
+                        'subject' => $subject_escaped,
+                        'body' => $body_escaped,
+                    ]
+                ];
             }
+            addToMailQueue($mysqli, $data);
         }
     }
 
@@ -410,10 +426,17 @@ if (isset($_POST['assign_ticket'])) {
 
             // Email Ticket Agent
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$agent_email_escaped', email_recipient_name = '$agent_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data = [
+                [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $agent_email_escaped,
+                    'recipient_name' => $agent_name_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ]
+            ];
+            addToMailQueue($mysqli, $data);
         }
 
     }
@@ -554,12 +577,18 @@ if (isset($_POST['add_ticket_reply'])) {
 
             }
 
+            $data = [];
+
             // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
-
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email_escaped,
+                'recipient_name' => $contact_name_escaped,
+                'subject' => $subject_escaped,
+                'body' => $body_escaped,
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -568,9 +597,16 @@ if (isset($_POST['add_ticket_reply'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $watcher_email_escaped,
+                    'recipient_name' => $watcher_email_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ];
             }
-
+            addToMailQueue($mysqli, $data);
         }
     }
     //End Mail IF
@@ -763,15 +799,22 @@ if (isset($_GET['close_ticket'])) {
         // Check email valid
         if (filter_var($contact_email_escaped, FILTER_VALIDATE_EMAIL)) {
 
+            $data = [];
+
             $subject_escaped = mysqli_escape_string($mysqli, "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)");
             $body_escaped    = mysqli_escape_string($mysqli, "Hello, $contact_name<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
             // Email Ticket Contact
             // Queue Mail
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
 
-            // Get Email ID for reference
-            $email_queue_id = mysqli_insert_id($mysqli);
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email_escaped,
+                'recipient_name' => $contact_name_escaped,
+                'subject' => $subject_escaped,
+                'body' => $body_escaped,
+            ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -780,8 +823,17 @@ if (isset($_GET['close_ticket'])) {
                 $watcher_email_escaped = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$watcher_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$subject_escaped', email_content = '$body_escaped'");
+                $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $watcher_email_escaped,
+                    'recipient_name' => $watcher_email_escaped,
+                    'subject' => $subject_escaped,
+                    'body' => $body_escaped,
+                ];
             }
+
+            addToMailQueue($mysqli, $data);
 
         }
 
@@ -1044,4 +1096,36 @@ if (isset($_POST['bulk_delete_scheduled_tickets'])) {
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if(isset($_POST['set_billable_status'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $billable_status = sanitizeInput($_POST['billable_status']);
+
+    mysqli_query($mysqli,
+    "UPDATE tickets SET
+    ticket_billable = '$billable_status'
+    WHERE ticket_id = $ticket_id"
+    );
+
+    //Logging
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Ticket',
+        log_action = 'Modify',
+        log_description = '$session_name modified ticket billable status',
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id,
+        log_entity_id = $ticket_id"
+        );
+
+    $_SESSION['alert_message'] = "Ticket billable status updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }

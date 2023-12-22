@@ -71,19 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $subject = "Password reset for $company_name ITFlow Portal";
             $body    = "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
 
-            $mail = sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $config_mail_from_email,
-                $config_mail_from_name,
-                $email,
-                $name,
-                $subject,
-                $body
-            );
+            $data = [
+                [
+                    'from' => $config_mail_from_email,
+                    'from_name' => $config_mail_from_name,
+                    'recipient' => $email,
+                    'recipient_name' => $name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+            ];
+            $mail = addToMailQueue($mysqli, $data);
 
             // Error handling
             if ($mail !== true) {
@@ -130,19 +128,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $body    = "Hello, $name<br><br>Your password for your account on $company_name's ITFlow Client Portal was successfully reset. You should be all set! <br><br><b>If you didn't reset your password, please get in touch ASAP.</b><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email";
 
 
-            $mail = sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $config_mail_from_email,
-                $config_mail_from_name,
-                $email,
-                $name,
-                $subject,
-                $body
-            );
+            $data = [
+                [
+                    'from' => $config_mail_from_email,
+                    'from_name' => $config_mail_from_name,
+                    'recipient' => $email,
+                    'recipient_name' => $name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+                ];
+
+            $mail = addToMailQueue($mysqli, $data); 
 
             // Error handling
             if ($mail !== true) {

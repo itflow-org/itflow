@@ -153,13 +153,20 @@ if (isset($_POST['test_email_smtp'])) {
     validateAdminRole();
     $email_from = sanitizeInput($_POST['email_from']);
     $email_to = sanitizeInput($_POST['email_to']);
-    $subject = "Hi'ya there Chap";
-    $body    = "Hello there Chap ;) Don't worry this won't hurt a bit, it's just a test";
+    $subject = "Test email from ITFlow";
+    $body    = "This is a test email from ITFlow. If you are reading this, it worked!";
 
-    $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-        $email_from, $config_mail_from_name,
-        $email_to, $email_to,
-        $subject, $body);
+    $data = [
+        [
+            'from' => $email_from,
+            'from_name' => $email_from,
+            'recipient' => $email_to,
+            'recipient_name' => 'Chap',
+            'subject' => $subject,
+            'body' => $body
+        ]
+        ];
+    $mail = addToMailQueue($mysqli, $data);
 
     if ($mail === true) {
         $_SESSION['alert_message'] = "Test email sent successfully";

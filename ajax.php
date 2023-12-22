@@ -310,12 +310,20 @@ if (isset($_GET['share_generate_link'])) {
         if ($item_expires_friendly == "never") {
             $subject = "$session_company_name secure link enclosed";
         }
-        $body = "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive secure link regarding '$item_name'.<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href='$url'>Click here to access your secure content</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $body = mysqli_real_escape_string($mysqli, "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive secure link regarding '$item_name'.<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href='$url'>Click here to access your secure content</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $item_email, $item_email,
-            $subject, $body);
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $item_email,
+                'recipient_name' => $item_email,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $item_email'");

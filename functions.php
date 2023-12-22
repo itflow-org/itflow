@@ -847,7 +847,7 @@ function calculateAccountBalance($mysqli, $account_id) {
     $sql_account = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON accounts.account_type = account_types.account_type_id WHERE account_archived_at  IS NULL AND account_id = $account_id ORDER BY account_name ASC; ");
     $row = mysqli_fetch_array($sql_account);
     $opening_balance = floatval($row['opening_balance']);
-    $account_id = $row['account_id'];
+    $account_id = intval($row['account_id']);
     
     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
     $row = mysqli_fetch_array($sql_payments);
@@ -869,6 +869,7 @@ function calculateAccountBalance($mysqli, $account_id) {
 
     return $balance;
 }
+
 
 function generateReadablePassword($security_level) {
     // Arrays of words
@@ -919,4 +920,47 @@ function generateReadablePassword($security_level) {
     }
 
     return $password;
+}
+
+function addToMailQueue($mysqli, $data) {
+    
+    foreach ($data as $email) {
+        $from = strval($email['from']);
+        $from_name = strval($email['from_name']);
+        $recipient = strval($email['recipient']);
+        $recipient_name = strval($email['recipient_name']);
+        $subject = strval($email['subject']);
+        $body = strval($email['body']);
+
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body'");
+    }
+
+    return true;
+
+}
+
+function calculateInvoiceBalance($mysqli, $invoice_id) {
+    $invoice_id_int = intval($invoice_id);
+    $sql_invoice = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id_int");
+    $row = mysqli_fetch_array($sql_invoice);
+    $invoice_amount = floatval($row['invoice_amount']);
+
+    $sql_payments = mysqli_query(
+        $mysqli,
+        "SELECT SUM(payment_amount) AS total_payments FROM payments
+        WHERE payment_invoice_id = $invoice_id
+        ");
+        
+    $row = mysqli_fetch_array($sql_payments);
+    $total_payments = floatval($row['total_payments']);
+
+    $balance = $invoice_amount - $total_payments;
+
+    if ($balance == '') {
+        $balance = '0.00';
+    }
+
+    return $balance;
+
+
 }
