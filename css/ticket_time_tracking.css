@@ -1,0 +1,13 @@
+/* Custom CSS Styling for time tracking */
+
+/* Small bit of space between the ticket status and time tracking inputs */
+.custom-tt-horizontal-spacing {
+    width: 20px; /* Adjust the width as needed for smaller spacing */
+    display: inline-block;
+}
+
+/* Adjust Hour, min, second fields to be close together */
+.custom-tt-width {
+    width: 50px; /* Adjust the width as needed */
+    padding: 0;  /* Remove padding to maintain the desired width */
+}
