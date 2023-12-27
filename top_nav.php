@@ -60,15 +60,16 @@
 
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                <i class="far fa-bell"></i>
+            <a class="nav-link" data-toggle="dropdown" href="#">
+                <i class="far fa-bell mr-3"></i>
                 <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
-
             </a>
-            <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
-                <a href="notifications.php" class="dropdown-item dropdown-header"><i
-                        class="fas fa-fw fa-bell mr-2"></i><strong><?php echo $num_notifications; ?></strong>
-                    Notifications</a>
+            <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
+                <a href="notifications.php" class="dropdown-item dropdown-header">
+                    <i class="fas fa-fw fa-bell mr-2"></i>
+                    <strong><?php echo $num_notifications; ?></strong>
+                    Notifications
+                </a>
                 <div class="dropdown-divider"></div>
                 <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
