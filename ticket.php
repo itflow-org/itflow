@@ -1,8 +1,14 @@
 <?php
 require_once "inc_all.php";
 
+?>
 
-//Initialize the HTML Purifier to prevent XSS
+<!-- Custom styling of time tracking elements -->
+<link rel="stylesheet" type="text/css" href="css/ticket_time_tracking.css">
+
+<?php
+
+// Initialize the HTML Purifier to prevent XSS
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
@@ -52,7 +58,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_details = $purifier->purify($row['ticket_details']);
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
         $ticket_billable = intval($row['ticket_billable']);
-        
+
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -348,30 +354,30 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <!-- Time Tracking: Hours -->
+                            <div class="custom-tt-horizontal-spacing"></div> <!-- Add custom class for smaller spacing -->
 
+                            <!-- Time Tracking -->
                             <div class="col-sm-3 col-lg-2">
                                 <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                                    <div class="form-row">
+
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                                        </div>
+
+                                        <div class="input-group custom-tt-width">
+                                            <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
+                                        </div>
+
+                                        <div class="input-group custom-tt-width">
+                                            <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
+                                        </div>
+
+                                        <div class="input-group custom-tt-width">
+                                            <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
+                                        </div>
+
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
-                                </div>
-                            </div>
-
-                            <!-- Time Tracking: Minutes -->
-
-                            <div class="col-sm-1">
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
-                                </div>
-                            </div>
-
-                            <!-- Time Tracking: Seconds -->
-
-                            <div class="col-sm-1">
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
                                 </div>
                             </div>
 
@@ -382,6 +388,7 @@ if (isset($_GET['ticket_id'])) {
                                     <button type="button" class="btn btn-danger" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
                                 </div>
                             </div>
+
 
                         </div>
                         <div class="form-row">
@@ -600,7 +607,7 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="fa fa-fw fa-hourglass-start text-secondary ml-1 mr-2"></i><strong>Status:</strong>
                                 <span class="text-success"><?php echo $prev_ticket_status; ?></span>
                             </div>
-                            <?php } ?>   
+                            <?php } ?>
 
                     <?php } else { ?>
                         <div>
@@ -735,7 +742,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="mt-1">
                                 <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank"><?php echo $asset_uri; ?></a>
                             </div>
-                        <?php } 
+                        <?php }
 
                         if ($ticket_asset_count > 0) { ?>
 

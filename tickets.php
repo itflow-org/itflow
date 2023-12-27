@@ -37,9 +37,9 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 // Ticket assignment status filter
 if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     if ($_GET['assigned'] == 'unassigned') {
-        $ticket_assigned_filter = '0';
+        $ticket_assigned_filter = 'AND ticket_assigned_to = 0';
     } else {
-        $ticket_assigned_filter = intval($_GET['assigned']);
+        $ticket_assigned_filter = 'AND ticket_assigned_to = '.intval($_GET['assigned']);
     }
 } else {
     // Default - any
@@ -59,8 +59,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-    WHERE ticket_assigned_to LIKE '%$ticket_assigned_filter%'
-    AND $ticket_status_snippet
+    WHERE $ticket_status_snippet " . $ticket_assigned_filter . "
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -320,6 +319,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_status_color = "success";
                     } elseif ($ticket_status == "Closed") {
                         $ticket_status_color = "dark";
+                    } elseif ($ticket_status == "Auto Close") {
+                        $ticket_status_color = "dark";
+                    } elseif ($ticket_status == "Client-Replied") {
+                        $ticket_status_color = "warning";
                     } else{
                         $ticket_status_color = "secondary";
                     }
@@ -367,12 +370,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             <div class="mt-1"><?php echo $contact_display; ?></div>
                         </td>
+
                         <?php 
                         $config_module_enabled_accounting = getSettingValue(
                             $mysqli,
                             "config_module_enable_accounting"
                         );
                         if ($config_module_enabled_accounting) {
+
                                 ?>
                         <td class="text-center">
                             <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
