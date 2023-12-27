@@ -1,4 +1,4 @@
-<?php 
+<?php
         $sql_expenses = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_ticket_id = $ticket_id");
 ?>
 
@@ -30,9 +30,10 @@
                             </ul>
                         </div>
                         <!-- End Expense or Product Pills-->
+
                         <!-- Expense or Product Pills Content-->
-                        <!-- Expense Pills Content-->
                         <div class="tab-content">
+                            <!-- Expense Pills Content-->
                             <div class="tab-pane container show active" id="pills-expense">
                                 <div class="col-md-12">
                                     <div class="row">
@@ -65,14 +66,19 @@
                                                             <?php echo $expense_description; ?>
                                                         </td>
                                                         <td class="text-center">
-                                                            <?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency) ?>
+                                                            <?php echo numfmt_format_currency(
+                                                                $currency_format,
+                                                                $expense_amount,
+                                                                $expense_currency
+                                                                ) ?>
                                                         </td>
                                                         <td class="text-center">
                                                             <?php echo $expense_date; ?>
                                                         </td>
                                                         <?php if ($ticket_status != "Closed") { ?>
                                                         <td class="text-center">
-                                                            <a href="post.php?delete_ticket_expense_id=<?php echo $expense_id; ?>&ticket_id=<?php echo $ticket_id; ?>"
+                                                            <a href="post.php?delete_ticket_expense_id=
+                                                                <?php echo $expense_id; ?>&ticket_id=<?php echo $ticket_id; ?>"
                                                                 class="btn btn-danger btn-sm">
                                                                 <i class="fa fa-trash-alt"></i>
                                                             </a>
@@ -118,6 +124,7 @@
                                 </div>
                             </div>
                             <!-- End Expense Pills Content-->
+
                             <!-- Product Pills Content-->
                             <div class="tab-pane fade container" id="pills-product">
                                 <div class="col-md-12">
@@ -136,14 +143,22 @@
                                                     </tr>
                                                 </thead>
                                                 <?php
-                                            $sql_ticket_products = mysqli_query($mysqli, "SELECT * FROM ticket_products WHERE ticket_product_ticket_id = $ticket_id");
+                                            $sql_ticket_products = mysqli_query(
+                                                $mysqli,
+                                                "SELECT * FROM ticket_products
+                                                WHERE ticket_product_ticket_id = $ticket_id
+                                                ");
                                             while($row = mysqli_fetch_array($sql_ticket_products)) {
                                                 $product_id = $row['ticket_product_product_id'];
                                                 $product_quantity = $row['ticket_product_quantity'];
                                                 $ticket_product_id = $row['ticket_product_association_id'];
 
 
-                                                $sql_product = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
+                                                $sql_product = mysqli_query(
+                                                    $mysqli,
+                                                    "SELECT * FROM products
+                                                    WHERE product_id = $product_id LIMIT 1
+                                                    ");
                                                 $row = mysqli_fetch_array($sql_product);
 
                                                 $product_id = $row['product_id'];
@@ -153,14 +168,22 @@
                                                 
 
                                                 $product_price = floatval($product_price);
-                                                $product_price_fmt = numfmt_format_currency($currency_format, $product_price, $product_currency_code);
+                                                $product_price_fmt = numfmt_format_currency(
+                                                    $currency_format,
+                                                    $product_price,
+                                                    $product_currency_code
+                                                );
 
                                                 $product_id = intval($product_id);
                                                 $product_price = floatval($product_price);
                                                 $product_description = nullable_htmlentities($product_description);
                                                 $product_quantity = intval($product_quantity);
                                                 $product_amount = $product_price * $product_quantity;
-                                                $product_amount_fmt = numfmt_format_currency($currency_format, $product_amount, $product_currency_code);
+                                                $product_amount_fmt = numfmt_format_currency(
+                                                    $currency_format,
+                                                    $product_amount,
+                                                    $product_currency_code
+                                                );
                                                 
                                                 
                                             ?>
@@ -176,7 +199,9 @@
                                                     </td>
                                                     <?php if ($ticket_status != "Closed") { ?>
                                                     <td class="text-center">
-                                                        <a href="post.php?delete_ticket_product_id=<?php echo $ticket_product_id; ?>&ticket_id=<?php echo $ticket_id; ?>"
+                                                        <a href="post.php?delete_ticket_product_id=
+                                                            <?php echo $ticket_product_id; ?>&ticket_id=
+                                                            <?php echo $ticket_id; ?>"
                                                             class="btn btn-danger btn-sm">
                                                             <i class="fa fa-trash-alt"></i>
                                                         </a>
@@ -209,11 +234,17 @@
                                                             $product_currency_code = $row['product_currency_code'];
 
                                                             $product_price = floatval($product_price);
-                                                            $product_price_fmt = numfmt_format_currency($currency_format, $product_price, $product_currency_code);
+                                                            $product_price_fmt = numfmt_format_currency(
+                                                                $currency_format,
+                                                                $product_price,
+                                                                $product_currency_code
+                                                            );
 
                                                             $product_id = intval($product_id);
                                                             $product_price = floatval($product_price);
-                                                            $product_description = nullable_htmlentities($product_description);
+                                                            $product_description = nullable_htmlentities(
+                                                                $product_description
+                                                            );
                                                             ?>
                                                         <option value="<?php echo $product_id; ?>">
                                                             <?php echo $product_description." [".$product_price_fmt."]";
@@ -223,12 +254,14 @@
                                                     </select>
                                                 </div>
                                             </div>
-
                                         </div>
                                         <?php } ?>
                                     </div>
                                 </div>
+                                <!-- End Product Pills Content-->
+
                             </div>
+
                         </div>
                     </div>
                 </div>
