@@ -49,9 +49,7 @@
                                     <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $contact_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="contact_primary" value="1" <?php if ($contact_primary == 1) {
-                                                                                                        echo "checked";
-                                                                                                    } ?>>
+                                            <input type="checkbox" name="contact_primary" value="1" <?php if ($contact_primary == 1) { echo "checked"; } ?>>
                                         </div>
                                     </div>
                                 </div>
@@ -143,9 +141,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?php echo $contact_id; ?>" name="contact_important" value="1" <?php if ($contact_important == 1) {
-                                                                                                                                                                                                echo "checked";
-                                                                                                                                                                                            } ?>>
+                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?php echo $contact_id; ?>" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactImportantCheckbox<?php echo $contact_id; ?>">Important</label>
                                         </div>
                                     </div>
@@ -153,9 +149,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?php echo $contact_id; ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) {
-                                                                                                                                                                                            echo "checked";
-                                                                                                                                                                                        } ?>>
+                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?php echo $contact_id; ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactBillingCheckbox<?php echo $contact_id; ?>">Billing</label>
                                         </div>
                                     </div>
@@ -163,9 +157,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?php echo $contact_id; ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) {
-                                                                                                                                                                                                echo "checked";
-                                                                                                                                                                                            } ?>>
+                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?php echo $contact_id; ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactTechnicalCheckbox<?php echo $contact_id; ?>">Technical</label>
                                         </div>
                                     </div>
@@ -197,12 +189,8 @@
                                             </div>
                                             <select class="form-control select2 authMethod" name="auth_method">
                                                 <option value="">- None -</option>
-                                                <option value="local" <?php if ($auth_method == "local") {
-                                                                            echo "selected";
-                                                                        } ?>>Local</option>
-                                                <option value="azure" <?php if ($auth_method == "azure") {
-                                                                            echo "selected";
-                                                                        } ?>>Azure</option>
+                                                <option value="local" <?php if ($auth_method == "local") { echo "selected"; } ?>>Local</option>
+                                                <option value="azure" <?php if ($auth_method == "azure") { echo "selected"; } ?>>Azure</option>
                                             </select>
                                         </div>
                                     </div>
@@ -212,7 +200,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                             </div>
-                                            <input type="password" class="form-control" data-toggle="password" id="password-edit-<?php echo $contact_id; ?>" name="password" placeholder="Password" required autocomplete="new-password">
+                                            <input type="password" class="form-control" data-toggle="password" id="password-edit-<?php echo $contact_id; ?>" name="password" placeholder="Password" autocomplete="new-password">
                                             <div class="input-group-append">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                             </div>
