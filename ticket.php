@@ -600,10 +600,15 @@ if (isset($_GET['ticket_id'])) {
                     // Get Watchers
                     $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
                     while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
+                        $watcher_id = intval($ticket_watcher_row['watcher_id']);
                         $ticket_watcher_email = nullable_htmlentities($ticket_watcher_row['watcher_email']);
                         ?>
                         <div class='mt-1'>
                             <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>
+                            <a class="confirm-link" 
+                                href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
+                                <i class="fas fa-fw fa-times text-secondary ml-1"></i>
+                            </a>
                         </div>
                     <?php } ?>
 

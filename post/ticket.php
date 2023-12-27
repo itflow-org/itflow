@@ -278,6 +278,21 @@ if (isset($_POST['edit_ticket_watchers'])) {
 
 }
 
+if (isset($_GET['delete_ticket_watcher'])) {
+
+    validateTechRole();
+
+    $watcher_id = intval($_GET['delete_ticket_watcher']);
+
+    mysqli_query($mysqli,"DELETE FROM ticket_watchers WHERE watcher_id = $watcher_id");
+
+
+    $_SESSION['alert_message'] = "You <b>removed</b> a ticket watcher";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['edit_ticket_asset'])) {
 
     validateTechRole();
