@@ -920,6 +920,69 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = 1, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
 
+    // Add expenses from database with matching ticket_id
+    $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_ticket_id = $ticket_id");
+
+    while ($row = mysqli_fetch_array($sql)) {
+
+        $expense_name = sanitizeInput($row['expense_name']);
+        $expense_description = sanitizeInput($row['expense_description']);
+        $expense_quantity = floatval($row['expense_quantity']);
+        $expense_price = floatval($row['expense_price']);
+        $expense_tax_id = intval($row['expense_tax_id']);
+
+        $expense_subtotal = $expense_price * $expense_quantity;
+
+        if ($expense_tax_id > 0) {
+            $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $expense_tax_id");
+            $row_tax = mysqli_fetch_array($sql_tax);
+            $expense_tax_percent = floatval($row_tax['tax_percent']);
+            $expense_tax_amount = $expense_subtotal * $expense_tax_percent / 100;
+        } else {
+            $expense_tax_amount = 0;
+        }
+
+        $expense_total = $expense_subtotal + $expense_tax_amount;
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$expense_name', item_description = '$expense_description', item_quantity = $expense_quantity, item_price = $expense_price, item_subtotal = $expense_subtotal, item_tax = $expense_tax_amount, item_total = $expense_total, item_order = 1, item_tax_id = $expense_tax_id, item_invoice_id = $invoice_id");
+
+    }
+
+    // Add products from ticket_products table
+    $sql = mysqli_query($mysqli,"SELECT * FROM ticket_products WHERE ticket_product_ticket_id = $ticket_id");
+
+    while ($row = mysqli_fetch_array($sql)) {
+
+        $product_id = intval($row['ticket_product_product_id']);
+        $product_quantity = floatval($row['ticket_product_quantity']);
+
+        $sql = mysqli_query($mysqli,"SELECT * FROM products WHERE product_id = $product_id");
+        $row = mysqli_fetch_array($sql);
+
+        $product_name = sanitizeInput($row['product_name']);
+        $product_description = sanitizeInput($row['product_description']);
+        $product_price = floatval($row['product_price']);
+        $product_tax_id = intval($row['product_tax_id']);
+
+
+
+        $product_subtotal = $product_price * $product_quantity;
+
+        if ($product_tax_id > 0) {
+            $sql_tax = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $product_tax_id");
+            $row_tax = mysqli_fetch_array($sql_tax);
+            $product_tax_percent = floatval($row_tax['tax_percent']);
+            $product_tax_amount = $product_subtotal * $product_tax_percent / 100;
+        } else {
+            $product_tax_amount = 0;
+        }
+
+        $product_total = $product_subtotal + $product_tax_amount;
+
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$product_name', item_description = '$product_description', item_quantity = $product_quantity, item_price = $product_price, item_subtotal = $product_subtotal, item_tax = $product_tax_amount, item_total = $product_total, item_order = 1, item_tax_id = $product_tax_id, item_invoice_id = $invoice_id");
+
+    }
+
     //Update Invoice Balances
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
@@ -1179,7 +1242,7 @@ if(isset($_POST['change_product_ticket'])) {
 
 
             // Add internal note to ticket, and create invoice_item
-            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Added product <a href=\"products.php?q=$product_name\">$product_name</a> to this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Added product <a href=\"products.php?q=$product_name\">$product_name</a> (qty:$product_quantity) to this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
             mysqli_query($mysqli,
             "INSERT INTO invoice_items SET
@@ -1235,6 +1298,13 @@ if (isset($_GET['delete_ticket_product_id'])) {
     
         $ticket_id = intval($_GET['ticket_id']);
         $ticket_product_id = intval($_GET['delete_ticket_product_id']);
+
+        // Get ticket product details
+        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_products WHERE ticket_product_association_id = $ticket_product_id LIMIT 1");
+        $row = mysqli_fetch_array($sql);
+        $product_id = intval($row['ticket_product_product_id']);
+        $product_quantity = intval($row['ticket_product_quantity']);
+
     
         // Get product details
         $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
@@ -1247,7 +1317,7 @@ if (isset($_GET['delete_ticket_product_id'])) {
         // Add internal note to ticket, and create invoice_item
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Removed product <a href=\"products.php?q=$product_name\">$product_name</a> from this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-        mysqli_query($mysqli, "DELETE FROM ticket_products WHERE ticket_product_id = $ticket_product_id");
+        mysqli_query($mysqli, "DELETE FROM ticket_products WHERE ticket_product_association_id = $ticket_product_id");
 
 
 

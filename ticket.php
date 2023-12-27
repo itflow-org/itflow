@@ -220,12 +220,7 @@ if (isset($_GET['ticket_id'])) {
 
         $products_total = $total_expenses + $total_products;
 
-
-
-
-
-
-        $sql_all_expenses = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_ticket_id = 0");
+        $sql_all_expenses = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_ticket_id = 0 AND expense_client_id = $client_id");
 
         $sql_all_products = mysqli_query($mysqli, "SELECT * FROM products");
 
@@ -934,6 +929,10 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_edit_product_modal.php";
 
         require_once "ticket_merge_modal.php";
+
+        require_once "expense_add_modal.php";
+
+        require_once "product_add_modal.php";
 
         if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
