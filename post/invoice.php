@@ -686,14 +686,14 @@ if (isset($_POST['add_payment'])) {
                     'body' => $body
                 ];
 
-                $email_data = $email;
+                $email_data[] = $email;
 
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
 
                 // Email Logging
 
-                $_SESSION['alert_message'] .= "Email receipt sent ";
+                $_SESSION['alert_message'] = "Email receipt sent ";
 
                 mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
 
@@ -719,7 +719,7 @@ if (isset($_POST['add_payment'])) {
                     'body' => $body
                 ];
 
-                $email_data = $email;
+                $email_data[] = $email;
 
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
@@ -736,7 +736,7 @@ if (isset($_POST['add_payment'])) {
 
         // Add emails to queue
         if (!empty($email)) {
-            addToMailQueue($mysqli, $email);
+            addToMailQueue($mysqli, $email_data);
         }
 
         //Update Invoice Status

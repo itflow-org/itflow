@@ -243,9 +243,7 @@ $industry_select_array = array(
 );
 
 $start_page_select_array = array (
-    'dashboard.php'=>'Personal Dashboard',
-    'dashboard_financial.php'=>'Administrative Dashboard',
-    'dashboard_technical.php' => 'Technical Dashboard',
+    'dashboard.php'=>'Dashboard',
     'clients.php'=> 'Client Management',
     'tickets.php'=> 'Support Tickets',
     'invoices.php' => 'Invoices'

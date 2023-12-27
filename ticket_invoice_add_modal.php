@@ -121,10 +121,13 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                                             $invoice_due = nullable_htmlentities($row['invoice_due']);
                                             $invoice_amount = floatval($row['invoice_amount']);
 
-                                            if ($invoice_status == "Draft") {
-                                            ?>
-                                        <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) echo "selected"; ?>><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
 
+                                            if ($invoice_status == "Draft") {
+
+                                            ?>
+                                            <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) { 
+                                                echo "selected";
+                                                }?>><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
                                             <?php
                                             }
                                         }
@@ -152,7 +155,9 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                     <div class="form-group">
                         <label>Item Description</label>
                         <div class="input-group">
-                            <textarea class="form-control" rows="5" name="item_description"><?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?></textarea>
+                            <textarea class="form-control" rows="5" name="item_description">
+                                <?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?>
+                            </textarea>
                         </div>
                     </div>
 

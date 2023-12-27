@@ -1515,14 +1515,23 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.7'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '0.9.7') {
+        // Insert queries here required to update to DB version 0.9.8
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_dashboard_financial_enable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_records_per_page`");
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_dashboard_technical_enable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_dashboard_financial_enable`");
+        //set all invoice id
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
+    }
+
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    // if (CURRENT_DATABASE_VERSION == '0.9.7') {
-    //     // Insert queries here required to update to DB version 0.9.8
+    // if (CURRENT_DATABASE_VERSION == '0.9.8') {
+    //     // Insert queries here required to update to DB version 0.9.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
     // }
 
 } else {

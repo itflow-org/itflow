@@ -38,6 +38,7 @@ if (isset($_POST['add_database'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+    $config_base_url = rtrim($config_base_url, '/');
 
     $installation_id = randomString(32);
 

@@ -1,5 +1,6 @@
 <?php
 
+
 // Default Column Sortby Filter
 $sort = "ticket_number";
 $order = "DESC";
@@ -36,9 +37,9 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 // Ticket assignment status filter
 if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     if ($_GET['assigned'] == 'unassigned') {
-        $ticket_assigned_filter = '0';
+        $ticket_assigned_filter = 'AND ticket_assigned_to = 0';
     } else {
-        $ticket_assigned_filter = intval($_GET['assigned']);
+        $ticket_assigned_filter = 'AND ticket_assigned_to = '.intval($_GET['assigned']);
     }
 } else {
     // Default - any
@@ -58,8 +59,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-    WHERE ticket_assigned_to LIKE '%$ticket_assigned_filter%'
-    AND $ticket_status_snippet
+    WHERE $ticket_status_snippet " . $ticket_assigned_filter . "
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -139,7 +139,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 </div>
             </div>
 
-            <div class="collapse <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || is_array($_GET['status'])) { echo "show"; } ?>" id="advancedFilter">
+            <div class="collapse <?php if (!empty($_GET['dtf']) || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") || (isset($_GET['status']) && is_array($_GET['status']))) { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
@@ -200,13 +200,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="form-group">
                             <label>Ticket Status</label>
                             <select class="form-control select2" name="status[]" data-placeholder = "Select Status" multiple>
-                                <option value="In-Progress" <?php if (is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) { echo 'selected'; } ?> >In-Progress</option>
-                                <option value="Client-Replied" <?php if (is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) { echo 'selected'; } ?> >Client-Replied</option>
-                                <option value="Pending-Client" <?php if (is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) { echo 'selected'; } ?> >Pending-Client</option>
-                                <option value="Pending-Vendor" <?php if (is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) { echo 'selected'; } ?> >Pending-Vendor</option>
-                                <option value="Pending-Shipment" <?php if (is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) { echo 'selected'; } ?> >Pending-Shipment</option>
-                                <option value="Scheduled" <?php if (is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) { echo 'selected'; } ?> >Scheduled</option>
-                                <option value="Closed" <?php if (is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?> >Closed</option>
+                                <option value="In-Progress" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) { echo 'selected'; } ?> >In-Progress</option>
+                                <option value="Client-Replied" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) { echo 'selected'; } ?> >Client-Replied</option>
+                                <option value="Pending-Client" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) { echo 'selected'; } ?> >Pending-Client</option>
+                                <option value="Pending-Vendor" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) { echo 'selected'; } ?> >Pending-Vendor</option>
+                                <option value="Pending-Shipment" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) { echo 'selected'; } ?> >Pending-Shipment</option>
+                                <option value="Scheduled" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) { echo 'selected'; } ?> >Scheduled</option>
+                                <option value="Closed" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?> >Closed</option>
                             </select>
                         </div>
                     </div>
@@ -242,27 +242,36 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 } ?>">
                 <tr>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a>
                     </th>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a>
                     </th>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client / Contact</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client / Contact</a>
+                    </th>
+                    <?php if ($config_module_enable_accounting) {
+                        ?>
+                        <th class="text-center"><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a>
+                        </th>
+                        <?php
+                    }
+                    ?>
+
+                    <th><a class="text-dark"
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
                     </th>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a>
+                    <th><a class="text-dark"
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a>
                     </th>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a>
-                    <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a>
                     </th>
                     <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a>
-                    </th>
-                    <th><a class="text-dark"
-                           href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a>
+                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a>
                     </th>
 
                 </tr>
@@ -277,6 +286,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                     $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_billable = intval($row['ticket_billable']);
                     $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
@@ -309,6 +319,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         $ticket_status_color = "success";
                     } elseif ($ticket_status == "Closed") {
                         $ticket_status_color = "dark";
+                    } elseif ($ticket_status == "Auto Close") {
+                        $ticket_status_color = "dark";
+                    } elseif ($ticket_status == "Client-Replied") {
+                        $ticket_status_color = "warning";
                     } else{
                         $ticket_status_color = "secondary";
                     }
@@ -356,6 +370,20 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             <div class="mt-1"><?php echo $contact_display; ?></div>
                         </td>
+                        <?php if ($config_module_enable_accounting) {
+                                ?>
+                        <td class="text-center">
+                            <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                            <?php
+                            if ($ticket_billable == 1) {
+                                echo "<span class='badge badge-pill badge-success'>$</span>";
+                            } else {
+                                echo "<span class='badge badge-pill badge-secondary'>X</span>";
+                            }
+                        ?></td>
+                        <?php
+                            }
+                        ?>
                         <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
@@ -375,6 +403,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         require "ticket_assign_modal.php";
 
                         require "ticket_edit_priority_modal.php";
+
+                        if ($config_module_enable_accounting) {
+                            require "ticket_edit_billable_modal.php";
+                        }
 
                     }
 

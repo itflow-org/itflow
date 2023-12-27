@@ -1637,6 +1637,8 @@ CREATE TABLE `user_settings` (
   `user_config_remember_me_token` varchar(255) DEFAULT NULL,
   `user_config_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
+  `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1749,4 +1751,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-01 11:52:50
+-- Dump completed on 2023-12-21 16:35:50
