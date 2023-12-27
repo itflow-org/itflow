@@ -1524,14 +1524,38 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
     }
 
+
+    if (CURRENT_DATABASE_VERSION == '0.9.8') {
+        // Insert queries here required to update to DB version 0.9.9
+        mysqli_query(
+            $mysqli,
+            "ALTER TABLE `expenses` ADD `expense_ticket_id` INT(11) NOT NULL DEFAULT 0 AFTER `expense_vendor_id`"
+        );
+
+        mysqli_query(
+            $mysqli,
+            "ALTER TABLE `invoice_items` ADD `item_ticket_id` INT(11) NOT NULL DEFAULT 0 AFTER `item_recurring_id`"
+        );
+
+        //create ticket_products table
+        mysqli_query($mysqli, "CREATE TABLE `ticket_products` (
+            `ticket_product_association_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `ticket_product_ticket_id` int(11) NOT NULL,
+            `ticket_product_product_id` int(11) NOT NULL
+            )");
+
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
+    }
+    
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
-    //
-    // if (CURRENT_DATABASE_VERSION == '0.9.8') {
-    //     // Insert queries here required to update to DB version 0.9.9
+    // if (CURRENT_DATABASE_VERSION == '0.9.9') {
+    //     // Insert queries here required to update to DB version 1.0.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.0'");
     // }
 
 } else {

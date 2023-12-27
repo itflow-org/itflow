@@ -584,6 +584,7 @@ CREATE TABLE `expenses` (
   `expense_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `expense_archived_at` datetime DEFAULT NULL,
   `expense_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `expense_ticket_id` int(11) NOT NULL DEFAULT 0,
   `expense_client_id` int(11) NOT NULL DEFAULT 0,
   `expense_category_id` int(11) NOT NULL DEFAULT 0,
   `expense_account_id` int(11) DEFAULT NULL,
@@ -696,6 +697,7 @@ CREATE TABLE `invoice_items` (
   `item_tax_id` int(11) NOT NULL DEFAULT 0,
   `item_quote_id` int(11) NOT NULL DEFAULT 0,
   `item_recurring_id` int(11) NOT NULL DEFAULT 0,
+  `item_ticket_id` int(11) NOT NULL DEFAULT 0,
   `item_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
