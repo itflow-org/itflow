@@ -37,12 +37,14 @@
             </a>
         </li>
         <?php if ($config_module_enable_ticketing == 1) { ?>
+            <!-- WORK IN PROGRESS (Commented by JQ 2023-12-27)
             <li class="nav-item">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
                     <i class="fas fa-hourglass-half"></i>
                     <span class="badge" id="runningTicketsCount">0</span>
                 </a>
             </li>
+            -->
         <?php } ?>
 
 
