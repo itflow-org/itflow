@@ -1129,3 +1129,129 @@ if(isset($_POST['set_billable_status'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if(isset($_POST['change_product_ticket'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+
+    if ($_POST['expense'] > 0) {
+        $expense_id = intval($_POST['expense']);
+        $product_id = 0;
+
+        // Get expense details
+        $sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
+        $row = mysqli_fetch_array($sql);
+        $expense_description = sanitizeInput($row['expense_description']);
+        $expense_price = floatval($row['expense_amount']);
+
+        // Add internal note to ticket, and create invoice_item
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Added expense <a href=\"expenses.php?q=$expense_description\">$expense_description</a> to this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+        mysqli_query($mysqli, 
+        "INSERT INTO invoice_items SET
+        item_name = '$expense_name',
+        item_description = '$expense_description',
+        item_quantity = 1,
+        item_price = $expense_price,
+        item_subtotal = $expense_price,
+        item_tax = 0,
+        item_total = $expense_price,
+        item_order = 0,
+        item_ticket_id = $ticket_id
+        ");
+
+        //add ticket to expense
+        mysqli_query($mysqli, "UPDATE expenses SET expense_ticket_id = $ticket_id WHERE expense_id = $expense_id");
+
+    } else {
+            $product_id = intval($_POST['product']);
+            $expense_id = 0;
+
+            // Get product details
+            $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
+            $row = mysqli_fetch_array($sql);
+            $product_name = sanitizeInput($row['product_name']);
+            $product_description = sanitizeInput($row['product_description']);
+            $product_price = floatval($row['product_price']);
+            $product_quantity = intval($_POST['product_quantity']);
+
+
+            // Add internal note to ticket, and create invoice_item
+            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Added product <a href=\"products.php?q=$product_name\">$product_name</a> to this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+            mysqli_query($mysqli,
+            "INSERT INTO invoice_items SET
+            item_name = '$product_name',
+            item_description = '$product_description',
+            item_quantity = 1,
+            item_price = $product_price,
+            item_subtotal = $product_price,
+            item_tax = 0,
+            item_total = $product_price,
+            item_order = 0,
+            item_ticket_id = $ticket_id
+            ");
+
+            // add to ticket_products table
+            mysqli_query($mysqli, "INSERT INTO ticket_products SET ticket_product_ticket_id = $ticket_id, ticket_product_product_id = $product_id, ticket_product_quantity = $product_quantity");
+
+    }
+
+    $_SESSION['alert_message'] = "Ticket product updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['delete_ticket_expense_id'])) {
+    
+        validateTechRole();
+    
+        $ticket_id = intval($_GET['ticket_id']);
+        $expense_id = intval($_GET['delete_ticket_expense_id']);
+    
+        // Get expense details
+        $sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
+        $row = mysqli_fetch_array($sql);
+        $expense_description = sanitizeInput($row['expense_description']);
+        $expense_price = floatval($row['expense_amount']);
+    
+        // Add internal note to ticket, and create invoice_item
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Removed expense <a href=\"expenses.php?q=$expense_description\">$expense_description</a> from this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    
+        mysqli_query($mysqli, "UPDATE expenses SET expense_ticket_id = 0 WHERE expense_id = $expense_id");
+    
+   
+        $_SESSION['alert_message'] = "Ticket expense removed";
+    
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['delete_ticket_product_id'])) {
+    
+        validateTechRole();
+    
+        $ticket_id = intval($_GET['ticket_id']);
+        $ticket_product_id = intval($_GET['delete_ticket_product_id']);
+    
+        // Get product details
+        $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
+        $row = mysqli_fetch_array($sql);
+        $product_name = sanitizeInput($row['product_name']);
+        $product_description = sanitizeInput($row['product_description']);
+        $product_price = floatval($row['product_price']);
+
+        
+        // Add internal note to ticket, and create invoice_item
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Removed product <a href=\"products.php?q=$product_name\">$product_name</a> from this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+        mysqli_query($mysqli, "DELETE FROM ticket_products WHERE ticket_product_id = $ticket_product_id");
+
+
+
+        $_SESSION['alert_message'] = "Ticket product removed";
+    
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+}

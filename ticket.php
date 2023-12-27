@@ -194,6 +194,35 @@ if (isset($_GET['ticket_id'])) {
             $dt_value = "None"; $warranty_status_color ='red';
         }
 
+        // Get all products associated with this ticket
+        $sql_products = mysqli_query($mysqli, "SELECT * FROM ticket_products LEFT JOIN products ON ticket_products.ticket_product_product_id = products.product_id WHERE ticket_product_ticket_id = $ticket_id");
+
+        // Get all expenses associated with this ticket
+
+        $sql_expenses = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_ticket_id = $ticket_id");
+
+
+        // Add up all expenses and products
+
+        $sql_total_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($sql_total_expenses);
+        $total_expenses = floatval($row['total_expenses']);
+
+        $sql_total_products = mysqli_query($mysqli, "SELECT SUM(ticket_product_quantity * product_price) AS total_products FROM ticket_products LEFT JOIN products ON ticket_products.ticket_product_product_id = products.product_id WHERE ticket_product_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($sql_total_products);
+        $total_products = floatval($row['total_products']);
+
+        $products_total = $total_expenses + $total_products;
+
+
+
+
+
+
+        $sql_all_expenses = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_ticket_id = 0");
+
+        $sql_all_products = mysqli_query($mysqli, "SELECT * FROM products");
+
         // Get all ticket replies
         $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
@@ -219,6 +248,9 @@ if (isset($_GET['ticket_id'])) {
             WHERE ticket_attachment_reply_id IS NULL
             AND ticket_attachment_ticket_id = $ticket_id"
         );
+
+        // Get Categories
+        $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories");
 
         ?>
 
@@ -365,9 +397,7 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 </div>
                             </div>
-
                             <?php } ?>
-
                             <div class="col-md-2">
                                 <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
                             </div>
@@ -802,7 +832,36 @@ if (isset($_GET['ticket_id'])) {
                     <?php } //End Else ?>
                 </div>
                 <!-- End Vendor card -->
+                
+                <!-- Products Card -->
+                <?php if ($config_module_enable_accounting) { ?>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h5 class="text-secondary">Products</h5>
+                        <?php if ($products_total > 0) { ?>
+                            <div class="mt-1">
+                                <i class="fa fa-fw fa-dollar-sign text-secondary ml-1 mr-2"></i>Total: <strong>$<?php echo number_format($products_total, 2); ?></strong>
+                            </div>
+                        <?php } else { ?>
+                            <div class="mt-1">
+                                <i class="fa fa-fw fa-dollar-sign text-secondary ml-1 mr-2"></i>Total: <strong>$0.00</strong>
+                            </div>
+                        <?php } ?>
+                        <div class="mt-1">
+                            <?php if($ticket_status !== "Closed") {?>
+                                <a href="#" data-toggle="modal" data-target="#editProductModal">
+                                    <i class="fa fa-fw fa-edit ml-1 mr-2"></i>Edit Products
+                                </a>
+                            <?php } else { ?>
+                            <a href="#" data-toggle="modal" data-target="#editProductModal">
+                                <i class="fa fa-fw fa-boxes ml-1 mr-2"></i>View Products
+                            </a>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+                <!-- End Expenses Card -->
 
+                <!-- Assigned to card -->
                 <form action="post.php" method="post">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                     <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
@@ -828,7 +887,9 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     </div>
                 </form>
+                <!-- End Assigned to card -->
 
+                <!-- Ticket Actions -->
                 <div class="card card-body card-outline card-dark mb-2">
                     <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
                         <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
@@ -842,6 +903,7 @@ if (isset($_GET['ticket_id'])) {
                         </a>
                     <?php } ?>
                 </div>
+                <!-- End Ticket Actions -->
 
             </div>
 
@@ -861,6 +923,8 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_edit_priority_modal.php";
 
         require_once "ticket_change_client_modal.php";
+
+        require_once "ticket_edit_product_modal.php";
 
         require_once "ticket_merge_modal.php";
 
