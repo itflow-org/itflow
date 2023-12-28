@@ -112,6 +112,7 @@ $config_telemetry = intval($row['config_telemetry']);
 // Select Arrays
 
 $theme_colors_array = array (
+    'lightblue',
     'blue',
     'green',
     'cyan',
