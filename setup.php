@@ -301,6 +301,8 @@ if (isset($_POST['add_telemetry'])) {
 
     if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
 
+        mysqli_query($mysqli,"UPDATE settings SET config_telemetry = 2");
+
         $comments = sanitizeInput($_POST['comments']);
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
