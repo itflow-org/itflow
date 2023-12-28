@@ -132,6 +132,7 @@ $theme_colors_array = array (
 );
 
 $colors_array = array (
+    'lightblue',
     'blue',
     'green',
     'cyan',
