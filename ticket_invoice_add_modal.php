@@ -116,12 +116,14 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                                             $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                                             $invoice_number = intval($row['invoice_number']);
                                             $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-                                            $invoice_satus = nullable_htmlentities($row['invoice_status']);
+                                            $invoice_status = nullable_htmlentities($row['invoice_status']);
                                             $invoice_date = nullable_htmlentities($row['invoice_date']);
                                             $invoice_due = nullable_htmlentities($row['invoice_due']);
                                             $invoice_amount = floatval($row['invoice_amount']);
 
-                                            if (isset($invoice_id)) {
+
+                                            if ($invoice_status == "Draft") {
+
                                             ?>
                                             <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) { 
                                                 echo "selected";
