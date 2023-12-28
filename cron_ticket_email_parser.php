@@ -27,7 +27,7 @@ require_once "get_settings.php";
 // Get company name & phone
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
-$company_name = $row['company_name'];
+$company_name = sanitizeInput($row['company_name']);
 $company_phone = formatPhoneNumber($row['company_phone']);
 
 // Check setting enabled
@@ -114,9 +114,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
     // Prep ticket details
     $message = nl2br($message);
-    $message_escaped = mysqli_real_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
+    $message = mysqli_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_escaped', ticket_priority = 'Low', ticket_status = 'Pending-Assignment', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Pending-Assignment', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -160,21 +160,17 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $data = [];
     // E-mail client notification that ticket has been created
     if ($config_ticket_client_general_notifications == 1) {
-
-        // Insert email into queue (first, escape vars)
-        $contact_email_escaped = sanitizeInput($contact_email);
-        $contact_name_escaped = sanitizeInput($contact_name);
-
-        $subject_escaped = mysqli_escape_string($mysqli, "Ticket created - [$config_ticket_prefix$ticket_number] - $subject");
-        $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+        
+        $subject_email = mysqli_escape_string($mysqli, "Ticket created - [$config_ticket_prefix$ticket_number] - $subject");
+        $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
         $data[] = [
             'from' => $config_ticket_from_email,
             'from_name' => $config_ticket_from_name,
-            'recipient' => $contact_email_escaped,
-            'recipient_name' => $contact_name_escaped,
-            'subject' => $subject_escaped,
-            'body' => $body_escaped
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject_email,
+            'body' => $body
         ];
     }
 
@@ -185,9 +181,6 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
-
-        // TODO: Fix Emojis and HTML opening tags sometimes breaking this "forwarding"
-        $details = removeEmoji($message_escaped);
 
         $email_subject = mysqli_escape_string($mysqli, "ITFlow - New Ticket - $client_name: $subject");
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
@@ -207,7 +200,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     return true;
 
 }
+// End Add Ticket Function
 
+// Add Reply Function
 function addReply($from_email, $date, $subject, $ticket_number, $message, $attachments) {
     // Add email as a comment/reply to an existing ticket
 
@@ -221,7 +216,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     //  based off the "##- Please type your reply above this line -##" line that we prepend the outgoing emails with
     $message = explode("##- Please type your reply above this line -##", $message);
     $message = nl2br($message[0]);
-    $message = "<i>Email from: $from_email at $date:-</i> <br><br>$message";
+    $message = mysqli_escape_string($mysqli, "<i>Email from: $from_email at $date:-</i> <br><br>$message");
 
     // Lookup the ticket ID
     $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, contact_email
@@ -233,9 +228,9 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
         // Get ticket details
         $ticket_id = intval($row['ticket_id']);
-        $ticket_status = $row['ticket_status'];
+        $ticket_status = sanitizeInput($row['ticket_status']);
         $ticket_reply_contact = intval($row['ticket_contact_id']);
-        $ticket_contact_email = $row['contact_email'];
+        $ticket_contact_email = sanitizeInput($row['contact_email']);
         $client_id = intval($row['ticket_client_id']);
 
         // Check ticket isn't closed - tickets can't be re-opened
@@ -280,11 +275,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             }
         }
 
-        // Sanitize ticket reply
-        $comment = trim(mysqli_real_escape_string($mysqli, $message));
-
         // Add the comment
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$comment', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$message', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
 
         $reply_id = mysqli_insert_id($mysqli);
 
@@ -328,31 +320,27 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         if ($ticket_assigned_to) {
 
             $row = mysqli_fetch_array($ticket_assigned_to);
-            $ticket_assigned_to = $row['ticket_assigned_to'];
+            $ticket_assigned_to = intval($row['ticket_assigned_to']);
 
             if ($ticket_assigned_to) {
 
                 // Get tech details
                 $tech_sql = mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1");
                 $tech_row = mysqli_fetch_array($tech_sql);
-                $tech_email = $tech_row['user_email'];
-                $tech_name = $tech_row['user_name'];
+                $tech_email = santizeInput($tech_row['user_email']);
+                $tech_name = sanitizeInput($tech_row['user_name']);
 
-                // Insert email into queue (first, escape vars)
-                $tech_email_escaped = sanitizeInput($tech_email);
-                $tech_name_escaped = sanitizeInput($tech_name);
-
-                $subject_escaped = mysqli_escape_string($mysqli, "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject");
-                $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $tech_name<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+                $subject = mysqli_escape_string($mysqli, "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject");
+                $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $tech_name<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
 
                 $data = [
                     [
                         'from' => $config_ticket_from_email,
                         'from_name' => $config_ticket_from_name,
-                        'recipient' => $tech_email_escaped,
-                        'recipient_name' => $tech_name_escaped,
-                        'subject' => $subject_escaped,
-                        'body' => $body_escaped
+                        'recipient' => $tech_email,
+                        'recipient_name' => $tech_name,
+                        'subject' => $subject,
+                        'body' => $body
                     ]
                 ];
 
@@ -375,6 +363,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         return false;
     }
 }
+// End Add Reply Function
 
 // Prepare connection string with encryption (TLS/SSL/<blank>)
 $imap_mailbox = "$config_imap_host:$config_imap_port/imap/$config_imap_encryption";
@@ -422,19 +411,19 @@ if ($emails) {
         // Process message attributes
 
         $from_array = $parser->getAddresses('from')[0];
-        $from_name = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['display']))));
+        $from_name = sanitizeInput($from_array['display']);
 
         // Handle blank 'From' emails
         $from_email = "itflow-guest@example.com";
         if (filter_var($from_array['address'], FILTER_VALIDATE_EMAIL)) {
-            $from_email = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($from_array['address']))));
+            $from_email = sanitizeInput($from_array['address']);
         }
 
         $from_domain = explode("@", $from_array['address']);
-        $from_domain = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags(end($from_domain))))); // Use the final element in the array (as technically legal to have multiple @'s)
+        $from_domain = sanitizeInput(end($from_domain));
 
         $subject = sanitizeInput($parser->getHeader('subject'));
-        $date = trim(mysqli_real_escape_string($mysqli, nullable_htmlentities(strip_tags($parser->getHeader('date')))));
+        $date = sanitizeInput($parser->getHeader('date'));
         $attachments = $parser->getAttachments();
 
         // Get the message content
@@ -472,9 +461,9 @@ if ($emails) {
 
             if ($row) {
                 // Sender exists as a contact
-                $contact_name = $row['contact_name'];
+                $contact_name = sanitizeInput($row['contact_name']);
                 $contact_id = intval($row['contact_id']);
-                $contact_email = $row['contact_email'];
+                $contact_email = sanitizeInput($row['contact_email']);
                 $client_id = intval($row['contact_client_id']);
 
                 if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments)) {
@@ -497,8 +486,8 @@ if ($emails) {
 
                     // Contact details
                     $password = password_hash(randomString(), PASSWORD_DEFAULT);
-                    $contact_name = $from_name;
-                    $contact_email = $from_email;
+                    $contact_name = $from_name; // This was already Sanitized above
+                    $contact_email = $from_email; // This was already Sanitized above
                     mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_notes = 'Added automatically via email parsing.', contact_password_hash = '$password', contact_client_id = $client_id");
                     $contact_id = mysqli_insert_id($mysqli);
 
