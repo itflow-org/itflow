@@ -15,18 +15,18 @@ require_once "inc_all_settings.php";
 
                     <?php
 
-                    foreach ($colors_array as $color) {
+                    foreach ($theme_colors_array as $theme_color) {
 
                         ?>
 
                         <div class="col-3 text-center mb-3">
                             <div class="form-group">
                                 <div class="custom-control custom-radio">
-                                    <input class="custom-control-input" type="radio" id="customRadio<?php echo $color; ?>" name="theme" value="<?php echo $color; ?>" <?php if ($config_theme == $color) { echo "checked"; } ?>>
-                                    <label for="customRadio<?php echo $color; ?>" class="custom-control-label">
-                                        <i class="fa fa-fw fa-6x fa-circle text-<?php echo $color; ?>"></i>
+                                    <input class="custom-control-input" type="radio" id="customRadio<?php echo $theme_color; ?>" name="theme" value="<?php echo $theme_color; ?>" <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
+                                    <label for="customRadio<?php echo $theme_color; ?>" class="custom-control-label">
+                                        <i class="fa fa-fw fa-6x fa-circle text-<?php echo $theme_color; ?>"></i>
                                         <br>
-                                        <?php echo $color; ?>
+                                        <?php echo $theme_color; ?>
                                     </label>
                                 </div>
                             </div>
