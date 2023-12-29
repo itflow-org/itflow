@@ -15,7 +15,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 ?>
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card card-dark">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-cog mr-2"></i>Your User Details</h3>
@@ -147,12 +147,13 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-8">
+
         <div class="card card-dark">
-            <div class="card-header py-3">
+            <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-fw fa-sign-in-alt mr-2"></i>Your Recent Sign ins</h3>
             </div>
-            <table class="table table-borderless table-sm">
+            <table class="table table-borderless">
                 <tbody>
                 <?php
 
@@ -167,9 +168,10 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                     ?>
 
                     <tr>
-                        <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
-                        <td><?php echo "<strong>$log_user_os</strong><br>$log_user_browser<br><i class='fa fa-fw fa-globe text-secondary'></i> $log_ip"; ?></td>
-
+                        <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo $log_created_at; ?></td>
+                        <td><?php echo $log_user_os; ?></td>
+                        <td><?php echo $log_user_browser; ?></td>
+                        <td><i class='fa fa-fw fa-globe text-secondary'></i> <?php echo $log_ip; ?></td>
                     </tr>
                 <?php } ?>
                 </tbody>
@@ -178,16 +180,14 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                 <a href="logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-6">
         <div class="card card-dark">
-            <div class="card-header py-3">
+            <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-fw fa-history mr-2"></i>Your Recent Activity</h3>
             </div>
 
 
-            <table class="table table-borderless table-sm">
+            <table class="table">
                 <tbody>
                 <?php
 
@@ -211,11 +211,9 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
                     ?>
 
                     <tr>
-                        <td><i class="fa fa-fw fa-clock text-secondary"></i> <?php echo $log_created_at; ?></td>
-                        <td><strong><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></strong>
-                            <br>
-                            <span class="text-secondary"><?php echo $log_description; ?></span>
-                        </td>
+                        <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo $log_created_at; ?></td>
+                        <td><strong><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></strong></td>
+                        <td><span class="text-secondary"><?php echo $log_description; ?></span></td>
 
                     </tr>
                     <?php
