@@ -175,10 +175,10 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_alerts.php") { echo "active"; } ?>"
-            href="settings_alerts.php">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_notifications.php") { echo "active"; } ?>"
+            href="settings_notifications.php">
             <i class="nav-icon far fa-bell"></i>
-            <p>Alerts</p>
+            <p>Notifications</p>
           </a>
         </li>
 
