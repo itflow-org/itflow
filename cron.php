@@ -720,7 +720,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 
 // TELEMETRY
 
-if ($config_telemetry == 1) {
+if ($config_telemetry > 0) {
 
     $current_version = exec("git rev-parse HEAD");
 

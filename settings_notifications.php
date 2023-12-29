@@ -16,8 +16,6 @@ require_once "inc_all_settings.php";
                 <input type="hidden" name="config_enable_alert_domain_expire" value="0">
                 <input type="hidden" name="config_send_invoice_reminders" value="0">
 
-
-
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if ($config_enable_cron == 1) { echo "checked"; } ?> value="1" id="enableCronSwitch">
