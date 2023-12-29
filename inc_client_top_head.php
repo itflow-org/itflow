@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="collapse show" id="clientHeader">
+        <div class="collapse <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "show"; } ?>" id="clientHeader">
 
             <div class="row">
 
