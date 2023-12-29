@@ -589,7 +589,7 @@ if (isset($_GET['update'])) {
 
 
     // Send Telemetry if enabled during update
-    if ($config_telemetry > 0) {
+    if ($config_telemetry > 0 OR $config_telemetry = 2) {
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
