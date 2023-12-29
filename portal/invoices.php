@@ -14,7 +14,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
     exit();
 }
 
-$invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $session_client_id AND (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Paid') ORDER BY invoice_date DESC");
+$invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status != 'Draft' ORDER BY invoice_date DESC");
 ?>
 
     <div class="row">

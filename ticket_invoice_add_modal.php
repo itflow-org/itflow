@@ -1,6 +1,8 @@
 <?php
 // Check if ticket_id and invoice_id are set in the URL
 $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
+$sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
+
 ?>
 
 <div class="modal" id="addInvoiceFromTicketModal" tabindex="-1">
@@ -15,6 +17,9 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                 <div class="modal-body bg-white">
+                    <?php
+                        if (mysqli_num_rows($sql_invoices) > 0) {
+                        ?>
                     
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
@@ -31,6 +36,15 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                                 <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
                             <?php endif; ?>
                         </li>
+                        <?php
+                        } else {
+                            ?>
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>No draft invoices found. Please create a new invoice first.
+                            </div>
+                            <?php
+                        }
+                        ?>
                     </ul>
 
                     <hr>
@@ -93,13 +107,14 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
 
                         </div>
 
-                        <?php if ($addToExistingInvoice): ?>
+                        <?php
+                        
+                        if (mysqli_num_rows($sql_invoices) > 0) {
+                            if ($addToExistingInvoice): ?>
                             <div class="tab-pane fade show active" id="pills-add-to-invoice">
                         <?php else: ?>
                             <div class="tab-pane fade" id="pills-add-to-invoice">
-                        <?php endif; ?>
-                        
-
+                            <?php endif;?>
                             <div class="form-group">
                                 <label>Invoice</label>
                                 <div class="input-group">
@@ -110,18 +125,19 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                                         <option value="0">- Invoice -</option>
                                         <?php
 
-                                        $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status NOT LIKE 'Paid' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
                                         while ($row = mysqli_fetch_array($sql_invoices)) {
                                             $invoice_id = intval($row['invoice_id']);
                                             $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                                             $invoice_number = intval($row['invoice_number']);
                                             $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-                                            $invoice_satus = nullable_htmlentities($row['invoice_status']);
+                                            $invoice_status = nullable_htmlentities($row['invoice_status']);
                                             $invoice_date = nullable_htmlentities($row['invoice_date']);
                                             $invoice_due = nullable_htmlentities($row['invoice_due']);
                                             $invoice_amount = floatval($row['invoice_amount']);
 
-                                            if (isset($invoice_id)) {
+
+                                            if ($invoice_status == "Draft") {
+
                                             ?>
                                             <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) { 
                                                 echo "selected";
@@ -133,13 +149,12 @@ $addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
                                     </select>
                                 </div>
                             </div>
-
                         </div>
-
+                        <?php
+                        }
+                        ?>
                     </div>
-
                     <hr>
-
                     <div class="form-group">
                         <label>Item <strong class="text-danger">*</strong></label>
                         <div class="input-group">
