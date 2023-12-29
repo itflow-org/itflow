@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['login_message'] = 'Invalid e-mail';
     } else {
-        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_array($sql);
         if ($row['contact_auth_method'] == 'local') {
             if (password_verify($password, $row['contact_password_hash'])) {

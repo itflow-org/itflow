@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         $email = sanitizeInput($_POST['email']);
 
-        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' AND contact_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
 
         $id = intval($row['contact_id']);
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $client = intval($_POST['client']);
 
         // Query user
-        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client AND contact_auth_method = 'local' LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client AND contact_auth_method = 'local' AND contact_archived_at IS NULL LIMIT 1");
         $contact_row = mysqli_fetch_array($sql);
         $contact_id = intval($contact_row['contact_id']);
         $name = sanitizeInput($contact_row['contact_name']);

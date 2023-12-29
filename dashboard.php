@@ -573,6 +573,16 @@ $sql_tickets = mysqli_fetch_assoc(mysqli_query(
 ));
 $active_tickets = $sql_tickets['active_tickets'];
 
+// Your Ticket count
+$sql_your_tickets = mysqli_fetch_assoc(mysqli_query(
+    $mysqli,
+    "SELECT COUNT('ticket_id') AS your_tickets
+    FROM tickets
+    WHERE ticket_status != 'Closed'
+    AND ticket_assigned_to = $session_user_id"
+));
+$your_tickets = $sql_your_tickets['your_tickets'];
+
 // Expiring domains (but not ones that have already expired)
 $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
@@ -693,7 +703,7 @@ $sql_your_tickets = mysqli_query(
 
 </div> <!-- rows -->
 
-<?php if ($sql_your_tickets) { ?>
+<?php if ($your_tickets) { ?>
 <div class="row">
     <div class="col-12">
         <div class="card card-dark mb-3">

@@ -203,6 +203,9 @@ if (isset($_GET['anonymize_contact'])) {
     mysqli_query($mysqli,"UPDATE contacts SET contact_password_hash = '' WHERE contact_id = $contact_id");
     mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = '0' WHERE contact_id = $contact_id");
 
+    // Remove Billing, Technical, Important Roles
+    mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0 WHERE contact_id = $contact_id");
+
     // Redact audit logs
     $log_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_client_id =  $client_id");
     while ($log = mysqli_fetch_array($log_sql)) {
@@ -271,7 +274,7 @@ if (isset($_GET['archive_contact'])) {
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_auth_method = '', contact_password_hash = '', contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");

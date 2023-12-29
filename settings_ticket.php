@@ -10,7 +10,6 @@ require_once "inc_all_settings.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="config_ticket_email_parse" value="0">
-                <input type="hidden" name="config_ticket_client_general_notifications" value="0">
                 <input type="hidden" name="config_ticket_autoclose" value="0">
 
                 <div class="form-group">
@@ -37,13 +36,6 @@ require_once "inc_all_settings.php";
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="emailToTicketParseSwitch">
                         <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing <small class="text-secondary">(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="ticketNotificationSwitch">
-                        <label class="custom-control-label" for="ticketNotificationSwitch">Send clients general notification emails <small class="text-secondary">(Should clients receive automatic emails when tickets are raised/closed?)</small></label>
                     </div>
                 </div>
 
