@@ -33,7 +33,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" id="editDomainName" placeholder="Domain name example.com" value="" required>
+                                    <input type="text" class="form-control" id="editDomainName" name="name" placeholder="Domain name example.com" value="" required>
                                 </div>
                             </div>
 
@@ -43,7 +43,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="registrar" id="editDomainRegistrarId">
+                                    <select class="form-control select2" id="editDomainRegistrarId" name="registrar">
                                     </select>
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="webhost" id="editDomainWebhostId">
+                                    <select class="form-control select2" id="editDomainWebhostId" name="webhost">
                                     </select>
                                 </div>
                             </div>
@@ -65,13 +65,13 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                                     </div>
-                                    <input type="date" class="form-control" name="expire" id="editDomainExpire" max="2999-12-31">
+                                    <input type="date" class="form-control" id="editDomainExpire" name="expire" max="2999-12-31">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Notes</label>
-                                <textarea class="form-control" rows="3" placeholder="Enter some notes" name="notes" id="editDomainNotes"></textarea>
+                                <textarea class="form-control" id="editDomainNotes" name="notes" rows="3" placeholder="Enter some notes"></textarea>
                             </div>
 
                         </div>

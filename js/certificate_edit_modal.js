@@ -14,14 +14,14 @@ function populateCertificateEditModal(client_id, certificate_id) {
             const domains = response.domains;
 
             // Populate the cert modal fields
-            document.getElementById("editHeader").innerText = certificate.certificate_name;
+            document.getElementById("editCertificateHeader").innerText = certificate.certificate_name;
             document.getElementById("editCertificateId").value = certificate_id;
             document.getElementById("editCertificateName").value = certificate.certificate_name;
-            document.getElementById("editDomain").value = certificate.certificate_domain;
-            document.getElementById("editIssuedBy").value = certificate.certificate_issued_by;
-            document.getElementById("editExpire").value = certificate.certificate_expire;
-            document.getElementById("editPublicKey").value = certificate.certificate_public_key;
-            document.getElementById("editNotes").value = certificate.certificate_notes;
+            document.getElementById("editCertificateDomain").value = certificate.certificate_domain;
+            document.getElementById("editCertificateIssuedBy").value = certificate.certificate_issued_by;
+            document.getElementById("editCertificateExpire").value = certificate.certificate_expire;
+            document.getElementById("editCertificatePublicKey").value = certificate.certificate_public_key;
+            document.getElementById("editCertificateNotes").value = certificate.certificate_notes;
 
             // Select the domain dropdown
             var domainDropdown = document.getElementById("editDomainId");
