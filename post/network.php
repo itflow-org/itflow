@@ -102,6 +102,36 @@ if (isset($_GET['delete_network'])) {
 
 }
 
+if (isset($_POST['bulk_delete_networks'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $network_ids = $_POST['network_ids']; // Get array of network IDs to be deleted
+    $client_id = intval($_POST['client_id']);
+
+    if (!empty($network_ids)) {
+
+        // Cycle through array and delete each network
+        foreach ($network_ids as $network_id) {
+
+            $network_id = intval($network_id);
+            mysqli_query($mysqli, "DELETE FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Network', log_action = 'Delete', log_description = '$session_name deleted a network (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Network', log_description = '$session_name bulk deleted $count networks', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count network(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['export_client_networks_csv'])) {
 
     validateTechRole();

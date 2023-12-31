@@ -124,6 +124,36 @@ if (isset($_GET['delete_domain'])) {
 
 }
 
+if (isset($_POST['bulk_delete_domains'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $domain_ids = $_POST['domain_ids']; // Get array of domain IDs to be deleted
+    $client_id = intval($_POST['client_id']);
+
+    if (!empty($domain_ids)) {
+
+        // Cycle through array and delete each domain
+        foreach ($domain_ids as $domain_id) {
+
+            $domain_id = intval($domain_id);
+            mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name deleted a domain (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name bulk deleted $count domains', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count certificate(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['export_client_domains_csv'])) {
 
     validateTechRole();

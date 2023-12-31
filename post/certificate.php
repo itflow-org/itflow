@@ -141,6 +141,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
     $count = 0; // Default 0
     $certificate_ids = $_POST['certificate_ids']; // Get array of cert IDs to be deleted
+    $client_id = intval($_POST['client_id']);
 
     if (!empty($certificate_ids)) {
 
@@ -148,14 +149,14 @@ if (isset($_POST['bulk_delete_certificates'])) {
         foreach ($certificate_ids as $certificate_id) {
 
             $certificate_id = intval($certificate_id);
-            mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name deleted certificate (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $certificate_id");
+            mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name deleted a certificate (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id");
 
             $count++;
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name bulk deleted $count certificates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Delete', log_description = '$session_name bulk deleted $count certificates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "Deleted $count certificate(s)";
 
