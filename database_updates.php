@@ -1418,7 +1418,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         //
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
-        }
+    }
 
 
     if (CURRENT_DATABASE_VERSION == '0.8.9') {
@@ -1452,7 +1452,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
                 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
             }
         }
-        
+
 
         //
         // Then, update the database to the next sequential version
@@ -1495,7 +1495,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '0.9.4') {
         // Insert queries here required to update to DB version 0.9.5
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_client_pays_fees` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_stripe_account`"); 
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_client_pays_fees` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.5'");
     }
@@ -1524,14 +1524,22 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '0.9.8') {
+        //Insert queries here required to update to DB version 0.9.9
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_notes` TEXT NULL DEFAULT NULL AFTER `domain_raw_whois`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
+    }
+
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    // if (CURRENT_DATABASE_VERSION == '0.9.8') {
-    //     // Insert queries here required to update to DB version 0.9.9
+    // if (CURRENT_DATABASE_VERSION == '0.9.9') {
+    //     // Insert queries here required to update to DB version 0.10.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.10.0'");
     // }
 
 } else {
