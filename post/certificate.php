@@ -140,11 +140,11 @@ if (isset($_POST['bulk_delete_certificates'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
-    $certificate_ids = $_POST['certificate_ids']; // Get array of scheduled tickets IDs to be deleted
+    $certificate_ids = $_POST['certificate_ids']; // Get array of cert IDs to be deleted
 
     if (!empty($certificate_ids)) {
 
-        // Cycle through array and delete each scheduled ticket
+        // Cycle through array and delete each network
         foreach ($certificate_ids as $certificate_id) {
 
             $certificate_id = intval($certificate_id);
