@@ -21,6 +21,7 @@ function populateCertificateEditModal(client_id, certificate_id) {
             document.getElementById("editIssuedBy").value = certificate.certificate_issued_by;
             document.getElementById("editExpire").value = certificate.certificate_expire;
             document.getElementById("editPublicKey").value = certificate.certificate_public_key;
+            document.getElementById("editNotes").value = certificate.certificate_notes;
 
             // Select the domain dropdown
             var domainDropdown = document.getElementById("editDomainId");

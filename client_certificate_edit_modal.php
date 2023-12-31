@@ -66,6 +66,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter some notes" name="notes" id="editNotes"></textarea>
+                    </div>
+
+                    <div class="form-group">
                         <label>Domain</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -75,7 +80,9 @@
                             </select>
                         </div>
                     </div>
+
                 </div>
+
                 <div class="modal-footer bg-white">
                     <button type="submit" name="edit_certificate" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>

@@ -14,6 +14,7 @@ if (isset($_POST['add_certificate'])) {
     $issued_by = sanitizeInput($_POST['issued_by']);
     $expire = sanitizeInput($_POST['expire']);
     $public_key = sanitizeInput($_POST['public_key']);
+    $notes = sanitizeInput($_POST['notes']);
     $domain_id = intval($_POST['domain_id']);
 
     // Parse public key data for a manually provided public key
@@ -32,7 +33,7 @@ if (isset($_POST['add_certificate'])) {
         $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
 
     $certificate_id = mysqli_insert_id($mysqli);
 
@@ -55,6 +56,7 @@ if (isset($_POST['edit_certificate'])) {
     $issued_by = sanitizeInput($_POST['issued_by']);
     $expire = sanitizeInput($_POST['expire']);
     $public_key = sanitizeInput($_POST['public_key']);
+    $notes = sanitizeInput($_POST['notes']);
     $domain_id = intval($_POST['domain_id']);
     $client_id = intval($_POST['client_id']);
 
@@ -74,7 +76,7 @@ if (isset($_POST['edit_certificate'])) {
         $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id");
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$session_name modified certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id");
