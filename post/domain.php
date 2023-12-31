@@ -14,6 +14,8 @@ if (isset($_POST['add_domain'])) {
     $webhost = intval($_POST['webhost']);
     $extended_log_description = '';
     $expire = sanitizeInput($_POST['expire']);
+    $notes = sanitizeInput($_POST['notes']);
+
     if (empty($expire)) {
         $expire = "NULL";
     } else {
@@ -35,7 +37,7 @@ if (isset($_POST['add_domain'])) {
     $whois = sanitizeInput($records['whois']);
 
     // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
 
 
     // Get inserted ID (for linking certificate, if exists)
@@ -70,6 +72,7 @@ if (isset($_POST['edit_domain'])) {
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = sanitizeInput($_POST['expire']);
+    $notes = sanitizeInput($_POST['notes']);
 
     if (empty($expire) || (new DateTime($expire)) < (new DateTime())) {
         // Update domain expiry date
@@ -86,7 +89,7 @@ if (isset($_POST['edit_domain'])) {
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");

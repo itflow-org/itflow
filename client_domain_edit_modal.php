@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold" id="editHeader"></span></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold" id="editDomainHeader"></span></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -43,7 +43,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="registrar" id="editRegistrarId">
+                                    <select class="form-control select2" name="registrar" id="editDomainRegistrarId">
                                     </select>
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="webhost" id="editWebhostId">
+                                    <select class="form-control select2" name="webhost" id="editDomainWebhostId">
                                     </select>
                                 </div>
                             </div>
@@ -65,8 +65,13 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                                     </div>
-                                    <input type="date" class="form-control" id="editExpire" name="expire" max="2999-12-31">
+                                    <input type="date" class="form-control" name="expire" id="editDomainExpire" max="2999-12-31">
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <textarea class="form-control" rows="3" placeholder="Enter some notes" name="notes" id="editDomainNotes"></textarea>
                             </div>
 
                         </div>
@@ -89,7 +94,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editNameServers" name="name_servers" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editDomainNameServers" name="name_servers" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -99,7 +104,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editMailServers" name="mail_servers" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editDomainMailServers" name="mail_servers" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -109,7 +114,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editTxtRecords" name="txt_records" rows="1" disabled></textarea>
+                                    <textarea class="form-control" id="editDomainTxtRecords" name="txt_records" rows="1" disabled></textarea>
                                 </div>
                             </div>
 
@@ -119,7 +124,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
                                     </div>
-                                    <textarea class="form-control" id="editRawWhois" name="raw_whois" rows="6" disabled></textarea>
+                                    <textarea class="form-control" id="editDomainRawWhois" name="raw_whois" rows="6" disabled></textarea>
                                 </div>
                             </div>
 

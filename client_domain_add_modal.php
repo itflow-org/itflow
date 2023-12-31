@@ -73,7 +73,13 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter some notes" name="notes"></textarea>
+                    </div>
+
                 </div>
+
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
