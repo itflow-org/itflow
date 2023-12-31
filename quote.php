@@ -274,7 +274,7 @@ if (isset($_GET['quote_id'])) {
                                         $item_name = nullable_htmlentities($row['item_name']);
                                         $item_description = nullable_htmlentities($row['item_description']);
                                         $item_order = intval($row['item_order']);
-                                        $item_quantity = number_format(floatval($row['item_quantity']), 2);
+                                        $item_quantity = floatval($row['item_quantity']);
                                         $item_price = floatval($row['item_price']);
                                         $item_tax = floatval($row['item_tax']);
                                         $item_total = floatval($row['item_total']);
@@ -336,7 +336,7 @@ if (isset($_GET['quote_id'])) {
                                             </td>
                                             <td><?php echo $item_name; ?></td>
                                             <td><?php echo nl2br($item_description); ?></td>
-                                            <td class="text-center"><?php echo $item_quantity; ?></td>
+                                            <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
                                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
                                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
                                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>

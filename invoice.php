@@ -54,7 +54,7 @@ if (isset($_GET['invoice_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
-    
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_id = intval($row['company_id']);
@@ -301,7 +301,7 @@ if (isset($_GET['invoice_id'])) {
                                     $item_id = intval($row['item_id']);
                                     $item_name = nullable_htmlentities($row['item_name']);
                                     $item_description = nullable_htmlentities($row['item_description']);
-                                    $item_quantity = number_format(floatval($row['item_quantity']),2);
+                                    $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
@@ -334,7 +334,7 @@ if (isset($_GET['invoice_id'])) {
                                                             <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
                                                             <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
                                                             <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-fw fa-arrow-up mr-2"></i>Move Up</button> 
+                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-fw fa-arrow-up mr-2"></i>Move Up</button>
                                                             <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
                                                             <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>><i class="fas fa-fw fa-arrow-down mr-2"></i>Move down</button>
                                                         </form>
@@ -343,13 +343,13 @@ if (isset($_GET['invoice_id'])) {
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
                                                     </div>
-                                                </div>  
-                                                
+                                                </div>
+
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
-                                        <td class="text-center"><?php echo $item_quantity; ?></td>
+                                        <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
@@ -437,7 +437,7 @@ if (isset($_GET['invoice_id'])) {
                                 <td>Discount</td>
                                 <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php    
+                        <?php
                         }
                         ?>
                         <?php if ($total_tax > 0) { ?>
@@ -457,7 +457,7 @@ if (isset($_GET['invoice_id'])) {
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
-                        
+
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
