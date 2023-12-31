@@ -144,7 +144,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
     if (!empty($certificate_ids)) {
 
-        // Cycle through array and delete each network
+        // Cycle through array and delete each certificate
         foreach ($certificate_ids as $certificate_id) {
 
             $certificate_id = intval($certificate_id);
