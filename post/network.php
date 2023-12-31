@@ -14,9 +14,10 @@ if (isset($_POST['add_network'])) {
     $network = sanitizeInput($_POST['network']);
     $gateway = sanitizeInput($_POST['gateway']);
     $dhcp_range = sanitizeInput($_POST['dhcp_range']);
+    $notes = sanitizeInput($_POST['notes']);
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id, network_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
 
     $network_id = mysqli_insert_id($mysqli);
 
@@ -39,10 +40,11 @@ if (isset($_POST['edit_network'])) {
     $network = sanitizeInput($_POST['network']);
     $gateway = sanitizeInput($_POST['gateway']);
     $dhcp_range = sanitizeInput($_POST['dhcp_range']);
+    $notes = sanitizeInput($_POST['notes']);
     $location_id = intval($_POST['location']);
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id WHERE network_id = $network_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modify', log_description = '$session_name modified network $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");

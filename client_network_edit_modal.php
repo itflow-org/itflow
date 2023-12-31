@@ -10,8 +10,8 @@
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="network_id" id="editNetworkId" value="">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <div class="modal-body bg-white">    
-          
+        <div class="modal-body bg-white">
+
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -31,7 +31,7 @@
               <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" id="editNetworkVlan" name="vlan" placeholder="ex. 20">
             </div>
           </div>
-          
+
           <div class="form-group">
             <label>Network <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -41,7 +41,7 @@
               <input type="text" class="form-control" id="editNetworkCidr" name="network" placeholder="Network ex 192.168.1.0/24" required>
             </div>
           </div>
-        
+
           <div class="form-group">
             <label>Gateway <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -63,6 +63,11 @@
           </div>
 
           <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-control" rows="3" id="editNetworkNotes" name="notes" placeholder="Enter some notes"></textarea>
+          </div>
+
+          <div class="form-group">
             <label>Location</label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -73,7 +78,7 @@
               </select>
             </div>
           </div>
-          
+
         </div>
         <div class="modal-footer bg-white">
           <button type="submit" name="edit_network" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
