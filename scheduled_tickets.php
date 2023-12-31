@@ -55,13 +55,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
-                                <button class="dropdown-item text-danger text-bold" 
+                                <button class="dropdown-item text-danger text-bold"
                                     type="submit" form="multi_actions" name="bulk_delete_scheduled_tickets">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </form>
@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
+                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
                             <th><a class="text-dark">Client</a></th>

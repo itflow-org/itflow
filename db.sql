@@ -505,6 +505,7 @@ CREATE TABLE `domains` (
   `domain_mail_servers` varchar(255) DEFAULT NULL,
   `domain_txt` text DEFAULT NULL,
   `domain_raw_whois` text DEFAULT NULL,
+  `domain_notes` text DEFAULT NULL,
   `domain_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `domain_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `domain_archived_at` datetime DEFAULT NULL,

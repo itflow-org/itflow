@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td class="pr-0">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
                         </td>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">Name</a></th>
@@ -104,6 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="pr-0">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
+                                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                 </div>
                             </td>
 
