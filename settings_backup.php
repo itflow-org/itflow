@@ -53,6 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         // Remove comments and split into separate queries
         $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
 
+        $skippedQueries = [];
+
         foreach ($sqlQueries as $query) {
             $query = trim($query);
             
@@ -67,7 +69,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
             }
 
             // Additional check to handle unexpected queries
-            if (strpos($query, 'Win64') !== false) {
+            if (strpos($query, 'Win64') !== false || strpos($query, 'x64') !== false) {
+                $skippedQueries[] = $query;
                 echo 'Skipping unexpected query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
                 continue;
             }
@@ -86,11 +89,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
 
         // Display success message
         echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+
+        // Display skipped queries for further investigation
+        if (!empty($skippedQueries)) {
+            echo '<div class="alert alert-warning" role="alert">Skipped unexpected queries:<br>';
+            foreach ($skippedQueries as $skippedQuery) {
+                echo htmlspecialchars($skippedQuery, ENT_QUOTES, 'UTF-8') . '<br>';
+            }
+            echo '</div>';
+        }
     } else {
         // Log an error or take appropriate action for invalid paths
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
@@ -161,7 +174,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database MariaDB</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database MariaDB3</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
