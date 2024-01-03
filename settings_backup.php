@@ -36,9 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
     // Execute mysqldump command
     exec($command);
 
-    // Debug: Output the modified SQL
-    $sqlContent = file_get_contents($backupPath);
-    echo '<pre>' . htmlspecialchars($sqlContent, ENT_QUOTES, 'UTF-8') . '</pre>';
 
     // Remove comments from the dumped SQL file using sed
     $sedCommand = "sed -i -E '/\\/\\*[^;]*;/d' $escapedBackupPath";
