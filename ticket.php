@@ -229,7 +229,7 @@ if (isset($_GET['ticket_id'])) {
         ?>
 
         <!-- Breadcrumbs-->
-        <ol class="breadcrumb">
+        <ol class="breadcrumb d-print-none">
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
             </li>
@@ -245,7 +245,7 @@ if (isset($_GET['ticket_id'])) {
             </div>
             <?php if ($ticket_status != "Closed") { ?>
             <div class="col-3">
-                <div class="dropdown dropleft text-center">
+                <div class="dropdown dropleft text-center d-print-none">
                     <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
@@ -297,7 +297,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if ($ticket_status != "Closed") { ?>
-                    <form class="mb-3" action="post.php" method="post" autocomplete="off">
+                    <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
@@ -451,7 +451,7 @@ if (isset($_GET['ticket_id'])) {
                             </h3>
 
                             <?php if ($ticket_reply_type !== "Client" && $ticket_status !== "Closed") { ?>
-                                <div class="card-tools">
+                                <div class="card-tools d-print-none">
                                     <div class="dropdown dropleft">
                                         <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                             <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -580,7 +580,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php } ?>
 
                     <?php } else { ?>
-                        <div>
+                        <div class="d-print-none">
                             <a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Contact</a>
                         </div>
                     <?php } ?>
@@ -592,7 +592,7 @@ if (isset($_GET['ticket_id'])) {
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Watchers</h5>
 
-                    <div>
+                    <div class="d-print-none">
                         <a href="#" data-toggle="modal" data-target="#addTicketWatcherModal"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
                     </div>
 
@@ -673,7 +673,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php if ($asset_id == 0) { ?>
 
-                        <div>
+                        <div class="d-print-none">
                             <a href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add an Asset</a>
                         </div>
 
@@ -721,7 +721,7 @@ if (isset($_GET['ticket_id'])) {
 
                         if ($ticket_asset_count > 0) { ?>
 
-                            <button class="btn btn-block btn-secondary mt-2" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
+                            <button class="btn btn-block btn-secondary mt-2 d-print-none" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
 
                             <div class="modal" id="assetTicketsModal" tabindex="-1">
                                 <div class="modal-dialog modal-lg">
@@ -772,7 +772,7 @@ if (isset($_GET['ticket_id'])) {
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Vendor</h5>
                     <?php if (empty($vendor_id)) { ?>
-                        <div>
+                        <div class="d-print-none">
                             <a href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Vendor</a>
                         </div>
                     <?php } else { ?>
@@ -834,14 +834,14 @@ if (isset($_GET['ticket_id'])) {
                                     <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php } ?>
                             </select>
-                            <div class="input-group-append">
+                            <div class="input-group-append d-print-none">
                                 <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if ($ticket_status == "Closed") {echo "disabled";} ?>><i class="fas fa-check"></i></button>
                             </div>
                         </div>
                     </div>
                 </form>
 
-                <div class="card card-body card-outline card-dark mb-2">
+                <div class="card card-body card-outline card-dark mb-2 d-print-none">
                     <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
                         <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                             <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Ticket
