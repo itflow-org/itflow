@@ -85,10 +85,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
     // Implement delete selected logic here
     if (isset($_POST['selectedBackups'])) {
         foreach ($_POST['selectedBackups'] as $selectedBackup) {
-            unlink($backupFolder . $selectedBackup);
+            $backupPath = $backupFolder . $selectedBackup;
+
+            // Validate the file path to prevent directory traversal
+            if (is_file($backupPath) && strpos(realpath($backupPath), realpath($backupFolder)) === 0) {
+                unlink($backupPath);
+            } else {
+                // Log an error or take appropriate action for invalid paths
+                echo 'Invalid backup path: ' . $backupPath;
+            }
         }
     }
 }
+
 
 // Reverse the order of backups to display the latest on top
 $backups = array_reverse(array_diff(scandir($backupFolder), array('..', '.')));
