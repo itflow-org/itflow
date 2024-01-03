@@ -36,6 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
     // Execute mysqldump command
     exec($command);
 
+    // Debug: Output the modified SQL
+    $sqlContent = file_get_contents($backupPath);
+    echo '<pre>' . htmlspecialchars($sqlContent, ENT_QUOTES, 'UTF-8') . '</pre>';
+
     // Remove comments from the dumped SQL file using sed
     $sedCommand = "sed -i -E '/\\/\\*[^;]*;/d' $escapedBackupPath";
     exec($sedCommand);
@@ -43,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
     // Refresh backup list after creating a new backup
     $backups = array_diff(scandir($backupFolder), array('..', '.'));
 }
+
 
 
 
@@ -187,7 +192,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria DB6</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 7</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
