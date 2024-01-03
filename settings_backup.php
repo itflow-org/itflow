@@ -55,22 +55,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
 
         foreach ($sqlQueries as $query) {
             $query = trim($query);
-            if (!empty($query)) {
-                // Check if the query is an "ALTER TABLE" with "ENABLE KEYS" and skip it
-                if (strpos($query, 'ALTER TABLE') !== false && strpos($query, 'ENABLE KEYS') !== false) {
-                    continue;
-                }
+            
+            // Skip empty queries
+            if (empty($query)) {
+                continue;
+            }
 
-                // Print out the query for debugging
-                echo 'Executing query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
+            // Check if the query is an "ALTER TABLE" with "ENABLE KEYS" and skip it
+            if (strpos($query, 'ALTER TABLE') !== false && strpos($query, 'ENABLE KEYS') !== false) {
+                continue;
+            }
 
-                // Execute each query separately using $mysqli
-                $result = $mysqli->query($query);
+            // Additional check to handle unexpected queries
+            if (strpos($query, 'Win64') !== false) {
+                echo 'Skipping unexpected query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
+                continue;
+            }
 
-                // Check for execution success
-                if ($result === false) {
-                    die("Error executing query: " . $mysqli->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
-                }
+            // Print out the query for debugging
+            echo 'Executing query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
+
+            // Execute each query separately using $mysqli
+            $result = $mysqli->query($query);
+
+            // Check for execution success
+            if ($result === false) {
+                die("Error executing query: " . $mysqli->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
             }
         }
 
@@ -81,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
