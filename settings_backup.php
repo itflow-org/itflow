@@ -63,59 +63,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         // Remove comments and split into separate queries
         $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
 
-        $skippedQueries = [];
-
         foreach ($sqlQueries as $query) {
-            // Remove comments between /* and */
-            $query = preg_replace('/\/\*(?:.|[\n\r])*?\*\//', '', $query);
-            
+            // Remove comments from the query using regular expressions
+            $query = preg_replace('/\/\*.*?\*\//s', '', $query);
+
             $query = trim($query);
+            if (!empty($query)) {
+                // Execute each query separately using $conn
+                $result = $conn->query($query);
 
-            // Skip empty queries
-            if (empty($query)) {
-                continue;
-            }
-
-            // Check if the query is an "ALTER TABLE" with "ENABLE KEYS" and skip it
-            if (strpos($query, 'ALTER TABLE') !== false && strpos($query, 'ENABLE KEYS') !== false) {
-                continue;
-            }
-
-            // Additional check to handle unexpected queries
-            if (strpos($query, 'Win64') !== false || strpos($query, 'x64') !== false) {
-                $skippedQueries[] = $query;
-                echo 'Skipping unexpected query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
-                continue;
-            }
-
-            // Print out the query for debugging
-            echo 'Executing query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
-
-            // Execute each query separately using $mysqli
-            $result = $mysqli->query($query);
-
-            // Check for execution success
-            if ($result === false) {
-                die("Error executing query: " . $mysqli->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
+                // Check for execution success
+                if ($result === false) {
+                    // Display detailed error message and stop execution
+                    die("Error executing query: " . $conn->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
+                }
             }
         }
 
         // Display success message
         echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
-
-        // Display skipped queries for further investigation
-        if (!empty($skippedQueries)) {
-            echo '<div class="alert alert-warning" role="alert">Skipped unexpected queries:<br>';
-            foreach ($skippedQueries as $skippedQuery) {
-                echo htmlspecialchars($skippedQuery, ENT_QUOTES, 'UTF-8') . '<br>';
-            }
-            echo '</div>';
-        }
     } else {
         // Log an error or take appropriate action for invalid paths
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
@@ -189,7 +161,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 7</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 8</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
