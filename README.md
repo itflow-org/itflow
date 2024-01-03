@@ -58,7 +58,7 @@
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by December 2023.
+* We are hoping to have a stable 1.0 release by early 2024.
 
 <!-- BUILT WITH -->
 ### Built With
@@ -97,7 +97,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   - Clean Install of Debian 12 or Ubuntu 22.04
   - A public IP Address
   - Ports 80 (HTTP) and 443 (HTTPS) TCP accessible from the outside in
-  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com, NOT itflow.xyz.example.com
+  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com
 
   **Process**
   - Login as root
