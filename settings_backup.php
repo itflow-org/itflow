@@ -4,7 +4,24 @@ ini_set('display_errors', 1);
 
 require_once "inc_all_settings.php";
 
+
 $backupFolder = 'uploads/backups/';
+
+// Check if the uploads folder exists, if not, create it
+$uploadsFolder = 'uploads/';
+if (!file_exists($uploadsFolder) || !is_dir($uploadsFolder)) {
+    if (!mkdir($uploadsFolder, 0777, true)) {
+        die('Failed to create uploads folder');
+    }
+}
+
+// Check if the backup folder exists inside uploads, if not, create it
+if (!file_exists($backupFolder) || !is_dir($backupFolder)) {
+    if (!mkdir($backupFolder, 0777, true)) {
+        die('Failed to create backup folder');
+    }
+}
+
 $backups = array_diff(scandir($backupFolder), array('..', '.'));
 
 // Database connection
