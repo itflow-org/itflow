@@ -61,6 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
                     continue;
                 }
 
+                // Print out the query for debugging
+                echo 'Executing query: ' . htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '<br>';
+
                 // Execute each query separately using $mysqli
                 $result = $mysqli->query($query);
 
@@ -78,6 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
