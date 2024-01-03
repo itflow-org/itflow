@@ -75,9 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
                 if ($result === false) {
                     // Display detailed error message and stop execution
                     $errorMessage = $conn->error;
-                    $querySnippet = substr($query, 0, 100); // Display the first 100 characters of the query
+                    $querySnippet = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
 
-                    die("Error executing query: $errorMessage <br>Query: " . htmlspecialchars($querySnippet, ENT_QUOTES, 'UTF-8'));
+                    die("Error executing query: $errorMessage <br>Query: $querySnippet");
                 }
             }
         }
@@ -89,6 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
@@ -164,7 +165,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 10</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 11</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
