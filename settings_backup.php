@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 
 require_once "inc_all_settings.php";
 
-
 $backupFolder = 'uploads/backups/';
 
 // Check if the backup folder inside uploads exists, if not, create it
@@ -16,8 +15,6 @@ if (!file_exists($uploadsBackupsFolder) || !is_dir($uploadsBackupsFolder)) {
 }
 
 $backups = array_diff(scandir($backupFolder), array('..', '.'));
-
-
 
 // Database connection
 $mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database) or die('Database Connection Failed');
@@ -42,27 +39,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
     $selectedBackup = $_POST['proceed-restore'];
 
-    $sqlFile = $backupFolder . $selectedBackup;
-    $sqlContent = file_get_contents($sqlFile);
+    // Use realpath to get the canonicalized absolute pathname
+    $sqlFile = realpath($backupFolder . $selectedBackup);
 
-    // Remove comments and split into separate queries
-    $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
+    // Check if the obtained path is within the allowed directory
+    if ($sqlFile !== false && strpos($sqlFile, realpath($backupFolder)) === 0) {
+        $sqlContent = file_get_contents($sqlFile);
 
-    foreach ($sqlQueries as $query) {
-        $query = trim($query);
-        if (!empty($query)) {
-            // Execute each query separately using $conn
-            $result = $conn->query($query);
+        // Remove comments and split into separate queries
+        $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
 
-            // Check for execution success
-            if ($result === false) {
-                die("Error executing query: " . $conn->error);
+        foreach ($sqlQueries as $query) {
+            $query = trim($query);
+            if (!empty($query)) {
+                // Execute each query separately using $conn
+                $result = $conn->query($query);
+
+                // Check for execution success
+                if ($result === false) {
+                    die("Error executing query: " . $conn->error);
+                }
             }
         }
-    }
 
-    // Display success message
-    echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+        // Display success message
+        echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+    } else {
+        // Log an error or take appropriate action for invalid paths
+        echo 'Invalid backup path: ' . $sqlFile;
+    }
 }
 
 // Handle delete action
@@ -74,8 +79,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete'])) {
         unlink($backupFolder . $selectedBackup);
     }
 }
-
-
 
 // Handle delete selected action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
@@ -99,7 +102,6 @@ function formatBytes($bytes, $decimals = 2)
 
     return sprintf("%.{$decimals}f", $bytes / (1024 ** $factor)) . ' ' . @$size[$factor];
 }
-
 
 ?>
 
