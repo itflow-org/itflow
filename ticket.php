@@ -181,7 +181,7 @@ if (isset($_GET['ticket_id'])) {
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
         // Get the number of responses
-        $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+        $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_responses_sql);
         $ticket_responses = intval($row['ticket_responses']);
 
