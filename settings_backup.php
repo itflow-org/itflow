@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
     $backupFileName = date("d-m-Y_H-i-s") . ".sql";
     $backupPath = $backupFolder . $backupFileName;
 
-    // Run mysqldump command to include table content
+    // Run mysqldump command to include table content without comments
     $escapedBackupPath = escapeshellarg($backupPath);
     $command = "mysqldump --complete-insert --skip-comments --host=$dbhost --user=$dbusername --password=$dbpassword $database > $escapedBackupPath";
     exec($command);
@@ -37,6 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
     // Refresh backup list after creating a new backup
     $backups = array_diff(scandir($backupFolder), array('..', '.'));
 }
+
 
 
 // Handle restore action
@@ -56,8 +57,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         $skippedQueries = [];
 
         foreach ($sqlQueries as $query) {
-            $query = trim($query);
+            // Remove comments between /* and */
+            $query = preg_replace('/\/\*(?:.|[\n\r])*?\*\//', '', $query);
             
+            $query = trim($query);
+
             // Skip empty queries
             if (empty($query)) {
                 continue;
@@ -103,6 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
+
 
 
 
@@ -175,7 +180,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database MariaDB4</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria DB5</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
