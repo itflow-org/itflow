@@ -17,11 +17,10 @@ if (!file_exists($uploadsBackupsFolder) || !is_dir($uploadsBackupsFolder)) {
 $backups = array_diff(scandir($backupFolder), array('..', '.'));
 
 // Database connection
-$mysqli = new mysqli($dbhost, $dbusername, $dbpassword, $database);
+$mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database) or die('Database Connection Failed');
+$conn = new mysqli($dbhost, $dbusername, $dbpassword, $database);
 
-if ($mysqli->connect_error) {
-    die('Database Connection Failed: ' . $mysqli->connect_error);
-}
+
 
 // Handle backup action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
@@ -63,22 +62,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         // Remove comments and split into separate queries
         $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
 
-        foreach ($sqlQueries as $query) {
-            // Remove comments from the query using regular expressions
-            $query = preg_replace('/\/\*.*?\*\//s', '', $query);
+      foreach ($sqlQueries as $query) {
+        // Remove comments from the query using regular expressions
+        $query = preg_replace('/\/\*.*?\*\//s', '', $query);
 
-            $query = trim($query);
-            if (!empty($query)) {
-                // Execute each query separately using $conn
-                $result = $conn->query($query);
+        $query = trim($query);
+        if (!empty($query)) {
+            // Execute each query separately using $conn
+            $result = $conn->query($query);
 
-                // Check for execution success
-                if ($result === false) {
-                    // Display detailed error message and stop execution
-                    die("Error executing query: " . $conn->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
-                }
+            // Check for execution success
+            if ($result === false) {
+                // Display detailed error message and stop execution
+                die("Error executing query: " . $conn->error . "<br>Query: " . htmlspecialchars($query, ENT_QUOTES, 'UTF-8'));
             }
         }
+    }
+  
 
         // Display success message
         echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
@@ -161,7 +161,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 8</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 9</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
