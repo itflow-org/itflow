@@ -59,29 +59,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
     if ($sqlFile !== false && strpos($sqlFile, realpath($backupFolder)) === 0) {
         $sqlContent = file_get_contents($sqlFile);
 
-        // Remove comments and split into separate queries
-        $sqlQueries = preg_split('/;(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/', $sqlContent);
+        // Execute the entire content using $conn
+        $result = $conn->multi_query($sqlContent);
 
-        foreach ($sqlQueries as $query) {
-            // Remove comments from the query using regular expressions
-            $query = preg_replace('/\/\*.*?\*\//s', '', $query);
-
-            $query = trim($query);
-            if (!empty($query)) {
-                // Execute each query separately using $conn
-                $result = $conn->query($query);
-
-                // Check for execution success
-                if ($result === false) {
-                    // Display detailed error message and stop execution
-                    $errorMessage = $conn->error;
-                    $fullQuery = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
-
-                    // Display error message and stop execution
-                    echo "Error executing query: $errorMessage <br>Query: $fullQuery";
-                    die();
-                }
-            }
+        // Check for execution success
+        if ($result === false) {
+            // Display detailed error message and stop execution
+            $errorMessage = $conn->error;
+            $errorNumber = $conn->errno;
+            echo "Error executing query: $errorMessage (Error Code: $errorNumber)";
+            die();
         }
 
         // Display success message
