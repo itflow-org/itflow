@@ -123,31 +123,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
 
 
 
-// Handle the restore from file php code goes here
+// Task 1: Handle the restore from file php code goes here
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
-    $allowedExtensions = ['sql'];
-    $uploadFolder = 'uploads/backups/';
+    // Check if a file was uploaded
+    if (isset($_FILES['restore-file'])) {
+        $file = $_FILES['restore-file'];
 
-    if (isset($_FILES['sqlFile']) && $_FILES['sqlFile']['error'] === UPLOAD_ERR_OK) {
-        $uploadedFileName = basename($_FILES['sqlFile']['name']);
-        $uploadedFileExtension = strtolower(pathinfo($uploadedFileName, PATHINFO_EXTENSION));
+        // Check if the file is an SQL file
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($fileExtension === 'sql') {
+            // Generate a unique filename based on the current timestamp
+            $restoreFileName = date("d-m-Y_H-i-s") . ".sql";
+            $restoreFilePath = $backupFolder . $restoreFileName;
 
-        if (in_array($uploadedFileExtension, $allowedExtensions)) {
-            $uploadFilePath = $uploadFolder . $uploadedFileName;
-
-            if (move_uploaded_file($_FILES['sqlFile']['tmp_name'], $uploadFilePath)) {
-                echo '<div class="alert alert-success" role="alert">File was added to the backup list successfully.</div>';
-                $backups = array_diff(scandir($backupFolder), array('..', '.')); // Refresh backup list
-
-                // Security measurements can be added here, such as checking for SQL injection in the file content.
+            // Move the uploaded file to the backups folder
+            if (move_uploaded_file($file['tmp_name'], $restoreFilePath)) {
+                // Display success message
+                echo '<div class="alert alert-success" role="alert">File added to the backup list successfully!</div>';
+                
+                // Refresh backup list after adding a new file
+                $backups = array_diff(scandir($backupFolder), array('..', '.'));
             } else {
-                echo '<div class="alert alert-danger" role="alert">Failed to upload the file.</div>';
+                // Display error message if the file couldn't be moved
+                echo '<div class="alert alert-danger" role="alert">Failed to move the uploaded file to the backups folder.</div>';
             }
         } else {
+            // Display error message for invalid file type
             echo '<div class="alert alert-danger" role="alert">Invalid file type. Only SQL files are allowed.</div>';
         }
-    } else {
-        echo '<div class="alert alert-danger" role="alert">Error in file upload.</div>';
     }
 }
 
@@ -172,7 +175,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 28</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 30</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
@@ -285,21 +288,19 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<!-- Restore from file Modal -->
-<div class="modal" id="fileRestoreModal<?= $modalId ?>"  role="dialog" aria-labelledby="fileRestoreModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Task 2: Restore from file modal HTML goes here -->
+<div class="modal" id="fileRestoreModal">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="fileRestoreModalLabel">Restore Database from File</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title">Restore from File</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="sqlFile">Select SQL File</label>
-                        <input type="file" class="form-control-file" id="sqlFile" name="sqlFile" accept=".sql" required>
+                        <label for="restore-file">Choose SQL file:</label>
+                        <input type="file" name="restore-file" id="restore-file" accept=".sql" required>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
