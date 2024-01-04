@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 }
 
 
-// Task 1: add automatic backups
+// add automatic backups
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['schedule-backup'])) {
     $backupFrequency = $_POST['backup-frequency'];
 
@@ -204,7 +204,7 @@ function formatBytes($bytes, $decimals = 2)
 ?>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup & Restore Database V1</h3>
@@ -220,7 +220,7 @@ function formatBytes($bytes, $decimals = 2)
 
 
 
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="card card-dark">
         <div class="card-header py-3">
             <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Backups</h3>
@@ -276,7 +276,7 @@ function formatBytes($bytes, $decimals = 2)
 </div>
 
     
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card card-dark">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-key mr-2"></i>Backup Master Encryption Key</h3>
