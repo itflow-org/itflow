@@ -235,7 +235,7 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="card card-red mb-3">
         <div class="card-header py-3">
             <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Schedule Backups - Work in progress</h3>
