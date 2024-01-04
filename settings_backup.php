@@ -48,45 +48,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 
 
 
-// Handle restore action
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
-    $selectedBackup = $_POST['proceed-restore'];
+// Handle restore from file action
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
+    // Define the target folder for uploaded files
+    $targetFolder = $backupFolder;
 
-    // Use realpath to get the canonicalized absolute pathname
-    $sqlFile = realpath($backupFolder . $selectedBackup);
+    // Define allowed file types
+    $allowedFileTypes = array('sql');
 
-    // Check if the obtained path is within the allowed directory
-    if ($sqlFile !== false && strpos($sqlFile, realpath($backupFolder)) === 0) {
-        $sqlContent = file_get_contents($sqlFile);
+    // Get the uploaded file details
+    $fileName = basename($_FILES['fileToRestore']['name']);
+    $targetFilePath = $targetFolder . $fileName;
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
 
-        // Execute the entire content using $conn
-        $result = $conn->multi_query($sqlContent);
+    // Check if the file type is allowed
+    if (in_array($fileType, $allowedFileTypes)) {
+        // Upload the file to the server
+        if (move_uploaded_file($_FILES['fileToRestore']['tmp_name'], $targetFilePath)) {
+            // Add the uploaded file information to the list
+            $backups[] = $fileName;
 
-        // Check for execution success
-        if ($result === false) {
-            // Display detailed error message and stop execution
-            $errorMessage = $conn->error;
-            $errorNumber = $conn->errno;
-            echo "Error executing query: $errorMessage (Error Code: $errorNumber)";
-            die();
+            // Display success message
+            echo '<div class="alert alert-success" role="alert">File uploaded successfully!</div>';
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Failed to upload file.</div>';
         }
-
-        // Display success message
-        echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
     } else {
-        // Log an error or take appropriate action for invalid paths
-        echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
+        echo '<div class="alert alert-danger" role="alert">Invalid file type. Only .sql files are allowed.</div>';
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -164,11 +154,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed']
                 die();
             }
 
-            // Add the uploaded file information to the list
-            $backups[] = $fileName;
-            
-            // Display success message
-            echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+            // Display success message and add the file to the restore list
+            $restoredBackup = htmlspecialchars($backup, ENT_QUOTES, 'UTF-8');
+            echo '<div class="alert alert-success" role="alert">Backup file added to the restore list: ' . $restoredBackup . '</div>';
+            $backups[] = $restoredBackup;
+
 
             // Delete the uploaded file after restore
             unlink($targetFilePath);
@@ -178,6 +168,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed']
     } else {
         echo '<div class="alert alert-danger" role="alert">Invalid file type. Only .sql files are allowed.</div>';
     }
+
+    // Reverse the order of backups to display the latest on top
+    $backups = array_reverse(array_diff(scandir($backupFolder), array('..', '.')));
 }
 
 
@@ -201,7 +194,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 22</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 23</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
@@ -235,97 +228,67 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<!-- Display a table with backup list -->
-<div class="card card-dark">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Manager</h3>
-    </div>
-    <div class="card-body">
-        <!-- Backup list table here -->
-        <form method="post">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>Backup Name</th>
-                        <th>File Size</th>
-                        <th>Actions</th>
-                        <th>Download</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($backups as $backup) : ?>
-                        <?php
-                        // Sanitize the file name for use as an HTML ID attribute
-                        $modalId = preg_replace("/[^a-zA-Z0-9]/", "_", $backup);
-                        ?>
-                        <tr>
-                            <td><input type="checkbox" name="selectedBackups[]" value="<?= $backup ?>"></td>
-                            <td><?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?></td>
-                            <td><?= formatBytes(filesize($backupFolder . $backup)) ?></td>
-                            <td>
-                                <?php if (in_array($backup, $backups)) : ?>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore</button>
-                                <?php else : ?>
-                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#restoreModal<?= $modalId ?>"><i class="fas fa-fw fa-undo"></i> Restore</button>
-                                <?php endif; ?>
-                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal<?= $modalId ?>"><i class="fas fa-fw fa-trash"></i> Delete</button>
-                            </td>
-                            <td>
-                                <?php if (in_array($backup, $backups)) : ?>
-                                    <a href="#" class="btn btn-info disabled"><i class="fas fa-fw fa-download"></i> File Upload</a>
-                                <?php else : ?>
-                                    <a href="<?= $backupFolder . $backup ?>" download class="btn btn-info"><i class="fas fa-fw fa-download"></i> Download</a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-
-                        <!-- Restore Modal -->
-                        <div class="modal" id="restoreModal<?= $modalId ?>">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Restore Database</h5>
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to restore the database from the selected backup?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="submit" name="proceed-restore" value="<?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary">Proceed</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Delete Modal -->
-                        <div class="modal" id="deleteModal<?= $modalId ?>">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Delete Backup</h5>
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete the backup: <?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <button type="submit" name="delete" value="<?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-danger">Delete</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <button type="submit" name="delete-selected" class="btn btn-danger"><i class="fas fa-fw fa-trash"></i> Delete Selected</button>
-        </form>
+<!-- File Restore Modal -->
+<div class="modal" id="fileRestoreModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restore Database from File</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="fileToRestore">Select .sql File:</label>
+                        <input type="file" class="form-control-file" id="fileToRestore" name="fileToRestore" accept=".sql" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="filerestore-proceed" class="btn btn-primary">Proceed</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Restore Modal -->
+<div class="modal" id="restoreModal<?= $modalId ?>">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restore Database</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to restore the database from the selected backup?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" name="proceed-restore" value="<?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-primary">Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Delete Modal -->
+<div class="modal" id="deleteModal<?= $modalId ?>">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Backup</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the backup: <?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" name="delete" value="<?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- File Restore Modal -->
 <div class="modal" id="fileRestoreModal">
