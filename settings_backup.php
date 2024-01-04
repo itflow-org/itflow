@@ -42,6 +42,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 }
 
 
+// Task 1: add automatic backups
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['schedule-backup'])) {
+    $backupFrequency = $_POST['backup-frequency'];
+
+    switch ($backupFrequency) {
+        case 'daily':
+            $backupTime = $_POST['daily-backup-time']; // Format: HH:mm
+            $scheduledBackupName = "Scheduled-day-" . date("d-m-Y") . "-" . str_replace(":", "-", $backupTime);
+            break;
+
+        case 'weekly':
+            $backupDay = $_POST['weekly-backup-day']; // Values: 1 to 7 (Monday to Sunday)
+            $backupTime = $_POST['weekly-backup-time']; // Format: HH:mm
+            $scheduledBackupName = "Scheduled-week-" . date("d-m-Y") . "-day{$backupDay}-" . str_replace(":", "-", $backupTime);
+            break;
+
+        case 'monthly':
+            $backupTime = $_POST['monthly-backup-time']; // Format: HH:mm
+            $scheduledBackupName = "Scheduled-month-" . date("d-m-Y") . "-" . str_replace(":", "-", $backupTime);
+            break;
+
+        default:
+            die('Invalid backup frequency');
+    }
+
+    // Create a backup
+    $backupPath = $backupFolder . $scheduledBackupName . ".sql";
+    $escapedBackupPath = escapeshellarg($backupPath);
+    $command = "mysqldump --complete-insert --skip-comments --host=$dbhost --user=$dbusername --password=$dbpassword $database > $escapedBackupPath";
+    exec($command);
+
+    // Remove comments from the dumped SQL file using sed
+    $sedCommand = "sed -i -E '/\\/\\*[^;]*;/d' $escapedBackupPath";
+    exec($sedCommand);
+
+    // Refresh backup list after creating a new backup
+    $backups = array_diff(scandir($backupFolder), array('..', '.'));
+}
+
+
 
 // Handle restore action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
@@ -178,6 +218,64 @@ function formatBytes($bytes, $decimals = 2)
         </div>
     </div>
 
+
+
+<div class="col-md-6">
+    <div class="card card-dark">
+        <div class="card-header py-3">
+            <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Backups</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-group">
+                    <label for="backup-frequency">Backup Frequency:</label>
+                    <select class="form-control" name="backup-frequency" id="backup-frequency" required>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+
+                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'daily') : ?>
+                    <div class="form-group">
+                        <label for="daily-backup-time">Backup Time:</label>
+                        <input type="time" class="form-control" name="daily-backup-time" id="daily-backup-time" required>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'weekly') : ?>
+                    <div class="form-group">
+                        <label for="weekly-backup-day">Backup Day:</label>
+                        <select class="form-control" name="weekly-backup-day" id="weekly-backup-day" required>
+                            <option value="1">Monday</option>
+                            <option value="2">Tuesday</option>
+                            <option value="3">Wednesday</option>
+                            <option value="4">Thursday</option>
+                            <option value="5">Friday</option>
+                            <option value="6">Saturday</option>
+                            <option value="7">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weekly-backup-time">Backup Time:</label>
+                        <input type="time" class="form-control" name="weekly-backup-time" id="weekly-backup-time" required>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'monthly') : ?>
+                    <div class="form-group">
+                        <label for="monthly-backup-time">Backup Time:</label>
+                        <input type="time" class="form-control" name="monthly-backup-time" id="monthly-backup-time" required>
+                    </div>
+                <?php endif; ?>
+
+                <button type="submit" name="schedule-backup" class="btn btn-primary"><i class="fas fa-fw fa-clock"></i> Schedule Backup</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+    
     <div class="col-md-6">
         <div class="card card-dark">
             <div class="card-header py-3">
