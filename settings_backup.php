@@ -184,12 +184,8 @@ function formatBytes($bytes, $decimals = 2)
         </div>
     </div>
 
+    <!-- task 2: add a card here so the user can select the scheduled backup needed (daily on time selected, weekly on a day selected (every monday, every tuesday), monthly and so on. have a save button, so if the schedule time is changed by the user, the dump sql will act accordengly -->
 
-
-
-
-
-    
     <div class="col-md-6">
         <div class="card card-dark">
             <div class="card-header py-3">
