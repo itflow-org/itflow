@@ -137,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
 
 
 // Handle restore from file action
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore'])) {
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
     if ($_FILES['sqlfile']['error'] === UPLOAD_ERR_OK) {
         $uploadedFileName = $_FILES['sqlfile']['name'];
         $uploadedFilePath = $backupFolder . $uploadedFileName;
@@ -176,7 +176,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 15</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 16</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
@@ -304,7 +304,7 @@ function formatBytes($bytes, $decimals = 2)
                         <label for="sqlfile">Select SQL File:</label>
                         <input type="file" class="form-control" name="sqlfile" accept=".sql" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="filerestore">Add to Restore</button>
+                    <button type="submit" class="btn btn-primary" name="filerestore-proceed">Add to Restore</button>
                 </form>
             </div>
             <div class="modal-footer">
