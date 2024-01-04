@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once "inc_all_settings.php";
 
 $backupFolder = 'uploads/backups/';
@@ -78,7 +75,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
 }
 
 
-
 // Handle delete action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete'])) {
     $selectedBackup = $_POST['delete'];
@@ -88,8 +84,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete'])) {
         unlink($backupFolder . $selectedBackup);
     }
 }
-
-
 
 
 // Handle delete selected action
@@ -122,8 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
 }
 
 
-
-// Task 1: Handle the restore from file php code goes here
+// Handle the restore from file 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
     // Check if the file is uploaded without errors
     if ($_FILES['restore-file']['error'] == UPLOAD_ERR_OK) {
@@ -155,8 +148,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed']
 }
 
 
-
-
 // Reverse the order of backups to display the latest on top
 $backups = array_reverse(array_diff(scandir($backupFolder), array('..', '.')));
 
@@ -176,7 +167,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 32</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup & Restore Database V1</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
