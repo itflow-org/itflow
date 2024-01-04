@@ -134,29 +134,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
     }
 }
 
-
-
 // Handle restore from file action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
-    if ($_FILES['sqlfile']['error'] === UPLOAD_ERR_OK) {
-        $uploadedFileName = $_FILES['sqlfile']['name'];
-        $uploadedFilePath = $backupFolder . $uploadedFileName;
+    // Define the target folder for uploaded files
+    $targetFolder = $backupFolder;
 
-        // Move the uploaded file to the backups folder
-        if (move_uploaded_file($_FILES['sqlfile']['tmp_name'], $uploadedFilePath)) {
+    // Define allowed file types
+    $allowedFileTypes = array('sql');
+
+    // Get the uploaded file details
+    $fileName = basename($_FILES['fileToRestore']['name']);
+    $targetFilePath = $targetFolder . $fileName;
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+
+    // Check if the file type is allowed
+    if (in_array($fileType, $allowedFileTypes)) {
+        // Upload the file to the server
+        if (move_uploaded_file($_FILES['fileToRestore']['tmp_name'], $targetFilePath)) {
+            // Execute the restore process
+            $sqlContent = file_get_contents($targetFilePath);
+            $result = $conn->multi_query($sqlContent);
+
+            // Check for execution success
+            if ($result === false) {
+                // Display detailed error message and stop execution
+                $errorMessage = $conn->error;
+                $errorNumber = $conn->errno;
+                echo "Error executing query: $errorMessage (Error Code: $errorNumber)";
+                die();
+            }
+
             // Display success message
-            echo '<div class="alert alert-success" role="alert">File added to backups list. You can now restore it from the list below.</div>';
+            echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+
+            // Delete the uploaded file after restore
+            unlink($targetFilePath);
         } else {
-            // Display error message
-            echo '<div class="alert alert-danger" role="alert">Error moving uploaded file. Please try again.</div>';
+            echo '<div class="alert alert-danger" role="alert">Failed to upload file.</div>';
         }
     } else {
-        // Display error message
-        echo '<div class="alert alert-danger" role="alert">Error uploading file. Please try again.</div>';
+        echo '<div class="alert alert-danger" role="alert">Invalid file type. Only .sql files are allowed.</div>';
     }
 }
-
-
 
 
 
@@ -179,12 +198,13 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 20</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 21</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                     <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+                    <button type="button" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+
                 </form>
             </div>
         </div>
@@ -293,8 +313,8 @@ function formatBytes($bytes, $decimals = 2)
 </div>
 
 
-<!-- Restore from file Modal -->
-<div class="modal" id="fileRestoreModal" data-backdrop="static" data-keyboard="false">
+<!-- File Restore Modal -->
+<div class="modal" id="fileRestoreModal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -304,15 +324,19 @@ function formatBytes($bytes, $decimals = 2)
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="sqlfile">Select SQL File:</label>
-                        <input type="file" class="form-control" name="sqlfile" accept=".sql" required>
+                        <label for="fileToRestore">Select .sql File:</label>
+                        <input type="file" class="form-control-file" id="fileToRestore" name="fileToRestore" accept=".sql" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="filerestore-proceed">Add to Restore</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="filerestore-proceed" class="btn btn-primary">Proceed</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 
 <?php
 require_once "footer.php";
