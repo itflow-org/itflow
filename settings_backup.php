@@ -172,12 +172,12 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 27</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 28</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                    <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal<?= $modalId ?>"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+                    <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
                 </form>
             </div>
         </div>
@@ -286,7 +286,7 @@ function formatBytes($bytes, $decimals = 2)
 </div>
 
 <!-- Restore from file Modal -->
-<div class="modal" id="fileRestoreModal<?= $modalId ?>" tabindex="-1" role="dialog" aria-labelledby="fileRestoreModalLabel" aria-hidden="true">
+<div class="modal" id="fileRestoreModal<?= $modalId ?>"  role="dialog" aria-labelledby="fileRestoreModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
