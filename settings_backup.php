@@ -42,44 +42,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 }
 
 
-// add automatic backups
+
+
+// Task 1: add automatic backups
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['schedule-backup'])) {
     $backupFrequency = $_POST['backup-frequency'];
 
+    // Schedule the backup process based on the selected frequency
     switch ($backupFrequency) {
         case 'daily':
-            $backupTime = $_POST['daily-backup-time']; // Format: HH:mm
-            $scheduledBackupName = "Scheduled-day-" . date("d-m-Y") . "-" . str_replace(":", "-", $backupTime);
+            scheduleDailyBackup();
             break;
 
         case 'weekly':
-            $backupDay = $_POST['weekly-backup-day']; // Values: 1 to 7 (Monday to Sunday)
-            $backupTime = $_POST['weekly-backup-time']; // Format: HH:mm
-            $scheduledBackupName = "Scheduled-week-" . date("d-m-Y") . "-day{$backupDay}-" . str_replace(":", "-", $backupTime);
+            scheduleWeeklyBackup();
             break;
 
         case 'monthly':
-            $backupTime = $_POST['monthly-backup-time']; // Format: HH:mm
-            $scheduledBackupName = "Scheduled-month-" . date("d-m-Y") . "-" . str_replace(":", "-", $backupTime);
+            scheduleMonthlyBackup();
             break;
 
         default:
             die('Invalid backup frequency');
     }
-
-    // Create a backup
-    $backupPath = $backupFolder . $scheduledBackupName . ".sql";
-    $escapedBackupPath = escapeshellarg($backupPath);
-    $command = "mysqldump --complete-insert --skip-comments --host=$dbhost --user=$dbusername --password=$dbpassword $database > $escapedBackupPath";
-    exec($command);
-
-    // Remove comments from the dumped SQL file using sed
-    $sedCommand = "sed -i -E '/\\/\\*[^;]*;/d' $escapedBackupPath";
-    exec($sedCommand);
-
-    // Refresh backup list after creating a new backup
-    $backups = array_diff(scandir($backupFolder), array('..', '.'));
 }
+
+function scheduleDailyBackup() {
+    // Schedule the backup for the next day at the selected time
+    $backupTime = date("H:i:s", strtotime($_POST['backup-time']));
+    $command = "0 $backupTime * * * php /path/to/backup.php daily";
+    scheduleBackupJob($command);
+}
+
+function scheduleWeeklyBackup() {
+    // Schedule the backup for the next week on the selected day and time
+    $backupDay = $_POST['backup-day'];
+    $backupTime = date("H:i:s", strtotime($_POST['backup-time']));
+    $command = "0 $backupTime * * $backupDay php /path/to/backup.php weekly";
+    scheduleBackupJob($command);
+}
+
+function scheduleMonthlyBackup() {
+    // Schedule the backup for the next month at the selected time
+    $backupTime = date("H:i:s", strtotime($_POST['backup-time']));
+    $command = "0 $backupTime 1 * * php /path/to/backup.php monthly";
+    scheduleBackupJob($command);
+}
+
+function scheduleBackupJob($command) {
+    // Implement logic to schedule the backup job using cron jobs or other mechanisms
+    // For now, let's simulate by appending the command to a file
+    file_put_contents('scheduled_jobs.txt', "$command\n", FILE_APPEND);
+}
+
 
 
 
@@ -236,38 +251,24 @@ function formatBytes($bytes, $decimals = 2)
                     </select>
                 </div>
 
-                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'daily') : ?>
-                    <div class="form-group">
-                        <label for="daily-backup-time">Backup Time:</label>
-                        <input type="time" class="form-control" name="daily-backup-time" id="daily-backup-time" required>
-                    </div>
-                <?php endif; ?>
+                <div class="form-group" id="time-options">
+                    <label for="backup-time">Backup Time:</label>
+                    <input type="time" class="form-control" name="backup-time" id="backup-time" required>
+                </div>
 
-                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'weekly') : ?>
-                    <div class="form-group">
-                        <label for="weekly-backup-day">Backup Day:</label>
-                        <select class="form-control" name="weekly-backup-day" id="weekly-backup-day" required>
-                            <option value="1">Monday</option>
-                            <option value="2">Tuesday</option>
-                            <option value="3">Wednesday</option>
-                            <option value="4">Thursday</option>
-                            <option value="5">Friday</option>
-                            <option value="6">Saturday</option>
-                            <option value="7">Sunday</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="weekly-backup-time">Backup Time:</label>
-                        <input type="time" class="form-control" name="weekly-backup-time" id="weekly-backup-time" required>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($_POST['backup-frequency']) && $_POST['backup-frequency'] === 'monthly') : ?>
-                    <div class="form-group">
-                        <label for="monthly-backup-time">Backup Time:</label>
-                        <input type="time" class="form-control" name="monthly-backup-time" id="monthly-backup-time" required>
-                    </div>
-                <?php endif; ?>
+                <!-- Additional fields for weekly and monthly backups -->
+                <div class="form-group" id="day-options" style="display: none;">
+                    <label for="backup-day">Backup Day:</label>
+                    <select class="form-control" name="backup-day" id="backup-day">
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="7">Sunday</option>
+                    </select>
+                </div>
 
                 <button type="submit" name="schedule-backup" class="btn btn-primary"><i class="fas fa-fw fa-clock"></i> Schedule Backup</button>
             </form>
