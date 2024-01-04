@@ -181,7 +181,7 @@ function formatBytes($bytes, $decimals = 2)
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                    <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+                    <button type="button" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
                 </form>
             </div>
         </div>
@@ -289,7 +289,7 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<button type="button" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+
 
 <!-- Restore from file modal -->
 <div class="modal" id="fileRestoreModal">
