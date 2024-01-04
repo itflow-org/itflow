@@ -136,6 +136,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
 
 
 
+// Handle restore from file action
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore'])) {
+    if ($_FILES['sqlfile']['error'] === UPLOAD_ERR_OK) {
+        $uploadedFileName = $_FILES['sqlfile']['name'];
+        $uploadedFilePath = $backupFolder . $uploadedFileName;
+
+        // Move the uploaded file to the backups folder
+        move_uploaded_file($_FILES['sqlfile']['tmp_name'], $uploadedFilePath);
+
+        // Display success message
+        echo '<div class="alert alert-success" role="alert">File added to backups list. You can now restore it from the list below.</div>';
+    } else {
+        // Display error message
+        echo '<div class="alert alert-danger" role="alert">Error uploading file. Please try again.</div>';
+    }
+}
+
+
+
+
 
 // Reverse the order of backups to display the latest on top
 $backups = array_reverse(array_diff(scandir($backupFolder), array('..', '.')));
@@ -156,12 +176,12 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 14</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 15</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                    <button type="submit" name="filerestore" value="<?= $backup ?>" class="btn btn-lg btn-warning"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+                     <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
                 </form>
             </div>
         </div>
@@ -266,6 +286,31 @@ function formatBytes($bytes, $decimals = 2)
             </table>
             <button type="submit" name="delete-selected" class="btn btn-danger"><i class="fas fa-fw fa-trash"></i> Delete Selected</button>
         </form>
+    </div>
+</div>
+
+
+<!-- Restore from file Modal -->
+<div class="modal" id="fileRestoreModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restore Database from File</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="sqlfile">Select SQL File:</label>
+                        <input type="file" class="form-control" name="sqlfile" accept=".sql" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="filerestore">Add to Restore</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
