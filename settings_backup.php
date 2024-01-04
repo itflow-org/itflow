@@ -261,44 +261,85 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
+    <div class="col-md-4">
+        <div class="card card-red">
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Backups - WORK IN PROGRESS</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="form-group">
+                        <label for="backup-frequency">Backup Frequency:</label>
+                        <select class="form-control" name="backup-frequency" id="backup-frequency" required>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
 
-<!-- New card to manage scheduled backup jobs -->
-<div class="col-md-4">
-    <div class="card card-info">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-tasks mr-2"></i>Scheduled Backup Jobs</h3>
-        </div>
-        <div class="card-body">
-            <!-- Display existing scheduled jobs -->
-            <h5>Existing Jobs:</h5>
-            <?php
-            // Read and display existing scheduled jobs from the file
-            $scheduledJobsFile = 'scheduled_jobs.txt';
-            if (file_exists($scheduledJobsFile)) {
-                $scheduledJobs = file($scheduledJobsFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                if ($scheduledJobs !== false) {
-                    foreach ($scheduledJobs as $index => $job) {
-                        echo "<p>$index: $job</p>";
-                    }
-                }
-            }
-            ?>
-            <hr>
+                    <div class="form-group" id="time-options">
+                        <label for="backup-time">Backup Time:</label>
+                        <input type="time" class="form-control" name="backup-time" id="backup-time" required>
+                    </div>
 
-            <!-- Form to create or edit a scheduled job -->
-            <h5>Create/Edit Job:</h5>
-            <form method="post">
-                <div class="form-group">
-                    <label for="job-command">Job Command:</label>
-                    <textarea class="form-control" name="job-command" id="job-command" rows="3" required></textarea>
-                    <small class="form-text text-muted">Use placeholders like php /path/to/backup.php daily</small>
-                </div>
+                    <!-- Additional fields for weekly backups -->
+                    <div class="form-group" id="day-options" style="display: none;">
+                        <label for="backup-day">Backup Day:</label>
+                        <select class="form-control" name="backup-day" id="backup-day">
+                            <option value="1">Monday</option>
+                            <option value="2">Tuesday</option>
+                            <option value="3">Wednesday</option>
+                            <option value="4">Thursday</option>
+                            <option value="5">Friday</option>
+                            <option value="6">Saturday</option>
+                            <option value="7">Sunday</option>
+                        </select>
+                    </div>
 
-                <button type="submit" name="save-job" class="btn btn-primary"><i class="fas fa-fw fa-save"></i> Save Job</button>
-            </form>
+                    <button type="submit" name="schedule-backup" class="btn btn-primary"><i class="fas fa-fw fa-clock"></i> Schedule Backup</button>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- New card to manage scheduled backup jobs -->
+    <div class="col-md-6">
+        <div class="card card-info">
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-tasks mr-2"></i>Scheduled Backup Jobs</h3>
+            </div>
+            <div class="card-body">
+                <!-- Display existing scheduled jobs -->
+                <h5>Existing Jobs:</h5>
+                <?php
+                // Read and display existing scheduled jobs from the file
+                $scheduledJobsFile = 'scheduled_jobs.txt';
+                if (file_exists($scheduledJobsFile)) {
+                    $scheduledJobs = file($scheduledJobsFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                    if ($scheduledJobs !== false) {
+                        foreach ($scheduledJobs as $index => $job) {
+                            echo "<p>$index: $job</p>";
+                        }
+                    }
+                }
+                ?>
+                <hr>
+
+                <!-- Form to create or edit a scheduled job -->
+                <h5>Create/Edit Job:</h5>
+                <form method="post">
+                    <div class="form-group">
+                        <label for="job-command">Job Command:</label>
+                        <textarea class="form-control" name="job-command" id="job-command" rows="3" required></textarea>
+                        <small class="form-text text-muted">Use placeholders like php /path/to/backup.php daily</small>
+                    </div>
+
+                    <button type="submit" name="save-job" class="btn btn-primary"><i class="fas fa-fw fa-save"></i> Save Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
 
 <!-- Display a table with backup list -->
