@@ -44,30 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 
 
 
-// Task 1: Add automatic backups
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['schedule-backup'])) {
-    $scheduleType = $_POST['schedule-type'];
-    $scheduleTime = $_POST['schedule-time'];
 
-    // Add logic to schedule backups based on user selection (daily, weekly, monthly)
-    // You can use cron syntax to schedule periodic tasks
-
-    // For example, for daily backups at a specific time
-    if ($scheduleType === 'daily') {
-        $cronExpression = "0 $scheduleTime * * *";
-    } elseif ($scheduleType === 'weekly') {
-        // Add logic for weekly backups
-    } elseif ($scheduleType === 'monthly') {
-        // Add logic for monthly backups
-    }
-
-    // Add the scheduled task to crontab
-    $cronJob = "0 * * * * php " . __FILE__ . " run-scheduled-backup";
-    exec('(crontab -l; echo "'.$cronJob.'") | crontab -');
-
-    // Display success message
-    echo '<div class="alert alert-success" role="alert">Backup scheduled successfully!</div>';
-}
 
 
 
@@ -193,7 +170,7 @@ function formatBytes($bytes, $decimals = 2)
 ?>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup & Restore Database V1</h3>
@@ -213,7 +190,7 @@ function formatBytes($bytes, $decimals = 2)
 
 
     
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-dark">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-key mr-2"></i>Backup Master Encryption Key</h3>
@@ -235,30 +212,6 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<div class="col-md-4">
-    <div class="card card-red mb-3">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Schedule Backups - Work in progress</h3>
-        </div>
-        <div class="card-body" style="text-align: center;">
-            <form method="post">
-                <div class="form-group">
-                    <label for="schedule-type">Select Schedule Type:</label>
-                    <select class="form-control" id="schedule-type" name="schedule-type" required>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="schedule-time">Select Schedule Time:</label>
-                    <input type="time" class="form-control" id="schedule-time" name="schedule-time" required>
-                </div>
-                <button type="submit" name="schedule-backup" class="btn btn-success"><i class="fas fa-fw fa-clock"></i> Schedule Backup</button>
-            </form>
-        </div>
-    </div>
-</div>
 
 
 
