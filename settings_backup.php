@@ -143,10 +143,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed']
         $uploadedFilePath = $backupFolder . $uploadedFileName;
 
         // Move the uploaded file to the backups folder
-        move_uploaded_file($_FILES['sqlfile']['tmp_name'], $uploadedFilePath);
-
-        // Display success message
-        echo '<div class="alert alert-success" role="alert">File added to backups list. You can now restore it from the list below.</div>';
+        if (move_uploaded_file($_FILES['sqlfile']['tmp_name'], $uploadedFilePath)) {
+            // Display success message
+            echo '<div class="alert alert-success" role="alert">File added to backups list. You can now restore it from the list below.</div>';
+        } else {
+            // Display error message
+            echo '<div class="alert alert-danger" role="alert">Error moving uploaded file. Please try again.</div>';
+        }
     } else {
         // Display error message
         echo '<div class="alert alert-danger" role="alert">Error uploading file. Please try again.</div>';
@@ -176,7 +179,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 16</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 17</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
