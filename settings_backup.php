@@ -46,8 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 
 
 
-
-
 // Handle restore action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
     $selectedBackup = $_POST['proceed-restore'];
@@ -78,17 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         echo 'Invalid backup path: ' . htmlspecialchars($sqlFile, ENT_QUOTES, 'UTF-8');
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -134,7 +121,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete-selected'])) {
     }
 }
 
+
+
 // Handle the restore from file php code goes here
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed'])) {
+    $allowedExtensions = ['sql'];
+    $uploadFolder = 'uploads/backups/';
+
+    if (isset($_FILES['sqlFile']) && $_FILES['sqlFile']['error'] === UPLOAD_ERR_OK) {
+        $uploadedFileName = basename($_FILES['sqlFile']['name']);
+        $uploadedFileExtension = strtolower(pathinfo($uploadedFileName, PATHINFO_EXTENSION));
+
+        if (in_array($uploadedFileExtension, $allowedExtensions)) {
+            $uploadFilePath = $uploadFolder . $uploadedFileName;
+
+            if (move_uploaded_file($_FILES['sqlFile']['tmp_name'], $uploadFilePath)) {
+                echo '<div class="alert alert-success" role="alert">File was added to the backup list successfully.</div>';
+                $backups = array_diff(scandir($backupFolder), array('..', '.')); // Refresh backup list
+
+                // Security measurements can be added here, such as checking for SQL injection in the file content.
+            } else {
+                echo '<div class="alert alert-danger" role="alert">Failed to upload the file.</div>';
+            }
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Invalid file type. Only SQL files are allowed.</div>';
+        }
+    } else {
+        echo '<div class="alert alert-danger" role="alert">Error in file upload.</div>';
+    }
+}
+
 
 
 // Reverse the order of backups to display the latest on top
@@ -156,12 +172,12 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 20</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 21</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                     <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
+                     <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button> <!-- when click on Restore from file button, open Restore From file modal -->
                 </form>
             </div>
         </div>
@@ -269,7 +285,33 @@ function formatBytes($bytes, $decimals = 2)
     </div>
 </div>
 
-<-- restore from file html goes here -->
+<!-- Restore from file Modal -->
+<div class="modal" id="fileRestoreModal" tabindex="-1" role="dialog" aria-labelledby="fileRestoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileRestoreModalLabel">Restore Database from File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="sqlFile">Select SQL File</label>
+                        <input type="file" class="form-control-file" id="sqlFile" name="sqlFile" accept=".sql" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" name="filerestore-proceed" class="btn btn-primary">Proceed</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <?php
 require_once "footer.php";
 ?>
