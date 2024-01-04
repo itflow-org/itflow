@@ -172,12 +172,12 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 21</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 22</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
                     <button type="submit" name="backup" class="btn btn-lg btn-primary"><i class="fas fa-fw fa-save"></i> New Backup</button>
-                     <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button> <!-- when click on Restore from file button, open Restore From file modal -->
+                    <button type="submit" name="filerestore" class="btn btn-lg btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore from file</button>
                 </form>
             </div>
         </div>
