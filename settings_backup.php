@@ -164,6 +164,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['filerestore-proceed']
                 die();
             }
 
+            // Add the uploaded file information to the list
+            $backups[] = $fileName;
+            
             // Display success message
             echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
 
@@ -198,7 +201,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 21</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 22</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
@@ -261,10 +264,20 @@ function formatBytes($bytes, $decimals = 2)
                             <td><?= htmlspecialchars($backup, ENT_QUOTES, 'UTF-8') ?></td>
                             <td><?= formatBytes(filesize($backupFolder . $backup)) ?></td>
                             <td>
-                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#restoreModal<?= $modalId ?>"><i class="fas fa-fw fa-undo"></i> Restore</button>
+                                <?php if (in_array($backup, $backups)) : ?>
+                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#fileRestoreModal"><i class="fas fa-fw fa-undo"></i> Restore</button>
+                                <?php else : ?>
+                                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#restoreModal<?= $modalId ?>"><i class="fas fa-fw fa-undo"></i> Restore</button>
+                                <?php endif; ?>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal<?= $modalId ?>"><i class="fas fa-fw fa-trash"></i> Delete</button>
                             </td>
-                            <td><a href="<?= $backupFolder . $backup ?>" download class="btn btn-info"><i class="fas fa-fw fa-download"></i> Download</a></td>
+                            <td>
+                                <?php if (in_array($backup, $backups)) : ?>
+                                    <a href="#" class="btn btn-info disabled"><i class="fas fa-fw fa-download"></i> File Upload</a>
+                                <?php else : ?>
+                                    <a href="<?= $backupFolder . $backup ?>" download class="btn btn-info"><i class="fas fa-fw fa-download"></i> Download</a>
+                                <?php endif; ?>
+                            </td>
                         </tr>
 
                         <!-- Restore Modal -->
@@ -311,6 +324,7 @@ function formatBytes($bytes, $decimals = 2)
         </form>
     </div>
 </div>
+
 
 
 <!-- File Restore Modal -->
