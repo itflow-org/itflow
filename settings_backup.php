@@ -172,7 +172,7 @@ function formatBytes($bytes, $decimals = 2)
     <div class="col-md-6">
         <div class="card card-dark mb-3">
             <div class="card-header py-3">
-                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 24</h3>
+                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Backup Database Maria 26</h3>
             </div>
             <div class="card-body" style="text-align: center;">
                 <form method="post">
@@ -296,11 +296,7 @@ function formatBytes($bytes, $decimals = 2)
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Use a hidden iframe to handle the form submission without refreshing the entire page -->
-                <iframe name="uploadFrame" style="display:none;"></iframe>
-                
-                <!-- Modify the form to target the iframe -->
-                <form method="post" action="#fileRestoreModal" target="uploadFrame" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="sqlFile">Select SQL File</label>
                         <input type="file" class="form-control-file" id="sqlFile" name="sqlFile" accept=".sql" required>
