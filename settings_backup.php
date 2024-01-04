@@ -221,9 +221,9 @@ function formatBytes($bytes, $decimals = 2)
 
 
 <div class="col-md-4">
-    <div class="card card-dark">
+    <div class="card card-red">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Backups</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Scheduled Backups - IN PROGRESS</h3>
         </div>
         <div class="card-body">
             <form method="post">
