@@ -108,6 +108,9 @@ $config_theme_mode = "dark_mode";
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);
 
+// Destructive Deletes
+$config_destructive_deletes_enable = intval($row['config_destructive_deletes_enable']);
+
 
 // Select Arrays
 
