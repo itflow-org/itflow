@@ -6,7 +6,6 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
-
 //Get Asset Counts
 //All Asset Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
@@ -52,7 +51,6 @@ if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
     $_GET['type'] = '';
 }
 
-//Rebuild URL
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -254,19 +252,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                         $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
-                        // Related tickets
-                        $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
-                        $ticket_count = mysqli_num_rows($sql_tickets);
-
-                        // Related Documents
-                        $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM documents, asset_documents WHERE documents.document_id = asset_documents.document_id AND document_archived_at IS NULL AND asset_documents.asset_id = $asset_id ORDER BY documents.document_name DESC");
-                        $document_count = mysqli_num_rows($sql_related_documents);
-
-
-                        // Related File
-                        $sql_related_files = mysqli_query($mysqli, "SELECT * FROM files, asset_files WHERE files.file_id = asset_files.file_id AND asset_files.asset_id = $asset_id ORDER BY files.file_name DESC");
-                        $file_count = mysqli_num_rows($sql_related_files);
-
                         ?>
                         <tr>
                             <th>
@@ -356,16 +341,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
-                                        <?php if ($document_count > 0) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetDocumentsModal<?php echo $asset_id; ?>">
-                                                <i class="fas fa-fw fa-document mr-2"></i>Documents (<?php echo $document_count; ?>)
-                                            </a>
-                                        <?php } ?>
-                                        <?php if ($ticket_count > 0) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#assetTicketsModal<?php echo $asset_id; ?>">
-                                                <i class="fas fa-fw fa-life-ring mr-2"></i>Tickets (<?php echo $ticket_count; ?>)
-                                            </a>
-                                        <?php } ?>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?php echo $asset_id; ?>">
@@ -385,8 +360,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         require "client_asset_edit_modal.php";
 
                         require "client_asset_copy_modal.php";
-
-                        require "client_asset_tickets_modal.php";
 
                         //require "client_asset_interface_add_modal.php";
 
