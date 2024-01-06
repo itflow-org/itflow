@@ -86,13 +86,13 @@
                     <tbody>
                         <?php 
                             while ($row = mysqli_fetch_assoc($result_client_balance_report)) {
-                                $client_id = $row['client_id'];
+                                $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
-                                $balance = $row['balance'];
-                                $billing_contact_phone = nullable_htmlentities($row['billing_contact_phone']);
-                                $recurring_monthly_total = $row['recurring_monthly_total'];
-                                $behind_amount = $row['behind_amount'];
-                                $months_behind = $row['months_behind'];
+                                $balance = floatval($row['balance']);
+                                $billing_contact_phone = formatPhoneNumber($row['billing_contact_phone']);
+                                $recurring_monthly_total = floatval($row['recurring_monthly_total']);
+                                $behind_amount = floatval($row['behind_amount']);
+                                $months_behind = number_format($row['months_behind']);
                                 
                                 $formatted_balance = numfmt_format_currency($currency_format, $balance, $config_currency_code);
                                 $formatted_recurring_monthly_total = numfmt_format_currency($currency_format, $recurring_monthly_total, $config_currency_code);
