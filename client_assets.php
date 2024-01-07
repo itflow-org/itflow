@@ -349,6 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?php echo $asset_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Delete
                                             </a>
+                                            <?php } ?>
 
                                         <?php } ?>
                                     </div>
