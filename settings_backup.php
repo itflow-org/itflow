@@ -82,16 +82,6 @@ function copyDirectory($source, $destination)
 }
 
 
-/* Function to remove a directory and its contents
-function removeDirectory($path)
-{
-    $files = glob($path . '/*');
-    foreach ($files as $file) {
-        is_dir($file) ? removeDirectory($file) : unlink($file);
-    }
-    rmdir($path);
-}
-*/
 
 // Function to generate the manifest file
 function generateManifest($restoreFolder, $documentRootPath)
@@ -233,37 +223,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         // Step 4: Generate the manifest file with the list of all folders, subfolders, and files
         generateManifest($restoreFolder, $documentRootPath);
 
-        // Step 5: Remove unwanted files and directories in the document root
-        $manifestFile = $restoreFolder . '/manifest.txt';
-        $manifestContent = file_get_contents($manifestFile);
-        $manifestLines = explode(PHP_EOL, $manifestContent);
+    // Step 5: Remove unwanted files and directories in the document root
+$allFiles = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($documentRootPath),
+    RecursiveIteratorIterator::SELF_FIRST
+);
 
-        $allFiles = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($documentRootPath),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
+foreach ($allFiles as $file) {
+    $absolutePath = $file->getPathname();
 
-        foreach ($allFiles as $file) {
-            $absolutePath = $file->getPathname();
-
-            // Ensure the file/directory is within the document root
-            if (strpos($absolutePath, $documentRootPath) === 0) {
-                $relativePath = substr($absolutePath, strlen($documentRootPath));
-
-                if ($file->isDir() && !$file->isLink()) {
-                    // Check if the directory is not in the manifest
-                    if (!in_array('D|' . $relativePath, $manifestLines) && $relativePath !== '/uploads/backups') {
-                        removeDirectory($absolutePath);
-                    }
-                } elseif ($file->isFile()) {
-                    // Check if the file is not in the manifest
-                    if (!in_array('F|' . $relativePath, $manifestLines)) {
-                        unlink($absolutePath);
-                    }
-                }
+    // Ensure the file/directory is within the document root
+    if (strpos($absolutePath, $documentRootPath) === 0) {
+        if ($file->isDir() && !$file->isLink()) {
+            // Check if the directory is not in the manifest
+            $relativePath = substr($absolutePath, strlen($documentRootPath) + 1);
+            if (!in_array('D|' . $relativePath, $manifestLines) && $relativePath !== 'uploads/backups') {
+                removeDirectory($absolutePath, $documentRootPath);
+            }
+        } elseif ($file->isFile()) {
+            // Check if the file is not in the manifest
+            $relativePath = substr($absolutePath, strlen($documentRootPath) + 1);
+            if (!in_array('F|' . $relativePath, $manifestLines)) {
+                unlink($absolutePath);
             }
         }
+    }
+}
 
+// Function to remove a directory and its contents within the allowed prefix
+function removeDirectory($path, $allowedPrefix)
+{
+    $files = glob($path . '/*');
+    foreach ($files as $file) {
+        $absolutePath = realpath($file);
+
+        // Ensure the file/directory is within the allowed prefix
+        if (strpos($absolutePath, $allowedPrefix) === 0) {
+            is_dir($absolutePath) ? removeDirectory($absolutePath, $allowedPrefix) : unlink($absolutePath);
+        }
+    }
+    rmdir($path);
+}
         // Step 6: Copy and replace content from restore folder to document root
         $copyCommand = "cp -Rf $restoreFolder/* $documentRootPath/";
         exec($copyCommand);
