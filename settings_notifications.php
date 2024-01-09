@@ -15,6 +15,7 @@ require_once "inc_all_settings.php";
                 <input type="hidden" name="config_enable_cron" value="0">
                 <input type="hidden" name="config_enable_alert_domain_expire" value="0">
                 <input type="hidden" name="config_send_invoice_reminders" value="0">
+                <input type="hidden" name="config_recurring_auto_send_invoice" value="0">
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
@@ -79,6 +80,25 @@ require_once "inc_all_settings.php";
                                 <div class="custom-control custom-checkbox text-center">
                                     <input type="checkbox" class="custom-control-input" name="config_send_invoice_reminders" <?php if ($config_send_invoice_reminders == 1) { echo "checked"; } ?> value="1" id="sendInvoiceRemindersSwitch">
                                     <label class="custom-control-label" for="sendInvoiceRemindersSwitch"></label>
+                                </div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div><i class="fas fa-fw fa-redo-alt mr-2"></i>Send Recurring Invoice</div>
+                                <small class="text-muted">
+                                    (This will notify all primary and billing contacts of a client that a new invoice was generated from recurring invoices)
+                                </small>
+                            </th>
+                            <td>
+                                
+                            </td>
+                            <td></td>
+                            <td>
+                                <div class="custom-control custom-checkbox text-center">
+                                    <input type="checkbox" class="custom-control-input" name="config_recurring_auto_send_invoice" <?php if ($config_recurring_auto_send_invoice == 1) { echo "checked"; } ?> value="1" id="sendRecurringSwitch">
+                                    <label class="custom-control-label" for="sendRecurringSwitch"></label>
                                 </div>
                             </td>
                             <td></td>
