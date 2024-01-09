@@ -20,23 +20,143 @@ $conn = new mysqli($dbhost, $dbusername, $dbpassword, $database);
 // Get the server's document root
 $documentRootPath = $_SERVER['DOCUMENT_ROOT'];
 
+
+
+// Function to remove comments from SQL
+function removeSQLComments($sql) {
+    $sql = preg_replace('/\/\*.*?\*\//s', '', $sql); // Remove /* */ comments
+    $sql = preg_replace('/--.*\n/', '', $sql);      // Remove -- comments
+    return $sql;
+}
+
+// Function to stop execution on SQL error
+function stopOnSQLError($conn, $sqlCommand, $tableName) {
+    $errorMessage = $conn->error;
+    $errorNumber = $conn->errno;
+    echo "Error executing query: $errorMessage (Error Code: $errorNumber) in table $tableName at SQL: $sqlCommand";
+    die();
+}
+
+// Function to remove a directory with exclusion
+function removeDirectoryWithExclusion($dir, $excludeDir) {
+    $files = array_diff(scandir($dir), array('.', '..'));
+    foreach ($files as $file) {
+        $path = $dir . '/' . $file;
+        if (is_dir($path) && strpos($path, $excludeDir) === false) {
+            removeDirectory($path);
+        } elseif (is_file($path)) {
+            unlink($path);
+        }
+    }
+    rmdir($dir);
+}
+
+
+// Function to recursively copy a directory
+function copyDirectory($source, $destination)
+{
+    if (is_dir($source)) {
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
+        }
+
+        $directory = dir($source);
+
+        while (false !== ($entry = $directory->read())) {
+            if ($entry == "." || $entry == "..") {
+                continue;
+            }
+
+            $sourcePath = $source . '/' . $entry;
+            $destinationPath = $destination . '/' . $entry;
+
+            // Recursively copy subdirectories and replace existing files
+            copyDirectory($sourcePath, $destinationPath);
+        }
+
+        $directory->close();
+    } elseif (is_file($source)) {
+        // Copy individual files and replace existing files
+        copy($source, $destination);
+    }
+}
+
+
+/* Function to remove a directory and its contents
+function removeDirectory($path)
+{
+    $files = glob($path . '/*');
+    foreach ($files as $file) {
+        is_dir($file) ? removeDirectory($file) : unlink($file);
+    }
+    rmdir($path);
+}
+*/
+
+// Function to generate the manifest file
+function generateManifest($restoreFolder, $documentRootPath)
+{
+    $manifestContent = '';
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($restoreFolder));
+
+    foreach ($iterator as $file) {
+        $absolutePath = $file->getPathname();
+
+        // Ensure the file/directory is within the document root
+        if (strpos($absolutePath, $documentRootPath) === 0) {
+            $relativePath = substr($absolutePath, strlen($documentRootPath));
+
+            if ($file->isDir()) {
+                $manifestContent .= 'D|' . $relativePath . PHP_EOL;
+            } elseif ($file->isFile()) {
+                $manifestContent .= 'F|' . $relativePath . PHP_EOL;
+            }
+        }
+    }
+
+    $manifestFile = $restoreFolder . '/manifest.txt';
+    file_put_contents($manifestFile, $manifestContent);
+
+    return $manifestContent;
+}
+
 // Handle backup action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
-    // Create a SQL backup excluding comments
-    $sqlBackupFile = $documentRootPath . '/db_backup.sql';
-    $sqlDumpCommand = "mysqldump --complete-insert --skip-comments --skip-triggers --host=$dbhost --user=$dbusername --password=$dbpassword $database > $sqlBackupFile";
+    // Create a SQL backup including DROP TABLE statements
+    $backupFileName = date("d-m-Y-H-i", strtotime("now")) . ".tar.gz";
+    $sqlBackupFile = $documentRootPath . '/db_backup.sql'; // Save the SQL backup file in the document root
+
+    // Database connection
+    $mysqli = mysqli_connect($dbhost, $dbusername, $dbpassword, $database) or die('Database Connection Failed');
+    $conn = new mysqli($dbhost, $dbusername, $dbpassword, $database);
+
+    // Retrieve table names
+    $tables = array();
+    $result = $mysqli->query("SHOW TABLES");
+    while ($row = $result->fetch_row()) {
+        $tables[] = $row[0];
+    }
+
+    // Write DROP TABLE statements to the backup file
+    foreach ($tables as $table) {
+        $sqlBackup = "DROP TABLE IF EXISTS $table;\n";
+        file_put_contents($sqlBackupFile, $sqlBackup, FILE_APPEND);
+    }
+
+    // Run mysqldump to create the SQL backup without comments
+    $sqlDumpCommand = "mysqldump --complete-insert --skip-triggers --host=$dbhost --user=$dbusername --password=$dbpassword $database | sed -e '/\/\*.*\*\//d' -e '/--/d' > $sqlBackupFile";
     exec($sqlDumpCommand);
 
     // Check if the SQL dump was successful
     if (file_exists($sqlBackupFile)) {
-        // Create a backup archive including the SQL backup file and excluding uploads/backups
-        $backupFileName = date("Y-m-d_H-i-s") . ".tar.gz";
-        $backupPath = $backupFolder . $backupFileName;
+        // Generate a manifest file with the list of all folders, subfolders, and files
+        generateManifest($documentRootPath, $documentRootPath);
+
+        // Create a backup archive including the entire document root, SQL backup file, and manifest.txt
+        $backupPath = $backupFolder . '/' . $backupFileName;
 
         // Use tar to create the archive
-        $tarCommand = "tar -czf $backupPath --directory=$documentRootPath ";
-        $tarCommand .= "--exclude=uploads/backups ";
-        $tarCommand .= "--exclude=$sqlBackupFile ."; // Exclude SQL backup file
+        $tarCommand = "tar -czf $backupPath -C $documentRootPath --exclude=uploads/backups . db_backup.sql manifest.txt";
 
         // Execute the tar command
         exec($tarCommand);
@@ -62,6 +182,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
                     </button>
                 </div>';
         }
+
+        // Remove the temporary SQL backup file
+        unlink($sqlBackupFile);
     } else {
         // Error message for mysqldump command
         echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -79,41 +202,92 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 
 
 
-
-
 // Handle restore action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
     $selectedBackup = $_POST['proceed-restore'];
 
-    // Use realpath to get the canonicalized absolute pathname
-    $backupFile = realpath($backupFolder . $selectedBackup);
+    // Step 1: Verify the selected backup path
+    $backupFile = $backupFolder . $selectedBackup;
 
-    // Check if the obtained path is within the allowed directory
-    if ($backupFile !== false && strpos($backupFile, realpath($backupFolder)) === 0) {
-        // Extract the tar archive to the document root
-        $tarExtractCommand = "tar -xzf $backupFile --directory=$documentRootPath";
-        exec($tarExtractCommand);
+    // Ensure the backup file is within the allowed directory
+    $backupRealPath = realpath($backupFile);
 
-        // Restore the database from the SQL file
-        $sqlContent = file_get_contents($backupFolder . 'database.sql');
-        $result = $conn->multi_query($sqlContent);
+    if ($backupRealPath !== false && strpos($backupRealPath, realpath($backupFolder)) === 0) {
+        // Step 2: Extract the tar archive to the restore folder
+        $restoreFolder = 'uploads/backups/restore';
 
-        // Check for execution success
-        if ($result === false) {
-            // Display detailed error message and stop execution
-            $errorMessage = $conn->error;
-            $errorNumber = $conn->errno;
-            echo "Error executing query: $errorMessage (Error Code: $errorNumber)";
-            die();
+        // Create restore folder if not exist
+        if (!file_exists($restoreFolder) || !is_dir($restoreFolder)) {
+            mkdir($restoreFolder, 0777, true);
         }
 
-        // Display success message
-        echo '<div class="alert alert-success" role="alert">Database restore successful!</div>';
+        // Extract the tar archive
+        $tarExtractCommand = "tar -xzf $backupRealPath --directory=$restoreFolder";
+        exec($tarExtractCommand);
+
+        // Step 3: Restore the database from the SQL file
+        $sqlDumpFile = $restoreFolder . '/db_backup.sql';
+        $sqlRestoreCommand = "mysql --host=$dbhost --user=$dbusername --password=$dbpassword --comments=0 $database < $sqlDumpFile";
+        exec($sqlRestoreCommand);
+
+        // Step 4: Generate the manifest file with the list of all folders, subfolders, and files
+        generateManifest($restoreFolder, $documentRootPath);
+
+        // Step 5: Remove unwanted files and directories in the document root
+        $manifestFile = $restoreFolder . '/manifest.txt';
+        $manifestContent = file_get_contents($manifestFile);
+        $manifestLines = explode(PHP_EOL, $manifestContent);
+
+        $allFiles = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($documentRootPath),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($allFiles as $file) {
+            $absolutePath = $file->getPathname();
+
+            // Ensure the file/directory is within the document root
+            if (strpos($absolutePath, $documentRootPath) === 0) {
+                $relativePath = substr($absolutePath, strlen($documentRootPath));
+
+                if ($file->isDir() && !$file->isLink()) {
+                    // Check if the directory is not in the manifest
+                    if (!in_array('D|' . $relativePath, $manifestLines) && $relativePath !== '/uploads/backups') {
+                        removeDirectory($absolutePath);
+                    }
+                } elseif ($file->isFile()) {
+                    // Check if the file is not in the manifest
+                    if (!in_array('F|' . $relativePath, $manifestLines)) {
+                        unlink($absolutePath);
+                    }
+                }
+            }
+        }
+
+        // Step 6: Copy and replace content from restore folder to document root
+        $copyCommand = "cp -Rf $restoreFolder/* $documentRootPath/";
+        exec($copyCommand);
+
+        // Step 7: Remove the restore folder
+        removeDirectory($restoreFolder);
+
+        // Step 8: Display success message and refresh the page
+        echo '<script>
+                alert("Backup restored successfully!");
+                window.location.reload();
+              </script>';
     } else {
         // Log an error or take appropriate action for invalid paths
-        echo 'Invalid backup path: ' . htmlspecialchars($backupFile, ENT_QUOTES, 'UTF-8');
+        echo 'Invalid backup path: ' . htmlspecialchars($backupRealPath, ENT_QUOTES, 'UTF-8');
     }
 }
+
+
+
+
+
+
+
 
 
 // Handle upload tar archive to backup list
@@ -396,4 +570,3 @@ function formatBytes($bytes, $decimals = 2)
 
 <?php
 require_once "footer.php";
-?>
