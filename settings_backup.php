@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once "inc_all_settings.php";
 
 $backupFolder = 'uploads/backups/';
@@ -19,8 +22,6 @@ $conn = new mysqli($dbhost, $dbusername, $dbpassword, $database);
 
 // Get the server's document root
 $documentRootPath = $_SERVER['DOCUMENT_ROOT'];
-
-
 
 // Function to remove comments from SQL
 function removeSQLComments($sql) {
@@ -43,42 +44,12 @@ function removeDirectoryWithExclusion($dir, $excludeDir) {
     foreach ($files as $file) {
         $path = $dir . '/' . $file;
         if (is_dir($path) && strpos($path, $excludeDir) === false) {
-            removeDirectory($path);
+            removeDirectoryWithExclusion($path, $excludeDir);
         } elseif (is_file($path)) {
             unlink($path);
         }
     }
     rmdir($dir);
-}
-
-
-// Function to recursively copy a directory
-function copyDirectory($source, $destination)
-{
-    if (is_dir($source)) {
-        if (!file_exists($destination)) {
-            mkdir($destination, 0777, true);
-        }
-
-        $directory = dir($source);
-
-        while (false !== ($entry = $directory->read())) {
-            if ($entry == "." || $entry == "..") {
-                continue;
-            }
-
-            $sourcePath = $source . '/' . $entry;
-            $destinationPath = $destination . '/' . $entry;
-
-            // Recursively copy subdirectories and replace existing files
-            copyDirectory($sourcePath, $destinationPath);
-        }
-
-        $directory->close();
-    } elseif (is_file($source)) {
-        // Copy individual files and replace existing files
-        copy($source, $destination);
-    }
 }
 
 
@@ -96,11 +67,7 @@ function generateManifest($restoreFolder, $documentRootPath)
         if (strpos($absolutePath, $documentRootPath) === 0) {
             $relativePath = substr($absolutePath, strlen($documentRootPath));
 
-            if ($file->isDir()) {
-                $manifestContent .= 'D|' . $relativePath . PHP_EOL;
-            } elseif ($file->isFile()) {
-                $manifestContent .= 'F|' . $relativePath . PHP_EOL;
-            }
+            $manifestContent .= $relativePath . PHP_EOL;
         }
     }
 
@@ -109,6 +76,7 @@ function generateManifest($restoreFolder, $documentRootPath)
 
     return $manifestContent;
 }
+
 
 // Handle backup action
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
@@ -146,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
         $backupPath = $backupFolder . '/' . $backupFileName;
 
         // Use tar to create the archive
-        $tarCommand = "tar -czf $backupPath -C $documentRootPath --exclude=uploads/backups . db_backup.sql manifest.txt";
+        $tarCommand = "tar -czf $backupPath -C $documentRootPath --exclude=uploads/backups --transform='s,^./,,' . db_backup.sql manifest.txt";
 
         // Execute the tar command
         exec($tarCommand);
@@ -188,7 +156,75 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['backup'])) {
 
 
 
+// Function to recursively copy a directory
+function copyDirectory($source, $destination)
+{
+    if (is_dir($source)) {
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
+        }
 
+        $directory = dir($source);
+
+        while (false !== ($entry = $directory->read())) {
+            if ($entry == "." || $entry == "..") {
+                continue;
+            }
+
+            $sourcePath = $source . '/' . $entry;
+            $destinationPath = $destination . '/' . $entry;
+
+            // Recursively copy subdirectories and replace existing files
+            copyDirectory($sourcePath, $destinationPath);
+        }
+
+        $directory->close();
+    } elseif (is_file($source)) {
+        // Copy individual files and replace existing files
+        copy($source, $destination);
+    }
+}
+
+
+// Function to remove files not present in the manifest
+function removeExcludedFiles($documentRoot, $restoreFolder)
+{
+    $manifestFile = $restoreFolder . '/manifest.txt';
+
+    if (!file_exists($manifestFile)) {
+        return;
+    }
+
+    $manifestContent = file_get_contents($manifestFile);
+    $filesToKeep = explode(PHP_EOL, $manifestContent);
+
+    $allFiles = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($documentRoot));
+
+    foreach ($allFiles as $file) {
+        if ($file->isFile() && !in_array($file->getPathname(), $filesToKeep, true)) {
+            unlink($file->getPathname());
+        }
+    }
+}
+
+
+
+// Function to remove a directory and its contents recursively
+function removeDirectory($path) {
+    if (is_dir($path)) {
+        $objects = scandir($path);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (is_dir($path . "/" . $object)) {
+                    removeDirectory($path . "/" . $object);
+                } else {
+                    unlink($path . "/" . $object);
+                }
+            }
+        }
+        rmdir($path);
+    }
+}
 
 
 
@@ -215,73 +251,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['proceed-restore'])) {
         $tarExtractCommand = "tar -xzf $backupRealPath --directory=$restoreFolder";
         exec($tarExtractCommand);
 
+        // Use the existing manifest file from the tar archive
+        $manifestFile = $restoreFolder . '/manifest.txt';
+
         // Step 3: Restore the database from the SQL file
         $sqlDumpFile = $restoreFolder . '/db_backup.sql';
-        $sqlRestoreCommand = "mysql --host=$dbhost --user=$dbusername --password=$dbpassword --comments=0 $database < $sqlDumpFile";
-        exec($sqlRestoreCommand);
 
-        // Step 4: Generate the manifest file with the list of all folders, subfolders, and files
-        generateManifest($restoreFolder, $documentRootPath);
+        // Check if the SQL dump file exists
+        if (file_exists($sqlDumpFile)) {
+            // Run the MySQL restore command
+            $sqlRestoreCommand = "mysql --host=$dbhost --user=$dbusername --password=$dbpassword $database < $sqlDumpFile";
+            exec($sqlRestoreCommand);
 
-    // Step 5: Remove unwanted files and directories in the document root
-$allFiles = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($documentRootPath),
-    RecursiveIteratorIterator::SELF_FIRST
-);
+// Step 4: Copy and replace content from restore folder to document root
+copyDirectory($restoreFolder, $documentRootPath);
 
-foreach ($allFiles as $file) {
-    $absolutePath = $file->getPathname();
+// Step 5: Remove files not present in the manifest
+// removeExcludedFiles($documentRootPath, $restoreFolder);
 
-    // Ensure the file/directory is within the document root
-    if (strpos($absolutePath, $documentRootPath) === 0) {
-        if ($file->isDir() && !$file->isLink()) {
-            // Check if the directory is not in the manifest
-            $relativePath = substr($absolutePath, strlen($documentRootPath) + 1);
-            if (!in_array('D|' . $relativePath, $manifestLines) && $relativePath !== 'uploads/backups') {
-                removeDirectory($absolutePath, $documentRootPath);
-            }
-        } elseif ($file->isFile()) {
-            // Check if the file is not in the manifest
-            $relativePath = substr($absolutePath, strlen($documentRootPath) + 1);
-            if (!in_array('F|' . $relativePath, $manifestLines)) {
-                unlink($absolutePath);
-            }
+// Step 6: Remove the restore folder
+removeDirectory($restoreFolder);
+
+// Display success message
+echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+        Restore successful! Please refresh your browser.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>';
         }
     }
-}
+} // Closing brace for the restore action
 
-// Function to remove a directory and its contents within the allowed prefix
-function removeDirectory($path, $allowedPrefix)
-{
-    $files = glob($path . '/*');
-    foreach ($files as $file) {
-        $absolutePath = realpath($file);
-
-        // Ensure the file/directory is within the allowed prefix
-        if (strpos($absolutePath, $allowedPrefix) === 0) {
-            is_dir($absolutePath) ? removeDirectory($absolutePath, $allowedPrefix) : unlink($absolutePath);
-        }
-    }
-    rmdir($path);
-}
-        // Step 6: Copy and replace content from restore folder to document root
-        $copyCommand = "cp -Rf $restoreFolder/* $documentRootPath/";
-        exec($copyCommand);
-
-        // Step 7: Remove the restore folder
-        removeDirectory($restoreFolder);
-
-        // Step 8: Display success message and refresh the page
-        echo '<script>
-                alert("Backup restored successfully!");
-                window.location.reload();
-              </script>';
-    } else {
-        // Log an error or take appropriate action for invalid paths
-        echo 'Invalid backup path: ' . htmlspecialchars($backupRealPath, ENT_QUOTES, 'UTF-8');
-    }
-}
-
+        
 
 
 
