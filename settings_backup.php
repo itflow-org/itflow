@@ -209,6 +209,8 @@ function removeExcludedFiles($documentRoot, $restoreFolder)
 
 
 
+/*  replace this in functions.php
+
 // Function to remove a directory and its contents recursively
 function removeDirectory($path) {
     if (is_dir($path)) {
@@ -225,7 +227,7 @@ function removeDirectory($path) {
         rmdir($path);
     }
 }
-
+*/
 
 
 // Handle restore action
