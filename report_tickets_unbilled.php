@@ -167,7 +167,6 @@ $rows = 0;
                         ?>
                         <tr>
                             <td colspan="4">You are all caught up! There are no unbilled tickets for this year.
-                                <i class="fas fa-smile"></i>
                             </td>
                         </tr>
                         <?php
