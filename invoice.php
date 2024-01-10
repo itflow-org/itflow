@@ -76,26 +76,36 @@ if (isset($_GET['invoice_id'])) {
     $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
     $sql_tickets = mysqli_query($mysqli, "
-        SELECT 
-            tickets.*, 
+        SELECT
+            tickets.*,
             SEC_TO_TIME(SUM(TIME_TO_SEC(STR_TO_DATE(ticket_reply_time_worked, '%H:%i:%s')))) AS 'total_time_worked'
-        FROM 
-            tickets 
-        LEFT JOIN 
-            ticket_replies ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id 
-        WHERE 
-            ticket_invoice_id = $invoice_id 
-        GROUP BY 
-            tickets.ticket_id 
-        ORDER BY 
+        FROM
+            tickets
+        LEFT JOIN
+            ticket_replies ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id
+        WHERE
+            ticket_invoice_id = $invoice_id
+        GROUP BY
+            tickets.ticket_id
+        ORDER BY
             ticket_id DESC
     ");
 
     //Get billable, and unbilled tickets to add to invoice
-    $sql_tickets_billable = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND ticket_billable = 1 AND ticket_invoice_id = 0;");
-
-
-
+    $sql_tickets_billable = mysqli_query(
+        $mysqli, "
+        SELECT
+            *
+        FROM
+            tickets
+        WHERE
+            ticket_client_id = $client_id
+        AND
+            ticket_billable = 1
+        AND
+            ticket_invoice_id = 0
+        AND
+            ticket_status LIKE '%close%';");
 
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
