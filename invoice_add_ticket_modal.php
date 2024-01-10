@@ -11,11 +11,13 @@
             <div class="modal-body bg-white">
                 <div class="table-responsive">
                     <table class="table table-striped">
-                        <tr>
-                            <th>Ticket Number</th>
-                            <th>Scope</th>
-                            <th class="text-right">Add to Invoice</th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>Ticket Number</th>
+                                <th>Scope</th>
+                                <th class="text-right">Add to Invoice</th>
+                            </tr>
+                        </thead>
                         <?php while ($row = mysqli_fetch_array($sql_tickets_billable)) { 
                             $ticket_id = intval($row['ticket_id']);
                             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
