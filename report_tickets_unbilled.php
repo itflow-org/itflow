@@ -80,7 +80,6 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         <th class="text-right">Tickets Raised</th>
                         <th class="text-right">Billable Tickets</th>
                         <th class="text-right">Unbilled Tickets</th>
-                        <th class="text-right">Invoice Tickets</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -124,7 +123,22 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         $ticket_closed_count = intval($row['ticket_closed_count']);
 
                         // Calculate total tickets raised in period that are closed and billable, but not invoiced
-                        $sql_ticket_unbilled_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_unbilled_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_status = 'Closed' AND ticket_billable = 1 AND ticket_invoice_id IS NULL");
+                        $sql_ticket_unbilled_count = mysqli_query(
+                            $mysqli,
+                            "SELECT
+                                COUNT(ticket_id) AS ticket_unbilled_count
+                            FROM
+                                tickets
+                            WHERE
+                                YEAR(ticket_created_at) = $year
+                            AND
+                                ticket_client_id = $client_id
+                            AND
+                                ticket_status = 'Closed'
+                            AND
+                                ticket_billable = 1
+                            AND
+                                ticket_invoice_id = 0");
                         $row = mysqli_fetch_array($sql_ticket_unbilled_count);
                         $ticket_unbilled_count = intval($row['ticket_unbilled_count']);
 
@@ -136,13 +150,6 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_closed_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_unbilled_count; ?></td>
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#AddTicketInvoiceModal<?php echo $client_id; ?>">
-                                        <i class="fas fa-fw fa-plus mr-2"></i>Invoice Ticket
-                                    </button>
-                                </td>
-
-
                             </tr>
                             <?php
                         }
