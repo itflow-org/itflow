@@ -53,6 +53,9 @@ $sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_a
 
 $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
 
+$rows = 0;
+
+
 ?>
 
     <div class="card card-dark">
@@ -144,6 +147,8 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         $ticket_unbilled_count = intval($row['ticket_unbilled_count']);
 
                         if ($ticket_unbilled_count > 0) {
+                            $rows = $rows++;
+
                             ?>
 
                             <tr>
@@ -156,15 +161,14 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             </tr>
                             <?php
                         }
-                    //Get number of rows contained in result set
-                    $rowcount = mysqli_num_rows($sql_clients);
-                    if ($rowcount == 0) {
+                    }
+
+                    if ($rows == 0) {
                         ?>
                         <tr>
-                            <td colspan="4">You are all caught up!</td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">There are no unbilled tickets for this year.</td>
+                            <td colspan="4">You are all caught up! There are no unbilled tickets for this year.
+                                <i class="fas fa-smile"></i>
+                            </td>
                         </tr>
                         <?php
                     }
