@@ -13,7 +13,7 @@
                     <tr>
                         <th>Ticket Number</th>
                         <th>Scope</th>
-                        <th></th>
+                        <th>Add to Invoice</th>
                     </tr>
                     <?php while ($row = mysqli_fetch_array($sql_tickets_billable)) { 
                         $ticket_id = intval($row['ticket_id']);
@@ -24,8 +24,7 @@
                             <td><?php echo $ticket_subject ?></td>
                             <td></td>
                             <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>
-                                <i class="fas fa-fw fa-plus-circle"></i>
-                            </td>
+                                <i class="fas fa-fw fa-plus-circle"></i></td>
                         </tr>
                     <?php } ?>
                 </table>
