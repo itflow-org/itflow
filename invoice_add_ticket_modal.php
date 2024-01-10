@@ -23,7 +23,9 @@
                             <td><?php echo $ticket_id?></td>
                             <td><?php echo $ticket_subject ?></td>
                             <td></td>
-                            <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>Add</a></td>
+                            <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>
+                                <i class="fas fa-fw fa-plus-circle"></i>
+                            </td>
                         </tr>
                     <?php } ?>
                 </table>
