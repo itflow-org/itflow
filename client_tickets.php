@@ -18,10 +18,11 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status != 'Closed'";
 }
 
-if (isset($_GET['unbilled']) && ($_GET['billable']) == '1') {
+if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
     $billable = '1';
     $ticket_billable_snippet = " AND ticket_billable = 1";
-}
+    $ticket_status_snippet = $ticket_status . $ticket_billable_snippet;
+} 
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
