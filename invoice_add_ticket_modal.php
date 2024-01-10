@@ -8,7 +8,7 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal->body bg-white">
+            <div class="modal-body bg-white">
                 <table class="table">
                     <tr>
                         <th>Ticket Number</th>
