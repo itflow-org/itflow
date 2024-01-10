@@ -156,6 +156,19 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             </tr>
                             <?php
                         }
+
+                        //Get number of rows contained in result set
+                        $rowcount = mysqli_num_rows($sql_clients);
+                        if ($rowcount == 0) {
+                            ?>
+                            <tr>
+                                <td colspan="4">You are all caught up!</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">There are no unbilled tickets for this year.</td>
+                            </tr>
+                            <?php
+                        }
                     }
                     ?>
                     </tbody>
