@@ -147,7 +147,7 @@ $rows = 0;
                         $ticket_unbilled_count = intval($row['ticket_unbilled_count']);
 
                         if ($ticket_unbilled_count > 0) {
-                            $rows = $rows++;
+                            $rows = $rows + 1;
 
                             ?>
 
