@@ -19,9 +19,11 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
 }
 
 if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
-    $billable = 1;
-    $ticket_billable_snippet = "ticket_billable = 1";
-    $ticket_status_snippet = '1 = 1';
+    if (isset($_GET['unbilled'])) {
+        $billable = 1;
+        $ticket_billable_snippet = "ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = '1 = 1';
+    }
 } else {
     $billable = 0;
     $ticket_billable_snippet = '1 = 1';
