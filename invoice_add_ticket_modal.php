@@ -13,7 +13,7 @@
                     <tr>
                         <th>Ticket Number</th>
                         <th>Scope</th>
-                        <th>Add to Invoice</th>
+                        <th class="text-right">Add to Invoice</th>
                     </tr>
                     <?php while ($row = mysqli_fetch_array($sql_tickets_billable)) { 
                         $ticket_id = intval($row['ticket_id']);
