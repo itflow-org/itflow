@@ -82,6 +82,12 @@
                             <p>Collections</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="report_tickets_unbilled.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_tickets_unbilled.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>Unbilled Tickets</p>
+                        </a>
+                    </li>
                 <?php } // End financial reports IF statement ?>
 
                 <?php  if ($session_user_role == 2 || $session_user_role == 3) { ?>
@@ -92,12 +98,7 @@
                             <p>Tickets</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="report_tickets_unbilled.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_tickets_unbilled.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Unbilled Tickets</p>
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a href="report_ticket_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_ticket_by_client.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
