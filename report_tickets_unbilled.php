@@ -142,11 +142,13 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         $row = mysqli_fetch_array($sql_ticket_unbilled_count);
                         $ticket_unbilled_count = intval($row['ticket_unbilled_count']);
 
-                        if ($ticket_raised_count > 0) {
+                        if ($ticket_unbilled_count > 0) {
                             ?>
 
                             <tr>
-                                <td><?php echo $client_name; ?></td>
+                                <td>
+                                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>&billable=1&unbilled"><?php echo $client_name; ?></a>
+                                </td>
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_closed_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_unbilled_count; ?></td>
