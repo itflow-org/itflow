@@ -105,7 +105,8 @@ if (isset($_GET['invoice_id'])) {
         AND
             ticket_invoice_id = 0
         AND
-            ticket_status LIKE '%close%';");
+            ticket_status LIKE '%close%';
+    ");
 
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
