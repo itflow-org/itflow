@@ -18,6 +18,17 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status != 'Closed'";
 }
 
+if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
+    if (isset($_GET['unbilled'])) {
+        $billable = 1;
+        $ticket_billable_snippet = "ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = '1 = 1';
+    }
+} else {
+    $billable = 0;
+    $ticket_billable_snippet = '1 = 1';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -31,6 +42,7 @@ $sql = mysqli_query(
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
     AND $ticket_status_snippet
+    AND $ticket_billable_snippet
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

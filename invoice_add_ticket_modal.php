@@ -8,25 +8,50 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal->body bg-white">
-                <table class="table">
-                    <tr>
-                        <th>Ticket Number</th>
-                        <th>Scope</th>
-                        <th></th>
-                    </tr>
-                    <?php while ($row = mysqli_fetch_array($sql_tickets_billable)) { 
-                        $ticket_id = intval($row['ticket_id']);
-                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                        ?>
-                        <tr>
-                            <td><?php echo $ticket_id?></td>
-                            <td><?php echo $ticket_subject ?></td>
-                            <td></td>
-                            <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>Add</a></td>
-                        </tr>
-                    <?php } ?>
-                </table>
+            <div class="modal-body bg-white">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ticket Number</th>
+                                <th>Scope</th>
+                                <th>Add to Invoice</th>
+                            </tr>
+                        </thead>
+                        <?php while ($row = mysqli_fetch_array($sql_tickets_billable)) { 
+                            $ticket_id = intval($row['ticket_id']);
+                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                            $ticket_number = intval($row['ticket_number']);
+                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                            $ticket_status = nullable_htmlentities($row['ticket_status']);
+
+                            switch ($ticket_status) {
+                                case 'Closed':
+                                    $ticket_status_class = 'badge-dark';
+                                    break;
+                                case 'Auto Close':
+                                    $ticket_status_class = 'badge-warning';
+                                    break;
+                                default:
+                                    $ticket_status_class = 'badge-secondary';
+                                    break;
+                            }
+
+
+                            ?>
+                            <tr>
+                                <td>
+                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                        <span class="badge badge-pill <?php echo $ticket_status_class?> p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                    </a>
+                                </td>   
+                                <td><?php echo $ticket_subject ?></td>
+                                <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>
+                                    <i class="fas fa-fw fa-plus-circle"></i></td>
+                            </tr>
+                        <?php } ?>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
