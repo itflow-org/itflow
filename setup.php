@@ -309,6 +309,7 @@ if (isset($_POST['add_telemetry'])) {
         $row = mysqli_fetch_array($sql);
 
         $company_name = $row['company_name'];
+        $website = $row['company_website'];
         $city = $row['company_city'];
         $state = $row['company_state'];
         $country = $row['company_country'];
@@ -318,6 +319,7 @@ if (isset($_POST['add_telemetry'])) {
             array(
                 'installation_id' => "$installation_id",
                 'company_name' => "$company_name",
+                'website' => "$website",
                 'city' => "$city",
                 'state' => "$state",
                 'country' => "$country",

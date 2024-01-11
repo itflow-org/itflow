@@ -889,6 +889,7 @@ if ($config_telemetry > 0 OR $config_telemetry = 2) {
             'installation_id' => "$installation_id",
             'version' => "$current_version",
             'company_name' => "$company_name",
+            'website' => "$company_website",
             'city' => "$company_city",
             'state' => "$company_state",
             'country' => "$company_country",

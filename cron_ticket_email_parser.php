@@ -62,8 +62,8 @@ $lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
 if (file_exists($lock_file_path)) {
     $file_age = time() - filemtime($lock_file_path);
 
-    // If file is older than 10 minutes (600 seconds), delete and continue
-    if ($file_age > 600) {
+    // If file is older than 5 minutes (300 seconds), delete and continue
+    if ($file_age > 300) {
         unlink($lock_file_path);
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Delete', log_description = 'Cron Email Parser detected a lock file was present but was over 10 minutes old so it removed it'");
     } else {

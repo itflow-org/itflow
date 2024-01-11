@@ -596,6 +596,7 @@ if (isset($_GET['update'])) {
         $row = mysqli_fetch_array($sql);
 
         $company_name = sanitizeInput($row['company_name']);
+        $website = sanitizeInput($row['company_website']);
         $city = sanitizeInput($row['company_city']);
         $state = sanitizeInput($row['company_state']);
         $country = sanitizeInput($row['company_country']);
@@ -767,6 +768,7 @@ if (isset($_GET['update'])) {
                 'installation_id' => "$installation_id",
                 'version' => "$current_version",
                 'company_name' => "$company_name",
+                'website' => "$website",
                 'city' => "$city",
                 'state' => "$state",
                 'country' => "$country",
