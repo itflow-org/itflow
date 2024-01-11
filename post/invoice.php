@@ -255,6 +255,7 @@ if (isset($_GET['delete_recurring'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Delete', log_description = '$recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Recurring Invoice deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -345,6 +346,7 @@ if (isset($_GET['delete_recurring_item'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Item', log_action = 'Delete', log_description = 'Item ID $item_id from Recurring ID $recurring_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Item deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -417,6 +419,7 @@ if (isset($_GET['delete_invoice'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Delete', log_description = '$invoice_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Invoice deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -585,6 +588,7 @@ if (isset($_GET['delete_invoice_item'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice Item', log_action = 'Delete', log_description = '$item_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Item deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -932,6 +936,7 @@ if (isset($_GET['delete_payment'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Delete', log_description = '$payment_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Payment deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1171,8 +1176,8 @@ if (isset($_GET['force_recurring'])) {
 
         // Email to client
 
-        $subject = "Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone";
+        $subject = mysqli_real_escape_string($mysqli, "Invoice $invoice_prefix$invoice_number");
+        $body    = mysqli_real_escape_string($mysqli, "Hello $contact_name,<br><br>Please view the details of the invoice below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>$company_phone");
 
         
         $data = [
