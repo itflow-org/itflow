@@ -70,7 +70,7 @@
                     <li class="nav-item">
                         <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-redo-alt"></i>
-                            <p>Rec. Invoices</p>
+                            <p>Recurring Invoices</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -112,7 +112,7 @@
                     <li class="nav-item">
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-clock"></i>
-                            <p>Rec. Expenses</p>
+                            <p>Recurring Expenses</p>
                         </a>
                     </li>
                     <li class="nav-item">
