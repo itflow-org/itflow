@@ -37,26 +37,26 @@
             </a>
         </li>
         <?php if ($config_module_enable_ticketing == 1) { ?>
-            <!-- WORK IN PROGRESS (Commented by JQ 2023-12-27)
+            
             <li class="nav-item">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
                     <i class="fas fa-hourglass-half"></i>
                     <span class="badge" id="runningTicketsCount">0</span>
                 </a>
             </li>
-            -->
+           
         <?php } ?>
 
 
         <!-- New Notifications Dropdown -->
         <?php
-    $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
-        LEFT JOIN clients ON notification_client_id = client_id 
-        WHERE notification_dismissed_at IS NULL 
-        AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
-        ORDER BY notification_id DESC LIMIT 5"
-    );
-    ?>
+        $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
+            LEFT JOIN clients ON notification_client_id = client_id 
+            WHERE notification_dismissed_at IS NULL 
+            AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
+            ORDER BY notification_id DESC LIMIT 5"
+        );
+        ?>
 
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
