@@ -153,10 +153,10 @@
                 </li>
                 <!-- Menu Footer-->
                 <li class="user-footer">
-                    <a href="user_profile.php" class="btn btn-default btn-flat"><i
-                            class="fas fa-cog mr-2"></i>Profile</a>
+                    <a href="user_details.php" class="btn btn-default btn-flat"><i
+                            class="fas fa-cog mr-2"></i>Account</a>
                     <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i
-                            class="fas fa-sign-out-alt mr-2"></i>Sign out</a>
+                            class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                 </li>
             </ul>
         </li>
