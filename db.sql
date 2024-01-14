@@ -149,7 +149,8 @@ CREATE TABLE `assets` (
   `asset_os` varchar(200) DEFAULT NULL,
   `asset_ip` varchar(20) DEFAULT NULL,
   `asset_mac` varchar(17) DEFAULT NULL,
-  `asset_uri` varchar(250) DEFAULT NULL,
+  `asset_uri` varchar(500) DEFAULT NULL,
+  `asset_uri_2` varchar(500) DEFAULT NULL,
   `asset_status` varchar(200) DEFAULT NULL,
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
@@ -1753,4 +1754,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-06 16:07:08
+-- Dump completed on 2024-01-14 14:08:41

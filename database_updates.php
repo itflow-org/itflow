@@ -1540,14 +1540,23 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.0'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '1.0.0') {
+        //Insert queries here required to update to DB version 1.0.1
+        mysqli_query($mysqli, "ALTER TABLE `assets` MODIFY `asset_uri` VARCHAR(500) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_uri_2` VARCHAR(500) DEFAULT NULL AFTER `asset_uri`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.1'");
+    }
+
     // Be sure to change database_version.php to reflect the version you are updating to here
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    // if (CURRENT_DATABASE_VERSION == '1.0.0') {
-    //     // Insert queries here required to update to DB version 1.0.1
+    // if (CURRENT_DATABASE_VERSION == '1.0.1') {
+    //     // Insert queries here required to update to DB version 1.0.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.2'");
     // }
 
 } else {
