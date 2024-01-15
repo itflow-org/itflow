@@ -44,8 +44,10 @@ if (isset($_GET['asset_id'])) {
     } else {
         $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
     }
+    $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
     $asset_mac = nullable_htmlentities($row['asset_mac']);
     $asset_uri = nullable_htmlentities($row['asset_uri']);
+    $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
     $asset_status = nullable_htmlentities($row['asset_status']);
     $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
