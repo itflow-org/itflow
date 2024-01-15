@@ -256,7 +256,7 @@ $sql_asset_retire = mysqli_query(
 
             <!-- Stale Tickets -->
 
-            <div class="col-md-6">
+            <div class="col-md-4">
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
