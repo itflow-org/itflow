@@ -113,19 +113,17 @@ if (isset($_GET['asset_id'])) {
 
         <div class="col-md-3">
 
-            <div class="card card-dark">
+            <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Asset Details</h5>
-                </div>
-                <div class="card-body">
-                    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
-                        <i class="fas fa-fw fa-edit"></i> Edit
+                    <button type="button" class="btn btn-light float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                        <i class="fas fa-fw fa-edit"></i>
                     </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
                     <?php if (!empty($asset_description)) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
                     <?php } ?>
-                    <hr>
+                </div>
+                <div class="card-body">
                     <?php if (!empty($asset_type)) { ?>
                         <div><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo $asset_type; ?></div>
                     <?php }
