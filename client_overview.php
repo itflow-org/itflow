@@ -110,44 +110,6 @@ $sql_asset_retire = mysqli_query(
 
         </div>
 
-        <?php if (mysqli_num_rows($sql_recent_activities) > 0) { ?>
-
-            <!-- Stale Tickets -->
-
-            <div class="col-md-6">
-
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
-                    </div>
-                    <div class="card-body p-2">
-
-                        <table class="table table-borderless table-sm">
-                            <tbody>
-                            <?php
-
-                            while ($row = mysqli_fetch_array($sql_recent_activities)) {
-                                $log_created_at_time_ago = timeAgo($row['log_created_at']);
-                                $log_description = nullable_htmlentities($row['log_description']);
-
-                                ?>
-                                <tr>
-                                    <td><?php echo $log_created_at_time_ago; ?></td>
-                                    <td><?php echo $log_description; ?></td>
-                                </tr>
-
-                                <?php
-                            }
-                            ?>
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        <?php } ?>
-
         <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
 
             <div class="col-md-4">
@@ -318,6 +280,44 @@ $sql_asset_retire = mysqli_query(
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
                                     <td class="text-danger"><?php echo $ticket_created_at; ?></td>
+                                </tr>
+
+                                <?php
+                            }
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <?php if (mysqli_num_rows($sql_recent_activities) > 0) { ?>
+
+            <!-- Recent Activities -->
+
+            <div class="col-md-12">
+
+                <div class="card card-dark mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Activities <small>(Last 10 tasks)</small></h5>
+                    </div>
+                    <div class="card-body p-2">
+
+                        <table class="table table-borderless table-sm">
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_recent_activities)) {
+                                $log_created_at_time_ago = timeAgo($row['log_created_at']);
+                                $log_description = nullable_htmlentities($row['log_description']);
+
+                                ?>
+                                <tr>
+                                    <td><?php echo $log_created_at_time_ago; ?></td>
+                                    <td><?php echo $log_description; ?></td>
                                 </tr>
 
                                 <?php
