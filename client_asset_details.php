@@ -19,31 +19,11 @@ if (isset($_GET['asset_id'])) {
     $asset_type = nullable_htmlentities($row['asset_type']);
     $asset_name = nullable_htmlentities($row['asset_name']);
     $asset_description = nullable_htmlentities($row['asset_description']);
-    if (empty($asset_description)) {
-        $asset_description_display = "-";
-    } else {
-        $asset_description_display = $asset_description;
-    }
     $asset_make = nullable_htmlentities($row['asset_make']);
     $asset_model = nullable_htmlentities($row['asset_model']);
     $asset_serial = nullable_htmlentities($row['asset_serial']);
-    if (empty($asset_serial)) {
-        $asset_serial_display = "-";
-    } else {
-        $asset_serial_display = $asset_serial;
-    }
     $asset_os = nullable_htmlentities($row['asset_os']);
-    if (empty($asset_os)) {
-        $asset_os_display = "-";
-    } else {
-        $asset_os_display = $asset_os;
-    }
     $asset_ip = nullable_htmlentities($row['asset_ip']);
-    if (empty($asset_ip)) {
-        $asset_ip_display = "-";
-    } else {
-        $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
-    }
     $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
     $asset_mac = nullable_htmlentities($row['asset_mac']);
     $asset_uri = nullable_htmlentities($row['asset_uri']);
@@ -52,11 +32,6 @@ if (isset($_GET['asset_id'])) {
     $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
     $asset_install_date = nullable_htmlentities($row['asset_install_date']);
-    if (empty($asset_install_date)) {
-        $asset_install_date_display = "-";
-    } else {
-        $asset_install_date_display = $asset_install_date;
-    }
     $asset_notes = nullable_htmlentities($row['asset_notes']);
     $asset_created_at = nullable_htmlentities($row['asset_created_at']);
     $asset_vendor_id = intval($row['asset_vendor_id']);
@@ -67,20 +42,13 @@ if (isset($_GET['asset_id'])) {
     $device_icon = getAssetIcon($asset_type);
 
     $contact_name = nullable_htmlentities($row['contact_name']);
-    if (empty($contact_name)) {
-        $contact_name = "-";
-    }
     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
     if (empty($contact_archived_at)) {
         $contact_archived_display = "";
     } else {
         $contact_archived_display = "Archived - ";
     }
-
     $location_name = nullable_htmlentities($row['location_name']);
-    if (empty($location_name)) {
-        $location_name = "-";
-    }
     $location_archived_at = nullable_htmlentities($row['location_archived_at']);
     if (empty($location_archived_at)) {
         $location_archived_display = "";
@@ -146,48 +114,97 @@ if (isset($_GET['asset_id'])) {
         <div class="col-md-3">
 
             <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Asset Details</h5>
+                </div>
                 <div class="card-body">
+                    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                        <i class="fas fa-fw fa-edit"></i> Edit
+                    </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
                     <?php if (!empty($asset_description)) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
                     <?php } ?>
-
                     <hr>
+                    <?php if (!empty($asset_type)) { ?>
+                        <div><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo $asset_type; ?></div>
+                    <?php }
+                    if (!empty($asset_make)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
+                    <?php }
+                    if (!empty($asset_os)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
+                    <?php }
+                    if (!empty($asset_serial)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
+                    <?php } ?>
+                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_created_at)); ?></div>
+                    <?php
+                    if (!empty($asset_install_date)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                    <?php }
+                    if (!empty($asset_warranty_expire)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Network</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($asset_ip)) { ?>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-3"></i><?php echo $asset_ip; ?></div>
+                    <?php } ?>
+                    <?php if (!empty($asset_nat_ip)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-3"></i><?php echo $asset_nat_ip; ?></div>
+                    <?php }
+                    if (!empty($asset_mac)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-3"></i><?php echo $asset_mac; ?></div>
+                    <?php }
+                    if (!empty($asset_uri)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link</a></div>
+                    <?php }
+                    if (!empty($asset_uri_2)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link 2</a></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Assignment</h5>
+                </div>
+                <div class="card-body">
                     <?php if (!empty($location_name)) { ?>
-                        <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name; ?></div>
                     <?php }
                     if (!empty($contact_email)) { ?>
-                        <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
                     <?php }
                     if (!empty($contact_mobile)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
                     <?php }
                     if (!empty($contact_pin)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
                     <?php } ?>
-                    <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_created_at)); ?></div>
-                    <hr>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
-                        <i class="fas fa-fw fa-edit"></i> Edit
-                    </button>
-
-                    <?php require_once "client_asset_edit_modal.php";
- ?>
-
+                
                 </div>
             </div>
 
-            <div class="card mb-3">
+            <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
+                    <h5 class="card-title">Notes</h5>
                 </div>
-                <div class="card-body p-1">
-                    <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>
-                </div>
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
             </div>
+
+            <?php require_once "client_asset_edit_modal.php"; ?>
 
         </div>
 
