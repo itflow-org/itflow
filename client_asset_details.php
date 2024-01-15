@@ -42,6 +42,9 @@ if (isset($_GET['asset_id'])) {
     $device_icon = getAssetIcon($asset_type);
 
     $contact_name = nullable_htmlentities($row['contact_name']);
+    $contact_email = nullable_htmlentities($row['contact_email']);
+    $contact_phone = nullable_htmlentities($row['contact_phone']);
+    $contact_mobile = nullable_htmlentities($row['contact_mobile']);
     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
     if (empty($contact_archived_at)) {
         $contact_archived_display = "";
@@ -186,13 +189,10 @@ if (isset($_GET['asset_id'])) {
                         <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if (!empty($contact_phone)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
                     <?php }
                     if (!empty($contact_mobile)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
-                    <?php }
-                    if (!empty($contact_pin)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
                     <?php } ?>
                 
                 </div>
