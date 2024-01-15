@@ -179,6 +179,9 @@ if (isset($_GET['asset_id'])) {
                     <?php if (!empty($location_name)) { ?>
                         <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name; ?></div>
                     <?php }
+                    if (!empty($contact_name)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name; ?></div>
+                    <?php }
                     if (!empty($contact_email)) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
