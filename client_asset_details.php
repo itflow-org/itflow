@@ -128,24 +128,25 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <?php if (!empty($asset_type)) { ?>
-                        <div><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo $asset_type; ?></div>
+                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?php echo $asset_type; ?></div>
                     <?php }
                     if (!empty($asset_make)) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
                     <?php }
                     if (!empty($asset_os)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
                     <?php }
                     if (!empty($asset_serial)) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
-                    <?php } ?>
-                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_created_at)); ?></div>
-                    <?php
+                    <?php }
+                    if (!empty($asset_purchase_date)) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                    <?php }
                     if (!empty($asset_install_date)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
                     <?php }
                     if (!empty($asset_warranty_expire)) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
                     <?php } ?>
                 </div>
             </div>
