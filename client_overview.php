@@ -103,8 +103,8 @@ $sql_asset_retire = mysqli_query(
                 <div class="card-header">
                     <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
                 </div>
-                <div class="card-body">
-                    <textarea class="form-control" rows=5 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
+                <div class="card-body p-1">
+                    <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
                 </div>
             </div>
 
