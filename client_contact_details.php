@@ -122,7 +122,7 @@ if (isset($_GET['contact_id'])) {
                     <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
                 </div>
                 <div class="card-body p-1">
-                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Enter quick notes here" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
+                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
                 </div>
             </div>
 

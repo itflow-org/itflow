@@ -155,7 +155,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes, eg Parking Info, Building Access etc"><?php echo $location_notes; ?></textarea>
+                                <textarea class="form-control" rows="5" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"><?php echo $location_notes; ?></textarea>
                             </div>
 
                         </div>

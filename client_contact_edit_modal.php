@@ -244,7 +244,7 @@
                         <div class="tab-pane fade" id="pills-notes<?php echo $contact_id; ?>">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?php echo $contact_notes; ?></textarea>
+                                <textarea class="form-control" rows="8" name="notes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc"><?php echo $contact_notes; ?></textarea>
                             </div>
 
                         </div>
