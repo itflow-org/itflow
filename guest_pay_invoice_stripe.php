@@ -283,10 +283,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
+        $balance_before_fees = $balance_to_pay;
         $percentage_fee = 0.029;
         $flat_fee = 0.30;
         // Calculate the amount to charge the client
         $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
     }
 
     // Round balance to pay to 2 decimal places
@@ -339,10 +342,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_mail_from_name = $row['config_mail_from_name'];
     $config_invoice_from_name = $row['config_invoice_from_name'];
     $config_invoice_from_email = $row['config_invoice_from_email'];
+    $base_url = nullable_htmlentities($config_base_url);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href='https://$base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
             $data = [
                 [

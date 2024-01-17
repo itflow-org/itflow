@@ -109,7 +109,14 @@ $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_p
 $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
-$balance = $invoice_amount - $amount_paid;
+if ($invoice_amount - $amount_paid < 0) { //already paid invoices
+    $gateway_fee = -1 * ($invoice_amount - $amount_paid);
+    $amount_paid = $invoice_amount; // Set amount paid to invoice amount if gateway fee is enabled.
+    $balance = $invoice_amount - $amount_paid;
+} else {
+    $gateway_fee = 0;
+    $balance = $invoice_amount - $amount_paid;
+}
 
 // Check config to see if client pays fees is enabled
 if ($config_stripe_client_pays_fees == 1) {
@@ -297,7 +304,17 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 <td><div class="text-success">Paid</div></td>
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
+                        <?php } 
+                        if (isset($gateway_fee)) {
+                            ?>
+
+                            <tr class=border-bottom>
+                                <td><div class="text-success">Gateway Fee</div></td>
+                                <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>

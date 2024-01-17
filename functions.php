@@ -930,9 +930,18 @@ function addToMailQueue($mysqli, $data) {
         $recipient = strval($email['recipient']);
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
-        $body = strval($email['body']);
+        $body = nullable_htmlentities($email['body']);
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body'");
+        mysqli_query(
+            $mysqli,
+            "INSERT INTO email_queue 
+            SET email_recipient = '$recipient',
+            email_recipient_name = '$recipient_name',
+            email_from = '$from',
+            email_from_name = '$from_name',
+            email_subject = '$subject',
+            email_content = '$body'"
+        );
     }
 
     return true;
