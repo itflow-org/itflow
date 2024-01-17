@@ -148,6 +148,7 @@ CREATE TABLE `assets` (
   `asset_serial` varchar(200) DEFAULT NULL,
   `asset_os` varchar(200) DEFAULT NULL,
   `asset_ip` varchar(20) DEFAULT NULL,
+  `asset_nat_ip` varchar(200) DEFAULT NULL,
   `asset_mac` varchar(17) DEFAULT NULL,
   `asset_uri` varchar(500) DEFAULT NULL,
   `asset_uri_2` varchar(500) DEFAULT NULL,
@@ -774,7 +775,8 @@ CREATE TABLE `logins` (
   `login_name` varchar(200) NOT NULL,
   `login_description` varchar(255) DEFAULT NULL,
   `login_category` varchar(200) DEFAULT NULL,
-  `login_uri` varchar(200) DEFAULT NULL,
+  `login_uri` varchar(500) DEFAULT NULL,
+  `login_uri_2` varchar(500) DEFAULT NULL,
   `login_username` varchar(200) DEFAULT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
   `login_otp_secret` varchar(200) DEFAULT NULL,
@@ -1754,4 +1756,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-14 14:08:41
+-- Dump completed on 2024-01-15 13:07:46

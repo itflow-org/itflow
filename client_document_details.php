@@ -274,10 +274,14 @@ $document_parent = intval($row['document_parent']);
 
         ?>
         <div class="mt-1 <?php if($document_id == $revision_document_id){ echo "text-bold"; } ?>">
-          <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "$revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo " (Parent)"; } ?>
-          <a href="post.php?delete_document=<?php echo $revision_document_id; ?>">
-            <i class="fas fa-fw fa-times text-danger ml-2"></i>
-          </a>
+          <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "  $revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo " (Parent)"; 
+            } else { ?>
+              <a href="post.php?delete_document_version=<?php echo $revision_document_id; ?>">
+                <i class="fas fa-fw fa-times text-danger ml-2"></i>
+              </a>
+            <?php 
+            } 
+            ?>
         </div>
         <?php
         }

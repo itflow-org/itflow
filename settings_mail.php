@@ -269,31 +269,33 @@ require_once "inc_all_settings.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="input-group">
-                    <select class="form-control select2" name="email_from" required>
+                    <select class="form-control select2" name="test_email" required>
                         <option value="">- Select an Email Address to send from -</option>
                         <?php
-                        if(!empty($config_mail_from_email)){
+                        if ($config_mail_from_email) {
                         ?>
-                        <option><?php echo nullable_htmlentities($config_mail_from_email); ?></option>
+                        <option value="1"><?php echo nullable_htmlentities($config_mail_from_name); ?> (<?php echo nullable_htmlentities($config_mail_from_email); ?>)</option>
                         <?php } ?>
 
                         <?php
-                        if(!empty($config_ticket_from_email)){
+                        if ($config_invoice_from_email) {
                         ?>
-                        <option><?php echo nullable_htmlentities($config_ticket_from_email); ?></option>
+                        <option value="2"><?php echo nullable_htmlentities($config_invoice_from_name); ?> (<?php echo nullable_htmlentities($config_invoice_from_email); ?>)</option>
                         <?php } ?>
 
                         <?php
-                        if(!empty($config_invoice_from_email)){
+                        if ($config_quote_from_email) {
                         ?>
-                        <option><?php echo nullable_htmlentities($config_invoice_from_email); ?></option>
+                        <option value="3"><?php echo nullable_htmlentities($config_quote_from_name); ?> (<?php echo nullable_htmlentities($config_quote_from_email); ?>)</option>
                         <?php } ?>
 
                         <?php
-                        if(!empty($config_quote_from_email)){
+                        if ($config_ticket_from_email) {
                         ?>
-                        <option><?php echo nullable_htmlentities($config_quote_from_email); ?></option>
+                        <option value="4"><?php echo nullable_htmlentities($config_ticket_from_name); ?> (<?php echo nullable_htmlentities($config_ticket_from_email); ?>)</option>
                         <?php } ?>
+
+                        
                     </select>
                     <input type="email" class="form-control " name="email_to" placeholder="Email address to send to">
                     <div class="input-group-append">

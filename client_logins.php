@@ -100,6 +100,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                         }
+                        $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
                         $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                         if (empty($login_username)) {
                             $login_username_display = "-";

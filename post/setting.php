@@ -151,7 +151,22 @@ if (isset($_POST['test_email_smtp'])) {
 
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
-    $email_from = sanitizeInput($_POST['email_from']);
+    
+    $test_email = intval($_POST['test_email']);
+    if($test_email == 1) {
+        $email_from = sanitizeInput($config_mail_from_email);
+        $email_from_name = sanitizeInput($config_mail_from_name);
+    } elseif ($test_email == 2) {
+        $email_from = sanitizeInput($config_invoice_from_email);
+        $email_from_name = sanitizeInput($config_invoice_from_name);
+    } elseif ($test_email == 3) {
+        $email_from = sanitizeInput($config_quote_from_email);
+        $email_from_name = sanitizeInput($config_quote_from_name);
+    } else {
+        $email_from = sanitizeInput($config_ticket_from_email);
+        $email_from_name = sanitizeInput($config_ticket_from_name);
+    }
+
     $email_to = sanitizeInput($_POST['email_to']);
     $subject = "Test email from ITFlow";
     $body    = "This is a test email from ITFlow. If you are reading this, it worked!";
@@ -159,7 +174,7 @@ if (isset($_POST['test_email_smtp'])) {
     $data = [
         [
             'from' => $email_from,
-            'from_name' => $email_from,
+            'from_name' => $email_from_name,
             'recipient' => $email_to,
             'recipient_name' => 'Chap',
             'subject' => $subject,

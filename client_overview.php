@@ -103,8 +103,8 @@ $sql_asset_retire = mysqli_query(
                 <div class="card-header">
                     <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
                 </div>
-                <div class="card-body">
-                    <textarea class="form-control" rows=5 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
+                <div class="card-body p-1">
+                    <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
                 </div>
             </div>
 
@@ -180,12 +180,13 @@ $sql_asset_retire = mysqli_query(
                             $domain_id = intval($row['domain_id']);
                             $domain_name = nullable_htmlentities($row['domain_name']);
                             $domain_expire = nullable_htmlentities($row['domain_expire']);
+                            $domain_expire_human = timeAgo($row['domain_expire']);
 
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
                                 <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
-                                <span class="text-warning">-- <?php echo $domain_expire; ?></span>
+                                <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
                             </p>
                             <?php
                         }
@@ -197,12 +198,13 @@ $sql_asset_retire = mysqli_query(
                             $asset_id = intval($row['asset_id']);
                             $asset_name = nullable_htmlentities($row['asset_name']);
                             $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                            $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
 
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
                                 <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
-                                <span class="text-warning">-- <?php echo $asset_warranty_expire; ?></span>
+                                <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
                             </p>
 
 
@@ -216,12 +218,13 @@ $sql_asset_retire = mysqli_query(
                             $asset_id = intval($row['asset_id']);
                             $asset_name = nullable_htmlentities($row['asset_name']);
                             $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                            $asset_install_date_human = timeAgo($row['asset_install_date']);
 
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
                                 <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
-                                <span class="text-warning">-- <?php echo $asset_install_date; ?></span>
+                                <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
                             </p>
 
                             <?php
@@ -234,12 +237,13 @@ $sql_asset_retire = mysqli_query(
                             $software_id = intval($row['software_id']);
                             $software_name = nullable_htmlentities($row['software_name']);
                             $software_expire = nullable_htmlentities($row['software_expire']);
+                            $software_expire_human = timeAgo($row['software_expire']);
 
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
                                 <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
-                                <span class="text-warning">-- <?php echo $software_expire; ?></span>
+                                <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
                             </p>
 
                             <?php
@@ -274,12 +278,13 @@ $sql_asset_retire = mysqli_query(
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                 $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                $ticket_created_at_human = timeAgo($row['ticket_created_at']);
 
                                 ?>
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
-                                    <td class="text-danger"><?php echo $ticket_created_at; ?></td>
+                                    <td><?php echo $ticket_created_at_human; ?> <small class="text-muted"><?php echo $ticket_created_at; ?></small></td>
                                 </tr>
 
                                 <?php
