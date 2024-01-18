@@ -58,6 +58,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_details = $purifier->purify($row['ticket_details']);
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
         $ticket_billable = intval($row['ticket_billable']);
+        $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
 
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {
@@ -314,13 +315,14 @@ if (isset($_GET['ticket_id'])) {
                                         <option <?php if ($ticket_status == "Pending-Client") {echo "selected";}?> >Pending-Client</option>
                                         <option <?php if ($ticket_status == "Pending-Vendor") {echo "selected";}?> >Pending-Vendor</option>
                                         <option <?php if ($ticket_status == "Pending-Shipment") {echo "selected";}?> >Pending-Shipment</option>
-                                        <option <?php if ($ticket_status == "Scheduled") {echo "selected";}?> >Scheduled</option>
                                         <?php if($config_ticket_autoclose) { ?>
                                             <option <?php if ($ticket_status == 'Auto Close') { echo "selected"; } ?> >Auto Close</option>
                                         <?php } ?>
                                     </select>
                                 </div>
                             </div>
+
+
 
                             <div class="custom-tt-horizontal-spacing"></div> <!-- Add custom class for smaller spacing -->
 
@@ -642,15 +644,25 @@ if (isset($_GET['ticket_id'])) {
                         <div class="mt-1">
                             <i class="fa fa-fw fa-comment-dots text-secondary ml-1 mr-2"></i>Feedback: <?php echo $ticket_feedback; ?>
                         </div>
-                    <?php } ?>
+                    <?php }
 
-                    <?php if (!empty($ticket_total_reply_time)) { ?>
+                    if (!empty($ticket_scheduled_for)) { ?>
+                        <div class="mt-1">
+                            <i class="fa fa-fw fa-calendar-check text-secondary ml-1 mr-2"></i>Scheduled for: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal"><?php echo $ticket_scheduled_for; ?></a>
+                        </div>
+                    <?php } else { ?>
+                        <div class="mt-1">
+                            <i class="fa fa-fw fa-calendar-check text-secondary ml-1 mr-2"></i>Scheduled for: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal">Add</a>
+                        </div>
+                    <?php }
+
+                    if (!empty($ticket_total_reply_time)) { ?>
                         <div class="mt-1">
                             <i class="far fa-fw fa-clock text-secondary ml-1 mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
                         </div>
-                    <?php } ?>
+                    <?php }
 
-                    <?php if ($config_module_enable_accounting) { ?>
+                    if ($config_module_enable_accounting) { ?>
                         <div class="mt-1">
                             <i class="fa fa-fw fa-dollar-sign text-secondary ml-1 mr-2"></i>Billable:
                             <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
@@ -874,6 +886,8 @@ if (isset($_GET['ticket_id'])) {
 
         require_once "ticket_change_client_modal.php";
 
+        require_once "ticket_edit_schedule_modal.php";
+
         require_once "ticket_merge_modal.php";
 
         if ($config_module_enable_accounting) {
@@ -885,9 +899,16 @@ if (isset($_GET['ticket_id'])) {
 
 }
 
+
+
 require_once "footer.php";
 
-?> <script src="js/show_modals.js"></script> <?php
+?> 
+
+
+
+
+<script src="js/show_modals.js"></script> <?php
 
 if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->
