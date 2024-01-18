@@ -163,9 +163,19 @@ $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles
 $row = mysqli_fetch_array($sql_miles_driven);
 $total_miles = floatval($row['total_miles']);
 
-//Get Total Recurring Invoices added
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
-$recurring_invoices_added = intval($row['recurring_invoices_added']);
+if ($config_module_enable_ticketing && $config_module_enable_accounting) {
+    //Get Unbilled, closed tickets
+    $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS unbilled_tickets FROM tickets WHERE ticket_status = 'Closed' AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
+    $row = mysqli_fetch_array($sql_unbilled_tickets);
+    $unbilled_tickets = intval($row['unbilled_tickets']);
+} else {
+    //Get Total Recurring Invoices added
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
+    $recurring_invoices_added = intval($row['recurring_invoices_added']);
+}
+
+
+
 
 //Get Total Clients added
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
@@ -251,6 +261,23 @@ $vendors_added = intval($row['vendors_added']);
     </div>
     <!-- ./col -->
 
+    <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
+
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <!-- small box -->
+        <a class="small-box bg-secondary" href="report_tickets_unbilled.php">
+            <div class="inner">
+                <h3><?php echo $unbilled_tickets; ?></h3>
+                <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets = 0) { echo "s";}?></p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-ticket-alt"></i>
+            </div>
+        </a>
+    </div>
+
+    <?php } else { ?>
+
     <div class="col-lg-4 col-md-6 col-sm-12">
         <!-- small box -->
         <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
@@ -264,6 +291,7 @@ $vendors_added = intval($row['vendors_added']);
         </a>
     </div>
     <!-- ./col -->
+    <?php } ?>
 
     <div class="col-lg-4 col-6">
         <!-- small box -->
