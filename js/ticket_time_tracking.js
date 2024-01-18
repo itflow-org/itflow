@@ -142,7 +142,7 @@
         // Function to check status and pause timer
         function checkStatusAndPauseTimer() {
             var status = document.querySelector('select[name="status"]').value;
-            if (status.includes("Pending")) {
+            if (status.includes("Pending") || status.includes("Close")) {
                 pauseTimer();
             }
         }
