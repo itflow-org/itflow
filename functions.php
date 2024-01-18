@@ -935,7 +935,7 @@ function addToMailQueue($mysqli, $data) {
         $recipient = strval($email['recipient']);
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
-        $body = strval($email['body']);
+        $body = mysqli_real_escape_string($mysqli,strval($email['body']));
 
         mysqli_query(
             $mysqli,
