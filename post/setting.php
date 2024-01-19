@@ -626,6 +626,10 @@ if (isset($_GET['update'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM tickets"));
         $ticket_count = $row['num'];
 
+        // Scheduled Ticket Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
+        $scheduled_ticket_count = $row['num'];
+
         // Calendar Event Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM events"));
         $calendar_event_count = $row['num'];
@@ -791,6 +795,7 @@ if (isset($_GET['update'])) {
                 'comments' => "$comments",
                 'client_count' => $client_count,
                 'ticket_count' => $ticket_count,
+                'scheduled_ticket_count' => $scheduled_ticket_count,
                 'calendar_event_count' => $calendar_event_count,
                 'quote_count' => $quote_count,
                 'invoice_count' => $invoice_count,
