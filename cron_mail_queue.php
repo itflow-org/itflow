@@ -1,15 +1,7 @@
 <?php
 
 require_once "config.php";
-
 require_once "functions.php";
-
-//Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
-
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
 
 $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
 
@@ -74,14 +66,14 @@ $sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_queue)) {
         $email_id = intval($row['email_id']);
-        $email_from = nullable_htmlentities($row['email_from']);
-        $email_from_name = nullable_htmlentities($row['email_from_name']);
-        $email_recipient = nullable_htmlentities($row['email_recipient']);
-        $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = $purifier->purify($row['email_subject']);
-        $email_content = $purifier->purify($row['email_content']);
-        $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-        $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+        $email_from = $row['email_from'];
+        $email_from_name = $row['email_from_name'];
+        $email_recipient = $row['email_recipient'];
+        $email_recipient_name = $row['email_recipient_name'];
+        $email_subject = $row['email_subject'];
+        $email_content = $row['email_content'];
+        $email_queued_at = $row['email_queued_at'];
+        $email_sent_at = $row['email_sent_at'];
 
         // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
@@ -129,14 +121,14 @@ $sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email
 if (mysqli_num_rows($sql_failed_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_failed_queue)) {
         $email_id = intval($row['email_id']);
-        $email_from = nullable_htmlentities($row['email_from']);
-        $email_from_name = nullable_htmlentities($row['email_from_name']);
-        $email_recipient = nullable_htmlentities($row['email_recipient']);
-        $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = $purifier->purify($row['email_subject']);
-        $email_content = $purifier->purify($row['email_content']);
-        $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-        $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+        $email_from = $row['email_from'];
+        $email_from_name = $row['email_from_name'];
+        $email_recipient = $row['email_recipient'];
+        $email_recipient_name = $row['email_recipient_name'];
+        $email_subject = $row['email_subject'];
+        $email_content = $row['email_content'];
+        $email_queued_at = $row['email_queued_at'];
+        $email_sent_at = $row['email_sent_at'];
         // Increment the attempts
         $email_attempts = intval($row['email_attempts']) + 1;
 
