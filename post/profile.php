@@ -21,7 +21,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
     // Email notification when password or email is changed
     $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $session_user_id"));
-    $user_old_email = $user_old_email_sql['user_email'];
+    $user_old_email = sanitizeInput($user_old_email_sql['user_email']);
 
     if (!empty($config_smtp_host) && ($user_old_email !== $email)) {
 
@@ -94,8 +94,8 @@ if (isset($_POST['edit_your_user_password'])) {
 
     // Email notification when password or email is changed
     $user_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $session_user_id"));
-    $name = $user_sql['user_name'];
-    $user_email = $user_sql['user_email'];
+    $name = sanitizeInput($user_sql['user_name']);
+    $user_email = sanitizeInput($user_sql['user_email']);
 
     if (!empty($config_smtp_host)){
 
