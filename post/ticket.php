@@ -41,6 +41,11 @@ if (isset($_POST['add_ticket'])) {
     //Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number = $config_ticket_next_number;
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
+    
+    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+    $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+    $company_name = sanitizeInput($session_company_name);
+
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
     mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, ticket_invoice_id = 0");
@@ -65,86 +70,61 @@ if (isset($_POST['add_ticket'])) {
               WHERE ticket_id = $ticket_id");
         $row = mysqli_fetch_array($sql);
 
-        // Unescaped Content used for email body and subject because it will get escaped as a whole
-        $contact_name = $row['contact_name'];
-        $ticket_prefix = $row['ticket_prefix'];
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
-        $ticket_category = $row['ticket_category'];
-        $ticket_subject = $row['ticket_subject'];
-        $ticket_details = $row['ticket_details'];
-        $ticket_priority = $row['ticket_priority'];
-        $ticket_status = $row['ticket_status'];
+        $ticket_category = sanitizeInput($row['ticket_category']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_status = sanitizeInput($row['ticket_status']);
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
 
-        // Escaped content used for everything else except email subject and body
-        $contact_name_escaped = sanitizeInput($row['contact_name']);
-        $contact_email_escaped = sanitizeInput($row['contact_email']);
-        $ticket_prefix_escaped = sanitizeInput($row['ticket_prefix']);
-        $ticket_subject_escaped = sanitizeInput($row['ticket_subject']);
+        // Get Config ticket from name and from email vars from get_settings.php and sanitize them.
+        $email_from_name = sanitizeInput($config_ticket_from_name);
+        $email_from = sanitizeInput($config_ticket_from_email);
 
-        // Sanitize Config vars from get_settings.php
-        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
-        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
-
+        // Get Company Phone Number
         $sql = mysqli_query($mysqli,"SELECT company_phone FROM companies WHERE company_id = 1");
-
-        $company_phone = formatPhoneNumber($row['company_phone']); // TODO: Check if this even works
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
         // Verify contact email is valid
-        if (filter_var($contact_email_escaped, FILTER_VALIDATE_EMAIL)) {
+        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            $email_custom_vars = array(
-                "#TICKET_CONTACT_NAME#" => $contact_name,
-                "#TICKET_PREFIX#" => $ticket_prefix,
-                "#TICKET_NUMBER#" => $ticket_number,
-                "#TICKET_URL#" => "https://$config_base_url/portal/ticket.php?id=$ticket_id",
-                "#TICKET_SUBJECT#" => $ticket_subject,
-                "#TICKET_PRIORITY#" => $ticket_priority,
-                "#TICKET_STATUS#" => $ticket_status,
-                "#TICKET_CATEGORY#" => $ticket_category,
-                "#TICKET_AGENT#", // todo
-                "#TICKET_COMPANY_NAME#" => $session_company_name,
-                "#TICKET_COMPANY_EMAIL" => $config_ticket_from_email,
-            );
-            $ticket_subject_base = "Ticket created - [#TICKET_PREFIX##TICKET_NUMBER#] - #TICKET_SUBJECT#"; // Eventually this will come from the DB instead
+            $email_subject = "Ticket created [$ticket_prefix$ticket_number] - $ticket_subject";
+            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello\, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support<br>$email_from<br>$company_phone";
 
-            foreach ($email_custom_vars as $key => $item) {
-                $ticket_subject_base = str_replace($key, $item, $ticket_subject_base);
-            }
-
-            $subject_escaped = mysqli_escape_string($mysqli, "$ticket_subject_base");
-            $body_escaped    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
-
-           // Email Ticket Contact
+            // Email Ticket Contact
             // Queue Mail
             $data = [
                 [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $contact_email_escaped,
-                    'recipient_name' => $contact_name_escaped,
-                    'subject' => $subject_escaped,
-                    'body' => $body_escaped,
+                    'from' => $email_from,
+                    'from_name' => $email_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $email_subject,
+                    'body' => $email_body,
                 ]
             ];
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-            $body_escaped    .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            $email_body .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
             while ($row = mysqli_fetch_array($sql_watchers)) {
-                $watcher_email_escaped = sanitizeInput($row['watcher_email']);
+                $watcher_email = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
                 $data = [
                     [    
-                        'from' => $config_ticket_from_email,
-                        'from_name' => $config_ticket_from_name,
-                        'recipient' => $watcher_email_escaped,
-                        'recipient_name' => $watcher_email_escaped,
-                        'subject' => $subject_escaped,
-                        'body' => $body_escaped,
+                        'from' => $email_from,
+                        'from_name' => $email_from_name,
+                        'recipient' => $watcher_email,
+                        'recipient_name' => $watcher_email,
+                        'subject' => $email_subject,
+                        'body' => $email_body,
                     ]
                 ];
             }
@@ -153,9 +133,9 @@ if (isset($_POST['add_ticket'])) {
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix_escaped$ticket_number - $ticket_subject_escaped', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
-    $_SESSION['alert_message'] = "Ticket <strong>$config_ticket_prefix$ticket_number</strong> created";
+    $_SESSION['alert_message'] = "$session_name created Ticket $ticket_subject for $contact_name - $client_name<strong>$config_ticket_prefix$ticket_number</strong> created";
 
     header("Location: ticket.php?ticket_id=" . $ticket_id);
 

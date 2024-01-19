@@ -61,8 +61,14 @@ file_put_contents($lock_file_path, "Locked");
 
 // Process Mail Queue
 
-// Get Mail Queue that hasnt been sent yet
-// Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
+// Email Status: 
+// 0 Queued
+// 1 Sending
+// 2 Failed
+// 3 Sent
+
+// Get Mail Queue that has status of Queued and send it to the function sendSingleEmail() located in functions.php
+
 $sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0");
 
 if (mysqli_num_rows($sql_queue) > 0) {
@@ -115,10 +121,9 @@ if (mysqli_num_rows($sql_queue) > 0) {
     }
 }
 
-// Process Failed Mail up to 4 times every 30 mins
+// 
 
-// Get Mail Queue that hasnt been sent yet
-// Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
+// Get Mail that failed to send and attempt to send Failed Mail up to 4 times every 30 mins
 $sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 4 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
 
 if (mysqli_num_rows($sql_failed_queue) > 0) {
@@ -173,5 +178,5 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
     }
 }
 
-// Remove the lock file
+// Remove the lock file once mail has finished processing so it doesnt get overun causing possible duplicates
 unlink($lock_file_path);
