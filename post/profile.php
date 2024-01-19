@@ -92,6 +92,11 @@ if (isset($_POST['edit_your_user_password'])) {
 
     $new_password = trim($_POST['new_password']);
 
+    if (empty($new_password)) {
+        header('Location: user_security.php');
+        exit;
+    }
+
     // Email notification when password or email is changed
     $user_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $session_user_id"));
     $name = sanitizeInput($user_sql['user_name']);
