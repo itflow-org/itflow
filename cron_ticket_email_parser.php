@@ -329,7 +329,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 // Get tech details
                 $tech_sql = mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1");
                 $tech_row = mysqli_fetch_array($tech_sql);
-                $tech_email = santizeInput($tech_row['user_email']);
+                $tech_email = sanitizeInput($tech_row['user_email']);
                 $tech_name = sanitizeInput($tech_row['user_name']);
 
                 $subject = mysqli_escape_string($mysqli, "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject");
