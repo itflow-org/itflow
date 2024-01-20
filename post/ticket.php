@@ -99,17 +99,16 @@ if (isset($_POST['add_ticket'])) {
 
             // Email Ticket Contact
             // Queue Mail
-            $data = [
-                [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ]
+            $data = [];
+
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body   
             ];
-            addToMailQueue($mysqli, $data);
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -118,18 +117,17 @@ if (isset($_POST['add_ticket'])) {
                 $watcher_email = sanitizeInput($row['watcher_email']);
 
                 // Queue Mail
-                $data = [
-                    [    
-                        'from' => $config_ticket_from_email,
-                        'from_name' => $config_ticket_from_name,
-                        'recipient' => $watcher_email,
-                        'recipient_name' => $watcher_email,
-                        'subject' => $subject,
-                        'body' => $body
-                    ]
+                $data[] = [    
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $watcher_email,
+                    'recipient_name' => $watcher_email,
+                    'subject' => $subject,
+                    'body' => $body
                 ];
-                addToMailQueue($mysqli, $data);
+                
             }
+            addToMailQueue($mysqli, $data);
         }
     }
 
@@ -568,7 +566,6 @@ if (isset($_POST['add_ticket_reply'])) {
                 'subject' => $subject,
                 'body' => $body
             ];
-            addToMailQueue($mysqli, $data);
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -585,8 +582,9 @@ if (isset($_POST['add_ticket_reply'])) {
                     'subject' => $subject,
                     'body' => $body
                 ];
-                addToMailQueue($mysqli, $data);
-            } 
+                
+            }
+            addToMailQueue($mysqli, $data);
         }
     }
     //End Mail IF
@@ -792,7 +790,6 @@ if (isset($_GET['close_ticket'])) {
                 'subject' => $subject,
                 'body' => $body
             ];
-            addToMailQueue($mysqli, $data);
 
             // Also Email all the watchers
             $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
@@ -809,9 +806,8 @@ if (isset($_GET['close_ticket'])) {
                     'subject' => $subject,
                     'body' => $body
                 ];
-                addToMailQueue($mysqli, $data);
             }
-
+            addToMailQueue($mysqli, $data);
         }
 
     }
