@@ -135,7 +135,7 @@ if (isset($_POST['add_ticket'])) {
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
-    $_SESSION['alert_message'] = "$session_name created Ticket $ticket_subject for $contact_name - $client_name<strong>$config_ticket_prefix$ticket_number</strong> created";
+    $_SESSION['alert_message'] = "You created Ticket $ticket_subject <strong>$config_ticket_prefix$ticket_number</strong>";
 
     header("Location: ticket.php?ticket_id=" . $ticket_id);
 
