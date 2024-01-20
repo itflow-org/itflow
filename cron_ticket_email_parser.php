@@ -23,6 +23,8 @@ require_once "functions.php";
 // Get settings for the "default" company
 require_once "get_settings.php";
 
+$config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+$config_ticket_from_name = sanitizeInput($config_ticket_from_name);
 
 // Get company name & phone
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
