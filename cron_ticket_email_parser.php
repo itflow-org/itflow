@@ -255,7 +255,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             
             addToMailQueue($mysqli, $data);
 
-            return false;
+            return true;
         }
 
         // Check WHO replied (was it the owner of the ticket or someone else on CC?)
@@ -517,6 +517,7 @@ if ($emails) {
             imap_setflag_full($imap, $email, "\\Seen");
             imap_mail_move($imap, $email, $imap_folder);
         } else {
+            // Basically just flags all emails keep them unread and it doesnt move closed tickets
             echo "Failed to process email - flagging for manual review.";
             imap_setflag_full($imap, $email, "\\Flagged");
         }
