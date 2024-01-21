@@ -20,6 +20,7 @@ $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
+$config_stripe_client_pays_fees = intval($stripe_vars['config_stripe_client_pays_fees']);
 
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
@@ -74,8 +75,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_locale = nullable_htmlentities($row['company_locale']);
-
-    $config_stripe_client_pays_fees = intval(getSettingValue($mysqli, 'config_stripe_client_pays_fees'));
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
