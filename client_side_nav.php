@@ -315,6 +315,13 @@
                 <li class="nav-header mt-3">MORE</li>
 
                 <li class="nav-item">
+                    <a href="client_bulk_mail.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_bulk_mail.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-envelope-open"></i>
+                        <p>Bulk Mail</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-share"></i>
                         <p>
