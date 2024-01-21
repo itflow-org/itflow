@@ -48,6 +48,15 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                         <textarea class="form-control tinymce" name="body" placeholder="Type an email in here"></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                            </div>
+                            <input type="datetime-local" class="form-control" name="queued_at">
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="col">

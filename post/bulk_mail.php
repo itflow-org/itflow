@@ -12,6 +12,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
         $mail_from_name = sanitizeInput($_POST['mail_from_name']);
         $subject = sanitizeInput($_POST['subject']);
         $body = mysqli_escape_string($mysqli, $_POST['body']);
+        $queued_at = sanitizeInput($_POST['queued_at']);
 
         // Add Emails
         foreach($_POST['contact'] as $contact_id) {
@@ -30,7 +31,8 @@ if (isset($_POST['send_bulk_mail_now'])) {
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,
-                'body' => $body
+                'body' => $body,
+                'queued_at' => $queued_at
             ];
         }
         addToMailQueue($mysqli, $data);

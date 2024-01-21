@@ -938,8 +938,8 @@ function addToMailQueue($mysqli, $data) {
         $body = strval($email['body']);
 
         // Check if 'email_queued_at' is set and not empty
-        if (isset($email['email_queued_at']) && !empty($email['email_queued_at'])) {
-            $queued_at = $email['email_queued_at'];
+        if (isset($email['queued_at']) && !empty($email['queued_at'])) {
+            $queued_at = $email['queued_at'];
         } else {
             // Use the current date and time if 'email_queued_at' is not set or empty
             $queued_at = date('Y-m-d H:i:s');
