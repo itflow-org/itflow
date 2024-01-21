@@ -75,6 +75,11 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                 $contact_id = intval($row['contact_id']);
                                 $contact_name = nullable_htmlentities($row['contact_name']);
                                 $contact_title = nullable_htmlentities($row['contact_title']);
+                                if (empty($contact_title)) {
+                                    $contact_title_display = "-";
+                                } else {
+                                    $contact_title_display = "$contact_title";
+                                }
                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                 $contact_primary = intval($row['contact_primary']);
                                 $contact_important = intval($row['contact_important']);
@@ -92,7 +97,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                         <?php echo $contact_name; ?>
                                     </a>
                                 </td>
-                                <td><?php echo $contact_title; ?></td>
+                                <td><?php echo $contact_title_display; ?></td>
                                 <td><?php echo $contact_email; ?></td>
                             </tr>
                             <?php } ?>
