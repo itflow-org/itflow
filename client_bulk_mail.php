@@ -33,11 +33,11 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                     <hr>
                     
                     <div class="form-group">
-                        <input type="text" class="form-control" name="mail_from" placeholder="Email From" required>
+                        <input type="text" class="form-control" name="mail_from" placeholder="Email From" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" required>
+                        <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>" required>
                     </div>
 
                     <div class="form-group">
