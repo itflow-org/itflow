@@ -4,6 +4,7 @@ require_once "inc_all_client.php";
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
+    AND contact_email != ''
     ORDER BY contact_primary DESC,
     contact_important DESC"
 );
@@ -79,7 +80,6 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                 $contact_important = intval($row['contact_important']);
                                 $contact_billing = intval($row['contact_billing']);
                                 $contact_technical = intval($row['contact_technical']);
-                                $contact_created_at = nullable_htmlentities($row['contact_created_at']);
                             ?>
                             <tr>
                                 <td>
