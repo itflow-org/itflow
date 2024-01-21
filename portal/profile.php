@@ -12,7 +12,7 @@ require_once 'inc_portal.php';
 
     <h2>Profile</h2>
 
-    <p>Name: <?php echo $session_contact_name ?></p>
+    <p>Name: <?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?></p>
     <p>Email: <?php echo $session_contact_email ?></p>
     <p>PIN: <?php echo $session_contact_pin ?></p>
     <p>Client: <?php echo $session_client_name ?></p>
