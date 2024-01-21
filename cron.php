@@ -286,7 +286,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_priority = sanitizeInput($row['ticket_priority']);
-        $ticket_subject = mysqli_real_escape_string($mysqli, $row['ticket_subject']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
         $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
 
         $data = [];
@@ -501,7 +501,7 @@ if ($config_send_invoice_reminders == 1) {
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
                 <br><br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
             $mail = addToMailQueue($mysqli, [
                 [
