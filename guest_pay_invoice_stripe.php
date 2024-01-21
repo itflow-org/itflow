@@ -268,9 +268,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
     $company_locale = sanitizeInput($row['company_locale']);
 
-    $config_stripe_client_pays_fees = intval(getSettingValue($mysqli, 'config_stripe_client_pays_fees'));
-
-
     // Set Currency Formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
