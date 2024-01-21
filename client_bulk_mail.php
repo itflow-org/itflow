@@ -55,55 +55,57 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                     <h5>Select Contacts</h5>
                     <hr>
                     <div class="card">
-                        <table class="table">
-                            <thead>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleCheckboxes()">
+                                            </div>
+                                        </td>
+                                        <th>Name</th>
+                                        <th>Title</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                <?php
+                                while ($row = mysqli_fetch_array($sql)) {
+                                    $contact_id = intval($row['contact_id']);
+                                    $contact_name = nullable_htmlentities($row['contact_name']);
+                                    $contact_title = nullable_htmlentities($row['contact_title']);
+                                    if (empty($contact_title)) {
+                                        $contact_title_display = "-";
+                                    } else {
+                                        $contact_title_display = "$contact_title";
+                                    }
+                                    $contact_email = nullable_htmlentities($row['contact_email']);
+                                    $contact_primary = intval($row['contact_primary']);
+                                    $contact_important = intval($row['contact_important']);
+                                    $contact_billing = intval($row['contact_billing']);
+                                    $contact_technical = intval($row['contact_technical']);
+                                ?>
                                 <tr>
                                     <td>
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleCheckboxes()">
+                                            <input type="checkbox" class="form-check-input" name="contact[]" value="<?php echo $contact_id; ?>">
                                         </div>
                                     </td>
-                                    <th>Name</th>
-                                    <th>Title</th>
-                                    <th>Email</th>
+                                    <td>
+                                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
+                                            <?php echo $contact_name; ?>
+                                        </a>
+                                    </td>
+                                    <td><?php echo $contact_title_display; ?></td>
+                                    <td><?php echo $contact_email; ?></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-
-                            <?php
-                            while ($row = mysqli_fetch_array($sql)) {
-                                $contact_id = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                $contact_title = nullable_htmlentities($row['contact_title']);
-                                if (empty($contact_title)) {
-                                    $contact_title_display = "-";
-                                } else {
-                                    $contact_title_display = "$contact_title";
-                                }
-                                $contact_email = nullable_htmlentities($row['contact_email']);
-                                $contact_primary = intval($row['contact_primary']);
-                                $contact_important = intval($row['contact_important']);
-                                $contact_billing = intval($row['contact_billing']);
-                                $contact_technical = intval($row['contact_technical']);
-                            ?>
-                            <tr>
-                                <td>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="contact[]" value="<?php echo $contact_id; ?>">
-                                    </div>
-                                </td>
-                                <td>
-                                    <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
-                                        <?php echo $contact_name; ?>
-                                    </a>
-                                </td>
-                                <td><?php echo $contact_title_display; ?></td>
-                                <td><?php echo $contact_email; ?></td>
-                            </tr>
-                            <?php } ?>
-                            </tbody>
-                        </table>
-
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        
                     </div>
                 
                 </div>
