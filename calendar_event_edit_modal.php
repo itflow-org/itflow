@@ -98,7 +98,7 @@
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea class="form-control" rows="4" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
                             </div>
 
                         </div>
