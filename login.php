@@ -56,8 +56,8 @@ $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
-$config_mail_from_email = $row['config_mail_from_email'];
-$config_mail_from_name = $row['config_mail_from_name'];
+$config_mail_from_email = sanitizeInput($row['config_mail_from_email']);
+$config_mail_from_name = sanitizeInput($row['config_mail_from_name']);
 
 // Client Portal Enabled
 $config_client_portal_enable = intval($row['config_client_portal_enable']);

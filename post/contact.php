@@ -68,7 +68,6 @@ if (isset($_POST['edit_contact'])) {
 
     require_once 'post/contact_model.php';
 
-
     $contact_id = intval($_POST['contact_id']);
     $send_email = intval($_POST['send_email']);
 
@@ -98,12 +97,18 @@ if (isset($_POST['edit_contact'])) {
     // Send contact a welcome e-mail, if specified
     if ($send_email && !empty($auth_method) && !empty($config_smtp_host)) {
 
-        // Un-sanitizied used in body of email
-        $contact_name = $_POST['name'];
-
         // Sanitize Config vars from get_settings.php
-        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
-        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+        $config_mail_from_email = sanitizeInput($config_mail_from_email);
+        $config_mail_from_name = sanitizeInput($config_mail_from_name);
+        $config_base_url = sanitizeInput($config_base_url);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
         // Authentication info (azure, reset password, or tech-provided temporary password)
 
@@ -112,11 +117,11 @@ if (isset($_POST['edit_contact'])) {
         } elseif (empty($_POST['contact_password'])) {
             $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
         } else {
-            $password_info = $_POST['contact_password'] . " -- Please change on first login";
+            $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
         }
 
-        $subject = sanitizeInput("Your new $session_company_name support portal account");
-        $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>$session_company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
+        $subject = "Your new $company_name portal account";
+        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Queue Mail
         $data = [
@@ -124,7 +129,7 @@ if (isset($_POST['edit_contact'])) {
                 'from' => $config_mail_from_email,
                 'from_name' => $config_mail_from_name,
                 'recipient' => $email,
-                'recipient_name' => $contact_name,
+                'recipient_name' => $name,
                 'subject' => $subject,
                 'body' => $body,
             ]
