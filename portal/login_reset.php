@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             // Send confirmation email
             $subject = "Password reset confirmation for $company_name Client Portal";
-            $body = "Hello $name,<br><br>Your password for your account on $company_name\'s Client Portal was successfully reset. You should be all set! <br><br><b>If you didn\'t reset your password, please get in touch ASAP.</b><br><br>~<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $body = "Hello $name,<br><br>Your password for your account on $company_name\'s Client Portal was successfully reset. You should be all set! <br><br><b>If you didn\'t reset your password, please get in touch ASAP.</b><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
 
             $data = [
