@@ -92,6 +92,8 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 
 <!-- EASY INSTALL -->
 ### Installation via Script (Recommended Method)
+
+To install ITFlow with the install script, you will invoke scripts that use Let’s Encrypt to provision TLS certificates per the Let’s Encrypt Subscriber Agreement(s) & Terms of Services. Please be sure you accept the terms in both documents before beginning.
      
   **Requirements**
   - Clean Install of Debian 12 or Ubuntu 22.04
