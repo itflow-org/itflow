@@ -333,7 +333,7 @@ if (isset($_GET['share_generate_link'])) {
                 'body' => $body
             ]
         ];
-        
+
         $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
@@ -499,5 +499,5 @@ if (isset($_GET['get_totp_token_via_id'])) {
 }
 
 if (isset($_GET['get_readable_pass'])) {
-    echo GenerateReadablePassword(4);
+    echo json_encode(GenerateReadablePassword(4));
 }

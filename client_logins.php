@@ -177,63 +177,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 </div>
 
-<script>
-    // TODO: Remove this
-    function showOTP(id, secret) {
-        //Send a GET request to ajax.php as ajax.php?get_totp_token=true&totp_secret=SECRET
-        jQuery.get(
-            "ajax.php", {
-                get_totp_token: 'true',
-                totp_secret: secret
-            },
-            function(data) {
-                //If we get a response from post.php, parse it as JSON
-                const token = JSON.parse(data);
+<!-- Include script to get TOTP code via the login ID -->
+<script src="js/logins_show_otp_via_id.js"></script>
 
-                document.getElementById("otp_" + id).innerText = token
-
-            }
-        );
-    }
-
-    function showOTPViaLoginID(login_id) {
-        // Send a GET request to ajax.php as ajax.php?get_totp_token_via_id=true&login_id=ID
-        jQuery.get(
-            "ajax.php", {
-                get_totp_token_via_id: 'true',
-                login_id: login_id
-            },
-            function(data) {
-                //If we get a response from post.php, parse it as JSON
-                const token = JSON.parse(data);
-
-                document.getElementById("otp_" + login_id).innerText = token
-
-            }
-        );
-    }
-
-    function generatePassword() {
-        document.getElementById("password").value = "<?php echo generateReadablePassword(3); ?>"
-    }
-
-    function generatePassword() {
-        var url = '/ajax.php?get_readable_pass=true';
-
-        // Make an AJAX request to the server
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var password = xhr.responseText;
-
-                document.getElementById("password").value = password;
-            }
-        };
-        xhr.send();
-    }
-</script>
+<!-- Include script to generate readable passwords for login entries -->
+<script src="js/logins_generate_password.js"></script>
 
 <?php
 
