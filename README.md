@@ -136,8 +136,7 @@ For help using ITFlow, feature requests, and general ideas / discussions please 
 For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
 
 ### Contributing
-If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://docs.itflow.org/code_standards). 
-For large changes / new features, please discuss the issue with other contributors first.
+If you want to improve ITFlow, feel free to fork the repo and create a pull request, but make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our  [code standards](https://docs.itflow.org/code_standards).
 
 #### Contributors
 <a href="https://github.com/itflow-org/itflow/graphs/contributors">
