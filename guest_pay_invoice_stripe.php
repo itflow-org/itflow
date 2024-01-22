@@ -333,7 +333,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_smtp_password = $row['config_smtp_password'];
     $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
     $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
-    $config_base_url = sanitizeInput($row['config_base_url']);
+    
+    $config_base_url = sanitizeInput($config_base_url);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
