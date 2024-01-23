@@ -251,7 +251,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Invoice exists - get details
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput(($row['invoice_prefix']);
+    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
