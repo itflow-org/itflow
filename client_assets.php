@@ -149,13 +149,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table border table-hover">
                     <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_description&order=<?php echo $disp; ?>">Description</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_name&order=<?php echo $disp; ?>">Name / Description</a></th>
                         <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_type&order=<?php echo $disp; ?>">Type</a></th>
                         <?php }
                         if ($_GET['type'] !== 'virtual') { ?>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_make&order=<?php echo $disp; ?>">Make/Model</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_make&order=<?php echo $disp; ?>">Make / Model</a></th>
                         <?php }
                         if ($_GET['type'] !== 'virtual') { ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_serial&order=<?php echo $disp; ?>">Serial Number</a></th>
@@ -305,14 +304,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
 
                                 <?php } ?>
+                                <div class="mt-0">
+                                    <small class="text-muted"><?php echo $asset_description; ?></small>
+                                </div>
 
                             </th>
-                            <td><?php echo $asset_description_display; ?></td>
                             <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
                                 <td><?php echo $asset_type; ?></td>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'virtual') { ?>
-                                <td><?php echo "$asset_make $asset_model"; ?></td>
+                                <td>
+                                    <?php echo $asset_make; ?>
+                                    <div class="mt-0">
+                                        <small class="text-muted"><?php echo $asset_model; ?></small>
+                                    </div>
+                                </td>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'virtual') { ?>
                                 <td><?php echo $asset_serial_display; ?></td>
