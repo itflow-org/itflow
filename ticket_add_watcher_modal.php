@@ -14,7 +14,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <label>Wather Email</label>
+                        <label>Watcher Email</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
