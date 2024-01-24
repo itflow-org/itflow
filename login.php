@@ -113,7 +113,7 @@ if (isset($_POST['login'])) {
         $force_mfa = intval($row['user_config_force_mfa']);
         $remember_token = $row['user_config_remember_me_token'];
         if($force_mfa == 1 && $token == NULL) {
-            $config_start_page = "user_profile.php";
+            $config_start_page = "user_security.php";
         }
 
         $bypass_2fa = false;
