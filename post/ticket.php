@@ -466,6 +466,28 @@ if (isset($_GET['delete_ticket'])) {
 
 }
 
+if (isset($_POST['bulk_assign_ticket'])) {
+
+    // Role check
+    validateTechRole();
+
+    // POST variables
+    $assign_to = intval($_POST['assign_to']);
+    
+    // Assign Tech to Selected Tickets
+    if (!empty($_POST['ticket_ids'])) {
+        foreach($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+            mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assign_to WHERE ticket_id = $ticket_id");
+        }
+    }
+
+    $_SESSION['alert_message'] = "Bulk Assigned Tickets";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['add_ticket_reply'])) {
 
     validateTechRole();

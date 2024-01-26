@@ -102,11 +102,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             </small>
         </h3>
         <div class='card-tools'>
-            <div class="float-left">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
-                    <i class="fas fa-plus mr-2"></i>New Ticket
-                </button>
-            </div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                <i class="fas fa-plus mr-2"></i>New Ticket
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -123,19 +121,34 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="btn-group btn-group-lg float-right">
-                        <button class="btn btn-outline-dark dropdown-toggle" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" type="button" id="dropdownMenuButton"
-                                data-toggle="dropdown">
-                            <i class="fa fa-fw fa-envelope"></i> My Tickets
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
-                            <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                    <div class="float-right">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-dark dropdown-toggle" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" type="button" id="dropdownMenuButton"
+                                    data-toggle="dropdown">
+                                <i class="fa fa-fw fa-envelope"></i> My Tickets
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                            </div>
+                            <a href="?assigned=unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
+                                Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
+                            <!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
+                            
+                            <div class="dropdown ml-2" id="multiActionButton" hidden>
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
+                                        <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
+                                    </a>
+                                </div>
+                            </div>
+
                         </div>
-                        <a href="?assigned=unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
-                            Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-                        <!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
                     </div>
+                
                 </div>
             </div>
 
@@ -235,196 +248,210 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             </div>
         </form>
         <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) {
-                    echo "d-none";
-                } ?>">
-                <tr>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a>
-                    </th>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a>
-                    </th>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client / Contact</a>
-                    </th>
-                    <?php if ($config_module_enable_accounting) {
-                        ?>
-                        <th class="text-center"><a class="text-dark"
-                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a>
+        <form id="multi_actions" action="post.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="text-dark <?php if ($num_rows[0] == 0) {
+                        echo "d-none";
+                    } ?>">
+                    <tr>
+                        <td class="pr-0">
+                            <div class="form-check">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                            </div>
+                        </td>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a>
                         </th>
-                        <?php
-                    }
-                    ?>
-
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
-                    </th>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a>
-                    </th>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a>
-                    </th>
-                    <th><a class="text-dark"
-                        href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a>
-                    </th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_array($sql)) {
-                    $ticket_id = intval($row['ticket_id']);
-                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                    $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                    $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                    $ticket_status = nullable_htmlentities($row['ticket_status']);
-                    $ticket_billable = intval($row['ticket_billable']);
-                    $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
-                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                    $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
-                    $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
-                    if (empty($ticket_updated_at)) {
-                        if ($ticket_status == "Closed") {
-                            $ticket_updated_at_display = "<p>Never</p>";
-                        } else {
-                            $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-                        }
-                    } else {
-                        $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
-                    }
-                    $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-                    $client_id = intval($row['ticket_client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
-                    $contact_id = intval($row['ticket_contact_id']);
-                    $contact_name = nullable_htmlentities($row['contact_name']);
-                    $contact_title = nullable_htmlentities($row['contact_title']);
-                    $contact_email = nullable_htmlentities($row['contact_email']);
-                    $contact_phone = formatPhoneNumber($row['contact_phone']);
-                    $contact_extension = nullable_htmlentities($row['contact_extension']);
-                    $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                    if ($ticket_status == "Pending-Assignment") {
-                        $ticket_status_color = "danger";
-                    } elseif ($ticket_status == "Assigned") {
-                        $ticket_status_color = "primary";
-                    } elseif ($ticket_status == "In-Progress") {
-                        $ticket_status_color = "success";
-                    } elseif ($ticket_status == "Closed") {
-                        $ticket_status_color = "dark";
-                    } elseif ($ticket_status == "Auto Close") {
-                        $ticket_status_color = "dark";
-                    } elseif ($ticket_status == "Client-Replied") {
-                        $ticket_status_color = "warning";
-                    } else{
-                        $ticket_status_color = "secondary";
-                    }
-
-                    if ($ticket_priority == "High") {
-                        $ticket_priority_color = "danger";
-                    } elseif ($ticket_priority == "Medium") {
-                        $ticket_priority_color = "warning";
-                    } else{
-                        $ticket_priority_color = "info";
-                    }
-                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                    if (empty($ticket_assigned_to)) {
-                        if ($ticket_status == "Closed") {
-                            $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                        } else {
-                            $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-                        }
-                    } else {
-                        $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
-                    }
-
-                    if (empty($contact_name)) {
-                        $contact_display = "-";
-                    } else {
-                        $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
-                    }
-
-                    $asset_id = intval($row['ticket_asset_id']);
-                    $vendor_id = intval($row['ticket_vendor_id']);
-
-                    ?>
-
-                    <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
-                        <td>
-                            <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
-                                <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
-                            </a>
-                        </td>
-                        <td>
-                            <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
-                        </td>
-                        <td>
-                            <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
-
-                            <div class="mt-1"><?php echo $contact_display; ?></div>
-                        </td>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a>
+                        </th>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client / Contact</a>
+                        </th>
                         <?php if ($config_module_enable_accounting) {
-                                ?>
-                        <td class="text-center">
-                            <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                            ?>
+                            <th class="text-center"><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a>
+                            </th>
                             <?php
-                            if ($ticket_billable == 1) {
-                                echo "<span class='badge badge-pill badge-success'>$</span>";
-                            } else {
-                                echo "<span class='badge badge-pill badge-secondary'>X</span>";
-                            }
-                        ?></td>
-                        <?php
-                            }
+                        }
                         ?>
-                        <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></a></td>
-                        <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
-                        <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
-                        <td><?php echo $ticket_updated_at_display; ?></td>
-                        <td>
-                            <?php echo $ticket_created_at_time_ago; ?>
-                            <br>
-                            <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
-                        </td>
-                    </tr>
 
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
+                        </th>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a>
+                        </th>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a>
+                        </th>
+                        <th><a class="text-dark"
+                            href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a>
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
                     <?php
 
-                    if ($ticket_status !== "Closed") {
-                        // Temp performance boost for closed tickets, until we move to dynamic modals
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $ticket_id = intval($row['ticket_id']);
+                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_number = intval($row['ticket_number']);
+                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                        $ticket_status = nullable_htmlentities($row['ticket_status']);
+                        $ticket_billable = intval($row['ticket_billable']);
+                        $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
+                        $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                        $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
+                        $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                        $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
+                        if (empty($ticket_updated_at)) {
+                            if ($ticket_status == "Closed") {
+                                $ticket_updated_at_display = "<p>Never</p>";
+                            } else {
+                                $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                            }
+                        } else {
+                            $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
+                        }
+                        $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+                        $client_id = intval($row['ticket_client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
+                        $contact_id = intval($row['ticket_contact_id']);
+                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_title = nullable_htmlentities($row['contact_title']);
+                        $contact_email = nullable_htmlentities($row['contact_email']);
+                        $contact_phone = formatPhoneNumber($row['contact_phone']);
+                        $contact_extension = nullable_htmlentities($row['contact_extension']);
+                        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                        if ($ticket_status == "Pending-Assignment") {
+                            $ticket_status_color = "danger";
+                        } elseif ($ticket_status == "Assigned") {
+                            $ticket_status_color = "primary";
+                        } elseif ($ticket_status == "In-Progress") {
+                            $ticket_status_color = "success";
+                        } elseif ($ticket_status == "Closed") {
+                            $ticket_status_color = "dark";
+                        } elseif ($ticket_status == "Auto Close") {
+                            $ticket_status_color = "dark";
+                        } elseif ($ticket_status == "Client-Replied") {
+                            $ticket_status_color = "warning";
+                        } else{
+                            $ticket_status_color = "secondary";
+                        }
 
-                        require "ticket_assign_modal.php";
+                        if ($ticket_priority == "High") {
+                            $ticket_priority_color = "danger";
+                        } elseif ($ticket_priority == "Medium") {
+                            $ticket_priority_color = "warning";
+                        } else{
+                            $ticket_priority_color = "info";
+                        }
+                        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+                        if (empty($ticket_assigned_to)) {
+                            if ($ticket_status == "Closed") {
+                                $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                            } else {
+                                $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                            }
+                        } else {
+                            $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                        }
 
-                        require "ticket_edit_priority_modal.php";
+                        if (empty($contact_name)) {
+                            $contact_display = "-";
+                        } else {
+                            $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                        }
 
-                        if ($config_module_enable_accounting) {
-                            require "ticket_edit_billable_modal.php";
+                        $asset_id = intval($row['ticket_asset_id']);
+                        $vendor_id = intval($row['ticket_vendor_id']);
+
+                        ?>
+
+                        <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
+                            <td class="pr-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                </div>
+                            </td>
+                            <td>
+                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                    <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                            </td>
+                            <td>
+                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
+
+                                <div class="mt-1"><?php echo $contact_display; ?></div>
+                            </td>
+                            <?php if ($config_module_enable_accounting) {
+                                    ?>
+                            <td class="text-center">
+                                <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                                <?php
+                                if ($ticket_billable == 1) {
+                                    echo "<span class='badge badge-pill badge-success'>$</span>";
+                                } else {
+                                    echo "<span class='badge badge-pill badge-secondary'>X</span>";
+                                }
+                            ?></td>
+                            <?php
+                                }
+                            ?>
+                            <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></a></td>
+                            <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
+                            <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
+                            <td><?php echo $ticket_updated_at_display; ?></td>
+                            <td>
+                                <?php echo $ticket_created_at_time_ago; ?>
+                                <br>
+                                <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
+                            </td>
+                        </tr>
+
+                        <?php
+
+                        if ($ticket_status !== "Closed") {
+                            // Temp performance boost for closed tickets, until we move to dynamic modals
+
+                            require "ticket_assign_modal.php";
+
+                            require "ticket_edit_priority_modal.php";
+
+                            if ($config_module_enable_accounting) {
+                                require "ticket_edit_billable_modal.php";
+                            }
+
                         }
 
                     }
 
-                }
+                    ?>
 
-                ?>
-
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+            <?php require_once "ticket_bulk_assign_modal.php"; ?>
+        </form>
         <?php require_once "pagination.php";
         ?>
     </div>
 </div>
 
+<script src="js/multi_actions.js"></script>
+
 <?php
 require_once "ticket_add_modal.php";
 
 require_once "footer.php";
-
-?>
