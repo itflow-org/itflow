@@ -473,6 +473,9 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
     // POST variables
     $assign_to = intval($_POST['assign_to']);
+
+    // Get a Ticket Count
+    $ticket_count = count($_POST['ticket_ids']);
     
     // Assign Tech to Selected Tickets
     if (!empty($_POST['ticket_ids'])) {
@@ -523,45 +526,46 @@ if (isset($_POST['bulk_assign_ticket'])) {
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
 
-            // Notification
-            if ($session_user_id != $assign_to && $assign_to != 0) {
-
-                // App Notification
-                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $assign_to");
-
-                // Agent Email Notification
-                if (!empty($config_smtp_host)) {
-
-                    // Sanitize Config vars from get_settings.php
-                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                    $company_name = sanitizeInput($session_company_name);
-
-                    $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
-                    $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$company_name";
-
-                    // Email Ticket Agent
-                    // Queue Mail
-                    $data = [
-                        [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
-                            'recipient' => $agent_email,
-                            'recipient_name' => $agent_name,
-                            'subject' => $subject,
-                            'body' => $body,
-                        ]
-                    ];
-                    addToMailQueue($mysqli, $data);
-                }
-
-            }
+            $tickets_assigned_body .= "$ticket_prefix$ticket_number - $ticket_subject<br>";
 
         } // End For Each Ticket ID Loop
 
+        // Notification
+        if ($session_user_id != $assign_to && $assign_to != 0) {
+
+            // App Notification
+            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$ticket_count Tickets have been assigned to you by $session_name', notification_action = 'tickets.php?status=Open&assigned=$assign_to', notification_client_id = $client_id, notification_user_id = $assign_to");
+
+            // Agent Email Notification
+            if (!empty($config_smtp_host)) {
+
+                // Sanitize Config vars from get_settings.php
+                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                $company_name = sanitizeInput($session_company_name);
+
+                $subject = "$config_app_name $ticket_count tickets have been assigned to you";
+                $body = "Hi $agent_name, <br><br>$ticket_count tickets have been assigned to you!<br><br>$tickets_assigned_body<br>Thanks, <br>$session_name<br>$company_name";
+
+                // Email Ticket Agent
+                // Queue Mail
+                $data = [
+                    [
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
+                        'recipient' => $agent_email,
+                        'recipient_name' => $agent_name,
+                        'subject' => $subject,
+                        'body' => $body,
+                    ]
+                ];
+                addToMailQueue($mysqli, $data);
+            }
+
+        }
     }
 
-    $_SESSION['alert_message'] = "Bulk Assigned Tickets";
+    $_SESSION['alert_message'] = "You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
