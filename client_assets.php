@@ -352,7 +352,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                                     <td><?php echo $asset_os_display; ?></td>
                                 <?php } ?>
-                                <td><?php echo $asset_ip_display; ?></td>
+                                <td class="text-nowrap"><?php echo $asset_ip_display; ?></td>
                                 <td><?php echo $asset_install_date_display; ?></td>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                     <td><?php echo "$contact_archived_display$contact_name"; ?></td>
