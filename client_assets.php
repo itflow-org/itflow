@@ -255,7 +255,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (empty($contact_archived_at)) {
                                 $contact_archived_display = "";
                             } else {
-                                $contact_archived_display = "Archived - ";
+                                $contact_archived_display = "<i class='fas fa-fw fa-times text-danger'></i> Archived - ";
                             }
 
                             $location_name = nullable_htmlentities($row['location_name']);
