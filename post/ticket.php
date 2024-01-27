@@ -478,8 +478,87 @@ if (isset($_POST['bulk_assign_ticket'])) {
     if (!empty($_POST['ticket_ids'])) {
         foreach($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
-            mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assign_to WHERE ticket_id = $ticket_id");
-        }
+            
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($sql);
+
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
+            $ticket_status = sanitizeInput($row['ticket_status']);
+            $ticket_subject = sanitizeInput($row['ticket_subject']);
+            $client_id = intval($row['ticket_client_id']);
+
+            if($ticket_status == 'Pending-Assignment' && $assign_to > 0){
+                $ticket_status = 'Assigned';
+            }
+
+            // Allow for un-assigning tickets
+            if ($assign_to == 0) {
+                $ticket_reply = "Ticket unassigned, pending re-assignment.";
+                $agent_name = "No One";
+                $ticket_status = "Pending-Assignment";
+            } else {
+                // Get & verify assigned agent details
+                $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to AND user_settings.user_role > 1");
+                $agent_details = mysqli_fetch_array($agent_details_sql);
+
+                $agent_name = sanitizeInput($agent_details['user_name']);
+                $agent_email = sanitizeInput($agent_details['user_email']);
+                $ticket_reply = "Ticket re-assigned to $agent_name.";
+
+                if (!$agent_name) {
+                    $_SESSION['alert_type'] = "error";
+                    $_SESSION['alert_message'] = "Invalid agent!";
+                    header("Location: " . $_SERVER["HTTP_REFERER"]);
+                    exit();
+                }
+            }
+
+            // Update ticket & insert reply
+            mysqli_query($mysqli,"UPDATE tickets SET ticket_assigned_to = $assign_to, ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
+            
+            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+            // Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+
+            // Notification
+            if ($session_user_id != $assign_to && $assign_to != 0) {
+
+                // App Notification
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject has been assigned to you by $session_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $assign_to");
+
+                // Agent Email Notification
+                if (!empty($config_smtp_host)) {
+
+                    // Sanitize Config vars from get_settings.php
+                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                    $company_name = sanitizeInput($session_company_name);
+
+                    $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
+                    $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$company_name";
+
+                    // Email Ticket Agent
+                    // Queue Mail
+                    $data = [
+                        [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $agent_email,
+                            'recipient_name' => $agent_name,
+                            'subject' => $subject,
+                            'body' => $body,
+                        ]
+                    ];
+                    addToMailQueue($mysqli, $data);
+                }
+
+            }
+
+        } // End For Each Ticket ID Loop
+
     }
 
     $_SESSION['alert_message'] = "Bulk Assigned Tickets";

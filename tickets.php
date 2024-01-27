@@ -121,32 +121,31 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="float-right">
+                    <div class="btn-group float-right">
                         <div class="btn-group">
-                            <button class="btn btn-outline-dark dropdown-toggle" style="border-top-right-radius: 0; border-bottom-right-radius: 0;" type="button" id="dropdownMenuButton"
-                                    data-toggle="dropdown">
-                                <i class="fa fa-fw fa-envelope"></i> My Tickets
+                            <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fa fa-fw fa-envelope mr-2"></i>My Tickets
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
                                 <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
                             </div>
-                            <a href="?assigned=unassigned" class="btn btn-outline-danger"><i class="fa fa-fw fa-exclamation-triangle"></i>
-                                Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong></a>
-                            <!--                            <a href="#" class="btn  btn-outline-info"><i class="fa fa-fw fa-cogs"></i> Tasks</a>-->
-                            
-                            <div class="dropdown ml-2" id="multiActionButton" hidden>
-                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
-                                        <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
-                                    </a>
-                                </div>
-                            </div>
-
                         </div>
+                        <a href="?assigned=unassigned" class="btn btn-outline-danger">
+                            <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                        </a>
+                        
+                        <div class="dropdown ml-2" id="multiActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
+                                    <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
                 
                 </div>
@@ -252,9 +251,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) {
-                        echo "d-none";
-                    } ?>">
+                    <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
                         <td class="pr-0">
                             <div class="form-check">
