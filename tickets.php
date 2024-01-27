@@ -253,7 +253,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
-                        <td class="pr-0">
+                        <td>
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -374,10 +374,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         ?>
 
                         <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
-                            <td class="pr-0">
+                            <td>
+                                <?php if($ticket_status !== "Closed") { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
                                 </div>
+                                <?php } ?>
                             </td>
                             <td>
                                 <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
