@@ -75,6 +75,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                         <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                     </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPhoneModal">
+                                        <i class="fas fa-fw fa-phone-alt mr-2"></i>Set Phone Number
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +89,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <hr>
             <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="table-responsive-sm">
                     <table class="table border">
                         <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
@@ -265,6 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </table>
                 </div>
                 <?php require_once "client_contact_bulk_assign_location_modal.php"; ?>
+                <?php require_once "client_contact_bulk_edit_phone_modal.php"; ?>
             </form>
             <?php require_once "pagination.php";
 ?>
