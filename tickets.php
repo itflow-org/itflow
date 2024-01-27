@@ -248,7 +248,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
         </form>
         <hr>
         <form id="multi_actions" action="post.php" method="post">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
