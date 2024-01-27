@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <form id="bulkActions" action="post.php" method="post">
                 <div class="table-responsive">
                     <table class="table border table-hover">
-                        <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                        <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                         <tr>
                             <td class="bg-light pr-0">
                                 <div class="form-check">
@@ -314,6 +314,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 <div class="input-group-prepend">
                                                                     <span class="input-group-text"><i class="fa fa-lock"></i></span>
                                                                 </div>
+                                                                <input type="password" name="fakePassword" style="display:none"> <!-- Prevents Password Managers from asking -->
                                                                 <input type="password" class="form-control" data-toggle="password" value="<?php echo $login_password; ?>" readonly autocomplete="off">
                                                                 <div class="input-group-append">
                                                                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
