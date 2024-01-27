@@ -67,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } else { ?>
                             <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                             <?php } ?>
-                            <div class="dropdown ml-2" id="multiActionButton" hidden>
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                     <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <form id="multi_actions" action="post.php" method="post">
+            <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="table-responsive-sm">
@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0 bg-light">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="contact_ids[]" value="<?php echo $contact_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?php echo $contact_id ?>">
                                     </div>
                                 </td>
                                 <td class="px-0 text-center <?php if(!empty($contact_important)) { echo "text-bold"; }?>">
@@ -311,7 +311,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     });
 </script>
 
-<script src="js/multi_actions.js"></script>
+<script src="js/bulk_actions.js"></script>
 
 <?php
 

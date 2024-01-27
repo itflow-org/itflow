@@ -135,7 +135,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                         </a>
                         
-                        <div class="dropdown ml-2" id="multiActionButton" hidden>
+                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
@@ -247,7 +247,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             </div>
         </form>
         <hr>
-        <form id="multi_actions" action="post.php" method="post">
+        <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
@@ -377,7 +377,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             <td>
                                 <?php if($ticket_status !== "Closed") { ?>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
                                 </div>
                                 <?php } ?>
                             </td>
@@ -448,7 +448,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
     </div>
 </div>
 
-<script src="js/multi_actions.js"></script>
+<script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "ticket_add_modal.php";
