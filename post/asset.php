@@ -299,6 +299,40 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
 }
 
+if (isset($_POST['bulk_edit_asset_status'])) {
+
+    validateTechRole();
+
+    $status = sanitizeInput($_POST['status']);
+
+    // Get Selected Contacts Count
+    $asset_count = count($_POST['asset_ids']);
+    
+    // Assign Contact to Selected Assets
+    if (!empty($_POST['asset_ids'])) {
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name set status $status on $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+        } // End Assign Contact Loop
+        
+        $_SESSION['alert_message'] = "You set the status <b>$status</b> on <b>$asset_count</b> assets.";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST["import_client_assets_csv"])) {
 
     validateTechRole();

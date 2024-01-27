@@ -46,17 +46,20 @@ if (isset($_GET['asset_id'])) {
     $contact_phone = nullable_htmlentities($row['contact_phone']);
     $contact_mobile = nullable_htmlentities($row['contact_mobile']);
     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-    if (empty($contact_archived_at)) {
-        $contact_archived_display = "";
+    if ($contact_archived_at) {
+        $contact_name_display = "<span class='text-danger'><s>$contact_name</s></span>";
     } else {
-        $contact_archived_display = "Archived - ";
+        $contact_name_display = $contact_name;
     }
     $location_name = nullable_htmlentities($row['location_name']);
+    if (empty($location_name)) {
+        $location_name = "-";
+    }
     $location_archived_at = nullable_htmlentities($row['location_archived_at']);
-    if (empty($location_archived_at)) {
-        $location_archived_display = "";
+    if ($location_archived_at) {
+        $location_name_display = "<span class='text-danger'><s>$location_name</s></span>";
     } else {
-        $location_archived_display = "Archived - ";
+        $location_name_display = $location_name;
     }
 
     $login_id = intval($row['login_id']);
@@ -181,10 +184,10 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
                     <?php }
                     if ($contact_name) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name_display; ?></div>
                     <?php }
                     if ($contact_email) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>

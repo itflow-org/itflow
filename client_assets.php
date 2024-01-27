@@ -151,6 +151,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                             <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                         </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
+                                            <i class="fas fa-fw fa-info mr-2"></i>Set Status
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -252,10 +256,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $contact_name = "-";
                             }
                             $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-                            if (empty($contact_archived_at)) {
-                                $contact_archived_display = "";
+                            if ($contact_archived_at) {
+                                $contact_name_display = "<div class='text-danger'><s>$contact_name</s></div>";
                             } else {
-                                $contact_archived_display = "<i class='fas fa-fw fa-times text-danger'></i> Archived - ";
+                                $contact_name_display = $contact_name;
                             }
 
                             $location_name = nullable_htmlentities($row['location_name']);
@@ -263,10 +267,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $location_name = "-";
                             }
                             $location_archived_at = nullable_htmlentities($row['location_archived_at']);
-                            if (empty($location_archived_at)) {
-                                $location_archived_display = "";
+                            if ($location_archived_at) {
+                                $location_name_display = "<div class='text-danger'><s>$location_name</s></div>";
                             } else {
-                                $location_archived_display = "Archived - ";
+                                $location_name_display = $location_name;
                             }
 
                             $login_id = intval($row['login_id']);
@@ -355,9 +359,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td class="text-nowrap"><?php echo $asset_ip_display; ?></td>
                                 <td><?php echo $asset_install_date_display; ?></td>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
-                                    <td><?php echo "$contact_archived_display$contact_name"; ?></td>
+                                    <td><?php echo $contact_name_display; ?></td>
                                 <?php } ?>
-                                <td><?php echo "$location_archived_display$location_name"; ?></td>
+                                <td><?php echo $location_name_display; ?></td>
                                 <td><?php echo $asset_status; ?></td>
                                 <td>
                                     <div class="dropdown dropleft text-center">
@@ -408,6 +412,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <?php require_once "client_asset_bulk_assign_location_modal.php"; ?>
                 <?php require_once "client_asset_bulk_assign_contact_modal.php"; ?>
+                <?php require_once "client_asset_bulk_edit_status_modal.php"; ?>
             </form>
             <?php require_once "pagination.php"; ?>
         </div>
