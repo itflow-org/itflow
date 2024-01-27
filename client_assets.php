@@ -223,7 +223,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (empty($asset_ip)) {
                                 $asset_ip_display = "-";
                             } else {
-                                $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
+                                $asset_ip_display = "$asset_ip<button class='btn btn-sm' type='button' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
                             }
                             $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
                             $asset_mac = nullable_htmlentities($row['asset_mac']);
