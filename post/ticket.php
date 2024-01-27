@@ -405,7 +405,7 @@ if (isset($_POST['assign_ticket'])) {
             $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
             $company_name = sanitizeInput($session_company_name);
 
-            $subject = "$config_app_name ticket $ticket_prefix$ticket_number assigned to you";
+            $subject = "$config_app_name - ticket $ticket_prefix$ticket_number assigned to you";
             $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$company_name";
 
             // Email Ticket Agent
@@ -543,7 +543,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
                 $company_name = sanitizeInput($session_company_name);
 
-                $subject = "$config_app_name $ticket_count tickets have been assigned to you";
+                $subject = "$config_app_name - $ticket_count tickets have been assigned to you";
                 $body = "Hi $agent_name, <br><br>$session_name assigned $ticket_count tickets to you!<br><br>$tickets_assigned_body<br>Thanks, <br>$session_name<br>$company_name";
 
                 // Email Ticket Agent
