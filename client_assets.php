@@ -144,6 +144,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
+                                            <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
+                                        </a>
+                                        <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                             <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                         </a>
@@ -402,6 +406,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </table>
                 </div>
                 <?php require_once "client_asset_bulk_assign_location_modal.php"; ?>
+                <?php require_once "client_asset_bulk_assign_contact_modal.php"; ?>
             </form>
             <?php require_once "pagination.php"; ?>
         </div>
