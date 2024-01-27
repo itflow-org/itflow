@@ -257,7 +257,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                             $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
                             if ($contact_archived_at) {
-                                $contact_name_display = "<div class='text-danger'><s>$contact_name</s></div>";
+                                $contact_name_display = "<div class='text-danger' title='Archived'><s>$contact_name</s></div>";
                             } else {
                                 $contact_name_display = $contact_name;
                             }
@@ -268,7 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                             $location_archived_at = nullable_htmlentities($row['location_archived_at']);
                             if ($location_archived_at) {
-                                $location_name_display = "<div class='text-danger'><s>$location_name</s></div>";
+                                $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
                             } else {
                                 $location_name_display = $location_name;
                             }

@@ -169,7 +169,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $contact_location_id = intval($row['contact_location_id']);
                             $location_name = nullable_htmlentities($row['location_name']);
                             if (empty($location_name)) {
-                                $location_name_display = "-";
+                                $location_name = "-";
+                            }
+                            $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                            if ($location_archived_at) {
+                                $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
                             } else {
                                 $location_name_display = $location_name;
                             }

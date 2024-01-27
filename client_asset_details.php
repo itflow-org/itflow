@@ -47,7 +47,7 @@ if (isset($_GET['asset_id'])) {
     $contact_mobile = nullable_htmlentities($row['contact_mobile']);
     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
     if ($contact_archived_at) {
-        $contact_name_display = "<span class='text-danger'><s>$contact_name</s></span>";
+        $contact_name_display = "<span class='text-danger' title='Archived'><s>$contact_name</s></span>";
     } else {
         $contact_name_display = $contact_name;
     }
@@ -57,7 +57,7 @@ if (isset($_GET['asset_id'])) {
     }
     $location_archived_at = nullable_htmlentities($row['location_archived_at']);
     if ($location_archived_at) {
-        $location_name_display = "<span class='text-danger'><s>$location_name</s></span>";
+        $location_name_display = "<span class='text-danger' title='Archived'><s>$location_name</s></span>";
     } else {
         $location_name_display = $location_name;
     }
