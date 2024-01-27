@@ -525,7 +525,6 @@ if (isset($_POST['bulk_assign_ticket'])) {
             // Logging
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name reassigned ticket $ticket_prefix$ticket_number - $ticket_subject to $agent_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
-
             $tickets_assigned_body .= "$ticket_prefix$ticket_number - $ticket_subject<br>";
 
         } // End For Each Ticket ID Loop
@@ -545,7 +544,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $company_name = sanitizeInput($session_company_name);
 
                 $subject = "$config_app_name $ticket_count tickets have been assigned to you";
-                $body = "Hi $agent_name, <br><br>$ticket_count tickets have been assigned to you!<br><br>$tickets_assigned_body<br>Thanks, <br>$session_name<br>$company_name";
+                $body = "Hi $agent_name, <br><br>$session_name assigned $ticket_count tickets to you!<br><br>$tickets_assigned_body<br>Thanks, <br>$session_name<br>$company_name";
 
                 // Email Ticket Agent
                 // Queue Mail
