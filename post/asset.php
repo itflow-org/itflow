@@ -225,7 +225,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
     validateTechRole();
 
-    $location_id = intval($_POST['location_id']);
+    $location_id = intval($_POST['bulk_location_id']);
 
     // Get Location name and client id for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
@@ -264,7 +264,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
     validateTechRole();
 
-    $contact_id = intval($_POST['contact_id']);
+    $contact_id = intval($_POST['bulk_contact_id']);
 
     // Get Contact name and client id for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
@@ -303,7 +303,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
     validateTechRole();
 
-    $status = sanitizeInput($_POST['status']);
+    $status = sanitizeInput($_POST['bulk_status']);
 
     // Get Selected Contacts Count
     $asset_count = count($_POST['asset_ids']);

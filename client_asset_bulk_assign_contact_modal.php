@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <select class="form-control select2" name="contact_id">
+                        <select class="form-control select2" name="bulk_contact_id">
                             <option value="">- Contact -</option>
                             <?php
 

@@ -176,7 +176,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
     validateTechRole();
 
-    $location_id = intval($_POST['location']);
+    $location_id = intval($_POST['bulk_location_id']);
 
     // Get Location name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
@@ -215,7 +215,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
     validateTechRole();
 
-    $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
+    $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
     // Get Selected Contacts Count
     $contact_count = count($_POST['contact_ids']);

@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                         </div>
-                        <select class="form-control select2" name="status">
+                        <select class="form-control select2" name="bulk_status">
                             <option value="">- Status -</option>
                             <?php foreach($asset_status_array as $asset_status) { ?>
                                 <option><?php echo $asset_status; ?></option>
