@@ -375,7 +375,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
     $config_stripe_account = intval($_POST['config_stripe_account']);
     $config_stripe_expense_vendor = intval($_POST['config_stripe_expense_vendor']);
     $config_stripe_expense_category = intval($_POST['config_stripe_expense_category']);
-    $config_stripe_percentage_fee = floatval($_POST['config_stripe_percentage_fee']);
+    $config_stripe_percentage_fee = floatval($_POST['config_stripe_percentage_fee']) / 100;
     $config_stripe_flat_fee = floatval($_POST['config_stripe_flat_fee']);
     $config_stripe_client_pays_fees = intval($_POST['config_stripe_client_pays_fees']);
 

@@ -23,7 +23,6 @@ require_once "inc_all_settings.php";
 
             <div class="<?php if ($config_stripe_enable == 0) { echo "d-none"; } ?>">
 
-
                 <div class="form-group">
                     <label>Publishable</label>
                     <div class="input-group">
@@ -68,66 +67,12 @@ require_once "inc_all_settings.php";
                 </div>
 
                 <div class="form-group">
-                    <label>Expense Vendor <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
-                        <select class="form-control select2" name="config_stripe_expense_vendor" required>
-                            <?php
-
-                            $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                            while ($row = mysqli_fetch_array($sql_select)) {
-                                $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                ?>
-                                <option <?php if ($config_stripe_expense_vendor == $vendor_id) { ?> selected <?php } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
-                                <?php
-                            }
-
-                            ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Expense Category <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                        </div>
-                        <select class="form-control select2" name="config_stripe_expense_category" required>
-                            <?php
-
-                            $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                            while ($row = mysqli_fetch_array($sql_select)) {
-                                $category_id = intval($row['category_id']);
-                                $category_name = nullable_htmlentities($row['category_name']);
-                                ?>
-                                <option <?php if ($config_stripe_expense_category == $category_id) { ?> selected <?php } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
-                                <?php
-                            }
-
-                            ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Client Pays Fees</label>
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_stripe_client_pays_fees" <?php if ($config_stripe_client_pays_fees == 1) { echo "checked"; } ?> value="1" id="clientPaysFeesSwitch">
-                        <label class="custom-control-label" for="clientPaysFeesSwitch">Enable</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Percentage Fee</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_stripe_percentage_fee" placeholder="Enter a %" value="<?php echo $config_stripe_percentage_fee; ?>">
+                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="config_stripe_percentage_fee" placeholder="Enter Percentage" value="<?php echo $config_stripe_percentage_fee * 100; ?>">
                     </div>
                 </div>
 
@@ -137,8 +82,68 @@ require_once "inc_all_settings.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_stripe_flat_fee" placeholder="0.030" value="<?php echo $config_stripe_flat_fee; ?>">
+                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="config_stripe_flat_fee" placeholder="0.030" value="<?php echo number_format($config_stripe_flat_fee, 2, '.', ''); ?>">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Client Pays Fees <small class="muted">(if disabled you may choose to expense the selected account)</small></label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_stripe_client_pays_fees" <?php if ($config_stripe_client_pays_fees == 1) { echo "checked"; } ?> value="1" id="clientPaysFeesSwitch">
+                        <label class="custom-control-label" for="clientPaysFeesSwitch">Enable</label>
+                    </div>
+                </div>
+
+                <div class="<?php if ($config_stripe_client_pays_fees == 1) { echo "d-none"; } ?>">
+
+                    <div class="form-group">
+                        <label>Expense Vendor</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                            </div>
+                            <select class="form-control select2" name="config_stripe_expense_vendor">
+                                <option value="0">- Do not Enable Account Expensure -</option>
+                                <?php
+
+                                $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                while ($row = mysqli_fetch_array($sql_select)) {
+                                    $vendor_id = intval($row['vendor_id']);
+                                    $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                    ?>
+                                    <option <?php if ($config_stripe_expense_vendor == $vendor_id) { ?> selected <?php } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                    <?php
+                                }
+
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Expense Category</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                            </div>
+                            <select class="form-control select2" name="config_stripe_expense_category">
+                                <option value="0">- Do not Enable Account Expensure -</option>
+                                <?php
+
+                                $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                while ($row = mysqli_fetch_array($sql_select)) {
+                                    $category_id = intval($row['category_id']);
+                                    $category_name = nullable_htmlentities($row['category_name']);
+                                    ?>
+                                    <option <?php if ($config_stripe_expense_category == $category_id) { ?> selected <?php } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <?php
+                                }
+
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
