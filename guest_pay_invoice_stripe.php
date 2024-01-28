@@ -20,10 +20,10 @@ $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
-$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
-$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
-$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
-$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
+$config_stripe_expense_vendor = intval($stripe_vars['config_stripe_expense_vendor']);
+$config_stripe_expense_category = intval($stripe_vars['config_stripe_expense_category']);
+$config_stripe_percentage_fee = floatval($stripe_vars['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($stripe_vars['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($stripe_vars['config_stripe_client_pays_fees']);
 
 // Check Stripe is configured
@@ -86,16 +86,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
-    // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
-            $balance_before_fees = $balance_to_pay;
-            // Calculate the amount to charge the client
-            $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-            // Calculate the fee amount
-            $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+        $balance_before_fees = $balance_to_pay;
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+    }
 
-        }
-    
     //Round balance to pay to 2 decimal places
     $balance_to_pay = round($balance_to_pay, 2);
 
@@ -279,10 +277,19 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = $row['amount_paid'];
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    // Check config to see if client pays fees is enabled
+    // Check config to see if client pays fees is enabled or if should expense it
     if ($config_stripe_client_pays_fees == 1) {
         // Calculate the amount to charge the client
         $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+    } else {
+        $balance_before_fees = $balance_to_pay;
+        // Calculate the amount to charge the client
+        $balance_to_not_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_expense_fee = round($balance_to_not_pay - $balance_before_fees, 2);
+
+        // Add Expense
+        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_expense_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
     }
 
     // Round balance to pay to 2 decimal places
@@ -365,7 +372,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Redirect user to invoice
     header('Location: //' . $config_base_url . '/guest_view_invoice.php?invoice_id=' . $pi_invoice_id . '&url_key=' . $invoice_url_key);
-
 
 } else {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
