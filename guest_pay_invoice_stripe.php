@@ -15,11 +15,15 @@ function log_to_console($message)
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
 
 // Setup Stripe
-$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account, config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
+$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account, config_stripe_expense_vendor, config_stripe_expense_category, config_stripe_percentage_fee, config_stripe_flat_fee, config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
+$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
+$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
+$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($stripe_vars['config_stripe_client_pays_fees']);
 
 // Check Stripe is configured
@@ -85,10 +89,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
             $balance_before_fees = $balance_to_pay;
-            $percentage_fee = 0.029;
-            $flat_fee = 0.30;
             // Calculate the amount to charge the client
-            $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+            $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
             // Calculate the fee amount
             $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
 
@@ -279,10 +281,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
-        $percentage_fee = 0.029;
-        $flat_fee = 0.30;
         // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
     }
 
     // Round balance to pay to 2 decimal places
