@@ -24,7 +24,7 @@ require_once "inc_all_settings.php";
             <div class="<?php if ($config_stripe_enable == 0) { echo "d-none"; } ?>">
 
                 <div class="form-group">
-                    <label>Publishable</label>
+                    <label>Publishable key</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
@@ -34,7 +34,7 @@ require_once "inc_all_settings.php";
                 </div>
 
                 <div class="form-group">
-                    <label>Secret</label>
+                    <label>Secret key</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>

@@ -80,6 +80,8 @@ if (!empty($company_logo)) {
 $company_locale = nullable_htmlentities($row['company_locale']);
 $config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
+$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
 //Set Currency Format
@@ -109,16 +111,15 @@ $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_p
 $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
-$balance = $invoice_amount - $amount_paid;
-
 // Check config to see if client pays fees is enabled
 if ($config_stripe_client_pays_fees == 1) {
-        $percentage_fee = 0.029;
-        $flat_fee = 0.30;
-        // Calculate the amount to charge the client
-        $balance_to_pay = ($balance + $flat_fee) / (1 - $percentage_fee);
-        $stripe_fee = $balance_to_pay - $balance;
-    }
+    // Calculate the amount to charge the client
+    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $coinfig_stripe_percentage_fee);
+    $stripe_fee = $balance_to_pay - $balance;
+} else {
+    $gateway_fee = 0;
+    $balance = $invoice_amount - $amount_paid;
+}
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -297,7 +298,19 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 <td><div class="text-success">Paid</div></td>
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
+                        <?php
+                        } 
+                        
+                        if (isset($gateway_fee)) {
+                            ?>
+
+                            <tr class=border-bottom>
+                                <td><div class="text-success">Gateway Fee</div></td>
+                                <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
