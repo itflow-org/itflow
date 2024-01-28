@@ -279,7 +279,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     if ($config_stripe_client_pays_fees == 1) {
         // Calculate the amount to charge the client
         $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-    } else {
+    }
+
+    // Check to see if Expense Fields are configured and client pays fee is off then create expense
+    if ($config_stripe_client_pays_fees == 0 && $config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
         $balance_before_fees = $balance_to_pay;
         // Calculate the amount to charge the client
         $balance_to_not_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
