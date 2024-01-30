@@ -49,7 +49,7 @@ require_once "inc_all_settings.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         </div>
-                        <select class="form-control select2" name="config_stripe_account" required>
+                        <select class="form-control select2" name="config_stripe_account">
                             <option value="">- Account -</option>
                             <?php
                             $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type WHERE account_type_parent = 1 AND account_archived_at IS NULL ORDER BY account_name ASC");
@@ -103,7 +103,7 @@ require_once "inc_all_settings.php";
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
                             <select class="form-control select2" name="config_stripe_expense_vendor">
-                                <option value="0">- Do not Enable Account Expensure -</option>
+                                <option value="">- Do not Enable Account Expensure -</option>
                                 <?php
 
                                 $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -127,7 +127,7 @@ require_once "inc_all_settings.php";
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                             </div>
                             <select class="form-control select2" name="config_stripe_expense_category">
-                                <option value="0">- Do not Enable Account Expensure -</option>
+                                <option value="">- Do not Enable Account Expensure -</option>
                                 <?php
 
                                 $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
