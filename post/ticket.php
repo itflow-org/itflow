@@ -661,9 +661,9 @@ if (isset($_POST['bulk_close_tickets'])) {
                 $contact_email = sanitizeInput($row['contact_email']);
 
                 // Sanitize Config vars from get_settings.php
-                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                $config_base_url = sanitizeInput($config_base_url);
+                $from_name = sanitizeInput($config_ticket_from_name);
+                $from_email = sanitizeInput($config_ticket_from_email);
+                $base_url = sanitizeInput($config_base_url);
 
                 // Get Company Info
                 $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
@@ -677,14 +677,14 @@ if (isset($_POST['bulk_close_tickets'])) {
                     $data = [];
 
                     $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-                    $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>$details<br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                    $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>$details<br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
                     // Email Ticket Contact
                     // Queue Mail
 
                     $data[] = [
-                        'from' => $config_ticket_from_email,
-                        'from_name' => $config_ticket_from_name,
+                        'from' => $from_email,
+                        'from_name' => $from_name,
                         'recipient' => $contact_email,
                         'recipient_name' => $contact_name,
                         'subject' => $subject,
@@ -699,8 +699,8 @@ if (isset($_POST['bulk_close_tickets'])) {
 
                         // Queue Mail
                         $data[] = [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
+                            'from' => $from_email,
+                            'from_name' => $from_name,
                             'recipient' => $watcher_email,
                             'recipient_name' => $watcher_email,
                             'subject' => $subject,
@@ -710,8 +710,7 @@ if (isset($_POST['bulk_close_tickets'])) {
                     addToMailQueue($mysqli, $data);
                 }
 
-            }
-            // End Mail IF
+            } // End Mail IF
         } // End Loop
     } // End Array Empty Check
 
