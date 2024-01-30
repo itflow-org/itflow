@@ -613,6 +613,114 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
 }
 
+if (isset($_POST['bulk_close_tickets'])) {
+
+    // Role check
+    validateTechRole();
+
+    // POST variables
+    $details = mysqli_escape_string($mysqli, $_POST['bulk_details']);
+
+    // Get a Ticket Count
+    $ticket_count = count($_POST['ticket_ids']);
+    
+    // Assign Tech to Selected Tickets
+    if (!empty($_POST['ticket_ids'])) {
+        foreach($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+            
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($sql);
+
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
+            $ticket_status = sanitizeInput($row['ticket_status']);
+            $ticket_subject = sanitizeInput($row['ticket_subject']);
+            $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+            $client_id = intval($row['ticket_client_id']);
+
+            // Update ticket & insert reply
+            mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed' WHERE ticket_id = $ticket_id");
+            
+            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+            // Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Close', log_description = '$session_name closed $ticket_prefix$ticket_number - $ticket_subject in a bulk action', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+            // Client notification email
+            if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
+
+                // Get Contact details
+                $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email FROM tickets 
+                    LEFT JOIN contacts ON ticket_contact_id = contact_id
+                    WHERE ticket_id = $ticket_id
+                ");
+                $row = mysqli_fetch_array($ticket_sql);
+
+                $contact_name = sanitizeInput($row['contact_name']);
+                $contact_email = sanitizeInput($row['contact_email']);
+
+                // Sanitize Config vars from get_settings.php
+                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                $config_base_url = sanitizeInput($config_base_url);
+
+                // Get Company Info
+                $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+                $row = mysqli_fetch_array($sql);
+                $company_name = sanitizeInput($row['company_name']);
+                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+                // Check email valid
+                if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+                    $data = [];
+
+                    $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+                    $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>$details<br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+                    // Email Ticket Contact
+                    // Queue Mail
+
+                    $data[] = [
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
+                        'recipient' => $contact_email,
+                        'recipient_name' => $contact_name,
+                        'subject' => $subject,
+                        'body' => $body
+                    ];
+
+                    // Also Email all the watchers
+                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+                    $body .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+                    while ($row = mysqli_fetch_array($sql_watchers)) {
+                        $watcher_email = sanitizeInput($row['watcher_email']);
+
+                        // Queue Mail
+                        $data[] = [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $watcher_email,
+                            'recipient_name' => $watcher_email,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+                    addToMailQueue($mysqli, $data);
+                }
+
+            }
+            // End Mail IF
+        } // End Loop
+    } // End Array Empty Check
+
+    $_SESSION['alert_message'] = "You closed <b>$ticket_count</b> Tickets";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['add_ticket_reply'])) {
 
     validateTechRole();

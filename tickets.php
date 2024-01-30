@@ -147,6 +147,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
                                     <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
                                 </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
+                                    <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                                </a>
                             </div>
                         </div>
 
@@ -447,6 +451,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             </div>
             <?php require_once "ticket_bulk_assign_modal.php"; ?>
             <?php require_once "ticket_bulk_edit_priority_modal.php"; ?>
+            <?php require_once "ticket_bulk_close_modal.php"; ?>
         </form>
         <?php require_once "pagination.php";
         ?>
