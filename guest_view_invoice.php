@@ -111,24 +111,27 @@ $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_p
 $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
-if ($invoice_amount - $amount_paid < 0) { //already paid invoices
-    $gateway_fee = -1 * ($invoice_amount - $amount_paid);
-    $amount_paid = $invoice_amount; // Set amount paid to invoice amount if gateway fee is enabled.
-    $balance = $invoice_amount - $amount_paid;
-} else {
-    $gateway_fee = 0;
-    $balance = $invoice_amount - $amount_paid;
-}
+// Calculate the balance owed
+$balance = $invoice_amount - $amount_paid;
 
-// Check config to see if client pays fees is enabled
-if ($config_stripe_client_pays_fees == 1) {
-    // Calculate the amount to charge the client
-    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-    $gateway_fee = $balance_to_pay - $balance;
+// Check for overpayment or exact payment (amount paid is equal to or exceeds invoice amount)
+if ($balance <= 0) {
+    // Invoice is fully paid (either exact payment or overpayment)
+    $gateway_fee = 0; // Zero out the gateway fee
+    $amount_paid = $invoice_amount; // Adjust amount paid to equal invoice amount
+    $balance = 0; // Balance is zero since invoice is fully paid
 } else {
-    $gateway_fee = 0;
+    // If invoice is not fully paid
+    // Check if client is responsible for paying Stripe fees
+    if ($config_stripe_client_pays_fees == 1) {
+        // Calculate the total amount to charge the client, including Stripe fees
+        $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        $gateway_fee = $balance_to_pay - $balance; // Calculate gateway fee based on Stripe fees
+    } else {
+        // If client is not responsible for Stripe fees, gateway fee remains zero
+        $gateway_fee = 0;
+    }
 }
-
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
