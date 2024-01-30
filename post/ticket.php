@@ -707,9 +707,8 @@ if (isset($_POST['bulk_close_tickets'])) {
                             'body' => $body
                         ];
                     }
-                    addToMailQueue($mysqli, $data);
                 }
-
+                addToMailQueue($mysqli, $data);
             } // End Mail IF
         } // End Loop
     } // End Array Empty Check
