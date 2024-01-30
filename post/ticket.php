@@ -570,6 +570,49 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
 }
 
+if (isset($_POST['bulk_edit_ticket_priority'])) {
+
+    // Role check
+    validateTechRole();
+
+    // POST variables
+    $priority = sanitizeInput($_POST['bulk_priority']);
+
+    // Get a Ticket Count
+    $ticket_count = count($_POST['ticket_ids']);
+    
+    // Assign Tech to Selected Tickets
+    if (!empty($_POST['ticket_ids'])) {
+        foreach($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+            
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($sql);
+
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
+            $ticket_status = sanitizeInput($row['ticket_status']);
+            $ticket_subject = sanitizeInput($row['ticket_subject']);
+            $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+            $client_id = intval($row['ticket_client_id']);
+
+            // Update ticket & insert reply
+            mysqli_query($mysqli,"UPDATE tickets SET ticket_priority = '$priority' WHERE ticket_id = $ticket_id");
+            
+            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$session_name updated the priority from $current_ticket_priority to $priority', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+            // Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name updated the priority on ticket $ticket_prefix$ticket_number - $ticket_subject from $current_ticket_priority to $priority', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+        } // End For Each Ticket ID Loop
+    }
+
+    $_SESSION['alert_message'] = "You updated the priority for <b>$ticket_count</b> Tickets to <b>$priority</b>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['add_ticket_reply'])) {
 
     validateTechRole();
