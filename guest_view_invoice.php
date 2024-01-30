@@ -111,15 +111,24 @@ $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_p
 $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
-// Check config to see if client pays fees is enabled
-if ($config_stripe_client_pays_fees == 1) {
-    // Calculate the amount to charge the client
-    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $coinfig_stripe_percentage_fee);
-    $stripe_fee = $balance_to_pay - $balance;
+if ($invoice_amount - $amount_paid < 0) { //already paid invoices
+    $gateway_fee = -1 * ($invoice_amount - $amount_paid);
+    $amount_paid = $invoice_amount; // Set amount paid to invoice amount if gateway fee is enabled.
+    $balance = $invoice_amount - $amount_paid;
 } else {
     $gateway_fee = 0;
     $balance = $invoice_amount - $amount_paid;
 }
+
+// Check config to see if client pays fees is enabled
+if ($config_stripe_client_pays_fees == 1) {
+    // Calculate the amount to charge the client
+    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+    $gateway_fee = $balance_to_pay - $balance;
+} else {
+    $gateway_fee = 0;
+}
+
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -301,7 +310,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                         <?php
                         } 
                         
-                        if (isset($gateway_fee)) {
+                        if ($gateway_fee > 0) {
                             ?>
 
                             <tr class=border-bottom>
