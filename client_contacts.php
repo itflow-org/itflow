@@ -83,6 +83,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditDepartmentModal">
                                         <i class="fas fa-fw fa-users mr-2"></i>Set Department
                                     </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditRoleModal">
+                                        <i class="fas fa-fw fa-user-shield mr-2"></i>Set Roles
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -278,6 +282,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php require_once "client_contact_bulk_assign_location_modal.php"; ?>
                 <?php require_once "client_contact_bulk_edit_phone_modal.php"; ?>
                 <?php require_once "client_contact_bulk_edit_department_modal.php"; ?>
+                <?php require_once "client_contact_bulk_edit_role_modal.php"; ?>
             </form>
             <?php require_once "pagination.php";
 ?>

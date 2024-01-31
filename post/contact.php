@@ -279,6 +279,42 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
 }
 
+if (isset($_POST['bulk_edit_contact_role'])) {
+
+    validateTechRole();
+
+    $contact_important = intval($_POST['bulk_contact_important']);
+    $contact_billing = intval($_POST['bulk_contact_billing']);
+    $contact_technical = intval($_POST['bulk_contact_technical']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name updated $contact_name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You updated roles for <b>$contact_count</b> contacts";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['anonymize_contact'])) {
 
     validateAdminRole();
