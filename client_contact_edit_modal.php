@@ -66,12 +66,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Department</label>
+                                <label>Department / Group</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="department" placeholder="Department" value="<?php echo $contact_department; ?>">
+                                    <input type="text" class="form-control" name="department" placeholder="Department or group" value="<?php echo $contact_department; ?>">
                                 </div>
                             </div>
 
