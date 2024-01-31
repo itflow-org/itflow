@@ -725,6 +725,137 @@ if (isset($_POST['bulk_close_tickets'])) {
 
 }
 
+if (isset($_POST['bulk_ticket_reply'])) {
+
+    // Role check
+    validateTechRole();
+
+    // POST variables
+    $ticket_reply = mysqli_escape_string($mysqli, $_POST['bulk_reply_details']);
+    $ticket_status = sanitizeInput($_POST['bulk_status']);
+    $private_note = intval($_POST['bulk_private_reply']);
+    if($private_note == 1){
+        $ticket_reply_type = 'Internal';
+    } else {
+        $ticket_reply_type = 'Public';
+    }
+
+    // Get a Ticket Count
+    $ticket_count = count($_POST['ticket_ids']);
+    
+    // Loop Through Tickets and Add Reply along with Email notifications
+    if (!empty($_POST['ticket_ids'])) {
+        foreach($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($sql);
+
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
+            $ticket_subject = sanitizeInput($row['ticket_subject']);
+            $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+            $client_id = intval($row['ticket_client_id']);
+
+            // Add reply
+            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+            $ticket_reply_id = mysqli_insert_id($mysqli);
+
+            // Update Ticket Status
+            mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
+
+            // Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
+
+            // Get Contact Details
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, ticket_created_by, ticket_assigned_to 
+                FROM tickets
+                LEFT JOIN contacts ON ticket_contact_id = contact_id
+                WHERE ticket_id = $ticket_id"
+            );
+
+            $row = mysqli_fetch_array($sql);
+
+            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_email = sanitizeInput($row['contact_email']);
+            $ticket_created_by = intval($row['ticket_created_by']);
+            $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+            // Sanitize Config vars from get_settings.php
+            $from_name = sanitizeInput($config_ticket_from_name);
+            $from_email = sanitizeInput($config_ticket_from_email);
+            $base_url = sanitizeInput($config_base_url);
+
+            $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+            $row = mysqli_fetch_array($sql);
+            $company_name = sanitizeInput($row['company_name']);
+            $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+            // Send e-mail to client if public update & email is set up
+            if ($private_note == 0 && !empty($config_smtp_host)) {
+
+                if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+                    $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
+
+                    $data = [];
+
+                    // Email Ticket Contact
+                    // Queue Mail
+                    $data[] = [
+                        'from' => $from_email,
+                        'from_name' => $from_name,
+                        'recipient' => $contact_email,
+                        'recipient_name' => $contact_name,
+                        'subject' => $subject,
+                        'body' => $body
+                    ];
+
+                    // Also Email all the watchers
+                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+                    $body .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+                    while ($row = mysqli_fetch_array($sql_watchers)) {
+                        $watcher_email = sanitizeInput($row['watcher_email']);
+
+                        // Queue Mail
+                        $data[] = [
+                            'from' => $from_email,
+                            'from_name' => $from_name,
+                            'recipient' => $watcher_email,
+                            'recipient_name' => $watcher_email,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                        
+                    }
+                }
+                addToMailQueue($mysqli, $data);
+            } //End Mail IF
+
+            // Notification for assigned ticket user
+            if ($session_user_id != $ticket_assigned_to && $ticket_assigned_to != 0) {
+
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that is assigned to you', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
+            }
+
+            // Notification for user that opened the ticket
+            if ($session_user_id != $ticket_created_by && $ticket_created_by != 0) {
+
+                mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that you opened', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $ticket_created_by");
+            }
+
+        } // End Ticket Lopp
+
+    }
+
+    $_SESSION['alert_message'] = "You updated <b>$ticket_count</b> tickets";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['add_ticket_reply'])) {
 
     validateTechRole();
