@@ -9,8 +9,18 @@
             </div>
             <div class="modal-body bg-white">
 
+                <input type="hidden" name="bulk_private_note" value="0">
+
                 <div class="form-group">
                     <textarea class="form-control tinymce" rows="5" name="bulk_details" placeholder="Enter closing remarks"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="bulkPrivateCheckbox" name="bulk_private_note" value="1">
+                        <label class="custom-control-label" for="bulkPrivateCheckbox">Mark as a Private</label>
+                        <small class="form-text text-muted">If checked the contact and any watcher will not be informed</small>
+                    </div>
                 </div>
 
             </div>

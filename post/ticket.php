@@ -620,6 +620,12 @@ if (isset($_POST['bulk_close_tickets'])) {
 
     // POST variables
     $details = mysqli_escape_string($mysqli, $_POST['bulk_details']);
+    $private_note = intval($_POST['bulk_private_note']);
+    if($private_note == 1){
+        $ticket_reply_type = 'Internal';
+    } else {
+        $ticket_reply_type = 'Public';
+    }
 
     // Get a Ticket Count
     $ticket_count = count($_POST['ticket_ids']);
@@ -642,13 +648,13 @@ if (isset($_POST['bulk_close_tickets'])) {
             // Update ticket & insert reply
             mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed' WHERE ticket_id = $ticket_id");
             
-            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+            mysqli_query($mysqli,"INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
             // Logging
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Close', log_description = '$session_name closed $ticket_prefix$ticket_number - $ticket_subject in a bulk action', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
             // Client notification email
-            if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
+            if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && $private_note == 0) {
 
                 // Get Contact details
                 $ticket_sql = mysqli_query($mysqli,"SELECT contact_name, contact_email FROM tickets 
