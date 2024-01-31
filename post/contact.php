@@ -245,6 +245,40 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
 }
 
+if (isset($_POST['bulk_edit_contact_department'])) {
+
+    validateTechRole();
+
+    $department = sanitizeInput($_POST['bulk_department']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_department = '$department' WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name set Department to $department for $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You set the Department to <b>$department</b> for <b>$contact_count</b> contacts";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['anonymize_contact'])) {
 
     validateAdminRole();
