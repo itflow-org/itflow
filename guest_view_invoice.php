@@ -114,24 +114,8 @@ $amount_paid = floatval($row['amount_paid']);
 // Calculate the balance owed
 $balance = $invoice_amount - $amount_paid;
 
-// Check for overpayment or exact payment (amount paid is equal to or exceeds invoice amount)
-if ($balance <= 0) {
-    // Invoice is fully paid (either exact payment or overpayment)
-    $gateway_fee = 0; // Zero out the gateway fee
-    $amount_paid = $invoice_amount; // Adjust amount paid to equal invoice amount
-    $balance = 0; // Balance is zero since invoice is fully paid
-} else {
-    // If invoice is not fully paid
-    // Check if client is responsible for paying Stripe fees
-    if ($config_stripe_client_pays_fees == 1) {
-        // Calculate the total amount to charge the client, including Stripe fees
-        $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-        $gateway_fee = $balance_to_pay - $balance; // Calculate gateway fee based on Stripe fees
-    } else {
-        // If client is not responsible for Stripe fees, gateway fee remains zero
-        $gateway_fee = 0;
-    }
-}
+// Calculate Gateway Fee
+$gateway_fee = round($balance * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -155,7 +139,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                 <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                 <?php
                 if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online</a>
+                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
                 <?php } ?>
             </div>
         </div>
@@ -312,16 +296,6 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                             </tr>
                         <?php
                         } 
-                        
-                        if ($gateway_fee > 0) {
-                            ?>
-
-                            <tr class=border-bottom>
-                                <td><div class="text-success">Gateway Fee</div></td>
-                                <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
-                            </tr>
-                            <?php
-                        }
                         ?>
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>

@@ -86,10 +86,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     if ($config_stripe_client_pays_fees == 1) {
         $balance_before_fees = $balance_to_pay;
-        // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-        // Calculate the fee amount
-        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+        // Calculate the Gateway fee
+        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+        $balance_to_pay = $balance_to_pay + $gateway_fee;
     }
 
     //Round balance to pay to 2 decimal places
@@ -277,17 +276,19 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Check config to see if client pays fees is enabled or if should expense it
     if ($config_stripe_client_pays_fees == 1) {
+        // Calculate gateway expense fee
+        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
         // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        $balance_to_pay = $balance_to_pay + $gateway_fee;
     }
 
     // Check to see if Expense Fields are configured and client pays fee is off then create expense
     if ($config_stripe_client_pays_fees == 0 && $config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
         // Calculate gateway expense fee
-        $gateway_expense_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
 
         // Add Expense
-        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_expense_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
+        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
     }
 
     // Round balance to pay to 2 decimal places
