@@ -169,7 +169,7 @@ if (isset($_POST['test_email_smtp'])) {
 
     $email_to = sanitizeInput($_POST['email_to']);
     $subject = "Test email from ITFlow";
-    $body    = "This is a test email from ITFlow. If you are reading this, it worked!";
+    $body = "This is a test email from ITFlow. If you are reading this, it worked!";
 
     $data = [
         [
@@ -271,7 +271,7 @@ if (isset($_POST['edit_ticket_settings'])) {
     $config_ticket_autoclose_hours = intval($_POST['config_ticket_autoclose_hours']);
     $config_ticket_new_ticket_notification_email = sanitizeInput($_POST['config_ticket_new_ticket_notification_email']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name', config_ticket_email_parse = '$config_ticket_email_parse', config_ticket_autoclose = $config_ticket_autoclose, config_ticket_autoclose_hours = $config_ticket_autoclose_hours, config_ticket_new_ticket_notification_email = '$config_ticket_new_ticket_notification_email' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_email_parse = $config_ticket_email_parse, config_ticket_autoclose = $config_ticket_autoclose, config_ticket_autoclose_hours = $config_ticket_autoclose_hours, config_ticket_new_ticket_notification_email = '$config_ticket_new_ticket_notification_email' WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified ticket settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -373,8 +373,13 @@ if (isset($_POST['edit_online_payment_settings'])) {
     $config_stripe_publishable = sanitizeInput($_POST['config_stripe_publishable']);
     $config_stripe_secret = sanitizeInput($_POST['config_stripe_secret']);
     $config_stripe_account = intval($_POST['config_stripe_account']);
+    $config_stripe_expense_vendor = intval($_POST['config_stripe_expense_vendor']);
+    $config_stripe_expense_category = intval($_POST['config_stripe_expense_category']);
+    $config_stripe_percentage_fee = floatval($_POST['config_stripe_percentage_fee']) / 100;
+    $config_stripe_flat_fee = floatval($_POST['config_stripe_flat_fee']);
+    $config_stripe_client_pays_fees = intval($_POST['config_stripe_client_pays_fees']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret', config_stripe_account = $config_stripe_account WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret', config_stripe_account = $config_stripe_account, config_stripe_expense_vendor = $config_stripe_expense_vendor, config_stripe_expense_category = $config_stripe_expense_category, config_stripe_percentage_fee = $config_stripe_percentage_fee, config_stripe_flat_fee = $config_stripe_flat_fee, config_stripe_client_pays_fees = $config_stripe_client_pays_fees WHERE company_id = 1");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified online payment settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -626,6 +631,10 @@ if (isset($_GET['update'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM tickets"));
         $ticket_count = $row['num'];
 
+        // Scheduled Ticket Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
+        $scheduled_ticket_count = $row['num'];
+
         // Calendar Event Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM events"));
         $calendar_event_count = $row['num'];
@@ -791,6 +800,7 @@ if (isset($_GET['update'])) {
                 'comments' => "$comments",
                 'client_count' => $client_count,
                 'ticket_count' => $ticket_count,
+                'scheduled_ticket_count' => $scheduled_ticket_count,
                 'calendar_event_count' => $calendar_event_count,
                 'quote_count' => $quote_count,
                 'invoice_count' => $invoice_count,
@@ -881,22 +891,6 @@ if (isset($_GET['update_db'])) {
     $_SESSION['alert_message'] = "Database structure update successful";
 
     sleep(1);
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['config_stripe_client_pays_fees'])) {
-
-    validateAdminRole();
-
-    $config_stripe_client_pays_fees = intval($_POST['config_stripe_client_pays_fees']);
-
-    mysqli_query($mysqli,"UPDATE settings SET config_stripe_client_pays_fees = $config_stripe_client_pays_fees WHERE company_id = 1");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified stripe client pays fees', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-
-    $_SESSION['alert_message'] = "Stripe client pays fees updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

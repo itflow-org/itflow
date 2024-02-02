@@ -108,6 +108,113 @@ if (isset($_GET['delete_expense'])) {
 
 }
 
+if (isset($_POST['bulk_edit_expense_category'])) {
+
+    $category_id = intval($_POST['bulk_category_id']);
+
+    // Get Category name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT category_name FROM categories WHERE category_id = $category_id");
+    $row = mysqli_fetch_array($sql);
+    $category_name = sanitizeInput($row['category_name']);
+
+    // Get Selected Contacts Count
+    $expense_count = count($_POST['expense_ids']);
+    
+    // Assign category to Selected Expenses
+    if (!empty($_POST['expense_ids'])) {
+        foreach($_POST['expense_ids'] as $expense_id) {
+            $expense_id = intval($expense_id);
+
+            // Get Expense Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
+            $row = mysqli_fetch_array($sql);
+            $expense_description = sanitizeInput($row['expense_description']);
+            $client_id = intval($row['expense_client_id']);
+
+            mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to expense category $category_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+
+        } // End Assign Location Loop
+    
+        $_SESSION['alert_message'] = "You assigned expense category <b>$category_name</b> to <b>$expense_count</b> expenses";
+    }
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_edit_expense_account'])) {
+
+    $account_id = intval($_POST['bulk_account_id']);
+
+    // Get Account name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_id");
+    $row = mysqli_fetch_array($sql);
+    $account_name = sanitizeInput($row['account_name']);
+
+    // Get Selected Contacts Count
+    $expense_count = count($_POST['expense_ids']);
+    
+    // Assign category to Selected Expenses
+    if (!empty($_POST['expense_ids'])) {
+        foreach($_POST['expense_ids'] as $expense_id) {
+            $expense_id = intval($expense_id);
+
+            // Get Expense Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
+            $row = mysqli_fetch_array($sql);
+            $expense_description = sanitizeInput($row['expense_description']);
+            $client_id = intval($row['expense_client_id']);
+
+            mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to account $account_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+
+        } // End Assign Location Loop
+    
+        $_SESSION['alert_message'] = "You assigned account <b>$account_name</b> to <b>$expense_count</b> expenses";
+    }
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_edit_expense_client'])) {
+
+    $client_id = intval($_POST['bulk_client_id']);
+
+    // Get Client name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+    $row = mysqli_fetch_array($sql);
+    $client_name = sanitizeInput($row['client_name']);
+
+    // Get Selected Contacts Count
+    $expense_count = count($_POST['expense_ids']);
+    
+    // Assign category to Selected Expenses
+    if (!empty($_POST['expense_ids'])) {
+        foreach($_POST['expense_ids'] as $expense_id) {
+            $expense_id = intval($expense_id);
+
+            // Get Expense Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT expense_description FROM expenses WHERE expense_id = $expense_id");
+            $row = mysqli_fetch_array($sql);
+            $expense_description = sanitizeInput($row['expense_description']);
+
+            mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+
+        } // End Assign Location Loop
+    
+        $_SESSION['alert_message'] = "You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses";
+    }
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['export_expenses_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);

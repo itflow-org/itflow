@@ -68,7 +68,6 @@ if (isset($_POST['edit_contact'])) {
 
     require_once 'post/contact_model.php';
 
-
     $contact_id = intval($_POST['contact_id']);
     $send_email = intval($_POST['send_email']);
 
@@ -98,12 +97,18 @@ if (isset($_POST['edit_contact'])) {
     // Send contact a welcome e-mail, if specified
     if ($send_email && !empty($auth_method) && !empty($config_smtp_host)) {
 
-        // Un-sanitizied used in body of email
-        $contact_name = $_POST['name'];
-
         // Sanitize Config vars from get_settings.php
-        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email);
-        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name);
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+        $config_mail_from_email = sanitizeInput($config_mail_from_email);
+        $config_mail_from_name = sanitizeInput($config_mail_from_name);
+        $config_base_url = sanitizeInput($config_base_url);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
         // Authentication info (azure, reset password, or tech-provided temporary password)
 
@@ -112,11 +117,11 @@ if (isset($_POST['edit_contact'])) {
         } elseif (empty($_POST['contact_password'])) {
             $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
         } else {
-            $password_info = $_POST['contact_password'] . " -- Please change on first login";
+            $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
         }
 
-        $subject = sanitizeInput("Your new $session_company_name support portal account");
-        $body = mysqli_real_escape_string($mysqli, "Hello, $contact_name<br><br>$session_company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email");
+        $subject = "Your new $company_name portal account";
+        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Queue Mail
         $data = [
@@ -124,7 +129,7 @@ if (isset($_POST['edit_contact'])) {
                 'from' => $config_mail_from_email,
                 'from_name' => $config_mail_from_name,
                 'recipient' => $email,
-                'recipient_name' => $contact_name,
+                'recipient_name' => $name,
                 'subject' => $subject,
                 'body' => $body,
             ]
@@ -162,6 +167,149 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
 
     $_SESSION['alert_message'] = "Contact <strong>$name</strong> updated" . $extended_alert_description;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_assign_contact_location'])) {
+
+    validateTechRole();
+
+    $location_id = intval($_POST['bulk_location_id']);
+
+    // Get Location name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+    $row = mysqli_fetch_array($sql);
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name assigned $contact_name to Location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You assigned <b>$contact_count</b> contacts to location <b>$location_name</b>";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_contact_phone'])) {
+
+    validateTechRole();
+
+    $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_phone = '$phone' WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name set Phone Number to $phone for $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You set Phone Number <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_contact_department'])) {
+
+    validateTechRole();
+
+    $department = sanitizeInput($_POST['bulk_department']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_department = '$department' WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name set Department to $department for $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You set the Department to <b>$department</b> for <b>$contact_count</b> contacts";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_contact_role'])) {
+
+    validateTechRole();
+
+    $contact_important = intval($_POST['bulk_contact_important']);
+    $contact_billing = intval($_POST['bulk_contact_billing']);
+    $contact_technical = intval($_POST['bulk_contact_technical']);
+
+    // Get Selected Contacts Count
+    $contact_count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            mysqli_query($mysqli,"UPDATE contacts SET contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name updated $contact_name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You updated roles for <b>$contact_count</b> contacts";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -23,12 +23,14 @@ require_once "functions.php";
 // Get settings for the "default" company
 require_once "get_settings.php";
 
+$config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+$config_ticket_from_name = sanitizeInput($config_ticket_from_name);
 
 // Get company name & phone
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);
 $company_name = sanitizeInput($row['company_name']);
-$company_phone = formatPhoneNumber($row['company_phone']);
+$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
@@ -161,8 +163,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     // E-mail client notification that ticket has been created
     if ($config_ticket_client_general_notifications == 1) {
         
-        $subject_email = mysqli_escape_string($mysqli, "Ticket created - [$config_ticket_prefix$ticket_number] - $subject");
-        $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+        $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         $data[] = [
             'from' => $config_ticket_from_email,
@@ -182,7 +184,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
 
-        $email_subject = mysqli_escape_string($mysqli, "ITFlow - New Ticket - $client_name: $subject");
+        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
         $data[] = [
@@ -238,7 +240,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Email parser: $from_email attempted to re-open ticket $config_ticket_prefix$ticket_number (ID $ticket_id) - check inbox manually to see email', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id");
 
             $email_subject = "Action required: This ticket is already closed";
-            $email_body    = "Hi there, <br><br>You've tried to reply to a ticket that is closed - we won't see your response. <br><br>Please raise a new ticket by sending a fresh e-mail to our support address. <br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+            $email_body = "Hi there, <br><br>You\'ve tried to reply to a ticket that is closed - we won\'t see your response. <br><br>Please raise a new ticket by sending a fresh e-mail to our support address below. <br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             
             $data = [
                 [
@@ -253,7 +255,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             
             addToMailQueue($mysqli, $data);
 
-            return false;
+            return true;
         }
 
         // Check WHO replied (was it the owner of the ticket or someone else on CC?)
@@ -327,11 +329,11 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 // Get tech details
                 $tech_sql = mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1");
                 $tech_row = mysqli_fetch_array($tech_sql);
-                $tech_email = santizeInput($tech_row['user_email']);
+                $tech_email = sanitizeInput($tech_row['user_email']);
                 $tech_name = sanitizeInput($tech_row['user_name']);
 
-                $subject = mysqli_escape_string($mysqli, "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject");
-                $body    = mysqli_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $tech_name<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+                $subject = "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject";
+                $body    = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $tech_name,<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
                 $data = [
                     [
@@ -363,7 +365,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         return false;
     }
 }
-// End Add Reply Function
+// END ADD REPLY FUNCTION -------------------------------------------------
 
 // Prepare connection string with encryption (TLS/SSL/<blank>)
 $imap_mailbox = "$config_imap_host:$config_imap_port/imap/$config_imap_encryption";
@@ -515,6 +517,7 @@ if ($emails) {
             imap_setflag_full($imap, $email, "\\Seen");
             imap_mail_move($imap, $email, $imap_folder);
         } else {
+            // Basically just flags all emails keep them unread and it doesnt move closed tickets
             echo "Failed to process email - flagging for manual review.";
             imap_setflag_full($imap, $email, "\\Flagged");
         }

@@ -132,7 +132,7 @@
                                         <option value="">- Network -</option>
                                         <?php
 
-                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE (network_archived_at > '$asset_created_at' OR network_archived_at IS NULL) AND network_client_id = $client_id ORDER BY network_name ASC");
+                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                                         while ($row = mysqli_fetch_array($sql_networks)) {
                                             $network_id_select = intval($row['network_id']);
                                             $network_name_select = nullable_htmlentities($row['network_name']);
@@ -215,7 +215,7 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
                                             $location_id_select = intval($row['location_id']);
                                             $location_name_select = nullable_htmlentities($row['location_name']);
@@ -277,7 +277,7 @@
                                         <option value="">- Vendor -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$asset_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id  AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);
@@ -341,7 +341,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="new-password">
+                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="off">
                                 </div>
                             </div>
 

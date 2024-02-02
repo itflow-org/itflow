@@ -221,6 +221,118 @@ if (isset($_GET['delete_asset'])) {
 
 }
 
+if (isset($_POST['bulk_assign_asset_location'])) {
+
+    validateTechRole();
+
+    $location_id = intval($_POST['bulk_location_id']);
+
+    // Get Location name and client id for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+    $row = mysqli_fetch_array($sql);
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
+
+    // Get Selected Contacts Count
+    $asset_count = count($_POST['asset_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['asset_ids'])) {
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name assigned $asset_name to Location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "You assigned <b>$asset_count</b> assets to location <b>$location_name</b>";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_assign_asset_contact'])) {
+
+    validateTechRole();
+
+    $contact_id = intval($_POST['bulk_contact_id']);
+
+    // Get Contact name and client id for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+
+    // Get Selected Contacts Count
+    $asset_count = count($_POST['asset_ids']);
+    
+    // Assign Contact to Selected Assets
+    if (!empty($_POST['asset_ids'])) {
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name assigned $asset_name to contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+        } // End Assign Contact Loop
+        
+        $_SESSION['alert_message'] = "You assigned <b>$asset_count</b> assets to contact <b>$contact_name</b>";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_asset_status'])) {
+
+    validateTechRole();
+
+    $status = sanitizeInput($_POST['bulk_status']);
+
+    // Get Selected Contacts Count
+    $asset_count = count($_POST['asset_ids']);
+    
+    // Assign Contact to Selected Assets
+    if (!empty($_POST['asset_ids'])) {
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name set status $status on $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+        } // End Assign Contact Loop
+        
+        $_SESSION['alert_message'] = "You set the status <b>$status</b> on <b>$asset_count</b> assets.";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST["import_client_assets_csv"])) {
 
     validateTechRole();

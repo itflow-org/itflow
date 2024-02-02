@@ -378,7 +378,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php } ?>
 
                             <div class="col-md-2">
-                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Respond</button>
+                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>Respond</button>
                             </div>
 
                         </div>

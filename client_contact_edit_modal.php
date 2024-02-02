@@ -66,12 +66,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Department</label>
+                                <label>Department / Group</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="department" placeholder="Department" value="<?php echo $contact_department; ?>">
+                                    <input type="text" class="form-control" name="department" placeholder="Department or group" value="<?php echo $contact_department; ?>">
                                 </div>
                             </div>
 
@@ -122,14 +122,20 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE (location_archived_at > '$contact_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
                                             $location_id_select = intval($row['location_id']);
                                             $location_name_select = nullable_htmlentities($row['location_name']);
+                                            $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                                            if ($location_archived_at) {
+                                                $location_name_select_display = "($location_name_select) - ARCHIVED";
+                                            } else {
+                                                $location_name_select_display = $location_name_select;
+                                            }
                                         ?>
                                             <option <?php if ($contact_location_id == $location_id_select) {
                                                         echo "selected";
-                                                    } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                                    } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select_display; ?></option>
                                         <?php } ?>
 
                                     </select>

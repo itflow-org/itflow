@@ -1,15 +1,7 @@
 <?php
 
 require_once "config.php";
-
 require_once "functions.php";
-
-//Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
-
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
 
 $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
 
@@ -61,21 +53,27 @@ file_put_contents($lock_file_path, "Locked");
 
 // Process Mail Queue
 
-// Get Mail Queue that hasnt been sent yet
-// Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
-$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0");
+// Email Status: 
+// 0 Queued
+// 1 Sending
+// 2 Failed
+// 3 Sent
+
+// Get Mail Queue that has status of Queued and send it to the function sendSingleEmail() located in functions.php
+
+$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
 
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_queue)) {
         $email_id = intval($row['email_id']);
-        $email_from = nullable_htmlentities($row['email_from']);
-        $email_from_name = nullable_htmlentities($row['email_from_name']);
-        $email_recipient = nullable_htmlentities($row['email_recipient']);
-        $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = $purifier->purify($row['email_subject']);
-        $email_content = $purifier->purify($row['email_content']);
-        $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-        $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+        $email_from = $row['email_from'];
+        $email_from_name = $row['email_from_name'];
+        $email_recipient = $row['email_recipient'];
+        $email_recipient_name = $row['email_recipient_name'];
+        $email_subject = $row['email_subject'];
+        $email_content = $row['email_content'];
+        $email_queued_at = $row['email_queued_at'];
+        $email_sent_at = $row['email_sent_at'];
 
         // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
@@ -115,23 +113,22 @@ if (mysqli_num_rows($sql_queue) > 0) {
     }
 }
 
-// Process Failed Mail up to 4 times every 30 mins
+// 
 
-// Get Mail Queue that hasnt been sent yet
-// Email Status: 0 Queued, 1 Sending, 2 Failed, 3 Sent
+// Get Mail that failed to send and attempt to send Failed Mail up to 4 times every 30 mins
 $sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 4 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
 
 if (mysqli_num_rows($sql_failed_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_failed_queue)) {
         $email_id = intval($row['email_id']);
-        $email_from = nullable_htmlentities($row['email_from']);
-        $email_from_name = nullable_htmlentities($row['email_from_name']);
-        $email_recipient = nullable_htmlentities($row['email_recipient']);
-        $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-        $email_subject = $purifier->purify($row['email_subject']);
-        $email_content = $purifier->purify($row['email_content']);
-        $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-        $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+        $email_from = $row['email_from'];
+        $email_from_name = $row['email_from_name'];
+        $email_recipient = $row['email_recipient'];
+        $email_recipient_name = $row['email_recipient_name'];
+        $email_subject = $row['email_subject'];
+        $email_content = $row['email_content'];
+        $email_queued_at = $row['email_queued_at'];
+        $email_sent_at = $row['email_sent_at'];
         // Increment the attempts
         $email_attempts = intval($row['email_attempts']) + 1;
 
@@ -173,5 +170,5 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
     }
 }
 
-// Remove the lock file
+// Remove the lock file once mail has finished processing so it doesnt get overun causing possible duplicates
 unlink($lock_file_path);

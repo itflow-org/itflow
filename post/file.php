@@ -22,7 +22,7 @@ if (isset($_POST['upload_files'])) {
             'size' => $_FILES['file']['size'][$i]
         ];
 
-        if ($file_reference_name = checkFileUpload($single_file, array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz', 'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn', 'cfg', 'ps1'))) {
+        if ($file_reference_name = checkFileUpload($single_file, array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz', 'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn', 'cfg', 'ps1', 'vsdx', 'drawio'))) {
             
             $file_tmp_path = $_FILES['file']['tmp_name'][$i];
 
@@ -139,6 +139,44 @@ if (isset($_POST['delete_file'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_move_files'])) {
+
+    validateTechRole();
+
+    $folder_id = intval($_POST['bulk_folder_id']);
+
+    // Get folder name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
+    $row = mysqli_fetch_array($sql);
+    $folder_name = sanitizeInput($row['folder_name']);
+    $client_id = intval($row['folder_client_id']);
+
+    // Get Selected file Count
+    $file_count = count($_POST['file_ids']);
+    
+    // Move Documents to Folder Loop
+    if (!empty($_POST['file_ids'])) {
+        foreach($_POST['file_ids'] as $file_id) {
+            $file_id = intval($file_id);
+            // Get file name for logging
+            $sql = mysqli_query($mysqli,"SELECT file_name FROM files WHERE file_id = $file_id");
+            $row = mysqli_fetch_array($sql);
+            $file_name = sanitizeInput($row['file_name']);
+
+            // file move query
+            mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Move', log_description = '$session_name moved file $file_name to folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+        }
+    }
+
+    $_SESSION['alert_message'] = "You moved <b>$file_count</b> files to the folder <b>$folder_name</b>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

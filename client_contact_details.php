@@ -84,33 +84,33 @@ if (isset($_GET['contact_id'])) {
                     </div>
                     <hr>
                     <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo "$contact_phone $contact_extension"; ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo "$contact_phone $contact_extension"; ?></a></div>
                     <?php }
                     if ($contact_mobile) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
                     <?php }
                     if ($contact_pin) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $contact_pin; ?></div>
                     <?php }
                     if ($contact_primary) { ?>
-                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-3"></i>Primary Contact</div>
+                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-2"></i>Primary Contact</div>
                     <?php }
                     if ($contact_important) { ?>
-                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-3"></i>Important</div>
+                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-2"></i>Important</div>
                     <?php }
                     if ($contact_technical) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-3"></i>Technical</div>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Technical</div>
                     <?php }
                     if ($contact_billing) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-3"></i>Billing</div>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Billing</div>
                     <?php } ?>
-                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
+                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
 
                     <?php require_once "client_contact_edit_modal.php";
  ?>
@@ -149,12 +149,10 @@ if (isset($_GET['contact_id'])) {
                         <table class="table table-striped table-borderless table-hover">
                             <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Description</th>
+                                <th>Name/Description</th>
                                 <th>Type</th>
                                 <th>Make/Model</th>
                                 <th>Serial Number</th>
-                                <th>Operating System</th>
                                 <th>Install Date</th>
                                 <th>Status</th>
                                 <th class="text-center">Action</th>
@@ -216,12 +214,19 @@ if (isset($_GET['contact_id'])) {
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
                                         <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                        <div class="mt-0">
+                                            <small class="text-muted"><?php echo $asset_description; ?></small>
+                                        </div>
                                     </th>
-                                    <td><?php echo $asset_description; ?></td>
                                     <td><?php echo $asset_type; ?></td>
-                                    <td><?php echo "$asset_make $asset_model"; ?></td>
+                                    <td>
+                                        <?php echo $asset_make; ?>
+                                        <div class="mt-0"> 
+                                            <small class="text-muted"><?php echo $asset_model; ?></small>
+                                        </div>
+                                    </td>
                                     <td><?php echo $asset_serial_display; ?></td>
-                                    <td><?php echo $asset_os_display; ?></td>
+                                    
                                     <td><?php echo $asset_install_date_display; ?></td>
                                     <td><?php echo $asset_status; ?></td>
                                     <td>

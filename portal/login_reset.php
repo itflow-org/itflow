@@ -38,9 +38,19 @@ if (!isset($_SESSION)) {
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
-$company_sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
+// Get Company Info
+$company_sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $company_results = mysqli_fetch_array($company_sql);
-$company_name = $company_results['company_name'];
+$company_name = sanitizeInput($company_results['company_name']);
+$company_phone = sanitizeInput(formatPhoneNumber($company_results['company_phone']));
+$company_name_display = $company_results['company_name'];
+
+// Get settings from get_settings.php and sanitize them
+$config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+$config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+$config_mail_from_name = sanitizeInput($config_mail_from_name);
+$config_mail_from_email = sanitizeInput($config_mail_from_email);
+$config_base_url = sanitizeInput($config_base_url);
 
 DEFINE("WORDING_ERROR", "Something went wrong! Your link may have expired. Please request a new password reset e-mail.");
 
@@ -68,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 
             // Send reset email
-            $subject = mysqli_real_escape_string($mysqli, "Password reset for $company_name ITFlow Portal");
-            $body    = mysqli_real_escape_string($mysqli, "Hello, $name<br><br>Someone (probably you) has requested a new password for your account on $company_name's ITFlow Client Portal. <br><br><b>Please <a href='$url'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn't request this change, you can safely ignore this email.</i><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email");
+            $subject = "Password reset for $company_name Client Portal";
+            $body = "Hello $name,<br><br>Someone (probably you) has requested a new password for your account on $company_name\'s Client Portal. <br><br><b>Please <a href=\'$url\'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn\'t request this change, you can safely ignore this email.</i><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
             $data = [
                 [
@@ -124,8 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
             // Send confirmation email
-            $subject = mysqli_real_escape_string($mysqli, "Password reset confirmation for $company_name ITFlow Portal");
-            $body    = mysqli_real_escape_string($mysqli, "Hello, $name<br><br>Your password for your account on $company_name's ITFlow Client Portal was successfully reset. You should be all set! <br><br><b>If you didn't reset your password, please get in touch ASAP.</b><br><br>~<br>$company_name<br>Support Department<br>$config_mail_from_email");
+            $subject = "Password reset confirmation for $company_name Client Portal";
+            $body = "Hello $name,<br><br>Your password for your account on $company_name\'s Client Portal was successfully reset. You should be all set! <br><br><b>If you didn\'t reset your password, please get in touch ASAP.</b><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
 
             $data = [
@@ -158,16 +168,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     }
 
-
 }
 
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo $company_name; ?> | Password Reset</title>
+    <title><?php echo nullable_htmlentities($company_name_display); ?> | Password Reset</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -185,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 <body class="hold-transition login-page">
 <div class="login-box">
-    <div class="login-logo"><b><?=$company_name?></b> <br>Password Reset</h2></div>
+    <div class="login-logo"><b><?php echo nullable_htmlentities($company_name_display); ?></b> <br>Password Reset</h2></div>
     <div class="card">
         <div class="card-body login-card-body">
 
@@ -216,9 +226,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             </div>
                         </div>
 
-                        <input type="hidden" name="token" value="<?=$token?>">
-                        <input type="hidden" name="email" value="<?=$email?>">
-                        <input type="hidden" name="client" value="<?=$client?>">
+                        <input type="hidden" name="token" value="<?php echo $token; ?>">
+                        <input type="hidden" name="email" value="<?php echo $email; ?>">
+                        <input type="hidden" name="client" value="<?php echo $client; ?>">
 
                         <button type="submit" class="btn btn-success btn-block mb-3" name="password_reset_set_password">Reset password</button>
 

@@ -21,7 +21,12 @@ if (isset($_POST['edit_your_user_details'])) {
 
     // Email notification when password or email is changed
     $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $session_user_id"));
-    $user_old_email = $user_old_email_sql['user_email'];
+    $user_old_email = sanitizeInput($user_old_email_sql['user_email']);
+
+    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_app_name = sanitizeInput($config_app_name);
 
     if (!empty($config_smtp_host) && ($user_old_email !== $email)) {
 
@@ -39,7 +44,7 @@ if (isset($_POST['edit_your_user_details'])) {
                 'subject' => $subject,
                 'body' => $body
             ]
-            ];
+        ];
         $mail = addToMailQueue($mysqli, $data);
     }
 
@@ -92,17 +97,27 @@ if (isset($_POST['edit_your_user_password'])) {
 
     $new_password = trim($_POST['new_password']);
 
+    if (empty($new_password)) {
+        header('Location: user_security.php');
+        exit;
+    }
+
     // Email notification when password or email is changed
     $user_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $session_user_id"));
-    $name = $user_sql['user_name'];
-    $user_email = $user_sql['user_email'];
+    $name = sanitizeInput($user_sql['user_name']);
+    $user_email = sanitizeInput($user_sql['user_email']);
+
+    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_app_name = sanitizeInput($config_app_name);
 
     if (!empty($config_smtp_host)){
 
         $details = "Your password was changed.";
 
         $subject = "$config_app_name account update confirmation for $name";
-        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>$config_app_name";
 
         $data = [
             [
@@ -204,6 +219,11 @@ if(isset($_POST['disable_2fa'])){
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name disabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_app_name = sanitizeInput($config_app_name);
 
     // Email notification
     if (!empty($config_smtp_host)) {

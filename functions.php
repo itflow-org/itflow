@@ -937,7 +937,15 @@ function addToMailQueue($mysqli, $data) {
         $subject = strval($email['subject']);
         $body = strval($email['body']);
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body'");
+        // Check if 'email_queued_at' is set and not empty
+        if (isset($email['queued_at']) && !empty($email['queued_at'])) {
+            $queued_at = $email['queued_at'];
+        } else {
+            // Use the current date and time if 'email_queued_at' is not set or empty
+            $queued_at = date('Y-m-d H:i:s');
+        }
+
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = '$queued_at'");
     }
 
     return true;

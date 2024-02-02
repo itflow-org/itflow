@@ -50,9 +50,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-md-8">
 
-                        <div class="dropdown float-right" id="multiActionButton" hidden>
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                        <div class="dropdown float-right" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item text-danger text-bold"
@@ -69,11 +69,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <div class="table-responsive-sm">
 
-                <form id="multi_actions" action="post.php" method="post">
+                <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                     <table class="table table-striped table-borderless table-hover">
-                        <thead class="<?php if ($num_rows[0] == 0) {
+                        <thead class="<?php if (!$num_rows[0]) {
                             echo "d-none";
                         } ?>">
                         <tr>
@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
                                     </div>
                                 </td>
 
@@ -167,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
     <script src="js/scheduled_tickets_edit_modal.js"></script>
-    <script src="js/multi_actions.js"></script>
+    <script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "scheduled_ticket_add_modal.php";

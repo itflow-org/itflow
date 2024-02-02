@@ -103,7 +103,6 @@
             document.getElementById("startStopTimer").innerText = "Start";
         }
         
-
         function handleInputFocus() {
             if (!isPaused) {
                 pauseTimer();
@@ -126,7 +125,6 @@
             }
         }
 
-
         function updateRunningTicketsCount() {
             let runningTickets = parseInt(document.getElementById('runningTicketsCount').innerText, 10);
 
@@ -136,30 +134,26 @@
                 runningTickets = Math.max(0, runningTickets - 1);
             }
 
-        document.getElementById('runningTicketsCount').innerText = runningTickets.toString();
+            document.getElementById('runningTicketsCount').innerText = runningTickets.toString();
         }   
 
         // Function to check status and pause timer
         function checkStatusAndPauseTimer() {
             var status = document.querySelector('select[name="status"]').value;
-            if (status.includes("Pending")) {
+            if (status.includes("Pending") || status.includes("Close")) {
                 pauseTimer();
             }
         }
 
-
-        
         document.getElementById("hours").addEventListener('change', updateTimeFromInput);
         document.getElementById("minutes").addEventListener('change', updateTimeFromInput);
         document.getElementById("seconds").addEventListener('change', updateTimeFromInput);
         
-
         document.getElementById("hours").addEventListener('focus', handleInputFocus);
         document.getElementById("minutes").addEventListener('focus', handleInputFocus);
         document.getElementById("seconds").addEventListener('focus', handleInputFocus);
 
         document.querySelector('select[name="status"]').addEventListener('change', checkStatusAndPauseTimer);
-
 
         document.getElementById("startStopTimer").addEventListener('click', function() {
             if (timerInterval === null) {

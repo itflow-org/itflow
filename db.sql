@@ -1270,7 +1270,11 @@ CREATE TABLE `settings` (
   `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
-  `config_stripe_account` tinyint(1) NOT NULL DEFAULT 0,
+  `config_stripe_account` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_expense_vendor` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_expense_category` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
+  `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
   `config_stripe_client_pays_fees` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
@@ -1757,4 +1761,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-15 13:07:46
+-- Dump completed on 2024-01-27 23:58:10

@@ -2,7 +2,6 @@
 
 require_once "guest_header.php";
 
-
 if (!isset($_GET['invoice_id'], $_GET['url_key'])) {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
     require_once "guest_footer.php";
@@ -80,6 +79,8 @@ if (!empty($company_logo)) {
 $company_locale = nullable_htmlentities($row['company_locale']);
 $config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
+$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
 //Set Currency Format
@@ -109,16 +110,11 @@ $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_p
 $row = mysqli_fetch_array($sql_amount_paid);
 $amount_paid = floatval($row['amount_paid']);
 
+// Calculate the balance owed
 $balance = $invoice_amount - $amount_paid;
 
-// Check config to see if client pays fees is enabled
-if ($config_stripe_client_pays_fees == 1) {
-        $percentage_fee = 0.029;
-        $flat_fee = 0.30;
-        // Calculate the amount to charge the client
-        $balance_to_pay = ($balance + $flat_fee) / (1 - $percentage_fee);
-        $stripe_fee = $balance_to_pay - $balance;
-    }
+// Calculate Gateway Fee
+$gateway_fee = round($balance * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -142,7 +138,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                 <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                 <?php
                 if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online</a>
+                    <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
                 <?php } ?>
             </div>
         </div>
@@ -297,7 +293,9 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
                                 <td><div class="text-success">Paid</div></td>
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php } ?>
+                        <?php
+                        } 
+                        ?>
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
