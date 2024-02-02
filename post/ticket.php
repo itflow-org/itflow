@@ -1492,3 +1492,81 @@ if(isset($_POST['set_billable_status'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_POST['edit_ticket_schedule'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $schedule = sanitizeInput($_POST['scheduled_date_time']);
+    $ticket_link = "ticket.php?ticket_id=$ticket_id";
+    $full_ticket_url = "https://$config_base_url/portal/ticket.php?ticket_id=$ticket_id";
+    $ticket_link_html = "<a href=\"$full_ticket_url\">$ticket_link</a>";
+
+    mysqli_query($mysqli,
+    "UPDATE tickets SET
+    ticket_schedule = '$schedule',
+    ticket_status = 'Scheduled'
+    WHERE ticket_id = $ticket_id"
+    );
+
+
+
+    //Send email to client and assigned user
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        WHERE ticket_id = $ticket_id
+    ");
+
+    $row = mysqli_fetch_array($sql);
+
+    $client_id = intval($row['ticket_client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    
+    $data = [
+        [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => "Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+        ],
+        [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $row['user_email'],
+            'recipient_name' => $row['user_first_name'] . ' ' . $row['user_last_name'],
+            'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => "Hello, " . $row['user_first_name'] . "<br><br>The ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+        ]
+    ];
+    $response = addToMailQueue($mysqli, $data);
+
+
+    //Logging
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
+        log_type = 'Ticket',
+        log_action = 'Modify',
+        log_description = '$session_name modified ticket schedule',
+        log_ip = '$session_ip',
+        log_user_agent = '$session_user_agent',
+        log_user_id = $session_user_id,
+        log_entity_id = $ticket_id"
+        );
+
+    $_SESSION['alert_message'] = "Ticket schedule updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}

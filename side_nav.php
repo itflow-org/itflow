@@ -31,15 +31,9 @@
 
                     <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">
-                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
+                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php" || basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>Tickets</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="scheduled_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar-check"></i>
-                            <p>Scheduled Tickets</p>
                         </a>
                     </li>
 
@@ -111,7 +105,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-clock"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>Recurring Expenses</p>
                         </a>
                     </li>

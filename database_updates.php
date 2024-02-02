@@ -1559,6 +1559,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.2'");
     }
 
+
+        
     if (CURRENT_DATABASE_VERSION == '1.0.2') {
         //Insert queries here required to update to DB version 1.0.3
         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_expense_vendor` INT(11) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
@@ -1575,10 +1577,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     // Please add this same comment block to the bottom of this file, and update the version number.
     // Uncomment Below Lines, to add additional database updates
     //
-    // if (CURRENT_DATABASE_VERSION == '1.0.3') {
-    //     // Insert queries here required to update to DB version 1.0.4
+
+    if (CURRENT_DATABASE_VERSION == '1.0.3') {
+        //Insert queries here required to update to DB version 1.0.4
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_schedule` DATETIME DEFAULT NULL AFTER `ticket_billable`");
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.4'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.4'");
     // }
 
 } else {

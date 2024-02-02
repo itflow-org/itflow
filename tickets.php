@@ -77,6 +77,11 @@ $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS to
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
+//Get Total Scheduled tickets
+$sql_total_scheduled_tickets = mysqli_query($mysqli, "SELECT COUNT(scheduled_ticket_id) AS total_scheduled_tickets FROM scheduled_tickets");
+$row = mysqli_fetch_array($sql_total_scheduled_tickets);
+$total_scheduled_tickets = intval($row['total_scheduled_tickets']);
+
 //Get Unassigned tickets
 $sql_total_tickets_unassigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_unassigned FROM tickets WHERE ticket_assigned_to = '0' AND ticket_status != 'Closed'");
 $row = mysqli_fetch_array($sql_total_tickets_unassigned);
@@ -133,6 +138,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         </div>
                         <a href="?assigned=unassigned" class="btn btn-outline-danger">
                             <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                        </a>
+
+                        <a href="scheduled_tickets.php" class="btn btn-outline-info">
+                            <i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring Tickets | <strong> <?php echo $total_scheduled_tickets; ?></strong>
                         </a>
                         
                         <div class="dropdown ml-2" id="bulkActionButton" hidden>

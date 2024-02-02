@@ -25,6 +25,7 @@ require_once "calendar_event_add_modal.php";
 
 require_once "calendar_add_modal.php";
 
+
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
 while ($row = mysqli_fetch_array($sql)) {
@@ -121,6 +122,16 @@ while ($row = mysqli_fetch_array($sql)) {
 
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'orange', url: 'ticket.php?ticket_id=$event_id' },";
 
+                }
+
+                //Tickets Scheduled
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE ticket_schedule IS NOT NULL");
+                while ($row = mysqli_fetch_array($sql)) {
+                    $event_id = intval($row['ticket_id']);
+                    $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject']);
+                    $event_start = json_encode($row['ticket_schedule']);
+
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'red', url: 'ticket.php?ticket_id=$event_id' },";
                 }
 
                 //Vendors Added Created
