@@ -37,8 +37,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="scheduled_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-calendar-check"></i>
+                        <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>Recurring Tickets</p>
                         </a>
                     </li>
