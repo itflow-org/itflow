@@ -111,7 +111,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-clock"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>Recurring Expenses</p>
                         </a>
                     </li>
