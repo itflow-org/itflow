@@ -285,6 +285,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
         // Calculate the fee amount
         $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+        
+        // Add as line item to client Invoice
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = 'Gateway Fees', item_description = 'Payment Gateway Fees', item_quantity = 1, item_price = $gateway_fee, item_subtotal = $gateway_fee, item_total = $gateway_fee, item_order = 999, item_invoice_id = $invoice_id");
+        // Update the Amount on the invoice to include the gateway fee
+        $new_invoice_amount = $invoice_amount + $gateway_fee;
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
     }
 
     // Check to see if Expense Fields are configured and client pays fee is off then create expense
