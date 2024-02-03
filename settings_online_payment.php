@@ -92,7 +92,7 @@ require_once "inc_all_settings.php";
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_stripe_client_pays_fees" <?php if ($config_stripe_client_pays_fees == 1) { echo "checked"; } ?> value="1" id="clientPaysFeesSwitch">
                         <label class="custom-control-label" for="clientPaysFeesSwitch">Enable Client Pays Fees</label>
-                        <small class="form-text text-muted">Note: It is illegal to pass payment gateway fees in certain countries, states and provinces. Please check with your local laws click <a href="https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for more details.</small>
+                        <small class="form-text text-muted">Note: It is illegal to pass payment gateway fees in certain countries, states and provinces. Please check with your local laws before enabling. Click <a href="https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for more details.</small>
                     </div>
                 </div>
 
