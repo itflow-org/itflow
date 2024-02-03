@@ -1,5 +1,5 @@
 <div class="modal" id="addServiceModal" tabindex="-1">
-  <div class="modal-dialog modal-md">
+  <div class="modal-dialog">
     <div class="modal-content bg-dark">
       <div class="modal-header">
         <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>New Service</h5>
@@ -141,10 +141,8 @@
 
             </div>
 
-
             <div class="tab-pane fade" id="pills-assets">
-
-           
+  
               <div class="form-group">
                 <label for="assets">Select related assets</label>
                 <select class="form-control select2" id="assets" name="assets[]" multiple>
@@ -157,7 +155,7 @@
                   }
                   ?>
                 </select>
-
+              </div> 
          
               <div class="form-group">
                 <label for="logins">Select related logins</label>

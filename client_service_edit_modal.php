@@ -30,8 +30,6 @@
 
           <div class="tab-content">
 
-            <!-- //TODO: The multiple selects won't play nicely with the icons or just general formatting. I've just added blank <p> tags to format it better for now -->
-
             <div class="tab-pane fade show active" id="pills-overview<?php echo $service_id ?>">
 
               <div class="form-group">
