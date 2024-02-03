@@ -44,6 +44,28 @@ require_once "inc_all_settings.php";
         </div>
     </div>
 
+    <div class="card card-dark">
+        <div class="card-header py-3">
+            <h3 class="card-title"><i class="fas fa-fw fa-image mr-2"></i>Favicon</h3>
+        </div>
+        <div class="card-body">
+            <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
+                <img class="mb-3" src="<?php if(file_exists("uploads/favicon.ico")) { echo "uploads/favicon.ico"; } else { echo "favicon.ico"; } ?>">
+
+                <div class="form-group">
+                    <input type="file" class="form-control-file" name="file" accept=".ico">
+                </div>
+
+                <hr>
+
+                <button type="submit" name="edit_favicon_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Upload Icon</button>
+
+            </form>
+        </div>
+    </div>
+
 <?php
 require_once "footer.php";
 
