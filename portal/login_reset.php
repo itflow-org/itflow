@@ -186,6 +186,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
 
+    <!-- 
+    Favicon
+    If Fav Icon exists else use the default one 
+    -->
+    <?php if(file_exists('../uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
+    <?php } ?>
+
     <!-- Theme style -->
     <link rel="stylesheet" href="../dist/css/adminlte.min.css">
 
