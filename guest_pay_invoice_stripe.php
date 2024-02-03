@@ -86,9 +86,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     if ($config_stripe_client_pays_fees == 1) {
         $balance_before_fees = $balance_to_pay;
-        // Calculate the Gateway fee
-        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
-        $balance_to_pay = $balance_to_pay + $gateway_fee;
+        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+
     }
 
     //Round balance to pay to 2 decimal places
@@ -276,10 +279,12 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Check config to see if client pays fees is enabled or if should expense it
     if ($config_stripe_client_pays_fees == 1) {
-        // Calculate gateway expense fee
-        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+        $balance_before_fees = $balance_to_pay;
+        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
         // Calculate the amount to charge the client
-        $balance_to_pay = $balance_to_pay + $gateway_fee;
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
     }
 
     // Check to see if Expense Fields are configured and client pays fee is off then create expense
