@@ -201,7 +201,7 @@ function truncate($text, $chars) {
 }
 
 function formatPhoneNumber($phoneNumber) {
-    $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+    $phoneNumber = $phoneNumber ? preg_replace('/[^0-9]/', '', $phoneNumber): "";
 
     if (strlen($phoneNumber) > 10) {
         $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
@@ -853,7 +853,7 @@ function calculateAccountBalance($mysqli, $account_id) {
     $row = mysqli_fetch_array($sql_account);
     $opening_balance = floatval($row['opening_balance']);
     $account_id = intval($row['account_id']);
-    
+
     $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
     $row = mysqli_fetch_array($sql_payments);
     $total_payments = floatval($row['total_payments']);
@@ -928,7 +928,7 @@ function generateReadablePassword($security_level) {
 }
 
 function addToMailQueue($mysqli, $data) {
-    
+
     foreach ($data as $email) {
         $from = strval($email['from']);
         $from_name = strval($email['from_name']);
@@ -963,7 +963,7 @@ function calculateInvoiceBalance($mysqli, $invoice_id) {
         "SELECT SUM(payment_amount) AS total_payments FROM payments
         WHERE payment_invoice_id = $invoice_id
         ");
-        
+
     $row = mysqli_fetch_array($sql_payments);
     $total_payments = floatval($row['total_payments']);
 
