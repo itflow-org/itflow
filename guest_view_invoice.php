@@ -114,7 +114,14 @@ $amount_paid = floatval($row['amount_paid']);
 $balance = $invoice_amount - $amount_paid;
 
 // Calculate Gateway Fee
-$gateway_fee = round($balance * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+if ($config_stripe_client_pays_fees == 1) {
+    $balance_before_fees = $balance;
+    // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
+    // Calculate the amount to charge the client
+    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+    // Calculate the fee amount
+    $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+}
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default

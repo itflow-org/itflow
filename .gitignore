@@ -1,6 +1,7 @@
 node_modules
 config.php
 
+uploads/favicon.ico
 uploads/clients/*
 !uploads/clients/index.php
 uploads/expenses/*
