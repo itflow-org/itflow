@@ -45,15 +45,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-md-8">
-                        <div class="dropdown float-right" id="multiActionButton" hidden>
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
-                            </button>
-                            <div class="dropdown-menu">
-                                <button class="dropdown-item text-danger text-bold"
-                                        type="submit" form="multi_actions" name="bulk_delete_api_keys">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Revoke
+                        <div class="btn-group float-right">
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
+                                <div class="dropdown-menu">
+                                    <button class="dropdown-item text-danger text-bold"
+                                            type="submit" form="bulkActions" name="bulk_delete_api_keys">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Revoke
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -65,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <div class="table-responsive-sm">
 
-                <form id="multi_actions" action="post.php" method="post">
+                <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                     <table class="table table-striped table-borderless table-hover">
@@ -107,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="api_key_ids[]" value="<?php echo $api_key_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="api_key_ids[]" value="<?php echo $api_key_id ?>">
                                     </div>
                                 </td>
 
@@ -149,7 +151,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
-    <script src="js/multi_actions.js"></script>
+    <script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "api_key_add_modal.php";
