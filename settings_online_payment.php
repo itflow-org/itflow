@@ -37,7 +37,7 @@ require_once "inc_all_settings.php";
                     <label>Secret key</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
                         <input type="text" class="form-control" name="config_stripe_secret" placeholder="Stripe Secret API Key (sk_...)" value="<?php echo nullable_htmlentities($config_stripe_secret); ?>">
                     </div>
