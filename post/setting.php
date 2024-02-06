@@ -605,7 +605,7 @@ if (isset($_GET['download_database'])) {
 
         $company_name = $session_company_name;
         // Save the SQL script to a backup file
-        $backup_file_name = date('Y-m-d') . '_' . $company_name . '_ITFlow_backup.sql';
+        $backup_file_name = date('Y-m-d') . '_ITFlow_backup.sql';
         $fileHandler = fopen($backup_file_name, 'w+');
         $number_of_lines = fwrite($fileHandler, $sqlScript);
         fclose($fileHandler);
