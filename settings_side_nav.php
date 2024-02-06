@@ -33,9 +33,9 @@
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">
-          <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-balance-scale"></i>
-            <p>Taxes</p>
+          <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>Tags</p>
           </a>
         </li>
 
@@ -53,13 +53,14 @@
           </a>
         </li>
         -->
+
         <li class="nav-item">
-          <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tags"></i>
-            <p>Tags</p>
+          <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-balance-scale"></i>
+            <p>Taxes</p>
           </a>
         </li>
-
+        
         <li class="nav-item">
           <a href="settings_account_types.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_account_types.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-money-bill-wave"></i>
