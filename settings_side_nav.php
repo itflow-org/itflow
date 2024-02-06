@@ -229,6 +229,13 @@
         <?php } ?>
 
         <li class="nav-item">
+          <a href="settings_ai.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_ai.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-robot"></i>
+            <p>AI</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="settings_integrations.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_integrations.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-plug"></i>
             <p>Integrations</p>

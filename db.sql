@@ -1274,6 +1274,10 @@ CREATE TABLE `settings` (
   `config_stripe_expense_vendor` int(11) NOT NULL DEFAULT 0,
   `config_stripe_expense_category` int(11) NOT NULL DEFAULT 0,
   `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
+  `config_ai_enable` tinyint(1) DEFAULT 0,
+  `config_ai_provider` varchar(250) DEFAULT NULL,
+  `config_ai_url` varchar(250) DEFAULT NULL,
+  `config_ai_api_key` varchar(250) DEFAULT NULL,
   `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
   `config_stripe_client_pays_fees` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
@@ -1760,4 +1764,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-27 23:58:10
+-- Dump completed on 2024-02-05 21:00:37
