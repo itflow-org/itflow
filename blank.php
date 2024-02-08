@@ -26,18 +26,45 @@ echo "<H1>$start_date</H1>";
 
 <?php echo randomString(100); ?>
 <br>
-<form>
-<?php
-$timezones = DateTimeZone::listIdentifiers();
-echo '<select name="timezone">';
-foreach ($timezones as $timezone) {
-  echo '<option value="' . $timezone . '">' . $timezone . '</option>';
-}
-echo '</select>';
-
-?>
+<form id="myForm">
+    <textarea id="Body" name="body" rows="4" cols="50"></textarea>
+    <br>
+    <button type="submit">Submit</button>
+    <button type="button" id="rewordButton">Reword</button>
 </form>
 
+<script>
+
+document.getElementById('rewordButton').addEventListener('click', function() {
+    const textarea = document.getElementById('Body');
+    const textToReword = textarea.value;
+
+    // Replace 'YOUR_API_KEY' with your actual OpenAI API key
+    const apiKey = '<?php echo $config_ai_api_key; ?>';
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+    };
+
+    // Prepare the API request payload
+    const data = {
+        model: "gpt-4", // or the latest available model
+        prompt: `Reword the following text: "${textToReword}"`,
+        temperature: 0.7,
+        max_tokens: 1024,
+    };
+
+    // Make the API call to OpenAI to reword the text
+    axios.post('<?php echo $config_ai_url; ?>/v1/completions', data, {headers: headers})
+        .then(response => {
+            textarea.value = response.data.choices[0].text.trim();
+        })
+        .catch(error => {
+            console.error('There was an error rewording the text:', error);
+        });
+});
+
+</script>
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 
