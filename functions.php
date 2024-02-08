@@ -509,7 +509,7 @@ function validateAccountantRole() {
 }
 
 // Send a single email to a single recipient
-function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body) {
+function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body, $ics_str) {
 
     $mail = new PHPMailer(true);
 
@@ -544,6 +544,10 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
         // Attachments - todo
         //$mail->addAttachment('/var/tmp/file.tar.gz');             // Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');        // Optional name
+
+        if (!empty($ics_str)) {
+            $mail->addStringAttachment($ics_str, 'Scheduled_ticket.ics', 'base64', 'text/calendar');
+        }
 
         // Send
         $mail->send();
@@ -936,6 +940,7 @@ function addToMailQueue($mysqli, $data) {
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
         $body = strval($email['body']);
+        $cal_str = strval($email['cal_str']);
 
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
@@ -945,7 +950,7 @@ function addToMailQueue($mysqli, $data) {
             $queued_at = date('Y-m-d H:i:s');
         }
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = '$queued_at'");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = '$queued_at', email_cal_str = '$cal_str'");
     }
 
     return true;
@@ -976,4 +981,27 @@ function calculateInvoiceBalance($mysqli, $invoice_id) {
     return $balance;
 
 
+}
+
+function createCalendarEvent($datetime, $title, $description, $location) {
+    //Use The Zap Cal PHP Library to create a calendar event and return the ics feed
+
+    require_once "plugins/zapcal/zapcallib.php";
+
+    $cal_event = new ZCiCal();
+
+    $event = new ZCiCalNode("VEVENT", $cal_event->curnode);
+    $event->addNode(new ZCiCalDataNode("SUMMARY:" . $title));
+    $event->addNode(new ZCiCalDataNode("DTSTART:" . ZCiCal::fromSqlDateTime($datetime)));
+    $event->addNode(new ZCiCalDataNode("DTEND:" . ZCiCal::fromSqlDateTime($datetime)));
+    $event->addNode(new ZCiCalDataNode("DTSTAMP:" . ZCiCal::fromSqlDateTime()));
+    $uid = date('Y-m-d-H-i-s') . "@" . $_SERVER['SERVER_NAME'];
+    $event->addNode(new ZCiCalDataNode("UID:" . $uid));
+    $event->addNode(new ZCiCalDataNode("LOCATION:" . $location));
+    $event->addNode(new ZCiCalDataNode("DESCRIPTION:" . $description));
+
+    $ics_feed = $cal_event->export();
+
+
+    return $ics_feed;
 }

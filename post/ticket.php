@@ -1530,6 +1530,9 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $cal_str = createCalendarEvent($schedule, $ticket_subject, $ticket_link, $config_base_url);
+
+
     
     $data = [
         [
@@ -1538,7 +1541,8 @@ if (isset($_POST['edit_ticket_schedule'])) {
             'recipient' => $contact_email,
             'recipient_name' => $contact_name,
             'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
-            'body' => "Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+            'body' => "Hello, $contact_name<br><br>Your ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br> Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+            'cal_str' => $cal_str,
         ],
         [
             'from' => $config_ticket_from_email,
@@ -1546,11 +1550,36 @@ if (isset($_POST['edit_ticket_schedule'])) {
             'recipient' => $row['user_email'],
             'recipient_name' => $row['user_first_name'] . ' ' . $row['user_last_name'],
             'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
-            'body' => "Hello, " . $row['user_first_name'] . "<br><br>The ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+            'body' => "Hello, " . $row['user_first_name'] . "<br><br>The ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+            'cal_str' => $cal_str,
         ]
     ];
+
+    //Send all watchers an email
+
+    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+    
+    while ($row = mysqli_fetch_array($sql_watchers)) {
+        $watcher_email = sanitizeInput($row['watcher_email']);
+        $data[] = [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $watcher_email,
+            'recipient_name' => $watcher_email,
+            'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => "Hello, " . $watcher_email . "<br><br>The ticket regarding $ticket_subject has been scheduled for $schedule.<br><br>--------------------------------<br><a href=\"$full_ticket_url\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone",
+            'cal_str' => $cal_str,
+        ];
+    }
+
     $response = addToMailQueue($mysqli, $data);
 
+    // if response is not empty, then there was an error
+    if (!empty($response)) {
+        $_SESSION['alert_message'] = "Error sending email: " . $response;
+    } else {
+        $_SESSION['alert_message'] = "Ticket scheduled";
+    }
 
     //Logging
     mysqli_query(

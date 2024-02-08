@@ -74,6 +74,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_content = $row['email_content'];
         $email_queued_at = $row['email_queued_at'];
         $email_sent_at = $row['email_sent_at'];
+        $email_ics_str = $row['email_cal_str'];
 
         // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
@@ -96,7 +97,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
                 $email_recipient,
                 $email_recipient_name,
                 $email_subject,
-                $email_content
+                $email_content,
+                $email_ics_str
             );
 
             if ($mail !== true) {
