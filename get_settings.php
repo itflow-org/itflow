@@ -90,6 +90,12 @@ $config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
 $config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
+// AI Provider Details
+$config_ai_enable = intval($row['config_ai_enable']);
+$config_ai_provider = $row['config_ai_provider'];
+$config_ai_url = $row['config_ai_url'];
+$config_ai_api_key = $row['config_ai_api_key'];
+
 // Modules
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);

@@ -55,14 +55,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-md-8">
-                        <div class="float-right">
-                            <div class="dropdown" id="multiActionButton" hidden>
-                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                        <div class="btn-group float-right">
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button class="dropdown-item text-danger text-bold"
-                                            type="submit" form="multi_actions" name="bulk_delete_networks">
+                                    <button class="dropdown-item text-danger text-bold confirm-link"
+                                            type="submit" form="bulkActions" name="bulk_delete_networks">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </button>
                                 </div>
@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <hr>
             <div class="table-responsive-sm">
 
-                <form id="multi_actions" action="post.php" method="post">
+                <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                     <table class="table table-striped table-borderless table-hover">
@@ -127,13 +127,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="network_ids[]" value="<?php echo $network_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="network_ids[]" value="<?php echo $network_id ?>">
                                         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                     </div>
                                 </td>
                                 <th>
-                                    <i class="fa fa-fw fa-network-wired text-secondary"></i>
-                                    <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)"
+                                    <i class="fa fa-fw fa-network-wired text-secondary mr-2"></i><a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)"
                                        data-target="#editNetworkModal"><?php echo $network_name; ?>
                                     </a>
                                 </th>
@@ -153,11 +152,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="post.php?archive_network=<?php echo $network_id; ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?php echo $network_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_network=<?php echo $network_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?php echo $network_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                             <?php } ?>
@@ -190,8 +189,7 @@ require_once "client_network_export_modal.php";
 ?>
 
 <script src="js/network_edit_modal.js"></script>
-<script src="js/multi_actions.js"></script>
+<script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "footer.php";
-

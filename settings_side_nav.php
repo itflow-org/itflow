@@ -30,64 +30,12 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_security.php") { echo "active"; } ?>"
-             href="settings_security.php">
-            <i class="nav-icon fas fa-shield-alt"></i>
-            <p>Security</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-mail-bulk"></i>
-            <p>Mail Queue</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-history"></i>
-            <p>Audit Logs</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>"
-            href="settings_backup.php">
-            <i class="nav-icon fas fa-cloud-upload-alt"></i>
-            <p>Backup</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_update.php") { echo "active"; } ?>"
-            href="settings_update.php">
-            <i class="nav-icon fas fa-download"></i>
-            <p>Update</p>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
-            <i class="nav-icon fa fa-bug"></i>
-            <p>Debug</p>
-          </a>
-        </li>
-
-<!--        <li class="nav-item">-->
-<!--          <a href="settings_maintenance.php" class="nav-link --><?php //if (basename($_SERVER["PHP_SELF"]) == "settings_maintenance.php") { echo "active"; } ?><!--">-->
-<!--            <i class="nav-icon fa fa-wrench"></i>-->
-<!--            <p>Maintenance</p>-->
-<!--          </a>-->
-<!--        </li>-->
-
         <li class="nav-header mt-3">TAGS & CATEGORIES</li>
 
         <li class="nav-item">
-          <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-balance-scale"></i>
-            <p>Taxes</p>
+          <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>Tags</p>
           </a>
         </li>
 
@@ -105,13 +53,14 @@
           </a>
         </li>
         -->
+
         <li class="nav-item">
-          <a href="settings_tags.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_tags.php") { echo "active"; } ?>">
-            <i class="nav-icon fas fa-tags"></i>
-            <p>Tags</p>
+          <a href="settings_taxes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_taxes.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-balance-scale"></i>
+            <p>Taxes</p>
           </a>
         </li>
-
+        
         <li class="nav-item">
           <a href="settings_account_types.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_account_types.php") { echo "active"; } ?>">
             <i class="nav-icon fas fa-money-bill-wave"></i>
@@ -142,6 +91,54 @@
           </a>
         </li>
 
+        <li class="nav-header mt-3">MAINTENANCE</li>
+
+        <li class="nav-item">
+          <a href="settings_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_mail_queue.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-mail-bulk"></i>
+            <p>Mail Queue</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="logs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "logs.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-history"></i>
+            <p>Audit Logs</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_backup.php") { echo "active"; } ?>"
+            href="settings_backup.php">
+            <i class="nav-icon fas fa-cloud-upload-alt"></i>
+            <p>Backup</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="settings_debug.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_debug.php") { echo "active"; } ?>">
+            <i class="nav-icon fa fa-bug"></i>
+            <p>Debug</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_update.php") { echo "active"; } ?>"
+            href="settings_update.php">
+            <i class="nav-icon fas fa-download"></i>
+            <p>Update</p>
+          </a>
+        </li>
+
+<!--        <li class="nav-item">-->
+<!--          <a href="settings_maintenance.php" class="nav-link --><?php //if (basename($_SERVER["PHP_SELF"]) == "settings_maintenance.php") { echo "active"; } ?><!--">-->
+<!--            <i class="nav-icon fa fa-wrench"></i>-->
+<!--            <p>Maintenance</p>-->
+<!--          </a>-->
+<!--        </li>-->
+
+        
+
         <li class="nav-header mt-3">SETTINGS</li>
 
         <li class="nav-item">
@@ -163,6 +160,14 @@
             href="settings_theme.php">
             <i class="nav-icon fa fa-paint-brush"></i>
             <p>Theme</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_security.php") { echo "active"; } ?>"
+             href="settings_security.php">
+            <i class="nav-icon fas fa-shield-alt"></i>
+            <p>Security</p>
           </a>
         </li>
 
@@ -227,6 +232,13 @@
           </a>
         </li>
         <?php } ?>
+
+        <li class="nav-item">
+          <a href="settings_ai.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_ai.php") { echo "active"; } ?>">
+            <i class="nav-icon fas fa-robot"></i>
+            <p>AI</p>
+          </a>
+        </li>
 
         <li class="nav-item">
           <a href="settings_integrations.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_integrations.php") { echo "active"; } ?>">
