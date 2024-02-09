@@ -751,7 +751,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             // Get Contact Details
             $sql = mysqli_query(
                 $mysqli,
-                "SELECT contact_name, contact_email, ticket_created_by, ticket_assigned_to 
+                "SELECT contact_name, contact_email, ticket_created_by, ticket_assigned_to
                 FROM tickets
                 LEFT JOIN contacts ON ticket_contact_id = contact_id
                 WHERE ticket_id = $ticket_id"
@@ -1186,7 +1186,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM tickets 
+        "SELECT * FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id 
         LEFT JOIN assets ON ticket_asset_id = asset_id
