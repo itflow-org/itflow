@@ -125,13 +125,29 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Tickets Scheduled
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id WHERE ticket_schedule IS NOT NULL");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id LEFT JOIN users ON ticket_assigned_to =  ticket_client_id  WHERE ticket_schedule IS NOT NULL");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['ticket_id']);
-                    $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject']);
+                    if (!empty($username)) {
+                        $username = "Unassigned";
+                    } else {
+                        $username = $row['user_name'];
+                    }
+
+                    if (strtotime($row['ticket_schedule']) < time()) {
+                        if ($row['ticket_status'] == 'Scheduled') {
+                            $event_color = "red";
+                        }else {
+                            $event_color = "green";
+                        }
+                    } else {
+                        $event_color = "grey";
+                    }
+
+                    $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject'] . " [" . $username . "]");
                     $event_start = json_encode($row['ticket_schedule']);
 
-                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'red', url: 'ticket.php?ticket_id=$event_id' },";
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
                 }
 
                 //Vendors Added Created

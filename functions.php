@@ -539,7 +539,54 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
         // Content
         $mail->isHTML(true); // Set email format to HTML
         $mail->Subject = "$subject";                                // Subject
-        $mail->Body    = "$body";                                   // Content
+        $mail->Body    = "<html>
+        <head>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    line-height: 1.6;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                .header {
+                    font-size: 18px;
+                    margin-bottom: 20px;
+                }
+                .link-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #ffffff;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                }
+                .footer {
+                    font-size: 14px;
+                    color: #666;
+                    margin-top: 20px;
+                    border-top: 1px solid #ddd;
+                    padding-top: 10px;
+                }
+                .no-reply {
+                    color: #999;
+                    font-size: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='email-container'>
+        $body
+        </div>
+        </body>
+        </html>
+        ";                                   // Content
 
         // Attachments - todo
         //$mail->addAttachment('/var/tmp/file.tar.gz');             // Add attachments
@@ -983,25 +1030,31 @@ function calculateInvoiceBalance($mysqli, $invoice_id) {
 
 }
 
-function createCalendarEvent($datetime, $title, $description, $location) {
-    //Use The Zap Cal PHP Library to create a calendar event and return the ics feed
-
+function createiCalStr($datetime, $title, $description, $location) {
     require_once "plugins/zapcal/zapcallib.php";
 
+    // Create the iCal object
     $cal_event = new ZCiCal();
-
     $event = new ZCiCalNode("VEVENT", $cal_event->curnode);
+
+
+    // Set the method to REQUEST to indicate an invite
+    $event->addNode(new ZCiCalDataNode("METHOD:REQUEST"));
     $event->addNode(new ZCiCalDataNode("SUMMARY:" . $title));
     $event->addNode(new ZCiCalDataNode("DTSTART:" . ZCiCal::fromSqlDateTime($datetime)));
+    // Assuming the end time is the same as start time.
+    // Todo: adjust this for actual duration
     $event->addNode(new ZCiCalDataNode("DTEND:" . ZCiCal::fromSqlDateTime($datetime)));
     $event->addNode(new ZCiCalDataNode("DTSTAMP:" . ZCiCal::fromSqlDateTime()));
     $uid = date('Y-m-d-H-i-s') . "@" . $_SERVER['SERVER_NAME'];
     $event->addNode(new ZCiCalDataNode("UID:" . $uid));
     $event->addNode(new ZCiCalDataNode("LOCATION:" . $location));
     $event->addNode(new ZCiCalDataNode("DESCRIPTION:" . $description));
+    // Todo: add organizer details
+    // $event->addNode(new ZCiCalDataNode("ORGANIZER;CN=Organizer Name:MAILTO:organizer@example.com"));
 
+    // Export the iCal object to a string
     $ics_feed = $cal_event->export();
-
 
     return $ics_feed;
 }

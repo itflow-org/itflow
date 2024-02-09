@@ -59,6 +59,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
         $ticket_billable = intval($row['ticket_billable']);
         $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
+        $ticket_onsite = nullable_htmlentities($row['ticket_onsite']);
 
         //Set Ticket Bage Color based of priority
         if ($ticket_priority == "High") {

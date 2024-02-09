@@ -24,6 +24,13 @@
                         <?php } ?>
 
                     </div>
+                    <div class="form-group">
+                        <label>Onsite</label>
+                        <select class="form-control" name="onsite">
+                            <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>No</option>
+                            <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Yes</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="modal-footer bg-white">
