@@ -25,26 +25,28 @@
                                         $contact_id = intval($row['contact_id']);
                                         $contact_name = nullable_htmlentities($row['contact_name']);
                                         $contact_primary = intval($row['contact_primary']);
-                                        if($contact_primary == 1) {
+                                        if ($contact_primary == 1) {
                                             $contact_primary_display = " (Primary)";
                                         } else {
                                             $contact_primary_display = "";
                                         }
                                         $contact_technical = intval($row['contact_technical']);
-                                        if($contact_technical == 1) {
+                                        if ($contact_technical == 1) {
                                             $contact_technical_display = " (Technical)";
                                         } else {
                                             $contact_technical_display = "";
                                         }
                                         $contact_title = nullable_htmlentities($row['contact_title']);
-                                        if(!empty($contact_title)) {
+                                        if (!empty($contact_title)) {
                                             $contact_title_display = " - $contact_title";
                                         } else {
                                             $contact_title_display = "";
                                         }
-                                        
-                                        ?>
-                                        <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
+
+                                    ?>
+                                        <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1) {
+                                                                                        echo "selected";
+                                                                                    } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -64,7 +66,7 @@
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $selectable_client_id = intval($row['client_id']);
                                         $client_name = nullable_htmlentities($row['client_name']);
-                                        ?>
+                                    ?>
                                         <option value="<?php echo $selectable_client_id; ?>"><?php echo $client_name; ?></option>
 
                                     <?php } ?>
@@ -139,7 +141,7 @@
                                     while ($row = mysqli_fetch_array($sql_assets)) {
                                         $asset_id_select = intval($row['asset_id']);
                                         $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                        ?>
+                                    ?>
                                         <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
 
                                     <?php } ?>

@@ -1597,18 +1597,18 @@ if (isset($_POST['edit_ticket_schedule'])) {
         </div>")),
             'cal_str' => $cal_str
         ];
-        }
+    }
 
-        $response = addToMailQueue($mysqli, $data);
+    $response = addToMailQueue($mysqli, $data);
 
 
-        // Update ticket reply
-        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket scheduled for $schedule', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:05:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    // Update ticket reply
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket scheduled for $schedule', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:05:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-        //Logging
-        mysqli_query(
-            $mysqli,
-            "INSERT INTO logs SET
+    //Logging
+    mysqli_query(
+        $mysqli,
+        "INSERT INTO logs SET
             log_type = 'Ticket',
             log_action = 'Modify',
             log_description = '$session_name modified ticket schedule',
@@ -1616,18 +1616,17 @@ if (isset($_POST['edit_ticket_schedule'])) {
             log_user_agent = '$session_user_agent',
             log_user_id = $session_user_id,
             log_entity_id = $ticket_id"
-        );
+    );
 
 
-        if(empty($conflicting_tickets)){
-            $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime";
-            header("Location: " . $_SERVER["HTTP_REFERER"]);
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets);
-            header("Location: calendar_events.php");
-        }
+    if (empty($conflicting_tickets)) {
+        $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets);
+        header("Location: calendar_events.php");
+    }
 
-        exit;
+    exit;
 }
-

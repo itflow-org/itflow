@@ -16,11 +16,9 @@
                     <div class="form-group">
                         <label>Scheduled Date and Time</label>
                         <?php if (!$ticket_scheduled_for) { ?>
-                        <input type="datetime-local" class="form-control" name="scheduled_date_time"
-                            placeholder="Scheduled Date & Time">
+                            <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time">
                         <?php } else { ?>
-                        <input type="datetime-local" class="form-control" name="scheduled_date_time"
-                            value="<?php echo $ticket_scheduled_for; ?>">
+                            <input type="datetime-local" class="form-control" name="scheduled_date_time" value="<?php echo $ticket_scheduled_for; ?>">
                         <?php } ?>
 
                     </div>
@@ -34,10 +32,8 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i
-                            class="fa fa-check mr-2"></i>Save</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i
-                            class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
 
             </form>

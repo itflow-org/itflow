@@ -41,18 +41,16 @@ while ($row = mysqli_fetch_array($sql)) {
     $client_id = intval($row['event_client_id']);
 
     require "calendar_event_edit_modal.php";
-
 }
 
 ?>
 
 <?php require_once "footer.php";
- ?>
+?>
 
 <script src='plugins/fullcalendar/main.min.js'></script>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
 
@@ -121,7 +119,6 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_start = json_encode($row['ticket_created_at']);
 
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'orange', url: 'ticket.php?ticket_id=$event_id' },";
-
                 }
 
                 //Tickets Scheduled
@@ -137,7 +134,7 @@ while ($row = mysqli_fetch_array($sql)) {
                     if (strtotime($row['ticket_schedule']) < time()) {
                         if ($row['ticket_status'] == 'Scheduled') {
                             $event_color = "red";
-                        }else {
+                        } else {
                             $event_color = "green";
                         }
                     } else {
@@ -175,13 +172,12 @@ while ($row = mysqli_fetch_array($sql)) {
 
             ],
             eventClick: function(editEvent) {
-                $('#editEventModal'+editEvent.event.id).modal();
+                $('#editEventModal' + editEvent.event.id).modal();
             }
         });
 
         calendar.render();
     });
-
 </script>
 
 <!-- Automatically set new event end date to 1 hr after start date -->
