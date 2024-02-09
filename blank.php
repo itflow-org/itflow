@@ -48,7 +48,7 @@ document.getElementById('rewordButton').addEventListener('click', function() {
 
     // Prepare the API request payload
     const data = {
-        model: "gpt-4", // or the latest available model
+        model: "text-davinci-004", // or the latest available model
         prompt: `Reword the following text: "${textToReword}"`,
         temperature: 0.7,
         max_tokens: 1024,
