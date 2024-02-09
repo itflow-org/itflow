@@ -1592,7 +1592,9 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     if (CURRENT_DATABASE_VERSION == '1.0.4') {
         //Insert queries here required to update to DB version 1.0.5
         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_schedule` DATETIME DEFAULT NULL AFTER `ticket_billable`");
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_onsite` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ticket_schedule`");
         mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_cal_str` VARCHAR(1024) DEFAULT NULL AFTER `email_content`");
+
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.5'");
     }

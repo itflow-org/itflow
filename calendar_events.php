@@ -125,7 +125,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 //Tickets Scheduled
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id LEFT JOIN users ON ticket_assigned_to =  ticket_client_id  WHERE ticket_schedule IS NOT NULL");
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id LEFT JOIN users ON ticket_assigned_to = user_id WHERE ticket_schedule IS NOT NULL");
                 while ($row = mysqli_fetch_array($sql)) {
                     $event_id = intval($row['ticket_id']);
                     if (!empty($username)) {
