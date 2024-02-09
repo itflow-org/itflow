@@ -1053,8 +1053,6 @@ function createiCalStr($datetime, $title, $description, $location) {
     // Todo: add organizer details
     // $event->addNode(new ZCiCalDataNode("ORGANIZER;CN=Organizer Name:MAILTO:organizer@example.com"));
 
-    // Export the iCal object to a string
-    $ics_feed = $cal_event->export();
-
-    return $ics_feed;
+    // Return the iCal string
+    return $cal_event->export();
 }
