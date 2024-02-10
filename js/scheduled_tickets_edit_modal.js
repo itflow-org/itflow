@@ -15,7 +15,7 @@ function populateScheduledTicketEditModal(client_id, ticket_id) {
             const assets = response.assets;
 
             // Populate the scheduled ticket modal fields
-            document.getElementById("editHeader").innerText = " Edit Scheduled ticket: " + ticket.scheduled_ticket_subject;
+            document.getElementById("editHeader").innerText = " Edit Recurring ticket: " + ticket.scheduled_ticket_subject;
             document.getElementById("editTicketId").value = ticket_id;
             document.getElementById("editClientId").value = client_id;
             document.getElementById("editTicketSubject").value = ticket.scheduled_ticket_subject;

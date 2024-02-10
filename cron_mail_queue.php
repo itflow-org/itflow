@@ -24,7 +24,7 @@ if ($config_enable_cron == 0) {
 }
 
 // Check Cron Key
-if ( $argv[1] !== $config_cron_key ) {
+if ($argv[1] !== $config_cron_key) {
     exit("Cron Key invalid  -- Quitting..");
 }
 
@@ -37,7 +37,7 @@ $lock_file_path = "{$temp_dir}/itflow_mail_queue_{$installation_id}.lock";
 // Check for lock file to prevent concurrent script runs
 if (file_exists($lock_file_path)) {
     $file_age = time() - filemtime($lock_file_path);
-    
+
     // If file is older than 10 minutes (600 seconds), delete and continue
     if ($file_age > 600) {
         unlink($lock_file_path);
@@ -61,7 +61,7 @@ file_put_contents($lock_file_path, "Locked");
 
 // Get Mail Queue that has status of Queued and send it to the function sendSingleEmail() located in functions.php
 
-$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
+$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0");
 
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_queue)) {
@@ -74,6 +74,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_content = $row['email_content'];
         $email_queued_at = $row['email_queued_at'];
         $email_sent_at = $row['email_sent_at'];
+        $email_ics_str = $row['email_cal_str'];
 
         // Sanitized Input
         $email_recipient_logging = sanitizeInput($row['email_recipient']);
@@ -96,7 +97,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
                 $email_recipient,
                 $email_recipient_name,
                 $email_subject,
-                $email_content
+                $email_content,
+                $email_ics_str
             );
 
             if ($mail !== true) {
@@ -109,7 +111,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
             }
-        }   
+        }
     }
 }
 
@@ -129,6 +131,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_content = $row['email_content'];
         $email_queued_at = $row['email_queued_at'];
         $email_sent_at = $row['email_sent_at'];
+        $email_ics_str = $row['email_cal_str'];
         // Increment the attempts
         $email_attempts = intval($row['email_attempts']) + 1;
 
@@ -153,7 +156,8 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
                 $email_recipient,
                 $email_recipient_name,
                 $email_subject,
-                $email_content
+                $email_content,
+                $email_ics_str
             );
 
             if ($mail !== true) {
@@ -166,7 +170,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
             }
-        }   
+        }
     }
 }
 

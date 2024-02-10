@@ -23,59 +23,60 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-calendar-check mr-2"></i>Scheduled Tickets</h3>
-            <div class='card-tools'>
-                <div class="float-left">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
-                        <i class="fas fa-plus mr-2"></i>New Scheduled Ticket
-                    </button>
-                </div>
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-calendar-check mr-2"></i>Recurring Tickets</h3>
+        <div class='card-tools'>
+            <div class="float-left">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
+                    <i class="fas fa-plus mr-2"></i>New Recurring Ticket
+                </button>
             </div>
         </div>
+    </div>
 
-        <div class="card-body">
+    <div class="card-body">
 
-            <form autocomplete="off">
-                <div class="row">
+        <form autocomplete="off">
+            <div class="row">
 
-                    <div class="col-md-4">
-                        <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Scheduled Tickets">
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                            </div>
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
+                                                                                        echo stripslashes(nullable_htmlentities($q));
+                                                                                    } ?>" placeholder="Search Scheduled Tickets">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
-                    </div>
-                    <div class="col-md-8">
-
-                        <div class="dropdown float-right" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                            </button>
-                            <div class="dropdown-menu">
-                                <button class="dropdown-item text-danger text-bold"
-                                    type="submit" form="multi_actions" name="bulk_delete_scheduled_tickets">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-            </form>
-            <hr>
+                <div class="col-md-8">
 
-            <div class="table-responsive-sm">
+                    <div class="dropdown float-right" id="bulkActionButton" hidden>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item text-danger text-bold" type="submit" form="multi_actions" name="bulk_delete_scheduled_tickets">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                            </button>
+                        </div>
+                    </div>
 
-                <form id="bulkActions" action="post.php" method="post">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                </div>
+            </div>
+        </form>
+        <hr>
 
-                    <table class="table table-striped table-borderless table-hover">
-                        <thead class="<?php if (!$num_rows[0]) {
-                            echo "d-none";
-                        } ?>">
+        <div class="table-responsive-sm">
+
+            <form id="bulkActions" action="post.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="<?php if (!$num_rows[0]) {
+                                        echo "d-none";
+                                    } ?>">
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
@@ -89,9 +90,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <th><a class="text-dark">Next Run Date</a></th>
                             <th class="text-center">Action</th>
                         </tr>
-                        </thead>
+                    </thead>
 
-                        <tbody>
+                    <tbody>
 
                         <?php
 
@@ -103,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
                             $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
                             $scheduled_ticket_client_name = nullable_htmlentities($row['client_name']);
-                            ?>
+                        ?>
 
                             <tr>
                                 <td class="pr-0">
@@ -116,8 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </th>
 
                                 <td>
-                                    <a href="#" data-toggle="modal" data-target="#editScheduledTicketModal"
-                                       onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?>
+                                    <a href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?>
                                     </a>
                                 </td>
 
@@ -133,8 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                               data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php
@@ -152,22 +151,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php } ?>
 
-                        </tbody>
+                    </tbody>
 
-                    </table>
+                </table>
 
-                </form>
-
-            </div>
-
-            <?php require_once 'pagination.php';
- ?>
+            </form>
 
         </div>
-    </div>
 
-    <script src="js/scheduled_tickets_edit_modal.js"></script>
-    <script src="js/bulk_actions.js"></script>
+        <?php require_once 'pagination.php';
+        ?>
+
+    </div>
+</div>
+
+<script src="js/scheduled_tickets_edit_modal.js"></script>
+<script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "scheduled_ticket_add_modal.php";
@@ -175,4 +174,3 @@ require_once "scheduled_ticket_add_modal.php";
 require_once "scheduled_ticket_edit_modal.php";
 
 require_once "footer.php";
-

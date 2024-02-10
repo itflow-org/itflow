@@ -25,6 +25,7 @@ require_once "calendar_event_add_modal.php";
 
 require_once "calendar_add_modal.php";
 
+
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id");
 while ($row = mysqli_fetch_array($sql)) {
@@ -40,18 +41,16 @@ while ($row = mysqli_fetch_array($sql)) {
     $client_id = intval($row['event_client_id']);
 
     require "calendar_event_edit_modal.php";
-
 }
 
 ?>
 
 <?php require_once "footer.php";
- ?>
+?>
 
 <script src='plugins/fullcalendar/main.min.js'></script>
 
 <script>
-
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
 
@@ -120,7 +119,32 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_start = json_encode($row['ticket_created_at']);
 
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'orange', url: 'ticket.php?ticket_id=$event_id' },";
+                }
 
+                //Tickets Scheduled
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN tickets ON client_id = ticket_client_id LEFT JOIN users ON ticket_assigned_to = user_id WHERE ticket_schedule IS NOT NULL");
+                while ($row = mysqli_fetch_array($sql)) {
+                    $event_id = intval($row['ticket_id']);
+                    if (empty($username)) {
+                        $username = "Unassigned";
+                    } else {
+                        $username = $row['user_name'];
+                    }
+
+                    if (strtotime($row['ticket_schedule']) < time()) {
+                        if ($row['ticket_status'] == 'Scheduled') {
+                            $event_color = "red";
+                        } else {
+                            $event_color = "green";
+                        }
+                    } else {
+                        $event_color = "grey";
+                    }
+
+                    $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " " . $row['ticket_subject'] . " [" . $username . "]");
+                    $event_start = json_encode($row['ticket_schedule']);
+
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
                 }
 
                 //Vendors Added Created
@@ -148,13 +172,12 @@ while ($row = mysqli_fetch_array($sql)) {
 
             ],
             eventClick: function(editEvent) {
-                $('#editEventModal'+editEvent.event.id).modal();
+                $('#editEventModal' + editEvent.event.id).modal();
             }
         });
 
         calendar.render();
     });
-
 </script>
 
 <!-- Automatically set new event end date to 1 hr after start date -->

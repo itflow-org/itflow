@@ -1573,6 +1573,7 @@ CREATE TABLE `tickets` (
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
   `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `ticket_schedule` DATETIME DEFAULT NULL,
   `ticket_vendor_ticket_number` varchar(255) DEFAULT NULL,
   `ticket_feedback` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
