@@ -1513,7 +1513,8 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $user_name = sanitizeInput($row['user_name']);
     $user_email = sanitizeInput($row['user_email']);
     $cal_subject = $ticket_number . ": " . $client_name . " - " . $ticket_subject;
-    $cal_description = $ticket_details . " - " . $full_ticket_url;
+    $ticket_details_truncated = substr($ticket_details, 0, 100);
+    $cal_description = $ticket_details_truncated . " - " . $full_ticket_url;
     $cal_location = sanitizeInput($row["location_address"]);
     $email_datetime = date('l, F j, Y \a\t g:ia', strtotime($schedule));
 

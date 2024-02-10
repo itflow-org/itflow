@@ -1016,7 +1016,7 @@ function addToMailQueue($mysqli, $data)
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
         $body = strval($email['body']);
-        $cal_str = strval($email['cal_str']);
+        $cal_str = mysqli_escape_string($mysqli,$email['cal_str']);
 
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
