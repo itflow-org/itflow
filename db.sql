@@ -1277,6 +1277,7 @@ CREATE TABLE `settings` (
   `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
   `config_ai_enable` tinyint(1) DEFAULT 0,
   `config_ai_provider` varchar(250) DEFAULT NULL,
+  `config_ai_model` varchar(250) DEFAULT NULL,
   `config_ai_url` varchar(250) DEFAULT NULL,
   `config_ai_api_key` varchar(250) DEFAULT NULL,
   `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
@@ -1767,4 +1768,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-10 14:33:52
+-- Dump completed on 2024-02-10 15:26:19
