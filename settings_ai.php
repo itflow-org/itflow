@@ -26,6 +26,16 @@ require_once "inc_all_settings.php";
             </div>
 
             <div class="form-group">
+                <label>AI Model</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
+                    </div>
+                    <input type="text" class="form-control" name="model" value="<?php echo nullable_htmlentities($config_ai_model); ?>" placeholder="ex gpt-4">
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label>URL</label>
                 <div class="input-group">
                     <div class="input-group-prepend">

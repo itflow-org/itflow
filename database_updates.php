@@ -1599,10 +1599,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.0.5') {
-    //     // Insert queries here required to update to DB version 1.0.6
+    if (CURRENT_DATABASE_VERSION == '1.0.5') {
+        //Insert queries here required to update to DB version 1.0.6
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_model` VARCHAR(250) DEFAULT NULL AFTER `config_ai_provider`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.0.6') {
+    //     // Insert queries here required to update to DB version 1.0.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
     // }
 
 } else {

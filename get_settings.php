@@ -93,6 +93,7 @@ $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees'])
 // AI Provider Details
 $config_ai_enable = intval($row['config_ai_enable']);
 $config_ai_provider = $row['config_ai_provider'];
+$config_ai_model = $row['config_ai_model'];
 $config_ai_url = $row['config_ai_url'];
 $config_ai_api_key = $row['config_ai_api_key'];
 
