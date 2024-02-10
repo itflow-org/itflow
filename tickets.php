@@ -141,7 +141,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                         </a>
 
-                        <a href="scheduled_tickets.php" class="btn btn-outline-info">
+                        <a href="recurring_tickets.php" class="btn btn-outline-info">
                             <i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring Tickets | <strong> <?php echo $total_scheduled_tickets; ?></strong>
                         </a>
 

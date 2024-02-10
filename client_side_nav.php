@@ -65,7 +65,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
+                    <a href="client_recurring_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_recurring_tickets.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-check"></i>
                         <p>
                             Recurring Tickets

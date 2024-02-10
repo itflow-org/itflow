@@ -1,4 +1,4 @@
-<div class="modal" id="editScheduledTicketModal" tabindex="-1">
+<div class="modal" id="editRecurringTicketModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">

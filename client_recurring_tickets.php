@@ -28,7 +28,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-calendar-check mr-2"></i>Recurring Tickets</h3>
         <div class='card-tools'>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addScheduledTicketModal">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringTicketModal">
                 <i class="fas fa-plus mr-2"></i>New Recurring Ticket
             </button>
         </div>
@@ -89,7 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
 
-                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
 
                             <td><?php echo $scheduled_ticket_priority ?></td>
 
@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                           data-target="#editScheduledTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                           data-target="#editRecurringTicketModal" onclick="populateScheduledTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php
@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
 
         <div class="form-check">
-            <input type="submit" id="button_bulk_delete" form="bulk_actions" name="bulk_delete_scheduled_tickets" value="Bulk Delete" hidden>
+            <input type="submit" id="button_bulk_delete" form="bulk_actions" name="bulk_delete_recurring_tickets" value="Bulk Delete" hidden>
         </div>
 
         <?php require_once 'pagination.php';
@@ -137,14 +137,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     </div>
 </div>
-<script src="js/scheduled_tickets_edit_modal.js"></script>
-<script src="js/scheduled_tickets_bulk_delete_button.js"></script>
+<script src="js/recurring_tickets_edit_modal.js"></script>
+<script src="js/bulk_actions.js"></script>
 
 <?php
 
-require_once "scheduled_ticket_add_modal.php";
+require_once "recurring_ticket_add_modal.php";
 
-require_once "scheduled_ticket_edit_modal.php";
+require_once "recurring_ticket_edit_modal.php";
 
 require_once "footer.php";
 

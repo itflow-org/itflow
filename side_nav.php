@@ -35,7 +35,7 @@
 
                     <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">
-                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php" || basename($_SERVER["PHP_SELF"]) == "scheduled_tickets.php") {
+                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php" || basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") {
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
