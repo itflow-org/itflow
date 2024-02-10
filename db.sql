@@ -535,6 +535,7 @@ CREATE TABLE `email_queue` (
   `email_from_name` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
   `email_content` longtext NOT NULL,
+  `email_cal_str` varchar(1024) DEFAULT NULL,
   `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
   `email_failed_at` datetime DEFAULT NULL,
   `email_attempts` tinyint(1) NOT NULL DEFAULT 0,
@@ -1573,7 +1574,8 @@ CREATE TABLE `tickets` (
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
   `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
-  `ticket_schedule` DATETIME DEFAULT NULL,
+  `ticket_schedule` datetime DEFAULT NULL,
+  `ticket_onsite` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_vendor_ticket_number` varchar(255) DEFAULT NULL,
   `ticket_feedback` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1765,4 +1767,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-05 21:00:37
+-- Dump completed on 2024-02-10 14:33:52

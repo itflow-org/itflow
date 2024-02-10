@@ -61,7 +61,7 @@ file_put_contents($lock_file_path, "Locked");
 
 // Get Mail Queue that has status of Queued and send it to the function sendSingleEmail() located in functions.php
 
-$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0");
+$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
 
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($row = mysqli_fetch_array($sql_queue)) {
