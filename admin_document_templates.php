@@ -4,7 +4,7 @@
 $sort = "document_name";
 $order = "ASC";
 
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 // Search query SQL snippet
@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <tr>
             <td>
-              <a class="text-bold" href="document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_name; ?></a>
+              <a class="text-bold" href="admin_document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_name; ?></a>
               <div class="mt-1 text-secondary"><?php echo $document_description; ?></div>
             </td>
             <td>
@@ -116,7 +116,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
           <?php
 
-          include "document_template_edit_modal.php";
+          include "admin_document_template_edit_modal.php";
 
           }
 
@@ -132,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 
-<?php include "document_template_add_modal.php";
+<?php include "admin_document_template_add_modal.php";
  ?>
 
 <?php include "footer.php";

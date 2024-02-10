@@ -4,7 +4,7 @@
 $sort = "log_id";
 $order = "DESC";
 
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 //Rebuild URL

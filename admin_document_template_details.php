@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
@@ -31,10 +31,10 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
     <a href="clients.php">Home</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="users.php">Settings</a>
+    <a href="admin_users.php">Admin</a>
   </li>
   <li class="breadcrumb-item">
-    <a href="settings_document_templates.php">Document Templates</a>
+    <a href="admin_document_templates.php">Document Templates</a>
   </li>
   <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_name; ?></li>
 </ol>
@@ -59,7 +59,7 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 <?php
 
-require_once "document_template_edit_modal.php";
+require_once "admin_document_template_edit_modal.php";
 
 require_once "footer.php";
 

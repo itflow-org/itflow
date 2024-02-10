@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 require_once "database_version.php";
 

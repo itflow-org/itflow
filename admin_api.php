@@ -4,7 +4,7 @@
 $sort = "api_key_name";
 $order = "ASC";
 
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 //Rebuild URL
@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "api_key_add_modal.php";
+require_once "admin_api_key_add_modal.php";
 
 require_once "footer.php";
 

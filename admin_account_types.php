@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 // Default Column Sortby Filter
@@ -62,7 +62,7 @@ $num_rows = mysqli_num_rows($sql);
                 </div>
                 <div class="col-sm-8">
                     <div class="btn-group float-right">
-                        <a href="settings_account_types.php" class="btn <?php if (!isset($_GET['account_type']) && !isset($_GET['archived'])) {
+                        <a href="admin_account_types.php" class="btn <?php if (!isset($_GET['account_type']) && !isset($_GET['archived'])) {
                             echo 'btn-primary';
                         } else {
                             echo 'btn-default';
@@ -159,7 +159,7 @@ $num_rows = mysqli_num_rows($sql);
 
                         <?php
 
-                        require "settings_account_types_edit_modal.php";
+                        require "admin_account_types_edit_modal.php";
 
                     }
 
@@ -175,7 +175,7 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once "settings_account_types_add_modal.php";
+require_once "admin_account_types_add_modal.php";
 
 require_once "footer.php";
 

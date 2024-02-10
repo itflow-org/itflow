@@ -169,7 +169,7 @@
                 <?php if ($session_user_role == 3) { ?>
 
                     <li class="nav-item">
-                        <a href="users.php" class="nav-link">
+                        <a href="admin_users.php" class="nav-link">
                             <i class="nav-icon fas fa-user-shield"></i>
                             <p>Admin</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
@@ -177,7 +177,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="users.php" class="nav-link">
+                        <a href="settings_company.php" class="nav-link">
                             <i class="nav-icon fas fa-cogs"></i>
                             <p>Settings</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>
