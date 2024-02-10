@@ -66,19 +66,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") {
+                        <a href="invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") {
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>Invoices</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php") {
-                                                                                echo "active";
-                                                                            } ?>">
-                            <i class="nav-icon fas fa-redo-alt"></i>
-                            <p>Recurring Invoices</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -120,19 +112,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php") {
+                        <a href="expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php" || basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") {
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Expenses</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") {
-                                                                                echo "active";
-                                                                            } ?>">
-                            <i class="nav-icon fas fa-redo-alt"></i>
-                            <p>Recurring Expenses</p>
                         </a>
                     </li>
                     <li class="nav-item">

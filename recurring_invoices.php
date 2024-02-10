@@ -42,6 +42,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-8">
+                    <div class="btn-group float-right">
+                        <a href="invoices.php" class="btn btn-outline-primary"><i class="fa fa-fw fa-file-invoice mr-2"></i>Back to Invoices</a>
+                    </div>
+                </div>
             </div>
             <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
