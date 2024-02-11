@@ -303,7 +303,21 @@ if (isset($_GET['ticket_id'])) {
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
-                            <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response"></textarea>
+                            <?php if($config_ai_enable) { ?>
+                            <div class="form-group">
+                                <textarea class="form-control tinymceai" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button id="rewordButton" class="btn btn-primary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
+                                <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
+                            </div>
+                            <?php } else { ?>
+                            <div class="form-group">
+                                <textarea class="form-control tinymce" name="ticket_reply" placeholder="Type a response"></textarea>
+                            </div>
+                            <?php } ?>
+
                         </div>
                         <div class="form-row">
                             <div class="col-md-2">
