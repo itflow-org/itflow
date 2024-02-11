@@ -12,11 +12,14 @@ if (isset($_GET['ai_reword'])) {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
+    // Prefix the input text with "reword: "
+    $prefixedText = "reword: " . $input['text'];
+
     // Preparing the data for the OpenAI Chat API request.
     $data = [
         "model" => "$config_ai_model", // Specify the model
         "messages" => [
-            ["role" => "user", "content" => $input['text']]
+            ["role" => "user", "content" => $prefixedText]
         ],
         "temperature" => 0.7
     ];

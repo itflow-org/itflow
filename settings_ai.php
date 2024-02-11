@@ -21,6 +21,7 @@ require_once "inc_all_settings.php";
                         <option value="" <?php if($config_ai_enable == 0) { echo "selected"; } ?> >Disabled</option>
                         <option <?php if($config_ai_provider == "Ollama") { echo "selected"; } ?> >Ollama</option>
                         <option <?php if($config_ai_provider == "OpenAI") { echo "selected"; } ?> >OpenAI</option>
+                        <option <?php if($config_ai_provider == "LocalAI") { echo "selected"; } ?> >LocalAI</option>
                     </select>
                 </div>
             </div>
