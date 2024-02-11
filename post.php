@@ -81,6 +81,9 @@ require_once "post/vendor.php";
 
 require_once "post/budget.php";
 
+require_once "post/ai.php";
+
 require_once "post/misc.php";
+
 
 ?>

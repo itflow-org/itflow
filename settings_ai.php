@@ -60,6 +60,16 @@ require_once "inc_all_settings.php";
             <button type="submit" name="edit_ai_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
 
         </form>
+
+        <div class="mt-5">
+            <h1>Test Input Text to Reword</h1>
+            <textarea id="textInput" class="form-control mb-3" rows="10"></textarea>
+            <button id="rewordButton" class="btn btn-primary"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
+            <button id="undoButton" class="btn btn-secondary" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
+        </div>
+
+        <script src="js/ai_reword.js"></script>
+
     </div>
 </div>
 
