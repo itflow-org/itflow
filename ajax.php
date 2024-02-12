@@ -351,9 +351,9 @@ if (isset($_GET['share_generate_link'])) {
 }
 
 /*
- *  Looks up info for a given scheduled ticket ID from the database, used to dynamically populate modal edit fields
+ *  Looks up info for a given recurring (was scheduled) ticket ID from the database, used to dynamically populate modal edit fields
  */
-if (isset($_GET['scheduled_ticket_get_json_details'])) {
+if (isset($_GET['recurring_ticket_get_json_details'])) {
     validateTechRole();
 
     $client_id = intval($_GET['client_id']);

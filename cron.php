@@ -232,9 +232,9 @@ if($tickets_pending_assignment > 0){
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for tickets that are pending assignment'");
 }
 
-// Scheduled tickets
+// Recurring (Scheduled) tickets
 
-// Get scheduled tickets for today
+// Get recurring tickets for today
 $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = CURDATE()");
 
 if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
@@ -263,10 +263,9 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $id = mysqli_insert_id($mysqli);
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created recurring scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
 
         // Notifications
-
 
         // Get client/contact/ticket details
         $sql = mysqli_query(
@@ -313,8 +312,8 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         // Notify agent's via the DL address of the new ticket, if it's populated with a valid email
         if (filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL)) {
 
-            $email_subject = "ITFlow - New Scheduled Ticket - $client_name: $ticket_subject";
-            $email_body = "Hello, <br><br>This is a notification that a new scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
+            $email_subject = "ITFlow - New Recurring Ticket - $client_name: $ticket_subject";
+            $email_body = "Hello, <br><br>This is a notification that a recurring scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
 
             $email = [
                     'from' => $config_ticket_from_email,
@@ -358,7 +357,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 }
 
 // Logging
-//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out recurring tickets'");
 
 
 // AUTO CLOSE TICKET - CLOSE
@@ -729,7 +728,7 @@ if ($config_telemetry > 0 OR $config_telemetry = 2) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM tickets"));
     $ticket_count = $row['num'];
 
-    // Scheduled Ticket Count
+    // Recurring (Scheduled) Ticket Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
     $scheduled_ticket_count = $row['num'];
 

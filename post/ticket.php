@@ -1319,11 +1319,11 @@ if (isset($_POST['export_client_tickets_csv'])) {
     exit;
 }
 
-if (isset($_POST['add_scheduled_ticket'])) {
+if (isset($_POST['add_scheduled_ticket']) || isset($_POST['add_recurring_ticket'])) {
 
     validateTechRole();
 
-    require_once 'post/scheduled_ticket_model.php';
+    require_once 'post/recurring_ticket_model.php';
 
     $start_date = sanitizeInput($_POST['start_date']);
 
@@ -1340,18 +1340,18 @@ if (isset($_POST['add_scheduled_ticket'])) {
     $scheduled_ticket_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Create', log_description = '$session_name created scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Recurring Ticket', log_action = 'Create', log_description = '$session_name created recurring ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
 
-    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> created";
+    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_scheduled_ticket'])) {
+if (isset($_POST['edit_scheduled_ticket']) || isset($_POST['edit_recurring_ticket'])) {
 
     validateTechRole();
 
-    require_once 'post/scheduled_ticket_model.php';
+    require_once 'post/recurring_ticket_model.php';
 
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
@@ -1367,14 +1367,14 @@ if (isset($_POST['edit_scheduled_ticket'])) {
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_asset_id = $asset_id, scheduled_ticket_contact_id = $contact_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Modify', log_description = '$session_name modified scheduled ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Recurring Ticket', log_action = 'Modify', log_description = '$session_name modified recurring ticket for $subject - $frequency', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
 
-    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> updated";
+    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_scheduled_ticket'])) {
+if (isset($_GET['delete_scheduled_ticket']) || isset($_POST['delete_recurring_ticket'])) {
 
     validateAdminRole();
 
@@ -1399,29 +1399,29 @@ if (isset($_GET['delete_scheduled_ticket'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['bulk_delete_scheduled_tickets'])) {
+if (isset($_POST['bulk_delete_scheduled_tickets']) || isset($_POST['bulk_delete_recurring_tickets'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
-    $scheduled_ticket_ids = $_POST['scheduled_ticket_ids']; // Get array of scheduled tickets IDs to be deleted
+    $scheduled_ticket_ids = $_POST['scheduled_ticket_ids']; // Get array of recurring scheduled tickets IDs to be deleted
 
     if (!empty($scheduled_ticket_ids)) {
 
-        // Cycle through array and delete each scheduled ticket
+        // Cycle through array and delete each recurring scheduled ticket
         foreach ($scheduled_ticket_ids as $scheduled_ticket_id) {
 
             $scheduled_ticket_id = intval($scheduled_ticket_id);
             mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted recurring ticket (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
 
             $count++;
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name bulk deleted $count scheduled tickets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name bulk deleted $count recurring tickets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "Deleted $count scheduled ticket(s)";
+        $_SESSION['alert_message'] = "Deleted $count recurring ticket(s)";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1460,7 +1460,6 @@ if (isset($_POST['set_billable_status'])) {
 }
 
 if (isset($_POST['edit_ticket_schedule'])) {
-
 
     validateTechRole();
 
