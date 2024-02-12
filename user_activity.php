@@ -42,7 +42,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         </tbody>
     </table>
     <div class="card-footer">
-        <a href="logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
+        <a href="admin_logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
     </div>
 </div>
 
@@ -87,7 +87,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         </tbody>
     </table>
     <div class="card-footer">
-        <a href="logs.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
+        <a href="admin_logs.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
     </div>
 </div>
 
