@@ -1,9 +1,9 @@
-function populateScheduledTicketEditModal(client_id, ticket_id) {
+function populateRecurringTicketEditModal(client_id, ticket_id) {
 
-    // Send a GET request to ajax.php as ajax.php?scheduled_ticket_get_json_details=true&client_id=NUM&ticket_id=NUM
+    // Send a GET request to ajax.php as ajax.php?recurring_ticket_get_json_details=true&client_id=NUM&ticket_id=NUM
     jQuery.get(
         "ajax.php",
-        {scheduled_ticket_get_json_details: 'true', client_id: client_id, ticket_id: ticket_id},
+        {recurring_ticket_get_json_details: 'true', client_id: client_id, ticket_id: ticket_id},
         function(data){
 
             // If we get a response from post.php, parse it as JSON
