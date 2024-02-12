@@ -13,18 +13,20 @@
             <form action="post.php" method="post" autocomplete="off">
                 <div class="modal-body bg-white">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+
                     <div class="form-group">
-                        <label>Scheduled Date and Time</label>
+                        <label>Scheduled Date and Time </label>
+
                         <?php if (!$ticket_scheduled_for) { ?>
-                            <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time">
+                            <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?php echo date('Y-m-d\TH:i'); ?>">
                         <?php } else { ?>
-                            <input type="datetime-local" class="form-control" name="scheduled_date_time" value="<?php echo $ticket_scheduled_for; ?>">
+                            <input type="datetime-local" class="form-control" name="scheduled_date_time" min="<?php echo date('Y-m-d\TH:i'); ?>" value="<?php echo $ticket_scheduled_for; ?>">
                         <?php } ?>
 
                     </div>
                     <div class="form-group">
-                        <label>Onsite</label>
-                        <select class="form-control" name="onsite">
+                        <label>Onsite </label>
+                        <select class="form-control" name="onsite" required>
                             <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>No</option>
                             <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Yes</option>
                         </select>

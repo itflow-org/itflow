@@ -1475,6 +1475,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
         $mysqli,
         "UPDATE tickets SET
     ticket_schedule = '$schedule',
+    ticket_onsite = '$onsite',
     ticket_status = 'Scheduled'
     WHERE ticket_id = $ticket_id"
     );
@@ -1558,7 +1559,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
             'recipient' => $user_email,
             'recipient_name' => $user_name,
             'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
-            'body' => "Hello, " . $user_name . "<br><br>The ticket regarding $ticket_subject has been scheduled for $email_datetime.<br><br>--------------------------------<br><a href=\"https://$config_base_url/portal/ticket.php?id=$ticket_id\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email",
+            'body' => "Hello, " . $user_name . "<br><br>The ticket regarding $ticket_subject has been scheduled for $email_datetime.<br><br>--------------------------------<br><a href=\"https://$config_base_url/ticket.php?id=$ticket_id\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email",
             'cal_str' => $cal_str
         ]
     ];
@@ -1604,7 +1605,8 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
 
     // Update ticket reply
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket scheduled for $schedule', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:05:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    $ticket_reply_note = "Ticket scheduled for $email_datetime " . (boolval($onsite) ? '(onsite).' : '(remote).');
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     //Logging
     mysqli_query(
