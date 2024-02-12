@@ -307,7 +307,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="form-group">
                                 <textarea class="form-control tinymceai" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <button id="rewordButton" class="btn btn-primary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
                                 <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
@@ -388,22 +388,35 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="form-row">
 
+                            <?php
+                            // Set the initial ticket response type (private/internal note)
+                            //  Future updates of the wording/icon are done by Javascript
 
-                            <?php if (!empty($contact_email && $contact_email !== $session_email)) { ?>
+                            // Public responses by default (maybe configurable in future?)
+                            $ticket_reply_button_wording = "Respond";
+                            $ticket_reply_button_check = "checked";
+                            $ticket_reply_button_icon = "paper-plane";
+
+                            // Internal responses by default if 1) the contact email is empty or 2) the contact email matches the agent responding
+                            if (empty($contact_email) || $contact_email == $session_email) {
+                                // Internal
+                                $ticket_reply_button_wording = "Add note";
+                                $ticket_reply_button_check = "";
+                                $ticket_reply_button_icon = "sticky-note";
+                            } ?>
+
 
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" checked>
-                                            <label class="custom-control-label" for="ticket_reply_type_checkbox">Email contact<br><small class="text-secondary">(Public Update)</small></label>
+                                            <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" <?php echo $ticket_reply_button_check ?>>
+                                            <label class="custom-control-label" for="ticket_reply_type_checkbox">Public Update<br><small class="text-secondary">(Emails contact)</small></label>
                                         </div>
                                     </div>
                                 </div>
 
-                            <?php } ?>
-
                             <div class="col-md-2">
-                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>Respond</button>
+                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-<?php echo $ticket_reply_button_icon ?> mr-2"></i><?php echo $ticket_reply_button_wording ?></button>
                             </div>
 
                         </div>
@@ -803,10 +816,10 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                        <?php } // End Ticket asset Count 
+                        <?php } // End Ticket asset Count
                         ?>
 
-                    <?php } // End if asset_id == 0 else 
+                    <?php } // End if asset_id == 0 else
                     ?>
 
                 </div>
@@ -855,7 +868,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
                         <?php } ?>
 
-                    <?php } //End Else 
+                    <?php } //End Else
                     ?>
                 </div>
                 <!-- End Vendor card -->
