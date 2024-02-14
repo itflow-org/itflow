@@ -86,6 +86,7 @@ while ($row = mysqli_fetch_array($sql)) {
         navLinks: true, // can click day/week names to navigate views
         selectable: true,
         height: '90vh',
+
         selectMirror: true,
         eventClick: function(editEvent) {
             $('#editEventModal' + editEvent.event.id).modal();
@@ -93,12 +94,13 @@ while ($row = mysqli_fetch_array($sql)) {
         dayMaxEvents: true, // allow "more" link when too many events
         views: {
             timeGrid: {
-                dayMaxEventRows: 5, // adjust to 6 only for timeGridWeek/timeGridDay
+                dayMaxEventRows: 3, // adjust to 6 only for timeGridWeek/timeGridDay
                 expandRows: true,
                 nowIndicator: true,
+                eventMaxStack: 1,
             },
             dayGrid: {
-                dayMaxEvents: 5, // adjust to 6 only for timeGridWeek/timeGridDay
+                dayMaxEvents: 3, // adjust to 6 only for timeGridWeek/timeGridDay
                 expandRows: true,
             },
 
