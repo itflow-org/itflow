@@ -1085,3 +1085,9 @@ function createiCalStr($datetime, $title, $description, $location)
     // Return the iCal string
     return $cal_event->export();
 }
+
+function isMobile()
+{
+    // Check if the user agent is a mobile device
+    return preg_match('/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|opera mini|palm|phone|pie|tablet|up.browser|up.link|webos|wos)/i', $_SERVER['HTTP_USER_AGENT']);
+}
