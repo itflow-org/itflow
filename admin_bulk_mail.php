@@ -1,17 +1,17 @@
 <?php
-require_once "inc_all_client.php";
+require_once "inc_all_admin.php";
+
 
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
-    WHERE contact_client_id = $client_id
-    AND contact_archived_at IS NULL
+    WHERE contact_archived_at IS NULL
     AND contact_email != ''
     ORDER BY contact_primary DESC,
     contact_important DESC"
 );
 
 ?>
-
-<form action="post.php" method="post">
+    
+<form action="post.php" method="post">   
 
     <div class="card">
         <div class="card-header">
@@ -25,29 +25,24 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
         <div class="card-body">
 
             <div class="row">
-
+                
                 <div class="col">
 
                     <h5>Email Message</h5>
 
                     <hr>
-
+                    
                     <div class="form-group">
-                        <select type="text" class="form-control select2" name="mail_from">
-                            <option value="<?php echo $config_mail_from_email; ?>">
-                                <?php echo $config_mail_from_email; ?></option>
-                            <option value="<?php echo $config_invoice_from_email; ?>">
-                                <?php echo $config_invoice_from_email; ?></option>
-                            <option value="<?php echo $config_quote_from_email; ?>">
-                                <?php echo $config_quote_from_email; ?></option>
-                            <option value="<?php echo $config_ticket_from_email; ?>">
-                                <?php echo $config_ticket_from_email; ?></option>
+                        <select type="text" class="form-control select2" name="mail_from" >
+                            <option value="<?php echo $config_mail_from_email; ?>"><?php echo $config_mail_from_email; ?></option>
+                            <option value="<?php echo $config_invoice_from_email; ?>"><?php echo $config_invoice_from_email; ?></option>
+                            <option value="<?php echo $config_quote_from_email; ?>"><?php echo $config_quote_from_email; ?></option>
+                            <option value="<?php echo $config_ticket_from_email; ?>"><?php echo $config_ticket_from_email; ?></option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <input type="text" class="form-control" name="mail_from_name" placeholder="From Name"
-                            value="<?php echo nullable_htmlentities($config_mail_from_name); ?>" required>
+                        <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>" required>
                     </div>
 
                     <div class="form-group">
@@ -55,8 +50,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control tinymce" name="body"
-                            placeholder="Type an email in here"></textarea>
+                        <textarea class="form-control tinymce" name="body" placeholder="Type an email in here"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -81,8 +75,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                     <tr>
                                         <td>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="selectAllCheckbox"
-                                                    onchange="toggleCheckboxes()">
+                                                <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleCheckboxes()">
                                             </div>
                                         </td>
                                         <th>Name</th>
@@ -92,7 +85,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                 </thead>
                                 <tbody>
 
-                                    <?php
+                                <?php
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $contact_id = intval($row['contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
@@ -108,29 +101,27 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                     $contact_billing = intval($row['contact_billing']);
                                     $contact_technical = intval($row['contact_technical']);
                                 ?>
-                                    <tr>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" name="contact[]"
-                                                    value="<?php echo $contact_id; ?>">
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"
-                                                target="_blank">
-                                                <?php echo $contact_name; ?>
-                                            </a>
-                                        </td>
-                                        <td><?php echo $contact_title_display; ?></td>
-                                        <td><?php echo $contact_email; ?></td>
-                                    </tr>
-                                    <?php } ?>
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" name="contact[]" value="<?php echo $contact_id; ?>">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
+                                            <?php echo $contact_name; ?>
+                                        </a>
+                                    </td>
+                                    <td><?php echo $contact_title_display; ?></td>
+                                    <td><?php echo $contact_email; ?></td>
+                                </tr>
+                                <?php } ?>
                                 </tbody>
                             </table>
                         </div>
-
+                        
                     </div>
-
+                
                 </div>
 
             </div>
@@ -143,7 +134,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 function toggleCheckboxes() {
     // Get the state of the 'selectAllCheckbox'
     var selectAllChecked = document.getElementById('selectAllCheckbox').checked;
-
+    
     // Find all checkboxes with the name 'contact[]' and set their state
     var checkboxes = document.querySelectorAll('input[type="checkbox"][name="contact[]"]');
     checkboxes.forEach(function(checkbox) {
