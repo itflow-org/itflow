@@ -21,51 +21,61 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_archived_at IS NULL AND recurring_client_id = $client_id"));
+$recurring_invoice_count = $row['num'];
+
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
-            <div class="card-tools"> 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoiceModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
-                    </div>
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
+        <div class="card-tools">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoiceModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="card-body">
-            <form autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <div class="row">
+    </div>
+    <div class="card-body">
+        <form autocomplete="off">
+            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <div class="row">
 
-                    <div class="col-md-4">
-                        <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Invoices">
-                            <div class="input-group-append">
-                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                            </div>
+                <div class="col-md-4">
+                    <div class="input-group mb-3 mb-md-0">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
+                                                                                        echo stripslashes(nullable_htmlentities($q));
+                                                                                    } ?>" placeholder="Search Invoices">
+                        <div class="input-group-append">
+                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-md-8">
-                        <div class="float-right">
-                            <?php if($balance > 0) { ?>
-                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addBulkPaymentModal"><i class="fa fa-credit-card mr-2"></i>Batch Payment</button>
+                <div class="col-md-8">
+                    <div class="float-right">
+                        <div class="btn-group float-right">
+                            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="btn btn-outline-primary"><i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring | <b><?php echo $recurring_invoice_count; ?></b></a>
+                            <?php if ($balance > 0) { ?>
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addBulkPaymentModal"><i class="fa fa-credit-card mr-2"></i>Batch Payment</button>
                             <?php } ?>
                         </div>
                     </div>
-
                 </div>
-            </form>
-            <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) {
+                                            echo "d-none";
+                                        } ?>">
                     <tr>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Number</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_scope&order=<?php echo $disp; ?>">Scope</a></th>
@@ -76,8 +86,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_status&order=<?php echo $disp; ?>">Status</a></th>
                         <th class="text-center">Action</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
@@ -121,14 +131,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $invoice_badge_color = "secondary";
                         }
 
-                        ?>
+                    ?>
 
                         <tr>
                             <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
                             <td><?php echo $invoice_scope_display; ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                             <td><?php echo $invoice_date; ?></td>
-                            <td><div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div></td>
+                            <td>
+                                <div class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></div>
+                            </td>
                             <td><?php echo $category_name; ?></td>
                             <td>
                                 <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
@@ -162,23 +174,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                         </tr>
 
-                        <?php
+                    <?php
 
                         require "invoice_copy_modal.php";
 
                         require "invoice_edit_modal.php";
-
                     }
 
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "pagination.php";
- ?>
+                </tbody>
+            </table>
         </div>
+        <?php require_once "pagination.php";
+        ?>
     </div>
+</div>
 
 <?php
 require_once "invoice_add_modal.php";
@@ -188,4 +199,3 @@ require_once "invoice_payment_add_bulk_modal.php";
 require_once "client_invoice_export_modal.php";
 
 require_once "footer.php";
-

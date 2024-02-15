@@ -956,7 +956,12 @@ function calculateAccountBalance($mysqli, $account_id)
 
 function generateReadablePassword($security_level)
 {
+    // Cap security level at 5
+    $security_level = intval($security_level);
+    $security_level = min($security_level, 5);
+
     // Arrays of words
+    $articles = ['The', 'A'];
     $adjectives = ['Smart', 'Swift', 'Secure', 'Stable', 'Digital', 'Virtual', 'Active', 'Dynamic', 'Innovative', 'Efficient', 'Portable', 'Wireless', 'Rapid', 'Intuitive', 'Automated', 'Robust', 'Reliable', 'Sleek', 'Modern', 'Happy', 'Funny', 'Quick', 'Bright', 'Clever', 'Gentle', 'Brave', 'Calm', 'Eager', 'Fierce', 'Kind', 'Lucky', 'Proud', 'Silly', 'Witty', 'Bold', 'Curious', 'Elated', 'Gracious', 'Honest', 'Jolly', 'Merry', 'Noble', 'Optimistic', 'Playful', 'Quirky', 'Rustic', 'Steady', 'Tranquil', 'Upbeat'];
     $nouns = ['Computer', 'Laptop', 'Tablet', 'Server', 'Router', 'Software', 'Hardware', 'Pixel', 'Byte', 'App', 'Network', 'Cloud', 'Firewall', 'Email', 'Database', 'Folder', 'Document', 'Interface', 'Program', 'Gadget', 'Dinosaur', 'Tiger', 'Elephant', 'Kangaroo', 'Monkey', 'Unicorn', 'Dragon', 'Puppy', 'Kitten', 'Parrot', 'Lion', 'Bear', 'Fox', 'Wolf', 'Rabbit', 'Deer', 'Owl', 'Hedgehog', 'Turtle', 'Frog', 'Butterfly', 'Panda', 'Giraffe', 'Zebra', 'Peacock', 'Koala', 'Raccoon', 'Squirrel', 'Hippo', 'Rhino', 'Book', "Monitor"];
     $verbs = ['Connects', 'Runs', 'Processes', 'Secures', 'Encrypts', 'Saves', 'Updates', 'Boots', 'Scans', 'Compiles', 'Executes', 'Restores', 'Installs', 'Configures', 'Downloads', 'Streams', 'BacksUp', 'Syncs', 'Browses', 'Navigates', 'Runs', 'Jumps', 'Flies', 'Swims', 'Dances', 'Sings', 'Hops', 'Skips', 'Races', 'Climbs', 'Crawls', 'Glides', 'Twirls', 'Swings', 'Sprints', 'Gallops', 'Trots', 'Wanders', 'Strolls', 'Marches'];
@@ -968,14 +973,19 @@ function generateReadablePassword($security_level)
     $verb = $verbs[array_rand($verbs)];
     $adv = $adverbs[array_rand($adverbs)];
 
-
-
     // Combine to create a base password
-    if ($security_level > 2) {
-        $password =  "The" . $adj . $noun . $adv . $verb;
-    } else {
-        $password = $adj . $noun . $verb;
+    $password = $adj . $noun . $verb . $adv;
+
+    // Select an article randomly
+    $article = $articles[array_rand($articles)];
+
+    // Determine if we should use 'An' instead of 'A'
+    if ($article == 'A' && preg_match('/^[aeiouAEIOU]/', $adj)) {
+        $article = 'An';
     }
+
+    // Add the article to the password
+    $password = $article . $password;
 
     // Mapping of letters to special characters and numbers
     $mappings = [
@@ -983,25 +993,28 @@ function generateReadablePassword($security_level)
         'E' => '3', 'e' => '3',
         'I' => '!', 'i' => '!',
         'O' => '0', 'o' => '0',
-        'S' => '$', 's' => '$'
+        'S' => '$', 's' => '$',
+        'T' => '+', 't' => '+',
+        'B' => '8', 'b' => '8'
     ];
 
-    // Replace characters based on mappings
-    if ($security_level > 4) {
-        $password = strtr($password, $mappings);
-    } else {
-        // Randomly replace characters based on mappings
-        for ($i = 0; $i < strlen($password); $i++) {
-            if (array_key_exists($password[$i], $mappings) && rand(0, 1)) {
-                $password[$i] = $mappings[$password[$i]];
-            }
+    // Generate an array of indices based on the password length
+    $indices = range(0, strlen($password) - 1);
+    // Randomly shuffle the indices
+    shuffle($indices);
+
+    // Iterate through the shuffled indices and replace characters based on the security level
+    for ($i = 0; $i < min($security_level, strlen($password)); $i++) {
+        $index = $indices[$i]; // Get a random index
+        $currentChar = $password[$index]; // Get the character at this index
+        // Check if the current character has a mapping and replace it
+        if (array_key_exists($currentChar, $mappings)) {
+            $password[$index] = $mappings[$currentChar];
         }
     }
 
-    if ($security_level > 3) {
-        // Add a random number at the end
-        $password .= rand(0, 99);
-    }
+    // Add as many random numbers as the security level
+    $password .= rand(pow(10, $security_level - 1), pow(10, $security_level) - 1);
 
     return $password;
 }

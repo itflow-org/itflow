@@ -77,7 +77,7 @@ $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS to
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
-//Get Total Scheduled tickets
+//Get Total Recurring (scheduled) tickets
 $sql_total_scheduled_tickets = mysqli_query($mysqli, "SELECT COUNT(scheduled_ticket_id) AS total_scheduled_tickets FROM scheduled_tickets");
 $row = mysqli_fetch_array($sql_total_scheduled_tickets);
 $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
