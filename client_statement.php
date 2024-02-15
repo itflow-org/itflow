@@ -137,13 +137,14 @@ if (isset($_GET['client_id'])) {
                                 payments.payment_amount,
                                 payments.payment_reference,
                                 invoices.invoice_number,
-                                invoices.invoice_prefix
+                                invoices.invoice_prefix,
+                                invoices.invoice_client_id
                             FROM 
                                 payments
                             LEFT JOIN
                                 invoices ON payments.payment_invoice_id = invoices.invoice_id
                             WHERE
-                                payment_account_id = $client_id
+                                invoice_client_id = $client_id
                                 AND payment_archived_at IS NULL
                             ORDER BY
                                 payment_date DESC";
