@@ -16,9 +16,9 @@ if (isset($_GET['calendar_id'])) {
         cursor: pointer;
     }
 </style>
-
-<div id='calendar'></div>
-
+<div class="card">
+    <div id='calendar'></div>
+</div>
 <?php
 
 require_once "calendar_event_add_modal.php";
