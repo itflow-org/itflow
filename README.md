@@ -69,6 +69,7 @@
   * PHPMailer
   * HTML Purifier
   * PHP Mime Mail Parser
+  * Zap Calendar
 
 * CSS
   * Bootstrap
@@ -83,6 +84,7 @@
   * Select2
   * TinyMCE
   * FullCalendar.io
+
 
 <!-- GETTING STARTED -->
 ## Getting Started
