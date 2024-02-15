@@ -358,10 +358,6 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="input-group mb-3">
                                         <div class="form-row">
 
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
-                                            </div>
-
                                             <div class="input-group custom-tt-width">
                                                 <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                             </div>
@@ -387,9 +383,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
 
 
-                            </div>
-                            <div class="form-row">
-
+                            
                                 <?php
                                 // Set the initial ticket response type (private/internal note)
                                 //  Future updates of the wording/icon are done by Javascript
