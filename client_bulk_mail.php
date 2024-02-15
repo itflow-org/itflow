@@ -5,6 +5,10 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
     AND contact_email != ''
+    AND ( contact_primary = 1 OR
+    contact_important = 1 OR
+    contact_billing = 1 OR
+    contact_technical = 1 )
     ORDER BY contact_primary DESC,
     contact_important DESC"
 );
@@ -15,7 +19,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-envelope-open mr-2"></i>Bulk Mail</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-envelope-open mr-2"></i>Bulk Mail to Special Contacts</h3>
             <div class="card-tools">
                 <button type="submit" class="btn btn-primary" name="send_bulk_mail_now">
                     <i class="fas fa-paper-plane mr-2"></i>Send Now
