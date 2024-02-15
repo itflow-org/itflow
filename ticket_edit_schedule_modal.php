@@ -34,6 +34,11 @@
                 </div>
 
                 <div class="modal-footer bg-white">
+                <?php if (!empty($ticket_scheduled_for)) { ?>
+                    <a href="post.php?cancel_ticket_schedule=<?php echo htmlspecialchars($ticket_id); ?>" class="btn btn-danger text-bold">
+                        <i class="fa fa-trash mr-2"></i>Cancel Scheduled Time
+                    </a>
+                <?php } ?>
                     <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>
