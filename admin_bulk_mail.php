@@ -100,6 +100,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                     $contact_important = intval($row['contact_important']);
                                     $contact_billing = intval($row['contact_billing']);
                                     $contact_technical = intval($row['contact_technical']);
+                                    $contact_client_id = intval($row['contact_client_id']);
                                 ?>
                                 <tr>
                                     <td>
@@ -108,7 +109,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
+                                        <a href="client_contact_details.php?client_id=<?php echo $contact_client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
                                             <?php echo $contact_name; ?>
                                         </a>
                                     </td>
