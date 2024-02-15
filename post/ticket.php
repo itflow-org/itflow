@@ -1632,3 +1632,138 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
     exit;
 }
+
+if (isset($_GET['cancel_ticket_schedule'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_GET['cancel_ticket_schedule']);
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_id = intval($row['ticket_client_id']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_schedule = sanitizeInput($row['ticket_schedule']);
+    $ticket_cal_str = sanitizeInput($row['ticket_cal_str']);
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL, ticket_status = 'Open' WHERE ticket_id = $ticket_id");
+
+    //Create iCal event
+    $cal_str = createiCalStrCancel($ticket_cal_str);
+
+    //Send emails
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN locations on contact_location_id = location_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        WHERE ticket_id = $ticket_id
+    ");
+    $row = mysqli_fetch_array($sql);
+
+    $client_id = intval($row['ticket_client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $ticket_details = sanitizeInput($row['ticket_details']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $user_name = sanitizeInput($row['user_name']);
+    $user_email = sanitizeInput($row['user_email']);
+
+    $data = [
+        [   //Client Contact Email
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => "Ticket Schedule Cancelled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => mysqli_escape_string($mysqli, "<div class='header'>
+                                Hello, $contact_name
+                            </div>
+                            Your ticket regarding $ticket_subject has been cancelled.
+                            <br><br>
+                            <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
+                            <br><br>
+                            Please do not reply to this email.
+                            <br><br>
+                            <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
+                            <strong>Subject:</strong> $ticket_subject<br>
+                            <br><br>
+                            <div class='footer'>
+                                ~<br>
+                                $session_company_name<br>
+                                Support Department<br>
+                                $config_ticket_from_email<br>
+                            </div>
+                            <div class='no-reply'>
+                                This is an automated message. Please do not reply directly to this email.
+                            </div>"),
+            'cal_str' => $cal_str
+        ],
+        [
+            // User Email
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $user_email,
+            'recipient_name' => $user_name,
+            'subject' => "Ticket Schedule Cancelled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => "Hello, " . $user_name . "<br><br>The ticket regarding $ticket_subject has been cancelled.<br><br>--------------------------------<br><a href=\"https://$config_base_url/ticket.php?id=$ticket_id\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email",
+            'cal_str' => $cal_str
+        ]
+    ];
+
+    //Send all watchers an email
+    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+    while ($row = mysqli_fetch_assoc($sql_watchers)) {
+        $watcher_email = sanitizeInput($row['watcher_email']);
+        $data[] = [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $watcher_email,
+            'recipient_name' => $watcher_email,
+            'subject' => "Ticket Schedule Cancelled - [$ticket_prefix$ticket_number] - $ticket_subject",
+            'body' => mysqli_escape_string($mysqli, nullable_htmlentities("<div class='header'>
+            Hello,
+        </div>
+        Your ticket regarding $ticket_subject has been cancelled.
+        <br><br>
+        <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
+        <br><br>
+        Please do not reply to this email.
+        <br><br>
+        <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
+        <strong>Subject:</strong> $ticket_subject<br>
+        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access your ticket here</a>
+        <br><br>
+        <div class='footer'>
+            ~<br>
+            $session_company_name<br>
+            Support Department<br>
+            $config_ticket_from_email<br>
+        </div>
+        <div class='no-reply'>
+            This is an automated message. Please do not reply directly to this email.
+        </div>")),
+            'cal_str' => $cal_str
+        ];
+    }
+
+    $response = addToMailQueue($mysqli, $data);
+
+    // Update ticket reply
+    $ticket_reply_note = "Ticket schedule cancelled.";
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name cancelled ticket schedule', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket schedule cancelled";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
