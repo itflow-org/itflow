@@ -38,48 +38,49 @@ $sql_years_select = mysqli_query(
 );
 
 ?>
+<div class="card card-body">
+    <form class="form-inline">
+        <input type="hidden" name="enable_financial" value="0">
+        <input type="hidden" name="enable_technical" value="0">
 
-<form class="form-inline">
-    <input type="hidden" name="enable_financial" value="0">
-    <input type="hidden" name="enable_technical" value="0">
+        <select onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2" name="year">
+            <?php
 
-    <select onchange="this.form.submit()" class="form-control mb-3 mr-sm-3 col-sm-2" name="year">
-        <?php
+            while ($row = mysqli_fetch_array($sql_years_select)) {
+                $year_select = $row['all_years'];
+                if (empty($year_select)) {
+                    $year_select = date('Y');
+                }
+            ?>
+                <option <?php if ($year == $year_select) {
+                            echo "selected";
+                        } ?>> <?php echo $year_select; ?></option>
 
-        while ($row = mysqli_fetch_array($sql_years_select)) {
-            $year_select = $row['all_years'];
-            if (empty($year_select)) {
-                $year_select = date('Y');
+            <?php
             }
-        ?>
-            <option <?php if ($year == $year_select) {
-                        echo "selected";
-                    } ?>> <?php echo $year_select; ?></option>
+            ?>
+        </select>
 
-        <?php
-        }
-        ?>
-    </select>
+        <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
+            <div class="custom-control custom-switch mr-sm-3">
+                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) {
+                                                                                                                                                            echo "checked";
+                                                                                                                                                        } ?>>
+                <label class="custom-control-label" for="customSwitch1">Toggle Financial</label>
+            </div>
+        <?php } ?>
 
-    <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
-        <div class="custom-control custom-switch mr-sm-3 mb-3">
-            <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) {
-                                                                                                                                                        echo "checked";
-                                                                                                                                                    } ?>>
-            <label class="custom-control-label" for="customSwitch1">Toggle Financial</label>
-        </div>
-    <?php } ?>
+        <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) {
+                                                                                                                                                            echo "checked";
+                                                                                                                                                        } ?>>
+                <label class="custom-control-label" for="customSwitch2">Toggle Technical</label>
+            </div>
+        <?php } ?>
 
-    <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
-        <div class="custom-control custom-switch mb-3">
-            <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) {
-                                                                                                                                                        echo "checked";
-                                                                                                                                                    } ?>>
-            <label class="custom-control-label" for="customSwitch2">Toggle Technical</label>
-        </div>
-    <?php } ?>
-
-</form>
+    </form>
+</div>
 
 <?php
 
@@ -193,7 +194,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     $vendors_added = intval($row['vendors_added']);
 
 ?>
-
+<div class="card card-body">
     <!-- Icon Cards-->
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12">
@@ -568,6 +569,7 @@ if ($user_config_dashboard_financial_enable == 1) {
             </div>
         </div>
     </div> <!-- row -->
+</div> <!--card -->
 
 <?php } ?>
 
@@ -656,6 +658,7 @@ if ($user_config_dashboard_technical_enable == 1) {
 
 ?>
 
+<div class="card card-body">
     <!-- Icon Cards-->
     <div class="row">
 
@@ -851,6 +854,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             </div>
 
         </div>
+    </div> <!-- Card -->
 
     <?php } ?>
 
