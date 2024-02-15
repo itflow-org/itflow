@@ -75,6 +75,9 @@ if ($iPod || $iPhone || $iPad) {
     $session_map_source = "google";
 }
 
+//Check if mobile device
+$session_mobile = isMobile();
+
 //Get Notification Count for the badge on the top nav
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];

@@ -1085,3 +1085,39 @@ function createiCalStr($datetime, $title, $description, $location)
     // Return the iCal string
     return $cal_event->export();
 }
+
+function isMobile()
+{
+    // Check if the user agent is a mobile device
+    return preg_match('/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|opera mini|palm|phone|pie|tablet|up.browser|up.link|webos|wos)/i', $_SERVER['HTTP_USER_AGENT']);
+}
+
+function createiCalStrCancel($originaliCalStr) {
+    require_once "plugins/zapcal/zapcallib.php";
+
+    // Import the original iCal string
+    $cal_event = new ZCiCal($originaliCalStr);
+    
+    // Iterate through the iCalendar object to find VEVENT nodes
+    foreach($cal_event->tree->child as $node) {
+        if($node->getName() == "VEVENT") {
+            // Check if STATUS node exists, update it, or add a new one
+            $statusFound = false;
+            foreach($node->data as $key => $value) {
+                if($key == "STATUS") {
+                    $value->setValue("CANCELLED");
+                    $statusFound = true;
+                    break; // Exit the loop once the STATUS is updated
+                }
+            }
+            // If STATUS node is not found, add a new STATUS node
+            if (!$statusFound) {
+                $node->addNode(new ZCiCalDataNode("STATUS:CANCELLED"));
+            }
+        }
+    }
+
+    // Return the modified iCal string
+    return $cal_event->export();
+}
+    
