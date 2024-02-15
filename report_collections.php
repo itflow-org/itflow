@@ -85,8 +85,16 @@
                     </thead>
                     <tbody>
                         <?php 
+                        $processed_clients = []; // Array to keep track of processed client IDs
+
                             while ($row = mysqli_fetch_assoc($result_client_balance_report)) {
                                 $client_id = intval($row['client_id']);
+                                    // Skip this row if we've already processed this client ID
+                                if (in_array($client_id, $processed_clients)) {
+                                    continue; // Skip to the next iteration of the loop
+                                }    // Add the client ID to the array of processed clients
+                                $processed_clients[] = $client_id;
+                                
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $balance = floatval($row['balance']);
                                 $billing_contact_phone = formatPhoneNumber($row['billing_contact_phone']);
