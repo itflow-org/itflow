@@ -5,6 +5,10 @@ require_once "inc_all_admin.php";
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     WHERE contact_archived_at IS NULL
     AND contact_email != ''
+    AND (contact_primary = 1 OR
+    contact_important = 1 OR
+    contact_billing = 1 OR
+    contact_technical = 1)
     ORDER BY contact_primary DESC,
     contact_important DESC"
 );
