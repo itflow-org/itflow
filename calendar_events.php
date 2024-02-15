@@ -48,7 +48,7 @@ while ($row = mysqli_fetch_array($sql)) {
 <?php require_once "footer.php";
 ?>
 
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='plugins/fullcalendar-6.1.10/dist/index.global.js'></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
