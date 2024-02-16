@@ -43,8 +43,6 @@ header("X-Frame-Options: DENY");
     <script src="plugins/jquery/jquery.min.js"></script>
     <script src="plugins/toastr/toastr.min.js"></script>
 
-    <script src="plugins/axios/axios.min.js"></script>
-
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed accent-<?php echo nullable_htmlentities($config_theme); ?>">
     <div class="wrapper text-sm">
