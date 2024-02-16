@@ -1374,17 +1374,17 @@ if (isset($_POST['edit_scheduled_ticket']) || isset($_POST['edit_recurring_ticke
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_scheduled_ticket']) || isset($_POST['delete_recurring_ticket'])) {
+if (isset($_GET['delete_recurring_ticket'])) {
 
     validateAdminRole();
 
-    $scheduled_ticket_id = intval($_GET['delete_scheduled_ticket']);
+    $scheduled_ticket_id = intval($_GET['delete_recurring_ticket']);
 
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
     $sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
     $row = mysqli_fetch_array($sql);
-    $scheduled_ticket_subject = sanitizeInput($row['scheduled_ticket_subject']);
-    $scheduled_ticket_frequency = sanitizeInput($row['scheduled_ticket_frequency']);
+    $subject = sanitizeInput($row['scheduled_ticket_subject']);
+    $frequency = sanitizeInput($row['scheduled_ticket_frequency']);
 
     $client_id = intval($row['scheduled_ticket_client_id']);
 
@@ -1392,9 +1392,9 @@ if (isset($_GET['delete_scheduled_ticket']) || isset($_POST['delete_recurring_ti
     mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted scheduled ticket for $subject - $frequency', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Scheduled Ticket', log_action = 'Delete', log_description = '$session_name deleted recurring ticket for $subject - $frequency', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $scheduled_ticket_id");
 
-    $_SESSION['alert_message'] = "Scheduled ticket <strong>$subject - $frequency</strong> deleted";
+    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
