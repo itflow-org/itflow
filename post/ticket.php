@@ -1383,8 +1383,8 @@ if (isset($_GET['delete_recurring_ticket'])) {
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
     $sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
     $row = mysqli_fetch_array($sql);
-    $scheduled_ticket_subject = sanitizeInput($row['scheduled_ticket_subject']);
-    $scheduled_ticket_frequency = sanitizeInput($row['scheduled_ticket_frequency']);
+    $subject = sanitizeInput($row['scheduled_ticket_subject']);
+    $frequency = sanitizeInput($row['scheduled_ticket_frequency']);
 
     $client_id = intval($row['scheduled_ticket_client_id']);
 
