@@ -1374,7 +1374,7 @@ if (isset($_POST['edit_scheduled_ticket']) || isset($_POST['edit_recurring_ticke
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['delete_scheduled_ticket']) || isset($_POST['delete_recurring_ticket'])) {
+if (isset($_GET['delete_scheduled_ticket']) || isset($_GET['delete_recurring_ticket'])) {
 
     validateAdminRole();
 
