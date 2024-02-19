@@ -126,7 +126,7 @@ if (isset($_POST['login'])) {
         if ($bypass_2fa) {
             if (isset($_POST['remember_me'])) {
                 $newRememberToken = bin2hex(random_bytes(64));
-                setcookie('rememberme', $newRememberToken, time() + 86400*14, "/", null, true, true);
+                setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
                 $updateTokenQuery = "UPDATE user_settings SET user_config_remember_me_token = '$newRememberToken' WHERE user_id = $user_id";
                 mysqli_query($mysqli, $updateTokenQuery);
             }
