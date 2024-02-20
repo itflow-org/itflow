@@ -311,6 +311,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                     <span class="input-group-text"><i class="fa fa-user"></i></span>
                                                                 </div>
                                                                 <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
+                                                                <div class="input-group-append">
+                                                                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_username; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
@@ -318,11 +321,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 <div class="input-group-prepend">
                                                                     <span class="input-group-text"><i class="fa fa-lock"></i></span>
                                                                 </div>
-                                                                <input type="password" name="fakePassword" style="display:none"> <!-- Prevents Password Managers from asking -->
-                                                                <input type="password" class="form-control" data-toggle="password" value="<?php echo $login_password; ?>" readonly autocomplete="off">
-                                                                <div class="input-group-append">
-                                                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                                                </div>
+                                                                <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly autocomplete="off">
                                                                 <div class="input-group-append">
                                                                     <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
                                                                 </div>
