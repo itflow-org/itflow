@@ -1,5 +1,6 @@
 document.getElementById('rewordButton').addEventListener('click', function() {
     var textInput = document.getElementById('textInput');
+    var ticketDescription = document.getElementById('ticketDescription');
     var rewordButton = document.getElementById('rewordButton');
     var undoButton = document.getElementById('undoButton');
     var previousText = textInput.value; // Store the current text
@@ -13,7 +14,7 @@ document.getElementById('rewordButton').addEventListener('click', function() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: textInput.value }),
+        body: JSON.stringify({ text: textInput.value, description: ticketDescription.value }),
     })
     .then(response => response.json())
     .then(data => {

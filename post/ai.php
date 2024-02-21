@@ -13,7 +13,7 @@ if (isset($_GET['ai_reword'])) {
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
     // Prefix the input text with "reword: "
-    $prefixedText = "reword: " . $input['text'];
+    $prefixedText = "You are a technician at a help desk, training another technician. This is a response to the following issue " . $input['description'] . " Help me reword this for clarity and proffesionalism: " . $input['text'];
 
     // Preparing the data for the OpenAI Chat API request.
     $data = [
