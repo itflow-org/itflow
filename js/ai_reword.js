@@ -14,7 +14,11 @@ document.getElementById('rewordButton').addEventListener('click', function() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: textInput.value, description: ticketDescription.value }),
+        // Body with the text to reword and the ticket description
+        body: JSON.stringify({
+            text: textInput.value,
+            ticketDescription: ticketDescription.innerText.valueOf(),
+        }),
     })
     .then(response => response.json())
     .then(data => {
