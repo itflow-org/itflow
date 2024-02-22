@@ -138,7 +138,7 @@ if($config_enable_alert_domain_expire == 1){
             $mysqli,
             "SELECT * FROM domains
             LEFT JOIN clients ON domain_client_id = client_id 
-            WHERE domain_expire = CURDATE() + INTERVAL $day DAY"
+            WHERE domain_expire IS NOT NULL AND domain_expire = CURDATE() + INTERVAL $day DAY"
         );
 
         while ($row = mysqli_fetch_array($sql)) {
