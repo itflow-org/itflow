@@ -12,14 +12,15 @@ if (isset($_GET['ai_reword'])) {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
-    // Prefix the input text with "reword: "
-    $prefixedText = "reword: " . $input['text'];
+    $promptText = "You are an experienced technician at a help desk, training a new technician. You are helping rewrite response for clarity and professionalism, but dont make it too wordy.";
+    $userText = $input['text'];
 
     // Preparing the data for the OpenAI Chat API request.
     $data = [
         "model" => "$config_ai_model", // Specify the model
         "messages" => [
-            ["role" => "user", "content" => $prefixedText]
+            ["role" => "system", "content" => $promptText],
+            ["role" => "user", "content" => $userText],
         ],
         "temperature" => 0.7
     ];
@@ -45,6 +46,8 @@ if (isset($_GET['ai_reword'])) {
 
     // Check if the response contains the expected data and return it.
     if (isset($responseData['choices'][0]['message']['content'])) {
+        // Remove any square brackets and their contents from the response.
+        $responseData['choices'][0]['message']['content'] = preg_replace('/\[.*?\]/', '', $responseData['choices'][0]['message']['content']);
         echo json_encode(['rewordedText' => trim($responseData['choices'][0]['message']['content'])]);
     } else {
         // Handle errors or unexpected response structure.

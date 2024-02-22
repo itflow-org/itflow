@@ -1042,6 +1042,22 @@ CREATE TABLE `recurring_expenses` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table remember_tokens
+--
+
+DROP TABLE IF EXISTS `remember_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `remember_tokens` (
+  `remember_token_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `remember_token_user_id` int(10) unsigned NOT NULL,
+  `remember_token_token` varchar(100) NOT NULL,
+  `remember_token_created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+--
 -- Table structure for table `revenues`
 --
 

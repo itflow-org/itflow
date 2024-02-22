@@ -285,7 +285,7 @@ if (isset($_GET['ticket_id'])) {
                             <h3 class="card-title text-bold"><?php echo $ticket_subject; ?></h3>
                         </div>
 
-                        <div class="card-body prettyContent">
+                        <div class="card-body prettyContent" id="ticketDetails">
                             <?php echo $ticket_details; ?>
 
                             <?php

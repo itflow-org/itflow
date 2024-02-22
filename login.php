@@ -111,14 +111,24 @@ if (isset($_POST['login'])) {
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
-        $remember_token = $row['user_config_remember_me_token'];
+        $user_role = intval($row['user_role']);
+        $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+        $user_extension_key = $row['user_extension_key'];
         if($force_mfa == 1 && $token == NULL) {
             $config_start_page = "user_security.php";
         }
 
+        // Get remember tokens less than 2 days old
+        $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL 2 DAY)");
+
         $bypass_2fa = false;
-        if (isset($_COOKIE['rememberme']) && $_COOKIE['rememberme'] == $remember_token) {
-            $bypass_2fa = true;
+        if (isset($_COOKIE['rememberme'])) {
+            while ($row = mysqli_fetch_assoc($remember_tokens)) {
+                if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
+                    $bypass_2fa = true;
+                    break;
+                }
+            }
         } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
             $bypass_2fa = true;
         }
@@ -127,7 +137,7 @@ if (isset($_POST['login'])) {
             if (isset($_POST['remember_me'])) {
                 $newRememberToken = bin2hex(random_bytes(64));
                 setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
-                $updateTokenQuery = "UPDATE user_settings SET user_config_remember_me_token = '$newRememberToken' WHERE user_id = $user_id";
+                $updateTokenQuery = "INSERT INTO remember_tokens (remember_token_user_id, remember_token_token) VALUES ($user_id, '$newRememberToken')";
                 mysqli_query($mysqli, $updateTokenQuery);
             }
 
@@ -171,21 +181,20 @@ if (isset($_POST['login'])) {
             // Session info
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
-            $_SESSION['user_role'] = intval($row['user_role']);
+            $_SESSION['user_role'] = $user_role;
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;
 
             // Setup encryption session key
-            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
-                $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+            if (is_null($user_encryption_ciphertext) && $user_role > 1) {
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
 
                 // Setup extension
-                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
+                if (is_null($user_extension_key)) {
                     // Extension cookie
                     // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                    setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+                    setcookie("user_extension_key", "$user_extension_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
                     // Set PHP session in DB, so we can access the session encryption data (above)
                     $user_php_session = session_id();
