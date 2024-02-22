@@ -373,10 +373,11 @@ function encryptLoginEntry($login_password_cleartext)
 // Get domain expiration date
 function getDomainExpirationDate($name)
 {
-
+    $nullValue = "1000-01-01";
+    
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        return "NULL";
+        return $nullValue;
     }
 
     $ch = curl_init();
@@ -390,14 +391,14 @@ function getDomainExpirationDate($name)
         } elseif (isset($response['expiration_date'])) {
             $expiry = new DateTime($response['expiration_date']);
         } else {
-            return "NULL";
+            return $nullValue;
         }
-
+        
         return $expiry->format('Y-m-d');
     }
 
     // Default return
-    return "1000-01-01";
+    return $nullValue;
 }
 
 // Get domain general info (whois + NS/A/MX records)
