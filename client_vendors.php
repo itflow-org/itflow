@@ -80,6 +80,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">Vendor</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_description&order=<?php echo $disp; ?>">Description</a></th>
                         <th>Contact</th>
+                        <th>Website</th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -111,7 +112,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $vendor_code = nullable_htmlentities($row['vendor_code']);
                         $vendor_notes = nullable_htmlentities($row['vendor_notes']);
                         $vendor_template_id = intval($row['vendor_template_id']);
-
+                        
+                        if (empty($vendor_website)) {
+                            $vendor_website_display = "-";
+                        } else {
+                            $vendor_website_display = "<button class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button><a href='https://$vendor_website' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                        }
+                        
                         ?>
                         <tr>
                             <th>
@@ -143,6 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <br>
                                 <?php } ?>
                             </td>
+                             <td><?php echo $vendor_website_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
