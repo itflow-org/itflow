@@ -12,7 +12,7 @@ if (isset($_GET['ai_reword'])) {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
-    $promptText = "You are an experienced technician at a help desk, training a new technician. The system will tell them to reach out again if they need help, so dont mention that. Help me rewrite the following response for clarity and professionalism, but dont make it too wordy; Be sure to mention the issue in the response so the client feels heard:";
+    $promptText = "You are an experienced technician at a help desk, training a new technician. You are helping rewrite response for clarity and professionalism, but dont make it too wordy.";
     // Prefix the input text with "reword: "
     $userText = $input['text'];
 
