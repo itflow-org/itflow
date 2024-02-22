@@ -397,7 +397,7 @@ function getDomainExpirationDate($name)
     }
 
     // Default return
-    return "NULL";
+    return "1000-01-01";
 }
 
 // Get domain general info (whois + NS/A/MX records)
