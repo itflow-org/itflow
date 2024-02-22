@@ -50,7 +50,6 @@ if ($row) {
     $domain_name = sanitizeInput($row['domain_name']);
     $current_expire = sanitizeInput($row['domain_expire']);
 
-    echo "Renewing $domain_name";
     // Touch the record we're refreshing to ensure we don't loop
     mysqli_query($mysqli, "UPDATE domains SET domain_updated_at = NOW() WHERE domain_id = $domain_id");
 

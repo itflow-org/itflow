@@ -38,7 +38,7 @@ if (isset($_POST['add_domain'])) {
     $whois = sanitizeInput($records['whois']);
 
     // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
 
     // Get inserted ID (for linking certificate, if exists)
     $domain_id = mysqli_insert_id($mysqli);
