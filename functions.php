@@ -373,7 +373,7 @@ function encryptLoginEntry($login_password_cleartext)
 // Get domain expiration date
 function getDomainExpirationDate($name)
 {
-    $nullValue = "1000-01-01";
+    $nullValue = "1970-01-01";
     
     // Only run if we think the domain is valid
     if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
