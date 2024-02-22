@@ -1607,10 +1607,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.0.6') {
-    //     // Insert queries here required to update to DB version 1.0.7
+    if (CURRENT_DATABASE_VERSION == '1.0.6') {
+        // Insert queries here required to update to DB version 1.0.7
+        mysqli_query($mysqli, "CREATE TABLE `remember_tokens` (`remember_token_id` int(11) NOT NULL AUTO_INCREMENT,`remember_token_token` varchar(255) NOT NULL,`remember_token_user_id` int(11) NOT NULL,`remember_token_created_at` datetime NOT NULL DEFAULT current_timestamp()");
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.0.7') {
+    //     // Insert queries here required to update to DB version 1.0.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
     // }
 
 } else {

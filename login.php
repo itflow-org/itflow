@@ -111,14 +111,21 @@ if (isset($_POST['login'])) {
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
-        $remember_token = $row['user_config_remember_me_token'];
         if($force_mfa == 1 && $token == NULL) {
             $config_start_page = "user_security.php";
         }
 
+        // Get remember tokens less than 2 days old
+        $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL 2 DAY)");
+
         $bypass_2fa = false;
-        if (isset($_COOKIE['rememberme']) && $_COOKIE['rememberme'] == $remember_token) {
-            $bypass_2fa = true;
+        if (isset($_COOKIE['rememberme'])) {
+            while ($row = mysqli_fetch_assoc($remember_tokens)) {
+                if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
+                    $bypass_2fa = true;
+                    break;
+                }
+            }
         } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
             $bypass_2fa = true;
         }
@@ -126,8 +133,8 @@ if (isset($_POST['login'])) {
         if ($bypass_2fa) {
             if (isset($_POST['remember_me'])) {
                 $newRememberToken = bin2hex(random_bytes(64));
-                setcookie('rememberme', $newRememberToken, time() + 86400*14, "/", null, true, true);
-                $updateTokenQuery = "UPDATE user_settings SET user_config_remember_me_token = '$newRememberToken' WHERE user_id = $user_id";
+                setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
+                $updateTokenQuery = "INSERT INTO remember_tokens (remember_token_user_id, remember_token_token) VALUES ($user_id, '$newRememberToken')";
                 mysqli_query($mysqli, $updateTokenQuery);
             }
 
