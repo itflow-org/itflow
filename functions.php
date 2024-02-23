@@ -747,7 +747,7 @@ function getAssetIcon($asset_type)
         $device_icon = "mobile-alt";
     } elseif ($asset_type == 'Tablet') {
         $device_icon = "tablet-alt";
-    } elseif ($asset_type == 'Television') {
+    } elseif ($asset_type == 'TV') {
         $device_icon = "tv";
     } elseif ($asset_type == 'Virtual Machine') {
         $device_icon = "cloud";
