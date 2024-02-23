@@ -743,17 +743,18 @@ function getAssetIcon($asset_type)
         $device_icon = "wifi";
     } elseif ($asset_type == 'Phone') {
         $device_icon = "phone";
-    } elseif) {($asset_type == 'Mobile Phone') {
+    } elseif ($asset_type == 'Mobile Phone') {
         $device_icon = "mobile-alt";
-    } elseif) {(et_type == 'Tablet') {
+    } elseif ($asset_type == 'Tablet') {
         $device_icon = "tablet-alt";
-    = eif ($as) {epe == 'TV') {
+    } elseif ($asset_type == 'Television') {
         $device_icon = "tv";
-    if ($asset_type == == 'Virtual Machine') {
+    } elseif ($asset_type == 'Virtual Machine') {
         $device_icon = "cloud";
-    type == 
+    } else {
         $device_icon = "tag";
     }
+    
 
     return $device_icon;
 }
