@@ -186,11 +186,11 @@ if (isset($_POST['login'])) {
             $_SESSION['logged'] = true;
 
             // Setup encryption session key
-            if (is_null($user_encryption_ciphertext) && $user_role > 1) {
+            if (isset($user_encryption_ciphertext) && $user_role > 1) {
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
 
-                // Setup extension
+                // Setup extension - currently unused
                 if (is_null($user_extension_key)) {
                     // Extension cookie
                     // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
@@ -200,6 +200,7 @@ if (isset($_POST['login'])) {
                     $user_php_session = session_id();
                     mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
                 }
+
             }
 
             header("Location: $config_start_page");
@@ -282,14 +283,14 @@ if (isset($_POST['login'])) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
 
-    <!-- 
+    <!--
     Favicon
-    If Fav Icon exists else use the default one 
+    If Fav Icon exists else use the default one
     -->
     <?php if(file_exists('uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
-    
+
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
@@ -313,7 +314,7 @@ if (isset($_POST['login'])) {
             <?php if(!empty($config_login_message)){ ?>
             <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
-           
+
             <?php if (isset($response)) { ?>
             <p><?php echo $response; ?></p>
             <?php } ?>
@@ -337,8 +338,8 @@ if (isset($_POST['login'])) {
                     </div>
                 </div>
 
-                <?php 
-                if (isset($token_field)) { 
+                <?php
+                if (isset($token_field)) {
 
                     echo $token_field;
                 ?>
@@ -351,10 +352,10 @@ if (isset($_POST['login'])) {
                 </div>
 
                 <?php
-                
+
                 }
 
-                ?>    
+                ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
