@@ -60,6 +60,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 $_SESSION['contact_id'] = intval($row['contact_id']);
                 $_SESSION['login_method'] = "local";
 
+                // Session info
+                $_SESSION['user_id'] = $contact_id;
+                $_SESSION['contact_name'] = $contact_name;
+                $_SESSION['csrf_token'] = randomString(156);
+                $_SESSION['logged'] = true;
+
+                // Setup encryption session key
+                if (is_null($contact_encryption_ciphertext)) {
+                    $contact_encryption_ciphertext 
+                    $site_encryption_master_key = decryptContactSpecificKey($contact_encryption_ciphertext, $password);
+                    generateContactSessionKey($site_encryption_master_key);
+
+                }
+
                 header("Location: index.php");
 
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");

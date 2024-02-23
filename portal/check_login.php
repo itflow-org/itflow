@@ -62,20 +62,6 @@ if ($contact['contact_billing'] == 1) {
     $session_contact_is_billing_contact = true;
 }
 
-// Session info
-$_SESSION['user_id'] = $contact_id;
-$_SESSION['contact_name'] = $contact_name;
-$_SESSION['contact_role'] = $contact_role;
-$_SESSION['csrf_token'] = randomString(156);
-$_SESSION['logged'] = true;
-
-// Setup encryption session key
-if (is_null($contact_encryption_ciphertext) && $contact_role > 1) {
-    $site_encryption_master_key = decryptContactSpecificKey($contact_encryption_ciphertext, $password);
-    generateContactSessionKey($site_encryption_master_key);
-
-}
-
 // Get client info
 $client_sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $session_client_id");
 $client = mysqli_fetch_array($client_sql);

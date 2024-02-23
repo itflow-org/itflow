@@ -112,6 +112,7 @@ if (isset($_POST['login'])) {
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
         $remember_token = $row['user_config_remember_me_token'];
+        $user_specific_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
         if($force_mfa == 1 && $token == NULL) {
             $config_start_page = "user_security.php";
         }
@@ -176,21 +177,9 @@ if (isset($_POST['login'])) {
             $_SESSION['logged'] = true;
 
             // Setup encryption session key
-            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
-                $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
-                $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
+            if (isset($user_specific_encryption_ciphertext) && $row['user_role'] > 1) {
+                $site_encryption_master_key = decryptUserSpecificKey($user_specific_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
-
-                // Setup extension
-                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
-                    // Extension cookie
-                    // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                    setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
-
-                    // Set PHP session in DB, so we can access the session encryption data (above)
-                    $user_php_session = session_id();
-                    mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
-                }
             }
 
             header("Location: $config_start_page");
