@@ -287,6 +287,29 @@ function encryptUserSpecificKey($user_password)
     return $salt . $iv . $ciphertext;
 }
 
+// For additional contacts / password changes
+function encryptContactSpecificKey($contact_password)
+{
+    $iv = randomString();
+    $salt = randomString();
+
+    // Get the session info.
+    $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
+
+    // Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+
+    // Generate 128-bit (16 byte/char) kdhash of the users (new) password
+    $contact_password_kdhash = hash_pbkdf2('sha256', $contact_password, $salt, 100000, 16);
+
+    // Encrypt the master key with the users kdf'd hash and the IV
+    $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $contact_password_kdhash, 0, $iv);
+
+    return $salt . $iv . $ciphertext;
+}
+
 // Given a ciphertext (incl. IV) and the user's password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
 function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
@@ -301,6 +324,21 @@ function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
 
     //Use this hash to get the original/master key
     return openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+}
+
+// Decrypts the contact specific key, returns the site master key
+function decryptContactSpecificKey($contact_encryption_ciphertext, $contact_password)
+{
+    // Get the IV, salt and ciphertext
+    $salt = substr($contact_encryption_ciphertext, 0, 16);
+    $iv = substr($contact_encryption_ciphertext, 16, 16);
+    $ciphertext = substr($contact_encryption_ciphertext, 32);
+
+    // Generate 128-bit (16 byte/char) kdhash of the users password
+    $contact_password_kdhash = hash_pbkdf2('sha256', $contact_password, $salt, 100000, 16);
+
+    // Use this hash to get the original/master key
+    return openssl_decrypt($ciphertext, 'aes-128-cbc', $contact_password_kdhash, 0, $iv);
 }
 
 /*
@@ -331,6 +369,27 @@ function generateUserSessionKey($site_encryption_master_key)
     }
 }
 
+function generateContactSessionKey($site_encryption_master_key)
+{
+    $contact_encryption_session_key = randomString();
+    $contact_encryption_session_iv = randomString();
+    $contact_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $contact_encryption_session_key, 0, $contact_encryption_session_iv);
+
+    // Store ciphertext in the user's session
+    $_SESSION['contact_encryption_session_ciphertext'] = $contact_encryption_session_ciphertext;
+    $_SESSION['contact_encryption_session_iv'] = $contact_encryption_session_iv;
+
+    // Give the user "their" key as a cookie
+    include 'config.php';
+
+    if ($config_https_only) {
+        setcookie("contact_encryption_session_key", "$contact_encryption_session_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+    } else {
+        setcookie("contact_encryption_session_key", $contact_encryption_session_key, 0, "/");
+        $_SESSION['alert_message'] = "Unencrypted connection flag set: Using non-secure cookies.";
+    }
+}
+
 // Decrypts an encrypted password (website/asset login), returns it as a string
 function decryptLoginEntry($login_password_ciphertext)
 {
@@ -350,6 +409,25 @@ function decryptLoginEntry($login_password_ciphertext)
     // Decrypt the login password using the master key
     return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
 }
+// Decrypts an encrypted password (website/asset login) using the contact, returns it as a string
+
+function decryptContactLoginEntry($login_password_ciphertext)
+{
+    // Split the login into IV and Ciphertext
+    $login_iv =  substr($login_password_ciphertext, 0, 16);
+    $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
+
+    // Get the user session info.
+    $contact_encryption_session_ciphertext = $_SESSION['contact_encryption_session_ciphertext'];
+    $contact_encryption_session_iv =  $_SESSION['contact_encryption_session_iv'];
+    $contact_encryption_session_key = $_COOKIE['contact_encryption_session_key'];
+
+    // Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($contact_encryption_session_ciphertext, 'aes-128-cbc', $contact_encryption_session_key, 0, $contact_encryption_session_iv);
+
+    // Decrypt the login password using the master key
+    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+}
 
 // Encrypts a website/asset login password
 function encryptLoginEntry($login_password_cleartext)
@@ -365,6 +443,24 @@ function encryptLoginEntry($login_password_cleartext)
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
     //Encrypt the website/asset login using the master key
+    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+
+    return $iv . $ciphertext;
+}
+
+function encryptContactLoginEntry($login_password_cleartext)
+{
+    $iv = randomString();
+
+    // Get the user session info.
+    $contact_encryption_session_ciphertext = $_SESSION['contact_encryption_session_ciphertext'];
+    $contact_encryption_session_iv =  $_SESSION['contact_encryption_session_iv'];
+    $contact_encryption_session_key = $_COOKIE['contact_encryption_session_key'];
+
+    // Decrypt the session key to get the master key
+    $site_encryption_master_key = openssl_decrypt($contact_encryption_session_ciphertext, 'aes-128-cbc', $contact_encryption_session_key, 0, $contact_encryption_session_iv);
+
+    // Encrypt the website/asset login using the master key
     $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
     return $iv . $ciphertext;
@@ -647,15 +743,15 @@ function getAssetIcon($asset_type)
         $device_icon = "wifi";
     } elseif ($asset_type == 'Phone') {
         $device_icon = "phone";
-    } elseif ($asset_type == 'Mobile Phone') {
+    } elseif) {($asset_type == 'Mobile Phone') {
         $device_icon = "mobile-alt";
-    } elseif ($asset_type == 'Tablet') {
+    } elseif) {(et_type == 'Tablet') {
         $device_icon = "tablet-alt";
-    } elseif ($asset_type == 'TV') {
+    = eif ($as) {epe == 'TV') {
         $device_icon = "tv";
-    } elseif ($asset_type == 'Virtual Machine') {
+    if ($asset_type == == 'Virtual Machine') {
         $device_icon = "cloud";
-    } else {
+    type == 
         $device_icon = "tag";
     }
 
