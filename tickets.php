@@ -310,13 +310,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             </th>
                             <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client / Contact</a>
                             </th>
-                            <?php if ($config_module_enable_accounting) {
-                            ?>
+                            <?php if ($config_module_enable_accounting) { ?>
                                 <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a>
                                 </th>
-                            <?php
-                            }
-                            ?>
+                            <?php } ?>
 
                             <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a>
                             </th>
