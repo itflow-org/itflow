@@ -151,7 +151,7 @@ if (isset($_POST['test_email_smtp'])) {
 
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
-    
+
     $test_email = intval($_POST['test_email']);
     if($test_email == 1) {
         $email_from = sanitizeInput($config_mail_from_email);
@@ -328,7 +328,7 @@ if (isset($_POST['edit_theme_settings'])) {
 if (isset($_POST['edit_favicon_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     validateAdminRole();
 
     // Check to see if a file is attached
@@ -451,7 +451,7 @@ if (isset($_POST['edit_integrations_settings'])) {
 if (isset($_POST['edit_ai_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     validateAdminRole();
 
     $provider = sanitizeInput($_POST['provider']);
@@ -538,12 +538,29 @@ if (isset($_GET['send_failed_mail'])) {
 
     $email_id = intval($_GET['send_failed_mail']);
 
-    mysqli_query($mysqli,"UPDATE email_queue SET email_attempts = 3 WHERE email_id = $email_id");
+    mysqli_query($mysqli,"UPDATE email_queue SET email_status = 0, email_attempts = 3 WHERE email_id = $email_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Email', log_action = 'Send', log_description = '$session_name attempted to force send email queue id: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Email', log_action = 'Send', log_description = '$session_name attempted to force send email queue id: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $email_id");
 
     $_SESSION['alert_message'] = "Email Force Sent, give it a minute to resend";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['cancel_mail'])) {
+
+    validateTechRole();
+
+    $email_id = intval($_GET['cancel_mail']);
+
+    mysqli_query($mysqli,"UPDATE email_queue SET email_status = 2, email_attempts = 99, email_failed_at = NOW() WHERE email_id = $email_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Email', log_action = 'Cancel', log_description = '$session_name canceled send email queue id: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $email_id");
+
+    $_SESSION['alert_message'] = "Email cancelled and marked as failed.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -53,7 +53,7 @@ file_put_contents($lock_file_path, "Locked");
 
 // Process Mail Queue
 
-// Email Status: 
+// Email Status:
 // 0 Queued
 // 1 Sending
 // 2 Failed
@@ -102,20 +102,20 @@ if (mysqli_num_rows($sql_queue) > 0) {
             );
 
             if ($mail !== true) {
-                // Update Message
+                // Update Message - Failure
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
 
                 mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email_recipient_logging'");
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email_recipient_logging regarding $email_subject_logging. $mail'");
             } else {
-                // Update Message
+                // Update Message - Success
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
             }
         }
     }
 }
 
-// 
+//
 
 // Get Mail that failed to send and attempt to send Failed Mail up to 4 times every 30 mins
 $sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 4 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
