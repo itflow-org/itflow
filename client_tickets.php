@@ -122,7 +122,9 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Contact</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
+                    <?php if ($config_module_enable_accounting) { ?>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
+                    <?php } ?>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a></th>
@@ -220,15 +222,20 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                             <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                         </td>
                         <td><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a></td>
+
+                        <?php if ($config_module_enable_accounting) { ?>
                         <td class="text-center">
                             <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                             <?php
-                        if ($ticket_billable == 1) {
-                            echo "<span class='badge badge-pill badge-success'>$</span>";
-                        } else {
-                            echo "<span class='badge badge-pill badge-secondary'>X</span>";
-                        }
-                        ?></td>
+                                if ($ticket_billable == 1) {
+                                    echo "<span class='badge badge-pill badge-success'>$</span>";
+                                } else {
+                                    echo "<span class='badge badge-pill badge-secondary'>X</span>";
+                                }
+                            ?>
+                        </td>
+                        <?php } ?>
+
                         <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
