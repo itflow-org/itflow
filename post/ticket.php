@@ -1473,10 +1473,10 @@ if (isset($_POST['edit_ticket_schedule'])) {
     mysqli_query(
         $mysqli,
         "UPDATE tickets SET
-    ticket_schedule = '$schedule',
-    ticket_onsite = '$onsite',
-    ticket_status = 'Scheduled'
-    WHERE ticket_id = $ticket_id"
+        ticket_schedule = '$schedule',
+        ticket_onsite = '$onsite',
+        ticket_status = 'Scheduled'
+        WHERE ticket_id = $ticket_id"
     );
 
 
@@ -1498,7 +1498,6 @@ if (isset($_POST['edit_ticket_schedule'])) {
         LEFT JOIN users ON ticket_assigned_to = user_id
         WHERE ticket_id = $ticket_id
     ");
-
 
     $row = mysqli_fetch_array($sql);
 
@@ -1577,7 +1576,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
             'body' => mysqli_escape_string($mysqli, nullable_htmlentities("<div class='header'>
             Hello,
         </div>
-        Your ticket regarding $ticket_subject has been scheduled for $email_datetime.
+        The ticket regarding $ticket_subject has been scheduled for $email_datetime.
         <br><br>
         <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
         <br><br>
@@ -1585,7 +1584,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
         <br><br>
         <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
         <strong>Subject:</strong> $ticket_subject<br>
-        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access your ticket here</a>
+        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access the ticket here</a>
         <br><br>
         <div class='footer'>
             ~<br>
@@ -1630,7 +1629,6 @@ if (isset($_POST['edit_ticket_schedule'])) {
         header("Location: calendar_events.php");
     }
 
-    exit;
 }
 
 if (isset($_GET['cancel_ticket_schedule'])) {
@@ -1686,7 +1684,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
             'body' => mysqli_escape_string($mysqli, "<div class='header'>
                                 Hello, $contact_name
                             </div>
-                            Your ticket regarding $ticket_subject has been cancelled.
+                            Scheduled work for your ticket regarding $ticket_subject has been cancelled.
                             <br><br>
                             <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
                             <br><br>
@@ -1713,7 +1711,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
             'recipient' => $user_email,
             'recipient_name' => $user_name,
             'subject' => "Ticket Schedule Cancelled - [$ticket_prefix$ticket_number] - $ticket_subject",
-            'body' => "Hello, " . $user_name . "<br><br>The ticket regarding $ticket_subject has been cancelled.<br><br>--------------------------------<br><a href=\"https://$config_base_url/ticket.php?id=$ticket_id\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email",
+            'body' => "Hello, " . $user_name . "<br><br>Scheduled work for the ticket regarding $ticket_subject has been cancelled.<br><br>--------------------------------<br><a href=\"https://$config_base_url/ticket.php?id=$ticket_id\">$ticket_link</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/ticket.php?id=$ticket_id<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email",
             'cal_str' => $cal_str
         ]
     ];
@@ -1731,7 +1729,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
             'body' => mysqli_escape_string($mysqli, nullable_htmlentities("<div class='header'>
             Hello,
         </div>
-        Your ticket regarding $ticket_subject has been cancelled.
+        Scheduled work for the ticket regarding $ticket_subject has been cancelled.
         <br><br>
         <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
         <br><br>
@@ -1739,7 +1737,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
         <br><br>
         <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
         <strong>Subject:</strong> $ticket_subject<br>
-        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access your ticket here</a>
+        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access the ticket here</a>
         <br><br>
         <div class='footer'>
             ~<br>

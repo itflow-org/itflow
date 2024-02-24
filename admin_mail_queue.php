@@ -133,11 +133,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#viewEmailModal<?php echo $email_id; ?>"><i class="fas fa-fw fa-eye"></i></button>
 
-                                <?php if($email_attempts > 3 && $email_status == 2) { ?>
-
-                                <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?php echo $email_id; ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
-
+                                <!-- Show force resend if all retries have failed -->
+                                <?php if ($email_status == 2 && $email_attempts > 3) { ?>
+                                    <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?php echo $email_id; ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
                                 <?php } ?>
+
+                                <!-- Allow cancelling a message if it hasn't yet been picked up (e.g. stuck/bugged) -->
+                                <?php if ($email_status == 0) { ?>
+                                    <a class="btn btn-sm btn-danger confirm-link" href="post.php?cancel_mail=<?php echo $email_id; ?>"><i class="fas fa-fw fa-trash"></i></a>
+                                <?php } ?>
+
                             </td>
                         </tr>
 
