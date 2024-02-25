@@ -15,11 +15,26 @@
 
                     <div class="form-group">
                         <label>Watcher Email</label>
-                        <div class="input-group mb-3">
+                        <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="watcher_email" placeholder="sombody@company.com">
+                            <select class="form-control select2" data-tags="true" name="watcher_email">
+                                <option value="">-Select a contact-</option>
+                                <?php
+
+                                $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' ORDER BY contact_name ASC");
+                                while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
+                                    $contact_id_select = intval($row['contact_id']);
+                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                    $contact_email_select = nullable_htmlentities($row['contact_email']);
+                                    ?>
+                                    <option value="<?php echo $contact_email_select; ?>"><?php echo "$contact_name_select - $contact_email_select"; ?></option>
+
+                                    <?php
+                                }
+                                ?>
+                            </select>
                         </div>
                     </div>
                 

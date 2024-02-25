@@ -38,6 +38,7 @@ if (isset($_POST['add_database'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
+    $config_base_url = rtrim($config_base_url, '/');
 
     $installation_id = randomString(32);
 
@@ -300,12 +301,15 @@ if (isset($_POST['add_telemetry'])) {
 
     if (isset($_POST['share_data']) && $_POST['share_data'] == 1) {
 
+        mysqli_query($mysqli,"UPDATE settings SET config_telemetry = 2");
+
         $comments = sanitizeInput($_POST['comments']);
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
 
         $company_name = $row['company_name'];
+        $website = $row['company_website'];
         $city = $row['company_city'];
         $state = $row['company_state'];
         $country = $row['company_country'];
@@ -315,6 +319,7 @@ if (isset($_POST['add_telemetry'])) {
             array(
                 'installation_id' => "$installation_id",
                 'company_name' => "$company_name",
+                'website' => "$website",
                 'city' => "$city",
                 'state' => "$state",
                 'country' => "$country",

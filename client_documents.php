@@ -165,104 +165,128 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <div class="float-right">
-                
+                                <div class="btn-group float-right">
+                                    <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveDocumentModal">
+                                                <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </form>
+                    
                     <hr>
+    
+                    <form id="bulkActions" action="post.php" method="post">
 
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped table-sm table-borderless table-hover">
-                            <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                            <tr>
-                                <th>
-                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_name&order=<?php echo $disp; ?>">Name</a>
-                                </th>
-                                <th>
-                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_created_at&order=<?php echo $disp; ?>">Created</a>
-                                </th>
-                                <th>
-                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">Last Update</a>
-                                </th>
-                                <th class="text-center">
-                                    Action
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped table-sm table-borderless table-hover">
+                                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                                <tr>
+                                    <td class="bg-light">
+                                        <div class="form-check">
+                                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                        </div>
+                                    </td>
+                                    <th>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_name&order=<?php echo $disp; ?>">Name</a>
+                                    </th>
+                                    <th>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_created_at&order=<?php echo $disp; ?>">Created</a>
+                                    </th>
+                                    <th>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">Last Update</a>
+                                    </th>
+                                    <th class="text-center">
+                                        Action
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php
 
-                            while ($row = mysqli_fetch_array($sql)) {
-                                $document_id = intval($row['document_id']);
-                                $document_name = nullable_htmlentities($row['document_name']);
-                                $document_description = nullable_htmlentities($row['document_description']);
-                                $document_content = nullable_htmlentities($row['document_content']);
-                                $document_created_by_name = nullable_htmlentities($row['user_name']);
-                                $document_created_at = date("m/d/Y",strtotime($row['document_created_at']));
-                                $document_updated_at = date("m/d/Y",strtotime($row['document_updated_at']));
-                                $document_folder_id = intval($row['document_folder_id']);
+                                while ($row = mysqli_fetch_array($sql)) {
+                                    $document_id = intval($row['document_id']);
+                                    $document_name = nullable_htmlentities($row['document_name']);
+                                    $document_description = nullable_htmlentities($row['document_description']);
+                                    $document_content = nullable_htmlentities($row['document_content']);
+                                    $document_created_by_name = nullable_htmlentities($row['user_name']);
+                                    $document_created_at = date("m/d/Y",strtotime($row['document_created_at']));
+                                    $document_updated_at = date("m/d/Y",strtotime($row['document_updated_at']));
+                                    $document_folder_id = intval($row['document_folder_id']);
+
+                                    ?>
+
+                                    <tr>
+                                        <td class="bg-light">
+                                            <div class="form-check">
+                                                <input class="form-check-input bulk-select" type="checkbox" name="document_ids[]" value="<?php echo $document_id ?>">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
+                                            <div class="text-secondary mt-1"><?php echo $document_description; ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $document_created_at; ?>
+                                            <div class="text-secondary mt-1"><?php echo $document_created_by_name; ?>
+                                        </td>
+                                        <td><?php echo $document_updated_at; ?></td>
+                                        <td>
+                                            <div class="dropdown dropleft text-center">
+                                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
+                                                        <i class="fas fa-fw fa-share mr-2"></i>Share
+                                                    </a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameDocumentModal<?php echo $document_id; ?>">
+                                                        <i class="fas fa-fw fa-pencil-alt mr-2"></i>Rename
+                                                    </a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveDocumentModal<?php echo $document_id; ?>">
+                                                        <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                                    </a>
+                                                    <?php if ($session_user_role == 3) { ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_document=<?php echo $document_id; ?>">
+                                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                        </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_document=<?php echo $document_id; ?>">
+                                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                        </a>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                <?php
+
+                                require "client_document_move_modal.php";
+
+                                require "client_document_rename_modal.php";
+
+
+                                }
 
                                 ?>
 
-                                <tr>
-                                    <td>
-                                        <a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt"></i> <?php echo $document_name; ?></a>
-                                        <div class="text-secondary mt-1"><?php echo $document_description; ?>
-                                    </td>
-                                    <td>
-                                        <?php echo $document_created_at; ?>
-                                        <div class="text-secondary mt-1"><?php echo $document_created_by_name; ?>
-                                    </td>
-                                    <td><?php echo $document_updated_at; ?></td>
-                                    <td>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
-                                                    <i class="fas fa-fw fa-share mr-2"></i>Share
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameDocumentModal<?php echo $document_id; ?>">
-                                                    <i class="fas fa-fw fa-pencil-alt mr-2"></i>Rename
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveDocumentModal<?php echo $document_id; ?>">
-                                                    <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
-                                                </a>
-                                                <?php if ($session_user_role == 3) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_document=<?php echo $document_id; ?>">
-                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                                    </a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_document=<?php echo $document_id; ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                    </a>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                            <?php
-
-                            require "client_document_move_modal.php";
-
-                            require "client_document_rename_modal.php";
-
-
-                            }
-
-                            ?>
-
-                            </tbody>
-                        </table>
-                        <br>
-                    </div>
+                                </tbody>
+                            </table>
+                            <br>
+                        </div>
+                        <?php require_once "client_document_bulk_move_modal.php"; ?>
+                    </form>
                     <?php require_once "pagination.php";
  ?>
                 </div>
@@ -270,6 +294,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
+<script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "share_modal.php";
@@ -279,4 +304,3 @@ require_once "client_document_add_modal.php";
 require_once "client_document_add_from_template_modal.php";
 
 require_once "footer.php";
-

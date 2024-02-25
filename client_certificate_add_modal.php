@@ -65,6 +65,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Notes</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter some notes" name="notes"></textarea>
+                    </div>
+
+                    <div class="form-group">
                         <label>Domain</label>
                         <div class="input-group">
                             <div class="input-group-prepend">

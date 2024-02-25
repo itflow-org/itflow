@@ -103,6 +103,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001">
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-relation">

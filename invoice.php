@@ -54,7 +54,7 @@ if (isset($_GET['invoice_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
-    
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_id = intval($row['company_id']);
@@ -74,6 +74,40 @@ if (isset($_GET['invoice_id'])) {
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
 
     $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+
+    $sql_tickets = mysqli_query($mysqli, "
+        SELECT
+            tickets.*,
+            SEC_TO_TIME(SUM(TIME_TO_SEC(STR_TO_DATE(ticket_reply_time_worked, '%H:%i:%s')))) AS 'total_time_worked'
+        FROM
+            tickets
+        LEFT JOIN
+            ticket_replies ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id
+        WHERE
+            ticket_invoice_id = $invoice_id
+        GROUP BY
+            tickets.ticket_id
+        ORDER BY
+            ticket_id DESC
+    ");
+
+    //Get billable, and unbilled tickets to add to invoice
+    $sql_tickets_billable = mysqli_query(
+        $mysqli, "
+        SELECT
+            *
+        FROM
+            tickets
+        WHERE
+            ticket_client_id = $client_id
+        AND
+            ticket_billable = 1
+        AND
+            ticket_invoice_id = 0
+        AND
+            ticket_status LIKE '%close%';
+    ");
+
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -278,7 +312,7 @@ if (isset($_GET['invoice_id'])) {
                                     $item_id = intval($row['item_id']);
                                     $item_name = nullable_htmlentities($row['item_name']);
                                     $item_description = nullable_htmlentities($row['item_description']);
-                                    $item_quantity = number_format(floatval($row['item_quantity']),2);
+                                    $item_quantity = floatval($row['item_quantity']);
                                     $item_price = floatval($row['item_price']);
                                     $item_tax = floatval($row['item_tax']);
                                     $item_total = floatval($row['item_total']);
@@ -311,7 +345,7 @@ if (isset($_GET['invoice_id'])) {
                                                             <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
                                                             <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
                                                             <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-fw fa-arrow-up mr-2"></i>Move Up</button> 
+                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-fw fa-arrow-up mr-2"></i>Move Up</button>
                                                             <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
                                                             <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>><i class="fas fa-fw fa-arrow-down mr-2"></i>Move down</button>
                                                         </form>
@@ -320,13 +354,13 @@ if (isset($_GET['invoice_id'])) {
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
                                                     </div>
-                                                </div>  
-                                                
+                                                </div>
+
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
-                                        <td class="text-center"><?php echo $item_quantity; ?></td>
+                                        <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
@@ -414,7 +448,7 @@ if (isset($_GET['invoice_id'])) {
                                 <td>Discount</td>
                                 <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
                             </tr>
-                        <?php    
+                        <?php
                         }
                         ?>
                         <?php if ($total_tax > 0) { ?>
@@ -434,7 +468,7 @@ if (isset($_GET['invoice_id'])) {
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
-                        
+
                         <tr class="border-bottom">
                             <td><strong>Balance</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
@@ -546,8 +580,85 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
         </div>
+        <div class="col-sm d-print-none">
+            <div class="card">
+                <div class="card-header text-bold">
+                    <i class="fa fa-cog mr-2"></i>Tickets
+                    <div class="card-tools">
+
+
+                        <?php if (mysqli_num_rows($sql_tickets_billable) > 0) { ?>
+                        <a class="btn btn-tool" href="#" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        <?php } ?>
+
+
+                        <a class="btn btn-tool" href="tickets.php?client_id=<?php echo $client_id; ?>">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+
+                        </button>
+
+
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="<?php if (mysqli_num_rows($sql_tickets) == 0) { echo "d-none"; } ?>">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Assigned To</th>
+                                    <th class="text-right">Time Worked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_tickets)) {
+                                $ticket_id = intval($row['ticket_id']);
+                                $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                                $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                $ticket_assigned_to_id = intval($row['ticket_assigned_to']);
+                                $ticket_total_time_worked = floatval($row['total_time_worked']);
+
+                                $sql_assigned_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $ticket_assigned_to_id");
+                                $row = mysqli_fetch_array($sql_assigned_to);
+                                $ticket_assigned_to = nullable_htmlentities($row['user_name']);
+
+                                ?>
+                                <tr>
+                                    <td><?php echo $ticket_created_at; ?></td>
+                                    <td><?php echo $ticket_subject; ?></td>
+                                    <td><?php echo $ticket_status; ?></td>
+                                    <td><?php echo $ticket_priority; ?></td>
+                                    <td><?php echo $ticket_assigned_to; ?></td>
+                                    <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                            </tbody>
+                        </table>
+                    </div>
+        </div>
     </div>
     <?php
+    include_once "invoice_add_ticket_modal.php";
+
     include_once "invoice_payment_add_modal.php";
 
     include_once "invoice_copy_modal.php";
@@ -557,8 +668,6 @@ if (isset($_GET['invoice_id'])) {
     include_once "invoice_edit_modal.php";
 
     include_once "invoice_note_modal.php";
-
-    include_once "category_quick_add_modal.php";
 
 }
 

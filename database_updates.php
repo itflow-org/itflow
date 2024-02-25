@@ -336,34 +336,34 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         //Insert queries here required to update to DB version 0.2.1
 
         mysqli_query($mysqli, "ALTER TABLE `vendors` 
-	  ADD `vendor_hours` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_website`,
-	  ADD `vendor_sla` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_hours`,
-	  ADD `vendor_code` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_sla`,
-	  ADD `vendor_template_id` INT(11) DEFAULT 0 AFTER `vendor_archived_at`
-	");
+        ADD `vendor_hours` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_website`,
+        ADD `vendor_sla` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_hours`,
+        ADD `vendor_code` VARCHAR(200) NULL DEFAULT NULL AFTER `vendor_sla`,
+        ADD `vendor_template_id` INT(11) DEFAULT 0 AFTER `vendor_archived_at`
+        ");
 
         mysqli_query($mysqli, "ALTER TABLE `vendors`
-	  DROP `vendor_country`, 
-	  DROP `vendor_address`, 
-	  DROP `vendor_city`, 
-	  DROP `vendor_state`, 
-	  DROP `vendor_zip`, 
-	  DROP `vendor_global`
-	");
+        DROP `vendor_country`, 
+        DROP `vendor_address`, 
+        DROP `vendor_city`, 
+        DROP `vendor_state`, 
+        DROP `vendor_zip`, 
+        DROP `vendor_global`
+        ");
 
         //Create New Vendor Templates Table
         mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
-	  `vendor_template_name` varchar(200) NOT NULL,
-	  `vendor_template_description` varchar(200) NULL DEFAULT NULL,
-	  `vendor_template_phone` varchar(200) NULL DEFAULT NULL, 
-	  `vendor_template_email` varchar(200) NULL DEFAULT NULL,
-	  `vendor_template_website` varchar(200) NULL DEFAULT NULL,
-	  `vendor_template_hours` varchar(200) NULL DEFAULT NULL,
-	  `vendor_template_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-	  `vendor_template_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
-	  `vendor_template_archived_at` datetime NULL DEFAULT NULL,
-	  `company_id` int(11) NOT NULL
-	)");
+        `vendor_template_name` varchar(200) NOT NULL,
+        `vendor_template_description` varchar(200) NULL DEFAULT NULL,
+        `vendor_template_phone` varchar(200) NULL DEFAULT NULL, 
+        `vendor_template_email` varchar(200) NULL DEFAULT NULL,
+        `vendor_template_website` varchar(200) NULL DEFAULT NULL,
+        `vendor_template_hours` varchar(200) NULL DEFAULT NULL,
+        `vendor_template_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+        `vendor_template_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+        `vendor_template_archived_at` datetime NULL DEFAULT NULL,
+        `company_id` int(11) NOT NULL
+        )");
 
         //Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.1'");
@@ -393,21 +393,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '0.2.3') {
-
         //Create New interfaces Table
         mysqli_query($mysqli, "CREATE TABLE `interfaces` (`interface_id` int(11) AUTO_INCREMENT PRIMARY KEY,
-	`interface_number` int(11) NULL DEFAULT NULL,
-	`interface_description` varchar(200) NULL DEFAULT NULL,
-	`interface_connected_asset` varchar(200) NULL DEFAULT NULL, 
-	`interface_ip` varchar(200) NULL DEFAULT NULL,
-	`interface_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-	`interface_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
-	`interface_archived_at` datetime NULL DEFAULT NULL,
-	`interface_connected_asset_id` int(11) NOT NULL DEFAULT 0,
-	`interface_network_id` int(11) NOT NULL DEFAULT 0,
-	`interface_asset_id` int(11) NOT NULL,
-	`company_id` int(11) NOT NULL
-  )");
+        `interface_number` int(11) NULL DEFAULT NULL,
+        `interface_description` varchar(200) NULL DEFAULT NULL,
+        `interface_connected_asset` varchar(200) NULL DEFAULT NULL, 
+        `interface_ip` varchar(200) NULL DEFAULT NULL,
+        `interface_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+        `interface_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+        `interface_archived_at` datetime NULL DEFAULT NULL,
+        `interface_connected_asset_id` int(11) NOT NULL DEFAULT 0,
+        `interface_network_id` int(11) NOT NULL DEFAULT 0,
+        `interface_asset_id` int(11) NOT NULL,
+        `company_id` int(11) NOT NULL
+        )");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.4'");
 
@@ -1372,12 +1371,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '0.8.6') {
-    // Insert queries here required to update to DB version 0.8.7
-    mysqli_query($mysqli, "ALTER TABLE `accounts` ADD `account_type` int(6) DEFAULT NULL AFTER `account_notes`");
-    mysqli_query($mysqli, "CREATE TABLE `account_types` (`account_type_id` int(11) NOT NULL AUTO_INCREMENT,`account_type_name` varchar(255) NOT NULL,`account_type_description` text DEFAULT NULL,`account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),`account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`account_type_archived_at` datetime DEFAULT NULL,PRIMARY KEY (`account_type_id`))");
+        // Insert queries here required to update to DB version 0.8.7
+        mysqli_query($mysqli, "ALTER TABLE `accounts` ADD `account_type` int(6) DEFAULT NULL AFTER `account_notes`");
+        mysqli_query($mysqli, "CREATE TABLE `account_types` (`account_type_id` int(11) NOT NULL AUTO_INCREMENT,`account_type_name` varchar(255) NOT NULL,`account_type_description` text DEFAULT NULL,`account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),`account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`account_type_archived_at` datetime DEFAULT NULL,PRIMARY KEY (`account_type_id`))");
 
-    // Then, update the database to the next sequential version
-    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.7'");
     }
 
     if (CURRENT_DATABASE_VERSION == '0.8.7') {
@@ -1398,29 +1397,28 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
 
     if (CURRENT_DATABASE_VERSION == '0.8.8') {
-    // Insert queries here required to update to DB version 0.8.9
-    mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
-    // Update existing invoices so that item_order is set to item_id
-    $sql_invoices = mysqli_query($mysqli, "SELECT invoice_id FROM invoices WHERE invoice_id IS NOT NULL");
-    foreach ($sql_invoices as $row) {
-        $invoice_id = $row['invoice_id'];
-        $sql_invoice_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_invoice_id = '$invoice_id' ORDER BY item_id ASC");
-        $item_order = 1;
-        foreach ($sql_invoice_items as $row) {
-            $item_id = $row['item_id'];
-            mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
-            $item_order++;
-            //Log changes made to invoice
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
+        // Insert queries here required to update to DB version 0.8.9
+        mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_order` INT(11) NOT NULL DEFAULT 0 AFTER `item_total`");
+        // Update existing invoices so that item_order is set to item_id
+        $sql_invoices = mysqli_query($mysqli, "SELECT invoice_id FROM invoices WHERE invoice_id IS NOT NULL");
+        foreach ($sql_invoices as $row) {
+            $invoice_id = $row['invoice_id'];
+            $sql_invoice_items = mysqli_query($mysqli, "SELECT item_id FROM invoice_items WHERE item_invoice_id = '$invoice_id' ORDER BY item_id ASC");
+            $item_order = 1;
+            foreach ($sql_invoice_items as $row) {
+                $item_id = $row['item_id'];
+                mysqli_query($mysqli, "UPDATE invoice_items SET item_order = '$item_order' WHERE item_id = '$item_id'");
+                $item_order++;
+                //Log changes made to invoice
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
 
+            }
         }
-    }
 
-    //
-    // Then, update the database to the next sequential version
-    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
+        //
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.8.9'");
     }
-    //
 
 
     if (CURRENT_DATABASE_VERSION == '0.8.9') {
@@ -1454,17 +1452,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
                 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring', log_action = 'Modify', log_description = 'Updated item_order to item_id: $item_order'");
             }
         }
-        
+
 
         //
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.0'");
     }
 
-    // Be sure to change database_version.php to reflect the version you are updating to here
-    // Please add this same comment block to the bottom of this file, and update the version number.
-    // Uncomment Below Lines, to add additional database updates
-    //
+
     if (CURRENT_DATABASE_VERSION == '0.9.0') {
         //add leads column to clients table
         mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_lead` TINYINT(1) NOT NULL DEFAULT 0 AFTER `client_id`");
@@ -1500,7 +1495,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '0.9.4') {
         // Insert queries here required to update to DB version 0.9.5
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_client_pays_fees` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_stripe_account`"); 
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_client_pays_fees` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.5'");
     }
@@ -1510,6 +1505,122 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.6'");
     }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.6') {
+        // Insert queries here required to update to DB version 0.9.7
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_invoice_id` INT(11) NOT NULL DEFAULT 0 AFTER `ticket_asset_id`");
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_billable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ticket_status`");
+        //set all invoice id
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.7'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.7') {
+        // Insert queries here required to update to DB version 0.9.8
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_dashboard_financial_enable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_records_per_page`");
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_dashboard_technical_enable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_dashboard_financial_enable`");
+        //set all invoice id
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.8'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.8') {
+        //Insert queries here required to update to DB version 0.9.9
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_notes` TEXT NULL DEFAULT NULL AFTER `domain_raw_whois`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.9.9'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '0.9.9') {
+        //Insert queries here required to update to DB version 1.0.0
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_destructive_deletes_enable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_timezone`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.0'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.0.0') {
+        //Insert queries here required to update to DB version 1.0.1
+        mysqli_query($mysqli, "ALTER TABLE `assets` MODIFY `asset_uri` VARCHAR(500) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_uri_2` VARCHAR(500) DEFAULT NULL AFTER `asset_uri`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.1'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.0.1') {
+        //Insert queries here required to update to DB version 1.0.2
+        mysqli_query($mysqli, "ALTER TABLE `logins` MODIFY `login_uri` VARCHAR(500) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_uri_2` VARCHAR(500) DEFAULT NULL AFTER `login_uri`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_nat_ip` VARCHAR(200) DEFAULT NULL AFTER `asset_ip`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.2'");
+    }
+
+
+        
+    if (CURRENT_DATABASE_VERSION == '1.0.2') {
+        //Insert queries here required to update to DB version 1.0.3
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_expense_vendor` INT(11) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_expense_category` INT(11) NOT NULL DEFAULT 0 AFTER `config_stripe_expense_vendor`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_percentage_fee` DECIMAL(4,4) NOT NULL DEFAULT 0.029 AFTER `config_stripe_expense_category`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_flat_fee` DECIMAL(15,2) NOT NULL DEFAULT 0.30 AFTER `config_stripe_percentage_fee`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_stripe_account` `config_stripe_account` INT(11) NOT NULL DEFAULT 0");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.3'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.0.3') {
+        //Insert queries here required to update to DB version 1.0.4
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_enable` TINYINT(1) DEFAULT 0 AFTER `config_stripe_percentage_fee`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_provider` VARCHAR(250) DEFAULT NULL AFTER `config_ai_enable`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_url` VARCHAR(250) DEFAULT NULL AFTER `config_ai_provider`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_api_key` VARCHAR(250) DEFAULT NULL AFTER `config_ai_url`");
+
+        //Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.4'");
+    }
+
+    // Be sure to change database_version.php to reflect the version you are updating to here
+    // Please add this same comment block to the bottom of this file, and update the version number.
+    // Uncomment Below Lines, to add additional database updates
+    //
+
+    if (CURRENT_DATABASE_VERSION == '1.0.4') {
+        //Insert queries here required to update to DB version 1.0.5
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_schedule` DATETIME DEFAULT NULL AFTER `ticket_billable`");
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_onsite` TINYINT(1) NOT NULL DEFAULT 0 AFTER `ticket_schedule`");
+        mysqli_query($mysqli, "ALTER TABLE `email_queue` ADD `email_cal_str` VARCHAR(1024) DEFAULT NULL AFTER `email_content`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.5'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.0.5') {
+        //Insert queries here required to update to DB version 1.0.6
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ai_model` VARCHAR(250) DEFAULT NULL AFTER `config_ai_provider`");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.6'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.0.6') {
+        // Insert queries here required to update to DB version 1.0.7
+        mysqli_query($mysqli, "CREATE TABLE `remember_tokens` (`remember_token_id` int(11) NOT NULL AUTO_INCREMENT,`remember_token_token` varchar(255) NOT NULL,`remember_token_user_id` int(11) NOT NULL,`remember_token_created_at` datetime NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`remember_token_id`))");
+        
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.0.7') {
+    //     // Insert queries here required to update to DB version 1.0.8
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
+    // }
+
 } else {
     // Up-to-date
 }

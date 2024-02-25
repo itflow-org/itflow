@@ -74,6 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $service_importance = nullable_htmlentities($row['service_importance']);
                         $service_backup = nullable_htmlentities($row['service_backup']);
                         $service_notes = nullable_htmlentities($row['service_notes']);
+                        $service_created_at = nullable_htmlentities($row['service_created_at']);
                         $service_updated_at = nullable_htmlentities($row['service_updated_at']);
                         $service_review_due = nullable_htmlentities($row['service_review_due']);
 

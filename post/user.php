@@ -8,7 +8,6 @@ if (isset($_POST['add_user'])) {
 
     require_once 'post/user_model.php';
 
-
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
@@ -47,16 +46,36 @@ if (isset($_POST['add_user'])) {
     // Create Settings
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_config_force_mfa = $force_mfa");
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+
+    // Sanitize Config vars from get_settings.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_login_key_secret = mysqli_real_escape_string($mysqli, $config_login_key_secret);
+    $config_base_url = sanitizeInput($config_base_url);
+
     // Send user e-mail, if specified
     if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-        $subject = "Your new $session_company_name ITFlow account";
-        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $password = mysqli_real_escape_string($mysqli, $_POST['password']);
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $email, $name,
-            $subject, $body);
+        $subject = "Your new $company_name ITFlow account";
+        $body = "Hello $name,<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $password<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>--<br>$company_name - Support<br>$config_ticket_from_email";
+
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $email,
+                'recipient_name' => $name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");

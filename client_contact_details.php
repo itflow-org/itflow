@@ -28,18 +28,8 @@ if (isset($_GET['contact_id'])) {
     $contact_billing = intval($row['contact_billing']);
     $contact_technical = intval($row['contact_technical']);
     $contact_created_at = nullable_htmlentities($row['contact_created_at']);
-    if ($contact_primary == 1 ) {
-        $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
-    } else {
-        $contact_primary_display = false;
-    }
     $contact_location_id = intval($row['contact_location_id']);
     $location_name = nullable_htmlentities($row['location_name']);
-    if (empty($location_name)) {
-        $location_name_display = "-";
-    } else {
-        $location_name_display = $location_name;
-    }
     $auth_method = nullable_htmlentities($row['contact_auth_method']);
 
     // Related Assets Query
@@ -74,13 +64,16 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
+                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                        <i class="fas fa-fw fa-user-edit"></i>
+                    </button>
                     <h3 class="text-bold"><?php echo $contact_name; ?></h3>
-                    <?php if (!empty($contact_title)) { ?>
+                    <?php if ($contact_title) { ?>
                         <div class="text-secondary"><?php echo $contact_title; ?></div>
                     <?php } ?>
 
                     <div class="text-center">
-                        <?php if (!empty($contact_photo)) { ?>
+                        <?php if ($contact_photo) { ?>
                             <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
                             <span class="fa-stack fa-4x">
@@ -90,26 +83,34 @@ if (isset($_GET['contact_id'])) {
                         <?php } ?>
                     </div>
                     <hr>
-                    <?php if (!empty($location_name)) { ?>
-                        <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                    <?php if ($location_name) { ?>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?></div>
                     <?php }
-                    if (!empty($contact_email)) { ?>
-                        <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    if ($contact_email) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
-                    if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo "$contact_phone $contact_extension"; ?></a></div>
+                    if ($contact_phone) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo "$contact_phone $contact_extension"; ?></a></div>
                     <?php }
-                    if (!empty($contact_mobile)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
+                    if ($contact_mobile) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
                     <?php }
-                    if (!empty($contact_pin)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
+                    if ($contact_pin) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $contact_pin; ?></div>
+                    <?php }
+                    if ($contact_primary) { ?>
+                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-2"></i>Primary Contact</div>
+                    <?php }
+                    if ($contact_important) { ?>
+                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-2"></i>Important</div>
+                    <?php }
+                    if ($contact_technical) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Technical</div>
+                    <?php }
+                    if ($contact_billing) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Billing</div>
                     <?php } ?>
-                    <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
-                    <hr>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
-                        <i class="fas fa-fw fa-user-edit"></i> Edit
-                    </button>
+                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
 
                     <?php require_once "client_contact_edit_modal.php";
  ?>
@@ -119,11 +120,9 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
+                    <h5 class="card-title">Notes</h5>
                 </div>
-                <div class="card-body p-1">
-                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Enter quick notes here" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
-                </div>
+                <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
             </div>
 
         </div>
@@ -143,19 +142,17 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-desktop mr-2"></i>Related Assets</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-borderless table-hover">
                             <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Description</th>
+                                <th>Name/Description</th>
                                 <th>Type</th>
                                 <th>Make/Model</th>
                                 <th>Serial Number</th>
-                                <th>Operating System</th>
                                 <th>Install Date</th>
                                 <th>Status</th>
                                 <th class="text-center">Action</th>
@@ -217,12 +214,19 @@ if (isset($_GET['contact_id'])) {
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
                                         <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                        <div class="mt-0">
+                                            <small class="text-muted"><?php echo $asset_description; ?></small>
+                                        </div>
                                     </th>
-                                    <td><?php echo $asset_description; ?></td>
                                     <td><?php echo $asset_type; ?></td>
-                                    <td><?php echo "$asset_make $asset_model"; ?></td>
+                                    <td>
+                                        <?php echo $asset_make; ?>
+                                        <div class="mt-0"> 
+                                            <small class="text-muted"><?php echo $asset_model; ?></small>
+                                        </div>
+                                    </td>
                                     <td><?php echo $asset_serial_display; ?></td>
-                                    <td><?php echo $asset_os_display; ?></td>
+                                    
                                     <td><?php echo $asset_install_date_display; ?></td>
                                     <td><?php echo $asset_status; ?></td>
                                     <td>
@@ -272,7 +276,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Logins</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Related Logins</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm-sm">
@@ -377,7 +381,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Related Licenses</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -452,7 +456,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Related Tickets</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -574,6 +578,30 @@ if (isset($_GET['contact_id'])) {
 
     <!-- JavaScript to Show/Hide Password Form Group -->
     <script>
+
+        function generatePassword(type, id) {
+            var url = '/ajax.php?get_readable_pass=true';
+
+            // Make an AJAX request to the server
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var password = xhr.responseText;
+
+                    // Set the password value based on the type
+                    if (type == "add") {
+                        document.getElementById("password-add").value = password;
+                    } else if (type == "edit") {
+                        console.log("password-edit-"+id.toString());
+                        document.getElementById("password-edit-"+id.toString()).value = password;
+                    }
+                }
+            };
+            xhr.send();
+        }
+
         $(document).ready(function() {
             $('.authMethod').on('change', function() {
                 var $form = $(this).closest('.authForm');

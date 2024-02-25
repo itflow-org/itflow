@@ -39,36 +39,47 @@ if (isset($_POST['add_event'])) {
     //If email is checked
     if ($email_event == 1) {
 
-        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON primary_contact = contact_id WHERE client_id = $client");
+        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client");
         $row = mysqli_fetch_array($sql_client);
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
 
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql_company);
-        $company_name = $row['company_name'];
-        $company_country = $row['company_country'];
-        $company_address = $row['company_address'];
-        $company_city = $row['company_city'];
-        $company_state = $row['company_state'];
-        $company_zip = $row['company_zip'];
-        $company_phone = formatPhoneNumber($row['company_phone']);
-        $company_email = $row['company_email'];
-        $company_website = $row['company_website'];
-        $company_logo = $row['company_logo'];
+        $company_name = sanitizeInput($row['company_name']);
+        $company_country = sanitizeInput($row['company_country']);
+        $company_address = sanitizeInput($row['company_address']);
+        $company_city = sanitizeInput($row['company_city']);
+        $company_state = sanitizeInput($row['company_state']);
+        $company_zip = sanitizeInput($row['company_zip']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_email = sanitizeInput($row['company_email']);
+        $company_website = sanitizeInput($row['company_website']);
+        $company_logo = sanitizeInput($row['company_logo']);
+
+        // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+        $config_mail_from_name = sanitizeInput($config_mail_from_name);
+        $config_mail_from_email = sanitizeInput($config_mail_from_email);
 
         $subject = "New Calendar Event";
-        $body    = "Hello $contact_name,<br><br>A calendar event has been scheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>A calendar event has been scheduled:<br><br>Event Title: $title<br>Event Date: $start<br><br><br>--<br>$company_name<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
 
         // Logging for email (success/fail)
         if ($mail === true) {
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Email', log_description = '$session_name emailed event $title to $contact_name from client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', client_id = $client, log_user_id = $session_user_id, log_entity_id = $event_id");
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar Event', log_action = 'Email', log_description = '$session_name emailed event $title to $contact_name from client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client, log_user_id = $session_user_id, log_entity_id = $event_id");
         } else {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -97,34 +108,44 @@ if (isset($_POST['edit_event'])) {
     //If email is checked
     if ($email_event == 1) {
 
-        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON primary_contact = contact_id WHERE client_id = $client");
+        $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client");
         $row = mysqli_fetch_array($sql_client);
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
 
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql_company);
-        $company_name = $row['company_name'];
-        $company_country = $row['company_country'];
-        $company_address = $row['company_address'];
-        $company_city = $row['company_city'];
-        $company_state = $row['company_state'];
-        $company_zip = $row['company_zip'];
-        $company_phone = formatPhoneNumber($row['company_phone']);
-        $company_email = $row['company_email'];
-        $company_website = $row['company_website'];
-        $company_logo = $row['company_logo'];
+        $company_name = sanitizeInput($row['company_name']);
+        $company_country = sanitizeInput($row['company_country']);
+        $company_address = sanitizeInput($row['company_address']);
+        $company_city = sanitizeInput($row['company_city']);
+        $company_state = sanitizeInput($row['company_state']);
+        $company_zip = sanitizeInput($row['company_zip']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_email = sanitizeInput($row['company_email']);
+        $company_website = sanitizeInput($row['company_website']);
+        $company_logo = sanitizeInput($row['company_logo']);
+
+        // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+        $config_mail_from_name = sanitizeInput($config_mail_from_name);
+        $config_mail_from_email = sanitizeInput($config_mail_from_email);
 
 
         $subject = "Calendar Event Rescheduled";
-        $body    = "Hello $contact_name,<br><br>A calendar event has been rescheduled: $title at $start<br><br><br>~<br>$company_name<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>A calendar event has been rescheduled:<br><br>Event Title: $title<br>Event Date: $start<br><br><br>--<br>$company_name<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
-
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
         // Logging for email (success/fail)
         if ($mail === true) {
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar_Event', log_action = 'Email', log_description = '$session_name Emailed modified event $title to $client_name email $client_email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");

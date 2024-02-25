@@ -3,6 +3,7 @@ $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
 $description = sanitizeInput($_POST['description']);
 $uri = sanitizeInput($_POST['uri']);
+$uri_2 = sanitizeInput($_POST['uri_2']);
 $username = encryptLoginEntry(trim($_POST['username']));
 $password = encryptLoginEntry(trim($_POST['password']));
 $otp_secret = sanitizeInput($_POST['otp_secret']);

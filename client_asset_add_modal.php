@@ -19,6 +19,9 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
                         </li>
                         <li class="nav-item">
@@ -120,6 +123,89 @@
 
                         </div>
 
+                        <div class="tab-pane fade" id="pills-network">
+
+                            <div class="form-group">
+                                <label>Network</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="network">
+                                        <option value="">- Network -</option>
+                                        <?php
+
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $network_id = intval($row['network_id']);
+                                            $network_name = nullable_htmlentities($row['network_name']);
+                                            $network = nullable_htmlentities($row['network']);
+
+                                            ?>
+                                            <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>IP Address or DHCP</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="dhcp" value="1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>NAT IP Address</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>MAC Address</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc">
+                                </div>
+                            </div>
+
+                        </div>
+
                         <div class="tab-pane fade" id="pills-assignment">
 
                             <div class="form-group">
@@ -179,65 +265,6 @@
                                             <option><?php echo $asset_status; ?></option>
                                         <?php } ?>
                                     </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Network</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="network">
-                                        <option value="">- Network -</option>
-                                        <?php
-
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $network_id = intval($row['network_id']);
-                                            $network_name = nullable_htmlentities($row['network_name']);
-                                            $network = nullable_htmlentities($row['network']);
-
-                                            ?>
-                                            <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>IP Address or DHCP</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
-                                    <div class="input-group-append">
-                                        <div class="input-group-text">
-                                            <input type="checkbox" name="dhcp" value="1">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>MAC Address</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>URI</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
                                 </div>
                             </div>
 
@@ -318,7 +345,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="new-password">
+                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="off">
                                 </div>
                             </div>
 

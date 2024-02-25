@@ -399,12 +399,18 @@ if (isset($_POST['export_client_pdf'])) {
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
     $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
-    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_type ASC");
-    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'server' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
+        LEFT JOIN contacts ON asset_contact_id = contact_id 
+        LEFT JOIN locations ON asset_location_id = location_id
+        WHERE asset_client_id = $client_id
+        AND asset_archived_at IS NULL
+        ORDER BY asset_type ASC"
+    );
+    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_type = 'server' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
     $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
-    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC");
     $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC");
     $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC");
@@ -738,6 +744,10 @@ if (isset($_POST['export_client_pdf'])) {
                                     style: 'itemHeader'
                                 },
                                 {
+                                    text: 'Description',
+                                    style: 'itemHeader'
+                                },
+                                {
                                     text: 'Username',
                                     style: 'itemHeader'
                                 },
@@ -748,25 +758,25 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: 'URI',
                                     style: 'itemHeader'
-                                },
-                                {
-                                    text: 'Notes',
-                                    style: 'itemHeader'
                                 }
                             ],
 
                             <?php
                             while($row = mysqli_fetch_array($sql_logins)){
                             $login_name = $row['login_name'];
+                            $login_description = $row['login_description'];
                             $login_username = decryptLoginEntry($row['login_username']);
                             $login_password = decryptLoginEntry($row['login_password']);
                             $login_uri = $row['login_uri'];
-                            $login_note = $row['login_note'];
                             ?>
 
                             [
                                 {
                                     text: <?php echo json_encode($login_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($login_description); ?>,
                                     style: 'item'
                                 },
                                 {
@@ -779,10 +789,6 @@ if (isset($_POST['export_client_pdf'])) {
                                 },
                                 {
                                     text: <?php echo json_encode($login_uri); ?>,
-                                    style: 'item'
-                                },
-                                {
-                                    text: <?php echo json_encode($login_note); ?>,
                                     style: 'item'
                                 }
                             ],
@@ -855,6 +861,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: 'Assigned To',
                                     style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Location',
+                                    style: 'itemHeader'
                                 }
                             ],
 
@@ -873,6 +883,7 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
                             $contact_name = $row['contact_name'];
+                            $location_name = $row['location_name'];
                             ?>
 
                             [
@@ -910,6 +921,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 },
                                 {
                                     text: <?php echo json_encode($contact_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_name); ?>,
                                     style: 'item'
                                 }
                             ],
@@ -965,6 +980,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: 'Install Date',
                                     style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Location',
+                                    style: 'itemHeader'
                                 }
                             ],
 
@@ -982,6 +1001,7 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
+                            $location_name = $row['location_name'];
                             ?>
 
                             [
@@ -1015,6 +1035,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 },
                                 {
                                     text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_name); ?>,
                                     style: 'item'
                                 }
                             ],
@@ -1143,6 +1167,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: 'Install Date',
                                     style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Location',
+                                    style: 'itemHeader'
                                 }
                             ],
 
@@ -1160,6 +1188,7 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
+                            $location_name = $row['location_name'];
                             ?>
 
                             [
@@ -1193,6 +1222,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 },
                                 {
                                     text: <?php echo json_encode($asset_install_date); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_name); ?>,
                                     style: 'item'
                                 }
                             ],
@@ -1248,6 +1281,10 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: 'Install Date',
                                     style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Location',
+                                    style: 'itemHeader'
                                 }
                             ],
 
@@ -1265,6 +1302,7 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
                             $asset_notes = $row['asset_notes'];
+                            $location_name = $row['location_name'];
                             ?>
 
                             [
@@ -1299,7 +1337,12 @@ if (isset($_POST['export_client_pdf'])) {
                                 {
                                     text: <?php echo json_encode($asset_install_date); ?>,
                                     style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($location_name); ?>,
+                                    style: 'item'
                                 }
+
                             ],
 
                             <?php

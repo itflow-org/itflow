@@ -2,24 +2,27 @@
 
 require_once 'guest_header.php';
 
-function log_to_console($message)
-{
+function log_to_console($message) {
     $message = date("H:i:s") . " - $message - ".PHP_EOL;
     print($message);
     flush();
     ob_flush();
 }
 
-
 // Define wording
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
 
 // Setup Stripe
-$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
+$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account, config_stripe_expense_vendor, config_stripe_expense_category, config_stripe_percentage_fee, config_stripe_flat_fee, config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 $config_stripe_account = intval($stripe_vars['config_stripe_account']);
+$config_stripe_expense_vendor = intval($stripe_vars['config_stripe_expense_vendor']);
+$config_stripe_expense_category = intval($stripe_vars['config_stripe_expense_category']);
+$config_stripe_percentage_fee = floatval($stripe_vars['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($stripe_vars['config_stripe_flat_fee']);
+$config_stripe_client_pays_fees = intval($stripe_vars['config_stripe_client_pays_fees']);
 
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
@@ -74,7 +77,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_locale = nullable_htmlentities($row['company_locale']);
-    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -82,18 +84,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
-    // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
-            $balance_before_fees = $balance_to_pay;
-            $percentage_fee = 0.029;
-            $flat_fee = 0.30;
-            // Calculate the amount to charge the client
-            $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
-            // Calculate the fee amount
-            $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+        $balance_before_fees = $balance_to_pay;
+        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
+        // Calculate the amount to charge the client
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
 
-        }
-    
+    }
+
     //Round balance to pay to 2 decimal places
     $balance_to_pay = round($balance_to_pay, 2);
 
@@ -251,24 +251,22 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Invoice exists - get details
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
+    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $contact_name = $row['contact_name'];
-    $contact_email = $row['contact_email'];
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
     
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_company);
 
-    $company_name = mysqli_real_escape_string($mysqli, nullable_htmlentities($row['company_name']));
-    $company_phone = nullable_htmlentities($row['company_phone']);
-    $company_locale = nullable_htmlentities($row['company_locale']);
-    $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
-
+    $company_name = sanitizeInput($row['company_name']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_locale = sanitizeInput($row['company_locale']);
 
     // Set Currency Formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -279,12 +277,29 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = $row['amount_paid'];
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    // Check config to see if client pays fees is enabled
+    // Check config to see if client pays fees is enabled or if should expense it
     if ($config_stripe_client_pays_fees == 1) {
-        $percentage_fee = 0.029;
-        $flat_fee = 0.30;
+        $balance_before_fees = $balance_to_pay;
+        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
         // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
+        // Calculate the fee amount
+        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
+        
+        // Add as line item to client Invoice
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = 'Gateway Fees', item_description = 'Payment Gateway Fees', item_quantity = 1, item_price = $gateway_fee, item_subtotal = $gateway_fee, item_total = $gateway_fee, item_order = 999, item_invoice_id = $invoice_id");
+        // Update the Amount on the invoice to include the gateway fee
+        $new_invoice_amount = $invoice_amount + $gateway_fee;
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
+    }
+
+    // Check to see if Expense Fields are configured and client pays fee is off then create expense
+    if ($config_stripe_client_pays_fees == 0 && $config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
+        // Calculate gateway expense fee
+        $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+
+        // Add Expense
+        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
     }
 
     // Round balance to pay to 2 decimal places
@@ -333,28 +348,26 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_smtp_encryption = $row['config_smtp_encryption'];
     $config_smtp_username = $row['config_smtp_username'];
     $config_smtp_password = $row['config_smtp_password'];
-    $config_mail_from_email = $row['config_mail_from_email'];
-    $config_mail_from_name = $row['config_mail_from_name'];
-    $config_invoice_from_name = $row['config_invoice_from_name'];
-    $config_invoice_from_email = $row['config_invoice_from_email'];
+    $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
+    $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
+    
+    $config_base_url = sanitizeInput($config_base_url);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail(
-            $config_smtp_host,
-            $config_smtp_username,
-            $config_smtp_password,
-            $config_smtp_encryption,
-            $config_smtp_port,
-            $config_invoice_from_email,
-            $config_invoice_from_name,
-            $contact_email,
-            $contact_name,
-            $subject,
-            $body
-        );
+            $data = [
+                [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ]
+            ];
+        $mail = addToMailQueue($mysqli, $data);
 
         // Email Logging
         if ($mail === true) {
@@ -370,11 +383,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Redirect user to invoice
     header('Location: //' . $config_base_url . '/guest_view_invoice.php?invoice_id=' . $pi_invoice_id . '&url_key=' . $invoice_url_key);
 
-
 } else {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
 }
 
 
 require_once 'guest_footer.php';
-

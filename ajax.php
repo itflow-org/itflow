@@ -303,19 +303,38 @@ if (isset($_GET['share_generate_link'])) {
         $url = "https://$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
     }
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+    // Sanitize Config vars from get_settings.php
+    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
 
-        $subject = "Time sensitive - $session_company_name secure link enclosed";
+        $subject = "Time sensitive - $company_name secure link enclosed";
         if ($item_expires_friendly == "never") {
-            $subject = "$session_company_name secure link enclosed";
+            $subject = "$company_name secure link enclosed";
         }
-        $body = "Hello,<br><br>$session_name from $session_company_name sent you a time sensitive secure link regarding '$item_name'.<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href='$url'>Click here to access your secure content</a></strong><br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_mail_from_email, $config_mail_from_name,
-            $item_email, $item_email,
-            $subject, $body);
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $item_email,
+                'recipient_name' => $item_email,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $item_email'");
@@ -326,16 +345,15 @@ if (isset($_GET['share_generate_link'])) {
 
     echo json_encode($url);
 
-
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - $item_name', log_client_id = $client_id, log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
 }
 
 /*
- *  Looks up info for a given scheduled ticket ID from the database, used to dynamically populate modal edit fields
+ *  Looks up info for a given recurring (was scheduled) ticket ID from the database, used to dynamically populate modal edit fields
  */
-if (isset($_GET['scheduled_ticket_get_json_details'])) {
+if (isset($_GET['recurring_ticket_get_json_details'])) {
     validateTechRole();
 
     $client_id = intval($_GET['client_id']);
@@ -478,4 +496,8 @@ if (isset($_GET['get_totp_token_via_id'])) {
     if ($recent_totp_view_logged_count == 0) {
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'View TOTP', log_description = '$session_name viewed login TOTP code for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
     }
+}
+
+if (isset($_GET['get_readable_pass'])) {
+    echo json_encode(GenerateReadablePassword(4));
 }

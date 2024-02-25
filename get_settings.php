@@ -79,12 +79,23 @@ $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_exp
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 $config_invoice_overdue_reminders = intval($row['config_invoice_overdue_reminders']);
 
-// Online Payment
+// Online Stripe Payment
 $config_stripe_enable = intval($row['config_stripe_enable']);
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
-$config_stripe_account = $row['config_stripe_account'];
+$config_stripe_account = intval($row['config_stripe_account']);
+$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
+$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
+$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
+
+// AI Provider Details
+$config_ai_enable = intval($row['config_ai_enable']);
+$config_ai_provider = $row['config_ai_provider'];
+$config_ai_model = $row['config_ai_model'];
+$config_ai_url = $row['config_ai_url'];
+$config_ai_api_key = $row['config_ai_api_key'];
 
 // Modules
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
@@ -108,10 +119,34 @@ $config_theme_mode = "dark_mode";
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);
 
+// Destructive Deletes
+$config_destructive_deletes_enable = intval($row['config_destructive_deletes_enable']);
+
 
 // Select Arrays
 
+$theme_colors_array = array (
+    'lightblue',
+    'blue',
+    'green',
+    'cyan',
+    'yellow',
+    'red',
+    'black',
+    'gray',
+    'indigo',
+    'navy',
+    'purple',
+    'fuchsia',
+    'pink',
+    'maroon',
+    'orange',
+    'teal',
+    'olive'
+);
+
 $colors_array = array (
+    'lightblue',
     'blue',
     'green',
     'cyan',
@@ -243,9 +278,7 @@ $industry_select_array = array(
 );
 
 $start_page_select_array = array (
-    'dashboard.php'=>'Personal Dashboard',
-    'dashboard_financial.php'=>'Administrative Dashboard',
-    'dashboard_technical.php' => 'Technical Dashboard',
+    'dashboard.php'=>'Dashboard',
     'clients.php'=> 'Client Management',
     'tickets.php'=> 'Support Tickets',
     'invoices.php' => 'Invoices'

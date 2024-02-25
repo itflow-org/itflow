@@ -9,22 +9,17 @@ require_once "inc_portal.php";
 
 if (isset($_POST['add_ticket'])) {
 
-    // Get ticket prefix/number
-    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
-    $row = mysqli_fetch_array($sql_settings);
-    $config_ticket_prefix = sanitizeInput($row['config_ticket_prefix']);
-    $config_ticket_next_number = intval($row['config_ticket_next_number']);
-
-    // Get email settings
-    $config_ticket_from_name = $row['config_ticket_from_name'];
-    $config_ticket_from_email = $row['config_ticket_from_email'];
-    $config_ticket_new_ticket_notification_email = filter_var($row['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL);
-
-
     $client_id = intval($session_client_id);
     $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli,($_POST['details']));
+
+    // Get settings from get_settings.php
+    $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_base_url = sanitizeInput($config_base_url);
+    $config_ticket_new_ticket_notification_email = filter_var($row['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL);
 
     // Ensure priority is low/med/high (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High") {
@@ -50,8 +45,19 @@ if (isset($_POST['add_ticket'])) {
         $email_subject = "ITFlow - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br><b>$subject</b><br>$details";
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
-    }
+        // Queue Mail
+        $data = [
+            [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $config_ticket_new_ticket_notification_email,
+                'recipient_name' => $config_ticket_from_name,
+                'subject' => $email_subject,
+                'body' => $email_body,
+            ]
+        ];
+        addToMailQueue($mysqli, $data);
+        }
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id");

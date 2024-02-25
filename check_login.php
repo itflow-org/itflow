@@ -55,7 +55,8 @@ $session_company_currency = $row['company_currency'];
 $session_timezone = $row['config_timezone'];
 
 // Set Timezone to the companies timezone
-date_default_timezone_set($session_timezone);
+// 2024-02-08 JQ - The option to set the timezone in PHP was disabled to prevent inconsistencies with MariaDB/MySQL, which utilize the system's timezone, It is now consdered best practice to set the timezone on system itself
+//date_default_timezone_set($session_timezone);
 
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
@@ -73,6 +74,9 @@ if ($iPod || $iPhone || $iPad) {
 } else {
     $session_map_source = "google";
 }
+
+//Check if mobile device
+$session_mobile = isMobile();
 
 //Get Notification Count for the badge on the top nav
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));

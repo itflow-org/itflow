@@ -16,7 +16,7 @@
         <!-- SEARCH FORM -->
         <form class="form-inline" action="global_search.php">
             <div class="input-group input-group-sm">
-                <input class="form-control form-control-navbar" type="search" placeholder="Search" name="query"
+                <input class="form-control form-control-navbar" type="search" placeholder="Search everywhere" name="query"
                     value="<?php if (isset($_GET['query'])) { echo nullable_htmlentities($_GET['query']); } ?>">
                 <div class="input-group-append">
                     <button class="btn btn-navbar" type="submit">
@@ -37,36 +37,39 @@
             </a>
         </li>
         <?php if ($config_module_enable_ticketing == 1) { ?>
+            
             <li class="nav-item">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
                     <i class="fas fa-hourglass-half"></i>
                     <span class="badge" id="runningTicketsCount">0</span>
                 </a>
             </li>
+           
         <?php } ?>
 
 
         <!-- New Notifications Dropdown -->
         <?php
-    $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
-        LEFT JOIN clients ON notification_client_id = client_id 
-        WHERE notification_dismissed_at IS NULL 
-        AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
-        ORDER BY notification_id DESC LIMIT 5"
-    );
-    ?>
+        $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
+            LEFT JOIN clients ON notification_client_id = client_id 
+            WHERE notification_dismissed_at IS NULL 
+            AND (notification_user_id = $session_user_id OR notification_user_id = 0) 
+            ORDER BY notification_id DESC LIMIT 5"
+        );
+        ?>
 
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                <i class="far fa-bell"></i>
+            <a class="nav-link" data-toggle="dropdown" href="#">
+                <i class="far fa-bell mr-3"></i>
                 <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
-
             </a>
-            <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" style="left: inherit; right: 0px;">
-                <a href="notifications.php" class="dropdown-item dropdown-header"><i
-                        class="fas fa-fw fa-bell mr-2"></i><strong><?php echo $num_notifications; ?></strong>
-                    Notifications</a>
+            <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
+                <a href="notifications.php" class="dropdown-item dropdown-header">
+                    <i class="fas fa-fw fa-bell mr-2"></i>
+                    <strong><?php echo $num_notifications; ?></strong>
+                    Notifications
+                </a>
                 <div class="dropdown-divider"></div>
                 <?php
         while ($row = mysqli_fetch_array($sql_notifications)) {
@@ -150,10 +153,10 @@
                 </li>
                 <!-- Menu Footer-->
                 <li class="user-footer">
-                    <a href="user_profile.php" class="btn btn-default btn-flat"><i
-                            class="fas fa-cog mr-2"></i>Profile</a>
+                    <a href="user_details.php" class="btn btn-default btn-flat"><i
+                            class="fas fa-cog mr-2"></i>Account</a>
                     <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i
-                            class="fas fa-sign-out-alt mr-2"></i>Sign out</a>
+                            class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                 </li>
             </ul>
         </li>

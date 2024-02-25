@@ -6,6 +6,8 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_archived_at IS NULL"));
+$recurring_invoice_count = $row['num'];
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent'"));
 $sent_count = $row['num'];
@@ -168,7 +170,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-sm-8">
-                        <div class="float-right">   
+                        <div class="btn-group float-right">
+                            <a href="recurring_invoices.php" class="btn btn-outline-primary"><i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring | <b><?php echo $recurring_invoice_count; ?></b></a>
                         </div>
                     </div>
                 </div>

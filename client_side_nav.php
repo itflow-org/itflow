@@ -51,7 +51,7 @@
                 <li class="nav-header mt-3">SUPPORT</li>
 
                 <li class="nav-item">
-                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php") { echo "active"; } ?>">
+                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_tickets.php" || basename($_SERVER["PHP_SELF"]) == "client_recurring_tickets.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-life-ring"></i>
                         <p>
                             Tickets
@@ -64,19 +64,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="client_scheduled_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_scheduled_tickets.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-check"></i>
-                        <p>
-                            Scheduled Tickets
-                            <?php
-                            if ($num_scheduled_tickets > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_scheduled_tickets; ?></span>
-                            <?php } ?>
-
-                        </p>
-                    </a>
-                </li>
 
                 <?php } ?>
 
@@ -237,7 +224,7 @@
                     <li class="nav-header mt-3">FINANCE</li>
 
                     <li class="nav-item">
-                        <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_invoices.php") { echo "active"; } ?>">
+                        <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_invoices.php" || basename($_SERVER["PHP_SELF"]) == "client_recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "client_recurring_invoice.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>
                                 Invoices
@@ -249,18 +236,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_recurring_invoices.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-redo-alt"></i>
-                            <p>
-                                Rec. Invoices
-                                <?php
-                                if ($num_recurring > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_recurring; ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
 
                     <li class="nav-item">
                         <a href="client_quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_quotes.php") { echo "active"; } ?>">
@@ -289,6 +264,15 @@
                     </li>
 
                     <li class="nav-item">
+                        <a href="client_statement.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_statement.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                            <p>
+                                Statement
+                            </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="client_trips.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>
@@ -304,6 +288,13 @@
                 <?php } ?>
 
                 <li class="nav-header mt-3">MORE</li>
+
+                <li class="nav-item">
+                    <a href="client_bulk_mail.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_bulk_mail.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-envelope-open"></i>
+                        <p>Bulk Mail</p>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">

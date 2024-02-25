@@ -66,12 +66,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Department</label>
+                                <label>Department / Group</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="department" placeholder="Department" value="<?php echo $contact_department; ?>">
+                                    <input type="text" class="form-control" name="department" placeholder="Department or group" value="<?php echo $contact_department; ?>">
                                 </div>
                             </div>
 
@@ -122,12 +122,20 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE (location_archived_at > '$contact_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
                                             $location_id_select = intval($row['location_id']);
                                             $location_name_select = nullable_htmlentities($row['location_name']);
-                                            ?>
-                                            <option <?php if ($contact_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                            $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                                            if ($location_archived_at) {
+                                                $location_name_select_display = "($location_name_select) - ARCHIVED";
+                                            } else {
+                                                $location_name_select_display = $location_name_select;
+                                            }
+                                        ?>
+                                            <option <?php if ($contact_location_id == $location_id_select) {
+                                                        echo "selected";
+                                                    } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select_display; ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -139,7 +147,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?php echo $contact_id; ?>" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?> >
+                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?php echo $contact_id; ?>" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactImportantCheckbox<?php echo $contact_id; ?>">Important</label>
                                         </div>
                                     </div>
@@ -147,7 +155,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?php echo $contact_id; ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?> >
+                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?php echo $contact_id; ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactBillingCheckbox<?php echo $contact_id; ?>">Billing</label>
                                         </div>
                                     </div>
@@ -155,7 +163,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?php echo $contact_id; ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?> >
+                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?php echo $contact_id; ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?>>
                                             <label class="custom-control-label" for="contactTechnicalCheckbox<?php echo $contact_id; ?>">Technical</label>
                                         </div>
                                     </div>
@@ -177,40 +185,44 @@
                                 </div>
                             </div>
 
-                            <?php if($config_client_portal_enable == 1) { ?>
-                            <div class="authForm">
-                                <div class="form-group">
-                                    <label>Login</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                            <?php if ($config_client_portal_enable == 1) { ?>
+                                <div class="authForm">
+                                    <div class="form-group">
+                                        <label>Login</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                                            </div>
+                                            <select class="form-control select2 authMethod" name="auth_method">
+                                                <option value="">- None -</option>
+                                                <option value="local" <?php if ($auth_method == "local") { echo "selected"; } ?>>Local</option>
+                                                <option value="azure" <?php if ($auth_method == "azure") { echo "selected"; } ?>>Azure</option>
+                                            </select>
                                         </div>
-                                        <select class="form-control select2 authMethod" name="auth_method">
-                                            <option value="">- None -</option>
-                                            <option value="local" <?php if ($auth_method == "local") {echo "selected";} ?>>Local</option>
-                                            <option value="azure" <?php if ($auth_method == "azure") {echo "selected";} ?>>Azure</option>
-                                        </select>
+                                    </div>
+                                    <div class="form-group passwordGroup" style="display: none;">
+                                        <label>Password <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" data-toggle="password" id="password-edit-<?php echo $contact_id; ?>" name="contact_password" placeholder="Password" autocomplete="new-password">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                            </div>
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-default" onclick="generatePassword('edit', <?php echo $contact_id; ?>)">
+                                                    <i class="fa fa-fw fa-question"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="form-group passwordGroup" style="display: none;">
-                                    <label>Password</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                                        </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Leave blank for no change" autocomplete="new-password" minlength="8">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                        </div>
-                                    </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="send_email" value="1" />
+                                    <label class="form-check-label">Send user e-mail with login details?</label>
                                 </div>
-                            </div>
-
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="send_email" value="1"/>
-                                <label class="form-check-label">Send user e-mail with login details?</label>
-                            </div>
 
                             <?php } ?>
 
@@ -238,7 +250,7 @@
                         <div class="tab-pane fade" id="pills-notes<?php echo $contact_id; ?>">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?php echo $contact_notes; ?></textarea>
+                                <textarea class="form-control" rows="8" name="notes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc"><?php echo $contact_notes; ?></textarea>
                             </div>
 
                         </div>

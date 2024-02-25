@@ -13,23 +13,23 @@ $sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE 
 $row = mysqli_fetch_array($sql_companies);
 
 // Company Details
-$company_name = $row['company_name'];
-$company_phone = formatPhoneNumber($row['company_phone']);
-$company_email = $row['company_email'];
-$company_website = $row['company_website'];
-$company_city = $row['company_city'];
-$company_state = $row['company_state'];
-$company_country = $row['company_country'];
-$company_locale = $row['company_locale'];
-$company_currency = $row['company_currency'];
+$company_name = sanitizeInput($row['company_name']);
+$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+$company_email = sanitizeInput($row['company_email']);
+$company_website = sanitizeInput($row['company_website']);
+$company_city = sanitizeInput($row['company_city']);
+$company_state = sanitizeInput($row['company_state']);
+$company_country = sanitizeInput($row['company_country']);
+$company_locale = sanitizeInput($row['company_locale']);
+$company_currency = sanitizeInput($row['company_currency']);
 
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
 $config_cron_key = $row['config_cron_key'];
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
-$config_invoice_prefix = $row['config_invoice_prefix'];
-$config_invoice_from_email = $row['config_invoice_from_email'];
-$config_invoice_from_name = $row['config_invoice_from_name'];
+$config_invoice_prefix = sanitizeInput($row['config_invoice_prefix']);
+$config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
+$config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 
@@ -39,25 +39,25 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
-$config_mail_from_email = $row['config_mail_from_email'];
-$config_mail_from_name = $row['config_mail_from_name'];
+$config_mail_from_email = sanitizeInput($row['config_mail_from_email']);
+$config_mail_from_name = sanitizeInput($row['config_mail_from_name']);
 $config_recurring_auto_send_invoice = intval($row['config_recurring_auto_send_invoice']);
 
 // Tickets
-$config_ticket_prefix = $row['config_ticket_prefix'];
-$config_ticket_from_name = $row['config_ticket_from_name']; // TODO: Sanitize from_name and from_email on assignment, once everything is moved to the database queue
-$config_ticket_from_email = $row['config_ticket_from_email'];
+$config_ticket_prefix = sanitizeInput($row['config_ticket_prefix']);
+$config_ticket_from_name = sanitizeInput($row['config_ticket_from_name']);
+$config_ticket_from_email = sanitizeInput($row['config_ticket_from_email']);
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
-$config_ticket_new_ticket_notification_email = $row['config_ticket_new_ticket_notification_email'];
+$config_ticket_new_ticket_notification_email = sanitizeInput($row['config_ticket_new_ticket_notification_email']);
 
 // Get Config for Telemetry
 $config_theme = $row['config_theme'];
 $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
-$config_module_enable_accounting = $row['config_module_enable_accounting'];
+$config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_telemetry = intval($row['config_telemetry']);
 
 // Alerts
@@ -138,7 +138,7 @@ if($config_enable_alert_domain_expire == 1){
             $mysqli,
             "SELECT * FROM domains
             LEFT JOIN clients ON domain_client_id = client_id 
-            WHERE domain_expire = CURDATE() + INTERVAL $day DAY"
+            WHERE domain_expire IS NOT NULL AND domain_expire = CURDATE() + INTERVAL $day DAY"
         );
 
         while ($row = mysqli_fetch_array($sql)) {
@@ -232,9 +232,9 @@ if($tickets_pending_assignment > 0){
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for tickets that are pending assignment'");
 }
 
-// Scheduled tickets
+// Recurring (Scheduled) tickets
 
-// Get scheduled tickets for today
+// Get recurring tickets for today
 $sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = CURDATE()");
 
 if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
@@ -242,8 +242,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 
         $schedule_id = intval($row['scheduled_ticket_id']);
         $subject = sanitizeInput($row['scheduled_ticket_subject']);
-        $details_escaped = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
-        $details = $row['scheduled_ticket_details'];
+        $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
         $priority = sanitizeInput($row['scheduled_ticket_priority']);
         $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
         $created_id = intval($row['scheduled_ticket_created_by']);
@@ -260,14 +259,13 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details_escaped', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
         $id = mysqli_insert_id($mysqli);
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created recurring scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
 
         // Notifications
-
 
         // Get client/contact/ticket details
         $sql = mysqli_query(
@@ -279,44 +277,58 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         );
         $row = mysqli_fetch_array($sql);
 
-
-
-        // Escaped - Do not re-escape in the general subject/body escaping as this would re-escape
-        $config_ticket_from_name_escaped = sanitizeInput($config_ticket_from_name); // TODO: Move this sanitization to the start of cron, once everything uses the queue
-        $config_ticket_from_email_escaped = sanitizeInput($config_ticket_from_email); // TODO: Move this sanitization to the start of cron, once everything uses the queue
-        $contact_name_escaped = sanitizeInput($row['contact_name']);
-        $contact_email_escaped = sanitizeInput($row['contact_email']);
-
-        // Unescaped - DANGEROUS unless escaped within the general subject/body escape queries
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
-        $contact_email = $row['contact_email'];
-        $ticket_prefix = $row['ticket_prefix'];
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
-        $ticket_priority = $row['ticket_priority'];
-        $ticket_subject = $row['ticket_subject'];
-        $ticket_details = $row['ticket_details']; // Output on settings_mail_queue.php is sanitized through HTML Purifier
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
 
+        $data = [];
 
         // Notify client by email their ticket has been raised, if general notifications are turned on & there is a valid contact email
         if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            $email_subject = mysqli_real_escape_string($mysqli, "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)");
-            $email_body    = mysqli_real_escape_string($mysqli, "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone");
+            $email_subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
+            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_ticket_from_email_escaped', email_from_name = '$config_ticket_from_name_escaped', email_subject = '$email_subject', email_content = '$email_body'");
+            $email = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $email_subject,
+                    'body' => $email_body
+            ];
+
+            $data[] = $email;
+
         }
-
 
         // Notify agent's via the DL address of the new ticket, if it's populated with a valid email
         if (filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL)) {
 
-            $email_subject = mysqli_real_escape_string($mysqli, "ITFlow - New Scheduled Ticket - $client_name: $ticket_subject");
-            $email_body = mysqli_real_escape_string($mysqli, "Hello, <br><br>This is a notification that a new scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details");
+            $email_subject = "ITFlow - New Recurring Ticket - $client_name: $ticket_subject";
+            $email_body = "Hello, <br><br>This is a notification that a recurring scheduled ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
 
-            mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$config_ticket_new_ticket_notification_email', email_recipient_name = 'ITFlow Agents', email_from = '$config_ticket_from_email', email_from_name = '$config_ticket_from_name', email_subject = '$email_subject', email_content = '$email_body'");
+            $email = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $config_ticket_new_ticket_notification_email,
+                    'recipient_name' => $config_ticket_from_name,
+                    'subject' => $email_subject,
+                    'body' => $email_body
+            ];
+
+            $data[] = $email;
         }
 
+        // Add to the mail queue
+        addToMailQueue($mysqli, $data);
 
         // Set the next run date
         if ($frequency == "weekly") {
@@ -345,7 +357,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 }
 
 // Logging
-//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out scheduled tickets'");
+//mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created sent out recurring tickets'");
 
 
 // AUTO CLOSE TICKET - CLOSE
@@ -393,7 +405,7 @@ if ($config_ticket_autoclose == 1) {
 
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
-        $ticket_id = $row['ticket_id'];
+        $ticket_id = intval($row['ticket_id']);
         $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_subject = sanitizeInput($row['ticket_subject']);
@@ -405,12 +417,19 @@ if ($config_ticket_autoclose == 1) {
         $ticket_reply = $ticket_reply_row['ticket_reply'];
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body    = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>~<br>$company_name<br>Support Department<br>$config_ticket_from_email<br>$company_phone";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding $ticket_subject will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $contact_email, $contact_name,
-            $subject, $body);
+        $data = [
+            [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
@@ -426,7 +445,7 @@ if ($config_send_invoice_reminders == 1) {
 
     // PAST DUE INVOICE Notifications
     //$invoiceAlertArray = [$config_invoice_overdue_reminders];
-    $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620];
+    $invoiceAlertArray = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620,650,680,710,740];
 
     foreach ($invoiceAlertArray as $day) {
 
@@ -446,16 +465,16 @@ if ($config_send_invoice_reminders == 1) {
             $invoice_id = intval($row['invoice_id']);
             $invoice_prefix = sanitizeInput($row['invoice_prefix']);
             $invoice_number = intval($row['invoice_number']);
-            $invoice_status = $row['invoice_status'];
-            $invoice_date = $row['invoice_date'];
-            $invoice_due = $row['invoice_due'];
-            $invoice_url_key = $row['invoice_url_key'];
+            $invoice_status = sanitizeInput($row['invoice_status']);
+            $invoice_date = sanitizeInput($row['invoice_date']);
+            $invoice_due = sanitizeInput($row['invoice_due']);
+            $invoice_url_key = sanitizeInput($row['invoice_url_key']);
             $invoice_amount = floatval($row['invoice_amount']);
-            $invoice_currency_code = $row['invoice_currency_code'];
+            $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
             $client_id = intval($row['client_id']);
             $client_name = sanitizeInput($row['client_name']);
-            $contact_name = $row['contact_name'];
-            $contact_email = $row['contact_email'];
+            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_email = sanitizeInput($row['contact_email']);
 
             // Late Charges
 
@@ -468,9 +487,9 @@ if ($config_send_invoice_reminders == 1) {
                 mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
                 //Insert Items into New Invoice
-                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_invoice_id = $invoice_id");
+                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_order = 998, item_invoice_id = $invoice_id");
 
-                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late charge', history_invoice_id = $invoice_id");
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late fee of $late_fee_amount', history_invoice_id = $invoice_id");
 
                 mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Late Charge', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
@@ -479,23 +498,20 @@ if ($config_send_invoice_reminders == 1) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
-            $body    = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
+            $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
                 <br><br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
-            $mail = sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $config_invoice_from_email,
-                $config_invoice_from_name,
-                $contact_email,
-                $contact_name,
-                $subject,
-                $body
-            );
+            $mail = addToMailQueue($mysqli, [
+                [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+                ]);
 
             if ($mail === true) {
                 mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
@@ -562,10 +578,11 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $item_subtotal = floatval($row['item_subtotal']);
         $item_tax = floatval($row['item_tax']);
         $item_total = floatval($row['item_total']);
+        $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
         //Insert Items into New Invoice
-        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
+        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
 
     }
 
@@ -587,34 +604,30 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         );
 
         $row = mysqli_fetch_array($sql);
-        $invoice_prefix = $row['invoice_prefix'];
+        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
-        $invoice_date = $row['invoice_date'];
-        $invoice_due = $row['invoice_due'];
+        $invoice_date = sanitizeInput($row['invoice_date']);
+        $invoice_due = sanitizeInput($row['invoice_due']);
         $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_url_key = $row['invoice_url_key'];
+        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
         $client_id = intval($row['client_id']);
-        $client_name = $row['client_name'];
-        $contact_name = $row['contact_name'];
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
 
-
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body    = "Hello $contact_name,<br><br>Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href='https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key'>here</a><br><br><br>~<br>$company_name<br>Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
-        $mail = sendSingleEmail(
-            $config_smtp_host,
-            $config_smtp_username,
-            $config_smtp_password,
-            $config_smtp_encryption,
-            $config_smtp_port,
-            $config_invoice_from_email,
-            $config_invoice_from_name,
-            $contact_email,
-            $contact_name,
-            $subject,
-            $body
-        );
+        $mail = addToMailQueue($mysqli, [
+            [
+                'from' => $config_invoice_from_email,
+                'from_name' => $config_invoice_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ]);
 
         if ($mail === true) {
             mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Invoice!', history_invoice_id = $new_invoice_id");
@@ -628,22 +641,28 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         }
 
         // Send copies of the invoice to any additional billing contacts
-        $sql_billing_contacts = mysqli_query(
-            $mysqli,
-            "SELECT contact_name, contact_email FROM contacts
-        WHERE contact_billing = 1
-        AND contact_email != '$contact_email'
-        AND contact_client_id = $client_id"
+        $sql_billing_contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts
+            WHERE contact_billing = 1
+            AND contact_email != '$contact_email'
+            AND contact_client_id = $client_id"
         );
 
         while ($billing_contact = mysqli_fetch_array($sql_billing_contacts)) {
-            $billing_contact_name = $billing_contact['contact_name'];
-            $billing_contact_email = $billing_contact['contact_email'];
+            $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
+            $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
 
-            sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-                $config_invoice_from_email, $config_invoice_from_name,
-                $billing_contact_email, $billing_contact_name,
-                $subject, $body);
+            $data = [
+                [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $billing_contact_email,
+                    'recipient_name' => $billing_contact_name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+            ];
+
+            addToMailQueue($mysqli, $data);
         }
 
     } //End if Autosend is on
@@ -697,7 +716,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 
 // TELEMETRY
 
-if ($config_telemetry == 1) {
+if ($config_telemetry > 0 OR $config_telemetry = 2) {
 
     $current_version = exec("git rev-parse HEAD");
 
@@ -708,6 +727,10 @@ if ($config_telemetry == 1) {
     // Ticket Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM tickets"));
     $ticket_count = $row['num'];
+
+    // Recurring (Scheduled) Ticket Count
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
+    $scheduled_ticket_count = $row['num'];
 
     // Calendar Event Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('event_id') AS num FROM events"));
@@ -866,12 +889,14 @@ if ($config_telemetry == 1) {
             'installation_id' => "$installation_id",
             'version' => "$current_version",
             'company_name' => "$company_name",
+            'website' => "$company_website",
             'city' => "$company_city",
             'state' => "$company_state",
             'country' => "$company_country",
             'currency' => "$company_currency",
             'client_count' => $client_count,
             'ticket_count' => $ticket_count,
+            'scheduled_ticket_count' => $scheduled_ticket_count,
             'calendar_event_count' => $calendar_event_count,
             'quote_count' => $quote_count,
             'invoice_count' => $invoice_count,
@@ -936,8 +961,6 @@ if ($config_telemetry == 1) {
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Telemetry', log_description = 'Cron sent telemetry results to ITFlow Developers'");
 }
-
-
 
 /*
  * ###############################################################################################################

@@ -1,5 +1,6 @@
 <?php
 
+
 // Default Column Sortby Filter
 $sort = "ticket_number";
 $order = "DESC";
@@ -17,6 +18,17 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status != 'Closed'";
 }
 
+if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
+    if (isset($_GET['unbilled'])) {
+        $billable = 1;
+        $ticket_billable_snippet = "ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = '1 = 1';
+    }
+} else {
+    $billable = 0;
+    $ticket_billable_snippet = '1 = 1';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -30,6 +42,7 @@ $sql = mysqli_query(
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
     AND $ticket_status_snippet
+    AND $ticket_billable_snippet
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -46,11 +59,16 @@ $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS to
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
+//Get Total Scheduled tickets
+$sql_total_scheduled_tickets = mysqli_query($mysqli, "SELECT COUNT(scheduled_ticket_id) AS total_scheduled_tickets FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
+$row = mysqli_fetch_array($sql_total_scheduled_tickets);
+$total_scheduled_tickets = intval($row['total_scheduled_tickets']);
+
 ?>
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i><?php if (isset($_GET['unbilled'])) { echo "Unbilled "; } ?> Tickets
             <small class="ml-3">
                 <a href="?client_id=<?php echo $client_id?>&status=Open" class="text-white"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
                 <a href="?client_id=<?php echo $client_id?>&status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
@@ -84,8 +102,13 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     </div>
                 </div>
 
+
+
                 <div class="col-md-8">
                     <div class="float-right">
+                        <a href="client_recurring_tickets.php?client_id=<?php echo $client_id; ?>" class="btn btn-outline-info">
+                            <i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring Tickets | <strong> <?php echo $total_scheduled_tickets; ?></strong>
+                        </a>
                     </div>
                 </div>
 
@@ -99,13 +122,15 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Contact</a></th>
+                    <?php if ($config_module_enable_accounting) { ?>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
+                    <?php } ?>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a></th>
 
-                    <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,9 +141,9 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                     $ticket_number = nullable_htmlentities($row['ticket_number']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                    $ticket_details = nullable_htmlentities($row['ticket_details']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                     $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_billable = intval($row['ticket_billable']);
                     $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
@@ -197,6 +222,20 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                             <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
                         </td>
                         <td><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a></td>
+
+                        <?php if ($config_module_enable_accounting) { ?>
+                        <td class="text-center">
+                            <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                            <?php
+                                if ($ticket_billable == 1) {
+                                    echo "<span class='badge badge-pill badge-success'>$</span>";
+                                } else {
+                                    echo "<span class='badge badge-pill badge-secondary'>X</span>";
+                                }
+                            ?>
+                        </td>
+                        <?php } ?>
+
                         <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
@@ -206,26 +245,6 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                             <br>
                             <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
                         </td>
-                        <td>
-                            <?php if ($ticket_status !== "Closed") { ?>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            <?php } ?>
-                        </td>
                     </tr>
 
                     <?php
@@ -233,13 +252,13 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     if ($ticket_status !== "Closed") {
                         // Temp performance boost for closed tickets, until we move to dynamic modals
 
-                        require "ticket_edit_modal.php";
-
                         require "ticket_assign_modal.php";
 
                         require "ticket_edit_priority_modal.php";
 
                         require "ticket_edit_contact_modal.php";
+
+                        require "ticket_edit_billable_modal.php";
 
                     }
 

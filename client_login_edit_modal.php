@@ -111,6 +111,22 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" value="<?php echo $login_uri_2; ?>">
+                                    <div class="input-group-append">
+                                        <a href="<?php echo $login_uri_2; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri_2; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-relation<?php echo $login_id; ?>">

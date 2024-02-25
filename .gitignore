@@ -1,6 +1,7 @@
 node_modules
 config.php
 
+uploads/favicon.ico
 uploads/clients/*
 !uploads/clients/index.php
 uploads/expenses/*
@@ -20,3 +21,4 @@ plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/.gitkeep
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/.gitkeep
+.vscode/settings.json

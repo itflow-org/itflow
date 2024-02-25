@@ -6,7 +6,6 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
-
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -41,6 +40,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="btn-group float-right">
+                        <a href="invoices.php" class="btn btn-outline-primary"><i class="fa fa-fw fa-file-invoice mr-2"></i>Back to Invoices</a>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.11.4-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.6-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.11.4-MariaDB-1~deb12u1
+-- Server version	10.11.6-MariaDB-0+deb12u1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -148,8 +148,10 @@ CREATE TABLE `assets` (
   `asset_serial` varchar(200) DEFAULT NULL,
   `asset_os` varchar(200) DEFAULT NULL,
   `asset_ip` varchar(20) DEFAULT NULL,
+  `asset_nat_ip` varchar(200) DEFAULT NULL,
   `asset_mac` varchar(17) DEFAULT NULL,
-  `asset_uri` varchar(250) DEFAULT NULL,
+  `asset_uri` varchar(500) DEFAULT NULL,
+  `asset_uri_2` varchar(500) DEFAULT NULL,
   `asset_status` varchar(200) DEFAULT NULL,
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
@@ -505,6 +507,7 @@ CREATE TABLE `domains` (
   `domain_mail_servers` varchar(255) DEFAULT NULL,
   `domain_txt` text DEFAULT NULL,
   `domain_raw_whois` text DEFAULT NULL,
+  `domain_notes` text DEFAULT NULL,
   `domain_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `domain_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `domain_archived_at` datetime DEFAULT NULL,
@@ -532,6 +535,7 @@ CREATE TABLE `email_queue` (
   `email_from_name` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
   `email_content` longtext NOT NULL,
+  `email_cal_str` varchar(1024) DEFAULT NULL,
   `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
   `email_failed_at` datetime DEFAULT NULL,
   `email_attempts` tinyint(1) NOT NULL DEFAULT 0,
@@ -772,7 +776,8 @@ CREATE TABLE `logins` (
   `login_name` varchar(200) NOT NULL,
   `login_description` varchar(255) DEFAULT NULL,
   `login_category` varchar(200) DEFAULT NULL,
-  `login_uri` varchar(200) DEFAULT NULL,
+  `login_uri` varchar(500) DEFAULT NULL,
+  `login_uri_2` varchar(500) DEFAULT NULL,
   `login_username` varchar(200) DEFAULT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
   `login_otp_secret` varchar(200) DEFAULT NULL,
@@ -1037,6 +1042,22 @@ CREATE TABLE `recurring_expenses` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `remember_tokens`
+--
+
+DROP TABLE IF EXISTS `remember_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `remember_tokens` (
+  `remember_token_id` int(11) NOT NULL AUTO_INCREMENT,
+  `remember_token_token` varchar(255) NOT NULL,
+  `remember_token_user_id` int(11) NOT NULL,
+  `remember_token_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`remember_token_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `revenues`
 --
 
@@ -1266,7 +1287,16 @@ CREATE TABLE `settings` (
   `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_stripe_publishable` varchar(255) DEFAULT NULL,
   `config_stripe_secret` varchar(255) DEFAULT NULL,
-  `config_stripe_account` tinyint(1) NOT NULL DEFAULT 0,
+  `config_stripe_account` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_expense_vendor` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_expense_category` int(11) NOT NULL DEFAULT 0,
+  `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
+  `config_ai_enable` tinyint(1) DEFAULT 0,
+  `config_ai_provider` varchar(250) DEFAULT NULL,
+  `config_ai_model` varchar(250) DEFAULT NULL,
+  `config_ai_url` varchar(250) DEFAULT NULL,
+  `config_ai_api_key` varchar(250) DEFAULT NULL,
+  `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
   `config_stripe_client_pays_fees` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
@@ -1280,6 +1310,7 @@ CREATE TABLE `settings` (
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
+  `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1559,6 +1590,9 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` varchar(200) NOT NULL,
+  `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `ticket_schedule` datetime DEFAULT NULL,
+  `ticket_onsite` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_vendor_ticket_number` varchar(255) DEFAULT NULL,
   `ticket_feedback` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1573,6 +1607,7 @@ CREATE TABLE `tickets` (
   `ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `ticket_location_id` int(11) NOT NULL DEFAULT 0,
   `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1635,6 +1670,8 @@ CREATE TABLE `user_settings` (
   `user_config_remember_me_token` varchar(255) DEFAULT NULL,
   `user_config_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
+  `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1747,4 +1784,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-01 11:52:50
+-- Dump completed on 2024-02-23 23:44:31

@@ -10,7 +10,7 @@ let respond = document.getElementById('ticket_add_reply');
 checkbox.addEventListener('change', e => {
     if (e.target.checked) {
         // Public reply
-        respond.innerHTML = "<i class=\"fas fa-check mr-2\"></i>Respond";
+        respond.innerHTML = "<i class=\"fas fa-paper-plane mr-2\"></i>Respond";
 
     } else {
         // Internal note
