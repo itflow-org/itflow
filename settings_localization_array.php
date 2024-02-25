@@ -259,6 +259,7 @@ $currencies_array = array(
     'JMD' => 'Jamaica Dollar',
     'JPY' => 'Japan Yen',
     'JEP' => 'Jersey Pound',
+    'KSH' => 'Kenyan Shilling',
     'KMF' => 'Comorian Franc',
     'KPW' => 'Korea (North) Won',
     'KRW' => 'Korea (South) Won',
