@@ -6,7 +6,7 @@
 
 if (isset($_POST['send_bulk_mail_now'])) {
     
-    if ($_POST['contact']) {
+    if ($_POST['contact_ids']) {
 
         $mail_from = sanitizeInput($_POST['mail_from']);
         $mail_from_name = sanitizeInput($_POST['mail_from_name']);
@@ -15,7 +15,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
         $queued_at = sanitizeInput($_POST['queued_at']);
 
         // Add Emails
-        foreach($_POST['contact'] as $contact_id) {
+        foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
             $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
