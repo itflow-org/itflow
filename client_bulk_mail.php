@@ -34,14 +34,14 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 
                         <div class="form-group">
                             <select type="text" class="form-control select2" name="mail_from">
-                                <option value="<?php echo $config_mail_from_email; ?>">
-                                    <?php echo "$config_mail_from_name - $config_mail_from_email"; ?></option>
-                                <option value="<?php echo $config_invoice_from_email; ?>">
-                                    <?php echo "$config_invoice_from_name - $config_invoice_from_email"; ?></option>
-                                <option value="<?php echo $config_quote_from_email; ?>">
-                                    <?php echo "$config_quote_from_name - $config_quote_from_email"; ?></option>
-                                <option value="<?php echo $config_ticket_from_email; ?>">
-                                    <?php echo "$config_ticket_from_name - $config_ticket_from_email"; ?></option>
+                                <option value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
+                                    <?php echo nullable_htmlentities("$config_mail_from_name - $config_mail_from_email"); ?></option>
+                                <option value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
+                                    <?php echo nullable_htmlentities("$config_invoice_from_name - $config_invoice_from_email"); ?></option>
+                                <option value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
+                                    <?php echo nullable_htmlentities("$config_quote_from_name - $config_quote_from_email"); ?></option>
+                                <option value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>">
+                                    <?php echo nullable_htmlentities("$config_ticket_from_name - $config_ticket_from_email"); ?></option>
                             </select>
                         </div>
 
