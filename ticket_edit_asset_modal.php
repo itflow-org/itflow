@@ -23,12 +23,13 @@
                                 <option value="0">- None -</option>
                                 <?php
 
-                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                 while ($row = mysqli_fetch_array($sql_assets)) {
                                     $asset_id_select = intval($row['asset_id']);
                                     $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                    $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
                                     ?>
-                                    <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                                    <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
 
                                     <?php
                                 }
