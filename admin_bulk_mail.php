@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     contact_important = 1 OR
     contact_billing = 1 OR
     contact_technical = 1)
-    ORDER BY client_name DESC, contact_primary DESC,
+    ORDER BY client_name ASC, contact_primary DESC,
     contact_important DESC"
 );
 
