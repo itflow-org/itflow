@@ -969,7 +969,7 @@ if ($config_telemetry > 0 OR $config_telemetry = 2) {
  */
 
 // Send Alert to inform Cron was run
-mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron successfully executed', notification_action = 'logs.php'");
+mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron', notification = 'Cron successfully executed', notification_action = 'admin_logs.php'");
 
 // Logging
 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Ended', log_description = 'Cron executed successfully'");
