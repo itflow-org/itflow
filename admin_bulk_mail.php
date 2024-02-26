@@ -3,13 +3,14 @@ require_once "inc_all_admin.php";
 
 
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
+    LEFT JOIN clients ON client_id = contact_client_id
     WHERE contact_archived_at IS NULL
     AND contact_email != ''
     AND (contact_primary = 1 OR
     contact_important = 1 OR
     contact_billing = 1 OR
     contact_technical = 1)
-    ORDER BY contact_primary DESC,
+    ORDER BY client_name DESC, contact_primary DESC,
     contact_important DESC"
 );
 
@@ -82,6 +83,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                                 <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onclick="checkAll(this)">
                                             </div>
                                         </td>
+                                        <th>Client</th>
                                         <th>Name</th>
                                         <th>Title</th>
                                         <th>Email</th>
@@ -105,6 +107,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                     $contact_billing = intval($row['contact_billing']);
                                     $contact_technical = intval($row['contact_technical']);
                                     $contact_client_id = intval($row['contact_client_id']);
+                                    $client_name = nullable_htmlentities($row['client_name']);
                                 ?>
                                 <tr>
                                     <td>
@@ -112,6 +115,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
                                             <input type="checkbox" class="form-check-input bulk-select" name="contact_ids[]" value="<?php echo $contact_id; ?>">
                                         </div>
                                     </td>
+                                    <td><?php echo $client_name; ?></td>
                                     <td>
                                         <a href="client_contact_details.php?client_id=<?php echo $contact_client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank">
                                             <?php echo $contact_name; ?>
