@@ -780,7 +780,7 @@ if (isset($_POST['add_bulk_payment'])) {
     $date = sanitizeInput($_POST['date']);
     $bulk_payment_amount = floatval($_POST['amount']);
     $bulk_payment_amount_static = floatval($_POST['amount']);
-    $total_account_balance = floatval($_POST['balance']);
+    $total_client_balance = floatval($_POST['balance']);
     $account = intval($_POST['account']);
     $currency_code = sanitizeInput($_POST['currency_code']);
     $payment_method = sanitizeInput($_POST['payment_method']);
@@ -788,11 +788,15 @@ if (isset($_POST['add_bulk_payment'])) {
     $email_receipt = intval($_POST['email_receipt']);
 
     // Check if bulk_payment_amount exceeds total_account_balance
-    if ($bulk_payment_amount > $total_account_balance) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Payment exceeds Client Balance.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit;
+    if ($bulk_payment_amount > $total_client_balance) {
+        // Create new credit for the overpayment
+        $credit_amount = $bulk_payment_amount - $total_client_balance;
+        $bulk_payment_amount = $total_client_balance;
+
+        // Add Credit
+        $credit_query = "INSERT INTO credits SET credit_amount = $credit_amount, credit_currency_code = '$currency_code', credit_date = '$date', credit_reference = 'Overpayment: $reference', credit_client_id = $client_id, credit_account_id = $account";
+        mysqli_query($mysqli, $credit_query);
+        $credit_id = mysqli_insert_id($mysqli);
     }
 
     // Get Invoices
@@ -1439,8 +1443,8 @@ if (isset($_POST['add_ticket_to_invoice'])) {
     header("Location: post.php?add_ticket_to_invoice=$invoice_id");
 }
 
-if (isset($_GET['apply_credit_id'])) {
-    $credit_id = intval($_GET['apply_credit_id']);
+if (isset($_GET['apply_credit'])) {
+    $credit_id = intval($_GET['apply_credit']);
     
     $credit_sql = mysqli_query($mysqli,"SELECT * FROM credits WHERE credit_id = $credit_id");
     $credit_row = mysqli_fetch_array($credit_sql);
@@ -1456,7 +1460,9 @@ if (isset($_GET['apply_credit_id'])) {
         $new_credit_query = "INSERT INTO credits (credit_date, credit_amount, credit_currency_code, credit_client_id) VALUES (CURDATE(), $new_credit_amount, '{$credit_row['credit_currency_code']}', $client_id)";
         mysqli_query($mysqli, $new_credit_query);
         $new_credit_id = mysqli_insert_id($mysqli);
-    }
+    } 
+    // Delete the original credit
+    mysqli_query($mysqli,"DELETE FROM credits WHERE credit_id = $credit_id");
 
     // Apply payments similar to add bulk payment
 
@@ -1468,6 +1474,7 @@ if (isset($_GET['apply_credit_id'])) {
         AND invoice_client_id = $client_id
         ORDER BY invoice_number ASC";
     $result_invoices = mysqli_query($mysqli, $sql_invoices);
+    $invoice_applied_count = 0;
 
     // Loop Through Each Invoice
     while ($row = mysqli_fetch_array($result_invoices)) {
@@ -1482,8 +1489,13 @@ if (isset($_GET['apply_credit_id'])) {
         $amount_paid = floatval($row_amount_paid['amount_paid']);
         $invoice_balance = $invoice_amount - $amount_paid;
 
+
         if ($credit_amount <= 0) {
-            break; // Exit the loop if no payment amount is left
+            break; // Exit the loop if no credit amount is left
+        }
+
+        if ($invoice_balance <= 0) {
+            continue; // Skip the invoice if it's already paid
         }
 
         if ($credit_amount >= $invoice_balance) {
@@ -1493,15 +1505,17 @@ if (isset($_GET['apply_credit_id'])) {
             $payment_amount = $credit_amount;
             $invoice_status = "Partial";
         }
+
+        $invoice_applied_count++;
         
-        // Subtract the payment amount from the bulk payment amount
+        // Subtract the payment amount from the credit amount
         $credit_amount -= $payment_amount;
 
         // Get Invoice Remain Balance
         $remaining_invoice_balance = $invoice_balance - $payment_amount;
 
         // Add Payment
-        $payment_query = "INSERT INTO payments (payment_date, payment_amount, payment_currency_code, payment_account_id, payment_method, payment_reference, payment_invoice_id) VALUES ('{$date}', {$payment_amount}, '{$currency_code}', {$account}, '{$payment_method}', '{$reference}', {$invoice_id})";
+        $payment_query = "INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $payment_amount, payment_invoice_id = $invoice_id, payment_account_id = 1, payment_currency_code = '{$credit_row['credit_currency_code']}', payment_reference = 'Credit Applied'";
         mysqli_query($mysqli, $payment_query);
         $payment_id = mysqli_insert_id($mysqli);
 
@@ -1519,6 +1533,8 @@ if (isset($_GET['apply_credit_id'])) {
         $email_body_invoices .= "<br>Invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a> - Outstanding Amount: " . numfmt_format_currency($currency_format, $invoice_balance, $currency_code) . " - Payment Applied: " . numfmt_format_currency($currency_format, $payment_amount, $currency_code) . " - New Balance: " . numfmt_format_currency($currency_format, $remaining_invoice_balance, $currency_code);
 
     } // End Invoice Loop
+
+
 
     // Send Email
     if ($email_receipt == 1) {
@@ -1564,7 +1580,7 @@ if (isset($_GET['apply_credit_id'])) {
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Bulk Payment of $bulk_payment_amount_static', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] .= "Bulk Payment added";
+    $_SESSION['alert_message'] .= "Credit applied to $credit_applied_count invoices";
     
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

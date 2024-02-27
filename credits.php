@@ -110,6 +110,10 @@ $num_rows = mysqli_num_rows($sql);
                         <th><a class="text-dark"
                                 href="?<?php echo $url_query_strings_sort; ?>&sort=credit_reference&order=<?php echo $disp; ?>">Reference</a>
                         </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=credit_payment&order=<?php echo $disp; ?>">Origin</a>
+                        </th>
+
                         <th>Actions</th>
 
                     </tr>
@@ -127,14 +131,41 @@ $num_rows = mysqli_num_rows($sql);
                         $credit_account_id = $row['credit_account_id'];
 
                         // Get client name from DB
-                        $clientQuery = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $credit_client_id LIMIT 1");
+                        $clientQuery = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $credit_client_id");
                         $client = mysqli_fetch_array($clientQuery);
                         $client_name = $client['client_name'];
 
                         // Get account name from DB
-                        $accountQuery = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $credit_account_id LIMIT 1");
-                        $account = mysqli_fetch_array($accountQuery);
-                        $account_name = $account['account_name'];
+                        if($credit_account_id != NULL) {
+                            $accountQuery = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $credit_account_id");
+                            $account = mysqli_fetch_array($accountQuery);
+                            $account_name = $account['account_name'];
+                        } else {
+                            $account_name = "Unassigned";
+                        }
+
+                        // Get payment invoice and reference from DB
+                        if($credit_payment_id != NULL) {
+                            $paymentQuery = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = $credit_payment_id");
+                            $payment = mysqli_fetch_array($paymentQuery);
+                            $payment_invoice = $payment['payment_invoice_id'];
+                            $payment_reference = $payment['payment_reference'];
+                        } else {
+                            $payment_invoice = "Unassigned";
+                            $payment_reference = "Unassigned";
+                        }
+
+                        // Get invoice prefix and number from DB
+                        if($payment_invoice != NULL) {
+                            $invoiceQuery = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $payment_invoice");
+                            $invoice = mysqli_fetch_array($invoiceQuery);
+                            $invoice_prefix = $invoice['invoice_prefix'];
+                            $invoice_number = $invoice['invoice_number'];
+                            $payment_invoice_display = "Payment for: " . $invoice_prefix . $invoice_number;
+                        } else {
+                            $invoice_prefix = "Unassigned";
+                            $invoice_number = "Unassigned";
+                        }
 
                         $credit_display_amount = numfmt_format_currency($currency_format, $credit_amount, $credit_currency_code);
 
@@ -150,6 +181,7 @@ $num_rows = mysqli_num_rows($sql);
                             </td>
                             <td><?php echo $credit_date; ?></td>
                             <td><?php echo $credit_reference; ?></td>
+                            <td><a href="client_payments.php?client_id=<?php echo $credit_client_id; ?>"><?php echo $payment_invoice_display; ?></a></td>
                             <td>
                                 <a href="post.php?apply_credit=<?php echo $credit_id; ?>" class="btn btn-sm btn-primary"
                                 title="Apply"><i class="fas fa-credit-card"></i></a>
