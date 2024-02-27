@@ -142,7 +142,7 @@ $num_rows = mysqli_num_rows($sql);
                         ?>
 
                         <tr>
-                            <td><?php echo $client_name; ?></td>
+                            <td><a href="client_overview.php?client_id=<?php echo $credit_client_id; ?>"><?php echo $client_name; ?></a>
                             <td><?php echo $account_name; ?></td>
                             <td class="text-right
                                 <?php if ($sort == "credit_amount") { echo "sorting-$order"; } ?>">
@@ -151,9 +151,9 @@ $num_rows = mysqli_num_rows($sql);
                             <td><?php echo $credit_date; ?></td>
                             <td><?php echo $credit_reference; ?></td>
                             <td>
-                                <a href="post.php?apply_credit_id=<?php echo $credit_id; ?>" class="btn btn-sm btn-primary"
+                                <a href="post.php?apply_credit=<?php echo $credit_id; ?>" class="btn btn-sm btn-primary"
                                 title="Apply"><i class="fas fa-credit-card"></i></a>
-                                <a href="post.php?delete_credit_id=<?php echo $credit_id; ?>" class="btn btn-sm btn-danger"
+                                <a href="post.php?delete_credit=<?php echo $credit_id; ?>" class="btn btn-sm btn-danger"
                                 title="Delete"><i class="fas fa-trash"></i></a>
                             </td>
                         </tr>

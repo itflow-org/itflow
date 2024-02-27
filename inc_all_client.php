@@ -89,6 +89,11 @@ if (isset($_GET['client_id'])) {
         // Get Balance
         $balance = getClientBalance($mysqli, $client_id, $credits = true);
 
+        // Get Amount Paid
+        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+        $row = mysqli_fetch_array($sql_amount_paid);
+        $amount_paid = floatval($row['amount_paid']);
+
         //Get Monthly Recurring Total
         $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND recurring_client_id = $client_id");
         $row = mysqli_fetch_array($sql_recurring_monthly_total);

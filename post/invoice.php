@@ -91,7 +91,7 @@ if (isset($_POST['add_invoice_copy'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = $invoice_amount, invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id") or die(mysql_error());
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$invoice_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = $invoice_amount, invoice_currency_code = '$invoice_currency_code', invoice_note = '$invoice_note', invoice_url_key = '$url_key', invoice_client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -1439,9 +1439,8 @@ if (isset($_POST['add_ticket_to_invoice'])) {
     header("Location: post.php?add_ticket_to_invoice=$invoice_id");
 }
 
-if (isset($_POST['apply_credit_id'])) {
-
-    $credit_id = intval($_POST['apply_credit_id']);
+if (isset($_GET['apply_credit_id'])) {
+    $credit_id = intval($_GET['apply_credit_id']);
     
     $credit_sql = mysqli_query($mysqli,"SELECT * FROM credits WHERE credit_id = $credit_id");
     $credit_row = mysqli_fetch_array($credit_sql);
@@ -1570,9 +1569,9 @@ if (isset($_POST['apply_credit_id'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['delete_credit_id'])) {
-    $credit_id = intval($_POST['delete_credit_id']);
-    
+if (isset($_GET['delete_credit'])) {
+    $credit_id = intval($_GET['delete_credit']);
+
     mysqli_query($mysqli,"DELETE FROM credits WHERE credit_id = $credit_id");
 
     $_SESSION['alert_message'] = "Credit deleted";
