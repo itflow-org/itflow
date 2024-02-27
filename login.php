@@ -126,10 +126,11 @@ if (isset($_POST['login'])) {
             while ($row = mysqli_fetch_assoc($remember_tokens)) {
                 if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
                     $bypass_2fa = true;
-                    break;
+                    continue;
                 }
             }
-        } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
+        } 
+        if (is_null($token) || empty($token) || TokenAuth6238::verify($token, $current_code)) {
             $bypass_2fa = true;
         }
 
