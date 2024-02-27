@@ -14,16 +14,19 @@ if (isset($_POST['add_contact'])) {
     // Set password
     if (!empty($_POST['contact_password'])) {
         $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        $contact_specific_encryption_cyphertext = encryptContactSpecificKey(trim($_POST['contact_password']));
+
     } else {
         // Set a random password
         $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+        $contact_specific_encryption_cyphertext = encryptContactSpecificKey(randomString());
     }
 
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password_hash', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password_hash', contact_specific_encryption_cyphertext = '$contact_specific_encryption_cyphertext', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -91,7 +94,9 @@ if (isset($_POST['edit_contact'])) {
     // Set password
     if (!empty($_POST['contact_password'])) {
         $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
-        mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = $contact_id AND contact_client_id = $client_id");
+        $contact_specific_encryption_cyphertext = encryptContactSpecificKey(trim($_POST['contact_password']));
+
+        mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash', contact_specific_encryption_cyphertext = '$contact_specific_encryption_cyphertext'  WHERE contact_id = $contact_id AND contact_client_id = $client_id");
     }
 
     // Send contact a welcome e-mail, if specified
@@ -422,7 +427,7 @@ if (isset($_GET['archive_contact'])) {
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_auth_method = '', contact_password_hash = '', contact_archived_at = NOW() WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_auth_method = '', contact_password_hash = '', contact_specific_encryption_cyphertext = '', contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");

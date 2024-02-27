@@ -20,7 +20,6 @@ if (!isset($_SESSION)) {
         // Tell client to only send cookie(s) over HTTPS
         ini_set("session.cookie_secure", true);
     }
-    session_start();
 }
 
 // Check to see if client portal is enabled
@@ -44,6 +43,8 @@ $company_logo = $company_results['company_logo'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
+    session_start();
+
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
@@ -66,12 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 $_SESSION['csrf_token'] = randomString(156);
                 $_SESSION['logged'] = true;
 
+                $site_encryption_ciphertext = $row['contact_encryption_ciphertext'];
+
                 // Setup encryption session key
-                if (is_null($contact_encryption_ciphertext)) {
-                    $contact_encryption_ciphertext 
+                if (isset($contact_encryption_ciphertext)) {
                     $site_encryption_master_key = decryptContactSpecificKey($contact_encryption_ciphertext, $password);
                     generateContactSessionKey($site_encryption_master_key);
-
                 }
 
                 header("Location: index.php");

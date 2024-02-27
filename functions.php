@@ -413,6 +413,7 @@ function decryptLoginEntry($login_password_ciphertext)
 
 function decryptContactLoginEntry($login_password_ciphertext)
 {
+    try{
     // Split the login into IV and Ciphertext
     $login_iv =  substr($login_password_ciphertext, 0, 16);
     $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
@@ -427,6 +428,14 @@ function decryptContactLoginEntry($login_password_ciphertext)
 
     // Decrypt the login password using the master key
     return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    }
+
+    catch(Exception $e){
+        echo $e->getMessage() . "\n";
+        while($e = $e->getPrevious()) {
+            echo "previous exception :" . $e = $e->getMessage();
+        }
+    }
 }
 
 // Encrypts a website/asset login password

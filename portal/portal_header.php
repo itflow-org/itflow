@@ -67,6 +67,11 @@ header("X-Frame-Options: DENY"); // Legacy
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "documents.php") {echo "active";} ?>" href="documents.php">Documents</a>
                     </li>
                 <?php } ?>
+                <?php if ($session_contact_primary == 1 || $session_contact_is_technical_contact) { ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "passwords.php") {echo "active";} ?>" href="passwords.php">Passwords</a>
+                    </li>
+                <?php } ?> 
             </ul>
 
             <ul class="nav navbar-nav pull-right">
