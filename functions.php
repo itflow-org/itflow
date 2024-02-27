@@ -1133,4 +1133,27 @@ function createiCalStrCancel($originaliCalStr) {
     // Return the modified iCal string
     return $cal_event->export();
 }
+
+function getClientBalance($mysqli, $client_id, $credits = false) {
+            //Add up all the payments for the invoice and get the total amount paid to the invoice
+            $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
+            $row = mysqli_fetch_array($sql_invoice_amounts);
+    
+            $invoice_amounts = floatval($row['invoice_amounts']);
+    
+            $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+            $row = mysqli_fetch_array($sql_amount_paid);
+    
+            $amount_paid = floatval($row['amount_paid']);
+
+            if ($credits) {
+                $sql_credits = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_amounts FROM credits WHERE credit_client_id = $client_id");
+                $row = mysqli_fetch_array($sql_credits);
+                $credit_amounts = floatval($row['credit_amounts']);
+
+                return $invoice_amounts - ($amount_paid + $credit_amounts);
+            } else {
+                return $invoice_amounts - $amount_paid;
+            }
+}
     
