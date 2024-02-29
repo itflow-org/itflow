@@ -70,7 +70,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">Role</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">Status</a></th>
                     <th class="text-center">MFA</th>
-                    <th class="text-center">Remember Me</th>
                     <th>Last Login</th>
                     <th class="text-center">Action</th>
                 </tr>
@@ -93,16 +92,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $user_avatar = nullable_htmlentities($row['user_avatar']);
                     $user_token = nullable_htmlentities($row['user_token']);
                     if(empty($user_token)) {
-                        $mfa_status_display = "-";
+                        $mfa_status_display = "<i class='fas fa-fw fa-unlock text-danger'></i>";
                     } else {
-                        $mfa_status_display = "<i class='fas fa-fw fa-check text-success'></i>";
-                    }
-                    if (empty($row['user_config_remember_me_token'])) {
-                        $remember_me_active = 0;
-                        $remember_me_display = "-";
-                    } else {
-                        $remember_me_active = 1;
-                        $remember_me_display = "<a href='post.php?revoke_remember_me=$user_id'>Enabled,<br>Revoke?</a>";
+                        $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = $row['user_role'];
@@ -133,6 +125,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $last_login = "$log_created_at<br><small class='text-secondary'>$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip</small>";
                     }
 
+                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
+                    $remember_token_count = mysqli_num_rows($sql_remember_tokens);
+
                     ?>
                     <tr>
                         <td class="text-center">
@@ -154,7 +149,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $user_role_display; ?></td>
                         <td><?php echo $user_status_display; ?></td>
                         <td class="text-center"><?php echo $mfa_status_display; ?></td>
-                        <td class="text-center"><?php echo $remember_me_display; ?></td>
                         <td><?php echo $last_login; ?></td>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
@@ -166,6 +160,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
+                                    <?php if ($remember_token_count > 0) { ?>
+                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remmeber_token_count; ?> Remember Tokens
+                                    </a>
+                                    <?php } ?>
                                     <?php if ($user_status == 0) { ?>
                                         <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-user-check mr-2"></i>Activate

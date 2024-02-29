@@ -1667,7 +1667,6 @@ DROP TABLE IF EXISTS `user_settings`;
 CREATE TABLE `user_settings` (
   `user_id` int(11) NOT NULL,
   `user_role` int(11) NOT NULL,
-  `user_config_remember_me_token` varchar(255) DEFAULT NULL,
   `user_config_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
@@ -1784,4 +1783,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-23 23:44:31
+-- Dump completed on 2024-02-29 15:50:30

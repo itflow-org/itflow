@@ -1615,10 +1615,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.0.7') {
-    //     // Insert queries here required to update to DB version 1.0.8
+    if (CURRENT_DATABASE_VERSION == '1.0.7') {
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_config_remember_me_token`");
+   
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.0.8') {
+    //     // Insert queries here required to update to DB version 1.0.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
     // }
 
 } else {
