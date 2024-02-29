@@ -363,7 +363,7 @@ if (isset($_GET['recurring_id'])) {
                             <?php if ($recurring_discount > 0) { ?>
                                 <tr class="border-bottom">
                                     <td>Discount</td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_discount, $recurring_currency_code); ?></td>
+                                    <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $recurring_discount, $recurring_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
                             <?php if ($total_tax > 0) { ?>
