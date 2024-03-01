@@ -19,7 +19,7 @@ if (isset($_POST['add_ticket'])) {
     $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
     $config_base_url = sanitizeInput($config_base_url);
-    $config_ticket_new_ticket_notification_email = filter_var($row['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL);
+    $config_ticket_new_ticket_notification_email = filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL);
 
     // Ensure priority is low/med/high (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High") {
