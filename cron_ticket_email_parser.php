@@ -106,7 +106,7 @@ $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', '
 function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments) {
 
     // Access global variables
-    global $mysqli, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
+    global $mysqli,$config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
 
     // Get the next Ticket Number and add 1 for the new ticket number
     $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1"));
@@ -118,7 +118,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $message = nl2br($message);
     $message = mysqli_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'Pending-Assignment', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'New', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -162,9 +162,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $data = [];
     // E-mail client notification that ticket has been created
     if ($config_ticket_client_general_notifications == 1) {
-        
+
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         $data[] = [
             'from' => $config_ticket_from_email,
@@ -184,7 +184,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
 
-        $email_subject = "ITFlow - New Ticket - $client_name: $subject";
+        $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
         $data[] = [
@@ -209,7 +209,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     // Add email as a comment/reply to an existing ticket
 
     // Access global variables
-    global $mysqli, $company_name, $company_phone, $config_ticket_prefix, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
+    global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
 
     // Set default reply type
     $ticket_reply_type = 'Client';
@@ -221,19 +221,22 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     $message = mysqli_escape_string($mysqli, "<i>Email from: $from_email at $date:-</i> <br><br>$message");
 
     // Lookup the ticket ID
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, contact_email
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_status, ticket_contact_id, ticket_client_id, contact_email, client_name
         FROM tickets
         LEFT JOIN contacts on tickets.ticket_contact_id = contacts.contact_id
+        LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
         WHERE ticket_number = $ticket_number LIMIT 1"));
 
     if ($row) {
 
         // Get ticket details
         $ticket_id = intval($row['ticket_id']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
         $ticket_status = sanitizeInput($row['ticket_status']);
         $ticket_reply_contact = intval($row['ticket_contact_id']);
         $ticket_contact_email = sanitizeInput($row['contact_email']);
         $client_id = intval($row['ticket_client_id']);
+        $client_name = sanitizeInput($row['client_name']);
 
         // Check ticket isn't closed - tickets can't be re-opened
         if ($ticket_status == "Closed") {
@@ -241,7 +244,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             $email_subject = "Action required: This ticket is already closed";
             $email_body = "Hi there, <br><br>You\'ve tried to reply to a ticket that is closed - we won\'t see your response. <br><br>Please raise a new ticket by sending a fresh e-mail to our support address below. <br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-            
+
             $data = [
                 [
                     'from' => $config_ticket_from_email,
@@ -252,7 +255,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                     'body' => $email_body
                 ]
             ];
-            
+
             addToMailQueue($mysqli, $data);
 
             return true;
@@ -332,8 +335,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $tech_email = sanitizeInput($tech_row['user_email']);
                 $tech_name = sanitizeInput($tech_row['user_name']);
 
-                $subject = "Ticket updated - [$config_ticket_prefix$ticket_number] - $subject";
-                $body    = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $tech_name,<br><br>A new reply has been added to the ticket \"$subject\".<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: Open<br>https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                $email_subject = "$config_app_name - Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
+                $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/ticket.php?ticket_id=$ticket_id";
 
                 $data = [
                     [
@@ -341,8 +344,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                         'from_name' => $config_ticket_from_name,
                         'recipient' => $tech_email,
                         'recipient_name' => $tech_name,
-                        'subject' => $subject,
-                        'body' => $body
+                        'subject' => $email_subject,
+                        'body' => $email_body
                     ]
                 ];
 
@@ -353,7 +356,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         }
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Client-Replied' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         echo "Updated existing ticket.<br>";
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email updated ticket $config_ticket_prefix$ticket_number ($subject)', log_client_id = $client_id");

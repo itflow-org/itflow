@@ -59,7 +59,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
         $ticket_onsite = nullable_htmlentities($row['ticket_onsite']);
 
-        //Set Ticket Bage Color based of priority
+        //Set Ticket Badge Color based of priority
         if ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
         } elseif ($ticket_priority == "Medium") {
@@ -72,16 +72,16 @@ if (isset($_GET['ticket_id'])) {
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
 
         $ticket_status = nullable_htmlentities($row['ticket_status']);
-        if ($ticket_status == "Pending-Assignment") {
+        if ($ticket_status == "New") {
             $ticket_status_display = "<span class='p-2 badge badge-danger'>$ticket_status</span>";
-        } elseif ($ticket_status == "Assigned") {
+        } elseif ($ticket_status == "Open") {
             $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        } elseif ($ticket_status == "In-Progress") {
+        } elseif ($ticket_status == "On Hold") {
             $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-        } elseif ($ticket_status == "Closed") {
+        } elseif ($ticket_status == "Auto Close" || $ticket_status == "Closed") {
             $ticket_status_display = "<span class='p-2 badge badge-dark'>$ticket_status</span>";
         } else {
-            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
+            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>"; // To be removed
         }
 
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
@@ -276,7 +276,7 @@ if (isset($_GET['ticket_id'])) {
 
         <div class="row">
 
-            
+
             <div class="col-md-9">
                 <div class="card card-body">
                     <div class="card card-outline card-primary mb-3">
@@ -328,18 +328,12 @@ if (isset($_GET['ticket_id'])) {
                                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                         </div>
                                         <select class="form-control select2" name="status" required>
-                                            <option <?php if ($ticket_status == "In-Progress") {
+                                            <option <?php if ($ticket_status == "Open") {
                                                         echo "selected";
-                                                    } ?>>In-Progress</option>
-                                            <option <?php if ($ticket_status == "Pending-Client") {
+                                                    } ?>>Open</option>
+                                            <option <?php if ($ticket_status == "On Hold") {
                                                         echo "selected";
-                                                    } ?>>Pending-Client</option>
-                                            <option <?php if ($ticket_status == "Pending-Vendor") {
-                                                        echo "selected";
-                                                    } ?>>Pending-Vendor</option>
-                                            <option <?php if ($ticket_status == "Pending-Shipment") {
-                                                        echo "selected";
-                                                    } ?>>Pending-Shipment</option>
+                                                    } ?>>On Hold</option>
                                             <?php if ($config_ticket_autoclose) { ?>
                                                 <option <?php if ($ticket_status == 'Auto Close') {
                                                             echo "selected";
@@ -383,7 +377,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
 
 
-                            
+
                                 <?php
                                 // Set the initial ticket response type (private/internal note)
                                 //  Future updates of the wording/icon are done by Javascript
@@ -540,7 +534,7 @@ if (isset($_GET['ticket_id'])) {
 
                 </div>
             </div>
-       
+
             <div class="col-md-3">
                 <div class="card card-body">
 

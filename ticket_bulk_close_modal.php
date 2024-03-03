@@ -18,8 +18,8 @@
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="bulkPrivateCheckbox" name="bulk_private_note" value="1">
-                        <label class="custom-control-label" for="bulkPrivateCheckbox">Mark as a Private</label>
-                        <small class="form-text text-muted">If checked the contact and any watcher will not be informed</small>
+                        <label class="custom-control-label" for="bulkPrivateCheckbox">Mark as Internal</label>
+                        <small class="form-text text-muted">If checked this note will only be visible to agents. The contact / watcher will not be informed this ticket was closed.</small>
                     </div>
                 </div>
 

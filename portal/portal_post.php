@@ -33,7 +33,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'New', ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email
@@ -87,6 +87,40 @@ if (isset($_POST['add_ticket_comment'])) {
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
+
+
+        // Get ticket details &  Notify the assigned tech (if any)
+        $ticket_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = $ticket_id LIMIT 1"));
+
+        $ticket_number = intval($ticket_details['ticket_number']);
+        $ticket_assigned_to = intval($ticket_details['ticket_assigned_to']);
+        $ticket_subject = sanitizeInput($ticket_details['ticket_subject']);
+        $client_name = sanitizeInput($ticket_details['client_name']);
+
+        if ($ticket_details && $ticket_assigned_to !== 0) {
+
+            // Get tech details
+            $tech_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1"));
+            $tech_email = sanitizeInput($tech_details['user_email']);
+            $tech_name = sanitizeInput($tech_details['user_name']);
+
+            $subject = "$config_app_name Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
+            $body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/ticket.php?ticket_id=$ticket_id";
+
+            $data = [
+                [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $tech_email,
+                    'recipient_name' => $tech_name,
+                    'subject' => $subject,
+                    'body' => $body
+                ]
+            ];
+
+            addToMailQueue($mysqli, $data);
+
+        }
 
         // Store any attached any files
         if (!empty($_FILES)) {
