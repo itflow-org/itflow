@@ -118,20 +118,6 @@ CREATE TABLE `asset_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `asset_logins`
---
-
-DROP TABLE IF EXISTS `asset_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `asset_logins` (
-  `asset_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_id`,`login_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `assets`
 --
 
@@ -161,7 +147,6 @@ CREATE TABLE `assets` (
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
   `asset_accessed_at` datetime DEFAULT NULL,
-  `asset_login_id` int(11) NOT NULL DEFAULT 0,
   `asset_vendor_id` int(11) NOT NULL DEFAULT 0,
   `asset_location_id` int(11) NOT NULL DEFAULT 0,
   `asset_contact_id` int(11) NOT NULL DEFAULT 0,
@@ -1783,4 +1768,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-29 15:50:30
+-- Dump completed on 2024-03-03 13:39:52

@@ -1621,10 +1621,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.0.8') {
-    //     // Insert queries here required to update to DB version 1.0.9
+    if (CURRENT_DATABASE_VERSION == '1.0.8') {
+        // Removed this as login_asset_id is present in the logins table and allow 1 asset to have many logins.
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_login_id`");
+        // Dropped this unused Table as we don't need many to many relationship between assets and logins
+        mysqli_query($mysqli, "DROP TABLE asset_logins");
+   
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.0.9') {
+    //     // Insert queries here required to update to DB version 1.1.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     // }
 
 } else {
