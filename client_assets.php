@@ -59,7 +59,6 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM assets 
     LEFT JOIN contacts ON asset_contact_id = contact_id 
     LEFT JOIN locations ON asset_location_id = location_id 
-    LEFT JOIN logins ON login_asset_id = asset_id
     WHERE asset_client_id = $client_id
     AND asset_$archive_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
