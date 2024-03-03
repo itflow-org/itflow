@@ -272,9 +272,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $location_name_display = $location_name;
                             }
 
-                            $login_id = intval($row['login_id']);
-                            $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                            $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                            $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_asset_id = $asset_id");
+                            $login_count = mysqli_num_rows($sql_logins);
 
                             ?>
                             <tr>
@@ -290,12 +289,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                     <?php } ?>
                                     <?php
-                                    if ($login_id > 0) {
+                                    if ($login_count > 0) {
                                         ?>
                                         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
 
                                         <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
-                                            <div class="modal-dialog modal-sm">
+                                            <div class="modal-dialog">
                                                 <div class="modal-content bg-dark">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?></h5>
@@ -304,6 +303,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                         </button>
                                                     </div>
                                                     <div class="modal-body bg-white">
+                                                        <?php
+                                                        while ($row = mysqli_fetch_array($sql_logins)) {
+                                                            $login_id = intval($row['login_id']);
+                                                            $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
+                                                            $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                                                        ?>
                                                         <div class="form-group">
                                                             <div class="input-group">
                                                                 <div class="input-group-prepend">
@@ -326,6 +331,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <?php } ?>
                                                     </div>
                                                 </div>
                                             </div>

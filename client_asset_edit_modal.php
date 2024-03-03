@@ -9,7 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
-                <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
                 <div class="modal-body bg-white">
@@ -26,9 +25,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-purchase<?php echo $asset_id; ?>">Purchase</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-login<?php echo $asset_id; ?>">Login</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $asset_id; ?>">Notes</a>
@@ -348,30 +344,6 @@
                                     </div>
                                 </div>
                             <?php } ?>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-login<?php echo $asset_id; ?>">
-
-                            <div class="form-group">
-                                <label>Username</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa  fa-fw fa-user"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $login_username; ?>">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>" autocomplete="off">
-                                </div>
-                            </div>
 
                         </div>
 
