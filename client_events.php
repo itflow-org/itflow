@@ -161,15 +161,14 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " created - " . $row['ticket_subject'] . " " . $username . "{" . $ticket_status . "}");
                     $event_start = json_encode($row['ticket_created_at']);
 
-
-                    if ($ticket_status == "Closed") {
-                        $event_color = "black";
-                    } else if ($ticket_status == "Scheduled") {
-                        $event_color = "grey";
-                    } else if ($ticket_status == "Pending-Assignment") {
+                    if ($ticket_status == "New") {
                         $event_color = "red";
-                    } else {
+                    } elseif ($ticket_status == "Open") {
                         $event_color = "blue";
+                    }  elseif ($ticket_status == "On Hold") {
+                        $event_color = "grey";
+                    } else {
+                        $event_color = "black";
                     }
 
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
@@ -200,7 +199,7 @@ while ($row = mysqli_fetch_array($sql)) {
                     $ticket_status = strval($row['ticket_status']);
                     $event_title = json_encode($row['ticket_prefix'] . $row['ticket_number'] . " scheduled - " . $row['ticket_subject'] . " [" . $username . "]{" . $ticket_status . "}");
                     $event_start = json_encode($row['ticket_schedule']);
-                    
+
 
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
                 }

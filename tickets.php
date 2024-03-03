@@ -163,7 +163,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Reply
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
                                 </a>
                             </div>
                         </div>
@@ -236,24 +236,18 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         <div class="form-group">
                             <label>Ticket Status</label>
                             <select class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
-                                <option value="In-Progress" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('In-Progress', $_GET['status'])) {
+                                <option value="New" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('New', $_GET['status'])) {
                                                                 echo 'selected';
-                                                            } ?>>In-Progress</option>
-                                <option value="Client-Replied" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Client-Replied', $_GET['status'])) {
+                                                            } ?>>New</option>
+                                <option value="Open" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Open', $_GET['status'])) {
                                                                     echo 'selected';
-                                                                } ?>>Client-Replied</option>
-                                <option value="Pending-Client" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Client', $_GET['status'])) {
+                                                                } ?>>Open</option>
+                                <option value="On Hold" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('On Hold', $_GET['status'])) {
                                                                     echo 'selected';
-                                                                } ?>>Pending-Client</option>
-                                <option value="Pending-Vendor" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Vendor', $_GET['status'])) {
+                                                                } ?>>On Hold</option>
+                                <option value="Auto Close" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Auto Close', $_GET['status'])) {
                                                                     echo 'selected';
-                                                                } ?>>Pending-Vendor</option>
-                                <option value="Pending-Shipment" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Pending-Shipment', $_GET['status'])) {
-                                                                        echo 'selected';
-                                                                    } ?>>Pending-Shipment</option>
-                                <option value="Scheduled" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Scheduled', $_GET['status'])) {
-                                                                echo 'selected';
-                                                            } ?>>Scheduled</option>
+                                                                } ?>>Auto Close</option>
                                 <option value="Closed" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Closed', $_GET['status'])) {
                                                             echo 'selected';
                                                         } ?>>Closed</option>
@@ -338,6 +332,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                             $ticket_status = nullable_htmlentities($row['ticket_status']);
                             $ticket_billable = intval($row['ticket_billable']);
+                            $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
                             $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
                             $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                             $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
@@ -362,20 +357,17 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $contact_phone = formatPhoneNumber($row['contact_phone']);
                             $contact_extension = nullable_htmlentities($row['contact_extension']);
                             $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-                            if ($ticket_status == "Pending-Assignment") {
+
+                            if ($ticket_status == "New") {
                                 $ticket_status_color = "danger";
-                            } elseif ($ticket_status == "Assigned") {
+                            } elseif ($ticket_status == "Open") {
                                 $ticket_status_color = "primary";
-                            } elseif ($ticket_status == "In-Progress") {
+                            } elseif ($ticket_status == "On Hold") {
                                 $ticket_status_color = "success";
-                            } elseif ($ticket_status == "Closed") {
-                                $ticket_status_color = "dark";
                             } elseif ($ticket_status == "Auto Close") {
                                 $ticket_status_color = "dark";
-                            } elseif ($ticket_status == "Client-Replied") {
-                                $ticket_status_color = "warning";
-                            } else {
-                                $ticket_status_color = "secondary";
+                            } elseif ($ticket_status == "Closed") {
+                                $ticket_status_color = "dark";
                             }
 
                             if ($ticket_priority == "High") {
@@ -385,6 +377,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             } else {
                                 $ticket_priority_color = "info";
                             }
+
                             $ticket_assigned_to = intval($row['ticket_assigned_to']);
                             if (empty($ticket_assigned_to)) {
                                 if ($ticket_status == "Closed") {
@@ -430,8 +423,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                                     <div class="mt-1"><?php echo $contact_display; ?></div>
                                 </td>
-                                <?php if ($config_module_enable_accounting) {
-                                ?>
+
+                                <?php if ($config_module_enable_accounting) { ?>
                                     <td class="text-center">
                                         <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                             <?php
@@ -442,11 +435,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                             }
                                             ?>
                                     </td>
-                                <?php
-                                }
-                                ?>
+                                <?php } ?>
+
                                 <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></a></td>
-                                <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
+                                <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span> <?php if ($ticket_status == 'On Hold' && isset ($ticket_scheduled_for)) { echo "<div class=\"mt-1\"> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?></td>
                                 <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
                                 <td><?php echo $ticket_updated_at_display; ?></td>
                                 <td>
