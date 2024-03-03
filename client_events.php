@@ -163,9 +163,9 @@ while ($row = mysqli_fetch_array($sql)) {
 
                     if ($ticket_status == "New") {
                         $event_color = "red";
-                    } else if ($ticket_status == "Open") {
+                    } elseif ($ticket_status == "Open") {
                         $event_color = "blue";
-                    }  else if ($ticket_status == "On Hold") {
+                    }  elseif ($ticket_status == "On Hold") {
                         $event_color = "grey";
                     } else {
                         $event_color = "black";
