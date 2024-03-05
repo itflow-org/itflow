@@ -56,7 +56,7 @@ $sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS
 $row = mysqli_fetch_array($sql_total_overdue_amount);
 $total_overdue_amount = floatval($row['total_overdue_amount']);
 
-$real_overdue_amount = $total_overdue - $total_overdue_partial;
+$real_overdue_amount = $total_overdue_amount - $total_overdue_partial_amount;
 $total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount;
 $unpaid_count = $sent_count + $viewed_count + $partial_count;
 
