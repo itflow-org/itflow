@@ -1630,10 +1630,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.0.9') {
-    //     // Insert queries here required to update to DB version 1.1.0
+    if (CURRENT_DATABASE_VERSION == '1.0.9') {
+        mysqli_query($mysqli, "ALTER TABLE `transfers` ADD `transfer_method` VARCHAR(200) DEFAULT NULL AFTER `transfer_id`");
+   
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.0') {
+    //     // Insert queries here required to update to DB version 1.1.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
     // }
 
 } else {

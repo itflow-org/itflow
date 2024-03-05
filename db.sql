@@ -1606,6 +1606,7 @@ DROP TABLE IF EXISTS `transfers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transfers` (
   `transfer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transfer_method` varchar(200) DEFAULT NULL,
   `transfer_notes` text DEFAULT NULL,
   `transfer_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `transfer_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1768,4 +1769,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-03 13:39:52
+-- Dump completed on 2024-03-05 18:47:45
