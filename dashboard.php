@@ -207,7 +207,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                     <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></h3></small>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-money-check"></i>
+                    <i class="fa fa-hand-holding-usd"></i>
                 </div>
             </a>
         </div>
@@ -235,7 +235,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                     <p>Profit</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-heart"></i>
+                    <i class="fa fa-balance-scale"></i>
                 </div>
             </a>
         </div>
