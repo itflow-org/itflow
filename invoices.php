@@ -124,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <!-- small box -->
             <a href="?<?php echo $url_query_strings_sort; ?>&status=Overdue" class="small-box bg-danger">
                 <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_overdue, $session_company_currency); ?></h3>
+                    <h3><?php echo numfmt_format_currency($currency_format, $real_overdue_amount, $session_company_currency); ?></h3>
                     <p><?php echo $overdue_count; ?> Overdue</p>
                 </div>
                 <div class="icon">
