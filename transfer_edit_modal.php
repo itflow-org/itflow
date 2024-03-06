@@ -131,6 +131,28 @@
                         <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes"><?php echo $transfer_notes; ?></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Transfer Method <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+                            </div>
+                            <select class="form-control select2" name="transfer_method">
+                                <option value="">- Method of Transfer -</option>
+                                <?php
+
+                                $sql_transfer_method_select = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                while ($row = mysqli_fetch_array($sql_transfer_method_select)) {
+                                    $category_name_select = nullable_htmlentities($row['category_name']);
+                                ?>
+                                    <option <?php if($transfer_method == $category_name_select) { echo "selected"; } ?> ><?php echo $category_name_select; ?></option>
+
+                                <?php
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
 
                 </div>
 
