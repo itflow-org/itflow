@@ -122,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $log_user_agent = nullable_htmlentities($row['log_user_agent']);
                         $log_user_os = getOS($log_user_agent);
                         $log_user_browser = getWebBrowser($log_user_agent);
-                        $last_login = "$log_created_at<br><small class='text-secondary'>$log_user_os<br>$log_user_browser<br><i class='fa fa-fw fa-globe'></i> $log_ip</small>";
+                        $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
                     }
 
                     $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
