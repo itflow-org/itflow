@@ -1636,11 +1636,44 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.0') {
-    //     // Insert queries here required to update to DB version 1.1.1
-    //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
-    // }
+    if (CURRENT_DATABASE_VERSION == '1.1.0') {
+        // Insert queries here required to update to DB version 1.1.1
+        mysqli_query($mysqli, "CREATE TABLE `inventory` (
+            `inventory_id` int(11) NOT NULL AUTO_INCREMENT,
+            `inventory_product_id` int(11) NOT NULL,
+            `inventory_location_id` int(11) NOT NULL,
+            `inventory_client_id` int(11) DEFAULT NULL,
+            `inventory_ticket_id` int(11) DEFAULT NULL,
+            `inventory_notes` text DEFAULT NULL,
+            `inventory_quantity` int(11) NOT NULL DEFAULT 0,
+            `inventory_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+            `inventory_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `inventory_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+            `inventory_archived_at` datetime DEFAULT NULL,
+            PRIMARY KEY (`inventory_id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;");
+
+        mysqli_query($mysqli, "CREATE TABLE `inventory_locations` (
+            `inventory_location_id` int(11) NOT NULL AUTO_INCREMENT,
+            `inventory_location_name` varchar(200) NOT NULL,
+            `inventory_location_description` text DEFAULT NULL,
+            `inventory_location_address` varchar(200) DEFAULT NULL,
+            `inventory_location_city` varchar(200) DEFAULT NULL,
+            `inventory_location_state` varchar(200) DEFAULT NULL,
+            `inventory_location_zip` varchar(200) DEFAULT NULL,
+            `inventory_location_country` varchar(200) DEFAULT NULL,
+            `inventory_location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `inventory_location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+            `inventory_location_archived_at` datetime DEFAULT NULL,
+            `inventory_location_user_id` int(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`inventory_location_id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+          /*!40101 SET character_set_client = @saved_cs_client */;
+          ");
+
+        // Then, update the database to the next sequential version
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    }
 
 } else {
     // Up-to-date
