@@ -1279,8 +1279,14 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
         $product_total = $product_subtotal + $product_tax_amount;
 
+        $total = $total + $product_total;
+
         mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$product_name', item_description = '$product_description', item_quantity = $product_qty, item_price = $product_price, item_subtotal = $product_subtotal, item_tax = $product_tax_amount, item_total = $product_total, item_order = 1, item_tax_id = $product_tax_id, item_invoice_id = $invoice_id");
+    
+        // Add product to string for internal note
+        $product_ticket_note .= ".<br>$product_qty x $product_name added to invoice";
     }
+
 
 
     //Update Invoice Balances
@@ -1295,8 +1301,9 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $ticket_prefix$ticket_number', history_invoice_id = $invoice_id");
 
     // Add internal note to ticket, and link to invoice in database
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created invoice <a href=\"invoice.php?invoice_id=$invoice_id\">$config_invoice_prefix$invoice_number</a> for this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created invoice <a href=\"invoice.php?invoice_id=$invoice_id\">$config_invoice_prefix$invoice_number</a> for this ticket$product_ticket_note.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
     mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
+
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$config_invoice_prefix$invoice_number created from Ticket $ticket_prefix$ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
