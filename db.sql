@@ -674,7 +674,9 @@ CREATE TABLE `inventory` (
   `inventory_product_id` int(11) NOT NULL,
   `inventory_location_id` int(11) NOT NULL,
   `inventory_client_id` int(11) DEFAULT NULL,
-  `inventory_ticket_id` int(11) DEFAULT NULL,
+  `inventory_serial` varchar(200) DEFAULT NULL,
+  `inventory_barcode` varchar(200) DEFAULT NULL,
+  `inventory_vendor_id` int(11) NOT NULL,
   `inventory_notes` text DEFAULT NULL,
   `inventory_quantity` int(11) NOT NULL DEFAULT 0,
   `inventory_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
@@ -692,19 +694,19 @@ DROP TABLE IF EXISTS `inventory_locations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `inventory_locations` (
-  `inventory_location_id` int(11) NOT NULL AUTO_INCREMENT,
-  `inventory_location_name` varchar(200) NOT NULL,
-  `inventory_location_description` text DEFAULT NULL,
-  `inventory_location_address` varchar(200) DEFAULT NULL,
-  `inventory_location_city` varchar(200) DEFAULT NULL,
-  `inventory_location_state` varchar(200) DEFAULT NULL,
-  `inventory_location_zip` varchar(200) DEFAULT NULL,
-  `inventory_location_country` varchar(200) DEFAULT NULL,
-  `inventory_location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `inventory_location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `inventory_location_archived_at` datetime DEFAULT NULL,
-  `inventory_location_user_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`inventory_location_id`)
+  `inventory_locations_id` int(11) NOT NULL AUTO_INCREMENT,
+  `inventory_locations_name` varchar(200) NOT NULL,
+  `inventory_locations_description` text DEFAULT NULL,
+  `inventory_locations_address` varchar(200) DEFAULT NULL,
+  `inventory_locations_city` varchar(200) DEFAULT NULL,
+  `inventory_locations_state` varchar(200) DEFAULT NULL,
+  `inventory_locations_zip` varchar(200) DEFAULT NULL,
+  `inventory_locations_country` varchar(200) DEFAULT NULL,
+  `inventory_locations_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `inventory_locations_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `inventory_locations_archived_at` datetime DEFAULT NULL,
+  `inventory_locations_user_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`inventory_locations_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1550,6 +1552,20 @@ CREATE TABLE `ticket_attachments` (
   PRIMARY KEY (`ticket_attachment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticket_products`
+--
+DROP TABLE IF EXISTS `ticket_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_products` (
+  `ticket_product_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_product_product_id` int(11) NOT NULL,
+  `ticket_product_ticket_id` int(11) NOT NULL,
+  `ticket_product_quantity` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
 -- Table structure for table `ticket_replies`

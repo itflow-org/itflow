@@ -43,6 +43,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-8">
+                        <div class="btn-group float-right">
+                            <a href="inventory.php" class="btn btn-outline-primary"><i class="fa fa-fw fa-box mr-2"></i>Inventory</a>
+                        </div>
+                    </div>
                 </div>
             </form>
             <hr>

@@ -1252,6 +1252,37 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = 1, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
 
+
+    // Check for products in db and add to invoice
+    $ticket_products_sql = mysqli_query($mysqli, "SELECT * FROM ticket_products WHERE ticket_product_ticket_id = $ticket_id");
+    while ($row = mysqli_fetch_array($ticket_products_sql)) {
+        $product_id = intval($row['ticket_product_product_id']);
+        $product_qty = floatval($row['ticket_product_quantity']);
+
+        $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id");
+        $row = mysqli_fetch_array($sql);
+        $product_name = sanitizeInput($row['product_name']);
+        $product_description = sanitizeInput($row['product_description']);
+        $product_price = floatval($row['product_price']);
+        $product_tax_id = intval($row['product_tax_id']);
+
+        $product_subtotal = $product_price * $product_qty;
+
+        if ($product_tax_id > 0) {
+            $sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $product_tax_id");
+            $row = mysqli_fetch_array($sql);
+            $product_tax_percent = floatval($row['tax_percent']);
+            $product_tax_amount = $product_subtotal * $product_tax_percent / 100;
+        } else {
+            $product_tax_amount = 0;
+        }
+
+        $product_total = $product_subtotal + $product_tax_amount;
+
+        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$product_name', item_description = '$product_description', item_quantity = $product_qty, item_price = $product_price, item_subtotal = $product_subtotal, item_tax = $product_tax_amount, item_total = $product_total, item_order = 1, item_tax_id = $product_tax_id, item_invoice_id = $invoice_id");
+    }
+
+
     //Update Invoice Balances
 
     $sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id");
@@ -1763,4 +1794,91 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $_SESSION['alert_message'] = "Ticket schedule cancelled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+
+if (isset($_POST['add_ticket_products'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_POST['ticket_id']);
+    $product_id = intval($_POST['product_id']);
+    $qty = intval($_POST['quantity']);
+
+    //find user inventory location
+    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_locations_user_id = $session_user_id");
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows == 1) {
+        $row = mysqli_fetch_array($sql);
+        $session_location_id = intval($row['inventory_locations_id']);
+    } elseif ($num_rows > 1) {        
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "You have more than one inventory location set. Please contact your administrator";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "You do not have an inventory location set. Please contact your administrator";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+    }
+
+    //check qty against inventory
+    $sql = mysqli_query($mysqli, "SELECT SUM(inventory_quantity) as inventory_quantity FROM inventory WHERE inventory_product_id = $product_id AND inventory_location_id = $session_location_id GROUP BY inventory_product_id, inventory_location_id;");
+    $row = mysqli_fetch_array($sql);
+    $inventory_qty = intval($row['inventory_quantity']);
+    if ($qty > $inventory_qty) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "You do not have enough inventory to add that quantity, QTY: $qty, Inventory: $inventory_qty in location $session_location_id, $num_rows rows found.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]); 
+        exit;
+    }
+
+    
+
+    // Add to DB
+    mysqli_query($mysqli, "INSERT INTO ticket_products SET ticket_product_ticket_id = $ticket_id, ticket_product_product_id = $product_id, ticket_product_quantity = $qty");
+
+    // Delete one item per qty
+    mysqli_query($mysqli, "UPDATE inventory SET inventory_quantity = inventory_quantity - 1 WHERE inventory_product_id = $product_id AND inventory_location_id = $session_location_id AND inventory_quantity > 0 LIMIT $qty");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name added product to ticket', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Product added to ticket";
+    header("Location: ". $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['delete_ticket_product'])) {
+
+    validateTechRole();
+
+    $ticket_product_id = intval($_GET['delete_ticket_product']);
+    $ticket_id = intval($_GET['ticket_id']);
+
+    // Get product ID
+    $sql = mysqli_query($mysqli, "SELECT * FROM ticket_products WHERE ticket_product_id = $ticket_product_id");
+    $row = mysqli_fetch_array($sql);
+    $product_id = intval($row['ticket_product_product_id']);
+    $qty = intval($row['ticket_product_quantity']);
+
+    // Delete
+    mysqli_query($mysqli, "DELETE FROM ticket_products WHERE ticket_product_id = $ticket_product_id");
+
+    //find user's inventory location
+    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_locations_user_id = $session_user_id");
+    $row = mysqli_fetch_array($sql);
+    $session_location_id = intval($row['inventory_locations_id']);
+
+    // Restore inventory quantity
+    mysqli_query($mysqli, "UPDATE inventory SET inventory_quantity = inventory_quantity + 1 WHERE inventory_product_id = $product_id AND inventory_location_id = $session_location_id AND inventory_quantity = 0 LIMIT $qty");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name deleted product from ticket', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Product removed from ticket. Please see administrator to return inventory";
+    header("Location: ". $_SERVER["HTTP_REFERER"]);
+
 }

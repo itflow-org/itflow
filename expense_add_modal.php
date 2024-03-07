@@ -117,7 +117,45 @@
                     </div>
 
                     <div class="form-row">
+                        <div class="form-group col-md">
+                            <label>Product</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
+                                </div>
+                                <select class="form-control select2" name="product">
+                                    <option value="">- Product (Optional) -</option>
+                                    <?php
 
+                                    $sql = mysqli_query($mysqli, "SELECT product_id, product_name FROM products WHERE product_archived_at IS NULL ORDER BY product_name ASC");
+                                    while ($row = mysqli_fetch_array($sql)) {
+                                        $product_id = intval($row['product_id']);
+                                        $product_name = nullable_htmlentities($row['product_name']);
+                                        ?>
+                                        <option value="<?php echo $product_id; ?>"><?php echo $product_name; ?></option>
+
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <a class="btn btn-secondary" href="products.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md">
+                            <label>Quantity</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
+                                </div>
+                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="product_quantity" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group col-md">
                             <label>Category <strong class="text-danger">*</strong></label>
                             <div class="input-group">

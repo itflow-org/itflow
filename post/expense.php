@@ -8,13 +8,34 @@ if (isset($_POST['add_expense'])) {
 
     require_once 'post/expense_model.php';
 
+    $extended_alert_description = '';
+
+
+    if (!is_null($product)) {
+        $product_id = $product;
+        $product = 1;
+
+        $cost = $amount / $product_quantity;
+
+        // Insert into inventory qty times
+        for ($i = 0; $i < $product_quantity; $i++) {
+            if (!is_null($client)) {
+                mysqli_query($mysqli,"INSERT INTO inventory SET inventory_product_id = $product_id, inventory_quantity = 1, inventory_vendor_id = $vendor, inventory_location_id = 1, inventory_cost = $cost, inventory_client_id = $client");
+            } else {
+                mysqli_query($mysqli,"INSERT INTO inventory SET inventory_product_id = $product_id, inventory_quantity = 1, inventory_vendor_id = $vendor, inventory_location_id = 1, inventory_cost = $cost");
+            }
+            
+        }
+        $extended_alert_description = '. Product added to inventory';
+    } 
+
+
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference'");
 
     $expense_id = mysqli_insert_id($mysqli);
 
     // Check for and process attachment
-    $extended_alert_description = '';
     if ($_FILES['file']['tmp_name'] != '') {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
 
@@ -26,10 +47,10 @@ if (isset($_POST['add_expense'])) {
             move_uploaded_file($file_tmp_path, $dest_path);
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-            $extended_alert_description = '. File successfully uploaded.';
+            $extended_alert_description = $extended_alert_description . '. File successfully uploaded';
         } else {
             $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
+            $extended_alert_description = $extended_alert_description . '. Error uploading file. Check upload directory is writable/correct file type/size';
         }
     }
 

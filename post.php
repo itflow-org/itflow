@@ -43,6 +43,8 @@ require_once "post/expense.php";
 
 require_once "post/file.php";
 
+require_once "post/inventory.php";
+
 require_once "post/invoice.php";
 
 require_once "post/location.php";

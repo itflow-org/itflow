@@ -1645,6 +1645,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `inventory_client_id` int(11) DEFAULT NULL,
             `inventory_ticket_id` int(11) DEFAULT NULL,
             `inventory_notes` text DEFAULT NULL,
+            `inventory_vendor_id` int(11) DEFAULT NULL,
             `inventory_quantity` int(11) NOT NULL DEFAULT 0,
             `inventory_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
             `inventory_created_at` datetime NOT NULL DEFAULT current_timestamp(),

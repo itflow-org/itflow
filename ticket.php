@@ -233,6 +233,25 @@ if (isset($_GET['ticket_id'])) {
             AND ticket_attachment_ticket_id = $ticket_id"
         );
 
+        // Get Products in inventory attached to this ticket
+        $sql_ticket_products = mysqli_query(
+            $mysqli,
+            "SELECT * FROM ticket_products
+            LEFT JOIN products ON ticket_products.ticket_product_product_id = products.product_id
+            WHERE ticket_product_ticket_id = $ticket_id"
+        );
+
+        $ticket_products_display = '';
+        while ($row = mysqli_fetch_array($sql_ticket_products)) {
+            $ticket_product_id = intval($row['ticket_product_id']);
+            $product_id = intval($row['product_id']);
+            $product_name = nullable_htmlentities($row['product_name']);
+            $product_quantity = intval($row['ticket_product_quantity']);
+
+
+            $ticket_products_display .= "<div><span class='badge badge-secondary'>$product_name x$product_quantity</span><a href='post.php?delete_ticket_product=$ticket_product_id&ticket_id=$ticket_id' class='ml-2 text-danger'>✘</a></div>";
+        }
+        
 ?>
 
         <!-- Breadcrumbs-->
@@ -380,8 +399,8 @@ if (isset($_GET['ticket_id'])) {
                                         <button type="button" class="btn btn-danger" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
                                     </div>
                                 </div>
-
-
+                            </div>
+                            <div class="form-row">
 
                                 <?php
                                 // Set the initial ticket response type (private/internal note)
@@ -401,7 +420,7 @@ if (isset($_GET['ticket_id'])) {
                                 } ?>
 
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" <?php echo $ticket_reply_button_check ?>>
@@ -881,6 +900,15 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                     <!-- End Vendor card -->
 
+                    <!-- Products card -->
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h5 class="text-secondary">Products</h5>
+                        <div class="d-print-none">
+                            <a href="#" data-toggle="modal" data-target="#addTicketProductModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Manage Products</a>
+                        </div>
+                        <?php echo $ticket_products_display; ?>
+                    </div>
+
                     <form action="post.php" method="post">
                         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
@@ -951,6 +979,8 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_edit_schedule_modal.php";
 
         require_once "ticket_merge_modal.php";
+
+        require_once "ticket_add_product_modal.php";
 
         if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
