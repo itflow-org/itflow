@@ -6,7 +6,7 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
-$inventory_product_id = $_GET["inventory_product_id"];
+$inventory_product_id = intval($_GET["inventory_product_id"]);
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
