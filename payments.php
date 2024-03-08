@@ -23,75 +23,122 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+// Credits SQL
+$sql_credits = mysqli_query(
+    $mysqli,
+    "SELECT * FROM credits
+    WHERE credit_archived_at IS NULL"
+);
+
+$credits_num_rows = mysqli_num_rows($sql_credits);
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Payments</h3>
-        </div>
+<div class="card card-dark">
+    <div class="card-header py-3">
+        <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Payments</h3>
+    </div>
 
-        <div class="card-body">
-            <form class="mb-4" autocomplete="off">
+    <div class="card-body">
+        <form class="mb-4" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q"
+                            value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>"
+                            placeholder="Search Payments">
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button" data-toggle="collapse"
+                                data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="btn-group float-right">
+                        <a href="credits.php" class="btn btn-outline-info">
+                            <i class="fa fa-fw fa-redo-alt mr-2"></i>Credits | <strong>
+                                <?php echo $credits_num_rows; ?></strong>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>"
+                id="advancedFilter">
                 <div class="row">
-                    <div class="col-sm-4">
-                        <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Payments">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Canned Date</label>
+                            <select class="form-control select2" name="canned_date">
+                                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?>
+                                    value="custom">Custom</option>
+                                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?>
+                                    value="today">Today</option>
+                                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?>
+                                    value="yesterday">Yesterday</option>
+                                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?>
+                                    value="thisweek">This Week</option>
+                                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?>
+                                    value="lastweek">Last Week</option>
+                                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?>
+                                    value="thismonth">This Month</option>
+                                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?>
+                                    value="lastmonth">Last Month</option>
+                                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?>
+                                    value="thisyear">This Year</option>
+                                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?>
+                                    value="lastyear">Last Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Date From</label>
+                            <input type="date" class="form-control" name="dtf" max="2999-12-31"
+                                value="<?php echo nullable_htmlentities($dtf); ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Date To</label>
+                            <input type="date" class="form-control" name="dtt" max="2999-12-31"
+                                value="<?php echo nullable_htmlentities($dtt); ?>">
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Canned Date</label>
-                                <select class="form-control select2" name="canned_date">
-                                    <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
-                                    <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
-                                    <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
-                                    <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
-                                    <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
-                                    <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
-                                    <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
-                                    <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
-                                    <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date From</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date To</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_date&order=<?php echo $disp; ?>">Payment Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Invoice Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Invoice</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method&order=<?php echo $disp; ?>">Payment Method</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_reference&order=<?php echo $disp; ?>">Reference</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=payment_date&order=<?php echo $disp; ?>">Payment
+                                Date</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Invoice
+                                Date</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Invoice</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a>
+                        </th>
+                        <th class="text-right"><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">Amount</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method&order=<?php echo $disp; ?>">Payment
+                                Method</a></th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=payment_reference&order=<?php echo $disp; ?>">Reference</a>
+                        </th>
+                        <th><a class="text-dark"
+                                href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a>
+                        </th>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
@@ -122,26 +169,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
 
-                        <tr>
-                            <td><?php echo $payment_date; ?></td>
-                            <td><?php echo $invoice_date; ?></td>
-                            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                            <td><a href="client_payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
-                            <td><?php echo $payment_method; ?></td>
-                            <td><?php echo $payment_reference_display; ?></td>
-                            <td><?php echo "$account_archived_display$account_name"; ?></td>
-                        </tr>
+                    <tr>
+                        <td><?php echo $payment_date; ?></td>
+                        <td><?php echo $invoice_date; ?></td>
+                        <td><a
+                                href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a>
+                        </td>
+                        <td><a
+                                href="client_payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                        </td>
+                        <td class="text-right">
+                            <?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?>
+                        </td>
+                        <td><?php echo $payment_method; ?></td>
+                        <td><?php echo $payment_reference_display; ?></td>
+                        <td><?php echo "$account_archived_display$account_name"; ?></td>
+                    </tr>
 
                     <?php } ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "pagination.php";
- ?>
+                </tbody>
+            </table>
         </div>
+        <?php require_once "pagination.php";
+ ?>
     </div>
+</div>
 
 <?php require_once "footer.php";
  ?>

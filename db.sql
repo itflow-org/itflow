@@ -402,6 +402,29 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `credits`
+--
+
+DROP TABLE IF EXISTS `credits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credits` (
+  `credit_id` int(11) NOT NULL AUTO_INCREMENT,
+  `credit_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `credit_currency_code` varchar(200) NOT NULL,
+  `credit_date` date NOT NULL,
+  `credit_reference` varchar(200) DEFAULT NULL,
+  `credit_payment_method` varchar(200) DEFAULT NULL,
+  `credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `credit_archived_at` datetime DEFAULT NULL,
+  `credit_client_id` int(11) NOT NULL DEFAULT 0,
+  `credit_payment_id` int(11) NOT NULL DEFAULT 0,
+  `credit_account_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`credit_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- Table structure for table `custom_fields`
 --
 

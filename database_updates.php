@@ -1616,6 +1616,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.0.7') {
+    //     // Insert queries here required to update to DB version 1.0.8
+
         mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_config_remember_me_token`");
    
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
@@ -1636,11 +1638,13 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.0') {
+     if (CURRENT_DATABASE_VERSION == '1.1.0') {
     //     // Insert queries here required to update to DB version 1.1.1
+        mysqli_query($mysqli, "CREATE TABLE `credits ` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
-    // }
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    }
+
 
 } else {
     // Up-to-date
