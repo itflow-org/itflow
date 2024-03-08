@@ -11,11 +11,11 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS transfer_created_at, expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id , transfer_id, transfer_notes FROM transfers, expenses, revenues
+    "SELECT SQL_CALC_FOUND_ROWS transfer_created_at, expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id , transfer_id, transfer_method, transfer_notes FROM transfers, expenses, revenues
     WHERE transfer_expense_id = expense_id 
     AND transfer_revenue_id = revenue_id
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
-    AND (transfer_notes LIKE '%$q%')
+    AND (transfer_notes LIKE '%$q%' OR transfer_method LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -85,6 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_date&order=<?php echo $disp; ?>">Date</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_from&order=<?php echo $disp; ?>">From Account</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_to&order=<?php echo $disp; ?>">To Account</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_method&order=<?php echo $disp; ?>">Method</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_notes&order=<?php echo $disp; ?>">Notes</a></th>
                         <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_amount&order=<?php echo $disp; ?>">Amount</a></th>
                         <th class="text-center">Action</th>
@@ -99,6 +100,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $transfer_account_from = intval($row['transfer_account_from']);
                         $transfer_account_to = intval($row['transfer_account_to']);
                         $transfer_amount = floatval($row['transfer_amount']);
+                        $transfer_method = nullable_htmlentities($row['transfer_method']);
+                        if($transfer_method) {
+                            $transfer_method_display = $transfer_method;
+                        } else {  
+                            $transfer_method_display = "-";
+                        }
                         $transfer_notes = nullable_htmlentities($row['transfer_notes']);
                         if(empty($transfer_notes)) {
                             $transfer_notes_display = "-";
@@ -134,6 +141,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
                             <td><?php echo "$account_from_archived_display$account_name_from"; ?></td>
                             <td><?php echo "$account_to_archived_display$account_name_to"; ?></td>
+                            <td><?php echo $transfer_method_display; ?></td>
                             <td><?php echo $transfer_notes_display; ?></td>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
                             <td>

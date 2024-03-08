@@ -11,9 +11,9 @@ if (isset($_POST['add_ticket'])) {
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
     if ($assigned_to == 0) {
-        $ticket_status = 'Pending-Assignment';
+        $ticket_status = 'New';
     } else {
-        $ticket_status = 'Assigned';
+        $ticket_status = 'Open';
     }
     $contact = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
@@ -329,15 +329,14 @@ if (isset($_POST['assign_ticket'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
     $ticket_status = sanitizeInput($_POST['ticket_status']);
-    if ($ticket_status == 'Pending-Assignment' && $assigned_to > 0) {
-        $ticket_status = 'Assigned';
+    if ($ticket_status == 'New' && $assigned_to !== 0) {
+        $ticket_status = 'Open';
     }
 
     // Allow for un-assigning tickets
     if ($assigned_to == 0) {
-        $ticket_reply = "Ticket unassigned, pending re-assignment.";
+        $ticket_reply = "Ticket unassigned.";
         $agent_name = "No One";
-        $ticket_status = "Pending-Assignment";
     } else {
         // Get & verify assigned agent details
         $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assigned_to AND user_settings.user_role > 1");
@@ -356,13 +355,14 @@ if (isset($_POST['assign_ticket'])) {
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = '$ticket_id' AND ticket_status != 'Closed'");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
 
     $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
     $ticket_number = intval($ticket_details['ticket_number']);
     $ticket_subject = sanitizeInput($ticket_details['ticket_subject']);
     $client_id = intval($ticket_details['ticket_client_id']);
+    $client_name = sanitizeInput($ticket_details['client_name']);
 
     if (!$ticket_subject) {
         $_SESSION['alert_type'] = "error";
@@ -394,8 +394,8 @@ if (isset($_POST['assign_ticket'])) {
             $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
             $company_name = sanitizeInput($session_company_name);
 
-            $subject = "$config_app_name - ticket $ticket_prefix$ticket_number assigned to you";
-            $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject <br><br>Thanks, <br>$session_name<br>$company_name";
+            $subject = "$config_app_name - Ticket $ticket_prefix$ticket_number assigned to you - $ticket_subject";
+            $body = "Hi $agent_name, <br><br>A ticket has been assigned to you!<br><br>Client: $client_name<br>Ticket Number: $ticket_prefix$ticket_number<br> Subject: $ticket_subject<br><br>https://$config_base_url/ticket.php?ticket_id=$ticket_id <br><br>Thanks, <br>$session_name<br>$company_name";
 
             // Email Ticket Agent
             // Queue Mail
@@ -477,15 +477,14 @@ if (isset($_POST['bulk_assign_ticket'])) {
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $client_id = intval($row['ticket_client_id']);
 
-            if ($ticket_status == 'Pending-Assignment' && $assign_to > 0) {
-                $ticket_status = 'Assigned';
+            if ($ticket_status == 'New' && $assigned_to !== 0) {
+                $ticket_status = 'Open';
             }
 
             // Allow for un-assigning tickets
             if ($assign_to == 0) {
                 $ticket_reply = "Ticket unassigned, pending re-assignment.";
                 $agent_name = "No One";
-                $ticket_status = "Pending-Assignment";
             } else {
                 // Get & verify assigned agent details
                 $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to AND user_settings.user_role > 1");
@@ -664,7 +663,7 @@ if (isset($_POST['bulk_close_tickets'])) {
                     $data = [];
 
                     $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-                    $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>$details<br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                    $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed.<br><br>$details<br><br> We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
                     // Email Ticket Contact
                     // Queue Mail
@@ -911,10 +910,10 @@ if (isset($_POST['add_ticket_reply'])) {
 
             if ($ticket_status == 'Closed') {
                 $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-                $body = "Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                $body = "Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             } elseif ($ticket_status == 'Auto Close') {
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your issue is resolved, you can ignore this email. If you need further assistance, please respond!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please respond to let us know!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             } else {
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
                 $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
@@ -1137,7 +1136,7 @@ if (isset($_GET['close_ticket'])) {
             $data = [];
 
             $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-            $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
             // Email Ticket Contact
             // Queue Mail
@@ -1437,8 +1436,8 @@ if (isset($_POST['set_billable_status'])) {
     mysqli_query(
         $mysqli,
         "UPDATE tickets SET
-    ticket_billable = '$billable_status'
-    WHERE ticket_id = $ticket_id"
+        ticket_billable = '$billable_status'
+        WHERE ticket_id = $ticket_id"
     );
 
     //Logging
@@ -1475,7 +1474,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
         "UPDATE tickets SET
         ticket_schedule = '$schedule',
         ticket_onsite = '$onsite',
-        ticket_status = 'Scheduled'
+        ticket_status = 'On Hold'
         WHERE ticket_id = $ticket_id"
     );
 

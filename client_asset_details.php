@@ -9,7 +9,6 @@ if (isset($_GET['asset_id'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
-        LEFT JOIN logins ON login_asset_id = asset_id
         WHERE asset_id = $asset_id
         AND asset_client_id = $client_id
     ");
@@ -62,10 +61,6 @@ if (isset($_GET['asset_id'])) {
         $location_name_display = $location_name;
     }
 
-    $login_id = intval($row['login_id']);
-    $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-    $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-
     // Related Tickets Query
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
         LEFT JOIN users on ticket_assigned_to = user_id
@@ -93,9 +88,8 @@ if (isset($_GET['asset_id'])) {
     $file_count = mysqli_num_rows($sql_related_files);
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM asset_logins 
-        LEFT JOIN logins ON asset_logins.login_id = logins.login_id
-        WHERE asset_logins.asset_id = $asset_id
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
+        WHERE login_asset_id = $asset_id
         AND login_archived_at IS NULL
         ORDER BY login_name DESC"
     );

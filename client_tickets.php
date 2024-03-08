@@ -160,16 +160,16 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     }
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
-                    if ($ticket_status == "Pending-Assignment") {
+                    if ($ticket_status == "New") {
                         $ticket_status_color = "danger";
-                    } elseif ($ticket_status == "Assigned") {
+                    } elseif ($ticket_status == "Open") {
                         $ticket_status_color = "primary";
-                    } elseif ($ticket_status == "In-Progress") {
+                    } elseif ($ticket_status == "On Hold") {
                         $ticket_status_color = "success";
+                    } elseif ($ticket_status == "Auto Close") {
+                        $ticket_status_color = "dark";
                     } elseif ($ticket_status == "Closed") {
                         $ticket_status_color = "dark";
-                    } else{
-                        $ticket_status_color = "secondary";
                     }
 
                     if ($ticket_priority == "High") {
@@ -181,6 +181,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     } else{
                         $ticket_priority_display = "-";
                     }
+
                     $ticket_assigned_to = intval($row['ticket_assigned_to']);
                     if (empty($ticket_assigned_to)) {
                         if ($ticket_status == "Closed") {

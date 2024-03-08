@@ -118,20 +118,6 @@ CREATE TABLE `asset_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `asset_logins`
---
-
-DROP TABLE IF EXISTS `asset_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `asset_logins` (
-  `asset_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_id`,`login_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `assets`
 --
 
@@ -161,7 +147,6 @@ CREATE TABLE `assets` (
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
   `asset_accessed_at` datetime DEFAULT NULL,
-  `asset_login_id` int(11) NOT NULL DEFAULT 0,
   `asset_vendor_id` int(11) NOT NULL DEFAULT 0,
   `asset_location_id` int(11) NOT NULL DEFAULT 0,
   `asset_contact_id` int(11) NOT NULL DEFAULT 0,
@@ -1644,6 +1629,7 @@ DROP TABLE IF EXISTS `transfers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transfers` (
   `transfer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transfer_method` varchar(200) DEFAULT NULL,
   `transfer_notes` text DEFAULT NULL,
   `transfer_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `transfer_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1690,7 +1676,6 @@ DROP TABLE IF EXISTS `user_settings`;
 CREATE TABLE `user_settings` (
   `user_id` int(11) NOT NULL,
   `user_role` int(11) NOT NULL,
-  `user_config_remember_me_token` varchar(255) DEFAULT NULL,
   `user_config_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
@@ -1807,4 +1792,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-23 23:44:31
+-- Dump completed on 2024-03-05 18:47:45

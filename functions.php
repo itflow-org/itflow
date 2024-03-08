@@ -727,7 +727,7 @@ function sanitizeInput($input)
     global $mysqli;
 
     // Remove HTML and PHP tags
-    $input = strip_tags($input);
+    $input = strip_tags((string) $input);
 
     // Remove white space from beginning and end of input
     $input = trim($input);
@@ -1029,7 +1029,11 @@ function addToMailQueue($mysqli, $data)
         $recipient_name = strval($email['recipient_name']);
         $subject = strval($email['subject']);
         $body = strval($email['body']);
-        $cal_str = mysqli_escape_string($mysqli,$email['cal_str']);
+
+        $cal_str = '';
+        if (isset($email['cal_str'])) {
+            $cal_str = mysqli_escape_string($mysqli,$email['cal_str']);
+        }
 
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
@@ -1110,7 +1114,7 @@ function createiCalStrCancel($originaliCalStr) {
 
     // Import the original iCal string
     $cal_event = new ZCiCal($originaliCalStr);
-    
+
     // Iterate through the iCalendar object to find VEVENT nodes
     foreach($cal_event->tree->child as $node) {
         if($node->getName() == "VEVENT") {
@@ -1133,6 +1137,7 @@ function createiCalStrCancel($originaliCalStr) {
     // Return the modified iCal string
     return $cal_event->export();
 }
+
 
 function getClientBalance($mysqli, $client_id, $credits = false) {
             //Add up all the payments for the invoice and get the total amount paid to the invoice
@@ -1157,3 +1162,4 @@ function getClientBalance($mysqli, $client_id, $credits = false) {
             }
 }
     
+

@@ -84,7 +84,6 @@ if (isset($_POST['edit_asset'])) {
     validateTechRole();
 
     $asset_id = intval($_POST['asset_id']);
-    $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -125,49 +124,13 @@ if (isset($_POST['edit_asset'])) {
         $install_date = "'" . $install_date . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
-    $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
-    $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
-
-    $alert_extended = "";
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
-
-    //If login exists then update the login
-    if ($login_id > 0 && !empty($_POST['username'])) {
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id");
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$session_name updated login credentials for asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
-
-        $alert_extended = " along with updating login credentials";
-    }else{
-        //If Username is filled in then add a login
-        if (!empty($_POST['username'])) {
-
-            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id");
-
-            $login_id = mysqli_insert_id($mysqli);
-
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login credentials for asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
-
-            $alert_extended = " along with creating login credentials";
-
-        } else {
-            mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id");
-
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Delete', log_description = '$session_name deleted login credential for asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
-
-            $alert_extended = " along with deleting login credentials";
-        }
-
-    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
 
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> updated $alert_extended";
+    $_SESSION['alert_message'] = "Asset <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -207,7 +207,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                     <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></h3></small>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-money-check"></i>
+                    <i class="fa fa-hand-holding-usd"></i>
                 </div>
             </a>
         </div>
@@ -235,7 +235,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                     <p>Profit</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-heart"></i>
+                    <i class="fa fa-balance-scale"></i>
                 </div>
             </a>
         </div>
@@ -795,16 +795,17 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $client_name = nullable_htmlentities($row['client_name']);
                                     $contact_id = intval($row['ticket_contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
-                                    if ($ticket_status == "Pending-Assignment") {
+
+                                    if ($ticket_status == "New") {
                                         $ticket_status_color = "danger";
-                                    } elseif ($ticket_status == "Assigned") {
+                                    } elseif ($ticket_status == "Open") {
                                         $ticket_status_color = "primary";
-                                    } elseif ($ticket_status == "In-Progress") {
+                                    } elseif ($ticket_status == "On Hold") {
                                         $ticket_status_color = "success";
+                                    } elseif ($ticket_status == "Auto Close") {
+                                        $ticket_status_color = "dark";
                                     } elseif ($ticket_status == "Closed") {
                                         $ticket_status_color = "dark";
-                                    } else {
-                                        $ticket_status_color = "secondary";
                                     }
 
                                     if ($ticket_priority == "High") {

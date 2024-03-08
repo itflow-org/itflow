@@ -238,17 +238,10 @@ $asset_status_array = array (
 );
 
 $ticket_status_array = array (
-    'Pending-Assignment',
-    'Assigned',
-    'Client-Replied',
-    'In-Progress',
-    'Pending-Shipment',
-    'Pending-Client',
-    'Pending-Vendor',
-    'Scheduled',
-    'Closed',
     'Open',
-    'Auto Close'
+    'On Hold',
+    'Auto Close',
+    'Closed'
 );
 
 $industry_select_array = array(

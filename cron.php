@@ -114,6 +114,9 @@ mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at
 // Clean-up mail queue
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
 
+// Clean-up old remember me tokens (2 or more days old)
+mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_at < CURDATE() - INTERVAL 2 DAY");
+
 //Logging
 //mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data'");
 
@@ -216,20 +219,20 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 //mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for asset warranties expiring'");
 
-// Notify of Tickets Pending Assignment
+// Notify of New Tickets
 // Get Ticket Pending Assignment
 $sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets
-    WHERE ticket_status = 'Pending-Assignment'"
+    WHERE ticket_status = 'New'"
 );
 
 $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
 if($tickets_pending_assignment > 0){
 
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Pending Tickets', notification = 'There are $tickets_pending_assignment Tickets pending assignment', notification_action = 'tickets.php?status=Pending-Assignment'");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Pending Tickets', notification = 'There are $tickets_pending_assignment new tickets pending assignment', notification_action = 'tickets.php?status=New'");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for tickets that are pending assignment'");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron created notifications for new tickets that are pending assignment'");
 }
 
 // Recurring (Scheduled) tickets
@@ -259,7 +262,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'Open', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 'New', ticket_created_by = $created_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
         $id = mysqli_insert_id($mysqli);
 
         // Logging
@@ -363,7 +366,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 // AUTO CLOSE TICKET - CLOSE
 //  Automatically silently closes tickets 22 hrs after the last chase
 
-// Check to make sure autoclose is enabled
+// Check to make sure auto-close is enabled
 if ($config_ticket_autoclose == 1) {
     $sql_tickets_to_chase = mysqli_query(
         $mysqli,
@@ -417,7 +420,8 @@ if ($config_ticket_autoclose == 1) {
         $ticket_reply = $ticket_reply_row['ticket_reply'];
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding $ticket_subject will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         $data = [
             [
@@ -497,10 +501,10 @@ if ($config_send_invoice_reminders == 1) {
 
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
-            $subject = "Overdue Invoice $invoice_prefix$invoice_number";
-            $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice  $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_phone.
+            $subject = "$company_name Overdue Invoice $invoice_prefix$invoice_number";
+            $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
                 <br><br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
             $mail = addToMailQueue($mysqli, [
                 [
@@ -541,6 +545,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     $recurring_status = sanitizeInput($row['recurring_status']);
     $recurring_last_sent = sanitizeInput($row['recurring_last_sent']);
     $recurring_next_date = sanitizeInput($row['recurring_next_date']);
+    $recurring_discount_amount = floatval($row['recurring_discount_amount']);
     $recurring_amount = floatval($row['recurring_amount']);
     $recurring_currency_code = sanitizeInput($row['recurring_currency_code']);
     $recurring_note = sanitizeInput($row['recurring_note']); //Escape SQL
@@ -562,7 +567,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_amount = $recurring_amount, invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_discount_amount = $recurring_discount_amount, invoice_amount = $recurring_amount, invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -606,6 +611,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $row = mysqli_fetch_array($sql);
         $invoice_prefix = sanitizeInput($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
+        $invoice_scope = sanitizeInput($row['invoice_scope']);
         $invoice_date = sanitizeInput($row['invoice_date']);
         $invoice_due = sanitizeInput($row['invoice_due']);
         $invoice_amount = floatval($row['invoice_amount']);
@@ -615,8 +621,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
 
-        $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $subject = "$company_name Invoice $invoice_prefix$invoice_number";
+        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
         $mail = addToMailQueue($mysqli, [
             [

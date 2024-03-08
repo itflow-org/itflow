@@ -24,51 +24,52 @@ $draft_count = $row['num'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Cancelled'"));
 $cancelled_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_due > CURDATE()"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_status NOT LIKE 'Cancelled' AND invoice_due < CURDATE()"));
 $overdue_count = $row['num'];
 
-$sql_total_draft = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft FROM invoices WHERE invoice_status = 'Draft'");
-$row = mysqli_fetch_array($sql_total_draft);
-$total_draft = floatval($row['total_draft']);
+$sql_total_draft_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft_amount FROM invoices WHERE invoice_status = 'Draft'");
+$row = mysqli_fetch_array($sql_total_draft_amount);
+$total_draft_amount = floatval($row['total_draft_amount']);
 
-$sql_total_sent = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent FROM invoices WHERE invoice_status = 'Sent'");
-$row = mysqli_fetch_array($sql_total_sent);
-$total_sent = floatval($row['total_sent']);
+$sql_total_sent_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent_amount FROM invoices WHERE invoice_status = 'Sent'");
+$row = mysqli_fetch_array($sql_total_sent_amount);
+$total_sent_amount = floatval($row['total_sent_amount']);
 
-$sql_total_viewed = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed FROM invoices WHERE invoice_status = 'Viewed'");
-$row = mysqli_fetch_array($sql_total_viewed);
-$total_viewed = floatval($row['total_viewed']);
+$sql_total_viewed_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed_amount FROM invoices WHERE invoice_status = 'Viewed'");
+$row = mysqli_fetch_array($sql_total_viewed_amount);
+$total_viewed_amount = floatval($row['total_viewed_amount']);
 
-$sql_total_cancelled = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled FROM invoices WHERE invoice_status = 'Cancelled'");
-$row = mysqli_fetch_array($sql_total_cancelled);
-$total_cancelled = floatval($row['total_cancelled']);
+$sql_total_cancelled_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled_amount FROM invoices WHERE invoice_status = 'Cancelled'");
+$row = mysqli_fetch_array($sql_total_cancelled_amount);
+$total_cancelled_amount = floatval($row['total_cancelled_amount']);
 
-$sql_total_partial = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial'");
-$row = mysqli_fetch_array($sql_total_partial);
-$total_partial = floatval($row['total_partial']);
-$total_partial_count = mysqli_num_rows($sql_total_partial);
+$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial'");
+$row = mysqli_fetch_array($sql_total_partial_amount);
+$total_partial_amount = floatval($row['total_partial_amount']);
+$total_partial_count = mysqli_num_rows($sql_total_partial_amount);
 
-$sql_total_overdue_partial = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE()");
-$row = mysqli_fetch_array($sql_total_overdue_partial);
-$total_overdue_partial = floatval($row['total_overdue_partial']);
+$sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE()");
+$row = mysqli_fetch_array($sql_total_overdue_partial_amount);
+$total_overdue_partial_amount = floatval($row['total_overdue_partial_amount']);
 
-$sql_total_overdue = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_due < CURDATE()");
-$row = mysqli_fetch_array($sql_total_overdue);
-$total_overdue = floatval($row['total_overdue']);
+$sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue_amount FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_status NOT LIKE 'Cancelled' AND invoice_due < CURDATE()");
+$row = mysqli_fetch_array($sql_total_overdue_amount);
+$total_overdue_amount = floatval($row['total_overdue_amount']);
 
-$real_overdue_amount = $total_overdue - $total_overdue_partial;
+$real_overdue_amount = $total_overdue_amount - $total_overdue_partial_amount;
+$total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount;
+$unpaid_count = $sent_count + $viewed_count + $partial_count;
 
 //Invoice status from GET
 if (isset($_GET['status']) && ($_GET['status']) == 'Draft') {
-    $status_query = 'Draft';
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Sent') {
-    $status_query = 'Sent';
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Viewed') {
-    $status_query = 'Viewed';
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Partial') {
-    $status_query = 'Partial';
+    $status_query = "invoice_status = 'Draft'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Unpaid') {
+    $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+} elseif (isset($_GET['status']) && ($_GET['status']) == 'Overdue') {
+    $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+    $overdue_query = "AND (invoice_due < CURDATE())";
 } else {
-    $status_query = '%';
+    $status_query = "invoice_status LIKE '%'";
 }
 
 //Rebuild URL
@@ -79,7 +80,8 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
-    WHERE (invoice_status LIKE '$status_query')
+    WHERE ($status_query)
+    $overdue_query
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -90,11 +92,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 ?>
 
     <div class="row">
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <!-- small box -->
             <a href="?<?php echo $url_query_strings_sort; ?>&status=Draft" class="small-box bg-secondary">
                 <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_draft, $session_company_currency); ?></h3>
+                    <h3><?php echo numfmt_format_currency($currency_format, $total_draft_amount, $session_company_currency); ?></h3>
                     <p><?php echo $draft_count; ?> Draft</p>
                 </div>
                 <div class="icon">
@@ -104,43 +106,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <!-- small box -->
-            <a href="?<?php echo $url_query_strings_sort; ?>&status=Sent" class="small-box bg-warning">
+            <a href="?<?php echo $url_query_strings_sort; ?>&status=Unpaid" class="small-box bg-info">
                 <div class="inner text-white">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_sent, $session_company_currency); ?></h3>
-                    <p><?php echo $sent_count; ?> Sent</p>
+                    <h3><?php echo numfmt_format_currency($currency_format, $total_unpaid_amount, $session_company_currency); ?></h3>
+                    <p><?php echo $unpaid_count; ?> Unpaid</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-paper-plane"></i>
+                    <i class="fa fa-hand-holding-usd"></i>
                 </div>
             </a>
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-3">
+        <div class="col-lg-4">
             <!-- small box -->
-            <a href="?<?php echo $url_query_strings_sort; ?>&status=Viewed" class="small-box bg-info">
+            <a href="?<?php echo $url_query_strings_sort; ?>&status=Overdue" class="small-box bg-danger">
                 <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_viewed, $session_company_currency); ?></h3>
-                    <p><?php echo $viewed_count; ?> Viewed</p>
+                    <h3><?php echo numfmt_format_currency($currency_format, $real_overdue_amount, $session_company_currency); ?></h3>
+                    <p><?php echo $overdue_count; ?> Overdue</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-eye"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-3">
-            <!-- small box -->
-            <a href="?<?php echo $url_query_strings_sort; ?>&status=Partial" class="small-box bg-primary">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_partial, $session_company_currency); ?></h3>
-                    <p><?php echo $partial_count; ?> Partial</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-wine-glass-alt"></i>
+                    <i class="fa fa-exclamation-triangle"></i>
                 </div>
             </a>
         </div>
