@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (empty($contact_email)) {
                                 $contact_email_display = "";
                             } else {
-                                $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope mr-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
+                                $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope mr-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
                             }
                             $contact_info_display = "$contact_phone_display $contact_mobile_display $contact_email_display";
                             if (empty($contact_info_display)) {
