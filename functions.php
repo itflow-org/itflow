@@ -1169,8 +1169,11 @@ function getTicketStatusColor($status) {
         case 'New':
             return 'danger';
 
+        case 'Assigned':
+            return 'danger';
+
         case 'Open':
-            return 'primary';
+            return 'warning';
 
         case 'On Hold':
             return 'success';
@@ -1180,6 +1183,9 @@ function getTicketStatusColor($status) {
 
         case 'Auto Close':
             return 'dark';
+        
+        case 'In-Progress':
+            return 'primary';
             
         default:
             return 'secondary';
