@@ -19,6 +19,7 @@ $sql = mysqli_query(
     user_name
     FROM inventory_locations
         LEFT JOIN users on inventory_locations_user_id = user_id
+        WHERE inventory_locations_archived_at IS NULL
         ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

@@ -923,6 +923,36 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `purchase_orders`
+--
+
+DROP TABLE IF EXISTS `purchase_orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `purchase_orders` (
+  `purchase_order_id` int(11) NOT NULL AUTO_INCREMENT,
+  `purchase_order_prefix` varchar(200) DEFAULT NULL,
+  `purchase_order_number` int(11) NOT NULL,
+  `purchase_order_date` date NOT NULL,
+  `purchase_order_client_id` int(11) NOT NULL DEFAULT 0,
+  `purchase_order_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `purchase_order_status` varchar(200) NOT NULL,
+  `purchase_order_shipping` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `purchase_order_tax` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `purchase_order_discount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`purchase_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `purchase_order_items`
+--
+
+DROP TABLE IF EXISTS
+
+
+
+--
 -- Table structure for table `products`
 --
 
