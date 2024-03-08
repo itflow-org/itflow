@@ -479,13 +479,14 @@ if ($config_send_invoice_reminders == 1) {
             $client_name = sanitizeInput($row['client_name']);
             $contact_name = sanitizeInput($row['contact_name']);
             $contact_email = sanitizeInput($row['contact_email']);
+            $invoice_balance = calculateInvoiceBalance($mysqli, $invoice_id);
 
             // Late Charges
 
             if ($config_invoice_late_fee_enable == 1) {
 
                 $todays_date = date('Y-m-d');
-                $late_fee_amount = ($invoice_amount * $config_invoice_late_fee_percent) / 100;
+                $late_fee_amount = ($invoice_balance * $config_invoice_late_fee_percent) / 100;
                 $new_invoice_amount = $invoice_amount + $late_fee_amount;
 
                 mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
