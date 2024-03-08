@@ -796,17 +796,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_id = intval($row['ticket_contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
 
-                                    if ($ticket_status == "New") {
-                                        $ticket_status_color = "danger";
-                                    } elseif ($ticket_status == "Open") {
-                                        $ticket_status_color = "primary";
-                                    } elseif ($ticket_status == "On Hold") {
-                                        $ticket_status_color = "success";
-                                    } elseif ($ticket_status == "Auto Close") {
-                                        $ticket_status_color = "dark";
-                                    } elseif ($ticket_status == "Closed") {
-                                        $ticket_status_color = "dark";
-                                    }
+                                    $ticket_status_color = getTicketStatusColor($ticket_status);
 
                                     if ($ticket_priority == "High") {
                                         $ticket_priority_color = "danger";

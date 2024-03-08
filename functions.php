@@ -1163,3 +1163,25 @@ function getClientBalance($mysqli, $client_id, $credits = false) {
 }
     
 
+function getTicketStatusColor($status) {
+    switch ($status) {
+
+        case 'New':
+            return 'danger';
+
+        case 'Open':
+            return 'primary';
+
+        case 'On Hold':
+            return 'success';
+
+        case 'Closed':
+            return 'dark';
+
+        case 'Auto Close':
+            return 'dark';
+            
+        default:
+            return 'secondary';
+    }
+}
