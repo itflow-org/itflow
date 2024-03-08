@@ -80,6 +80,15 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="admin_inventory_locations.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_inventory_locations.php") {
+                                                                                echo "active";
+                                                                            } ?>">
+                        <i class="nav-icon fas fa-map-marker-alt"></i>
+                        <p>Inventory Locations</p>
+                    </a>
+                </li>
+                
                 <li class="nav-header mt-3">TEMPLATES</li>
 
                 <li class="nav-item">

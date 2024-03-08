@@ -7,3 +7,5 @@ $client = intval($_POST['client']);
 $category = intval($_POST['category']);
 $description = sanitizeInput($_POST['description']);
 $reference = sanitizeInput($_POST['reference']);
+$product = intval($_POST['product']);
+$product_quantity = intval($_POST['product_quantity']);

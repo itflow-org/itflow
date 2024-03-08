@@ -686,6 +686,54 @@ CREATE TABLE `interfaces` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `inventory`
+--
+
+DROP TABLE IF EXISTS `inventory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `inventory` (
+  `inventory_id` int(11) NOT NULL AUTO_INCREMENT,
+  `inventory_product_id` int(11) NOT NULL,
+  `inventory_location_id` int(11) NOT NULL,
+  `inventory_client_id` int(11) DEFAULT NULL,
+  `inventory_serial` varchar(200) DEFAULT NULL,
+  `inventory_barcode` varchar(200) DEFAULT NULL,
+  `inventory_vendor_id` int(11) NOT NULL,
+  `inventory_notes` text DEFAULT NULL,
+  `inventory_quantity` int(11) NOT NULL DEFAULT 0,
+  `inventory_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `inventory_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `inventory_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `inventory_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`inventory_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table Structure for `inventory_locations`
+--
+DROP TABLE IF EXISTS `inventory_locations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `inventory_locations` (
+  `inventory_locations_id` int(11) NOT NULL AUTO_INCREMENT,
+  `inventory_locations_name` varchar(200) NOT NULL,
+  `inventory_locations_description` text DEFAULT NULL,
+  `inventory_locations_address` varchar(200) DEFAULT NULL,
+  `inventory_locations_city` varchar(200) DEFAULT NULL,
+  `inventory_locations_state` varchar(200) DEFAULT NULL,
+  `inventory_locations_zip` varchar(200) DEFAULT NULL,
+  `inventory_locations_country` varchar(200) DEFAULT NULL,
+  `inventory_locations_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `inventory_locations_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `inventory_locations_archived_at` datetime DEFAULT NULL,
+  `inventory_locations_user_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`inventory_locations_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `invoice_items`
 --
 
@@ -896,6 +944,36 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `purchase_orders`
+--
+
+DROP TABLE IF EXISTS `purchase_orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `purchase_orders` (
+  `purchase_order_id` int(11) NOT NULL AUTO_INCREMENT,
+  `purchase_order_prefix` varchar(200) DEFAULT NULL,
+  `purchase_order_number` int(11) NOT NULL,
+  `purchase_order_date` date NOT NULL,
+  `purchase_order_client_id` int(11) NOT NULL DEFAULT 0,
+  `purchase_order_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `purchase_order_status` varchar(200) NOT NULL,
+  `purchase_order_shipping` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `purchase_order_tax` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `purchase_order_discount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`purchase_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `purchase_order_items`
+--
+
+DROP TABLE IF EXISTS
+
+
 
 --
 -- Table structure for table `products`
@@ -1527,6 +1605,20 @@ CREATE TABLE `ticket_attachments` (
   PRIMARY KEY (`ticket_attachment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticket_products`
+--
+DROP TABLE IF EXISTS `ticket_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_products` (
+  `ticket_product_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_product_product_id` int(11) NOT NULL,
+  `ticket_product_ticket_id` int(11) NOT NULL,
+  `ticket_product_quantity` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
 -- Table structure for table `ticket_replies`
