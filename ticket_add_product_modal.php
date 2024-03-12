@@ -41,6 +41,3 @@
         </div>
     </div>
 </div>
-
-<!-- Ticket merge JS -->
-<script src="js/ticket_merge.js"></script>

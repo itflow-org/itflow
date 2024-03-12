@@ -129,11 +129,7 @@ $num_rows = mysqli_num_rows($sql);
                         $credit_client_id = $row['credit_client_id'];
                         $credit_payment_id = $row['credit_payment_id'];
                         $credit_account_id = $row['credit_account_id'];
-
-                        // Get client name from DB
-                        $clientQuery = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $credit_client_id");
-                        $client = mysqli_fetch_array($clientQuery);
-                        $client_name = $client['client_name'];
+                        $client_name = $row['client_name'];
 
                         // Get account name from DB
                         if($credit_account_id != NULL) {

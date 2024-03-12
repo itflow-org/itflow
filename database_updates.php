@@ -1671,20 +1671,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `inventory_location_user_id` int(11) NOT NULL DEFAULT 0,
             PRIMARY KEY (`inventory_location_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-          /*!40101 SET character_set_client = @saved_cs_client */;
           ");
+
+        mysqli_query($mysqli, "CREATE TABLE `ticket_products` (
+            `ticket_product_id` int(11) NOT NULL AUTO_INCREMENT,
+            `ticket_product_product_id` int(11) NOT NULL,
+            `ticket_product_ticket_id` int(11) NOT NULL,
+            `ticket_product_quantity` int(11) NOT NULL,
+            PRIMARY KEY (`ticket_product_id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci");
+
+        mysqli_query($mysqli, "CREATE TABLE `credits ` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
 
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
     }
-
-     if (CURRENT_DATABASE_VERSION == '1.1.1') {
-    //     // Insert queries here required to update to DB version 1.1.1
-        mysqli_query($mysqli, "CREATE TABLE `credits ` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
-    //     // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
-    }
-
 
 
 } else {
