@@ -33,14 +33,19 @@ if (isset($_POST['add_database'])) {
         exit;
     }
 
-    $host = trim($_POST['host']);
-    $database = trim($_POST['database']);
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $host = filter_var(trim($_POST['host']), FILTER_SANITIZE_STRING);
+    $database = filter_var(trim($_POST['database']), FILTER_SANITIZE_STRING);
+    $username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
+    $password = filter_var(trim($_POST['password']), FILTER_SANITIZE_STRING);
     $config_base_url = $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']);
     $config_base_url = rtrim($config_base_url, '/');
 
     $installation_id = randomString(32);
+
+    // Ensure variables meet specific criteria (very basic examples)
+    if (!preg_match('/^[a-zA-Z0-9.-]+$/', $host)) {
+        die('Invalid host format.');
+    }
 
     // Test database connection before writing it to config.php
 
@@ -50,10 +55,10 @@ if (isset($_POST['add_database'])) {
     }
 
     $new_config = "<?php\n\n";
-    $new_config .= sprintf("\$dbhost = '%s';\n", addslashes($host));
-    $new_config .= sprintf("\$dbusername = '%s';\n", addslashes($username));
-    $new_config .= sprintf("\$dbpassword = '%s';\n", addslashes($password));
-    $new_config .= sprintf("\$database = '%s';\n", addslashes($database));
+    $new_config .= "\$dbhost = " . var_export($host, true) . ";\n";
+    $new_config .= "\$dbusername = " . var_export($username, true) . ";\n";
+    $new_config .= "\$dbpassword = " . var_export($password, true) . ";\n";
+    $new_config .= "\$database = " . var_export($database, true) . ";\n";
     $new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, \$database) or die('Database Connection Failed');\n";
     $new_config .= "\$config_app_name = 'ITFlow';\n";
     $new_config .= sprintf("\$config_base_url = '%s';\n", addslashes($config_base_url));

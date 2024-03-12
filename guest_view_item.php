@@ -76,13 +76,13 @@ $item_expire = nullable_htmlentities($row['item_expire_at']);
 $client_id = intval($row['item_client_id']);
 ?>
 
-<?php 
+<?php
     if (!empty($company_logo)) { ?>
             <img alt="<?=nullable_htmlentities($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
-        <?php 
+        <?php
         } else {
             echo "<h3>$company_name</h3>";
-        } 
+        }
 ?>
 
 <div class="card mt-2">
@@ -133,7 +133,7 @@ if ($item_type == "Document") {
     if (!empty($item_note)) {
         echo "<p class='lead'>Note: <i>$item_note</i></p>";
     }
-    echo "<a href='guest_download_file.php?id=$item_id&key=$item_key' download='$file_name'>Download $file_name</a>";
+    echo "<a href='guest_download_file.php?id=$item_id&key=$item_key'>Download $file_name</a>";
 
 
 } elseif ($item_type == "Login") {

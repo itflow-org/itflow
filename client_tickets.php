@@ -160,17 +160,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     }
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
-                    if ($ticket_status == "New") {
-                        $ticket_status_color = "danger";
-                    } elseif ($ticket_status == "Open") {
-                        $ticket_status_color = "primary";
-                    } elseif ($ticket_status == "On Hold") {
-                        $ticket_status_color = "success";
-                    } elseif ($ticket_status == "Auto Close") {
-                        $ticket_status_color = "dark";
-                    } elseif ($ticket_status == "Closed") {
-                        $ticket_status_color = "dark";
-                    }
+                    $ticket_status_color = getTicketStatusColor($ticket_status);
 
                     if ($ticket_priority == "High") {
                         $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
