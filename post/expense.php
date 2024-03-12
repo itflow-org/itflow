@@ -11,7 +11,7 @@ if (isset($_POST['add_expense'])) {
     $extended_alert_description = '';
 
 
-    if (!is_null($product)) {
+    if (!empty($product)) {
         $product_id = $product;
         $product = 1;
 
