@@ -75,19 +75,11 @@ if (isset($_GET['ticket_id'])) {
             $ticket_priority_display = "-";
         }
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
-
+        
+        // Ticket Status Display
         $ticket_status = nullable_htmlentities($row['ticket_status']);
-        if ($ticket_status == "New") {
-            $ticket_status_display = "<span class='p-2 badge badge-danger'>$ticket_status</span>";
-        } elseif ($ticket_status == "Open") {
-            $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        } elseif ($ticket_status == "On Hold") {
-            $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-        } elseif ($ticket_status == "Auto Close" || $ticket_status == "Closed") {
-            $ticket_status_display = "<span class='p-2 badge badge-dark'>$ticket_status</span>";
-        } else {
-            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>"; // To be removed
-        }
+        $ticket_status_color = getTicketStatusColor($ticket_status);
+        $ticket_status_display = "<span class='p-2 badge badge-$ticket_status_color'>$ticket_status</span>";
 
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
