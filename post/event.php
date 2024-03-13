@@ -74,7 +74,7 @@ if (isset($_POST['add_event'])) {
                 'subject' => $subject,
                 'body' => $body
             ]
-            ];
+        ];
         $mail = addToMailQueue($mysqli, $data);
 
         // Logging for email (success/fail)
