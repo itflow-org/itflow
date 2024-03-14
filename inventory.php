@@ -91,11 +91,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $inventory_id = $row['inventory_id'];
-                            $inventory_name = $row['product_name'];
-                            $inventory_quantity = $row['total_inventory'];
-                            $inventory_product_id = $row['inventory_product_id'];
-                            $inventory_locations = $row['inventory_locations'];
+                            $inventory_id = intval($row['inventory_id']);
+                            $inventory_name = sanitizeInput($row['product_name']);
+                            $inventory_quantity = floatval($row['total_inventory']);
+                            $inventory_product_id = intval($row['inventory_product_id']);
+                            $inventory_locations = sanitizeInput($row['inventory_locations']);
                             ?>
 
                             <tr>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for AI Functions
+ * ITFlow - GET/POST request handler for Inventory
  */
 
 

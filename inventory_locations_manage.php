@@ -32,7 +32,7 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $location_name_row = mysqli_fetch_row(mysqli_query($mysqli,"SELECT inventory_locations_name FROM inventory_locations WHERE inventory_locations_id = $inventory_location_id"));
-$location_name = $location_name_row[0];
+$location_name = sanitizeInput($location_name_row[0]);
 
 ?>
 

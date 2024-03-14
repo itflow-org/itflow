@@ -633,6 +633,9 @@ if (isset($_POST['add_payment'])) {
     mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = $credit_amount, credit_currency_code = '$currency_code', credit_date = '$date', credit_reference = 'Overpayment: $reference', credit_client_id = (SELECT invoice_client_id FROM invoices WHERE invoice_id = $invoice_id), credit_payment_id = $payment_id, credit_account_id = $account");
     // Get credit ID for reference
     $credit_id = mysqli_insert_id($mysqli);
+    
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credit', log_action = 'Create', log_description = 'Credit for Overpayment', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
     }
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
@@ -1462,13 +1465,14 @@ if (isset($_GET['apply_credit'])) {
 
     $client_id = intval($credit_row['credit_client_id']);
     $credit_amount = floatval($credit_row['credit_amount']);
+    $credit_currency_code = sanitizeInput($credit_row['credit_currency_code']);
 
     $client_balance = getClientBalance($mysqli, $client_id);
 
     if ($client_balance < $credit_amount) {
         //create a new credit for the remaining amount
         $new_credit_amount = $credit_amount - $client_balance;
-        $new_credit_query = "INSERT INTO credits (credit_date, credit_amount, credit_currency_code, credit_client_id) VALUES (CURDATE(), $new_credit_amount, '{$credit_row['credit_currency_code']}', $client_id)";
+        $new_credit_query = "INSERT INTO credits credit_date = CURDATE(), credit_amount = $new_credit_amount, credit_client_id = $client_id, credit_currency_code = '$credit_currency_code', credit_reference = 'Credit Applied'";
         mysqli_query($mysqli, $new_credit_query);
         $new_credit_id = mysqli_insert_id($mysqli);
     } 
@@ -1545,7 +1549,8 @@ if (isset($_GET['apply_credit'])) {
 
     } // End Invoice Loop
 
-
+    //Todo add option to send receipts
+    $email_receipt = 1;
 
     // Send Email
     if ($email_receipt == 1) {
@@ -1600,6 +1605,9 @@ if (isset($_GET['delete_credit'])) {
     $credit_id = intval($_GET['delete_credit']);
 
     mysqli_query($mysqli,"DELETE FROM credits WHERE credit_id = $credit_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credit', log_action = 'Delete', log_description = 'Credit $credit_id deleted', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Credit deleted";
     header("Location: " . $_SERVER["HTTP_REFERER"]);

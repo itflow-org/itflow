@@ -1657,19 +1657,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;");
 
         mysqli_query($mysqli, "CREATE TABLE `inventory_locations` (
-            `inventory_location_id` int(11) NOT NULL AUTO_INCREMENT,
-            `inventory_location_name` varchar(200) NOT NULL,
-            `inventory_location_description` text DEFAULT NULL,
-            `inventory_location_address` varchar(200) DEFAULT NULL,
-            `inventory_location_city` varchar(200) DEFAULT NULL,
-            `inventory_location_state` varchar(200) DEFAULT NULL,
-            `inventory_location_zip` varchar(200) DEFAULT NULL,
-            `inventory_location_country` varchar(200) DEFAULT NULL,
-            `inventory_location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-            `inventory_location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-            `inventory_location_archived_at` datetime DEFAULT NULL,
-            `inventory_location_user_id` int(11) NOT NULL DEFAULT 0,
-            PRIMARY KEY (`inventory_location_id`)
+            `inventory_locations_id` int(11) NOT NULL AUTO_INCREMENT,
+            `inventory_locations_name` varchar(200) NOT NULL,
+            `inventory_locations_description` text DEFAULT NULL,
+            `inventory_locations_address` varchar(200) DEFAULT NULL,
+            `inventory_locations_city` varchar(200) DEFAULT NULL,
+            `inventory_locations_state` varchar(200) DEFAULT NULL,
+            `inventory_locations_zip` varchar(200) DEFAULT NULL,
+            `inventory_locations_country` varchar(200) DEFAULT NULL,
+            `inventory_locations_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `inventory_locations_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+            `inventory_locations_archived_at` datetime DEFAULT NULL,
+            `inventory_locations_user_id` int(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`inventory_locations_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
           ");
 
@@ -1681,7 +1681,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             PRIMARY KEY (`ticket_product_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci");
 
-        mysqli_query($mysqli, "CREATE TABLE `credits ` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
+        mysqli_query($mysqli, "CREATE TABLE `credits` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
 
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");

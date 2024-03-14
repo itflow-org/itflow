@@ -968,14 +968,6 @@ CREATE TABLE `purchase_orders` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `purchase_order_items`
---
-
-DROP TABLE IF EXISTS
-
-
-
---
 -- Table structure for table `products`
 --
 

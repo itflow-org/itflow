@@ -32,7 +32,7 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $product_name_row = mysqli_fetch_row(mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $inventory_product_id"));
-$product_name = $product_name_row[0];
+$product_name = sanitizeInput($product_name_row[0]);
 
 ?>
 

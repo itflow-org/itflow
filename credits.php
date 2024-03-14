@@ -121,21 +121,21 @@ $num_rows = mysqli_num_rows($sql);
                 <tbody>
                 <?php
                     while ($row = mysqli_fetch_array($sql)) {
-                        $credit_id = $row['credit_id'];
-                        $credit_amount = $row['credit_amount'];
-                        $credit_currency_code = $row['credit_currency_code'];
+                        $credit_id = intval($row['credit_id']);
+                        $credit_amount = floatval($row['credit_amount']);
+                        $credit_currency_code = sanitizeInput($row['credit_currency_code']);
                         $credit_date = $row['credit_date'];
-                        $credit_reference = $row['credit_reference'];
-                        $credit_client_id = $row['credit_client_id'];
-                        $credit_payment_id = $row['credit_payment_id'];
-                        $credit_account_id = $row['credit_account_id'];
-                        $client_name = $row['client_name'];
+                        $credit_reference = intval($row['credit_reference']);
+                        $credit_client_id = intval($row['credit_client_id']);
+                        $credit_payment_id = intval($row['credit_payment_id']);
+                        $credit_account_id = intval($row['credit_account_id']);
+                        $client_name = sanitizeInput($row['client_name']);
 
                         // Get account name from DB
                         if($credit_account_id != NULL) {
                             $accountQuery = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $credit_account_id");
                             $account = mysqli_fetch_array($accountQuery);
-                            $account_name = $account['account_name'];
+                            $account_name = sanitizeinput($account['account_name']);
                         } else {
                             $account_name = "Unassigned";
                         }
@@ -144,8 +144,8 @@ $num_rows = mysqli_num_rows($sql);
                         if($credit_payment_id != NULL) {
                             $paymentQuery = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = $credit_payment_id");
                             $payment = mysqli_fetch_array($paymentQuery);
-                            $payment_invoice = $payment['payment_invoice_id'];
-                            $payment_reference = $payment['payment_reference'];
+                            $payment_invoice = intval($payment['payment_invoice_id']);
+                            $payment_reference = intval($payment['payment_reference']);
                         } else {
                             $payment_invoice = "Unassigned";
                             $payment_reference = "Unassigned";
@@ -155,8 +155,8 @@ $num_rows = mysqli_num_rows($sql);
                         if($payment_invoice != NULL) {
                             $invoiceQuery = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $payment_invoice");
                             $invoice = mysqli_fetch_array($invoiceQuery);
-                            $invoice_prefix = $invoice['invoice_prefix'];
-                            $invoice_number = $invoice['invoice_number'];
+                            $invoice_prefix = sanitizeInput($invoice['invoice_prefix']);
+                            $invoice_number = intval($invoice['invoice_number']);
                             $payment_invoice_display = "Payment for: " . $invoice_prefix . $invoice_number;
                         } else {
                             $invoice_prefix = "Unassigned";
