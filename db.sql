@@ -143,6 +143,7 @@ CREATE TABLE `assets` (
   `asset_warranty_expire` date DEFAULT NULL,
   `asset_install_date` date DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
+  `asset_important` tinyint(1) NOT NULL DEFAULT 0,
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
@@ -461,6 +462,7 @@ CREATE TABLE `documents` (
   `document_description` text DEFAULT NULL,
   `document_content` longtext NOT NULL,
   `document_content_raw` longtext NOT NULL,
+  `document_important` tinyint(1) NOT NULL DEFAULT 0,
   `document_parent` int(11) NOT NULL DEFAULT 0,
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -591,8 +593,10 @@ CREATE TABLE `files` (
   `file_id` int(11) NOT NULL AUTO_INCREMENT,
   `file_reference_name` varchar(200) DEFAULT NULL,
   `file_name` varchar(200) NOT NULL,
+  `file_description` text DEFAULT NULL,
   `file_ext` varchar(200) DEFAULT NULL,
   `file_hash` varchar(200) DEFAULT NULL,
+  `file_important` tinyint(1) NOT NULL DEFAULT 0,
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `file_archived_at` datetime DEFAULT NULL,
@@ -1769,4 +1773,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-05 18:47:45
+-- Dump completed on 2024-03-15 18:31:42

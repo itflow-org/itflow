@@ -1636,10 +1636,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.0') {
-    //     // Insert queries here required to update to DB version 1.1.1
+    if (CURRENT_DATABASE_VERSION == '1.1.0') {
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_description` TEXT DEFAULT NULL AFTER `file_name`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `file_hash`");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` ADD `document_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `document_content_raw`");
+
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `asset_notes`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.1') {
+    //     // Insert queries here required to update to DB version 1.1.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
     // }
 
 } else {
