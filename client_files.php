@@ -249,6 +249,7 @@ $num_of_files = mysqli_num_rows($sql);
                             while ($row = mysqli_fetch_array($sql)) {
                                 $file_id = intval($row['file_id']);
                                 $file_name = nullable_htmlentities($row['file_name']);
+                                $file_description = nullable_htmlentities($row['file_description']);
                                 $file_reference_name = nullable_htmlentities($row['file_reference_name']);
                                 $file_ext = nullable_htmlentities($row['file_ext']);
                                 if ($file_ext == 'pdf') {
@@ -283,7 +284,10 @@ $num_of_files = mysqli_num_rows($sql);
                                             <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?php echo $file_id ?>">
                                         </div>
                                     </td>
-                                    <td><a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
+                                    <td>
+                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i><?php echo basename($file_name); ?></a>
+                                        <div class="mt-1"><small class="text-secondary"><?php echo $file_description; ?></small></div>
+                                    </td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
