@@ -44,6 +44,7 @@ function tryAPIKey($api_key_secret) {
         $api_key_id = intval($row['api_key_id']);
         $api_key_expire = sanitizeInput($row['api_key_expire']);
         $api_client_id = intval($row['api_key_client_id']);
+        $api_key_name = sanitizeInput($row['api_key_name']);
 
         // Check if the key has expired
         if(strtotime($api_key_expire) < time()) {
@@ -55,6 +56,8 @@ function tryAPIKey($api_key_secret) {
 
         $return_data = [
             'api_key_id' => $api_key_id,
+            'api_key_client_id' => $api_client_id,
+            'api_key_name' => $api_key_name,
             'api_key_expire' => $api_key_expire,
         ];
 
