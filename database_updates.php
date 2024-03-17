@@ -1560,7 +1560,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
 
-        
+
     if (CURRENT_DATABASE_VERSION == '1.0.2') {
         //Insert queries here required to update to DB version 1.0.3
         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_expense_vendor` INT(11) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
@@ -1610,14 +1610,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     if (CURRENT_DATABASE_VERSION == '1.0.6') {
         // Insert queries here required to update to DB version 1.0.7
         mysqli_query($mysqli, "CREATE TABLE `remember_tokens` (`remember_token_id` int(11) NOT NULL AUTO_INCREMENT,`remember_token_token` varchar(255) NOT NULL,`remember_token_user_id` int(11) NOT NULL,`remember_token_created_at` datetime NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`remember_token_id`))");
-        
+
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.0.7') {
         mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_config_remember_me_token`");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
     }
 
@@ -1626,13 +1626,13 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_login_id`");
         // Dropped this unused Table as we don't need many to many relationship between assets and logins
         mysqli_query($mysqli, "DROP TABLE asset_logins");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.0.9') {
         mysqli_query($mysqli, "ALTER TABLE `transfers` ADD `transfer_method` VARCHAR(200) DEFAULT NULL AFTER `transfer_id`");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     }
 
@@ -1647,10 +1647,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.1') {
-    //     // Insert queries here required to update to DB version 1.1.2
+     if (CURRENT_DATABASE_VERSION == '1.1.1') {
+         mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_assigned_to` INT(11) NOT NULL DEFAULT '0' AFTER `scheduled_ticket_created_by`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.2') {
+    //     // Insert queries here required to update to DB version 1.1.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
     // }
 
 } else {

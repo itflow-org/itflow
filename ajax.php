@@ -359,6 +359,7 @@ if (isset($_GET['recurring_ticket_get_json_details'])) {
     $client_id = intval($_GET['client_id']);
     $ticket_id = intval($_GET['ticket_id']);
 
+    // Get all contacts, to allow tickets to be raised under a specific contact
     $contact_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts
     WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
@@ -368,7 +369,7 @@ if (isset($_GET['recurring_ticket_get_json_details'])) {
         $response['contacts'][] = $row;
     }
 
-
+    // Get ticket details
     $ticket_sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
     WHERE scheduled_ticket_id = $ticket_id
     AND scheduled_ticket_client_id = $client_id LIMIT 1");
@@ -376,9 +377,24 @@ if (isset($_GET['recurring_ticket_get_json_details'])) {
         $response['ticket'][] = $row;
     }
 
+    // Get assets
     $asset_sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL");
     while ($row = mysqli_fetch_array($asset_sql)) {
         $response['assets'][] = $row;
+    }
+
+    // Get technicians to auto assign the ticket to
+    $sql_agents = mysqli_query(
+        $mysqli,
+        "SELECT users.user_id, user_name FROM users
+            LEFT JOIN user_settings on users.user_id = user_settings.user_id
+            WHERE user_role > 1
+            AND user_status = 1
+            AND user_archived_at IS NULL
+            ORDER BY user_name ASC"
+    );
+    while ($row = mysqli_fetch_array($sql_agents)) {
+        $response['agents'][] = $row;
     }
 
     echo json_encode($response);
@@ -448,9 +464,9 @@ if (isset($_GET['get_client_contacts'])) {
 
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name FROM contacts
+        "SELECT contact_id, contact_name, contact_primary, contact_important, contact_technical FROM contacts
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
-        ORDER BY contact_important DESC, contact_name"
+        ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name"
     );
 
     while ($row = mysqli_fetch_array($contact_sql)) {

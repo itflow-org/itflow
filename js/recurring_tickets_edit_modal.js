@@ -13,6 +13,7 @@ function populateRecurringTicketEditModal(client_id, ticket_id) {
             const contacts = response.contacts;
             const ticket = response.ticket[0];
             const assets = response.assets;
+            const agents = response.agents;
 
             // Populate the scheduled ticket modal fields
             document.getElementById("editHeader").innerText = " Edit Recurring ticket: " + ticket.scheduled_ticket_subject;
@@ -78,6 +79,29 @@ function populateRecurringTicketEditModal(client_id, ticket_id) {
                 }
                 else{
                     assetDropdown[assetDropdown.length] = new Option(asset.asset_name, asset.asset_id);
+                }
+            });
+
+
+            // Agent dropdown
+            var agentDropdown = document.getElementById("editTicketAgent");
+
+            // Clear agent dropdown
+            var i, L = agentDropdown.options.length -1;
+            for(i = L; i >= 0; i--) {
+                agentDropdown.remove(i);
+            }
+            agentDropdown[agentDropdown.length] = new Option('- Agent -', '0');
+
+
+            // Populate dropdown
+            agents.forEach(agent => {
+                if(parseInt(agent.user_id) == parseInt(ticket.scheduled_ticket_assigned_to)){
+                    // Selected agent
+                    agentDropdown[agentDropdown.length] = new Option(agent.user_name, agent.user_id, true, true);
+                }
+                else{
+                    agentDropdown[agentDropdown.length] = new Option(agent.user_name, agent.user_id);
                 }
             });
         }

@@ -1090,6 +1090,7 @@ CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `scheduled_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `scheduled_ticket_created_by` int(11) NOT NULL DEFAULT 0,
+  `scheduled_ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_client_id` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
