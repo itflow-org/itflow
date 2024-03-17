@@ -10,10 +10,10 @@ function requireOnceAll($functionsPath) {
     }
 }
 
+// Load all functions -----------------------------------------
 // Other functions are categorized in different files
-// Load all functions
 
 // Set the path to the functions folder
-$functionsPath = 'functions/';
+$functionsPath = '/var/www/develop.twe.tech/functions/';
 // Require Once All in the functions folder
 requireOnceAll($functionsPath);

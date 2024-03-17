@@ -49,33 +49,36 @@ if (isset($_POST['add_asset'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    $alert_extended = "";
+    $return_data = createAsset(
+        [
+            'client_id' => $client_id,
+            'name' => $name,
+            'description' => $description,
+            'type' => $type,
+            'make' => $make,
+            'model' => $model,
+            'serial' => $serial,
+            'os' => $os,
+            'ip' => $ip,
+            'nat_ip' => $nat_ip,
+            'mac' => $mac,
+            'uri' => $uri,
+            'uri_2' => $uri_2,
+            'status' => $status,
+            'location' => $location,
+            'vendor' => $vendor,
+            'contact' => $contact,
+            'network' => $network,
+            'purchase_date' => $purchase_date,
+            'warranty_expire' => $warranty_expire,
+            'install_date' => $install_date,
+            'notes' => $notes
+        ]
+    );
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    $alert_extended = $return_data['alert_extended'];
 
-    $asset_id = mysqli_insert_id($mysqli);
-
-    if (!empty($_POST['username'])) {
-        $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
-        $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
-
-        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id");
-
-        $login_id = mysqli_insert_id($mysqli);
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login credentials for asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
-
-        $alert_extended = " along with login credentials";
-
-    }
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$session_name created asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
-
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> created $alert_extended";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    referWithAlert("Asset <strong>$name</strong> created $alert_extended", "success", "client_assets.php?client_id=$client_id");
 
 }
 
@@ -125,15 +128,34 @@ if (isset($_POST['edit_asset'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
-
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    updateAsset(
+        [
+            'asset_id' => $asset_id,
+            'client_id' => $client_id,
+            'name' => $name,
+            'description' => $description,
+            'type' => $type,
+            'make' => $make,
+            'model' => $model,
+            'serial' => $serial,
+            'os' => $os,
+            'ip' => $ip,
+            'nat_ip' => $nat_ip,
+            'mac' => $mac,
+            'uri' => $uri,
+            'uri_2' => $uri_2,
+            'status' => $status,
+            'location' => $location,
+            'vendor' => $vendor,
+            'contact' => $contact,
+            'network' => $network,
+            'purchase_date' => $purchase_date,
+            'warranty_expire' => $warranty_expire,
+            'install_date' => $install_date,
+            'notes' => $notes
+        ]
+    );
+    referWithAlert("Asset <strong>$name</strong> updated", "success", "client_assets.php?client_id=$client_id");
 }
 
 if (isset($_GET['archive_asset'])) {
@@ -142,21 +164,8 @@ if (isset($_GET['archive_asset'])) {
 
     $asset_id = intval($_GET['archive_asset']);
 
-    // Get Asset Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
-
-    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
-
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Archive', log_description = '$session_name archived asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> archived";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    archiveAsset($asset_id);
+    referWithAlert("Asset <strong>$asset_name</strong> archived", "error", "client_assets.php?client_id=$client_id");
 
 }
 
@@ -164,23 +173,10 @@ if (isset($_GET['delete_asset'])) {
 
     validateAdminRole();
 
-    $asset_id = intval($_GET['delete_asset']);
+    $parameters['asset_id'] = intval($_GET['delete_asset']);
 
-    // Get Asset Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
-
-    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
-
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Delete', log_description = '$session_name deleted asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> deleted";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    deleteAsset($parameters);
+    referWithAlert("Asset <strong>$asset_name</strong> deleted", "error", "client_assets.php?client_id=$client_id");
 
 }
 

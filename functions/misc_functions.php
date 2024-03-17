@@ -386,12 +386,16 @@ function getTicketStatusColor($status) {
 }
 
 function referWithAlert(
-    $alert, $type = "danger",
-    $url = $_SERVER["HTTP_REFERER"]
+    $alert,
+    $type = "alert",
+    $url = null
 ) {
+    if ($url == null) {
+        $url = $_SERVER["HTTP_REFERER"];
+    }
+
     $_SESSION['alert_message'] = $alert;
     $_SESSION['alert_type'] = $type;
-    
     header("Location: " . $url);
     exit();
 }
