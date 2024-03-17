@@ -183,6 +183,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
+        $details = sanitizeInput($message);
 
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
