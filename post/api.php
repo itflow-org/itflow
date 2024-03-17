@@ -45,6 +45,7 @@ if (isset($_POST['bulk_delete_api_keys'])) {
     $api_key_ids = $_POST['api_key_ids']; // Get array of API key IDs to be deleted
 
     foreach ($api_key_ids as $api_key_id) {
+        $api_key_ids = intval($api_key_id);
         deleteAPIKey($api_key_id);
         $count++;
     }
