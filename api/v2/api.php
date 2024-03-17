@@ -135,16 +135,29 @@ $object = str_replace(' ', '', $object);
 // Create function
 $function = $action . $object;
 
+// Check if the function exists
 if (!function_exists($function)) {
-    echo json_encode(['error' => 'Invalid function in request']);
+    echo json_encode(['error' => 'Invalid function in request. This is probably a bug. Please report this to the developer. ' . $function . ' does not exist.']);
     exit;
 }
-if ($action == 'read') {
-    // Call the function and return the result
-    echo json_encode($function($parameters));
+// Call the function
+try{
+    $function_result = $function($parameters);
+}
+// Catch any exceptions
+catch (Exception $e) {
+    echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer. ' . $e->getMessage()]);
     exit;
+}
+
+// Return the result as a JSON object
+if ($function_result) {
+    if (is_array($function_result)) {
+        echo json_encode($function_result);
+    } else {
+        echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer.']);
+    }
 } else {
-    // Call the function and return the result
-    echo json_encode($function($parameters));
-    exit;
+    echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer.']);
 }
+exit;
