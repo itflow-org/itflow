@@ -31,7 +31,7 @@ require '/var/www/develop.twe.tech/api/v2/objects.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $object = strtolower(sanitizeInput($_POST['object']));
     $parameters = $_POST['parameters'];
-    $api_key = $_POST['api_key'];
+    $api_key = sanitizeInput($_POST['api_key']);
     if (!isset($_POST['action'])) {
         // Default to create if no action is specified
         $action = 'create';
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $object = strtolower(sanitizeInput($_GET['object']));
     $parameters = $_GET['parameters'];
-    $api_key = $_GET['api_key'];
+    $api_key = sanitizeInput($_GET['api_key']);
     if (!isset($_GET['action'])) {
         // Default to read if no action is specified
         $action = 'read';
