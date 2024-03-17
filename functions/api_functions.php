@@ -26,3 +26,41 @@ function deleteAPIKey($api_key_id) {
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $api_key_id");
 }
+
+function getAPIKey($api_key_id) {
+    global $mysqli;
+
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id"));
+    return $row;
+}
+
+function tryAPIKey($api_key_secret) {
+    global $mysqli, $session_ip, $session_user_agent;
+
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_secret = '$api_key_secret'"));
+
+    if($row) {
+        $api_key_id = intval($row['api_key_id']);
+        $api_key_client_id = intval($row['api_key_client_id']);
+        $api_key_expire = sanitizeInput($row['api_key_expire']);
+
+        // Check if the key has expired
+        if(strtotime($api_key_expire) < time()) {
+            // Log expired Key
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Expired key: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+            echo json_encode(['status' => 'error', 'message' => 'Expired API Key']);
+            exit;
+        }
+
+        return [
+            'api_key_id' => $api_key_id,
+            'api_key_client_id' => $api_key_client_id,
+            'api_key_expire' => $api_key_expire,
+        ];
+    } else {
+        // Log invalid Key
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+        echo json_encode(['status' => 'error', 'message' => 'Invalid API Key']);
+        exit;
+    }
+}

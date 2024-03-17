@@ -31,6 +31,7 @@ require '/var/www/develop.twe.tech/api/v2/objects.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $object = strtolower(sanitizeInput($_POST['object']));
     $parameters = $_POST['parameters'];
+    $api_key = $_POST['api_key'];
     if (!isset($_POST['action'])) {
         // Default to create if no action is specified
         $action = 'create';
@@ -41,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $object = strtolower(sanitizeInput($_GET['object']));
     $parameters = $_GET['parameters'];
+    $api_key = $_GET['api_key'];
     if (!isset($_GET['action'])) {
         // Default to read if no action is specified
         $action = 'read';
@@ -54,12 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
+// Check if the API key is valid
+$api_key_data = tryAPIKey($api_key);
+if (isset($api_key_data['api_key_client_id'])) {
+    $api_client_id = $api_key_data['api_key_client_id'];
+}
+
 // Check if action is CRUD
 if (!in_array($action, ['create', 'read', 'update', 'delete'])) {
     echo json_encode(['error' => 'Invalid action in request']);
     exit;
 }
 
+// Check the parameters
 if (is_string($parameters)) {
     $parameters = json_decode($parameters, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
@@ -68,6 +77,7 @@ if (is_string($parameters)) {
         exit;
     }
 }
+
 // Sanitize the parameters
 $sanitized_parameters = [];
 foreach ($parameters as $key => $value) {
@@ -76,6 +86,9 @@ foreach ($parameters as $key => $value) {
 // Replace the parameters with the sanitized parameters
 $parameters = $sanitized_parameters;
 
+if (!isset($parameters['api_key_client_id'])) {
+    $parameters['api_key_client_id'] = $api_client_id;
+}
 // Check if the object is valid
 if (!in_array($object, $valid_objects)) {
     echo json_encode(['error' => 'Invalid object in request']);

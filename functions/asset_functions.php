@@ -65,14 +65,29 @@ function readAsset(
     $parameters
 ) {
     $asset_id = sanitizeInput($parameters['asset_id']);
-
-    global $mysqli;
-    if ($asset_id == 'all') {
-        $result = mysqli_query($mysqli,"SELECT * FROM assets");
+    
+    if (isset($parameters['api_key_client_id'])) {
+        $client_id = sanitizeInput($parameters['api_key_client_id']);
     } else {
-        $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
+        $client_id = 'all';
+    }
+    global $mysqli;
+
+    if ($asset_id == 'all') {
+        if ($client_id == 'all') {
+            $result = mysqli_query($mysqli,"SELECT * FROM assets");
+        } else {
+            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id");
+        }
+    } else {
+        if ($client_id == 'all') {
+            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
+        } else {
+            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id");
+        }
         if (mysqli_num_rows($result) == 0) {
             return ['status' => 'error', 'message' => 'Asset not found'];
+            exit;
         }
     }
 
@@ -123,16 +138,21 @@ function updateAsset(
     $notes = $parameters['notes'];
     $asset_id = $parameters['asset_id'];
     $client_id = $parameters['client_id'];
+    $api_client_id = $parameters['api_client_id'];
 
     global $mysqli, $session_ip, $session_user_agent, $session_user_id, $session_name;
 
-    if (!empty($dhcp)) {
+    if ($ip == "DCHP") {
         $dhcp = 1;
     } else {
         $dhcp = 0;
     }
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
+    if ($api_client_id != $client_id) {
+        return ['status' => 'error', 'message' => 'You are not permitted to do that!'];
+    }
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_dchp = $dhcp asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
