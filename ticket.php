@@ -222,6 +222,7 @@ if (isset($_GET['ticket_id'])) {
             "SELECT users.user_id, user_name FROM users
             LEFT JOIN user_settings on users.user_id = user_settings.user_id
             WHERE user_role > 1
+            AND user_status = 1
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
         );
