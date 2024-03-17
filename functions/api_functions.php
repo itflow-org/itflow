@@ -35,14 +35,15 @@ function getAPIKey($api_key_id) {
 }
 
 function tryAPIKey($api_key_secret) {
+    
     global $mysqli, $session_ip, $session_user_agent;
 
     $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_secret = '$api_key_secret'"));
 
     if($row) {
         $api_key_id = intval($row['api_key_id']);
-        $api_key_client_id = intval($row['api_key_client_id']);
         $api_key_expire = sanitizeInput($row['api_key_expire']);
+        $api_client_id = intval($row['api_key_client_id']);
 
         // Check if the key has expired
         if(strtotime($api_key_expire) < time()) {
@@ -52,15 +53,44 @@ function tryAPIKey($api_key_secret) {
             exit;
         }
 
-        return [
+        $return_data = [
             'api_key_id' => $api_key_id,
-            'api_key_client_id' => $api_key_client_id,
             'api_key_expire' => $api_key_expire,
         ];
+
+        if ($api_client_id) {
+            $return_data['api_client_id'] = $api_client_id;
+        }
+
+        return $return_data;
     } else {
         // Log invalid Key
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
         echo json_encode(['status' => 'error', 'message' => 'Invalid API Key']);
         exit;
     }
+}
+
+function getAPIWhereClause(
+    $var,
+    $var_id,
+    $api_client_id
+){
+    $where_clause = "";
+    // If asset_id is all, check if client_id is set
+    if ($var_id == 'all') {
+        if ($api_client_id != 'all') {
+            // If client_id is set, get all assets for that client
+            $where_clause = "WHERE  " . $var . "_client_id = $api_client_id";
+        }   // If client_id is not set, get all assets
+    } else {
+        if ($api_client_id != 'all') {
+            // If client_id is set, get the asset only if the client matches
+            $where_clause = "WHERE " . $var . "_id = $var_id AND asset_client_id = $api_client_id";
+        } else {
+            // If client_id is not set, get the asset
+            $where_clause = "WHERE " . $var . "_id = $var_id";
+        }
+    }
+    return $where_clause;
 }

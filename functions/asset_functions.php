@@ -61,43 +61,25 @@ function createAsset(
     return $return_data;
 }
 
-function readAsset(
-    $parameters
-) {
+function readAsset($parameters) {
     $asset_id = sanitizeInput($parameters['asset_id']);
-    
-    if (isset($parameters['api_key_client_id'])) {
-        $client_id = sanitizeInput($parameters['api_key_client_id']);
-    } else {
-        $client_id = 'all';
-    }
+
     global $mysqli;
 
-    if ($asset_id == 'all') {
-        if ($client_id == 'all') {
-            $result = mysqli_query($mysqli,"SELECT * FROM assets");
-        } else {
-            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id");
-        }
-    } else {
-        if ($client_id == 'all') {
-            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
-        } else {
-            $result = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id");
-        }
-        if (mysqli_num_rows($result) == 0) {
-            return ['status' => 'error', 'message' => 'Asset not found'];
-            exit;
-        }
-    }
+    // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
+    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 'all';
+    // Get the where clause for the query
+    $where_clause = getAPIWhereClause("asset", $asset_id, $api_client_id);
+
+    $query = "SELECT * FROM assets $where_clause";
+    $result = mysqli_query($mysqli, $query);
 
     $assets = [];
+
     while ($row = mysqli_fetch_assoc($result)) {
-        foreach ($row as $key => $value) {
-            $row[$key] = sanitizeInput($value);
-        }
-        $assets[] = $row;
+        $assets[$row['asset_id']] = $row;
     }
+
     return $assets;
 }
 

@@ -4,6 +4,6 @@
 
 $valid_objects = [
     'asset',
-    'account',
-    'account_type',
+    'client',
+    'clients'
     ];
