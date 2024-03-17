@@ -8,6 +8,10 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <?php if (isset($client_id)) { ?>
+                       <input type="hidden" name="client" value="<?php echo $client_id; ?>>">
+                <?php } ?>
+
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -111,7 +115,7 @@
 
 
                             <div class="form-group">
-                                <label>Contact <strong class="text-danger">*</strong></label>
+                                <label>Contact </label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>

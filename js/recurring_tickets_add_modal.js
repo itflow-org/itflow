@@ -3,14 +3,13 @@
 
 const clientSelectDropdown = document.getElementById("changeClientSelect"); // Define client selector
 
-// If the client selector is disabled, we must be on client_recurring_tickets.php instead. Trigger the contact list update.
+// // If the client selector is disabled, we must be on client_recurring_tickets.php instead. Trigger the contact list update.
 if (clientSelectDropdown.disabled) {
 
     let client_id = $(clientSelectDropdown).find(':selected').val();
 
     // Update the contacts dropdown list
     populateContactsDropdown(client_id);
-
 }
 
 // Listener for client selection. Populate contact select when a client is selected
