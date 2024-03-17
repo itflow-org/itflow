@@ -46,7 +46,7 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
     foreach ($api_key_ids as $api_key_id) {
         $api_key_ids = intval($api_key_id);
-        deleteAPIKey($api_key_id);
+        deleteAPIKey(intval($api_key_id));
         $count++;
     }
     referWithAlert("$count API Keys deleted");
