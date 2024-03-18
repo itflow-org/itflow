@@ -293,26 +293,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script>
 
     function generatePassword(type, id) {
-        var url = '/ajax.php?get_readable_pass=true';
+        // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
+        jQuery.get(
+            "ajax.php", {
+                get_readable_pass: 'true'
+            },
+            function(data) {
+                //If we get a response from post.php, parse it as JSON
+                const password = JSON.parse(data);
 
-        // Make an AJAX request to the server
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var password = xhr.responseText;
-
-                // Set the password value based on the type
+                // Set the password value to the correct modal, based on the type
                 if (type == "add") {
                     document.getElementById("password-add").value = password;
                 } else if (type == "edit") {
-                    console.log("password-edit-"+id.toString());
                     document.getElementById("password-edit-"+id.toString()).value = password;
                 }
             }
-        };
-        xhr.send();
+        );
     }
 
     $(document).ready(function() {

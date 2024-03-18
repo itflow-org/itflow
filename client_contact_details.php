@@ -221,12 +221,12 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $asset_type; ?></td>
                                     <td>
                                         <?php echo $asset_make; ?>
-                                        <div class="mt-0"> 
+                                        <div class="mt-0">
                                             <small class="text-muted"><?php echo $asset_model; ?></small>
                                         </div>
                                     </td>
                                     <td><?php echo $asset_serial_display; ?></td>
-                                    
+
                                     <td><?php echo $asset_install_date_display; ?></td>
                                     <td><?php echo $asset_status; ?></td>
                                     <td>
@@ -580,26 +580,23 @@ if (isset($_GET['contact_id'])) {
     <script>
 
         function generatePassword(type, id) {
-            var url = '/ajax.php?get_readable_pass=true';
+            // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
+            jQuery.get(
+                "ajax.php", {
+                    get_readable_pass: 'true'
+                },
+                function(data) {
+                    //If we get a response from post.php, parse it as JSON
+                    const password = JSON.parse(data);
 
-            // Make an AJAX request to the server
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var password = xhr.responseText;
-
-                    // Set the password value based on the type
+                    // Set the password value to the correct modal, based on the type
                     if (type == "add") {
                         document.getElementById("password-add").value = password;
                     } else if (type == "edit") {
-                        console.log("password-edit-"+id.toString());
                         document.getElementById("password-edit-"+id.toString()).value = password;
                     }
                 }
-            };
-            xhr.send();
+            );
         }
 
         $(document).ready(function() {
