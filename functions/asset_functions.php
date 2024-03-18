@@ -149,7 +149,7 @@ function updateAsset(
 
 
 
-    // if null, output 'NULL' for SQL, else output the date
+    // if null, output 'NULL' for SQL, else output the data
     $purchase_date = $parameters['purchase_date']??($asset_data['asset_purchase_date'] == NULL ? 'NULL' : $asset_data['asset_purchase_date']);
     $warranty_expire = $parameters['warranty_expire']??($asset_data['asset_warranty_expire'] == NULL ? 'NULL' : $asset_data['asset_warranty_expire']);
     $install_date = $parameters['install_date']??($asset_data['asset_install_date'] == NULL ? 'NULL' : $asset_data['asset_install_date']);

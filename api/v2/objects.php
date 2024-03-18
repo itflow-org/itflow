@@ -1,13 +1,17 @@
 <?php
 
 // Objects are to be the objects manipulated via the API
+//
 
 // Valid objects
 
 $valid_objects = [
     'asset',
     'client',
-    'clients'
+    'clients',
+    'invoice',
+    'ticket',
+    'location'
     ];
 
 /*
@@ -231,4 +235,132 @@ client:
             message = error message if status is error
             client_id = client_id(int)
 
+Invoice:
+    Create:
+        Parameters:
+            *client_id = client_id(int)
+            *invoice_date = invoice_date(date)
+            *invoice_due_date = invoice_due_date(date)
+            *invoice_number = invoice_number(str)
+            *invoice_amount = invoice_amount(int)
+            *invoice_status = invoice_status(str)
+            invoice_notes = notes(str)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            invoice_id = invoice_id(int)
+
+    Read:
+        Parameters:
+            *invoice_id = invoice_id(int)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            invoice_id = invoice_id(int)
+            client_id = client_id(int)
+            invoice_date = invoice_date(date)
+            invoice_due_date = invoice_due_date(date)
+            invoice_number = invoice_number(str)
+            invoice_amount = invoice_amount(int)
+            invoice_status = invoice_status(str)
+            invoice_notes = notes(str)
+
+    Update:
+        Parameters:
+            *invoice_id = invoice_id(int)
+            *client_id = client_id(int)
+            invoice_date = invoice_date(date)
+            invoice_due_date = invoice_due_date(date)
+            invoice_number = invoice_number(str)
+            invoice_amount = invoice_amount(int)
+            invoice_status = invoice_status(str)
+            invoice_notes = notes(str)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            invoice_id = invoice_id(int)
+            client_id = client_id(int)
+            invoice_date = invoice_date(date)
+            invoice_due_date = invoice_due_date(date)
+            invoice_number = invoice_number(str)
+            invoice_amount = invoice_amount(int)
+            invoice_status = invoice_status(str)
+            invoice_notes = notes(str)
+
+    Delete:
+        Parameters:
+            *invoice_id = invoice_id(int)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            invoice_id = invoice_id(int)
+
+
+Ticket:
+    Create:
+        Parameters:
+            *client_id = client_id(int)
+            *ticket_date = ticket_date(date)
+            *ticket_subject = ticket_subject(str)
+            *ticket_description = ticket_description(str)
+            ticket_status = ticket_status(str)
+            ticket_priority = ticket_priority(str)
+            ticket_notes = notes(str)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            ticket_id = ticket_id(int)
+
+    Read:
+        Parameters:
+            *ticket_id = ticket_id(int)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            ticket_id = ticket_id(int)
+            client_id = client_id(int)
+            ticket_date = ticket_date(date)
+            ticket_subject = ticket_subject(str)
+            ticket_description = ticket_description(str)
+            ticket_status = ticket_status(str)
+            ticket_priority = ticket_priority(str)
+            ticket_notes = notes(str)
+
+    Update:
+        Parameters:
+            *ticket_id = ticket_id(int)
+            *client_id = client_id(int)
+            ticket_prefix = 
+            ticket_number =
+            ticket_subject = 
+            ticket_priority = 
+            ticket_details = 
+            ticket_billable = 
+            ticket_vendor_ticket_number = 
+            ticket_contact_id = 
+            ticket_vendor_id = 
+            ticket_asset_id = 
+            ticket_number = 
+            ticket_client_id = 
+            ticket_source =
+            ticket_category = 
+            ticket_status = 
+            ticket_schedule = 
+            ticket_on_site = 
+            ticket_feedback = 
+            ticket_assigned_to = 
+            ticket_invoice_id = 
+            ticket_location_id = 
+            ticket_closed_by = 
+
+        Returns:
+                
+
+    Delete:
+        Parameters:
+            *ticket_id = ticket_id(int)
+        Returns:
+            status = success or error
+            message = error message if status is error
+            ticket_id = ticket_id(int)
 */

@@ -8,12 +8,12 @@ if (isset($_POST['add_invoice'])) {
 
     require_once 'post/invoice_model.php';
 
-    $client = intval($_POST['client']);
-    $due = sanitizeInput($_POST['due']);
-    $date = sanitizeInput($_POST['date']);
-    $category = intval($_POST['category']);
+    $parameters['invoice_client'] = intval($_POST['client']);
+    $parameters['due'] = sanitizeInput($_POST['due']);
+    $parameters['date'] = sanitizeInput($_POST['date']);
+    $parameters['category'] = intval($_POST['category']);
 
-    createInvoice($client, $due, $date, $category);
+    createInvoice($parameters);
     referWithAlert("Invoice added", "success");
 }
 
@@ -24,19 +24,7 @@ if (isset($_POST['edit_invoice'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $due = sanitizeInput($_POST['due']);
 
-    updateInvoice(
-        $invoice_id,
-        $due,
-        $status,
-        $prefix,
-        $number,
-        $scope,
-        $date,
-        $currency_code,
-        $category_id,
-        $url_key,
-        $client_id
-    );
+    updateInvoice($parameters);
     referWithAlert("Invoice edited", "success");
 }
 
