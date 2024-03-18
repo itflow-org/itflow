@@ -7,27 +7,41 @@ function createAsset(
     $parameters
 ) {
     $client_id = $parameters['client_id'];
-    $name = $parameters['name'];
-    $description = $parameters['description'];
-    $type = $parameters['type'];
-    $make = $parameters['make'];
-    $model = $parameters['model'];
-    $serial = $parameters['serial'];
-    $os = $parameters['os'];
-    $ip = $parameters['ip'];
-    $nat_ip = $parameters['nat_ip'];
-    $mac = $parameters['mac'];
-    $uri = $parameters['uri'];
-    $uri_2 = $parameters['uri_2'];
-    $status = $parameters['status'];
-    $location = $parameters['location'];
-    $vendor = $parameters['vendor'];
-    $contact = $parameters['contact'];
-    $network = $parameters['network'];
-    $purchase_date = $parameters['purchase_date'];
-    $warranty_expire = $parameters['warranty_expire'];
-    $install_date = $parameters['install_date'];
-    $notes = $parameters['notes'];
+    $name = $parameters['asset_name'];
+    $description = $parameters['asset_description']??'';
+    $type = $parameters['asset_type'];
+    $make = $parameters['asset_make']??'';
+    $model = $parameters['asset_model']??'';
+    $serial = $parameters['asset_serial']??'';
+    $os = $parameters['asset_os']??'';
+    $ip = $parameters['asset_ip']??'';
+    $nat_ip = $parameters['asset_nat_ip']??'';
+    $mac = $parameters['asset_mac']??'';
+    $uri = $parameters['asset_uri']??'';
+    $uri_2 = $parameters['asset_uri_2']??'';
+    $status = $parameters['asset_status']??'';
+    $location = $parameters['asset_location']??'NULL';
+    $vendor = $parameters['asset_vendor']??'NULL';
+    $contact = $parameters['asset_contact']??'NULL';
+    $network = $parameters['asset_network']??'NULL';
+    $purchase_date = $parameters['asset_purchase_date']??'NULL';
+    $warranty_expire = $parameters['asset_warranty_expire']??'NULL';
+    $install_date = $parameters['asset_install_date']??'NULL';
+    $notes = $parameters['asset_notes']??'';
+
+    if (empty($name)) {
+        return ['status' => 'error', 'message' => 'Asset Name is required'];
+    }
+    if (empty($client_id)) {
+        return ['status' => 'error', 'message' => 'Client ID is required'];
+    }
+
+    if (empty($type)) {
+        return ['status' => 'error', 'message' => 'Asset Type is required'];
+    }elseif (!in_array($type, ['Server', 'Desktop', 'Laptop', 'Tablet', 'Phone', 'Printer', 'Switch', 'Router', 'Firewall', 'Access Point', 'Other'])) {
+        return ['status' => 'error', 'message' => 'Invalid Asset Type'];
+    }
+
 
     global $mysqli, $session_ip, $session_user_agent, $session_user_id, $session_name;
 

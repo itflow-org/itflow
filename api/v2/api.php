@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Check if the action is read
         if ($action == 'read') {
             // Read requests should use the GET method
-            echo json_encode(['error' => 'Invalid action in request. Use GET method for read requests']);
+            echo json_encode(['WARN' => 'Invalid action in request. Use GET method for read requests']);
         }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -76,12 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $action = strtolower(sanitizeInput($_GET['action']));
         // Check if the action is not read
         if ($action != 'read') {
-            echo json_encode(['error' => 'Invalid action in request. Use POST method for create, update, and delete requests']);
+            echo json_encode(['WARN' => 'Invalid action in request. Use POST method for create, update, and delete requests. Action '. $action . ' is not valid.']);
+            exit;
         }
     }
 } else {
     // Invalid request method
-    echo json_encode(['error' => 'Invalid request method. Use GET for read requests and POST for create, update, and delete requests']); 
+    echo json_encode(['ERROR' => 'Invalid request method. Use GET for read requests and POST for create, update, and delete requests']); 
     exit;
 }
 
