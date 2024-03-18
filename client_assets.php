@@ -285,15 +285,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <th>
                                     <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
                                     <a class="text-secondary" href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
-                                    <?php if(!empty($asset_uri)){ ?>
+                                    <?php if (!empty($asset_uri)) { ?>
                                         <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
-                                    <?php } ?>
-                                    <?php
-                                    if ($login_count > 0) {
-                                        ?>
-                                        <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key text-dark"></i></button>
+                                    <?php }
 
-                                        <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
+                                    if ($login_count > 0) { ?>
+                                        <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $asset_id; ?>"><i class="fas fa-key text-dark"></i></button>
+
+                                        <div class="modal" id="viewPasswordModal<?php echo $asset_id; ?>" tabindex="-1">
                                             <div class="modal-dialog">
                                                 <div class="modal-content bg-dark">
                                                     <div class="modal-header">
@@ -303,35 +302,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                         </button>
                                                     </div>
                                                     <div class="modal-body bg-white">
-                                                        <?php
-                                                        while ($row = mysqli_fetch_array($sql_logins)) {
+
+                                                        <?php while ($row = mysqli_fetch_array($sql_logins)) {
                                                             $login_id = intval($row['login_id']);
                                                             $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                                             $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-                                                        ?>
-                                                        <div class="form-group">
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                                                </div>
-                                                                <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
-                                                                <div class="input-group-append">
-                                                                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_username; ?>"><i class="fa fa-fw fa-copy"></i></button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                                                                </div>
-                                                                <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly autocomplete="off">
-                                                                <div class="input-group-append">
-                                                                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                                            ?>
+
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <div class="input-group-prepend">
+                                                                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                                                    </div>
+                                                                    <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
+                                                                    <div class="input-group-append">
+                                                                        <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_username; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <div class="input-group-prepend">
+                                                                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                                                                    </div>
+                                                                    <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly autocomplete="off">
+                                                                    <div class="input-group-append">
+                                                                        <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
                                                         <?php } ?>
+
                                                     </div>
                                                 </div>
                                             </div>
