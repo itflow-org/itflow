@@ -226,7 +226,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (empty($asset_ip)) {
                                 $asset_ip_display = "-";
                             } else {
-                                $asset_ip_display = "$asset_ip<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
+                                $asset_ip_display = $asset_ip;
                             }
                             $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
                             $asset_mac = nullable_htmlentities($row['asset_mac']);
@@ -314,7 +314,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                                     <td><?php echo $asset_os_display; ?></td>
                                 <?php } ?>
-                                <td class="text-nowrap"><?php echo $asset_ip_display; ?></td>
+                                <td><?php echo $asset_ip_display; ?></td>
                                 <td><?php echo $asset_install_date_display; ?></td>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                     <td><?php echo $contact_name_display; ?></td>
