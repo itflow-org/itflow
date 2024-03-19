@@ -224,7 +224,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                             $asset_ip = nullable_htmlentities($row['asset_ip']);
                             if (empty($asset_ip)) {
-                                $asset_ip_display = "-";
+                                $asset_ip_display = "DHCP";
                             } else {
                                 $asset_ip_display = $asset_ip;
                             }
