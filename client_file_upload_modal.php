@@ -11,7 +11,19 @@
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="description" placeholder="Description of the file">
+                        </div>
+                    </div>
+
                     <div class="form-group mb-4">
+                        <label>Folder</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>

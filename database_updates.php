@@ -1560,7 +1560,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
 
-        
+
     if (CURRENT_DATABASE_VERSION == '1.0.2') {
         //Insert queries here required to update to DB version 1.0.3
         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_stripe_expense_vendor` INT(11) NOT NULL DEFAULT 0 AFTER `config_stripe_account`");
@@ -1610,7 +1610,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     if (CURRENT_DATABASE_VERSION == '1.0.6') {
         // Insert queries here required to update to DB version 1.0.7
         mysqli_query($mysqli, "CREATE TABLE `remember_tokens` (`remember_token_id` int(11) NOT NULL AUTO_INCREMENT,`remember_token_token` varchar(255) NOT NULL,`remember_token_user_id` int(11) NOT NULL,`remember_token_created_at` datetime NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`remember_token_id`))");
-        
+
         // Then, update the database to the next sequential version
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.7'");
     }
@@ -1619,7 +1619,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     //     // Insert queries here required to update to DB version 1.0.8
 
         mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_config_remember_me_token`");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.8'");
     }
 
@@ -1628,18 +1628,70 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_login_id`");
         // Dropped this unused Table as we don't need many to many relationship between assets and logins
         mysqli_query($mysqli, "DROP TABLE asset_logins");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.0.9'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.0.9') {
         mysqli_query($mysqli, "ALTER TABLE `transfers` ADD `transfer_method` VARCHAR(200) DEFAULT NULL AFTER `transfer_id`");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.0'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.1.0') {
-        // Insert queries here required to update to DB version 1.1.1
+
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_description` TEXT DEFAULT NULL AFTER `file_name`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `file_hash`");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` ADD `document_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `document_content_raw`");
+
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_important` TINYINT(1) NOT NULL DEFAULT '0' AFTER `asset_notes`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.1.1') {
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_assigned_to` INT(11) NOT NULL DEFAULT '0' AFTER `scheduled_ticket_created_by`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.1.2') {
+        // Add DB support for multiple contacts under a vendor
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_vendor_id` INT(11) NOT NULL DEFAULT '0' AFTER `contact_location_id`");
+
+        // Add DB Support to Associate files to an asset example pictures, config backups etc
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_asset_id` INT(11) NOT NULL DEFAULT '0' AFTER `file_folder_id`");
+
+        // Add DB Support for missing Short Description fields
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_description` TEXT DEFAULT NULL AFTER `location_name`");
+        mysqli_query($mysqli, "ALTER TABLE `software` ADD `software_description` TEXT DEFAULT NULL AFTER `software_name`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_description` TEXT DEFAULT NULL AFTER `network_name`");
+        mysqli_query($mysqli, "ALTER TABLE `certificates` ADD `certificate_description` TEXT DEFAULT NULL AFTER `certificate_name`");
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_description` TEXT DEFAULT NULL AFTER `domain_name`");
+
+        // Add DB Support for Location for Events
+        mysqli_query($mysqli, "ALTER TABLE `events` ADD `event_location` TEXT DEFAULT NULL AFTER `event_title`");
+
+        // Add Event Attendees Table to allow multiple Attendees per event
+        mysqli_query($mysqli, "CREATE TABLE `event_attendees` (
+            `attendee_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `attendee_name` VARCHAR(200) DEFAULT NULL,
+            `attendee_email` VARCHAR(200) DEFAULT NULL,
+            `attendee_invitation_status` TINYINT(1) NOT NULL DEFAULT 0,
+            `attendee_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `attendee_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `attendee_archived_at` DATETIME DEFAULT NULL,
+            `attendee_contact_id` INT(11) NOT NULL DEFAULT 0,
+            `attendee_event_id` INT(11) NOT NULL,
+            PRIMARY KEY (`attendee_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.1.3') {
+        // Insert queries here required to update to DB version 1.1.4
         mysqli_query($mysqli, "CREATE TABLE `inventory` (
             `inventory_id` int(11) NOT NULL AUTO_INCREMENT,
             `inventory_product_id` int(11) NOT NULL,
@@ -1658,18 +1710,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "CREATE TABLE `inventory_locations` (
             `inventory_locations_id` int(11) NOT NULL AUTO_INCREMENT,
-            `inventory_locations_name` varchar(200) NOT NULL,
-            `inventory_locations_description` text DEFAULT NULL,
-            `inventory_locations_address` varchar(200) DEFAULT NULL,
-            `inventory_locations_city` varchar(200) DEFAULT NULL,
-            `inventory_locations_state` varchar(200) DEFAULT NULL,
-            `inventory_locations_zip` varchar(200) DEFAULT NULL,
-            `inventory_locations_country` varchar(200) DEFAULT NULL,
-            `inventory_locations_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-            `inventory_locations_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-            `inventory_locations_archived_at` datetime DEFAULT NULL,
-            `inventory_locations_user_id` int(11) NOT NULL DEFAULT 0,
-            PRIMARY KEY (`inventory_locations_id`)
+            `inventory_location_name` varchar(200) NOT NULL,
+            `inventory_location_description` text DEFAULT NULL,
+            `inventory_location_address` varchar(200) DEFAULT NULL,
+            `inventory_location_city` varchar(200) DEFAULT NULL,
+            `inventory_location_state` varchar(200) DEFAULT NULL,
+            `inventory_location_zip` varchar(200) DEFAULT NULL,
+            `inventory_location_country` varchar(200) DEFAULT NULL,
+            `inventory_location_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+            `inventory_location_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+            `inventory_location_archived_at` datetime DEFAULT NULL,
+            `inventory_location_user_id` int(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`inventory_location_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
           ");
 
@@ -1684,7 +1736,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "CREATE TABLE `credits` (`credit_id` int(11) NOT NULL AUTO_INCREMENT,`credit_amount` decimal(15,2) NOT NULL,`credit_currency_code` varchar(200) NOT NULL,`credit_date` date NOT NULL,`credit_reference` text DEFAULT NULL,`credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),`credit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),`credit_archived_at` datetime DEFAULT NULL, `credit_client_id` int(11) NOT NULL,`credit_payment_id` int(11) NOT NULL,`credit_account_id` int(11) NOT NULL, PRIMARY KEY (`credit_id`))");  
 
         // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
     }
 
 

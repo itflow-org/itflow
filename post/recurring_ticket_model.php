@@ -15,3 +15,8 @@ $contact_id = "0";
 if (isset($_POST['contact'])) {
     $contact_id = intval($_POST['contact']);
 }
+
+$assigned_to = "0";
+if (isset($_POST['assigned_to'])) {
+    $assigned_to = intval($_POST['assigned_to']);
+}

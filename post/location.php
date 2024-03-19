@@ -15,7 +15,7 @@ if(isset($_POST['add_location'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_client_id = $client_id");
 
     $location_id = mysqli_insert_id($mysqli);
 
@@ -74,7 +74,7 @@ if(isset($_POST['edit_location'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id");
 
     // Update Primay location in clients if primary location is checked
     if ($location_primary == 1) {
@@ -206,12 +206,12 @@ if(isset($_POST['export_client_locations_csv'])){
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
+        $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
-            $lineData = array($row['location_name'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
+            $lineData = array($row['location_name'], $row['location_description'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -258,7 +258,7 @@ if(isset($_POST["import_client_locations_csv"])){
     //(Else)Check column count
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if(!$error & count($f_columns) != 7) {
+    if(!$error & count($f_columns) != 8) {
         $error = true;
         $_SESSION['alert_message'] = "Bad column count.";
     }
@@ -278,28 +278,31 @@ if(isset($_POST["import_client_locations_csv"])){
                 }
             }
             if(isset($column[1])){
-                $address = sanitizeInput($column[1]);
+                $description = sanitizeInput($column[1]);
             }
             if(isset($column[2])){
-                $city = sanitizeInput($column[2]);
+                $address = sanitizeInput($column[2]);
             }
             if(isset($column[3])){
-                $state = sanitizeInput($column[3]);
+                $city = sanitizeInput($column[3]);
             }
             if(isset($column[4])){
-                $zip = sanitizeInput($column[4]);
+                $state = sanitizeInput($column[4]);
             }
             if(isset($column[5])){
-                $phone = preg_replace("/[^0-9]/", '',$column[5]);
+                $zip = sanitizeInput($column[5]);
             }
             if(isset($column[6])){
-                $hours = sanitizeInput($column[6]);
+                $phone = preg_replace("/[^0-9]/", '',$column[6]);
+            }
+            if(isset($column[7])){
+                $hours = sanitizeInput($column[7]);
             }
 
             // Check if duplicate was detected
             if($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_description = '$description', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_hours = '$hours', location_client_id = $client_id");
                 $row_count = $row_count + 1;
             }else{
                 $duplicate_count = $duplicate_count + 1;
@@ -336,7 +339,7 @@ if(isset($_GET['download_client_locations_csv_template'])){
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
+    $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file

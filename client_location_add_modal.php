@@ -13,21 +13,25 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-address">Address</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-address">Address</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-contact">Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-photo">Photo</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
                         </li>
+                        
                     </ul>
 
                     <hr>
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-address">
+                        <div class="tab-pane fade show active" id="pills-details">
 
                             <div class="form-group">
                                 <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
@@ -43,6 +47,25 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="description" placeholder="Short Description">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Photo</label>
+                                <input type="file" class="form-control-file" name="file">
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-address">
 
                             <div class="form-group">
                                 <label>Address</label>
@@ -151,10 +174,10 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-photo">
+                        <div class="tab-pane fade" id="pills-notes">
 
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="file">
+                                <textarea class="form-control" rows="12" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"></textarea>
                             </div>
 
                         </div>
