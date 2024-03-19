@@ -1647,16 +1647,50 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.1'");
     }
 
-     if (CURRENT_DATABASE_VERSION == '1.1.1') {
-         mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_assigned_to` INT(11) NOT NULL DEFAULT '0' AFTER `scheduled_ticket_created_by`");
+    if (CURRENT_DATABASE_VERSION == '1.1.1') {
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_assigned_to` INT(11) NOT NULL DEFAULT '0' AFTER `scheduled_ticket_created_by`");
 
-         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
-     }
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.2'");
+    }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.2') {
-    //     // Insert queries here required to update to DB version 1.1.3
+    if (CURRENT_DATABASE_VERSION == '1.1.2') {
+        // Add DB support for multiple contacts under a vendor
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_vendor_id` INT(11) NOT NULL DEFAULT '0' AFTER `contact_location_id`");
+
+        // Add DB Support to Associate files to an asset example pictures, config backups etc
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_asset_id` INT(11) NOT NULL DEFAULT '0' AFTER `file_folder_id`");
+
+        // Add DB Support for missing Short Description fields
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_description` TEXT DEFAULT NULL AFTER `location_name`");
+        mysqli_query($mysqli, "ALTER TABLE `software` ADD `software_description` TEXT DEFAULT NULL AFTER `software_name`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_description` TEXT DEFAULT NULL AFTER `network_name`");
+        mysqli_query($mysqli, "ALTER TABLE `certificates` ADD `certificate_description` TEXT DEFAULT NULL AFTER `certificate_name`");
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_description` TEXT DEFAULT NULL AFTER `domain_name`");
+
+        // Add DB Support for Location for Events
+        mysqli_query($mysqli, "ALTER TABLE `events` ADD `event_location` TEXT DEFAULT NULL AFTER `event_title`");
+
+        // Add Event Attendees Table to allow multiple Attendees per event
+        mysqli_query($mysqli, "CREATE TABLE `event_attendees` (
+            `attendee_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `attendee_name` VARCHAR(200) DEFAULT NULL,
+            `attendee_email` VARCHAR(200) DEFAULT NULL,
+            `attendee_invitation_status` TINYINT(1) DEFAULT 0,
+            `attendee_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `attendee_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `attendee_archived_at` DATETIME DEFAULT NULL,
+            `attendee_contact_id` INT(11) NOT NULL DEFAULT 0,
+            `attendee_event_id` INT(11) NOT NULL,
+            PRIMARY KEY (`attendee_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.3') {
+    //     // Insert queries here required to update to DB version 1.1.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
     // }
 
 } else {
