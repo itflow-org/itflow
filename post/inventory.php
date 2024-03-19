@@ -34,7 +34,7 @@ if (isset($_POST['add_inventory_locations'])) {
     // Add Inventory Location
     $sql = mysqli_query(
         $mysqli,
-        "INSERT INTO inventory_locations SET inventory_locations_name = '$inventory_location_name', inventory_locations_description = '$inventory_location_description', inventory_locations_address = '$inventory_location_address', inventory_locations_city = '$inventory_location_city', inventory_locations_state = '$inventory_location_state', inventory_locations_zip = '$inventory_location_zip', inventory_locations_country = '$inventory_location_country', inventory_locations_user_id = $inventory_location_user_id"
+        "INSERT INTO inventory_locations SET inventory_location_name = '$inventory_location_name', inventory_location_description = '$inventory_location_description', inventory_location_address = '$inventory_location_address', inventory_location_city = '$inventory_location_city', inventory_location_state = '$inventory_location_state', inventory_location_zip = '$inventory_location_zip', inventory_location_country = '$inventory_location_country', inventory_location_user_id = $inventory_location_user_id"
     );
 
     // Logging
@@ -53,7 +53,7 @@ if (isset($_POST['edit_inventory_locations'])) {
     // Edit Inventory Location
     $sql = mysqli_query(
         $mysqli,
-        "UPDATE inventory_locations SET inventory_locations_name = '$inventory_location_name', inventory_locations_description = '$inventory_location_description', inventory_locations_address = '$inventory_location_address', inventory_locations_city = '$inventory_location_city', inventory_locations_state = '$inventory_location_state', inventory_locations_zip = '$inventory_location_zip', inventory_locations_country = '$inventory_location_country', inventory_locations_user_id = $inventory_location_user_id WHERE inventory_locations_id = $inventory_location_id"
+        "UPDATE inventory_locations SET inventory_location_name = '$inventory_location_name', inventory_location_description = '$inventory_location_description', inventory_location_address = '$inventory_location_address', inventory_location_city = '$inventory_location_city', inventory_location_state = '$inventory_location_state', inventory_location_zip = '$inventory_location_zip', inventory_location_country = '$inventory_location_country', inventory_location_user_id = $inventory_location_user_id WHERE inventory_location_id = $inventory_location_id"
     );
 
     // Logging
@@ -73,7 +73,7 @@ if (isset($_GET['archive_inventory_location'])) {
     // Archive Inventory Location
     $sql = mysqli_query(
         $mysqli,
-        "UPDATE inventory_locations SET inventory_locations_archived_at = NOW(), inventory_locations_user_id = 0 WHERE inventory_locations_id = $inventory_location_id"
+        "UPDATE inventory_locations SET inventory_location_archived_at = NOW(), inventory_location_user_id = 0 WHERE inventory_location_id = $inventory_location_id"
     );
 
     // Move all inventory to default location

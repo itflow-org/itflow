@@ -1663,12 +1663,12 @@ if (isset($_POST['add_ticket_products'])) {
     $qty = intval($_POST['quantity']);
 
     //find user inventory location
-    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_locations_user_id = $session_user_id");
+    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_location_user_id = $session_user_id");
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows == 1) {
         $row = mysqli_fetch_array($sql);
-        $session_location_id = intval($row['inventory_locations_id']);
+        $session_location_id = intval($row['inventory_location_id']);
     } elseif ($num_rows > 1) {        
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "You have more than one inventory location set. Please contact your administrator";
@@ -1725,9 +1725,9 @@ if (isset($_GET['delete_ticket_product'])) {
     mysqli_query($mysqli, "DELETE FROM ticket_products WHERE ticket_product_id = $ticket_product_id");
 
     //find user's inventory location
-    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_locations_user_id = $session_user_id");
+    $sql = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_location_user_id = $session_user_id");
     $row = mysqli_fetch_array($sql);
-    $session_location_id = intval($row['inventory_locations_id']);
+    $session_location_id = intval($row['inventory_location_id']);
 
     // Restore inventory quantity
     mysqli_query($mysqli, "UPDATE inventory SET inventory_quantity = inventory_quantity + 1 WHERE inventory_product_id = $product_id AND inventory_location_id = $session_location_id AND inventory_quantity = 0 LIMIT $qty");

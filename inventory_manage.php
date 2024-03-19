@@ -16,14 +16,14 @@ $sql = mysqli_query(
     "SELECT 
     product_name,
     sum(inventory_quantity),
-    inventory_locations_name,
+    inventory_location_name,
     sum(inventory_cost),
     inventory_location_id,
     inventory_id
     FROM inventory
-        LEFT JOIN inventory_locations ON inventory_locations_id = inventory_location_id
+        LEFT JOIN inventory_locations ON inventory_location_id = inventory_location_id
         LEFT JOIN products ON inventory_product_id = product_id
-        LEFT JOIN users on inventory_locations_user_id = user_id
+        LEFT JOIN users on inventory_location_user_id = user_id
         LEFT JOIN vendors ON inventory_vendor_id = vendor_id
         WHERE inventory_product_id = $inventory_product_id
         GROUP BY inventory_location_id
@@ -101,7 +101,7 @@ $product_name = sanitizeInput($product_name_row[0]);
                             $inventory_id = $row['inventory_id'];
                             $inventory_cost = $row['sum(inventory_cost)'];
                             $inventory_product_id = $row['inventory_product_id'];
-                            $inventory_locations = $row['inventory_locations_name'];
+                            $inventory_locations = $row['inventory_location_name'];
                             $inventory_location_id = $row['inventory_location_id'];
                             $inventory_quantity = $row['sum(inventory_quantity)'];
                             $inventory_unit_cost = $inventory_cost / $inventory_quantity;
@@ -121,7 +121,7 @@ $product_name = sanitizeInput($product_name_row[0]);
                                 <td><?php echo numfmt_format_currency($currency_format, $inventory_unit_cost, $config_currency_format)?></td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="inventory_locations_manage.php?inventory_location_id=<?php echo $inventory_location_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-fw fa-edit"></i></a>
+                                        <a href="inventory_location_manage.php?inventory_location_id=<?php echo $inventory_location_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-fw fa-edit"></i></a>
                                     </div>
                                 </td>
 
