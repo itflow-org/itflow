@@ -545,7 +545,7 @@ CREATE TABLE `event_attendees` (
   `attendee_id` int(11) NOT NULL AUTO_INCREMENT,
   `attendee_name` varchar(200) DEFAULT NULL,
   `attendee_email` varchar(200) DEFAULT NULL,
-  `attendee_invitation_status` tinyint(1) DEFAULT 0,
+  `attendee_invitation_status` tinyint(1) NOT NULL DEFAULT 0,
   `attendee_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `attendee_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `attendee_archived_at` datetime DEFAULT NULL,
@@ -1803,4 +1803,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-19 17:07:09
+-- Dump completed on 2024-03-19 17:11:58

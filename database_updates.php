@@ -1675,7 +1675,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `attendee_id` INT(11) NOT NULL AUTO_INCREMENT,
             `attendee_name` VARCHAR(200) DEFAULT NULL,
             `attendee_email` VARCHAR(200) DEFAULT NULL,
-            `attendee_invitation_status` TINYINT(1) DEFAULT 0,
+            `attendee_invitation_status` TINYINT(1) NOT NULL DEFAULT 0,
             `attendee_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
             `attendee_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
             `attendee_archived_at` DATETIME DEFAULT NULL,
