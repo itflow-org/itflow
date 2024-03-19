@@ -75,24 +75,36 @@ function tryAPIKey($api_key_secret) {
 }
 
 function getAPIWhereClause(
-    $var,
-    $var_id,
+    $obj,
+    $obj_id,
     $api_client_id
 ){
+
+    //if object is not integer, exit
+    if (!is_numeric($obj_id)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid Object ID']);
+        exit;
+    }
+
     $where_clause = "";
     // If asset_id is all, check if client_id is set
-    if ($var_id == 'all') {
-        if ($api_client_id != 'all') {
+
+
+    if ($obj_id == '0') {
+        if ($api_client_id != '0') {
             // If client_id is set, get all assets for that client
-            $where_clause = "WHERE  " . $var . "_client_id = $api_client_id";
-        }   // If client_id is not set, get all assets
+            $where_clause = "WHERE  " . $obj . "_client_id = $api_client_id";
+        }else {   // If client_id is not set, get all assets
+            $where_clause = "";
+        }
+
     } else {
-        if ($api_client_id != 'all') {
+        if ($api_client_id != '0') {
             // If client_id is set, get the asset only if the client matches
-            $where_clause = "WHERE " . $var . "_id = $var_id AND asset_client_id = $api_client_id";
+            $where_clause = "WHERE " . $obj . "_id = $obj_id AND asset_client_id = $api_client_id";
         } else {
             // If client_id is not set, get the asset
-            $where_clause = "WHERE " . $var . "_id = $var_id";
+            $where_clause = "WHERE " . $obj . "_id = $obj_id";
         }
     }
     return $where_clause;

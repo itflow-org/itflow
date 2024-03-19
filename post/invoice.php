@@ -8,7 +8,7 @@ if (isset($_POST['add_invoice'])) {
 
     require_once 'post/invoice_model.php';
 
-    $parameters['invoice_client'] = intval($_POST['client']);
+    $parameters['client_id'] = intval($_POST['client']);
     $parameters['due'] = sanitizeInput($_POST['due']);
     $parameters['date'] = sanitizeInput($_POST['date']);
     $parameters['category'] = intval($_POST['category']);

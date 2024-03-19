@@ -45,7 +45,7 @@ if (isset($_GET['client_id'])) {
 
     $result_client_unpaid_invoices = mysqli_query($mysqli, $sql_client_unpaid_invoices);
 
-    $currency_code = getSettingValue($mysqli, "company_currency");
+    $currency_code = getSettingValue("company_currency");
 
     ?>
 

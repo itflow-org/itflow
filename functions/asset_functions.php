@@ -29,17 +29,18 @@ function createAsset(
     $install_date = $parameters['asset_install_date']??'NULL';
     $notes = $parameters['asset_notes']??'';
 
+
+    $return_message = "";
     if (empty($name)) {
-        return ['status' => 'error', 'message' => 'Asset Name is required'];
+        $return_message .= "Asset Name is required. ";
     }
     if (empty($client_id)) {
-        return ['status' => 'error', 'message' => 'Client ID is required'];
+        $return_message .= "Client ID is required. ";
     }
-
     if (empty($type)) {
-        return ['status' => 'error', 'message' => 'Asset Type is required'];
+        $return_message .= "Asset Type is required. ";
     }elseif (!in_array($type, ['Server', 'Desktop', 'Laptop', 'Tablet', 'Phone', 'Printer', 'Switch', 'Router', 'Firewall', 'Access Point', 'Other'])) {
-        return ['status' => 'error', 'message' => 'Invalid Asset Type'];
+        $return_message .= "Invalid Asset Type. ";
     }
 
 
@@ -91,7 +92,7 @@ function readAsset(
     global $mysqli;
 
     // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
-    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 'all';
+    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
     // Get the where clause for the query
     $where_clause = getAPIWhereClause("asset", $asset_id, $api_client_id);
 
@@ -101,7 +102,11 @@ function readAsset(
     $assets = [];
 
     while ($row = mysqli_fetch_assoc($result)) {
-        $assets[$row['asset_id']] = $row;
+        $assets[] = $row;
+    }
+
+    if (empty($assets)) {
+        return ['status' => 'error', 'message' => 'No assets found'];
     }
 
     return $assets;

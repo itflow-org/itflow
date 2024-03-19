@@ -146,17 +146,31 @@ function createTicket(
 function readTicket(
     $parameters
 ) {
-
     global $mysqli;
+
+    if (empty($parameters['ticket_id'])) {
+        return [
+            'status' => 'error',
+            'message' => 'Ticket ID is required'
+    ];}
 
     $ticket_id = intval($parameters['ticket_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
-    $row = mysqli_fetch_array($sql);
+    // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
+    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
 
-    return $row;
+    // Get the where clause for the query
+    $where_clause = getAPIWhereClause("ticket", $ticket_id, $api_client_id);
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets $where_clause");
+    $assets = [];
+
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $assets[$row['ticket_id']] = $row;
+    }
+
+    return $assets;
 }
-
 function updateTicket(
     $parameters
 ) {

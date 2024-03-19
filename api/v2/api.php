@@ -55,11 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         // Sanitize the action
         $action = strtolower(sanitizeInput($_POST['action']));
-        // Check if the action is read
-        if ($action == 'read') {
-            // Read requests should use the GET method
-            echo json_encode(['WARN' => 'Invalid action in request. Use GET method for read requests']);
-        }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
     // Sanitize the object
@@ -74,11 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         // Sanitize the action
         $action = strtolower(sanitizeInput($_GET['action']));
-        // Check if the action is not read
-        if ($action != 'read') {
-            echo json_encode(['WARN' => 'Invalid action in request. Use POST method for create, update, and delete requests. Action '. $action . ' is not valid.']);
-            exit;
-        }
     }
 } else {
     // Invalid request method
@@ -110,9 +100,15 @@ if (is_string($parameters)) {
 
 // Sanitize the parameters
 $sanitized_parameters = [];
-foreach ($parameters as $key => $value) {
-    $sanitized_parameters[sanitizeInput($key)] = sanitizeInput($value);
+if (is_array($parameters)) {
+    foreach ($parameters as $key => $value) {
+        $sanitized_parameters[sanitizeInput($key)] = sanitizeInput($value);
+    }
+} else{
+    echo json_encode(['WARN' => 'Invalid parameters in request. Parameters must be included as an associative array. is not an array.']);
+    exit;
 }
+
 // Replace the parameters with the sanitized parameters
 $parameters = $sanitized_parameters;
 
@@ -124,7 +120,7 @@ if (!isset($parameters['api_key_name'])) {
 }
 // Check if the object is valid
 if (!in_array($object, $valid_objects)) {
-    echo json_encode(['error' => 'Invalid object in request. ' . $object . ' is not an object to be manipulated via the API. \n\n Valid objects are: ' . implode(', \n', $valid_objects) . '.']);
+    echo json_encode(['error' => 'Invalid object in request. ' . $object . ' is not an object to be manipulated via the API. Valid objects are: ' . implode(',', $valid_objects) . '.']);
     exit;
 }
 //Uppercase every first letter of the object
@@ -138,7 +134,7 @@ $function = $action . $object;
 
 // Check if the function exists
 if (!function_exists($function)) {
-    echo json_encode(['error' => 'Invalid function in request. This is probably a bug. Please report this to the developer. ' . $function . ' does not exist.']);
+    echo json_encode(['error' => 'Invalid function in request. This is probably a bug. Please report this to the developer. ' . $function . '() does not exist.']);
     exit;
 }
 // Call the function
@@ -147,7 +143,7 @@ try{
 }
 // Catch any exceptions
 catch (Exception $e) {
-    echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer. ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Invalid function result. Function returned exception. This is probably a bug. Please report this to the developer. ' . $e->getMessage()]);
     exit;
 }
 
@@ -156,9 +152,9 @@ if ($function_result) {
     if (is_array($function_result)) {
         echo json_encode($function_result);
     } else {
-        echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer.']);
+        echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer. ERR: ' . json_encode($function_result) . ' is not an array.']);
     }
 } else {
-    echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer.']);
+    echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer. ERR: ' . json_encode($function_result) . ' is not a valid result.']);
 }
 exit;

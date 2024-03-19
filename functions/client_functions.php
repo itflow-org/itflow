@@ -138,34 +138,24 @@ function createClient(
 function readClient(
     $parameters
 ) {
-    $client_id = $parameters['client_id'];
+    $client_id = sanitizeInput($parameters['client_id']);
 
     global $mysqli;
 
-    if (isset($parameters['api_key_client_id'])) {
-        $api_client_id = $parameters['api_key_client_id'];
-        $where_clause = getAPIWhereClause('client', $client_id, $api_client_id);
-    } else {
-        $where_clause = "WHERE client_id = $client_id";
-    }
+    // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
+    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+    // Get the where clause for the query
+    $where_clause = getAPIWhereClause("client", $client_id, $api_client_id);
 
     $query = "SELECT * FROM clients $where_clause";
+    $result = mysqli_query($mysqli, $query);
 
-    $result = mysqli_fetch_assoc(mysqli_query($mysqli, $query));
-
-    return $result;
-}
-
-function readClients(
-)
-{
-    global $mysqli;
-
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL AND client_lead = 0 ORDER BY client_accessed_at ASC");
     $clients = [];
-    while ($row = mysqli_fetch_array($sql)) {
-        $clients[intval($row['client_id'])] = $row;
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $clients[$row['client_id']] = $row;
     }
+
     return $clients;
 }
 

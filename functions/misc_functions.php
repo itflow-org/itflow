@@ -218,8 +218,9 @@ function roundToNearest15($time)
     return number_format($decimalHours, 2);
 }
 
-function getSettingValue($mysqli, $setting_name)
+function getSettingValue($setting_name)
 {
+    global $mysqli;
     //if starts with config_ then get from config table
     if (substr($setting_name, 0, 7) == "config_") {
         $sql = mysqli_query($mysqli, "SELECT $setting_name FROM settings");

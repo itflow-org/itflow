@@ -59,7 +59,7 @@
     $result_client_balance_report = mysqli_query($mysqli, $sql_client_balance_report);
 
     //get currency format from settings
-    $config_currency_code = getSettingValue($mysqli, "company_currency");
+    $config_currency_code = getSettingValue("company_currency");
 ?>
 
 <div class="card card-dark">

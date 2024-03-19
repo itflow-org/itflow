@@ -8,11 +8,10 @@
 $valid_objects = [
     'asset',
     'client',
-    'clients',
     'invoice',
     'ticket',
     'location'
-    ];
+];
 
 /*
 ------------------------
@@ -142,27 +141,6 @@ Asset:
             status = success or error
             message = error message if status is error
             asset_id = asset_id(int)
-
-clients:
-    Read:
-        No parameters
-        Returns:
-            status = success or error
-            message = error message if status is error
-            client_id = [
-                client_id(int)
-                client_name(str)
-                client_type(str)
-                client_website(str)
-                client_website(str)
-                client_referral(str)
-                client_rate(int)
-                client_currency_code(str)
-                client_net_terms(int)
-                client_tax_id_number(int)
-                client_lead(tinyint)
-                cleint_notes(str)
-            ]
 
 client:
     Create:
