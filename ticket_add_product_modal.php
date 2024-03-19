@@ -18,8 +18,8 @@
                                 <?php
                                 $products = mysqli_query($mysqli, "SELECT * FROM products
                                     LEFT JOIN inventory ON products.product_id = inventory.inventory_product_id
-                                    LEFT JOIN inventory_locations ON inventory.inventory_location_id = inventory_locations.inventory_locations_id
-                                    WHERE inventory_locations.inventory_locations_user_id = $user_id
+                                    LEFT JOIN inventory_locations ON inventory.inventory_location_id = inventory_locations.inventory_location_id
+                                    WHERE inventory_locations.inventory_location_user_id = $user_id
                                     AND (inventory.inventory_client_id = $client_id OR inventory.inventory_client_id = 0)
                                     GROUP BY products.product_id");
                                 while ($product = mysqli_fetch_array($products)) {

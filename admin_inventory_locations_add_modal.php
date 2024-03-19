@@ -52,8 +52,8 @@
 							<option value="" selected disabled>Select a user</option>
 							<?php
 							$users = mysqli_query($mysqli, "SELECT users.* FROM users
-							LEFT JOIN inventory_locations ON users.user_id = inventory_locations.inventory_locations_user_id
-							WHERE user_status = 1 AND user_archived_at IS NULL AND inventory_locations.inventory_locations_user_id IS NULL AND users.user_id != '$inventory_locations_user_id'");
+							LEFT JOIN inventory_locations ON users.user_id = inventory_locations.inventory_location_user_id
+							WHERE user_status = 1 AND user_archived_at IS NULL AND inventory_locations.inventory_location_user_id IS NULL AND users.user_id != '$inventory_location_user_id'");
 							while ($user = mysqli_fetch_array($users)) {
 								echo "<option value=\"$user[user_id]\">$user[user_name]</option>";
 							}

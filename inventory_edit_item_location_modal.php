@@ -17,9 +17,9 @@
                             <select class="form-control select2" id="inventory_new_location_id" name="inventory_new_location_id">
                                 <option value="">Select location</option>
                                 <?php
-                                $inventory_locations = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_locations_id != $inventory_location_id AND inventory_locations_archived_at IS NULL ORDER BY inventory_locations_name ASC");
+                                $inventory_locations = mysqli_query($mysqli, "SELECT * FROM inventory_locations WHERE inventory_location_id != $inventory_location_id AND inventory_location_archived_at IS NULL ORDER BY inventory_location_name ASC");
                                 while ($inventory_location = mysqli_fetch_array($inventory_locations)) {
-                                    echo "<option value='" . $inventory_location['inventory_locations_id'] . "'>" . $inventory_location['inventory_locations_name'] . "</option>";
+                                    echo "<option value='" . $inventory_location['inventory_location_id'] . "'>" . $inventory_location['inventory_location_name'] . "</option>";
                                 }
                                 ?>
                             </select>

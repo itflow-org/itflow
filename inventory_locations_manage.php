@@ -17,13 +17,13 @@ $sql = mysqli_query(
     product_name,
     inventory_id,
     sum(inventory_quantity),
-    inventory_locations_name,
+    inventory_location_name,
     sum(inventory_cost),
     inventory_product_id
     FROM inventory
-        LEFT JOIN inventory_locations ON inventory_locations_id = inventory_location_id
+        LEFT JOIN inventory_locations ON inventory_location_id = inventory_location_id
         LEFT JOIN products ON inventory_product_id = product_id
-        LEFT JOIN users on inventory_locations_user_id = user_id
+        LEFT JOIN users on inventory_location_user_id = user_id
         LEFT JOIN vendors ON inventory_vendor_id = vendor_id
         WHERE inventory_location_id = $inventory_location_id
         GROUP BY inventory_product_id
@@ -31,7 +31,7 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-$location_name_row = mysqli_fetch_row(mysqli_query($mysqli,"SELECT inventory_locations_name FROM inventory_locations WHERE inventory_locations_id = $inventory_location_id"));
+$location_name_row = mysqli_fetch_row(mysqli_query($mysqli,"SELECT inventory_location_name FROM inventory_locations WHERE inventory_location_id = $inventory_location_id"));
 $location_name = sanitizeInput($location_name_row[0]);
 
 ?>
@@ -104,7 +104,7 @@ $location_name = sanitizeInput($location_name_row[0]);
                             $inventory_quantity = $row['sum(inventory_quantity)'];
                             $inventory_cost = $row['sum(inventory_cost)'];
                             $inventory_product_id = $row['inventory_product_id'];
-                            $inventory_locations = $row['inventory_locations_name'];
+                            $inventory_locations = $row['inventory_location_name'];
                             $inventory_unit_cost = $inventory_cost / $inventory_quantity;
                             ?>
 
