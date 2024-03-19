@@ -45,7 +45,7 @@ $sql = mysqli_query(
     WHERE file_client_id = $client_id
     AND file_folder_id = $folder_id
     AND file_archived_at IS NULL
-    AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%')
+    AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%' OR file_description LIKE '%$q%')
     $query_images
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -147,6 +147,7 @@ $num_of_files = mysqli_num_rows($sql);
                 <form autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <input type="hidden" name="view" value="<?php echo $view; ?>">
+                    <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="input-group mb-3 mb-md-0">
@@ -285,8 +286,18 @@ $num_of_files = mysqli_num_rows($sql);
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i><?php echo basename($file_name); ?></a>
-                                        <div class="mt-1"><small class="text-secondary"><?php echo $file_description; ?></small></div>
+                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary">
+                                            <div class="media">
+                                                <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i>
+                                                <div class="media-body">
+                                                    <p>
+                                                        <?php echo basename($file_name); ?>
+                                                        <br>
+                                                        <small class="text-secondary"><?php echo $file_description; ?></small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </a>
                                     </td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td>
