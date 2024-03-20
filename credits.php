@@ -132,7 +132,7 @@ $num_rows = mysqli_num_rows($sql);
                         $client_name = sanitizeInput($row['client_name']);
 
                         // Get account name from DB
-                        if($credit_account_id != NULL) {
+                        if($credit_account_id != null) {
                             $accountQuery = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $credit_account_id");
                             $account = mysqli_fetch_array($accountQuery);
                             $account_name = sanitizeinput($account['account_name']);
@@ -141,7 +141,7 @@ $num_rows = mysqli_num_rows($sql);
                         }
 
                         // Get payment invoice and reference from DB
-                        if($credit_payment_id != NULL) {
+                        if($credit_payment_id != null) {
                             $paymentQuery = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = $credit_payment_id");
                             $payment = mysqli_fetch_array($paymentQuery);
                             $payment_invoice = intval($payment['payment_invoice_id']);
@@ -152,7 +152,7 @@ $num_rows = mysqli_num_rows($sql);
                         }
 
                         // Get invoice prefix and number from DB
-                        if($payment_invoice != NULL) {
+                        if($payment_invoice != null) {
                             $invoiceQuery = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $payment_invoice");
                             $invoice = mysqli_fetch_array($invoiceQuery);
                             $invoice_prefix = sanitizeInput($invoice['invoice_prefix']);

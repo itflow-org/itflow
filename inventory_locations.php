@@ -12,7 +12,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT 
+    "SELECT
     inventory_location_id,
     inventory_location_name,
     inventory_location_description,

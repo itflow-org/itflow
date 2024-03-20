@@ -13,7 +13,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT 
+    "SELECT
     product_name,
     inventory_id,
     sum(inventory_quantity),
@@ -147,7 +147,7 @@ $location_name = sanitizeInput($location_name_row[0]);
 
 <script src="js/bulk_actions.js"></script>
 
-<?php 
+<?php
 
 
 require_once "footer.php";

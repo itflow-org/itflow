@@ -11,11 +11,11 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT 
+    "SELECT
     product_name,
     SUM(inventory_quantity) as total_inventory,
     inventory_product_id,
-    GROUP_CONCAT(DISTINCT inventory_location_name SEPARATOR ', ') AS inventory_locations 
+    GROUP_CONCAT(DISTINCT inventory_location_name SEPARATOR ', ') AS inventory_locations \
     FROM inventory
         LEFT JOIN inventory_locations ON inventory_location_id = inventory_location_id
         LEFT JOIN products ON inventory_product_id = product_id
