@@ -10,6 +10,8 @@ require_once "config.php";
 
 require_once "functions.php";
 
+require_once "rfc6238.php";
+
 
 /*
  * Creates & Returns a Stripe Payment Intent for a particular invoice ID
@@ -118,4 +120,10 @@ if (isset($_GET['stripe_create_pi'])) {
         echo json_encode(['error' => $e->getMessage()]);
     }
 
+}
+
+if (isset($_GET['get_totp_token'])) {
+    $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
+
+    echo json_encode($otp);
 }

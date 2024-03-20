@@ -143,6 +143,7 @@ CREATE TABLE `assets` (
   `asset_warranty_expire` date DEFAULT NULL,
   `asset_install_date` date DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
+  `asset_important` tinyint(1) NOT NULL DEFAULT 0,
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_archived_at` datetime DEFAULT NULL,
@@ -225,6 +226,7 @@ DROP TABLE IF EXISTS `certificates`;
 CREATE TABLE `certificates` (
   `certificate_id` int(11) NOT NULL AUTO_INCREMENT,
   `certificate_name` varchar(200) NOT NULL,
+  `certificate_description` text DEFAULT NULL,
   `certificate_domain` varchar(200) DEFAULT NULL,
   `certificate_issued_by` varchar(200) NOT NULL,
   `certificate_expire` date DEFAULT NULL,
@@ -395,6 +397,7 @@ CREATE TABLE `contacts` (
   `contact_archived_at` datetime DEFAULT NULL,
   `contact_accessed_at` datetime DEFAULT NULL,
   `contact_location_id` int(11) NOT NULL DEFAULT 0,
+  `contact_vendor_id` int(11) NOT NULL DEFAULT 0,
   `contact_department` varchar(200) DEFAULT NULL,
   `contact_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`contact_id`)
@@ -484,6 +487,7 @@ CREATE TABLE `documents` (
   `document_description` text DEFAULT NULL,
   `document_content` longtext NOT NULL,
   `document_content_raw` longtext NOT NULL,
+  `document_important` tinyint(1) NOT NULL DEFAULT 0,
   `document_parent` int(11) NOT NULL DEFAULT 0,
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -509,6 +513,7 @@ DROP TABLE IF EXISTS `domains`;
 CREATE TABLE `domains` (
   `domain_id` int(11) NOT NULL AUTO_INCREMENT,
   `domain_name` varchar(200) NOT NULL,
+  `domain_description` text DEFAULT NULL,
   `domain_expire` date DEFAULT NULL,
   `domain_ip` varchar(255) DEFAULT NULL,
   `domain_name_servers` varchar(255) DEFAULT NULL,
@@ -553,6 +558,27 @@ CREATE TABLE `email_queue` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `event_attendees`
+--
+
+DROP TABLE IF EXISTS `event_attendees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `event_attendees` (
+  `attendee_id` int(11) NOT NULL AUTO_INCREMENT,
+  `attendee_name` varchar(200) DEFAULT NULL,
+  `attendee_email` varchar(200) DEFAULT NULL,
+  `attendee_invitation_status` tinyint(1) NOT NULL DEFAULT 0,
+  `attendee_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `attendee_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `attendee_archived_at` datetime DEFAULT NULL,
+  `attendee_contact_id` int(11) NOT NULL DEFAULT 0,
+  `attendee_event_id` int(11) NOT NULL,
+  PRIMARY KEY (`attendee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `events`
 --
 
@@ -562,6 +588,7 @@ DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
   `event_id` int(11) NOT NULL AUTO_INCREMENT,
   `event_title` varchar(200) NOT NULL,
+  `event_location` text DEFAULT NULL,
   `event_description` longtext DEFAULT NULL,
   `event_start` datetime NOT NULL,
   `event_end` datetime DEFAULT NULL,
@@ -614,13 +641,16 @@ CREATE TABLE `files` (
   `file_id` int(11) NOT NULL AUTO_INCREMENT,
   `file_reference_name` varchar(200) DEFAULT NULL,
   `file_name` varchar(200) NOT NULL,
+  `file_description` text DEFAULT NULL,
   `file_ext` varchar(200) DEFAULT NULL,
   `file_hash` varchar(200) DEFAULT NULL,
+  `file_important` tinyint(1) NOT NULL DEFAULT 0,
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `file_archived_at` datetime DEFAULT NULL,
   `file_accessed_at` datetime DEFAULT NULL,
   `file_folder_id` int(11) NOT NULL DEFAULT 0,
+  `file_asset_id` int(11) NOT NULL DEFAULT 0,
   `file_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -800,6 +830,7 @@ DROP TABLE IF EXISTS `locations`;
 CREATE TABLE `locations` (
   `location_id` int(11) NOT NULL AUTO_INCREMENT,
   `location_name` varchar(200) NOT NULL,
+  `location_description` text DEFAULT NULL,
   `location_country` varchar(200) DEFAULT NULL,
   `location_address` varchar(200) DEFAULT NULL,
   `location_city` varchar(200) DEFAULT NULL,
@@ -885,6 +916,7 @@ DROP TABLE IF EXISTS `networks`;
 CREATE TABLE `networks` (
   `network_id` int(11) NOT NULL AUTO_INCREMENT,
   `network_name` varchar(200) NOT NULL,
+  `network_description` text DEFAULT NULL,
   `network_vlan` int(11) DEFAULT NULL,
   `network` varchar(200) NOT NULL,
   `network_gateway` varchar(200) NOT NULL,
@@ -1179,6 +1211,7 @@ CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `scheduled_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `scheduled_ticket_created_by` int(11) NOT NULL DEFAULT 0,
+  `scheduled_ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_client_id` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `scheduled_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
@@ -1428,6 +1461,7 @@ DROP TABLE IF EXISTS `software`;
 CREATE TABLE `software` (
   `software_id` int(11) NOT NULL AUTO_INCREMENT,
   `software_name` varchar(200) NOT NULL,
+  `software_description` text DEFAULT NULL,
   `software_version` varchar(200) DEFAULT NULL,
   `software_type` varchar(200) NOT NULL,
   `software_license_type` varchar(200) DEFAULT NULL,
@@ -1876,4 +1910,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-05 18:47:45
+-- Dump completed on 2024-03-19 17:11:58

@@ -48,7 +48,7 @@
                             <div class="form-group">
                                 <textarea class="form-control tinymceai" id="textInput" name="details"></textarea>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <button id="rewordButton" class="btn btn-primary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
                                 <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
@@ -119,7 +119,7 @@
                                             $mysqli,
                                             "SELECT users.user_id, user_name FROM users
                                             LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                            WHERE user_role > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                         );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $user_id = intval($row['user_id']);
@@ -137,7 +137,7 @@
                             <div class="tab-pane fade" id="pills-contacts">
 
                                 <input type="hidden" name="client" value="<?php echo $client_id; ?>">
-                                
+
                                 <div class="form-group">
                                     <label>Contact</label>
                                     <div class="input-group">
@@ -169,7 +169,7 @@
                                                 } else {
                                                     $contact_title_display = "";
                                                 }
-                                                
+
                                                 ?>
                                                 <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
 

@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th class="text-center px-0"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Name</a></th>
+                            <th><a class="text-secondary ml-3" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Name</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_department&order=<?php echo $disp; ?>">Department</a></th>
                             <th>Contact</th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
@@ -121,13 +121,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_title = nullable_htmlentities($row['contact_title']);
                             if (empty($contact_title)) {
-                                $contact_title_display = "-";
+                                $contact_title_display = "";
                             } else {
                                 $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
                             }
                             $contact_department = nullable_htmlentities($row['contact_department']);
                             if (empty($contact_department)) {
-                                $contact_department_display = "";
+                                $contact_department_display = "-";
                             } else {
                                 $contact_department_display = $contact_department;
                             }
@@ -210,28 +210,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?php echo $contact_id ?>">
                                     </div>
                                 </td>
-                                <td class="px-0 text-center <?php if(!empty($contact_important)) { echo "text-bold"; }?>">
+                                <td>
                                     <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
-                                        <?php if (!empty($contact_photo)) { ?>
+                                        <div class="media">
+                                            <?php if (!empty($contact_photo)) { ?>
+                                                <span class="fa-stack fa-2x mr-3 text-center">
+                                                    <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                                                </span>
+                                            <?php } else { ?>
 
-                                            <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                                                <span class="fa-stack fa-2x mr-3">
+                                                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                                    <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                                </span>
 
-                                        <?php } else { ?>
+                                            <?php } ?>
 
-                                            <span class="fa-stack fa-2x">
-                                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                                            </span>
-
-                                            <br>
-
-                                        <?php } ?>
-                                        <div class="text-dark"><?php echo $contact_name; ?></div>
-                                        <div><?php echo $contact_title_display; ?></div>
-                                        <div><?php echo $contact_primary_display; ?></div>
+                                            <div class="media-body">
+                                                <div class="<?php if(!empty($contact_important)) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                                <?php echo $contact_title_display; ?>
+                                                <div><?php echo $contact_primary_display; ?></div>
+                                                    
+                                            </div>
+                                        </div>
                                     </a>
                                 </td>
-
                                 <td><?php echo $contact_department_display; ?></td>
                                 <td><?php echo $contact_info_display; ?></td>
                                 <td><?php echo $location_name_display; ?></td>
@@ -293,26 +296,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script>
 
     function generatePassword(type, id) {
-        var url = '/ajax.php?get_readable_pass=true';
+        // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
+        jQuery.get(
+            "ajax.php", {
+                get_readable_pass: 'true'
+            },
+            function(data) {
+                //If we get a response from post.php, parse it as JSON
+                const password = JSON.parse(data);
 
-        // Make an AJAX request to the server
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                var password = xhr.responseText;
-
-                // Set the password value based on the type
+                // Set the password value to the correct modal, based on the type
                 if (type == "add") {
                     document.getElementById("password-add").value = password;
                 } else if (type == "edit") {
-                    console.log("password-edit-"+id.toString());
                     document.getElementById("password-edit-"+id.toString()).value = password;
                 }
             }
-        };
-        xhr.send();
+        );
     }
 
     $(document).ready(function() {
