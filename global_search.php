@@ -103,8 +103,8 @@ if (isset($_GET['query'])) {
         LEFT JOIN tickets ON ticket_reply_ticket_id = ticket_id
         LEFT JOIN clients ON ticket_client_id = client_id
         WHERE ticket_reply_archived_at IS NULL
-            AND (ticket_reply LIKE '%$query%' OR ticket_subject LIKE '%$query%' OR ticket_details LIKE '%$query%')
-        ORDER BY ticket_id DESC LIMIT 5"
+            AND (ticket_reply LIKE '%$query%')
+        ORDER BY ticket_id DESC, ticket_reply_id ASC LIMIT 20"
     );
 
     $q = nullable_htmlentities($_GET['query']);
@@ -648,36 +648,60 @@ if (isset($_GET['query'])) {
                     <div class="card-body">
 
                     <?php
+                    $last_ticket_id = null; // Track the last ticket ID processed
 
                     while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                         $ticket_id = intval($row['ticket_id']);
-                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                        $ticket_number = intval($row['ticket_number']);
-                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                        $ticket_reply = $purifier->purify($row['ticket_reply']);
-                        $client_id = intval($row['ticket_client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        
+                        // Only output the ticket header if we're at a new ticket
+                        if ($ticket_id !== $last_ticket_id) {
+                            if ($last_ticket_id !== null) {
+                                // Close the previous ticket's card (except for the very first ticket)
+                                echo '</div></div>'; 
+                            }
 
-                        ?>
-                        <div class="card card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <?php echo "$client_name - $ticket_prefix$ticket_number - $ticket_subject"; ?>
-                                </h3>
-                                <div class="card-tools">
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <div class="card-body prettyContent">
-                                <div class="media">
-                                    <div class="media-body">
-                                        <?php echo $ticket_reply; ?>
+                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                            $ticket_number = intval($row['ticket_number']);
+                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                            $client_id = intval($row['ticket_client_id']);
+                            $client_name = nullable_htmlentities($row['client_name']);
+
+                            // Output the ticket header
+                            ?>
+                            <div class="card card-outline">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <?php echo "$client_name - $ticket_prefix$ticket_number - $ticket_subject"; ?>
+                                    </h3>
+                                    <div class="card-tools">
+                                        <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
                                     </div>
                                 </div>
-                            </div>
-                         </div>
+                                <div class="card-body prettyContent">
+                            <?php
+                        }
 
-                    <?php } ?>
+                        $ticket_reply = $purifier->purify($row['ticket_reply']);
+
+                        // Output the ticket reply
+                        ?>
+                        <div class="media">
+                            <i class="fas fa-fw fa-reply mr-3"></i>
+                            <div class="media-body">
+                                <?php echo $ticket_reply; ?>
+                            </div>
+                        </div>
+                        <hr>
+                        <?php
+
+                        $last_ticket_id = $ticket_id; // Update the last ticket ID
+                    }
+
+                    if ($last_ticket_id !== null) {
+                        // Close the last ticket's card
+                        echo '</div></div>'; 
+                    }
+                    ?>
 
                     </div>
 
