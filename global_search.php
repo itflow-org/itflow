@@ -662,7 +662,7 @@ if (isset($_GET['query'])) {
                         <div class="card card-outline">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    <?php echo "$ticket_prefix$ticket_number"; ?> - <?php echo $ticket_subject; ?>
+                                    <?php echo "$client_name - $ticket_prefix$ticket_number - $ticket_subject"; ?>
                                 </h3>
                                 <div class="card-tools">
                                     <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
