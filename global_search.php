@@ -2,6 +2,12 @@
 
 require_once "inc_all.php";
 
+// Initialize the HTML Purifier to prevent XSS
+require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+
+$purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+$purifier = new HTMLPurifier($purifier_config);
 
 if (isset($_GET['query'])) {
 
@@ -93,13 +99,25 @@ if (isset($_GET['query'])) {
         ORDER BY asset_name DESC LIMIT 5"
     );
 
+    $sql_ticket_replies = mysqli_query($mysqli,"SELECT * FROM ticket_replies
+        LEFT JOIN tickets ON ticket_reply_ticket_id = ticket_id
+        LEFT JOIN clients ON ticket_client_id = client_id
+        WHERE ticket_reply_archived_at IS NULL
+            AND (ticket_reply LIKE '%$query%' OR ticket_subject LIKE '%$query%' OR ticket_details LIKE '%$query%')
+        ORDER BY ticket_id DESC LIMIT 5"
+    );
+
     $q = nullable_htmlentities($_GET['query']);
     
     ?>
 
-    <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Search all things</h4>
-    <hr>
+    
     <div class="row">
+
+        <div class="col-sm-12">
+            <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
+            <hr>
+        </div>
 
         <?php if (mysqli_num_rows($sql_clients) > 0) { ?>
 
@@ -617,11 +635,62 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
+        <?php if (mysqli_num_rows($sql_ticket_replies) > 0) { ?>
+
+            <!-- Ticket Replies -->
+
+            <div class="col-sm-6">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mt-1"><i class="fas fa-fw fa-reply mr-2"></i>Ticket Replies</h6>
+                    </div>
+                    <div class="card-body">
+
+                    <?php
+
+                    while ($row = mysqli_fetch_array($sql_ticket_replies)) {
+                        $ticket_id = intval($row['ticket_id']);
+                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_number = intval($row['ticket_number']);
+                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_reply = $purifier->purify($row['ticket_reply']);
+                        $client_id = intval($row['ticket_client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
+
+                        ?>
+                        <div class="card card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <?php echo "$ticket_prefix$ticket_number"; ?> - <?php echo $ticket_subject; ?>
+                                </h3>
+                                <div class="card-tools">
+                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
+                                </div>
+                            </div>
+                            <div class="card-body prettyContent">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <?php echo $ticket_reply; ?>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+
+                    <?php } ?>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        <?php } ?>
+
     </div>
 
-
-<?php } ?>
-
 <?php
-require_once "footer.php";
 
+}
+
+require_once "footer.php";
