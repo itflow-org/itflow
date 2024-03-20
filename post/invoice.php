@@ -8,13 +8,14 @@ if (isset($_POST['add_invoice'])) {
 
     require_once 'post/invoice_model.php';
 
-    $parameters['client_id'] = intval($_POST['client']);
-    $parameters['due'] = sanitizeInput($_POST['due']);
-    $parameters['date'] = sanitizeInput($_POST['date']);
-    $parameters['category'] = intval($_POST['category']);
+    $parameters['invoice_client_id'] = intval($_POST['client']);
+    $parameters['invoice_date'] = sanitizeInput($_POST['date']);
+    $parameters['invoice_category'] = intval($_POST['category']);
+    $parameters['invoice_scope'] = sanitizeInput($_POST['scope']);
 
-    createInvoice($parameters);
-    referWithAlert("Invoice added", "success");
+    $return_data = createInvoice($parameters);
+    $invoice_id = $return_data['invoice']['invoice_id'];
+    referWithAlert("Invoice added", "success", "invoice.php?invoice_id=$invoice_id");
 }
 
 if (isset($_POST['edit_invoice'])) {
@@ -33,8 +34,9 @@ if (isset($_POST['add_invoice_copy'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $date = sanitizeInput($_POST['date']);
 
-    copyInvoice($invoice_id, $date);
-    referWithAlert("Invoice copied", "success");
+    $return_data = copyInvoice($invoice_id, $date);
+    $invoice_id = $return_data['invoice']['invoice_id'];
+    referWithAlert("Invoice copied", "success", "invoice.php?invoice_id=$invoice_id");
 }
 
 if (isset($_POST['add_invoice_recurring'])) {
@@ -43,7 +45,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     $recurring_frequency = sanitizeInput($_POST['frequency']);
 
     createInvoiceFromRecurring($invoice_id, $recurring_frequency);
-    referWithAlert("Recurring Invoice added from this invoice", "success", "recurring_invoice.php?recurring_id=$recurring_id");
+    referWithAlert("Recurring Invoice added from invoice", "success", "recurring_invoice.php?recurring_id=$recurring_id");
 
 }
 
@@ -167,12 +169,12 @@ if (isset($_POST['add_invoice_item'])) {
     $item_order = intval($_POST['item_order']);
 
     $item = [];
-    $item['invoice_id'] = $invoice_id;
-    $item['name'] = $name;
-    $item['description'] = $description;
-    $item['qty'] = $qty;
-    $item['price'] = $price;
-    $item['tax_id'] = $tax_id;
+    $item['item_invoice_id'] = $invoice_id;
+    $item['item_name'] = $name;
+    $item['item_description'] = $description;
+    $item['item_qty'] = $qty;
+    $item['item_price'] = $price;
+    $item['item_tax_id'] = $tax_id;
     $item['item_order'] = $item_order;
 
     createInvoiceItem("invoice", $item);

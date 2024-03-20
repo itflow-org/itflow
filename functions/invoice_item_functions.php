@@ -10,13 +10,13 @@ function createInvoiceItem(
     // Access global variables
     global $mysqli;
 
-    $name = $item['name'];
-    $description = $item['description'];
-    $qty = $item['qty'];
-    $price = $item['price'];
-    $tax_id = $item['tax_id'];
-    $item_order = $item['order'];
-    $invoice_id = $item['invoice_id'];
+    $name = $item['item_name'];
+    $description = $item['item_description'];
+    $qty = $item['item_qty'];
+    $price = $item['item_price'];
+    $tax_id = $item['item_tax_id'];
+    $item_order = $item['item_order'];
+    $invoice_id = $item['item_invoice_id'];
     $subtotal = $price * $qty;
 
 

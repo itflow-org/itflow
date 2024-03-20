@@ -311,6 +311,11 @@ function copyInvoice(
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'Copied Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    return $return_data = [
+        'status' => 'success',
+        'message' => "Invoice $invoice_number has been copied",
+        'invoice' => readInvoice(['invoice_id' => $new_invoice_id])
+    ];
 }
 
 function updateInvoiceStatus(
