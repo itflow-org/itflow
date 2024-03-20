@@ -129,11 +129,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                         <div class="media-body">
-                                            <p>
-                                                <?php echo "$software_name <span>$software_version</span>"; ?>
-                                                <br>
-                                                <small class="text-secondary"><?php echo $software_description; ?></small>
-                                            </p>
+                                            <div><?php echo "$software_name <span>$software_version</span>"; ?></div>
+                                            <div><small class="text-secondary"><?php echo $software_description; ?></small></div>
                                         </div>
                                     </div>
                                 </a>

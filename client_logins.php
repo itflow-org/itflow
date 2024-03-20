@@ -121,11 +121,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                         <div class="media-body">
-                                            <p>
-                                                <?php echo $login_name; ?>
-                                                <br>
-                                                <small class="text-secondary"><?php echo $login_description; ?></small>
-                                            </p>
+                                            <div><?php echo $login_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $login_description; ?></small></div>
                                         </div>
                                     </div>
                                 </a>

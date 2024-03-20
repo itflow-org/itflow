@@ -283,15 +283,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" class="text-secondary">
+                                    <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" class="text-dark">
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-<?php echo $device_icon; ?> mr-3 mt-1"></i>
                                             <div class="media-body">
-                                                <p>
-                                                    <strong><?php echo $asset_name; ?></strong>
-                                                    <br>
-                                                    <small><?php echo $asset_description; ?></small>
-                                                </p>
+                                                <div><?php echo $asset_name; ?></div>
+                                                <div><small class="text-secondary"><?php echo $asset_description; ?></small></div>
                                             </div>
                                         </div>
                                     </a>

@@ -113,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $location_contact_id = intval($row['location_contact_id']);
                     $location_primary = intval($row['location_primary']);
                     if ( $location_primary == 1 ) {
-                        $location_primary_display = "<small class='text-success ml-1'><i class='fa fa-fw fa-check'></i> Primary</small>";
+                        $location_primary_display = "<small class='text-success'><i class='fa fa-fw fa-check'></i> Primary</small>";
                     } else {
                         $location_primary_display = "";
                     }
@@ -123,14 +123,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
                                 <div class="media">
-                                    <i class="fa fa-fw fa-2x fa-map-marker-alt text-secondary mr-3 mt-1"></i>
+                                    <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
                                     <div class="media-body">
-                                        <p>
-                                            <strong><?php echo $location_name; ?></strong><?php echo $location_primary_display; ?>
-                                            <br>
-                                            <small class="text-secondary"><?php echo $location_description; ?></small>
-                                            
-                                        </p>
+                                        <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
+                                        <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
+                                        <div><?php echo $location_primary_display; ?></div>
                                     </div>
                                 </div>
                             </a>
