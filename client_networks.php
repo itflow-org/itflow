@@ -16,7 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON location_id = network_location_id
     WHERE network_client_id = $client_id
     AND network_archived_at IS NULL
-    AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
