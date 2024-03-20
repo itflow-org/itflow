@@ -87,7 +87,7 @@ if (isset($_GET['client_id'])) {
         $client_tags_display = implode('', $client_tag_name_display_array);
 
         // Get Balance
-        $balance = getClientBalance($client_id);
+        $balance = getClientBalance($client_id, $credits = true);
 
         // Get Amount Paid
         $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");

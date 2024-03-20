@@ -198,7 +198,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $client_tags_display = implode('', $client_tag_name_display_array);
 
+                        //Get Client Balance and Amount Paid
+                        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+                        $row = mysqli_fetch_array($sql_amount_paid);
 
+                        $amount_paid = floatval($row['amount_paid']);
 
                         $balance = getClientBalance( $client_id);
                         //set Text color on balance

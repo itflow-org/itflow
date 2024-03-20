@@ -60,6 +60,9 @@ $real_overdue_amount = $total_overdue_amount - $total_overdue_partial_amount;
 $total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount;
 $unpaid_count = $sent_count + $viewed_count + $partial_count;
 
+$overdue_query = "";
+$status_query = "";
+
 //Invoice status from GET
 if (isset($_GET['status']) && ($_GET['status']) == 'Draft') {
     $status_query = "invoice_status = 'Draft'";
