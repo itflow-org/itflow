@@ -12,10 +12,9 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM software 
-    LEFT JOIN logins ON login_software_id = software_id
+    "SELECT SQL_CALC_FOUND_ROWS * FROM software
     WHERE software_template = 1 
-    AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%') 
+    AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -25,7 +24,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-rocket mr-2"></i>License Templates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-cube mr-2"></i>License Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSoftwareTemplateModal"><i class="fas fa-plus mr-2"></i>New License Template</button>
         </div>
@@ -36,7 +35,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Licenses">
+                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search License Templates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -56,7 +55,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">Template</a></th>
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">Type</a></th>
                     <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">License Type</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Seats</a></th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -67,20 +65,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $software_id = intval($row['software_id']);
                     $software_name = nullable_htmlentities($row['software_name']);
                     $software_version = nullable_htmlentities($row['software_version']);
+                    $software_description = nullable_htmlentities($row['software_description']);
                     $software_type = nullable_htmlentities($row['software_type']);
                     $software_license_type = nullable_htmlentities($row['software_license_type']);
-                    $software_key = nullable_htmlentities($row['software_key']);
-                    $software_seats = nullable_htmlentities($row['software_seats']);
-                    $software_purchase = nullable_htmlentities($row['software_purchase']);
-                    $software_expire = nullable_htmlentities($row['software_expire']);
                     $software_notes = nullable_htmlentities($row['software_notes']);
 
                     ?>
                     <tr>
-                        <td><a class="text-dark text-bold" href="#" data-toggle="modal" data-target="#editSoftwareTemplateModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
+                        <td>
+                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareTemplateModal<?php echo $software_id; ?>">
+                                <div class="media">
+                                    <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
+                                    <div class="media-body">
+                                        <p>
+                                            <?php echo "$software_name <span>$software_version</span>"; ?>
+                                            <br>
+                                            <small class="text-secondary"><?php echo $software_description; ?></small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </td>
                         <td><?php echo $software_type; ?></td>
                         <td><?php echo $software_license_type; ?></td>
-                        <td><?php echo $software_seats; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
