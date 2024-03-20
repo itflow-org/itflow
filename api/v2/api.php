@@ -147,10 +147,12 @@ catch (Exception $e) {
     exit;
 }
 
-// Return the result as a JSON object
+// Return the result as formatted JSON objects
 if ($function_result) {
     if (is_array($function_result)) {
-        echo json_encode($function_result);
+        foreach ($function_result as $key => $value) {
+            echo json_encode($value);
+        }
     } else {
         echo json_encode(['error' => 'Invalid function result. This is probably a bug. Please report this to the developer. ERR: ' . json_encode($function_result) . ' is not an array.']);
     }

@@ -9,7 +9,7 @@ function createAsset(
     $client_id = $parameters['client_id'];
     $name = $parameters['asset_name'];
     $description = $parameters['asset_description']??'';
-    $type = $parameters['asset_type'];
+    $type = $parameters['asset_type']??'Other';
     $make = $parameters['asset_make']??'';
     $model = $parameters['asset_model']??'';
     $serial = $parameters['asset_serial']??'';
@@ -19,15 +19,16 @@ function createAsset(
     $mac = $parameters['asset_mac']??'';
     $uri = $parameters['asset_uri']??'';
     $uri_2 = $parameters['asset_uri_2']??'';
-    $status = $parameters['asset_status']??'';
-    $location = $parameters['asset_location']??'NULL';
-    $vendor = $parameters['asset_vendor']??'NULL';
-    $contact = $parameters['asset_contact']??'NULL';
-    $network = $parameters['asset_network']??'NULL';
+    $status = $parameters['asset_status']??'Ready To Deploy';
+    $location = $parameters['asset_location']??'0';
+    $vendor = $parameters['asset_vendor']??'0';
+    $contact = $parameters['asset_contact']??'0';
+    $network = $parameters['asset_network']??'0';
     $purchase_date = $parameters['asset_purchase_date']??'NULL';
     $warranty_expire = $parameters['asset_warranty_expire']??'NULL';
     $install_date = $parameters['asset_install_date']??'NULL';
     $notes = $parameters['asset_notes']??'';
+    $rmm_id = $parameters['asset_rmm_id']??0;
 
 
     $return_message = "";
@@ -37,12 +38,61 @@ function createAsset(
     if (empty($client_id)) {
         $return_message .= "Client ID is required. ";
     }
-    if (empty($type)) {
-        $return_message .= "Asset Type is required. ";
-    }elseif (!in_array($type, ['Server', 'Desktop', 'Laptop', 'Tablet', 'Phone', 'Printer', 'Switch', 'Router', 'Firewall', 'Access Point', 'Other'])) {
-        $return_message .= "Invalid Asset Type. ";
+
+    //if $type starts with WINDOWS_, LINUX_, or MAC_, remove the prefix, and set $os to the prefix
+    if (substr($type, 0, 8) == "WINDOWS_") {
+        $os = "Windows";
+        $type = ucfirst(strtolower(substr($type, 8)));
+    } elseif (substr($type, 0, 6) == "LINUX_") {
+        $os = "Linux";
+        $type = ucfirst(strtolower(substr($type, 6)));
+    } elseif (substr($type, 0, 3) == "MAC") {
+        $os = "Mac";
+        $type = ucfirst(strtolower(substr($type, 5)));
+    }
+    echo $type;
+
+    if ($type == "Workstation") {
+        $type = "Desktop";
     }
 
+    if (!in_array($type, ['Server', 'Desktop', 'Laptop', 'Tablet', 'Phone', 'Printer', 'Switch', 'Router', 'Firewall', 'Access Point', 'Other'])) {
+        switch ($type):
+            case 1:
+                $type = "Server";
+                break;
+            case 2:
+                $type = "Desktop";
+                break;
+            case 3:
+                $type = "Laptop";
+                break;
+            case 4:
+                $type = "Tablet";
+                break;
+            case 5:
+                $type = "Phone";
+                break;
+            case 6:
+                $type = "Printer";
+                break;
+            case 7:
+                $type = "Switch";
+                break;
+            case 8:
+                $type = "Router";
+                break;
+            case 9:
+                $type = "Firewall";
+                break;
+            case 10:
+                $type = "Access Point";
+                break;
+            default:
+                $type = "Other";
+                break;
+        endswitch;
+    }
 
     global $mysqli, $session_ip, $session_user_agent, $session_user_id, $session_name;
 
@@ -56,7 +106,7 @@ function createAsset(
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, asset_rmm_id = $rmm_id, asset_created_at = NOW()");
 
     $asset_id = mysqli_insert_id($mysqli);
 
@@ -87,14 +137,19 @@ function createAsset(
 function readAsset(
     $parameters
 ) {
-    $asset_id = sanitizeInput($parameters['asset_id']);
-
     global $mysqli;
 
-    // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
-    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
-    // Get the where clause for the query
-    $where_clause = getAPIWhereClause("asset", $asset_id, $api_client_id);
+    if (!empty($parameters['asset_id'])) {
+        $asset_id = sanitizeInput($parameters['asset_id']);
+        $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+        $where_clause = getAPIWhereClause("asset", $asset_id, $api_client_id);
+    } elseif (!empty($parameters['asset_rmm_id'])) {
+        $asset_rmm_id = $parameters['asset_rmm_id'];
+        $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+        $where_clause = getAPIWhereClause("asset_rmm", $asset_rmm_id, $api_client_id);
+    } else {
+        return ['status' => 'error', 'message' => 'No asset ID or RMM ID provided'];
+    }
 
     $query = "SELECT * FROM assets $where_clause";
     $result = mysqli_query($mysqli, $query);

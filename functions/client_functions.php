@@ -138,14 +138,20 @@ function createClient(
 function readClient(
     $parameters
 ) {
-    $client_id = sanitizeInput($parameters['client_id']);
 
     global $mysqli;
 
-    // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
-    $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
-    // Get the where clause for the query
-    $where_clause = getAPIWhereClause("client", $client_id, $api_client_id);
+    if (!empty($parameters['client_id'])) {
+        $client_id = sanitizeInput($parameters['client_id']);
+        $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+        $where_clause = getAPIWhereClause("client", $client_id, $api_client_id);
+    } elseif (!empty($parameters['client_rmm_id'])) {
+        $client_rmm_id = $parameters['client_rmm_id'];
+        $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+        $where_clause = getAPIWhereClause("client_rmm", $client_rmm_id, $api_client_id);
+    } else {
+        return ['status' => 'error', 'message' => 'No client ID or RMM ID provided'];
+    }
 
     $query = "SELECT * FROM clients $where_clause";
     $result = mysqli_query($mysqli, $query);
@@ -156,7 +162,12 @@ function readClient(
         $clients[$row['client_id']] = $row;
     }
 
-    return $clients;
+    if (empty($clients)) {
+        echo json_encode(['status' => 'error', 'message' => 'No client found']);
+        exit;
+    } else {
+        return $clients;
+    }
 }
 
 function updateClient(
