@@ -9,7 +9,7 @@ if (isset($_POST['move_inventory'])) {
 
     validateTechRole();
     
-    require_once("inventory_model.php");
+    require_once "inventory_model.php";
 
     // Move Inventory
 
@@ -29,7 +29,7 @@ if (isset($_POST['add_inventory_locations'])) {
 
     validateAdminRole();
 
-    require_once("inventory_model.php");
+    require_once "inventory_model.php";
 
     // Add Inventory Location
     $sql = mysqli_query(
@@ -48,7 +48,7 @@ if (isset($_POST['edit_inventory_locations'])) {
 
     validateAdminRole();
 
-    require_once("inventory_model.php");
+    require_once "inventory_model.php";
 
     // Edit Inventory Location
     $sql = mysqli_query(

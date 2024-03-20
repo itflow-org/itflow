@@ -198,3 +198,4 @@ $credits_num_rows = mysqli_num_rows($sql_credits);
 
 <?php require_once "footer.php";
  ?>
+ 
