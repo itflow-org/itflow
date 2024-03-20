@@ -9,24 +9,23 @@ require_once "inc_all_client.php";
 
 if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
     $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
+    $ticket_status_snippet = "AND ticket_status != 'Closed'";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
+    $ticket_status_snippet = "AND ticket_status = 'Closed'";
 } else {
     $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
+    $ticket_status_snippet = "AND ticket_status != 'Closed'";
 }
 
-if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
+if (($_GET['billable']) == '1') {
     if (isset($_GET['unbilled'])) {
         $billable = 1;
-        $ticket_billable_snippet = "ticket_billable = 1 AND ticket_invoice_id = 0";
-        $ticket_status_snippet = '1 = 1';
+        $ticket_billable_snippet = "AND ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = 'AND (ticket_status = "Closed" OR ticket_status = "Auto-Close")';
     }
 } else {
     $billable = 0;
-    $ticket_billable_snippet = '1 = 1';
 }
 
 //Rebuild URL
@@ -41,8 +40,8 @@ $sql = mysqli_query(
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
     WHERE ticket_client_id = $client_id
-    AND $ticket_status_snippet
-    AND $ticket_billable_snippet
+    $ticket_status_snippet
+    $ticket_billable_snippet
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
