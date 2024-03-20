@@ -183,6 +183,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
         $client_row = mysqli_fetch_array($client_sql);
         $client_name = sanitizeInput($client_row['client_name']);
+        $details = sanitizeInput($message);
 
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
@@ -359,7 +360,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         // App Notification
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $ticket_prefix$ticket_number - Subject: $subject - has been updated via email', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Ticket $config_ticket_prefix$ticket_number - Subject: $subject - has been updated via email', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $ticket_assigned_to");
 
         echo "Updated existing ticket.<br>";
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email updated ticket $config_ticket_prefix$ticket_number ($subject)', log_client_id = $client_id");

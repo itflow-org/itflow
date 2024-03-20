@@ -175,12 +175,19 @@
                                         <option value="">- Asset -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $asset_id = intval($row['asset_id']);
                                             $asset_name = nullable_htmlentities($row['asset_name']);
+                                            $asset_location = nullable_htmlentities($row['location_name']);
+
+                                            $asset_display_string = $asset_name;
+                                            if (!empty($asset_location)) {
+                                                $asset_display_string = "$asset_name ($asset_location)";
+                                            }
+
                                             ?>
-                                            <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
+                                            <option value="<?php echo $asset_id; ?>"><?php echo $asset_display_string; ?></option>
 
                                             <?php
                                         }

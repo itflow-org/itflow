@@ -15,13 +15,16 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-address<?php echo $location_id; ?>">Address</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $location_id; ?>">Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-address<?php echo $location_id; ?>">Address</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-contact<?php echo $location_id; ?>">Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $location_id; ?>">Photo</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $location_id; ?>">Notes</a>
                         </li>
                     </ul>
 
@@ -29,7 +32,47 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-address<?php echo $location_id; ?>">
+                        <div class="tab-pane fade show active" id="pills-details<?php echo $location_id; ?>">
+
+                            <div class="form-group">
+                                <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of location" value="<?php echo $location_name; ?>" required>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?php echo $location_description; ?>">
+                                </div>
+                            </div>
+
+                            <div class="mb-3" style="text-align: center;">
+                                <?php if (!empty($location_photo)) { ?>
+                                    <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$location_photo"; ?>">
+                                <?php } ?>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Photo</label>
+                                <input type="file" class="form-control-file" name="file">
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-address<?php echo $location_id; ?>">
 
                             <div class="form-group">
                                 <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
@@ -160,16 +203,10 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-photo<?php echo $location_id; ?>">
-
-                            <div class="mb-3" style="text-align: center;">
-                                <?php if (!empty($location_photo)) { ?>
-                                    <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$location_photo"; ?>">
-                                <?php } ?>
-                            </div>
+                        <div class="tab-pane fade" id="pills-notes<?php echo $location_id; ?>">
 
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="file">
+                                <textarea class="form-control" rows="12" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"><?php echo $location_notes; ?></textarea>
                             </div>
 
                         </div>

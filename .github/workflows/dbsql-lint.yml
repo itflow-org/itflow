@@ -1,0 +1,37 @@
+name: SQL Syntax Check for db.sql
+
+on:
+  pull_request:
+    paths:
+      - 'db.sql'
+
+jobs:
+  syntax_check:
+    name: Check db.sql SQL Syntax
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+        - "3306:3306"
+        env:
+          MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+          MARIADB_USER: user
+          MARIADB_PASSWORD: password
+          MARIADB_DATABASE: itfsyntaxdb
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Import & Lint db.sql
+        run: mysql --host 127.0.0.1 -uuser -ppassword itfsyntaxdb < db.sql
+
+      - name: Show imported tables
+        run: mysql --host 127.0.0.1 -uuser -ppassword itfsyntaxdb -e "show tables;"

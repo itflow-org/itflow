@@ -207,6 +207,10 @@ if (isset($_GET['disable_user'])) {
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
+    // Un-assign tickets
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_assigned_to = 0 WHERE scheduled_ticket_assigned_to = $user_id");
+
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
 

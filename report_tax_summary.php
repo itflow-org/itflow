@@ -7,7 +7,7 @@ validateAccountantRole();
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $view = isset($_GET['view']) ? $_GET['view'] : 'quarterly';
-$company_currency = getSettingValue($mysqli, 'company_currency');
+$company_currency = getSettingValue('company_currency');
 
 
 //GET unique years from expenses, payments and revenues
