@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="text-center">
                                 <div class="btn-group">
                                     <?php if ($login_uri) { ?>
-                                    <a href='$login_uri' target='_blank' class="btn btn-default btn-sm"><i class='fa fa-fw fa-external-link-alt'></i></a>
+                                    <a href="<?php echo $login_uri; ?>" target="_blank" class="btn btn-default btn-sm"><i class="fa fa-fw fa-external-link-alt"></i></a>
                                     <?php } ?>
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
