@@ -694,9 +694,9 @@ if (isset($_POST['add_payment'])) {
 
                 // Email Logging
 
-                $_SESSION['alert_message'] = "Email receipt sent ";
+                $_SESSION['alert_message'] = "Email queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
 
-                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
+                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Queued', history_invoice_id = $invoice_id");
 
             }
 
@@ -726,7 +726,7 @@ if (isset($_POST['add_payment'])) {
 
                 // Email Logging
 
-                $_SESSION['alert_message'] .= "Email receipt sent ";
+                $_SESSION['alert_message'] = "Test email queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
 
                 mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
 
@@ -877,7 +877,7 @@ if (isset($_POST['add_bulk_payment'])) {
         // Email Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Email', log_description = 'Bulk Payment receipt for multiple Invoices queued to $contact_email Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
 
-        $_SESSION['alert_message'] .= "Email receipt sent and ";
+        $_SESSION['alert_message'] .= "Email receipt queued and ";
 
     } // End Email
 
@@ -1013,7 +1013,7 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Invoice has been sent";
+    $_SESSION['alert_message'] = "Invoice sent to mail queue! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
 
     // Don't change the status to sent if the status is anything but draft
