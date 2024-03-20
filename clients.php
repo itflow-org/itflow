@@ -198,18 +198,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $client_tags_display = implode('', $client_tag_name_display_array);
 
-                        //Add up all the payments for the invoice and get the total amount paid to the invoice
-                        $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
-                        $row = mysqli_fetch_array($sql_invoice_amounts);
 
-                        $invoice_amounts = floatval($row['invoice_amounts']);
 
-                        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
-                        $row = mysqli_fetch_array($sql_amount_paid);
-
-                        $amount_paid = floatval($row['amount_paid']);
-
-                        $balance = $invoice_amounts - $amount_paid;
+                        $balance = getClientBalance( $client_id);
                         //set Text color on balance
                         if ($balance > 0) {
                             $balance_text_color = "text-danger font-weight-bold";

@@ -46,7 +46,7 @@ function getTotalTax($tax_name, $year, $mysqli)
 }
 
 //Get account currency code
-function getAccountCurrencyCode($mysqli, $account_id)
+function getAccountCurrencyCode($account_id)
 {
     $sql = mysqli_query($mysqli, "SELECT account_currency_code FROM accounts WHERE account_id = $account_id");
     $row = mysqli_fetch_array($sql);
@@ -54,8 +54,9 @@ function getAccountCurrencyCode($mysqli, $account_id)
     return $account_currency_code;
 }
 
-function calculateAccountBalance($mysqli, $account_id)
+function calculateAccountBalance($account_id)
 {
+
     $sql_account = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON accounts.account_type = account_types.account_type_id WHERE account_archived_at  IS NULL AND account_id = $account_id ORDER BY account_name ASC; ");
     $row = mysqli_fetch_array($sql_account);
     $opening_balance = floatval($row['opening_balance']);
@@ -73,16 +74,27 @@ function calculateAccountBalance($mysqli, $account_id)
     $row = mysqli_fetch_array($sql_expenses);
     $total_expenses = floatval($row['total_expenses']);
 
+    $sql_invoices = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_invoices FROM invoices WHERE invoice_account_id = $account_id");
+    $row = mysqli_fetch_array($sql_invoice_amounts);
+    $total_invoices = floatval($row['total_invoices']);
+
     $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
     if ($balance == '') {
         $balance = '0.00';
     }
 
+    if ($balance < 0) {
+        $balance = 0;
+    }
+
     return $balance;
 }
-function calculateInvoiceBalance($mysqli, $invoice_id)
+
+function calculateInvoiceBalance($invoice_id)
 {
+    global $mysqli;
+
     $invoice_id_int = intval($invoice_id);
     $sql_invoice = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id_int");
     $row = mysqli_fetch_array($sql_invoice);
@@ -107,7 +119,10 @@ function calculateInvoiceBalance($mysqli, $invoice_id)
     return $balance;
 }
 
-function getClientBalance($mysqli, $client_id, $credits = false) {
+function getClientBalance($client_id, $credits = false) {
+
+    global $mysqli;
+
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
     $row = mysqli_fetch_array($sql_invoice_amounts);
@@ -124,8 +139,18 @@ function getClientBalance($mysqli, $client_id, $credits = false) {
         $row = mysqli_fetch_array($sql_credits);
         $credit_amounts = floatval($row['credit_amounts']);
 
-        return $invoice_amounts - ($amount_paid + $credit_amounts);
+        $balance = $invoice_amounts - ($amount_paid + $credit_amounts);
+
+        if ($balance < 0) {
+            $balance = 0;
+        }
+        return $balance;
     } else {
-        return $invoice_amounts - $amount_paid;
+        $balance = $invoice_amounts - $amount_paid;
+
+        if ($balance < 0) {
+            $balance = 0;
+        }
+        return $balance;
     }
 }

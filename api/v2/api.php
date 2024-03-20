@@ -36,9 +36,9 @@
         
 */
 
-require '/var/www/develop.twe.tech/config.php';
-require '/var/www/develop.twe.tech/functions.php';
-require '/var/www/develop.twe.tech/api/v2/objects.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/api/v2/objects.php';
 
 // Check the request method and get the object, parameters, and action from the request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

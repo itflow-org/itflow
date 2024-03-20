@@ -20,7 +20,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $account_id = $row['account_id'];
 
     // Fetch and calculate balances
-    $balance = calculateAccountBalance($mysqli, $account_id);
+    $balance = calculateAccountBalance($account_id);
 
     // Categorize account based on type
     if ($row['account_type_parent'] == 1) {
@@ -44,7 +44,7 @@ function display_account_section($mysqli, $accounts, $type) {
     foreach ($accounts[$type] as $account) {
         global $currency_format;
         global $currency_code;
-        $currency_code = getAccountCurrencyCode($mysqli, $account['id']);
+        $currency_code = getAccountCurrencyCode($account['id']);
         echo "<tr>";
         echo "<td>{$account['type']}</td>";
         echo "<td>{$account['name']}</td>";

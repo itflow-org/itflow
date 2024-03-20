@@ -3,11 +3,11 @@
 // Email related functions
 
 // PHP Mailer Libs
-require_once "/var/www/develop.twe.tech/plugins/PHPMailer/src/Exception.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/plugins/PHPMailer/src/Exception.php';
 
-require_once "/var/www/develop.twe.tech/plugins/PHPMailer/src/PHPMailer.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/plugins/PHPMailer/src/PHPMailer.php';
 
-require_once "/var/www/develop.twe.tech/plugins/PHPMailer/src/SMTP.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/plugins/PHPMailer/src/SMTP.php';
 
 // Initiate PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;

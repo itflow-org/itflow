@@ -16,7 +16,7 @@ function applyCredit(
     $credit_amount = floatval($credit_row['credit_amount']);
     $credit_currency_code = sanitizeInput($credit_row['credit_currency_code']);
 
-    $client_balance = getClientBalance($mysqli, $client_id);
+    $client_balance = getClientBalance( $client_id);
 
     if ($client_balance < $credit_amount) {
         //create a new credit for the remaining amount

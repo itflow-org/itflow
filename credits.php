@@ -165,7 +165,7 @@ $num_rows = mysqli_num_rows($sql);
 
                         $credit_display_amount = numfmt_format_currency($currency_format, $credit_amount, $credit_currency_code);
 
-                        $client_balance = getClientBalance($mysqli, $credit_client_id);
+                        $client_balance = getClientBalance( $credit_client_id);
                         ?>
 
                         <tr>

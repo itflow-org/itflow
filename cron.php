@@ -485,7 +485,7 @@ if ($config_send_invoice_reminders == 1) {
             $client_name = sanitizeInput($row['client_name']);
             $contact_name = sanitizeInput($row['contact_name']);
             $contact_email = sanitizeInput($row['contact_email']);
-            $invoice_balance = calculateInvoiceBalance($mysqli, $invoice_id);
+            $invoice_balance = calculateInvoiceBalance( $invoice_id);
 
             // Late Charges
 

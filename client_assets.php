@@ -222,7 +222,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $asset_os_display = $asset_os;
                             }
-                            $asset_ip = nullable_htmlentities($row['asset_ip']);
+                            $asset_ip = $row['asset_ip'];
+                            if(is_array($asset_ip)){
+                                $asset_ip = implode(", ", $asset_ip);
+                            }
                             if (empty($asset_ip)) {
                                 $asset_ip_display = "DHCP";
                             } else {

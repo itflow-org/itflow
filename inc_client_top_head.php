@@ -115,7 +115,7 @@
                         <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $amount_paid, $client_currency_code); ?></span>
                     </div>
                     <div class="ml-1 mt-1 text-secondary">Balance
-                        <span class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></span>
+                        <span class="<?php if ($balance > 0 || $balance < 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></span>
                     </div>
                     <div class="ml-1 mt-1 text-secondary">Monthly Recurring
                         <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></span>

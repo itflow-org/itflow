@@ -6,31 +6,32 @@
 function createAsset(
     $parameters
 ) {
-    $client_id = $parameters['client_id'];
-    $name = $parameters['asset_name'];
-    $description = $parameters['asset_description']??'';
-    $type = $parameters['asset_type']??'Other';
-    $make = $parameters['asset_make']??'';
-    $model = $parameters['asset_model']??'';
-    $serial = $parameters['asset_serial']??'';
-    $os = $parameters['asset_os']??'';
-    $ip = $parameters['asset_ip']??'';
-    $nat_ip = $parameters['asset_nat_ip']??'';
-    $mac = $parameters['asset_mac']??'';
-    $uri = $parameters['asset_uri']??'';
-    $uri_2 = $parameters['asset_uri_2']??'';
-    $status = $parameters['asset_status']??'Ready To Deploy';
-    $location = $parameters['asset_location']??'0';
-    $vendor = $parameters['asset_vendor']??'0';
-    $contact = $parameters['asset_contact']??'0';
-    $network = $parameters['asset_network']??'0';
-    $purchase_date = $parameters['asset_purchase_date']??'NULL';
-    $warranty_expire = $parameters['asset_warranty_expire']??'NULL';
-    $install_date = $parameters['asset_install_date']??'NULL';
-    $notes = $parameters['asset_notes']??'';
-    $rmm_id = $parameters['asset_rmm_id']??0;
+    // Set parameters to the new values or the old values if not set, and sanitize
+    $client_id = intval($parameters['client_id']);
+    $name = sanitizeInput($parameters['asset_name']);
+    $description = isset($parameters['asset_description']) ? sanitizeInput($parameters['asset_description']) : '';
+    $type = isset($parameters['asset_type']) ? sanitizeInput($parameters['asset_type']) : 'Other';
+    $make = isset($parameters['asset_make']) ? sanitizeInput($parameters['asset_make']) : '';
+    $model = isset($parameters['asset_model']) ? sanitizeInput($parameters['asset_model']) : '';
+    $serial = isset($parameters['asset_serial']) ? sanitizeInput($parameters['asset_serial']) : '';
+    $os = isset($parameters['asset_os']) ? sanitizeInput($parameters['asset_os']) : '';
+    $ip = isset($parameters['asset_ip']) ? sanitizeInput($parameters['asset_ip']) : '';
+    $nat_ip = isset($parameters['asset_nat_ip']) ? sanitizeInput($parameters['asset_nat_ip']) : '';
+    $mac = isset($parameters['asset_mac']) ? sanitizeInput($parameters['asset_mac']) : '';
+    $uri = isset($parameters['asset_uri']) ? sanitizeInput($parameters['asset_uri']) : '';
+    $uri_2 = isset($parameters['asset_uri_2']) ? sanitizeInput($parameters['asset_uri_2']) : '';
+    $status = isset($parameters['asset_status']) ? sanitizeInput($parameters['asset_status']) : 'Ready To Deploy';
+    $location = isset($parameters['asset_location']) ? intval($parameters['asset_location']) : 0;
+    $vendor = isset($parameters['asset_vendor']) ? intval($parameters['asset_vendor']) : 0;
+    $contact = isset($parameters['asset_contact']) ? intval($parameters['asset_contact']) : 0;
+    $network = isset($parameters['asset_network']) ? intval($parameters['asset_network']) : 0;
+    $purchase_date = isset($parameters['asset_purchase_date']) ? date('Y-m-d', strtotime($parameters['asset_purchase_date'])) : 'NULL';
+    $warranty_expire = isset($parameters['asset_warranty_expire']) ? date($parameters['asset_warranty_expire']) : 'NULL';
+    $install_date = isset($parameters['asset_install_date']) ? date($parameters['asset_install_date']) : 'NULL';
+    $notes = isset($parameters['asset_notes']) ? sanitizeInput($parameters['asset_notes']) : '';
+    $rmm_id = isset($parameters['asset_rmm_id']) ? intval($parameters['asset_rmm_id']) : 0;
 
-
+    // Check for required fields
     $return_message = "";
     if (empty($name)) {
         $return_message .= "Asset Name is required. ";
@@ -38,60 +39,42 @@ function createAsset(
     if (empty($client_id)) {
         $return_message .= "Client ID is required. ";
     }
-
-    //if $type starts with WINDOWS_, LINUX_, or MAC_, remove the prefix, and set $os to the prefix
-    if (substr($type, 0, 8) == "WINDOWS_") {
-        $os = "Windows";
-        $type = ucfirst(strtolower(substr($type, 8)));
-    } elseif (substr($type, 0, 6) == "LINUX_") {
-        $os = "Linux";
-        $type = ucfirst(strtolower(substr($type, 6)));
-    } elseif (substr($type, 0, 3) == "MAC") {
-        $os = "Mac";
-        $type = ucfirst(strtolower(substr($type, 5)));
+    if (empty($type)) {
+        $return_message .= "Asset Type is required. ";
     }
-    echo $type;
 
+    // if $parameters['asset_ip'] is array and not empty, sanitize each value and implode with comma
+    if (is_array($parameters['asset_ip']) && !empty($parameters['asset_ip'])) {
+        $ip = implode(',', array_map('sanitizeInput', $parameters['asset_ip']));
+    }
+
+
+    //if $type starts with WINDOWS, LINUX, or MAC, remove the prefix plus a character, and set $os to the prefix (if not already set)
+    if (substr(strtoupper($type), 0, 7) == "WINDOWS") {
+        $os = $os??"Windows";
+        $type = ucfirst(strtolower(substr($type, 8)));
+    } elseif (substr(strtoupper($type), 0, 5) == "LINUX") {
+        $os = $os??"Linux";
+        $type = ucfirst(strtolower(substr($type, 6)));
+    } elseif (substr(strtoupper($type), 0, 3) == "MAC") {
+        $os = $os??"Mac";
+        $type = "Laptop";
+    }
+
+    //  If $type is "Workstation", set it to "Desktop"
     if ($type == "Workstation") {
         $type = "Desktop";
     }
 
+    // If $type is not in the list of valid types, set it to "Other"
+    // If $type is a number, set it to a corresponding type
     if (!in_array($type, ['Server', 'Desktop', 'Laptop', 'Tablet', 'Phone', 'Printer', 'Switch', 'Router', 'Firewall', 'Access Point', 'Other'])) {
-        switch ($type):
-            case 1:
-                $type = "Server";
-                break;
-            case 2:
-                $type = "Desktop";
-                break;
-            case 3:
-                $type = "Laptop";
-                break;
-            case 4:
-                $type = "Tablet";
-                break;
-            case 5:
-                $type = "Phone";
-                break;
-            case 6:
-                $type = "Printer";
-                break;
-            case 7:
-                $type = "Switch";
-                break;
-            case 8:
-                $type = "Router";
-                break;
-            case 9:
-                $type = "Firewall";
-                break;
-            case 10:
-                $type = "Access Point";
-                break;
-            default:
-                $type = "Other";
-                break;
-        endswitch;
+        $return_message .= "Invalid asset type. ";
+    }
+    
+    // If return_message is not empty, return an error
+    if ($return_message != "") {
+        return ['status' => 'error', 'message' => $return_message];
     }
 
     global $mysqli, $session_ip, $session_user_agent, $session_user_id, $session_name;
@@ -100,13 +83,18 @@ function createAsset(
         //Assume API is making changes
         $session_ip = $parameters['api_ip'];
         $session_user_agent = $parameters['api_key_name'];
-        $session_user_id = 0;
         $session_name = "API";
+        $session_user_id = 0;
     }
 
     $alert_extended = "";
+    $sql_query = "INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, asset_rmm_id = $rmm_id, asset_created_at = NOW()";
+    mysqli_query($mysqli,$sql_query);
+    $sql_error = mysqli_error($mysqli);
+    if ($sql_error) {
+        echo json_encode(['status' => 'error', 'message' => $sql_error, 'sql' => $sql_query]);
+    }
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id, asset_rmm_id = $rmm_id, asset_created_at = NOW()");
 
     $asset_id = mysqli_insert_id($mysqli);
 

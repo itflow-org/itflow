@@ -41,13 +41,13 @@ function createPayment(
     $payment_id = mysqli_insert_id($mysqli);
 
     if($payment_is_credit) {
-    //Create a credit for the overpayment
-    mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = $credit_amount, credit_currency_code = '$currency_code', credit_date = '$date', credit_reference = 'Overpayment: $reference', credit_client_id = (SELECT invoice_client_id FROM invoices WHERE invoice_id = $invoice_id), credit_payment_id = $payment_id, credit_account_id = $account");
-    // Get credit ID for reference
-    $credit_id = mysqli_insert_id($mysqli);
-    
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credit', log_action = 'Create', log_description = 'Credit for Overpayment', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        //Create a credit for the overpayment
+        mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = $credit_amount, credit_currency_code = '$currency_code', credit_date = '$date', credit_reference = 'Overpayment: $reference', credit_client_id = (SELECT invoice_client_id FROM invoices WHERE invoice_id = $invoice_id), credit_payment_id = $payment_id, credit_account_id = $account");
+        // Get credit ID for reference
+        $credit_id = mysqli_insert_id($mysqli);
+        
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credit', log_action = 'Create', log_description = 'Credit for Overpayment', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
     }
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
