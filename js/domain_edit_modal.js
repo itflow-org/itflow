@@ -17,6 +17,7 @@ function populateDomainEditModal(client_id, domain_id) {
             document.getElementById("editDomainHeader").innerText = domain.domain_name;
             document.getElementById("editDomainId").value = domain_id;
             document.getElementById("editDomainName").value = domain.domain_name;
+            document.getElementById("editDomainDescription").value = domain.domain_description;
             document.getElementById("editDomainExpire").value = domain.domain_expire;
             document.getElementById("editDomainNotes").value = domain.domain_notes;
             document.getElementById("editDomainIP").value = domain.domain_ip;

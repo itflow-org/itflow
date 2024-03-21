@@ -95,6 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($sql)) {
                             $domain_id = intval($row['domain_id']);
                             $domain_name = nullable_htmlentities($row['domain_name']);
+                            $domain_description = nullable_htmlentities($row['domain_description']);
                             $domain_registrar = intval($row['domain_registrar']);
                             $domain_webhost = intval($row['domain_webhost']);
                             $domain_expire = nullable_htmlentities($row['domain_expire']);
@@ -119,7 +120,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                     </div>
                                 </td>
-                                <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal"><?php echo $domain_name; ?></a></td>
+                                <td>
+                                    <a class="text-dark" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">
+                                        <div class="media">
+                                            <i class="fa fa-fw fa-2x fa-globe mr-3"></i>
+                                            <div class="media-body">
+                                                <div><?php echo $domain_name; ?></div>
+                                                <div><small class="text-secondary"><?php echo $domain_description; ?></small></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </td>
                                 <td><?php echo $domain_registrar_name; ?></td>
                                 <td><?php echo $domain_webhost_name; ?></td>
                                 <td><?php echo $domain_expire; ?></td>

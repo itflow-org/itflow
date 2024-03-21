@@ -10,6 +10,7 @@ if (isset($_POST['add_domain'])) {
 
     $client_id = intval($_POST['client_id']);
     $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
+    $description = sanitizeInput($_POST['description']);
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $extended_log_description = '';
@@ -38,7 +39,7 @@ if (isset($_POST['add_domain'])) {
     $whois = sanitizeInput($records['whois']);
 
     // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
 
     // Get inserted ID (for linking certificate, if exists)
     $domain_id = mysqli_insert_id($mysqli);
@@ -69,6 +70,7 @@ if (isset($_POST['edit_domain'])) {
 
     $domain_id = intval($_POST['domain_id']);
     $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
+    $description = sanitizeInput($_POST['description']);
     $registrar = intval($_POST['registrar']);
     $webhost = intval($_POST['webhost']);
     $expire = sanitizeInput($_POST['expire']);
@@ -102,7 +104,7 @@ if (isset($_POST['edit_domain'])) {
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
+    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
@@ -191,12 +193,12 @@ if (isset($_POST['export_client_domains_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Domain', 'Registrar', 'Web Host', 'Expiration Date');
+        $fields = array('Domain', 'Description', 'Registrar', 'Web Host', 'Expiration Date');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['domain_name'], $row['domain_registrar'], $row['domain_webhost'], $row['domain_expire']);
+            $lineData = array($row['domain_name'], $row['domain_description'], $row['domain_registrar'], $row['domain_webhost'], $row['domain_expire']);
             fputcsv($f, $lineData, $delimiter);
         }
 
