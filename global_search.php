@@ -718,3 +718,7 @@ if (isset($_GET['query'])) {
 }
 
 require_once "footer.php";
+
+?>
+
+<script src="js/pretty_content.js"></script>
