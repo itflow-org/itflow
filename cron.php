@@ -32,6 +32,7 @@ $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
 $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
+$config_timezone = sanitizeInput($row['config_timezone']);
 
 // Mail Settings
 $config_smtp_host = $row['config_smtp_host'];
@@ -66,6 +67,9 @@ $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 
 // Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
+
+// Set Timezone
+date_default_timezone_set($config_timezone);
 
 $argv = $_SERVER['argv'];
 
