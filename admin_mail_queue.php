@@ -6,14 +6,6 @@ $order = "DESC";
 
 require_once "inc_all_admin.php";
 
-
-//Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
-
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
-
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -104,7 +96,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $email_recipient = nullable_htmlentities($row['email_recipient']);
                         $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
                         $email_subject = nullable_htmlentities($row['email_subject']);
-                        $email_content = $purifier->purify($row['email_content']);
                         $email_attempts = intval($row['email_attempts']);
                         $email_queued_at = nullable_htmlentities($row['email_queued_at']);
                         $email_failed_at = nullable_htmlentities($row['email_failed_at']);
@@ -131,7 +122,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $email_status_display; ?></td>
                             <td><?php echo $email_attempts; ?></td>
                             <td>
-                                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#viewEmailModal<?php echo $email_id; ?>"><i class="fas fa-fw fa-eye"></i></button>
+                                <a class="btn btn-sm btn-secondary" href="admin_mail_queue_message_view.php?email_id=<?php echo $email_id; ?>">
+                                    <i class="fas fa-fw fa-eye"></i>
+                                </a>
 
                                 <!-- Show force resend if all retries have failed -->
                                 <?php if ($email_status == 2 && $email_attempts > 3) { ?>
@@ -145,22 +138,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             </td>
                         </tr>
-
-                        <div class="modal" id="viewEmailModal<?php echo $email_id; ?>" tabindex="-1">
-                            <div class="modal-dialog modal-xl ">
-                                <div class="modal-content bg-dark">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open mr-2"></i>ID: <?php echo "$email_id - $email_subject"; ?></h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal">
-                                            <span>&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body bg-white">
-                                        <?php echo $email_content; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <?php
                     }
