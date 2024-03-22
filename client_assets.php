@@ -51,6 +51,15 @@ if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
     $_GET['type'] = '';
 }
 
+// Location Filter
+if (isset($_GET['location']) & !empty($_GET['location'])) {
+    $location_query = 'AND (asset_location_id = ' . intval($_GET['location']) . ')';
+    $location = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -63,6 +72,7 @@ $sql = mysqli_query(
     AND asset_$archive_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
     AND ($type_query)
+    $location_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -106,7 +116,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <select class="form-control select2" name="location" onchange="this.form.submit()">
+                                <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Locations -</option>
+
+                                <?php
+                                $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                                while ($row = mysqli_fetch_array($sql_locations_filter)) {
+                                    $location_id = intval($row['location_id']);
+                                    $location_name = nullable_htmlentities($row['location_name']);
+                                ?>
+                                    <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
                         <div class="btn-toolbar float-right">
                             <div class="btn-group mr-5">
                                 <a href="?<?php echo $url_query_strings_sort; ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge badge-light ml-2"><?php echo $all_count; ?></span></a>
