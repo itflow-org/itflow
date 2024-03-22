@@ -19,7 +19,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                             </div>
-                            <select class="form-control select2" name="asset">
+                            <select class="form-control select2" name="ticket_asset_id">
                                 <option value="0">- None -</option>
                                 <?php
 

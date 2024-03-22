@@ -153,7 +153,9 @@ function readClient(
         return ['status' => 'error', 'message' => 'No client ID or RMM ID provided'];
     }
 
-    $query = "SELECT * FROM clients $where_clause";
+    $columns = isset($parameters['columns']) ? sanitizeInput($parameters['columns']) : '*';
+
+    $query = "SELECT $columns FROM clients $where_clause";
     $result = mysqli_query($mysqli, $query);
 
     $clients = [];

@@ -138,8 +138,10 @@ function readAsset(
     } else {
         return ['status' => 'error', 'message' => 'No asset ID or RMM ID provided'];
     }
+    
+    $columns = isset($parameters['columns']) ? sanitizeInput($parameters['columns']) : '*';
 
-    $query = "SELECT * FROM assets $where_clause";
+    $query = "SELECT $columns FROM assets $where_clause";
     $result = mysqli_query($mysqli, $query);
 
     $assets = [];

@@ -14,6 +14,11 @@ function requireOnceAll($functionsPath) {
 // Other functions are categorized in different files
 
 // Path to functions folder using the server root path
-$functionsPath = $_SERVER['DOCUMENT_ROOT'] . '/functions';
+if (isset($cron)) { 
+    $functionsPath = $_SERVER['DOCUMENT_ROOT'] . "/functions";
+} else { 
+    $functionsPath = dirname(__FILE__) . "/functions";
+}
+
 // Require Once All in the functions folder
 requireOnceAll($functionsPath);

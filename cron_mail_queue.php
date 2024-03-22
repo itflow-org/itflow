@@ -1,4 +1,8 @@
 <?php
+$cron = true;
+//cron document root
+
+$document_root = dirname(__FILE__);
 
 require_once "config.php";
 require_once "functions.php";

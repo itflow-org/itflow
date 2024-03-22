@@ -15,9 +15,9 @@ $sql = mysqli_query(
     product_name,
     SUM(inventory_quantity) as total_inventory,
     inventory_product_id,
-    GROUP_CONCAT(DISTINCT inventory_location_name SEPARATOR ', ') AS inventory_locations \
+    GROUP_CONCAT(DISTINCT inventory_location_name SEPARATOR ', ') AS inventory_locations
     FROM inventory
-        LEFT JOIN inventory_locations ON inventory_location_id = inventory_location_id
+        LEFT JOIN inventory_locations ON inventory_locations.inventory_location_id = inventory.inventory_location_id
         LEFT JOIN products ON inventory_product_id = product_id
         LEFT JOIN users on inventory_location_user_id = user_id
         LEFT JOIN vendors ON inventory_vendor_id = vendor_id
@@ -91,7 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $inventory_id = intval($row['inventory_id']);
+                            $inventory_id = intval($row['inventory_product_id']);
                             $inventory_name = sanitizeInput($row['product_name']);
                             $inventory_quantity = floatval($row['total_inventory']);
                             $inventory_product_id = intval($row['inventory_product_id']);

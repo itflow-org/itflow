@@ -102,10 +102,14 @@ function readInvoice(
 
     // Check if there is an API Key Client ID parameter, if so, use it. Otherwise, default to 'all'
     $api_client_id = isset($parameters['api_key_client_id']) ? sanitizeInput($parameters['api_key_client_id']) : 0;
+
     // Get the where clause for the query
     $where_clause = getAPIWhereClause('invoice',$invoice_id, $api_client_id);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices $where_clause");
+    // Get the columns to return
+    $columns = isset($parameters['columns']) ? sanitizeInput($parameters['columns']) : '*';
+
+    $sql = mysqli_query($mysqli,"SELECT $columns FROM invoices $where_clause");
     $invoices = [];
 
     while($row = mysqli_fetch_assoc($sql)) {

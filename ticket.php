@@ -836,7 +836,7 @@ if (isset($_GET['ticket_id'])) {
                             if (!empty($asset_uri)) { ?>
                 <div class="mt-1">
                     <i class="fa fa-fw fa-globe text-secondary ml-1 mr-2"></i><a href="<?php echo $asset_uri; ?>"
-                        target="_blank"><?php echo $asset_uri; ?></a>
+                        target="_blank"><?php echo truncate($asset_uri, 25); ?></a>
                 </div>
                 <?php }
 

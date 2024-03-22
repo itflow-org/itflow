@@ -324,7 +324,7 @@ Ticket:
             ticket_category = 
             ticket_status = 
             ticket_schedule = 
-            ticket_on_site = 
+            ticket_onsite = 
             ticket_feedback = 
             ticket_assigned_to = 
             ticket_invoice_id = 
