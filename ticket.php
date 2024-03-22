@@ -635,36 +635,35 @@ if (isset($_GET['ticket_id'])) {
 
                 if ($ticket_status !== "Closed" || mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
 
-                <div class="card card-body card-outline card-dark mb-3">
-                    <h5 class="text-secondary">Watchers</h5>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h5 class="text-secondary">Watchers</h5>
 
-                    <?php if ($ticket_status !== "Closed") { ?>
-                        <div class="d-print-none">
-                            <a href="#" data-toggle="modal" data-target="#addTicketWatcherModal"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
-                        </div>
-                    <?php } ?>
-
-                    <?php
-                    // Get Watchers
-                    while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
-                        $watcher_id = intval($ticket_watcher_row['watcher_id']);
-                        $ticket_watcher_email = nullable_htmlentities($ticket_watcher_row['watcher_email']);
-                        ?>
-                        <div class='mt-1'>
-                            <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>
-                            <?php if ($ticket_status !== "Closed") { ?>
-                                <a class="confirm-link" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
-                                    <i class="fas fa-fw fa-times text-secondary ml-1"></i>
-                                </a>
-                            <?php } ?>
-                        </div>
+                        <?php if ($ticket_status !== "Closed") { ?>
+                            <div class="d-print-none">
+                                <a href="#" data-toggle="modal" data-target="#addTicketWatcherModal"><i class="fa fa-fw fa-plus mr-2"></i>Add a Watcher</a>
+                            </div>
+                        <?php } ?>
 
                         <?php
-                    }
-                }
-                ?>
-                </div>
+                        // Get Watchers
+                        while ($ticket_watcher_row = mysqli_fetch_array($sql_ticket_watchers)) {
+                            $watcher_id = intval($ticket_watcher_row['watcher_id']);
+                            $ticket_watcher_email = nullable_htmlentities($ticket_watcher_row['watcher_email']);
+                            ?>
+                            <div class='mt-1'>
+                                <i class="fa fa-fw fa-eye text-secondary ml-1 mr-2"></i><?php echo $ticket_watcher_email; ?>
+                                <?php if ($ticket_status !== "Closed") { ?>
+                                    <a class="confirm-link" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
+                                        <i class="fas fa-fw fa-times text-secondary ml-1"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
+
+                            <?php } ?>
+                    </div>
+                <?php } ?>
                 <!-- End Ticket watchers card -->
+
 
                 <!-- Ticket Details card -->
                 <div class="card card-body card-outline card-dark mb-3">
@@ -728,6 +727,7 @@ if (isset($_GET['ticket_id'])) {
                 </div>
                 <!-- End Ticket details card -->
 
+                
                 <!-- Asset card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Asset</h5>
@@ -831,6 +831,7 @@ if (isset($_GET['ticket_id'])) {
                 </div>
                 <!-- End Asset card -->
 
+
                 <!-- Vendor card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Vendor</h5>
@@ -879,6 +880,8 @@ if (isset($_GET['ticket_id'])) {
                 </div>
                 <!-- End Vendor card -->
 
+
+                <!-- Assigned to -->
                 <form action="post.php" method="post">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                     <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
@@ -910,7 +913,10 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     </div>
                 </form>
+                <!-- End Assigned to -->
 
+                
+                <!-- Invoice / Close Ticket --> 
                 <div class="card card-body card-outline card-dark mb-2 d-print-none">
                     <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
                         <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
@@ -925,10 +931,9 @@ if (isset($_GET['ticket_id'])) {
                     <?php } ?>
                 </div>
                 
-            </div>
+            </div> <!-- End col-3 -->
 
-        </div> <!-- row -->
-    </div>
+        </div> <!-- End row -->
 
 <?php
         require_once "ticket_edit_modal.php";
