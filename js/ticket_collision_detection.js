@@ -22,7 +22,7 @@ function ticket_collision_detection() {
         function(data) {
             //If we get a response from ajax.php, parse it as JSON
             const ticket_view_data = JSON.parse(data);
-            document.getElementById("ticket_collision_viewing").innerText = ticket_view_data.message;
+            document.getElementById("ticket_collision_viewing").innerHTML = ticket_view_data.message;
         }
     );
 }
