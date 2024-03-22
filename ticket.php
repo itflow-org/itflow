@@ -278,6 +278,7 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 <?php } ?>
             </div>
+            <span class="text-info ml-5" id="ticket_collision_viewing"></span>
         </div>
 
         <div class="row">
@@ -415,8 +416,6 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                         </div>
-
-                        <p class="font-weight-light" id="ticket_collision_viewing"></p>
 
                     </form>
                     <!-- End IF for reply modal -->
