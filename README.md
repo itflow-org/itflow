@@ -13,15 +13,11 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
-  <h3 align="center">ITFlow</h3>
+  <h3 align="center">ITFlow-NG</h3>
 
   <p align="center">
-    IT documentation, ticketing and accounting system for small MSPs.
+    Next Generation IT Professional Services Automation for small MSPs.
     <br />
-    <br />
-    <a href="https://demo.itflow.org"><strong>View demo</strong></a>
-    <br />
-    Username: <b>demo@demo</b> | Password: <b>demo</b>
     <br />
     <br />
     <a href="https://itflow.org/#about">About</a>
@@ -30,11 +26,11 @@
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
-    <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
+    <a href="https://github.com/twetech/itflow-ng/issues">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
     ·
-    <a href="https://github.com/itflow-org/itflow/security/policy">Security</a>
+    <a href="https://github.com/twetech/itflow-ng/security/policy">Security</a>
   </p>
 </div>
 
@@ -58,7 +54,7 @@
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by early 2024.
+* We are hoping to have a stable 1.0 release by 2025
 
 <!-- BUILT WITH -->
 ### Built With
