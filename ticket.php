@@ -422,7 +422,7 @@ if (isset($_GET['ticket_id'])) {
                     <!-- End IF for reply modal -->
                 <?php } ?>
 
-                <h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5>
+                <?php if($ticket_responses) { ?><h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5><?php } ?>
 
                 <!-- Ticket replies -->
                 <?php
