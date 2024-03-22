@@ -12,11 +12,12 @@ if (isset($_POST['add_software_template'])) {
 
     $name = sanitizeInput($_POST['name']);
     $version = sanitizeInput($_POST['version']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $license_type = sanitizeInput($_POST['license_type']);
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_template = 1, software_client_id = 0");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_template = 1, software_client_id = 0");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Template', log_action = 'Create', log_description = '$session_user_name created software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -34,11 +35,12 @@ if (isset($_POST['edit_software_template'])) {
     $software_id = intval($_POST['software_id']);
     $name = sanitizeInput($_POST['name']);
     $version = sanitizeInput($_POST['version']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $license_type = sanitizeInput($_POST['license_type']);
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes' WHERE software_id = $software_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software Teplate', log_action = 'Modify', log_description = '$session_name modified software template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -60,14 +62,15 @@ if (isset($_POST['add_software_from_template'])) {
 
     $row = mysqli_fetch_array($sql_software);
 
-    $name = sanitizeInput($_POST['name']);
-    $version = sanitizeInput($_POST['version']);
-    $type = sanitizeInput($_POST['type']);
-    $license_type = sanitizeInput($_POST['license_type']);
-    $notes = sanitizeInput($_POST['notes']);
+    $name = sanitizeInput($row['software_name']);
+    $version = sanitizeInput($row['software_version']);
+    $description = sanitizeInput($row['software_description']);
+    $type = sanitizeInput($row['software_type']);
+    $license_type = sanitizeInput($row['software_license_type']);
+    $notes = sanitizeInput($row['software_notes']);
 
     // Software add query
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id");
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = 'Software created from template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
@@ -85,6 +88,7 @@ if (isset($_POST['add_software'])) {
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
     $version = sanitizeInput($_POST['version']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $license_type = sanitizeInput($_POST['license_type']);
     $notes = sanitizeInput($_POST['notes']);
@@ -104,7 +108,7 @@ if (isset($_POST['add_software'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_client_id = $client_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
@@ -126,14 +130,6 @@ if (isset($_POST['add_software'])) {
         }
     }
 
-    if (!empty($_POST['username'])) {
-        $username = sanitizeInput(encryptLoginEntry($_POST['username']));
-        $password = sanitizeInput(encryptLoginEntry($_POST['password']));
-
-        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id");
-
-    }
-
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = '$session_name created software $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id");
 
@@ -148,10 +144,10 @@ if (isset($_POST['edit_software'])) {
     validateTechRole();
 
     $software_id = intval($_POST['software_id']);
-    $login_id = intval($_POST['login_id']);
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
     $version = sanitizeInput($_POST['version']);
+    $description = sanitizeInput($_POST['description']);
     $type = sanitizeInput($_POST['type']);
     $license_type = sanitizeInput($_POST['license_type']);
     $notes = sanitizeInput($_POST['notes']);
@@ -171,7 +167,7 @@ if (isset($_POST['edit_software'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes' WHERE software_id = $software_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes' WHERE software_id = $software_id");
 
 
     // Update Asset Licenses
@@ -189,23 +185,6 @@ if (isset($_POST['edit_software'])) {
         foreach($_POST['contacts'] as $contact) {
             $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
-        }
-    }
-
-    //If login exists then update the login
-    if ($login_id > 0) {
-        $username = encryptLoginEntry($_POST['username']);
-        $password = encryptLoginEntry($_POST['password']);
-        
-        mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_username = '$username', login_password = '$password' WHERE login_id = $login_id");
-    }else{
-        //If Username is filled in then add a login
-        if (!empty($_POST['username'])) {
-        $username = encryptLoginEntry($_POST['username']);
-        $password = encryptLoginEntry($_POST['password']);
-
-            mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_software_id = $software_id, login_client_id = $client_id");
-
         }
     }
 
@@ -298,7 +277,7 @@ if (isset($_POST['export_client_software_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Version', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
+        $fields = array('Name', 'Version', 'Description', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
@@ -328,7 +307,7 @@ if (isset($_POST['export_client_software_csv'])) {
                 $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
             }
 
-            $lineData = array($row['software_name'], $row['software_version'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
+            $lineData = array($row['software_name'], $row['software_version'], $row['software_description'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -349,4 +328,3 @@ if (isset($_POST['export_client_software_csv'])) {
     exit;
 
 }
-

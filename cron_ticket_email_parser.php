@@ -26,11 +26,15 @@ require_once "get_settings.php";
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
 
-// Get company name & phone
-$sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+// Get company name & phone & timezone
+$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 $company_name = sanitizeInput($row['company_name']);
 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+$config_timezone = sanitizeInput($row['config_timezone']);
+
+// Set Timezone
+date_default_timezone_set($config_timezone);
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {

@@ -10,6 +10,7 @@ if (isset($_POST['add_network'])) {
 
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $vlan = intval($_POST['vlan']);
     $network = sanitizeInput($_POST['network']);
     $gateway = sanitizeInput($_POST['gateway']);
@@ -17,7 +18,7 @@ if (isset($_POST['add_network'])) {
     $notes = sanitizeInput($_POST['notes']);
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
 
     $network_id = mysqli_insert_id($mysqli);
 
@@ -36,6 +37,7 @@ if (isset($_POST['edit_network'])) {
 
     $network_id = intval($_POST['network_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $vlan = intval($_POST['vlan']);
     $network = sanitizeInput($_POST['network']);
     $gateway = sanitizeInput($_POST['gateway']);
@@ -44,7 +46,7 @@ if (isset($_POST['edit_network'])) {
     $location_id = intval($_POST['location']);
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modify', log_description = '$session_name modified network $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");
@@ -156,12 +158,12 @@ if (isset($_POST['export_client_networks_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'vLAN', 'Network', 'Gateway', 'DHCP Range');
+        $fields = array('Name', 'Description', 'vLAN', 'Network', 'Gateway', 'DHCP Range');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['network_name'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range']);
+            $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range']);
             fputcsv($f, $lineData, $delimiter);
         }
 

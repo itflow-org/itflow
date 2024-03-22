@@ -9,7 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="software_id" value="<?php echo $software_id; ?>">
-                <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
@@ -18,16 +17,16 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $software_id; ?>">Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?php echo $software_id; ?>">Device Licenses</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-license<?php echo $software_id; ?>">License</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?php echo $software_id; ?>">User Licenses</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?php echo $software_id; ?>">Devices</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?php echo $software_id; ?>">Users</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $software_id; ?>">Notes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-login<?php echo $software_id; ?>">Login</a>
                         </li>
                     </ul>
 
@@ -58,6 +57,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="description" placeholder="Short description" value="<?php echo $software_description; ?>">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Type <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -70,6 +79,10 @@
                                     </select>
                                 </div>
                             </div>
+
+                        </div>
+
+                         <div class="tab-pane fade" id="pills-license<?php echo $software_id; ?>">
 
                             <div class="form-group">
                                 <label>License Type</label>
@@ -203,34 +216,7 @@
 
                         <div class="tab-pane fade" id="pills-notes<?php echo $software_id; ?>">
 
-                            <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $software_notes; ?></textarea>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-login<?php echo $software_id; ?>">
-
-                            <div class="form-group">
-                                <label>Username</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $login_username; ?>">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" value="<?php echo $login_password; ?>" autocomplete="new-password">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    </div>
-                                </div>
-                            </div>
+                            <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?php echo $software_notes; ?></textarea>
 
                         </div>
 

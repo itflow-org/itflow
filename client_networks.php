@@ -16,7 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON location_id = network_location_id
     WHERE network_client_id = $client_id
     AND network_archived_at IS NULL
-    AND (network_name LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -101,6 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($sql)) {
                             $network_id = intval($row['network_id']);
                             $network_name = nullable_htmlentities($row['network_name']);
+                            $network_description = nullable_htmlentities($row['network_description']);
                             $network_vlan = intval($row['network_vlan']);
                             if (empty($network_vlan)) {
                                 $network_vlan_display = "-";
@@ -131,11 +132,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                     </div>
                                 </td>
-                                <th>
-                                    <i class="fa fa-fw fa-network-wired text-secondary mr-2"></i><a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)"
-                                       data-target="#editNetworkModal"><?php echo $network_name; ?>
+                                <td>
+                                    <a class="text-dark" href="#" data-toggle="modal" onclick="populateNetworkEditModal(<?php echo $client_id, ",", $network_id ?>)" data-target="#editNetworkModal">
+                                        <div class="media">
+                                            <i class="fa fa-fw fa-2x fa-network-wired mr-3"></i>
+                                            <div class="media-body">
+                                                <div><?php echo $network_name; ?></div>
+                                                <div><small class="text-secondary"><?php echo $network_description; ?></small></div>
+                                            </div>
+                                        </div>
                                     </a>
-                                </th>
+                                </td>
                                 <td><?php echo $network_vlan_display; ?></td>
                                 <td><?php echo $network; ?></td>
                                 <td><?php echo $network_gateway; ?></td>

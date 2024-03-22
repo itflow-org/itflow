@@ -10,6 +10,7 @@ if (isset($_POST['add_certificate'])) {
 
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $domain = sanitizeInput($_POST['domain']);
     $issued_by = sanitizeInput($_POST['issued_by']);
     $expire = sanitizeInput($_POST['expire']);
@@ -33,7 +34,7 @@ if (isset($_POST['add_certificate'])) {
         $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_description = '$description', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
 
     $certificate_id = mysqli_insert_id($mysqli);
 
@@ -52,6 +53,7 @@ if (isset($_POST['edit_certificate'])) {
 
     $certificate_id = intval($_POST['certificate_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $domain = sanitizeInput($_POST['domain']);
     $issued_by = sanitizeInput($_POST['issued_by']);
     $expire = sanitizeInput($_POST['expire']);
@@ -76,7 +78,7 @@ if (isset($_POST['edit_certificate'])) {
         $expire = "'" . $expire . "'";
     }
 
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id");
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_description = '$description', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Certificate', log_action = 'Modify', log_description = '$session_name modified certificate $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $certificate_id");
@@ -189,12 +191,12 @@ if (isset($_POST['export_client_certificates_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Domain', 'Issuer', 'Expiration Date');
+        $fields = array('Name', 'Description', 'Domain', 'Issuer', 'Expiration Date');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['certificate_name'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
+            $lineData = array($row['certificate_name'], $row['certificate_description'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
             fputcsv($f, $lineData, $delimiter);
         }
 

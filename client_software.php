@@ -13,7 +13,6 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM software
-    LEFT JOIN logins ON login_software_id = software_id
     WHERE software_client_id = $client_id
     AND software_template = 0
     AND software_$archive_query
@@ -81,7 +80,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">Type</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">License Type</a></th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Seats</a></th>
-                        <th></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -91,6 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $software_id = intval($row['software_id']);
                         $software_name = nullable_htmlentities($row['software_name']);
+                        $software_description = nullable_htmlentities($row['software_description']);
                         $software_version = nullable_htmlentities($row['software_version']);
                         $software_type = nullable_htmlentities($row['software_type']);
                         $software_license_type = nullable_htmlentities($row['software_license_type']);
@@ -100,11 +99,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $software_expire = nullable_htmlentities($row['software_expire']);
                         $software_notes = nullable_htmlentities($row['software_notes']);
                         $software_created_at = nullable_htmlentities($row['software_created_at']);
-
-                        // Get Login
-                        $login_id = intval($row['login_id']);
-                        $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                        $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
                         $seat_count = 0;
 
@@ -130,51 +124,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
+                                        <div class="media-body">
+                                            <div><?php echo "$software_name <span>$software_version</span>"; ?></div>
+                                            <div><small class="text-secondary"><?php echo $software_description; ?></small></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </td>
                             <td><?php echo $software_type; ?></td>
                             <td><?php echo $software_license_type; ?></td>
                             <td><?php echo "$seat_count / $software_seats"; ?></td>
-                            <td>
-                                <?php
-                                if ($login_id > 0) { ?>
-                                    <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $login_id; ?>"><i class="fas fa-key"></i></button>
-
-                                    <div class="modal" id="viewPasswordModal<?php echo $login_id; ?>" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content bg-dark">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"><i class="fa fa-fw fa-key"></i> <?php echo $software_name; ?></h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal">
-                                                        <span>&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body bg-white">
-                                                    <div class="form-group">
-                                                        <div class="input-group">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                                            </div>
-                                                            <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="input-group">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                                                            </div>
-                                                            <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <?php
-                                }
-
-                                ?>
-                            </td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
@@ -216,6 +179,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
+
 require_once "client_software_add_modal.php";
 
 require_once "client_software_add_from_template_modal.php";
@@ -223,4 +187,3 @@ require_once "client_software_add_from_template_modal.php";
 require_once "client_software_export_modal.php";
 
 require_once "footer.php";
-

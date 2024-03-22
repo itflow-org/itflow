@@ -121,7 +121,7 @@
                 <li class="nav-header mt-3">MAINTENANCE</li>
 
                 <li class="nav-item">
-                    <a href="admin_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_mail_queue.php") {
+                    <a href="admin_mail_queue.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_mail_queue.php" || basename($_SERVER["PHP_SELF"]) == "admin_mail_queue_message_view.php") {
                                                                         echo "active";
                                                                     } ?>">
                         <i class="nav-icon fas fa-mail-bulk"></i>

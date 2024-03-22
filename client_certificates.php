@@ -94,6 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $certificate_id = intval($row['certificate_id']);
                         $certificate_name = nullable_htmlentities($row['certificate_name']);
+                        $certificate_description = nullable_htmlentities($row['certificate_description']);
                         $certificate_domain = nullable_htmlentities($row['certificate_domain']);
                         $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
                         $certificate_expire = nullable_htmlentities($row['certificate_expire']);
@@ -107,9 +108,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                 </div>
                             </td>
-
-                            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
-
+                            <td>
+                                <a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-lock mr-3"></i>
+                                        <div class="media-body">
+                                            <div><?php echo $certificate_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $certificate_description; ?></small></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </td>
                             <td><?php echo $certificate_domain; ?></td>
 
                             <td><?php echo $certificate_issued_by; ?></td>
