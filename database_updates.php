@@ -1709,7 +1709,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;");
 
         mysqli_query($mysqli, "CREATE TABLE `inventory_locations` (
-            `inventory_locations_id` int(11) NOT NULL AUTO_INCREMENT,
+            `inventory_location_id` int(11) NOT NULL AUTO_INCREMENT,
             `inventory_location_name` varchar(200) NOT NULL,
             `inventory_location_description` text DEFAULT NULL,
             `inventory_location_address` varchar(200) DEFAULT NULL,

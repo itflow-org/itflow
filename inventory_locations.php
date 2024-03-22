@@ -13,13 +13,13 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT 
-    inventory_locations_id,
-    inventory_locations_name,
-    inventory_locations_description,
+    inventory_location_id,
+    inventory_location_name,
+    inventory_location_description,
     user_name
     FROM inventory_locations
-        LEFT JOIN users on inventory_locations_user_id = user_id
-        WHERE inventory_locations_archived_at IS NULL
+        LEFT JOIN users on inventory_location_user_id = user_id
+        WHERE inventory_location_archived_at IS NULL
         ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -89,9 +89,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $location_id = $row["inventory_locations_id"];
-                            $location_name = $row["inventory_locations_name"];
-                            $location_description = $row["inventory_locations_description"];
+                            $location_id = $row["inventory_location_id"];
+                            $location_name = $row["inventory_location_name"];
+                            $location_description = $row["inventory_location_description"];
                             $location_user = $row["user_name"];
                             
                             //Calculate number of items in location in DB
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $location_qty; ?></td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="inventory_locations_manage.php?inventory_location_id=<?php echo $location_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-fw fa-edit"></i></a>
+                                        <a href="inventory_location_manage.php?inventory_location_id=<?php echo $location_id; ?>" class="btn btn-primary btn-sm"><i class="fas fa-fw fa-edit"></i></a>
                                     </div>
                                 </td>
 
