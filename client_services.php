@@ -58,8 +58,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th><a class="text-dark">Name</a></th>
                         <th><a class="text-dark">Category</a></th>
-                        <th><a class="text-dark">Updated</a></th>
                         <th><a class="text-dark">Importance</a></th>
+                        <th><a class="text-dark">Updated</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -93,10 +93,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <!-- Name/Category/Updated/Importance from DB -->
-                            <td class="text-bold"><a href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>"> <?php echo $service_name ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
+                                        <div class="media-body">
+                                            <div><?php echo $service_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $service_description; ?></small></div>
+                                        </div>
+                                    </div>
+                                </a>
+                        
+                            </td>
                             <td><?php echo $service_category ?></td>
-                            <td><?php echo $service_updated_at ?></td>
                             <td><?php echo $service_importance ?></td>
+                            <td><?php echo $service_updated_at ?></td>
 
                             <!-- Action -->
                             <td>

@@ -75,21 +75,6 @@
                         <div class="tab-pane fade" id="pills-address<?php echo $location_id; ?>">
 
                             <div class="form-group">
-                                <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of location" value="<?php echo $location_name; ?>" required>
-                                    <div class="input-group-append">
-                                        <div class="input-group-text">
-                                            <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Address</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

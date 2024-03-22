@@ -17,6 +17,7 @@ function populateNetworkEditModal(client_id, network_id) {
             document.getElementById("editNetworkHeader").innerText = network.network_name;
             document.getElementById("editNetworkId").value = network_id;
             document.getElementById("editNetworkName").value = network.network_name;
+            document.getElementById("editNetworkDescription").value = network.network_description;
             document.getElementById("editNetworkVlan").value = network.network_vlan;
             document.getElementById("editNetworkCidr").value = network.network;
             document.getElementById("editNetworkGw").value = network.network_gateway;

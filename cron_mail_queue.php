@@ -15,6 +15,10 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
+$config_timezone = sanitizeInput($row['config_timezone']);
+
+// Set Timezone
+date_default_timezone_set($config_timezone);
 
 $argv = $_SERVER['argv'];
 

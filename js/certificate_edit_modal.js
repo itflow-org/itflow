@@ -17,6 +17,7 @@ function populateCertificateEditModal(client_id, certificate_id) {
             document.getElementById("editCertificateHeader").innerText = certificate.certificate_name;
             document.getElementById("editCertificateId").value = certificate_id;
             document.getElementById("editCertificateName").value = certificate.certificate_name;
+            document.getElementById("editCertificateDescription").value = certificate.certificate_description;
             document.getElementById("editCertificateDomain").value = certificate.certificate_domain;
             document.getElementById("editCertificateIssuedBy").value = certificate.certificate_issued_by;
             document.getElementById("editCertificateExpire").value = certificate.certificate_expire;

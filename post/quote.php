@@ -407,10 +407,10 @@ if (isset($_GET['email_quote'])) {
     addToMailQueue($mysqli, $data);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Quote Queued', history_quote_id = $quote_id");
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$session_name emailed Quote $quote_prefix$quote_number to $contact_email Email ID: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $quote_id");
 
-    $_SESSION['alert_message'] = "Quote has been sent";
+    $_SESSION['alert_message'] = "Quote has been queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {
