@@ -267,12 +267,12 @@ if (isset($_POST['add_bulk_payment'])) {
     $bulk_payment = [];
     $bulk_payment['client_id'] = $client_id;
     $bulk_payment['date'] = $date;
-    $bulk_payment['bulk_payment_amount'] = $bulk_payment_amount;
+    $bulk_payment['amount'] = $bulk_payment_amount;
     $bulk_payment['bulk_payment_amount_static'] = $bulk_payment_amount_static;
     $bulk_payment['total_client_balance'] = $total_client_balance;
     $bulk_payment['account'] = $account;
     $bulk_payment['currency_code'] = $currency_code;
-    $bulk_payment['payment_method'] = $payment_method;
+    $bulk_payment['method'] = $payment_method;
     $bulk_payment['reference'] = $reference;
     $bulk_payment['email_receipt'] = $email_receipt;
 

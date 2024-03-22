@@ -209,6 +209,7 @@ function createBulkPayment(
 
     $email_body_invoices = "";
 
+    $_SESSION['alert_message'] = "";
 
     // Check if bulk_payment_amount exceeds total_account_balance
     if ($bulk_payment_amount > $total_client_balance) {
@@ -326,6 +327,10 @@ function createBulkPayment(
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Bulk Payment of $bulk_payment_amount_static', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
 
+    $return_data = [
+        'payment_id' => $payment_id,
+        'credit_id' => $credit_id
+    ];
 }
 
 function readPayment(
