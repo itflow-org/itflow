@@ -52,9 +52,7 @@ $sql_years_select = mysqli_query(
                     $year_select = date('Y');
                 }
             ?>
-                <option <?php if ($year == $year_select) {
-                            echo "selected";
-                        } ?>> <?php echo $year_select; ?></option>
+                <option <?php if ($year == $year_select) { echo "selected"; } ?>> <?php echo $year_select; ?></option>
 
             <?php
             }
@@ -63,18 +61,14 @@ $sql_years_select = mysqli_query(
 
         <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
             <div class="custom-control custom-switch mr-sm-3">
-                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) {
-                                                                                                                                                            echo "checked";
-                                                                                                                                                        } ?>>
+                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
                 <label class="custom-control-label" for="customSwitch1">Toggle Financial</label>
             </div>
         <?php } ?>
 
         <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
             <div class="custom-control custom-switch">
-                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) {
-                                                                                                                                                            echo "checked";
-                                                                                                                                                        } ?>>
+                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
                 <label class="custom-control-label" for="customSwitch2">Toggle Technical</label>
             </div>
         <?php } ?>
@@ -91,9 +85,11 @@ if ($user_config_dashboard_financial_enable == 1) {
         exit('<script type="text/javascript">window.location.href = \'dashboard_technical.php\';</script>');
     }
 
+
     //Define var so it doesnt throw errors in logs
     $largest_income_month = 0;
 
+    
     //Get Total income
     $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
     $row = mysqli_fetch_array($sql_total_payments_to_invoices);
@@ -183,11 +179,10 @@ if ($user_config_dashboard_financial_enable == 1) {
     }
 
 
-
-
     //Get Total Clients added
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
     $clients_added = intval($row['clients_added']);
+
 
     //Get Total Vendors added
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL"));

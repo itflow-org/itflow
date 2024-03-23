@@ -37,13 +37,16 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 // Ticket assignment status filter
 if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     if ($_GET['assigned'] == 'unassigned') {
-        $ticket_assigned_filter = 'AND ticket_assigned_to = 0';
+        $ticket_assigned_query = 'AND ticket_assigned_to = 0';
+        $ticket_assigned_filter_id = 0;
     } else {
-        $ticket_assigned_filter = 'AND ticket_assigned_to = ' . intval($_GET['assigned']);
+        $ticket_assigned_query = 'AND ticket_assigned_to = ' . intval($_GET['assigned']);
+        $ticket_assigned_filter_id = intval($_GET['assigned']);
     }
 } else {
     // Default - any
-    $ticket_assigned_filter = '';
+    $ticket_assigned_query = '';
+    $ticket_assigned_filter_id = '';
 }
 
 //Rebuild URL
@@ -59,7 +62,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-    WHERE $ticket_status_snippet " . $ticket_assigned_filter . "
+    WHERE $ticket_status_snippet " . $ticket_assigned_query . "
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -117,9 +120,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
-                                                                                        echo stripslashes(nullable_htmlentities($q));
-                                                                                    } ?>" placeholder="Search Tickets">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -173,14 +174,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 </div>
             </div>
 
-            <div class="collapse <?php if (!empty($_GET['dtf']) || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") || (isset($_GET['status']) && is_array($_GET['status']))) {
-                                        echo "show";
-                                    } ?>" id="advancedFilter">
+            <div class="collapse <?php if (!empty($_GET['dtf']) || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") || (isset($_GET['status']) && is_array($_GET['status']))) { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Canned Date</label>
-                            <select class="form-control select2" name="canned_date">
+                            <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
                                 <option <?php if ($_GET['canned_date'] == "custom") {
                                             echo "selected";
                                         } ?> value="custom">Custom
@@ -223,47 +222,33 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date From</label>
-                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
+                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date To</label>
-                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Ticket Status</label>
-                            <select class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
-                                <option value="New" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('New', $_GET['status'])) {
-                                                                echo 'selected';
-                                                            } ?>>New</option>
-                                <option value="Open" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Open', $_GET['status'])) {
-                                                                    echo 'selected';
-                                                                } ?>>Open</option>
-                                <option value="On Hold" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('On Hold', $_GET['status'])) {
-                                                                    echo 'selected';
-                                                                } ?>>On Hold</option>
-                                <option value="Auto Close" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Auto Close', $_GET['status'])) {
-                                                                    echo 'selected';
-                                                                } ?>>Auto Close</option>
-                                <option value="Closed" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Closed', $_GET['status'])) {
-                                                            echo 'selected';
-                                                        } ?>>Closed</option>
+                            <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
+                                <option value="New" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('New', $_GET['status'])) { echo 'selected'; } ?>>New</option>
+                                <option value="Open" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Open', $_GET['status'])) { echo 'selected'; } ?>>Open</option>
+                                <option value="On Hold" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('On Hold', $_GET['status'])) { echo 'selected'; } ?>>On Hold</option>
+                                <option value="Auto Close" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Auto Close', $_GET['status'])) { echo 'selected'; } ?>>Auto Close</option>
+                                <option value="Closed" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array('Closed', $_GET['status'])) { echo 'selected'; } ?>>Closed</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Assigned to</label>
-                            <select class="form-control select2" name="assigned">
-                                <option value="" <?php if ($ticket_assigned_filter == "") {
-                                                        echo "selected";
-                                                    } ?>>Any</option>
-                                <option value="unassigned" <?php if ($ticket_assigned_filter == "0") {
-                                                                echo "selected";
-                                                            } ?>>Unassigned</option>
+                            <select onchange="this.form.submit()" class="form-control select2" name="assigned">
+                                <option value="" <?php if ($ticket_assigned_filter_id == "") { echo "selected"; } ?>>Any</option>
+                                <option value="unassigned" <?php if ($ticket_assigned_filter_id == "0") { echo "selected"; } ?>>Unassigned</option>
 
                                 <?php
                                 $sql_assign_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_archived_at IS NULL ORDER BY user_name ASC");
@@ -271,9 +256,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                     $user_id = intval($row['user_id']);
                                     $user_name = nullable_htmlentities($row['user_name']);
                                 ?>
-                                    <option <?php if ($ticket_assigned_filter == $user_id) {
-                                                echo "selected";
-                                            } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                    <option <?php if ($ticket_assigned_filter_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -289,9 +272,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if (!$num_rows[0]) {
-                                                echo "d-none";
-                                            } ?>">
+                    <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                         <tr>
                             <td>
                                 <div class="form-check">
