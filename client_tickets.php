@@ -215,6 +215,31 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     $asset_id = intval($row['ticket_asset_id']);
                     $vendor_id = intval($row['ticket_vendor_id']);
 
+
+                    // Get Ticket Last updated By in the last ticket reply to be show in the last Response column
+                            $sql_ticket_reply = mysqli_query($mysqli, "SELECT * FROM ticket_replies
+                                LEFT JOIN users ON ticket_reply_by = user_id
+                                LEFT JOIN contacts ON ticket_reply_by = contact_id
+                                WHERE ticket_reply_ticket_id = $ticket_id
+                                AND ticket_reply_archived_at IS NULL
+                                ORDER BY ticket_reply_id DESC LIMIT 1"
+                            );
+                            $row = mysqli_fetch_array($sql_ticket_reply);
+                            $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+                            $ticket_reply_by = intval($row['ticket_reply_by']);
+                            if ($ticket_reply_type == "Client") {
+                                $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                                $user_initials = initials($row['contact_name']);
+                                $user_avatar = nullable_htmlentities($row['contact_photo']);
+                                $avatar_link = "uploads/clients/$client_id/$user_avatar";
+                            } else {
+                                $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                                $user_id = intval($row['user_id']);
+                                $user_avatar = nullable_htmlentities($row['user_avatar']);
+                                $user_initials = initials($row['user_name']);
+                                $avatar_link = "uploads/users/$user_id/$user_avatar";
+                            }
+
                     ?>
 
                     <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
@@ -240,7 +265,11 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                         <td><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a></td>
                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
                         <td><a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a></td>
-                        <td><?php echo $ticket_updated_at_display; ?></td>
+                        <td>
+                            <div><?php echo $ticket_updated_at_display; ?></div>
+                            <div><?php echo $ticket_reply_by_display; ?></div>
+                        </td>    
+                            
                         <td>
                             <?php echo $ticket_created_at_time_ago; ?>
                             <br>

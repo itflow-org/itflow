@@ -162,8 +162,8 @@ if (isset($_GET['ticket_id'])) {
         $row = mysqli_fetch_array($ticket_total_reply_time);
         $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
 
+        
         // Client Tags
-
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
         $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tag_tag_id = tags.tag_id WHERE client_tags.client_tag_client_id = $client_id ORDER BY tag_name ASC");
@@ -185,16 +185,17 @@ if (isset($_GET['ticket_id'])) {
         }
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
-        // Get the number of responses
+        
+        // Get the number of ticket Responses
         $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_responses_sql);
         $ticket_responses = intval($row['ticket_responses']);
 
+        
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
         $dt_value = $asset_warranty_expire; //sample date
         $warranty_check = date('m/d/Y', strtotime('-8 hours'));
-
         if ($dt_value <= $date) {
             $dt_value = "Expired on $asset_warranty_expire";
             $warranty_status_color = 'red';
@@ -207,16 +208,25 @@ if (isset($_GET['ticket_id'])) {
             $warranty_status_color = 'red';
         }
 
-        // Get all ticket replies
-        $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL ORDER BY ticket_reply_id DESC");
 
+        // Get all ticket replies
+        $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies 
+            LEFT JOIN users ON ticket_reply_by = user_id
+            LEFT JOIN contacts ON ticket_reply_by = contact_id
+            WHERE ticket_reply_ticket_id = $ticket_id
+            AND ticket_reply_archived_at IS NULL
+            ORDER BY ticket_reply_id DESC"
+        );
+
+        
         // Get other tickets for this asset
         if (!empty($asset_id)) {
             $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
             $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
         }
 
-        // Get technicians to assign the ticket to
+
+        // Get Technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
             $mysqli,
             "SELECT users.user_id, user_name FROM users
@@ -226,7 +236,9 @@ if (isset($_GET['ticket_id'])) {
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
         );
+        
 
+        // Get Ticket Attachments
         $sql_ticket_attachments = mysqli_query(
             $mysqli,
             "SELECT * FROM ticket_attachments
