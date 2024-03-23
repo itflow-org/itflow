@@ -242,7 +242,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                     ?>
 
-                    <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?>">
+                    <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if ($ticket_reply_type == "Client") { echo "table-warning"; } ?>">
                         <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                         <td>
                             <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
