@@ -114,6 +114,7 @@
         <?php } ?>
         <!-- End New Notifications Dropdown -->
 
+        
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link" data-toggle="dropdown">
                 <?php if (empty($session_avatar)) { ?>

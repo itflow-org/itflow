@@ -16,13 +16,16 @@
                                 <a class="nav-link active" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-assets"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-assets"><i class="fa fa-fw fa-desktop mr-2"></i>Asset</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-vendors"><i class="fa fa-fw fa-building mr-2"></i>Vendors</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-locations"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Location</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-vendors"><i class="fa fa-fw fa-building mr-2"></i>Vendor</a>
                             </li>
                         </ul>
 
@@ -219,6 +222,32 @@
                                                 $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
                                             ?>
                                                 <option value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-locations">
+
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="location">
+                                            <option value="0">- None -</option>
+                                            <?php
+
+                                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                                            while ($row = mysqli_fetch_array($sql_locations)) {
+                                                $location_id_select = intval($row['location_id']);
+                                                $location_name_select = nullable_htmlentities($row['location_name']);
+                                            ?>
+                                                <option value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
 
                                             <?php } ?>
                                         </select>

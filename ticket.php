@@ -135,6 +135,7 @@ if (isset($_GET['ticket_id'])) {
         $vendor_code = nullable_htmlentities($row['vendor_code']);
         $vendor_notes = nullable_htmlentities($row['vendor_notes']);
 
+        $location_id = intval($row['location_id']);
         $location_name = nullable_htmlentities($row['location_name']);
         $location_address = nullable_htmlentities($row['location_address']);
         $location_city = nullable_htmlentities($row['location_city']);
