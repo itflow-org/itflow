@@ -10,7 +10,6 @@
     </ul>
 
     <!-- Center navbar links -->
-
     <ul class="navbar-nav ml-auto">
 
         <!-- SEARCH FORM -->
@@ -28,7 +27,6 @@
     </ul>
 
     <!-- Right navbar links -->
-
     <ul class="navbar-nav ml-auto">
 
         <?php if ($config_module_enable_ticketing == 1) { ?>
@@ -114,7 +112,6 @@
         </li>
 
         <?php } ?>
-
         <!-- End New Notifications Dropdown -->
 
         <li class="nav-item dropdown user-menu">
