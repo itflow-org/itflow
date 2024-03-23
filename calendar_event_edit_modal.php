@@ -18,6 +18,9 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-details<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
                         </li>
                     </ul>
@@ -60,7 +63,6 @@
                                 </div>
                             </div>
 
-                            
                             <div class="form-group">
                                 <label>Start / End <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
@@ -94,17 +96,25 @@
                                         <option <?php if ($event_repeat == "Year") { echo "selected"; } ?>>Year</option>
                                     </select>
                                 </div>
+                            </div>  
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-details<?php echo $event_id; ?>">
+                            <div class="form-group">
+                                <label>Location</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location" value="<?php echo $event_location; ?>" placeholder="Location of the event">
+                                </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                                <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
                             </div>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-more<?php echo $event_id; ?>">
-
                             
 
                         </div>

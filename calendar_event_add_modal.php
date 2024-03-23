@@ -15,6 +15,9 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-event"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-attendees"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
                         </li>
                     </ul>
@@ -93,8 +96,22 @@
                                 </div>
                             </div>
 
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-details">
+
                             <div class="form-group">
-                                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"></textarea>
+                                <label>Location</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location" placeholder="Location of the event">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"></textarea>
                             </div>
 
                         </div>

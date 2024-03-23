@@ -32,6 +32,7 @@ while ($row = mysqli_fetch_array($sql)) {
     $event_id = intval($row['event_id']);
     $event_title = nullable_htmlentities($row['event_title']);
     $event_description = nullable_htmlentities($row['event_description']);
+    $event_location = nullable_htmlentities($row['event_location']);
     $event_start = nullable_htmlentities($row['event_start']);
     $event_end = nullable_htmlentities($row['event_end']);
     $event_repeat = nullable_htmlentities($row['event_repeat']);
