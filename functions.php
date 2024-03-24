@@ -1139,6 +1139,22 @@ function createiCalStrCancel($originaliCalStr) {
 }
 
 function getTicketStatusColor($ticket_status) {
+
+    global $mysqli;
+
+    if (intval($ticket_status)) {
+        $status_id = intval($ticket_status);
+        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
+
+        if ($row) {
+            return nullable_htmlentities($row['ticket_status_color']);
+        }
+
+        // Default return
+        return "Unknown";
+    }
+
+    // Legacy support for named statuses
     if ($ticket_status == "New") {
         return "danger";
     } elseif ($ticket_status == "Open") {
@@ -1150,4 +1166,25 @@ function getTicketStatusColor($ticket_status) {
     } elseif ($ticket_status == "Closed") {
         return "dark";
     }
+}
+
+function getTicketStatusName($ticket_status) {
+
+    global $mysqli;
+
+    // Legacy support for named statuses
+    if (!intval($ticket_status)) {
+        return $ticket_status;
+    }
+
+    $status_id = intval($ticket_status);
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
+
+    if ($row) {
+        return nullable_htmlentities($row['ticket_status_name']);
+    }
+
+    // Default return
+    return "Unknown";
+
 }

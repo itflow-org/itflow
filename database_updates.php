@@ -1687,10 +1687,37 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.3') {
-    //     // Insert queries here required to update to DB version 1.1.4
+    if (CURRENT_DATABASE_VERSION == '1.1.3') {
+
+        // Add new ticket_statuses table
+        mysqli_query($mysqli, "CREATE TABLE `ticket_statuses` (
+            `ticket_status_id` INT(11) NOT NULL AUTO_INCREMENT, 
+            `ticket_status_name` VARCHAR(200) NOT NULL,
+            `ticket_status_color` VARCHAR(200) NOT NULL,
+            `ticket_status_active` TINYINT(1) NOT NULL DEFAULT '1',
+            PRIMARY KEY (`ticket_status_id`)
+        )");
+
+        // Pre-seed ticket statuses
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = 'danger'"); // Default ID for new tickets is 1
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = 'primary'"); // 2
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = 'success'"); // 3
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Auto Close', ticket_status_color = 'dark'"); // 5
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = 'dark'"); // 5
+
+        // Add default values above to settings
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_new` int(1) NOT NULL DEFAULT '1' AFTER `config_ticket_new_ticket_notification_email`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_open` int(1) NOT NULL DEFAULT '2' AFTER `config_ticket_status_id_new`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_autoclose` int(1) NOT NULL DEFAULT '4' AFTER `config_ticket_status_id_open`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_closed` int(1) NOT NULL DEFAULT '5' AFTER `config_ticket_status_id_autoclose`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.4') {
+    //     // Insert queries here required to update to DB version 1.1.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.5'");
     // }
 
 } else {

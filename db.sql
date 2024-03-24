@@ -1296,6 +1296,10 @@ CREATE TABLE `settings` (
   `config_ticket_autoclose` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
+  `config_ticket_status_id_new` int(1) NOT NULL DEFAULT 1,
+  `config_ticket_status_id_open` int(1) NOT NULL DEFAULT 2,
+  `config_ticket_status_id_autoclose` int(1) NOT NULL DEFAULT 4,
+  `config_ticket_status_id_closed` int(1) NOT NULL DEFAULT 5,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_cron_key` varchar(255) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
@@ -1559,6 +1563,19 @@ CREATE TABLE `ticket_replies` (
   PRIMARY KEY (`ticket_reply_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticket_statuses`
+--
+
+DROP TABLE IF EXISTS `ticket_statuses`;
+CREATE TABLE IF NOT EXISTS `ticket_statuses` (
+  `ticket_status_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_status_name` varchar(200) NOT NULL,
+  `ticket_status_color` varchar(200) NOT NULL,
+  `ticket_status_active` TINYINT(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`ticket_status_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `ticket_views`

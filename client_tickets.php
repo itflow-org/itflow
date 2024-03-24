@@ -142,14 +142,14 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     $ticket_number = nullable_htmlentities($row['ticket_number']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                    $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_status = sanitizeInput(getTicketStatusName($row['ticket_status']));
                     $ticket_billable = intval($row['ticket_billable']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                     $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                     if (empty($ticket_updated_at)) {
-                        if ($ticket_status == "Closed") {
+                        if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == "Closed") {
                             $ticket_updated_at_display = "<p>Never</p>";
                         } else {
                             $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -173,7 +173,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                     $ticket_assigned_to = intval($row['ticket_assigned_to']);
                     if (empty($ticket_assigned_to)) {
-                        if ($ticket_status == "Closed") {
+                        if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == "Closed") {
                             $ticket_assigned_to_display = "<p>Not Assigned</p>";
                         } else {
                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
@@ -281,7 +281,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                     <?php
                     // Edit actions, for open tickets
-                    if ($ticket_status !== "Closed") {
+                    if ($ticket_status !== $config_ticket_status_id_closed || $ticket_status !== "Closed") {
 
                         require "ticket_assign_modal.php";
 
