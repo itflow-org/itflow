@@ -61,7 +61,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
             $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
             $ticket_number = intval($row['ticket_number']);
             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-            $ticket_status = nullable_htmlentities($row['ticket_status']);
+            $ticket_status = sanitizeInput(getTicketStatusName($row['ticket_status']));
             $ticket_contact_name = nullable_htmlentities($row['contact_name']);
 
             echo "<tr>";

@@ -32,7 +32,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         $ticket_prefix = nullable_htmlentities($ticket_row['ticket_prefix']);
         $ticket_number = intval($ticket_row['ticket_number']);
-        $ticket_status = nullable_htmlentities($ticket_row['ticket_status']);
+        $ticket_status = sanitizeInput(getTicketStatusName($ticket_row['ticket_status']));
         $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
         $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
@@ -56,7 +56,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h4 class="mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
-                    if ($ticket_status !== "Closed") { ?>
+                    if ($ticket_status !== $config_ticket_status_id_closed AND $ticket_status !== "Closed") { ?>
                         <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
                     <?php } ?>
                 </h4>
@@ -70,7 +70,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     <br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?>
                     <br>
-                    <?php if (!empty($ticket_assigned_to) && $ticket_status !== "Closed") { ?>
+                    <?php if (!empty($ticket_assigned_to) && $ticket_status !== $config_ticket_status_id_closed && $ticket_status !== "Closed") { ?>
                         <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
                     <?php } ?>
                 </p>

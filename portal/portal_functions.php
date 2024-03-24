@@ -11,7 +11,7 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
 {
 
     // Access the global variables
-    global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id;
+    global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id, $config_ticket_status_id_closed;
 
     // Setup
     if ($expected_ticket_state == "Closed") {

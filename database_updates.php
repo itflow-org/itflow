@@ -1691,7 +1691,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         // Add new ticket_statuses table
         mysqli_query($mysqli, "CREATE TABLE `ticket_statuses` (
-            `ticket_status_id` INT(11) NOT NULL AUTO_INCREMENT, 
+            `ticket_status_id` INT(11) NOT NULL AUTO_INCREMENT,
             `ticket_status_name` VARCHAR(200) NOT NULL,
             `ticket_status_color` VARCHAR(200) NOT NULL,
             `ticket_status_active` TINYINT(1) NOT NULL DEFAULT '1',
