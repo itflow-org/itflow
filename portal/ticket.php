@@ -56,7 +56,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h4 class="mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
-                    if ($ticket_status !== $config_ticket_status_id_closed AND $ticket_status !== "Closed") { ?>
+                    if ($ticket_status !== $config_ticket_status_id_closed && $ticket_status !== "Closed") { ?>
                         <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
                     <?php } ?>
                 </h4>
