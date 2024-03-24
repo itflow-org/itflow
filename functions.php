@@ -1138,3 +1138,16 @@ function createiCalStrCancel($originaliCalStr) {
     return $cal_event->export();
 }
 
+function getTicketStatusColor($ticket_status) {
+    if ($ticket_status == "New") {
+        return "danger";
+    } elseif ($ticket_status == "Open") {
+        return "primary";
+    } elseif ($ticket_status == "On Hold") {
+        return "success";
+    } elseif ($ticket_status == "Auto Close") {
+        return "dark";
+    } elseif ($ticket_status == "Closed") {
+        return "dark";
+    }
+}

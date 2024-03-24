@@ -77,17 +77,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
 
         $ticket_status = nullable_htmlentities($row['ticket_status']);
-        if ($ticket_status == "New") {
-            $ticket_status_display = "<span class='p-2 badge badge-danger'>$ticket_status</span>";
-        } elseif ($ticket_status == "Open") {
-            $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-        } elseif ($ticket_status == "On Hold") {
-            $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-        } elseif ($ticket_status == "Auto Close" || $ticket_status == "Closed") {
-            $ticket_status_display = "<span class='p-2 badge badge-dark'>$ticket_status</span>";
-        } else {
-            $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>"; // To be removed
-        }
+        $ticket_status_color = getTicketStatusColor($ticket_status);
 
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
@@ -163,7 +153,7 @@ if (isset($_GET['ticket_id'])) {
         $row = mysqli_fetch_array($ticket_total_reply_time);
         $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
 
-        
+
         // Client Tags
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
@@ -186,13 +176,13 @@ if (isset($_GET['ticket_id'])) {
         }
         $client_tags_display = implode(' ', $client_tag_name_display_array);
 
-        
+
         // Get the number of ticket Responses
         $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_responses_sql);
         $ticket_responses = intval($row['ticket_responses']);
 
-        
+
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
         $dt_value = $asset_warranty_expire; //sample date
@@ -219,7 +209,7 @@ if (isset($_GET['ticket_id'])) {
             ORDER BY ticket_reply_id DESC"
         );
 
-        
+
         // Get other tickets for this asset
         if (!empty($asset_id)) {
             $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
@@ -237,7 +227,7 @@ if (isset($_GET['ticket_id'])) {
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
         );
-        
+
 
         // Get Ticket Attachments
         $sql_ticket_attachments = mysqli_query(
@@ -262,7 +252,7 @@ if (isset($_GET['ticket_id'])) {
         <div class="card card-body">
             <div class="row">
                 <div class="col-9">
-                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <?php echo $ticket_status_display; ?></h3>
+                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status ?></span></h3>
                 </div>
                 <?php if ($ticket_status != "Closed") { ?>
                     <div class="col-3">
@@ -297,7 +287,7 @@ if (isset($_GET['ticket_id'])) {
         <div class="row">
 
             <div class="col-md-9">
-                
+
                 <div class="card card-outline card-primary mb-3">
 
                     <div class="card-header">
@@ -739,7 +729,7 @@ if (isset($_GET['ticket_id'])) {
                 </div>
                 <!-- End Ticket details card -->
 
-                
+
                 <!-- Asset card -->
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Asset</h5>
@@ -927,8 +917,8 @@ if (isset($_GET['ticket_id'])) {
                 </form>
                 <!-- End Assigned to -->
 
-                
-                <!-- Invoice / Close Ticket --> 
+
+                <!-- Invoice / Close Ticket -->
                 <div class="card card-body card-outline card-dark mb-2 d-print-none">
                     <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
                         <a href="#" class="btn btn-info btn-block" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
@@ -942,7 +932,7 @@ if (isset($_GET['ticket_id'])) {
                         </a>
                     <?php } ?>
                 </div>
-                
+
             </div> <!-- End col-3 -->
 
         </div> <!-- End row -->
@@ -977,7 +967,7 @@ require_once "footer.php";
 
 ?>
 
-<script src="js/show_modals.js"></script> 
+<script src="js/show_modals.js"></script>
 
 <?php if ($ticket_status !== "Closed") { ?>
     <!-- Ticket Time Tracking JS -->
