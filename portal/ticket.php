@@ -19,9 +19,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
 
     if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
-        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
+        // For a primary / technical contact viewing all tickets
+        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
     } else {
-        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
+        // For a user viewing their own ticket
+        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
     }
 
     $ticket_row = mysqli_fetch_array($ticket_sql);
@@ -34,6 +36,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
         $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
+        $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
         $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
 
         ?>
@@ -66,6 +69,10 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     <strong>State:</strong> <?php echo $ticket_status ?>
                     <br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?>
+                    <br>
+                    <?php if (!empty($ticket_assigned_to) && $ticket_status !== "Closed") { ?>
+                        <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                    <?php } ?>
                 </p>
                 <?php echo $ticket_details ?>
             </div>
@@ -180,7 +187,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <script src="../js/pretty_content.js"></script>
 
-        <?php
+    <?php
     } else {
         echo "Ticket ID not found!";
     }
