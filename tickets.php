@@ -311,7 +311,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $ticket_number = intval($row['ticket_number']);
                             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                             $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                            $ticket_status = nullable_htmlentities($row['ticket_status']);
+                            $ticket_status = sanitizeInput(getTicketStatusName($row['ticket_status']));
                             $ticket_billable = intval($row['ticket_billable']);
                             $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
                             $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
@@ -319,7 +319,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                             $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                             if (empty($ticket_updated_at)) {
-                                if ($ticket_status == "Closed") {
+                                if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == "Closed") {
                                     $ticket_updated_at_display = "<p>Never</p>";
                                 } else {
                                     $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -333,17 +333,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
 
-                            if ($ticket_status == "New") {
-                                $ticket_status_color = "danger";
-                            } elseif ($ticket_status == "Open") {
-                                $ticket_status_color = "primary";
-                            } elseif ($ticket_status == "On Hold") {
-                                $ticket_status_color = "success";
-                            } elseif ($ticket_status == "Auto Close") {
-                                $ticket_status_color = "dark";
-                            } elseif ($ticket_status == "Closed") {
-                                $ticket_status_color = "dark";
-                            }
+                            $ticket_status_color = getTicketStatusColor($ticket_status);
 
                             if ($ticket_priority == "High") {
                                 $ticket_priority_color = "danger";
@@ -355,7 +345,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             $ticket_assigned_to = intval($row['ticket_assigned_to']);
                             if (empty($ticket_assigned_to)) {
-                                if ($ticket_status == "Closed") {
+                                if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == "Closed") {
                                     $ticket_assigned_to_display = "<p>Not Assigned</p>";
                                 } else {
                                     $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
@@ -398,7 +388,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                                 <!-- Ticket Bulk Select -->
                                 <td>
-                                    <?php if ($ticket_status !== "Closed") { ?>
+                                    <?php if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == "Closed") { ?>
                                         <div class="form-check">
                                             <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
                                         </div>
@@ -470,7 +460,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             <?php
                             // Edit actions, for open tickets
-                            if ($ticket_status !== "Closed") {
+                            if ($ticket_status !== $config_ticket_status_id_closed || $ticket_status !== "Closed") {
 
                                 require "ticket_assign_modal.php";
 
