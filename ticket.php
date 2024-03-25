@@ -237,6 +237,10 @@ if (isset($_GET['ticket_id'])) {
             AND ticket_attachment_ticket_id = $ticket_id"
         );
 
+
+        // Get Tasks
+        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_created_at ASC");
+
 ?>
 
         <!-- Breadcrumbs-->
@@ -263,6 +267,9 @@ if (isset($_GET['ticket_id'])) {
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTaskModal">
+                                    <i class="fas fa-fw fa-tasks mr-2"></i>Create Task
                                 </a>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-clone mr-2"></i>Merge
@@ -933,6 +940,33 @@ if (isset($_GET['ticket_id'])) {
                     <?php } ?>
                 </div>
 
+
+                <!-- Tasks card -->
+                <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h5 class="text-secondary"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
+
+                        <?php
+                        // Get Watchers
+                        while ($row = mysqli_fetch_array($sql_tasks)) {
+                            $task_id = intval($row['task_id']);
+                            $task_name = nullable_htmlentities($row['task_name']);
+                            $task_description = nullable_htmlentities($row['task_description']);
+                            ?>
+                            <div class='mt-1'>
+                                <i class="fa fa-fw fa-checkmark text-secondary mr-2"></i><?php echo $task_name; ?>
+                                <?php if ($ticket_status !== "Closed") { ?>
+                                    <a class="confirm-link float-right" href="post.php?delete_task=<?php echo $task_id; ?>">
+                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
+
+                        <?php } ?>
+                    </div>
+                <?php } ?>
+                <!-- End Tasks card -->
+
             </div> <!-- End col-3 -->
 
         </div> <!-- End row -->
@@ -955,6 +989,8 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_edit_schedule_modal.php";
 
         require_once "ticket_merge_modal.php";
+
+        require_once "task_add_modal.php";
 
         if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";

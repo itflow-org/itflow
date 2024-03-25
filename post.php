@@ -71,6 +71,8 @@ require_once "post/tax.php";
 
 require_once "post/ticket.php";
 
+require_once "post/tasks.php";
+
 require_once "post/transfer.php";
 
 require_once "post/trip.php";
@@ -85,5 +87,3 @@ require_once "post/ai.php";
 
 require_once "post/misc.php";
 
-
-?>
