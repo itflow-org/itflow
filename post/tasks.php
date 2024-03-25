@@ -9,8 +9,8 @@ if (isset($_POST['add_task'])) {
     validateTechRole();
 
     $ticket_id = intval($_POST['ticket_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $task_name = sanitizeInput($_POST['name']);
+    $task_description = sanitizeInput($_POST['description']);
 
     // Get Client ID from tickets using the ticket_id
     $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
@@ -18,14 +18,14 @@ if (isset($_POST['add_task'])) {
     $client_id = intval($row['ticket_client_id']);
 
     
-    mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$name', task_description = '$description', task_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_description = '$task_description', task_ticket_id = $ticket_id");
 
     $task_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Create', log_description = '$session_name created task $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Create', log_description = '$session_name created task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
 
-    $_SESSION['alert_message'] = "You created Task <strong>$name</strong>";
+    $_SESSION['alert_message'] = "You created Task <strong>$task_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
