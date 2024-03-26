@@ -6,8 +6,6 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
-
-
 //Asset Type from GET
 if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
     $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
@@ -49,7 +47,6 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         WHERE asset_client_id = $client_id
         AND asset_$archive_query
         AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
-        AND ($type_query)
         $location_query
     ) AS filtered_assets;
 "));
