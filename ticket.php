@@ -638,6 +638,47 @@ if (isset($_GET['ticket_id'])) {
                 <!-- End contact card -->
 
 
+                <!-- Tasks card -->
+                <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
+                    <div class="card card-body card-outline card-dark mb-3">
+                        <h5 class="text-secondary"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
+
+                        <?php
+                        // Get Tasks
+                        while ($row = mysqli_fetch_array($sql_tasks)) {
+                            $task_id = intval($row['task_id']);
+                            $task_name = nullable_htmlentities($row['task_name']);
+                            $task_description = nullable_htmlentities($row['task_description']);
+                            $task_completed_at = nullable_htmlentities($row['task_completed_at']);
+                            ?>
+                            
+                            <?php if($task_completed_at) { ?>
+                                <div class='mt-1 text-success'>
+                                    <i class="fas fa-fw fa-check-circle mr-2"></i><s><?php echo $task_name; ?></s>
+                                </div>
+                            <?php } else { ?>
+                                <div class='mt-1'>
+                                    <a href="post.php?complete_task=<?php echo $task_id; ?>"><i class="fas fa-fw fa-check-circle mr-2"></i></a><?php echo $task_name; ?>
+                                    <?php if ($ticket_status !== "Closed") { ?>
+                                        <div class="float-right">
+                                            <a  href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                <i class="fas fa-fw fa-edit"></i>
+                                            </a>
+                                            <a class="confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>">
+                                                <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                                            </a>  
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                                <?php require "task_edit_modal.php"; ?>
+                            <?php } ?>
+                        
+                        <?php } ?>
+                    </div>
+                <?php } ?>
+                <!-- End Tasks card -->
+
+
                 <!-- Ticket watchers card -->
                 <?php
                 $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
@@ -915,9 +956,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                             </select>
                             <div class="input-group-append d-print-none">
-                                <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if ($ticket_status == "Closed") {
-                                                                                                        echo "disabled";
-                                                                                                    } ?>><i class="fas fa-check"></i></button>
+                                <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if ($ticket_status == "Closed") { echo "disabled"; } ?>><i class="fas fa-check"></i></button>
                             </div>
                         </div>
                     </div>
@@ -939,33 +978,6 @@ if (isset($_GET['ticket_id'])) {
                         </a>
                     <?php } ?>
                 </div>
-
-
-                <!-- Tasks card -->
-                <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
-                    <div class="card card-body card-outline card-dark mb-3">
-                        <h5 class="text-secondary"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
-
-                        <?php
-                        // Get Watchers
-                        while ($row = mysqli_fetch_array($sql_tasks)) {
-                            $task_id = intval($row['task_id']);
-                            $task_name = nullable_htmlentities($row['task_name']);
-                            $task_description = nullable_htmlentities($row['task_description']);
-                            ?>
-                            <div class='mt-1'>
-                                <i class="fa fa-fw fa-checkmark text-secondary mr-2"></i><?php echo $task_name; ?>
-                                <?php if ($ticket_status !== "Closed") { ?>
-                                    <a class="confirm-link float-right" href="post.php?delete_task=<?php echo $task_id; ?>">
-                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                                    </a>
-                                <?php } ?>
-                            </div>
-
-                        <?php } ?>
-                    </div>
-                <?php } ?>
-                <!-- End Tasks card -->
 
             </div> <!-- End col-3 -->
 
