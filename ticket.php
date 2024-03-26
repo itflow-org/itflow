@@ -654,23 +654,20 @@ if (isset($_GET['ticket_id'])) {
                     <form action="post.php" method="post">
                         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
+                        <input type="hidden" name="assign_ticket" value="Assign">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select class="form-control select2" name="assigned_to" <?php if ($ticket_status == "Closed") { echo "disabled"; } ?>>
+                            <select onchange="this.form.submit()" class="form-control select2" name="assigned_to" <?php if ($ticket_status == "Closed") { echo "disabled"; } ?>>
                                 <option value="0">Not Assigned</option>
                                 <?php
-
                                 while ($row = mysqli_fetch_array($sql_assign_to_select)) {
                                     $user_id = intval($row['user_id']);
                                     $user_name = nullable_htmlentities($row['user_name']); ?>
                                     <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php } ?>
                             </select>
-                            <div class="input-group-append d-print-none">
-                                <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if ($ticket_status == "Closed") { echo "disabled"; } ?>><i class="fas fa-check"></i></button>
-                            </div>
                         </div>        
                     </form>
                     <!-- End Assigned to -->
@@ -685,7 +682,7 @@ if (isset($_GET['ticket_id'])) {
                     <?php if (!empty($contact_id)) { ?>
 
                         <div>
-                            <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
                             </a>
                         </div>
 
