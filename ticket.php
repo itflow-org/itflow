@@ -654,7 +654,7 @@ if (isset($_GET['ticket_id'])) {
                             
                             <?php if($task_completed_at) { ?>
                                 <div class='mt-1 text-success'>
-                                    <i class="fas fa-fw fa-check-circle mr-2"></i><s><?php echo $task_name; ?></s>
+                                    <i class="fas fa-fw fa-check-circle mr-2"></i><s><?php echo $task_name; ?></s><span class="float-right"><small class="text-secondary"><i class="fa fa-fw fa-clock mr-1"></i><?php echo $task_completed_at; ?></small></span>
                                 </div>
                             <?php } else { ?>
                                 <div class='mt-1'>
