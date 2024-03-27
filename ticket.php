@@ -262,72 +262,73 @@ if (isset($_GET['ticket_id'])) {
                 <div class="col-7">
                     <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status ?></span></h3>
                 </div>
-                <?php if ($ticket_status != "Closed") { ?>
-                    <div class="col-5">
+                
+                <div class="col-5">
 
-                        <div class="btn-group float-right d-print-none">
+                    <div class="btn-group float-right d-print-none">
 
-                            <div class="dropdown dropleft text-center mr-3">
-                                <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-plus mr-2"></i>Add
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTaskModal">
-                                        <i class="fas fa-fw fa-tasks mr-2"></i>Create Task
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>">
-                                        <i class="fa fa-fw fa-user mr-2"></i>Add Contact
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-building mr-2"></i>Add Vendor
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
-                                        <i class="fas fa-fw fa-users mr-2"></i>Add Watcher
-                                    </a>
-                                </div>
-                            </div>
-
-                            <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
-                                <a href="#" class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
-                                    <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
+                        <?php if ($ticket_status !== "Closed") { ?>
+                        <div class="dropdown dropleft text-center mr-3">
+                            <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-plus mr-2"></i>Add
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTaskModal">
+                                    <i class="fas fa-fw fa-tasks mr-2"></i>Create Task
                                 </a>
-                            <?php }
-
-                            if ($ticket_status !== "Closed") { ?>
-                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm confirm-link" id="ticket_close">
-                                    <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>">
+                                    <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                 </a>
-                            <?php } ?>
-
-                            <div class="dropdown dropleft text-center ml-3">
-                                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-ellipsis-v"></i>
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-clone mr-2"></i>Merge
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
-                                        <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
-                                    </a>
-                                    <?php if ($session_user_role == 3) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    <?php } ?>
-                                </div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
+                                    <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
+                                    <i class="fas fa-fw fa-building mr-2"></i>Add Vendor
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
+                                    <i class="fas fa-fw fa-users mr-2"></i>Add Watcher
+                                </a>
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
+                            <a href="#" class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                                <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
+                            </a>
+                        <?php }
+
+                        if ($ticket_status !== "Closed") { ?>
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm confirm-link" id="ticket_close">
+                            <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                        </a>
+                        
+                        <div class="dropdown dropleft text-center ml-3">
+                            <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
+                                    <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
+                                    <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
+                                </a>
+                                <?php if ($session_user_role == 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <?php } ?>
                     </div>
-                <?php } ?>
+                </div>
             </div>
             <span class="text-info ml-5" id="ticket_collision_viewing"></span>
         </div>
