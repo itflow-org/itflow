@@ -1687,10 +1687,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.3'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.3') {
-    //     // Insert queries here required to update to DB version 1.1.4
+    if (CURRENT_DATABASE_VERSION == '1.1.3') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_subnet` VARCHAR(200) DEFAULT NULL AFTER `network`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_primary_dns` VARCHAR(200) DEFAULT NULL AFTER `network_gateway`");
+        mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_secondary_dns` VARCHAR(200) DEFAULT NULL AFTER `network_primary_dns`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.4') {
+    //     // Insert queries here required to update to DB version 1.1.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.5'");
     // }
 
 } else {

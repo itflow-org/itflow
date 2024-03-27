@@ -16,7 +16,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON location_id = network_location_id
     WHERE network_client_id = $client_id
     AND network_archived_at IS NULL
-    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_subnet LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -88,8 +88,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_name&order=<?php echo $disp; ?>">Name</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_vlan&order=<?php echo $disp; ?>">vLAN</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network&order=<?php echo $disp; ?>">Network</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network&order=<?php echo $disp; ?>">IP / Network</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_gateway&order=<?php echo $disp; ?>">Gateway</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_primary_dns&order=<?php echo $disp; ?>">DNS</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_dhcp_range&order=<?php echo $disp; ?>">DHCP Range</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
                             <th class="text-center">Action</th>
@@ -103,13 +104,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $network_name = nullable_htmlentities($row['network_name']);
                             $network_description = nullable_htmlentities($row['network_description']);
                             $network_vlan = intval($row['network_vlan']);
-                            if (empty($network_vlan)) {
-                                $network_vlan_display = "-";
-                            } else {
+                            if ($network_vlan) {
                                 $network_vlan_display = $network_vlan;
+                            } else {
+                                $network_vlan_display = "-";
                             }
                             $network = nullable_htmlentities($row['network']);
+                            $network_subnet = nullable_htmlentities($row['network_subnet']);
                             $network_gateway = nullable_htmlentities($row['network_gateway']);
+                            $network_primary_dns = nullable_htmlentities($row['network_primary_dns']);
+                            $network_secondary_dns = nullable_htmlentities($row['network_secondary_dns']);
+                            if ($network_primary_dns && $network_secondary_dns) {
+                                $network_dns_display = "$network_primary_dns<div class='text-secondary mt-1'>$network_secondary_dns</div>";   
+                            } else {
+                                $network_dns_display = "-";
+                            }
                             $network_dhcp_range = nullable_htmlentities($row['network_dhcp_range']);
                             if (empty($network_dhcp_range)) {
                                 $network_dhcp_range_display = "-";
@@ -144,8 +153,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                 </td>
                                 <td><?php echo $network_vlan_display; ?></td>
-                                <td><?php echo $network; ?></td>
+                                <td>
+                                    <?php echo $network; ?>
+                                    <div class="text-secondary mt-1"><?php echo $network_subnet; ?></div>
+                                </td>
                                 <td><?php echo $network_gateway; ?></td>
+                                <td><?php echo $network_dns_display; ?></td>
                                 <td><?php echo $network_dhcp_range_display; ?></td>
                                 <td><?php echo $location_name_display; ?></td>
                                 <td>
