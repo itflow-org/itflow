@@ -848,7 +848,10 @@ CREATE TABLE `networks` (
   `network_description` text DEFAULT NULL,
   `network_vlan` int(11) DEFAULT NULL,
   `network` varchar(200) NOT NULL,
+  `network_subnet` varchar(200) DEFAULT NULL,
   `network_gateway` varchar(200) NOT NULL,
+  `network_primary_dns` varchar(200) DEFAULT NULL,
+  `network_secondary_dns` varchar(200) DEFAULT NULL,
   `network_dhcp_range` varchar(200) DEFAULT NULL,
   `network_notes` text DEFAULT NULL,
   `network_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1803,4 +1806,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-19 17:11:58
+-- Dump completed on 2024-03-27 14:21:02
