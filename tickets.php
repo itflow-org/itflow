@@ -384,12 +384,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             if ($row) {
                                 $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
-
                                 if ($ticket_reply_type == "Client") {
                                     $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
                                 } else {
                                     $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
                                 }
+                                $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
                             }
 
                             ?>

@@ -1695,10 +1695,62 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.4'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.4') {
-    //     // Insert queries here required to update to DB version 1.1.5
+    if (CURRENT_DATABASE_VERSION == '1.1.4') {
+
+        // Add Project Templates
+        mysqli_query($mysqli, "CREATE TABLE `project_templates` (
+            `project_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `project_template_name` VARCHAR(200) NOT NULL,
+            `project_template_description` TEXT DEFAULT NULL,
+            `project_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `project_template_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `project_template_archived_at` DATETIME DEFAULT NULL,
+            PRIMARY KEY (`project_template_id`)
+        )");
+
+        // Add Ticket Templates
+        mysqli_query($mysqli, "CREATE TABLE `ticket_templates` (
+            `ticket_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `ticket_template_name` VARCHAR(200) NOT NULL,
+            `ticket_template_description` TEXT DEFAULT NULL,
+            `ticket_template_subject` VARCHAR(200) DEFAULT NULL,
+            `ticket_template_details` LONGTEXT DEFAULT NULL,
+            `ticket_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `ticket_template_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `ticket_template_archived_at` DATETIME DEFAULT NULL,
+            `ticket_template_project_template_id` INT(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`ticket_template_id`)
+        )");
+
+        // Add Task Templates
+        mysqli_query($mysqli, "CREATE TABLE `task_templates` (
+            `task_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `task_template_name` VARCHAR(200) NOT NULL,
+            `task_template_description` TEXT DEFAULT NULL,
+            `task_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `task_template_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `task_template_archived_at` DATETIME DEFAULT NULL,
+            `task_template_ticket_template_id` INT(11) NOT NULL,
+            PRIMARY KEY (`task_template_id`)
+        )");
+
+        mysqli_query($mysqli, "ALTER TABLE `projects` ADD `project_completed_at` DATETIME DEFAULT NULL AFTER `project_updated_at`");
+
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_project_id` INT(11) NOT NULL DEFAULT 0 AFTER `ticket_invoice_id`");
+
+        mysqli_query($mysqli, "ALTER TABLE `tasks` DROP `task_template`");
+        mysqli_query($mysqli, "ALTER TABLE `tasks` DROP `task_finish_date`");
+        mysqli_query($mysqli, "ALTER TABLE `tasks` DROP `task_project_id`");
+
+        mysqli_query($mysqli, "ALTER TABLE `projects` DROP `project_template`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.5'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.5') {
+    //     // Insert queries here required to update to DB version 1.1.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.6'");
     // }
 
 } else {
