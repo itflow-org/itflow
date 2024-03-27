@@ -43,6 +43,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="projects.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "projects.php" || basename($_SERVER["PHP_SELF"]) == "project_details.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <p>Projects</p>
+                        </a>
+                    </li>
+
                 <?php } ?>
 
                 <li class="nav-item">

@@ -55,6 +55,8 @@ require_once "post/product.php";
 
 require_once "post/profile.php";
 
+require_once "post/project.php";
+
 require_once "post/quote.php";
 
 require_once "post/revenue.php";
