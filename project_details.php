@@ -40,8 +40,9 @@ if (isset($_GET['project_id'])) {
 
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
     
-    // Ticket Closed Percent
-    $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+    if($ticket_count) {
+        $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+    }
 
     // Get All Tasks
     $sql_tasks = mysqli_query($mysqli,
@@ -62,7 +63,9 @@ if (isset($_GET['project_id'])) {
     $completed_task_count = mysqli_num_rows($sql_tasks_completed);
 
     // Tasks Completed Percent
-    $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+    if($task_count) {
+        $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+    }
 ?>
 
 <!-- Breadcrumbs-->
@@ -96,14 +99,18 @@ if (isset($_GET['project_id'])) {
         </div>
 
         <div class="col-sm-3">
+            <?php if($ticket_count) { ?>
             <div class="progress" style="height: 20px;">
                 <i class="fa fas fa-fw fa-life-ring mr-2"></i>
                 <div class="progress-bar bg-success" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
             </div>
+            <?php } ?>
+            <?php if($task_count) { ?>
             <div class="progress mt-2" style="height: 20px;">
                 <i class="fa fas fa-fw fa-tasks mr-2"></i>
                 <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
             </div>
+            <?php } ?>
         </div>
         
         <div class="col-sm-3">

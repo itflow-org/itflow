@@ -10,7 +10,7 @@ require_once "inc_all.php";
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query(
+$sql_projects = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM projects
     LEFT JOIN clients ON client_id = project_client_id
@@ -94,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tbody>
                     <?php
 
-                    while ($row = mysqli_fetch_array($sql)) {
+                    while ($row = mysqli_fetch_array($sql_projects)) {
                         $project_id = intval($row['project_id']);
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Get Tasks and Tickets Stats
                         // Get Tickets
-                        $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users ON ticket_assigned_to = user_id WHERE ticket_project_id = $project_id ORDER BY ticket_number DESC");
+                        $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id");
                         $ticket_count = mysqli_num_rows($sql_tickets);
 
                         // Get Closed Ticket Count
@@ -115,14 +115,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
                         
                         // Ticket Closed Percent
-                        $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
-
+                        if($ticket_count) {
+                            $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+                        }
                         // Get All Tasks
                         $sql_tasks = mysqli_query($mysqli,
                             "SELECT * FROM tickets, tasks
                             WHERE ticket_id = task_ticket_id
-                            AND ticket_project_id = $project_id
-                            ORDER BY task_created_at ASC"
+                            AND ticket_project_id = $project_id"
                         );
                         $task_count = mysqli_num_rows($sql_tasks);
 
@@ -136,7 +136,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $completed_task_count = mysqli_num_rows($sql_tasks_completed);
 
                         // Tasks Completed Percent
-                        $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+                        if($task_count) {
+                            $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+                        }
 
                         ?>
 
@@ -153,14 +155,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </td>
                             <td>
+                                <?php if($ticket_count) { ?>
                                 <div class="progress" style="height: 20px;">
                                     <i class="fa fas fa-fw fa-life-ring mr-2"></i>
                                     <div class="progress-bar bg-success" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
                                 </div>
+                                <?php } ?>
+                                <?php if($task_count) { ?>
                                 <div class="progress mt-2" style="height: 20px;">
                                     <i class="fa fas fa-fw fa-tasks mr-2"></i>
                                     <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
                                 </div>
+                                <?php } ?>
                             </td>
                             <td>Next Week</td>
                             <td>
