@@ -92,6 +92,8 @@ if (isset($_GET['ticket_id'])) {
             $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
         }
 
+        $project_id = intval($row['ticket_project_id']);
+
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);

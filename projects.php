@@ -14,8 +14,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM projects
     LEFT JOIN clients ON client_id = project_client_id
-    WHERE project_template = 0
-    AND DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
+    WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%')
     AND project_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -85,10 +84,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_name&order=<?php echo $disp; ?>">Project</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_description&order=<?php echo $disp; ?>">Description</a></th>
-                        <th>Tickets</th>
-                        <th>Tasks</th>
+                        <th>Tickets / Tasks</th>
                         <th>Due</th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_created_at&order=<?php echo $disp; ?>">Created</a></th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -100,33 +98,76 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $project_id = intval($row['project_id']);
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
-                        if ($project_description) {
-                            $project_description_display = $project_description;
-                        } else {
-                            
-                            $project_description_display = "-";
-                        }
                         $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
                         $project_updated_at = nullable_htmlentities($row['project_updated_at']);
+
+                        $client_id = intval($row['client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
+
+                        // Get Tasks and Tickets Stats
+                        // Get Tickets
+                        $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users ON ticket_assigned_to = user_id WHERE ticket_project_id = $project_id ORDER BY ticket_number DESC");
+                        $ticket_count = mysqli_num_rows($sql_tickets);
+
+                        // Get Closed Ticket Count
+                        $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_status = 'Closed'");
+
+                        $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
+                        
+                        // Ticket Closed Percent
+                        $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+
+                        // Get All Tasks
+                        $sql_tasks = mysqli_query($mysqli,
+                            "SELECT * FROM tickets, tasks
+                            WHERE ticket_id = task_ticket_id
+                            AND ticket_project_id = $project_id
+                            ORDER BY task_created_at ASC"
+                        );
+                        $task_count = mysqli_num_rows($sql_tasks);
+
+                        // Get Completed Task Count
+                        $sql_tasks_completed = mysqli_query($mysqli,
+                            "SELECT * FROM tickets, tasks
+                            WHERE ticket_id = task_ticket_id
+                            AND ticket_project_id = $project_id
+                            AND task_completed_at IS NOT NULL"
+                        );
+                        $completed_task_count = mysqli_num_rows($sql_tasks_completed);
+
+                        // Tasks Completed Percent
+                        $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
 
                         ?>
 
                         <tr>
-                            <th>
-                                <a class="text-dark" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>"><?php echo $project_name; ?></a>
-                            </th>
-                            <td><?php echo $project_description_display; ?></td>
                             <td>
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-success" style="width: 50%;">1 / 2</div>
-                                </div>
+                                <a class="text-dark" href="project_details.php?project_id=<?php echo $project_id; ?>">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
+                                        <div class="media-body">
+                                            <div><?php echo $project_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $project_description; ?></small></div>
+                                        </div>
+                                    </div>
+                                </a>
                             </td>
                             <td>
                                 <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar" style="width: 70%;">7 / 10</div>
+                                    <i class="fa fas fa-fw fa-life-ring mr-2"></i>
+                                    <div class="progress-bar bg-success" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
+                                </div>
+                                <div class="progress mt-2" style="height: 20px;">
+                                    <i class="fa fas fa-fw fa-tasks mr-2"></i>
+                                    <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
                                 </div>
                             </td>
                             <td>Next Week</td>
+                            <td>
+                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
+                                    <?php echo $client_name; ?>
+                                </a>
+                            </td>
                             <td><?php echo $project_created_at; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
