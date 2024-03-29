@@ -331,6 +331,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             } else {
                                 $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                             }
+                            $project_id = intval($row['ticket_project_id']);
 
                             $client_id = intval($row['ticket_client_id']);
                             $client_name = nullable_htmlentities($row['client_name']);
