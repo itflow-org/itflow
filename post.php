@@ -11,6 +11,9 @@ require_once "functions.php";
 require_once "check_login.php";
 
 // Load specific module logic
+
+require_once "post/admin.php";
+
 require_once "post/account.php";
 
 require_once "post/account_type.php";

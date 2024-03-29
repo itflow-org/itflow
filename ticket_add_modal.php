@@ -28,6 +28,9 @@
                                 <a class="nav-link" data-toggle="pill" href="#pills-vendors"><i class="fa fa-fw fa-building mr-2"></i>Vendor</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" data-toggle="pill" href="#pills-project"><i class="fa fa-fw fa-project-diagram mr-2"></i>Project</a>
                             </li>
                         </ul>
@@ -191,7 +194,7 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                         </div>
                                         <select class="form-control select2" name="watchers[]" data-tags="true" data-placeholder="Enter or select email address" multiple>
-                                            <option value="">aa</option>
+                                            <option value=""></option>
                                             <?php
                                             $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
@@ -289,6 +292,22 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
                                         <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-tasks">
+
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tasks[]" placeholder="Enter Task Name">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-primary"><i class="fas fa-fw fa-check mr-2"></i>Add</button>
+                                        </div>
                                     </div>
                                 </div>
 

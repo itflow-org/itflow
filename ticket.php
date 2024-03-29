@@ -749,45 +749,67 @@ if (isset($_GET['ticket_id'])) {
                 <!-- End contact card -->
 
 
-                <!-- Tasks card -->
-                <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
-                    <div class="card card-body card-outline card-dark mb-3">
-                        <h5 class="text-secondary"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
-
+                <!-- Tasks Card -->
+                <div class="card card-body card-outline card-dark">
+                    <h5 class="text-secondary">Tasks</h5>
+                    <form action="post.php" method="post" autocomplete="off">
+                        <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                                </div>
+                                <input type="text" class="form-control" name="name" placeholder="Create Task">
+                                <div class="input-group-append">
+                                    <button type="submit" name="add_task" class="btn btn-dark">
+                                        <i class="fas fa-fw fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="table table-sm">
                         <?php
-                        // Get Tasks
-                        while ($row = mysqli_fetch_array($sql_tasks)) {
+                        while($row = mysqli_fetch_array($sql_tasks)){
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
                             $task_description = nullable_htmlentities($row['task_description']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-                            ?>
-                            
-                            <?php if($task_completed_at) { ?>
-                                <div class='mt-1 text-success'>
-                                    <i class="fas fa-fw fa-check-circle mr-2"></i><s><?php echo $task_name; ?></s><span class="float-right"><small class="text-secondary"><i class="fa fa-fw fa-clock mr-1"></i><?php echo $task_completed_at; ?></small></span>
-                                </div>
-                            <?php } else { ?>
-                                <div class='mt-1'>
-                                    <a href="post.php?complete_task=<?php echo $task_id; ?>"><i class="fas fa-fw fa-check-circle mr-2"></i></a><?php echo $task_name; ?>
-                                    <?php if ($ticket_status !== "Closed") { ?>
-                                        <div class="float-right">
-                                            <a  href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
-                                                <i class="fas fa-fw fa-edit"></i>
-                                            </a>
-                                            <a class="confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>">
-                                                <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                                            </a>  
-                                        </div>
+                        ?>
+                            <tr>
+                                <td>
+                                    <?php if($task_completed_at) { ?>
+                                    <i class="far fa-fw fa-check-square text-primary"></i>
+                                    <?php } else { ?>
+                                    <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                        <i class="far fa-fw fa-square text-secondary"></i>
+                                    </a>
                                     <?php } ?>
-                                </div>
-                                <?php require "task_edit_modal.php"; ?>
-                            <?php } ?>
-                        
+                                </td>
+                                <td><?php echo $task_name; ?></td>
+                                <td> 
+                                    <div class="float-right">
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-fw fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>">
+                                                    <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         <?php } ?>
-                    </div>
-                <?php } ?>
-                <!-- End Tasks card -->
+                    </table>
+                </div>
+                <!-- End Tasks Card -->
 
 
                 <!-- Ticket watchers card -->
