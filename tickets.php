@@ -367,14 +367,20 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             }
 
                             // Get who last updated the ticket - to be shown in the last Response column
-                            $ticket_reply_type = "Client"; // Default to client for unreplied tickets
-                            $ticket_reply_by_display = ""; // Default none
-                            $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, ticket_reply_created_at, contact_name, user_name FROM ticket_replies
-                            LEFT JOIN users ON ticket_reply_by = user_id
-                            LEFT JOIN contacts ON ticket_reply_by = contact_id
-                            WHERE ticket_reply_ticket_id = $ticket_id
-                            AND ticket_reply_archived_at IS NULL
-                            ORDER BY ticket_reply_id DESC LIMIT 1"
+
+                            // Defaults to prevent undefined errors
+                            $ticket_reply_created_at = "";
+                            $ticket_reply_created_at_time_ago = "";
+                            $ticket_reply_by_display = "";
+                            $ticket_reply_type = "Client"; // Default to client for un-replied tickets
+
+                            $sql_ticket_reply = mysqli_query($mysqli,
+                                "SELECT ticket_reply_type, ticket_reply_created_at, contact_name, user_name FROM ticket_replies
+                                LEFT JOIN users ON ticket_reply_by = user_id
+                                LEFT JOIN contacts ON ticket_reply_by = contact_id
+                                WHERE ticket_reply_ticket_id = $ticket_id
+                                AND ticket_reply_archived_at IS NULL
+                                ORDER BY ticket_reply_id DESC LIMIT 1"
                             );
                             $row = mysqli_fetch_array($sql_ticket_reply);
 
