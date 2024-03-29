@@ -94,12 +94,12 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         $ticket_raised_count = intval($row['ticket_raised_count']);
 
                         // Calculate total tickets raised in period that are closed
-                        $sql_ticket_closed_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_closed_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_status = 'Closed'");
+                        $sql_ticket_closed_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_closed_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
                         $row = mysqli_fetch_array($sql_ticket_closed_count);
                         $ticket_closed_count = intval($row['ticket_closed_count']);
 
                         // Used to calculate average time to close tickets that were raised in period specified
-                        $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_closed_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_status = 'Closed' AND ticket_closed_at IS NOT NULL");
+                        $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_closed_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
 
                         if ($ticket_raised_count > 0) {
 

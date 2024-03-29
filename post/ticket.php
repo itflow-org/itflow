@@ -850,15 +850,12 @@ if (isset($_POST['add_ticket_reply'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
-    $ticket_status = sanitizeInput($_POST['status']);
+    $ticket_status = intval($_POST['status']);
     $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
     // Handle the time inputs for hours, minutes, and seconds
     $hours = intval($_POST['hours']);
     $minutes = intval($_POST['minutes']);
     $seconds = intval($_POST['seconds']);
-
-    //var_dump($_POST);
-    //exit;
 
     // Combine into a single time string
     $ticket_reply_time_worked = sanitizeInput(sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds));
@@ -877,7 +874,7 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
     // Update Ticket Last Response Field
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status WHERE ticket_id = $ticket_id");
 
     if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == 'Closed') {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_closed_at = NOW() WHERE ticket_id = $ticket_id");

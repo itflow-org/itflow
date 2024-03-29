@@ -26,7 +26,7 @@ if (isset($_GET['query'])) {
             AND client_name LIKE '%$query%'
         ORDER BY client_id DESC LIMIT 5"
     );
-    
+
     $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts 
         LEFT JOIN clients ON client_id = contact_client_id
         WHERE contact_archived_at IS NULL
@@ -37,7 +37,7 @@ if (isset($_GET['query'])) {
             OR contact_mobile LIKE '%$phone_query%')
         ORDER BY contact_id DESC LIMIT 5"
     );
-    
+
     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
@@ -52,20 +52,20 @@ if (isset($_GET['query'])) {
             AND domain_name LIKE '%$query%'
         ORDER BY domain_id DESC LIMIT 5"
     );
-    
+
     $sql_products = mysqli_query($mysqli, "SELECT * FROM products
         WHERE product_archived_at IS NULL
             AND product_name LIKE '%$query%'
         ORDER BY product_id DESC LIMIT 5"
     );
-    
+
     $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents
         LEFT JOIN clients on document_client_id = clients.client_id
         WHERE document_archived_at IS NULL
             AND MATCH(document_content_raw) AGAINST ('$query')
         ORDER BY document_id DESC LIMIT 5"
     );
-    
+
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
         WHERE ticket_archived_at IS NULL
@@ -73,7 +73,7 @@ if (isset($_GET['query'])) {
             OR ticket_number = '$ticket_num_query')
         ORDER BY ticket_id DESC LIMIT 5"
     );
-    
+
     $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins
         LEFT JOIN contacts ON login_contact_id = contact_id
         LEFT JOIN clients ON login_client_id = client_id
@@ -108,10 +108,10 @@ if (isset($_GET['query'])) {
     );
 
     $q = nullable_htmlentities($_GET['query']);
-    
+
     ?>
 
-    
+
     <div class="row">
 
         <div class="col-sm-12">
@@ -291,7 +291,7 @@ if (isset($_GET['query'])) {
                                 $domain_id = intval($row['domain_id']);
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
-                                
+
                                 ?>
                                 <tr>
                                     <td><a href="client_domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
@@ -308,7 +308,7 @@ if (isset($_GET['query'])) {
             </div>
 
         <?php } ?>
-        
+
         <?php if (mysqli_num_rows($sql_products) > 0) { ?>
 
             <!-- Products -->
@@ -418,7 +418,7 @@ if (isset($_GET['query'])) {
                                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $ticket_status = nullable_htmlentities(getTicketStatusName($row['ticket_status']));
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $client_id = intval($row['ticket_client_id']);
 
@@ -598,7 +598,7 @@ if (isset($_GET['query'])) {
                                 if (empty($contact_name)) {
                                     $contact_name_display = "-";
                                 }else{
-                                    $contact_name_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>"; 
+                                    $contact_name_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 }
                                 $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
                                 if (empty($contact_archived_at)) {
@@ -652,12 +652,12 @@ if (isset($_GET['query'])) {
 
                     while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                         $ticket_id = intval($row['ticket_id']);
-                        
+
                         // Only output the ticket header if we're at a new ticket
                         if ($ticket_id !== $last_ticket_id) {
                             if ($last_ticket_id !== null) {
                                 // Close the previous ticket's card (except for the very first ticket)
-                                echo '</div></div>'; 
+                                echo '</div></div>';
                             }
 
                             $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
@@ -699,7 +699,7 @@ if (isset($_GET['query'])) {
 
                     if ($last_ticket_id !== null) {
                         // Close the last ticket's card
-                        echo '</div></div>'; 
+                        echo '</div></div>';
                     }
                     ?>
 

@@ -252,9 +252,9 @@ if (isset($_GET['ticket_id'])) {
         <div class="card card-body">
             <div class="row">
                 <div class="col-9">
-                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status ?></span></h3>
+                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo getTicketStatusName($ticket_status) ?></span></h3>
                 </div>
-                <?php if ($ticket_status != "Closed") { ?>
+                <?php if (empty($ticket_closed_at)) { ?>
                     <div class="col-3">
                         <div class="dropdown dropleft text-center d-print-none">
                             <button class="btn btn-secondary btn-sm float-right" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -309,12 +309,12 @@ if (isset($_GET['ticket_id'])) {
                 </div>
 
                 <!-- Only show ticket reply modal if status is not closed -->
-                <?php if ($ticket_status != "Closed") { ?>
+                <?php if (empty($ticket_closed_at)) { ?>
                     <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
                         <div class="form-group">
-                            <?php if($config_ai_enable) { ?>
+                            <?php if ($config_ai_enable) { ?>
                             <div class="form-group">
                                 <textarea class="form-control tinymceai" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
                             </div>
@@ -337,16 +337,15 @@ if (isset($_GET['ticket_id'])) {
                                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                     </div>
                                     <select class="form-control select2" name="status" required>
-                                        <option <?php if ($ticket_status == "Open") {
-                                                    echo "selected";
-                                                } ?>>Open</option>
-                                        <option <?php if ($ticket_status == "On Hold") {
-                                                    echo "selected";
-                                                } ?>>On Hold</option>
-                                        <?php if ($config_ticket_autoclose) { ?>
-                                            <option <?php if ($ticket_status == 'Auto Close') {
-                                                        echo "selected";
-                                                    } ?>>Auto Close</option>
+
+                                        <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
+                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != $config_ticket_status_id_new AND ticket_status_id != $config_ticket_status_id_closed AND ticket_status_active = 1");
+                                        while ($row = mysqli_fetch_array($sql_ticket_status)) {
+                                            $ticket_status_id = intval($row['ticket_status_id']);
+                                            $ticket_status_name = nullable_htmlentities($row['ticket_status_name']); ?>
+
+                                            <option value="<?php echo $ticket_status_id ?>" <?php if ($ticket_status == $ticket_status_id) { echo 'selected'; } ?>> <?php echo $ticket_status_name ?> </option>
+
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -608,7 +607,7 @@ if (isset($_GET['ticket_id'])) {
                         if ($prev_ticket_row) {
                             $prev_ticket_id = intval($prev_ticket_row['ticket_id']);
                             $prev_ticket_subject = nullable_htmlentities($prev_ticket_row['ticket_subject']);
-                            $prev_ticket_status = nullable_htmlentities($prev_ticket_row['ticket_status']);
+                            $prev_ticket_status = nullable_htmlentities( getTicketStatusName($prev_ticket_row['ticket_status']));
                         ?>
 
                             <hr>
@@ -682,7 +681,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <!-- Ticket closure info -->
                     <?php
-                    if ($ticket_status == "Closed") {
+                    if (!empty($ticket_closed_at)) {
                         $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
                         $row = mysqli_fetch_array($sql_closed_by);
                         $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
@@ -698,7 +697,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
                     // Ticket scheduling
-                    if ($ticket_status !== "Closed") { ?>
+                    if (empty ($ticket_closed_at)) { ?>
                         <div class="mt-1">
                             <i class="fa fa-fw fa-calendar-check text-secondary ml-1 mr-2"></i>Scheduled: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal"> <?php echo $ticket_scheduled_wording ?> </a>
                         </div>
@@ -908,7 +907,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                             </select>
                             <div class="input-group-append d-print-none">
-                                <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if ($ticket_status == "Closed") {
+                                <button type="submit" class="btn btn-primary" name="assign_ticket" <?php if (!empty($ticket_closed_at)) {
                                                                                                         echo "disabled";
                                                                                                     } ?>><i class="fas fa-check"></i></button>
                             </div>
@@ -926,7 +925,7 @@ if (isset($_GET['ticket_id'])) {
                         </a>
                     <?php }
 
-                    if ($ticket_status !== "Closed") { ?>
+                    if (empty($ticket_closed_at)) { ?>
                         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-block confirm-link" id="ticket_close">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close Ticket
                         </a>
@@ -969,7 +968,7 @@ require_once "footer.php";
 
 <script src="js/show_modals.js"></script>
 
-<?php if ($ticket_status !== "Closed") { ?>
+<?php if (empty($ticket_closed_at)) { ?>
     <!-- Ticket Time Tracking JS -->
     <script src="js/ticket_time_tracking.js"></script>
 
