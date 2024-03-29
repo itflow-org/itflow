@@ -27,6 +27,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="pill" href="#pills-vendors"><i class="fa fa-fw fa-building mr-2"></i>Vendor</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-project"><i class="fa fa-fw fa-project-diagram mr-2"></i>Project</a>
+                            </li>
                         </ul>
 
                         <hr>
@@ -188,7 +194,7 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                         </div>
                                         <select class="form-control select2" name="watchers[]" data-tags="true" data-placeholder="Enter or select email address" multiple>
-                                            <option value="">aa</option>
+                                            <option value=""></option>
                                             <?php
                                             $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
@@ -286,6 +292,47 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
                                         <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-tasks">
+
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tasks[]" placeholder="Enter Task Name">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-primary"><i class="fas fa-fw fa-check mr-2"></i>Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-project">
+
+                                <div class="form-group">
+                                    <label>Project</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="project">
+                                            <option value="0">- None -</option>
+                                            <?php
+
+                                            $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                                            while ($row = mysqli_fetch_array($sql_projects)) {
+                                                $project_id_select = intval($row['project_id']);
+                                                $project_name_select = nullable_htmlentities($row['project_name']); ?>
+                                                <option value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
 

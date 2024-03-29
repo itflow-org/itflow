@@ -23,6 +23,7 @@ if (isset($_POST['add_ticket'])) {
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
+    $project_id = intval($_POST['project']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
 
 
@@ -51,9 +52,20 @@ if (isset($_POST['add_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, ticket_invoice_id = 0");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
+
+    // Add Tasks
+    if (!empty($_POST['tasks'])) {
+        foreach ($_POST['tasks'] as $task) {
+            $task_name = sanitizeInput($task);
+            // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
+            if (!empty($task_name)) {
+                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
+            }   
+        }
+    }
 
     // Add Watchers
     if (!empty($_POST['watchers'])) {
@@ -154,10 +166,11 @@ if (isset($_POST['edit_ticket'])) {
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
+    $project_id = intval($_POST['project']);
     $client_id = intval($_POST['client_id']);
     $ticket_number = intval($_POST['ticket_number']);
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");

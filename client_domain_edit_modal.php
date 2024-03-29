@@ -19,6 +19,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-records">Records</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pillsEditNotes">Notes</a>
+                        </li>
                     </ul>
 
                     <hr>
@@ -79,11 +82,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Notes</label>
-                                <textarea class="form-control" id="editDomainNotes" name="notes" rows="3" placeholder="Enter some notes"></textarea>
-                            </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="pills-records">
@@ -138,6 +136,12 @@
                                 </div>
                             </div>
 
+                        </div>
+
+                        <div class="tab-pane fade" id="pillsEditNotes">
+                            <div class="form-group">
+                                <textarea class="form-control" id="editDomainNotes" name="notes" rows="12" placeholder="Enter some notes"></textarea>
+                            </div>
                         </div>
 
                     </div>

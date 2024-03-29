@@ -12,83 +12,112 @@
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
-                    <div class="form-group">
-                        <label>Certificate Name <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                            </div>
-                            <input type="text" class="form-control" id="editCertificateName" name="name" placeholder="Certificate name" value="" required>
-                        </div>
-                    </div>
+                    <ul class="nav nav-pills nav-justified mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="pill" href="#pillsEditDetails">Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pillsEditCertificate">Certificate</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pillsEditNotes">Notes</a>
+                        </li>
+                    </ul>
 
-                    <div class="form-group">
-                        <label>Description</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                            </div>
-                            <input type="text" class="form-control" id="editCertificateDescription" name="description" placeholder="Short Description">
-                        </div>
-                    </div>
+                    <hr>
 
-                    <div class="form-group">
-                        <label>Domain <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
-                            </div>
-                            <input type="text" class="form-control" id="editCertificateDomain" name="domain" placeholder="Domain" value="" required>
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="tab-content">
 
-                    <div class="form-group">
-                        <label>Issued By</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                            </div>
-                            <input type="text" class="form-control" id="editCertificateIssuedBy" name="issued_by" placeholder="Issued By" value="">
-                        </div>
-                    </div>
+                        <div class="tab-pane fade show active" id="pillsEditDetails">
 
-                    <div class="form-group">
-                        <label>Expire Date</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                            <div class="form-group">
+                                <label>Certificate Name <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="editCertificateName" name="name" placeholder="Certificate name" value="" required>
+                                </div>
                             </div>
-                            <input type="date" class="form-control" id="editCertificateExpire" name="expire" max="2999-12-31" value="">
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Public Key </label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="editCertificateDescription" name="description" placeholder="Short Description">
+                                </div>
                             </div>
-                            <textarea class="form-control" id="editCertificatePublicKey" name="public_key"></textarea>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <textarea class="form-control" id="editCertificateNotes" name="notes" rows="3" placeholder="Enter some notes"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Domain</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                            <div class="form-group">
+                                <label>Domain</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <select class="form-control select2" id="editDomainId" name="domain_id">
+                                    </select>
+                                </div>
                             </div>
-                            <select class="form-control select2" id="editDomainId" name="domain_id">
-                            </select>
+
                         </div>
+
+                        <div class="tab-pane fade" id="pillsEditCertificate">
+
+                            <div class="form-group">
+                                <label>Domain <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
+                                    </div>
+                                    <input type="text" class="form-control" id="editCertificateDomain" name="domain" placeholder="Domain" value="" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-secondary" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Issued By</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="editCertificateIssuedBy" name="issued_by" placeholder="Issued By" value="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Expire Date</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                                    </div>
+                                    <input type="date" class="form-control" id="editCertificateExpire" name="expire" max="2999-12-31" value="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Public Key </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                                    </div>
+                                    <textarea class="form-control" rows="8" id="editCertificatePublicKey" name="public_key"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pillsEditNotes">
+
+                            <div class="form-group">
+                                <textarea class="form-control" id="editCertificateNotes" name="notes" rows="12" placeholder="Enter some notes"></textarea>
+                            </div>
+
+                        </div>
+
                     </div>
 
                 </div>

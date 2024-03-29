@@ -16,9 +16,11 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-certificate">Certificate</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
                         </li>
-                        
                     </ul>
 
                     <hr>
@@ -46,6 +48,32 @@
                                     <input type="text" class="form-control" name="description" placeholder="Short Description">
                                 </div>
                             </div>
+
+                            
+
+                            <div class="form-group">
+                                <label>Domain</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="domain_id">
+                                        <option value="">- Domain -</option>
+                                        <?php
+                                        $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
+                                        while ($domain_row = mysqli_fetch_array($domains_sql)) {
+                                            $domain_id = intval($domain_row['domain_id']);
+                                            $domain_name = nullable_htmlentities($domain_row['domain_name']);
+                                            echo "<option value=\"$domain_id\">$domain_name</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-certificate">
 
                             <div class="form-group">
                                 <label>Domain <strong class="text-danger">*</strong></label>
@@ -86,30 +114,10 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <textarea class="form-control" name="public_key" id="publicKey" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                                    <textarea class="form-control" rows="8" name="public_key" id="publicKey" placeholder="-----BEGIN CERTIFICATE-----"></textarea>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Domain</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="domain_id">
-                                        <option value="">- Domain -</option>
-                                        <?php
-                                        $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
-                                        while ($domain_row = mysqli_fetch_array($domains_sql)) {
-                                            $domain_id = intval($domain_row['domain_id']);
-                                            $domain_name = nullable_htmlentities($domain_row['domain_name']);
-                                            echo "<option value=\"$domain_id\">$domain_name</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-                        
                         </div>
 
                         <div class="tab-pane fade" id="pills-notes">

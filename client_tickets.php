@@ -180,6 +180,9 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     } else {
                         $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                     }
+                    
+                    $project_id = intval($row['ticket_project_id']);
+
                     $contact_name = nullable_htmlentities($row['contact_name']);
                     $contact_email = nullable_htmlentities($row['contact_email']);
                     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
@@ -197,7 +200,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     // Get who last updated the ticket - to be shown in the last Response column
                     $ticket_reply_type = "Client"; // Default to client for unreplied tickets
                     $ticket_reply_by_display = ""; // Default none
-                    $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, contact_name, user_name FROM ticket_replies
+                    $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, ticket_reply_created_at, contact_name, user_name FROM ticket_replies
                         LEFT JOIN users ON ticket_reply_by = user_id
                         LEFT JOIN contacts ON ticket_reply_by = contact_id
                         WHERE ticket_reply_ticket_id = $ticket_id
@@ -213,11 +216,13 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                         } else {
                             $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
                         }
+                        $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
+                        $ticket_reply_created_at_time_ago = timeAgo($ticket_reply_created_at);
                     }
 
                     ?>
 
-                    <tr class="<?php if(empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if ($ticket_reply_type == "Client") { echo "table-warning"; } ?>">
+                    <tr class="<?php if(empty($ticket_reply_created_at)) { echo "text-bold"; }?> <?php if ($ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
                         <!-- Ticket Number -->
                         <td>
@@ -265,7 +270,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                         <!-- Ticket Last Response -->
                         <td>
-                            <div><?php echo $ticket_updated_at_display; ?></div>
+                            <div title="<?php echo $ticket_reply_created_at; ?>"><?php echo $ticket_reply_created_at_time_ago; ?></div>
                             <div><?php echo $ticket_reply_by_display; ?></div>
                         </td>
 

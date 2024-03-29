@@ -331,6 +331,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             } else {
                                 $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                             }
+
                             $project_id = intval($row['ticket_project_id']);
 
                             $client_id = intval($row['ticket_client_id']);
@@ -368,7 +369,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             // Get who last updated the ticket - to be shown in the last Response column
                             $ticket_reply_type = "Client"; // Default to client for unreplied tickets
                             $ticket_reply_by_display = ""; // Default none
-                            $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, contact_name, user_name FROM ticket_replies
+                            $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, ticket_reply_created_at, contact_name, user_name FROM ticket_replies
                             LEFT JOIN users ON ticket_reply_by = user_id
                             LEFT JOIN contacts ON ticket_reply_by = contact_id
                             WHERE ticket_reply_ticket_id = $ticket_id
@@ -379,12 +380,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             if ($row) {
                                 $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
-
                                 if ($ticket_reply_type == "Client") {
                                     $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
                                 } else {
                                     $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
                                 }
+                                $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
+                                $ticket_reply_created_at_time_ago = timeAgo($ticket_reply_created_at);
                             }
 
                             ?>
@@ -450,13 +452,13 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                                 <!-- Ticket Last Response -->
                                 <td>
-                                    <div><?php echo $ticket_updated_at_display; ?></div>
+                                    <div title="<?php echo $ticket_reply_created_at; ?>"><?php echo $ticket_reply_created_at_time_ago; ?></div>
                                     <div><?php echo $ticket_reply_by_display; ?></div>
                                 </td>
 
                                 <!-- Ticket Created At -->
                                 <td>
-                                    <?php echo $ticket_created_at_time_ago; ?>
+                                    <?php echo $ticket_created_at; ?>
                                     <br>
                                     <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
                                 </td>

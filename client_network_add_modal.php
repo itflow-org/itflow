@@ -16,6 +16,12 @@
               <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="pill" href="#pills-dns">DNS</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
           </ul>
@@ -47,46 +53,6 @@
               </div>
 
               <div class="form-group">
-                <label>vLAN</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                  </div>
-                  <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="vlan" placeholder="ex. 20">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Network <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="network" placeholder="Network ex 192.168.1.0/24" required>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Gateway <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" data-inputmask="'alias': 'ip'" data-mask required>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>DHCP Range / IPs</label>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                  </div>
-                  <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
-                </div>
-              </div>
-
-              <div class="form-group">
                 <label>Location</label>
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -111,6 +77,82 @@
               </div>
 
             </div>
+
+            <div class="tab-pane fade" id="pills-network">
+              <div class="form-group">
+                <label>vLAN</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                  </div>
+                  <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="vlan" placeholder="ex. 20">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>IP / Network <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="network" placeholder="Network or IP ex 192.168.1.0/24" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Subnet Mask</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-mask"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="subnet" placeholder="ex 255.255.255.0" data-inputmask="'alias': 'ip'" data-mask>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Gateway <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" data-inputmask="'alias': 'ip'" data-mask required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>DHCP Range / IPs</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
+                </div>
+              </div>
+
+            </div>
+            
+            <div class="tab-pane fade" id="pills-dns">
+              <div class="form-group">
+                <label>Primary DNS</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="primary_dns" placeholder="ex 9.9.9.9" data-inputmask="'alias': 'ip'" data-mask>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Secondary DNS</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                  </div>
+                  <input type="text" class="form-control" name="secondary_dns" placeholder="ex 1.1.1.1" data-inputmask="'alias': 'ip'" data-mask>
+                </div>
+              </div>
+            </div>
+  
             <div class="tab-pane fade" id="pills-notes">
               <div class="form-group">
                 <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"></textarea>
