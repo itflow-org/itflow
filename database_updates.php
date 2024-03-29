@@ -1758,18 +1758,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             PRIMARY KEY (`ticket_status_id`)
         )");
 
-        // Pre-seed ticket statuses
+        // Pre-seed default system/built-in ticket statuses
         mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = 'danger'"); // Default ID for new tickets is 1
         mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = 'primary'"); // 2
         mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = 'success'"); // 3
         mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Auto Close', ticket_status_color = 'dark'"); // 4
         mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = 'dark'"); // 5
-
-        // Add default values above to settings
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_new` int(1) NOT NULL DEFAULT '1' AFTER `config_ticket_new_ticket_notification_email`");
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_open` int(1) NOT NULL DEFAULT '2' AFTER `config_ticket_status_id_new`");
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_autoclose` int(1) NOT NULL DEFAULT '4' AFTER `config_ticket_status_id_open`");
-        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_status_id_closed` int(1) NOT NULL DEFAULT '5' AFTER `config_ticket_status_id_autoclose`");
 
         // Update existing tickets to use new values
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 1 WHERE ticket_status = 'New'"); // New

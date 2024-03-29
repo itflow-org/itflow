@@ -38,6 +38,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_client_id = $client_id
     AND $ticket_status_snippet
     AND $ticket_billable_snippet
@@ -140,8 +141,9 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     $ticket_number = nullable_htmlentities($row['ticket_number']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                    $ticket_status_id = intval($row['ticket_status']);
-                    $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
+                    $ticket_status_id = intval($row['ticket_status_id']);
+                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                     $ticket_billable = intval($row['ticket_billable']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
@@ -157,8 +159,6 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                         $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                     }
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-
-                    $ticket_status_color = getTicketStatusColor($ticket_status_id);
 
                     if ($ticket_priority == "High") {
                         $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -180,7 +180,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     } else {
                         $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                     }
-                    
+
                     $project_id = intval($row['ticket_project_id']);
 
                     $contact_name = nullable_htmlentities($row['contact_name']);

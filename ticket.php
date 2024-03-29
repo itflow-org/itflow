@@ -27,6 +27,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id LIMIT 1"
     );
 
@@ -76,8 +77,9 @@ if (isset($_GET['ticket_id'])) {
         }
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
 
-        $ticket_status = nullable_htmlentities($row['ticket_status']);
-        $ticket_status_color = getTicketStatusColor($ticket_status);
+        $ticket_status = intval($row['ticket_status_id']);
+        $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+        $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
 
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
@@ -261,11 +263,11 @@ if (isset($_GET['ticket_id'])) {
         </ol>
         <div class="card card-body">
             <div class="row">
-              
+
                 <div class="col-7">
-                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo getTicketStatusName($ticket_status) ?></span></h3>
+                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name ?></span></h3>
                 </div>
-          
+
                 <div class="col-5">
 
                     <div class="btn-group float-right d-print-none">
@@ -306,7 +308,7 @@ if (isset($_GET['ticket_id'])) {
                         <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm confirm-link" id="ticket_close">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close
                         </a>
-                        
+
                         <div class="dropdown dropleft text-center ml-3">
                             <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                 <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -391,7 +393,7 @@ if (isset($_GET['ticket_id'])) {
                                     <select class="form-control select2" name="status" required>
 
                                         <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
-                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != $config_ticket_status_id_new AND ticket_status_id != $config_ticket_status_id_closed AND ticket_status_active = 1");
+                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
                                         while ($row = mysqli_fetch_array($sql_ticket_status)) {
                                             $ticket_status_id = intval($row['ticket_status_id']);
                                             $ticket_status_name = nullable_htmlentities($row['ticket_status_name']); ?>
@@ -545,7 +547,7 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </h3>
 
-                            <?php if ($ticket_reply_type !== "Client" && $ticket_status !== "Closed") { ?>
+                            <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
                                 <div class="card-tools d-print-none">
                                     <div class="dropdown dropleft">
                                         <button class="btn btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -608,7 +610,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <!-- Ticket closure info -->
                     <?php
-                    if ($ticket_status == "Closed") {
+                    if (!empty($ticket_closed_at)) {
                         $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
                         $row = mysqli_fetch_array($sql_closed_by);
                         $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
@@ -653,7 +655,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     <?php } ?>
                     <hr>
-                  
+
                     <!-- Assigned to -->
                     <form action="post.php" method="post">
                         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
@@ -663,7 +665,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <select onchange="this.form.submit()" class="form-control select2" name="assigned_to" <?php if ($ticket_status == "Closed") { echo "disabled"; } ?>>
+                            <select onchange="this.form.submit()" class="form-control select2" name="assigned_to" <?php if (!empty($ticket_closed_at)) { echo "disabled"; } ?>>
                                 <option value="0">Not Assigned</option>
                                 <?php
                                 while ($row = mysqli_fetch_array($sql_assign_to_select)) {
@@ -672,7 +674,7 @@ if (isset($_GET['ticket_id'])) {
                                     <option <?php if ($ticket_assigned_to == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php } ?>
                             </select>
-                        </div>        
+                        </div>
                     </form>
                     <!-- End Assigned to -->
                 </div>
@@ -788,7 +790,7 @@ if (isset($_GET['ticket_id'])) {
                                     <?php } ?>
                                 </td>
                                 <td><?php echo $task_name; ?></td>
-                                <td> 
+                                <td>
                                     <div class="float-right">
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -814,7 +816,7 @@ if (isset($_GET['ticket_id'])) {
 
 
                 <!-- Ticket watchers card -->
-                <?php if ($ticket_status !== "Closed" && mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
+                <?php if (empty($ticket_closed_at) && mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
 
                     <div class="card card-body card-outline card-dark mb-3">
                         <h5 class="text-secondary">Watchers</h5>
@@ -827,7 +829,7 @@ if (isset($_GET['ticket_id'])) {
                             ?>
                             <div class='mt-1'>
                                 <i class="fa fa-fw fa-eye text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
-                                <?php if ($ticket_status !== "Closed") { ?>
+                                <?php if (empty($ticket_closed_at)) { ?>
                                     <a class="confirm-link float-right" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
                                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                                     </a>
@@ -935,7 +937,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($vendor_id) { ?>
                     <div class="card card-body card-outline card-dark mb-3">
                         <h5 class="text-secondary">Vendor</h5>
-                        
+
                         <div>
                             <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?php echo $vendor_name; ?></strong>
                         </div>
@@ -970,7 +972,7 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $vendor_website; ?>
                             </div>
                         <?php } ?>
-                    
+
                     </div>
                 <?php } //End Else ?>
                 <!-- End Vendor card -->

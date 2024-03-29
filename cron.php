@@ -52,10 +52,6 @@ $config_ticket_client_general_notifications = intval($row['config_ticket_client_
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 $config_ticket_new_ticket_notification_email = sanitizeInput($row['config_ticket_new_ticket_notification_email']);
-$config_ticket_status_id_new = intval($row['config_ticket_status_id_new']);
-$config_ticket_status_id_open = intval($row['config_ticket_status_id_open']);
-$config_ticket_status_id_autoclose = intval($row['config_ticket_status_id_autoclose']);
-$config_ticket_status_id_closed = intval($row['config_ticket_status_id_closed']);
 
 // Get Config for Telemetry
 $config_theme = $row['config_theme'];
@@ -229,7 +225,7 @@ foreach ($warranty_alert_array as $day) {
 
 // Notify of New Tickets
 // Get Ticket Pending Assignment
-$sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets WHERE ticket_status = '$config_ticket_status_id_new'");
+$sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets WHERE ticket_status = 1");
 
 $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
@@ -260,9 +256,9 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $contact_id = intval($row['scheduled_ticket_contact_id']);
         $asset_id = intval($row['scheduled_ticket_asset_id']);
 
-        $ticket_status = $config_ticket_status_id_new; // Default
+        $ticket_status = 1; // Default
         if ($assigned_id > 0) {
-            $ticket_status = $config_ticket_status_id_open; // Set to open if we've auto-assigned an agent
+            $ticket_status = 2; // Set to open if we've auto-assigned an agent
         }
 
         // Assign this new ticket the next ticket number
@@ -383,7 +379,7 @@ if ($config_ticket_autoclose == 1) {
     $sql_tickets_to_chase = mysqli_query(
         $mysqli,
         "SELECT * FROM tickets 
-        WHERE ticket_status = '$config_ticket_status_id_autoclose'
+        WHERE ticket_status = 4
         AND ticket_updated_at < NOW() - INTERVAL $config_ticket_autoclose_hours HOUR"
     );
 
@@ -397,7 +393,7 @@ if ($config_ticket_autoclose == 1) {
         $ticket_assigned_to = sanitizeInput($row['ticket_assigned_to']);
         $client_id = intval($row['ticket_client_id']);
 
-        mysqli_query($mysqli,"UPDATE tickets SET ticket_status = '$config_ticket_status_id_closed', ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_prefix$ticket_number auto closed', log_entity_id = $ticket_id");
@@ -412,7 +408,7 @@ if ($config_ticket_autoclose == 1) {
         "SELECT contact_name, contact_email, ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id
-        WHERE ticket_status = '$config_ticket_status_id_autoclose'
+        WHERE ticket_status = 4
         AND ticket_updated_at < NOW() - INTERVAL 48 HOUR"
     );
 

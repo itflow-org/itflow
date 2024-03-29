@@ -11,15 +11,15 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
 {
 
     // Access the global variables
-    global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id, $config_ticket_status_id_closed;
+    global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id;
 
     // Setup
     if ($expected_ticket_state == "Closed") {
         // Closed tickets
-        $ticket_state_snippet = "ticket_status = 'Closed' OR ticket_status = $config_ticket_status_id_closed";
+        $ticket_state_snippet = "ticket_status = 5";
     } else {
         // Open (working/hold) tickets
-        $ticket_state_snippet = "ticket_status != 'Closed' or ticket_status != $config_ticket_status_id_closed";
+        $ticket_state_snippet = "ticket_status != 5";
     }
 
     // Verify the contact has access to the provided ticket ID

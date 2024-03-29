@@ -16,19 +16,16 @@ if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
 if (!isset($_GET['status'])) {
     // If nothing is set, assume we only want to see open tickets
     $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
+    $ticket_status_snippet = "ticket_status != 5";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
+    $ticket_status_snippet = "ticket_status = 5";
 } else {
     $status = '%';
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
+$all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 ?>
 
     <h2>All tickets</h2>
@@ -61,7 +58,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts O
             $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
             $ticket_number = intval($row['ticket_number']);
             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-            $ticket_status = sanitizeInput(getTicketStatusName($row['ticket_status']));
+            $ticket_status = nullable_htmlentities($row['ticket_status_name']);
             $ticket_contact_name = nullable_htmlentities($row['contact_name']);
 
             echo "<tr>";

@@ -11,9 +11,9 @@ if (isset($_POST['add_ticket'])) {
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
     if ($assigned_to == 0) {
-        $ticket_status = $config_ticket_status_id_new;
+        $ticket_status = 1;
     } else {
-        $ticket_status = $config_ticket_status_id_open;
+        $ticket_status = 2;
     }
     $contact = intval($_POST['contact']);
     $subject = sanitizeInput($_POST['subject']);
@@ -63,7 +63,7 @@ if (isset($_POST['add_ticket'])) {
             // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
             if (!empty($task_name)) {
                 mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
-            }   
+            }
         }
     }
 
@@ -345,14 +345,9 @@ if (isset($_POST['assign_ticket'])) {
     $assigned_to = intval($_POST['assigned_to']);
     $ticket_status = sanitizeInput($_POST['ticket_status']);
 
-    // TODO: Remove this legacy if
-    if ($ticket_status == 'New' && $assigned_to !== 0) {
-        $ticket_status = $config_ticket_status_id_open;
-    }
-
-    // New
-    if ($ticket_status == $config_ticket_status_id_new && $assigned_to !== 0) {
-        $ticket_status = $config_ticket_status_id_open;
+    // New > Open as assigned
+    if ($ticket_status == 1 && $assigned_to !== 0) {
+        $ticket_status = 2;
     }
 
     // Allow for un-assigning tickets
@@ -377,7 +372,7 @@ if (isset($_POST['assign_ticket'])) {
     }
 
     // Get & verify ticket details
-    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = '$ticket_id' AND ticket_status != $config_ticket_status_id_closed AND ticket_status != 'Closed'");
+    $ticket_details_sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = '$ticket_id' AND ticket_status != 5");
     $ticket_details = mysqli_fetch_array($ticket_details_sql);
 
     $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
@@ -447,15 +442,16 @@ if (isset($_GET['delete_ticket'])) {
     $ticket_id = intval($_GET['delete_ticket']);
 
     // Get Ticket and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_closed_at, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id");
     $row = mysqli_fetch_array($sql);
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = sanitizeInput($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
     $ticket_status = sanitizeInput($row['ticket_status']);
+    $ticket_closed_at = sanitizeInput($row['ticket_closed_at']);
     $client_id = intval($row['ticket_client_id']);
 
-    if ($ticket_status !== $config_ticket_status_id_closed && $ticket_status !== 'Closed') {
+    if (empty($ticket_closed_at)) {
         mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_id = $ticket_id");
 
         // Delete all ticket replies
@@ -499,8 +495,8 @@ if (isset($_POST['bulk_assign_ticket'])) {
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $client_id = intval($row['ticket_client_id']);
 
-            if ($ticket_status == 'New' && $assigned_to !== 0) {
-                $ticket_status = $config_ticket_status_id_open;
+            if ($ticket_status == 1 && $assigned_to !== 0) {
+                $ticket_status = 2;
             }
 
             // Allow for un-assigning tickets
@@ -889,7 +885,8 @@ if (isset($_POST['add_ticket_reply'])) {
     // Update Ticket Last Response Field
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status WHERE ticket_id = $ticket_id");
 
-    if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == 'Closed') {
+    // CLose the ticket, if set
+    if ($ticket_status == 5) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_closed_at = NOW() WHERE ticket_id = $ticket_id");
     }
 
@@ -929,10 +926,10 @@ if (isset($_POST['add_ticket_reply'])) {
 
             // Slightly different email subject/text depending on if this update closed the ticket or not
 
-            if ($ticket_status == $config_ticket_status_id_closed || $ticket_status == 'Closed') {
+            if ($ticket_status == 5) {
                 $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
                 $body = "Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-            } elseif ($ticket_status == $config_ticket_status_id_autoclose || $ticket_status == 'Auto Close') {
+            } elseif ($ticket_status == 4) {
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
                 $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please respond to let us know!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             } else {

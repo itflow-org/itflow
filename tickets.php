@@ -60,6 +60,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE $ticket_status_snippet " . $ticket_assigned_query . "
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
@@ -313,8 +314,9 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $ticket_number = intval($row['ticket_number']);
                             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                             $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                            $ticket_status_id = intval($row['ticket_status']);
-                            $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
+                            $ticket_status_id = intval($row['ticket_status_id']);
+                            $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                            $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                             $ticket_billable = intval($row['ticket_billable']);
                             $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
                             $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
@@ -338,8 +340,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             $client_name = nullable_htmlentities($row['client_name']);
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
-
-                            $ticket_status_color = getTicketStatusColor($ticket_status_id);
 
                             if ($ticket_priority == "High") {
                                 $ticket_priority_color = "danger";
