@@ -4,6 +4,77 @@
  * ITFlow - GET/POST request handler for admin
  */
 
+if (isset($_POST['add_project_template'])) {
+
+    validateTechRole();
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
+
+    mysqli_query($mysqli, "INSERT INTO project_templates SET project_template_name = '$name', project_template_description = '$description'");
+
+    $project_template_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Create', log_description = '$session_name created project template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
+
+    $_SESSION['alert_message'] = "You created Project Template <strong>$name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_project_template'])) {
+
+    validateTechRole();
+    $project_template_id = intval($_POST['project_template_id']);
+    $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
+
+    mysqli_query($mysqli, "UPDATE project_templates SET project_template_name = '$name', project_template_description = '$description' WHERE project_template_id = $project_template_id");
+
+    $ticket_template_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Edit', log_description = '$session_name edited Project template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
+
+    $_SESSION['alert_message'] = "You edited Project Template <strong>$name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['delete_project_template'])) {
+
+    validateTechRole();
+
+    $project_template_id = intval($_GET['delete_project_template']);
+
+    // Get project template name
+    $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_id = $project_template_id");
+    $row = mysqli_fetch_array($sql);
+    $project_template_name = sanitizeInput($row['project_template_name']);
+
+    mysqli_query($mysqli, "DELETE FROM project_templates WHERE project_template_id = $project_template_id");
+
+    // Delete Associated Ticket Tasks
+    // First we need to get ticket_template_id Get ticket Templates
+    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id");
+    while($row = mysqli_fetch_array($sql_ticket_templates)) {
+        $ticket_template_id = intval($row['ticket_template_id']);
+        mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+    }
+
+    // Then Delete Associated Ticket Templates
+    mysqli_query($mysqli, "DELETE FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Delete', log_description = '$session_name deleted ticket template $project_template_name and its associated ticket templates and its tasks', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "You Deleted Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['add_ticket_template'])) {
 
     validateTechRole();

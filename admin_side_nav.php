@@ -49,6 +49,10 @@
                 </li>
                 <li class="nav-header mt-3">TEMPLATES</li>
                 <li class="nav-item">
+                    <a href="admin_project_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_project_templates.php") {echo "active";} ?>">
+                        <i class="nav-icon fas fa-project-diagram"></i>
+                        <p>Project Templates</p>
+                    </a>
                     <a href="admin_ticket_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_ticket_templates.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-life-ring"></i>
                         <p>Ticket Templates</p>
