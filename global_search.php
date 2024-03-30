@@ -68,6 +68,7 @@ if (isset($_GET['query'])) {
 
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_archived_at IS NULL
             AND (ticket_subject LIKE '%$query%'
             OR ticket_number = '$ticket_num_query')
@@ -418,7 +419,7 @@ if (isset($_GET['query'])) {
                                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_status = nullable_htmlentities(getTicketStatusName($row['ticket_status']));
+                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $client_id = intval($row['ticket_client_id']);
 
@@ -426,7 +427,7 @@ if (isset($_GET['query'])) {
                                 <tr>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id ?>"><?php echo $ticket_prefix . $ticket_number; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
-                                    <td><?php echo $ticket_status; ?></td>
+                                    <td><?php echo $ticket_status_name; ?></td>
                                     <td><a href="client_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
