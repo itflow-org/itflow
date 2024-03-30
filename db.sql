@@ -1598,6 +1598,22 @@ CREATE TABLE `ticket_replies` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_statuses`
+--
+
+DROP TABLE IF EXISTS `ticket_statuses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_statuses` (
+  `ticket_status_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_status_name` varchar(200) NOT NULL,
+  `ticket_status_color` varchar(200) NOT NULL,
+  `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`ticket_status_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_templates`
 --
 
@@ -1617,19 +1633,6 @@ CREATE TABLE `ticket_templates` (
   PRIMARY KEY (`ticket_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ticket_statuses`
---
-
-DROP TABLE IF EXISTS `ticket_statuses`;
-CREATE TABLE IF NOT EXISTS `ticket_statuses` (
- `ticket_status_id` int(11) NOT NULL AUTO_INCREMENT,
- `ticket_status_name` varchar(200) NOT NULL,
- `ticket_status_color` varchar(200) NOT NULL,
- `ticket_status_active` TINYINT(1) NOT NULL DEFAULT '1',
- PRIMARY KEY (`ticket_status_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `ticket_views`
@@ -1875,4 +1878,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- As of 2024 03 29
+-- Dump completed on 2024-03-30 15:05:47
