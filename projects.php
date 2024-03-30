@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $ticket_count = mysqli_num_rows($sql_tickets);
 
                         // Get Closed Ticket Count
-                        $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_status = 'Closed'");
+                        $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
 
                         $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
                         

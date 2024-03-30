@@ -32,11 +32,15 @@ if (isset($_GET['project_id'])) {
     $client_name = nullable_htmlentities($row['client_name']);
 
     // Get Tickets
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users ON ticket_assigned_to = user_id WHERE ticket_project_id = $project_id ORDER BY ticket_number DESC");
+    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        WHERE ticket_project_id = $project_id ORDER BY ticket_number DESC"
+    );
     $ticket_count = mysqli_num_rows($sql_tickets);
 
     // Get Closed Ticket Count
-    $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_status = 'Closed'");
+    $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
 
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
     
@@ -174,14 +178,16 @@ if (isset($_GET['project_id'])) {
                             $ticket_number = nullable_htmlentities($row['ticket_number']);
                             $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                             $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                            $ticket_status = nullable_htmlentities($row['ticket_status']);
+                            $ticket_status = intval($row['ticket_status']);
+                            $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                            $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                             $ticket_billable = intval($row['ticket_billable']);
                             $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                             $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                             $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                             $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                             if (empty($ticket_updated_at)) {
-                                if ($ticket_status == "Closed") {
+                                if ($ticket_status == 5) {
                                     $ticket_updated_at_display = "<p>Never</p>";
                                 } else {
                                     $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -190,8 +196,6 @@ if (isset($_GET['project_id'])) {
                                 $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                             }
                             $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-
-                            $ticket_status_color = getTicketStatusColor($ticket_status);
 
                             if ($ticket_priority == "High") {
                                 $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -205,7 +209,7 @@ if (isset($_GET['project_id'])) {
 
                             $ticket_assigned_to = intval($row['ticket_assigned_to']);
                             if (empty($ticket_assigned_to)) {
-                                if ($ticket_status == "Closed") {
+                                if ($ticket_status == 5) {
                                     $ticket_assigned_to_display = "<p>Not Assigned</p>";
                                 } else {
                                     $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
@@ -270,7 +274,7 @@ if (isset($_GET['project_id'])) {
 
                                 <!-- Ticket Status -->
                                 <td>
-                                    <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span>
+                                    <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span>
                                 </td>
 
                                 <!-- Ticket Assigned agent -->
