@@ -603,7 +603,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         $mysqli,
         "SELECT COUNT('ticket_id') AS active_tickets
     FROM tickets
-    WHERE ticket_status != 'Closed'"
+    WHERE ticket_closed_at IS NULL"
     ));
     $active_tickets = $sql_tickets['active_tickets'];
 
@@ -612,7 +612,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         $mysqli,
         "SELECT COUNT('ticket_id') AS your_tickets
     FROM tickets
-    WHERE ticket_status != 'Closed'
+    WHERE ticket_closed_at IS NULL
     AND ticket_assigned_to = $session_user_id"
     ));
     $your_tickets = $sql_your_tickets['your_tickets'];
@@ -647,7 +647,7 @@ if ($user_config_dashboard_technical_enable == 1) {
     LEFT JOIN clients ON ticket_client_id = client_id
     LEFT JOIN contacts ON ticket_contact_id = contact_id
     WHERE ticket_assigned_to = $session_user_id
-    AND ticket_status != 'Closed'
+    AND ticket_closed_at IS NULL
     ORDER BY ticket_number DESC"
     );
 
