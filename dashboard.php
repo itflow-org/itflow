@@ -89,7 +89,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     //Define var so it doesnt throw errors in logs
     $largest_income_month = 0;
 
-    
+
     //Get Total income
     $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
     $row = mysqli_fetch_array($sql_total_payments_to_invoices);
@@ -169,7 +169,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
     if ($config_module_enable_ticketing && $config_module_enable_accounting) {
         //Get Unbilled, closed tickets
-        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS unbilled_tickets FROM tickets WHERE ticket_status = 'Closed' AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
+        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS unbilled_tickets FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
         $row = mysqli_fetch_array($sql_unbilled_tickets);
         $unbilled_tickets = intval($row['unbilled_tickets']);
     } else {
@@ -772,13 +772,14 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $ticket_number = intval($row['ticket_number']);
                                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                                    $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                    $ticket_status_id = intval($row['ticket_status']);
+                                    $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
                                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                                     $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                                     if (empty($ticket_updated_at)) {
-                                        if ($ticket_status == "Closed") {
+                                        if (!empty($ticket_closed_at)) {
                                             $ticket_updated_at_display = "<p>Never</p>";
                                         } else {
                                             $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -791,17 +792,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_id = intval($row['ticket_contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
 
-                                    if ($ticket_status == "New") {
-                                        $ticket_status_color = "danger";
-                                    } elseif ($ticket_status == "Open") {
-                                        $ticket_status_color = "primary";
-                                    } elseif ($ticket_status == "On Hold") {
-                                        $ticket_status_color = "success";
-                                    } elseif ($ticket_status == "Auto Close") {
-                                        $ticket_status_color = "dark";
-                                    } elseif ($ticket_status == "Closed") {
-                                        $ticket_status_color = "dark";
-                                    }
+                                    $ticket_status_color = getTicketStatusColor($ticket_status_id);
 
                                     if ($ticket_priority == "High") {
                                         $ticket_priority_color = "danger";
@@ -831,7 +822,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                         </td>
                                         <td><?php echo $contact_display; ?></td>
                                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>
-                                        <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span></td>
+                                        <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span></td>
                                         <td><?php echo $ticket_updated_at_display; ?></td>
                                     </tr>
 

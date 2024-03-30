@@ -7,15 +7,13 @@ $order = "DESC";
 
 require_once "inc_all_client.php";
 
-if (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
+if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
+    $ticket_status_snippet = "ticket_closed_at IS NOT NULL";
 } else {
+    // Default - Show open tickets
     $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
+    $ticket_status_snippet = "ticket_closed_at IS NULL";
 }
 
 if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
@@ -40,6 +38,7 @@ $sql = mysqli_query(
     LEFT JOIN assets ON ticket_asset_id = asset_id
     LEFT JOIN locations ON ticket_location_id = location_id
     LEFT JOIN vendors ON ticket_vendor_id = vendor_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_client_id = $client_id
     AND $ticket_status_snippet
     AND $ticket_billable_snippet
@@ -50,12 +49,12 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_status != 'Closed'");
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_status = 'Closed'");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
@@ -142,14 +141,16 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     $ticket_number = nullable_htmlentities($row['ticket_number']);
                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                    $ticket_status = nullable_htmlentities($row['ticket_status']);
+                    $ticket_status_id = intval($row['ticket_status_id']);
+                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                     $ticket_billable = intval($row['ticket_billable']);
                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                     $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                     if (empty($ticket_updated_at)) {
-                        if ($ticket_status == "Closed") {
+                        if (!empty($ticket_closed_at)) {
                             $ticket_updated_at_display = "<p>Never</p>";
                         } else {
                             $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -158,8 +159,6 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                         $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                     }
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-
-                    $ticket_status_color = getTicketStatusColor($ticket_status);
 
                     if ($ticket_priority == "High") {
                         $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -173,7 +172,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                     $ticket_assigned_to = intval($row['ticket_assigned_to']);
                     if (empty($ticket_assigned_to)) {
-                        if ($ticket_status == "Closed") {
+                        if (!empty($ticket_closed_at)) {
                             $ticket_assigned_to_display = "<p>Not Assigned</p>";
                         } else {
                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
@@ -181,7 +180,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     } else {
                         $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
                     }
-                    
+
                     $project_id = intval($row['ticket_project_id']);
 
                     $contact_name = nullable_htmlentities($row['contact_name']);
@@ -261,7 +260,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                         <!-- Ticket Status -->
                         <td>
-                            <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status; ?></span>
+                            <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span>
                         </td>
 
                         <!-- Ticket Assigned agent -->
@@ -286,7 +285,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                     <?php
                     // Edit actions, for open tickets
-                    if ($ticket_status !== "Closed") {
+                    if (empty($ticket_closed_at)) {
 
                         require "ticket_assign_modal.php";
 
