@@ -633,18 +633,18 @@ if (isset($_POST['bulk_close_tickets'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_array($sql);
 
             $ticket_prefix = sanitizeInput($row['ticket_prefix']);
             $ticket_number = intval($row['ticket_number']);
-            $ticket_status = sanitizeInput(getTicketStatusName($row['ticket_status']));
+            $ticket_status = sanitizeInput($row['ticket_status_name']);
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $current_ticket_priority = sanitizeInput($row['ticket_priority']);
             $client_id = intval($row['ticket_client_id']);
 
             // Update ticket & insert reply
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Closed' WHERE ticket_id = $ticket_id");
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id");
 
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
