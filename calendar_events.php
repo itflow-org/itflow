@@ -198,7 +198,7 @@ while ($row = mysqli_fetch_array($sql)) {
                 }
 
                 if (strtotime($row['ticket_schedule']) < time()) {
-                    if (!empty($row['ticket_schedule']) {
+                    if (!empty($row['ticket_schedule'])) {
                         $event_color = "red";
                     } else {
                         $event_color = "green";
