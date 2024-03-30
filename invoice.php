@@ -105,7 +105,7 @@ if (isset($_GET['invoice_id'])) {
         AND
             ticket_invoice_id = 0
         AND
-            ticket_status LIKE '%close%';
+            ticket_status = 5;
     ");
 
 
@@ -583,10 +583,8 @@ if (isset($_GET['invoice_id'])) {
         <div class="col-sm d-print-none">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fa fa-cog mr-2"></i>Tickets
+                    <i class="fa fa-life-ring mr-2"></i>Tickets
                     <div class="card-tools">
-
-
                         <?php if (mysqli_num_rows($sql_tickets_billable) > 0) { ?>
                         <a class="btn btn-tool" href="#" data-toggle="modal" data-target="#addTicketModal">
                             <i class="fas fa-plus"></i>
@@ -605,8 +603,7 @@ if (isset($_GET['invoice_id'])) {
                             <i class="fas fa-times"></i>
 
                         </button>
-
-
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -616,9 +613,6 @@ if (isset($_GET['invoice_id'])) {
                                 <tr>
                                     <th>Date</th>
                                     <th>Subject</th>
-                                    <th>Status</th>
-                                    <th>Priority</th>
-                                    <th>Assigned To</th>
                                     <th class="text-right">Time Worked</th>
                                 </tr>
                             </thead>
@@ -629,24 +623,13 @@ if (isset($_GET['invoice_id'])) {
                                 $ticket_id = intval($row['ticket_id']);
                                 $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_status = nullable_htmlentities($row['ticket_status']);
-                                $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                                $ticket_assigned_to_id = intval($row['ticket_assigned_to']);
                                 $ticket_total_time_worked = floatval($row['total_time_worked']);
-
-                                $sql_assigned_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $ticket_assigned_to_id");
-                                $row = mysqli_fetch_array($sql_assigned_to);
-                                $ticket_assigned_to = nullable_htmlentities($row['user_name']);
 
                                 ?>
                                 <tr>
                                     <td><?php echo $ticket_created_at; ?></td>
                                     <td><?php echo $ticket_subject; ?></td>
-                                    <td><?php echo $ticket_status; ?></td>
-                                    <td><?php echo $ticket_priority; ?></td>
-                                    <td><?php echo $ticket_assigned_to; ?></td>
                                     <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-
                                 </tr>
                                 <?php
                             }
@@ -654,8 +637,8 @@ if (isset($_GET['invoice_id'])) {
                             </tbody>
                         </table>
                     </div>
-        </div>
-    </div>
+                </div>
+            </div>
     <?php
     include_once "invoice_add_ticket_modal.php";
 
