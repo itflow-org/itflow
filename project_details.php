@@ -152,7 +152,7 @@ if (isset($_GET['project_id'])) {
         <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
             <div class="card card-body card-outline card-dark mb-3">
 
-                <h5 class="text-secondary"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h5>
+                <h5 class="text-secondary"><i class="fa fa-fw fa-life-ring mr-2"></i>Project Tickets</h5>
                 <div class="table-responsive-sm">
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark">
@@ -295,45 +295,33 @@ if (isset($_GET['project_id'])) {
 
     <div class="col-md-4">
         
-        <!-- Tasks card -->
-        <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
-            <div class="card card-body card-outline card-dark mb-3">
-                <h5 class="text-secondary"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
-
+        <!-- Tasks Card -->
+        <div class="card card-body card-outline card-dark">
+            <h5 class="text-secondary"><i class="fas fa-fw fa-tasks mr-2"></i>All Tasks</h5>
+            <table class="table">
                 <?php
-                // Get Tasks
-                while ($row = mysqli_fetch_array($sql_tasks)) {
+                while($row = mysqli_fetch_array($sql_tasks)){
                     $task_id = intval($row['task_id']);
                     $task_name = nullable_htmlentities($row['task_name']);
                     $task_description = nullable_htmlentities($row['task_description']);
                     $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-                    ?>
-                    
-                    <?php if($task_completed_at) { ?>
-                        <div class='mt-1 text-success'>
-                            <i class="fas fa-fw fa-check-circle mr-2"></i><s><?php echo $task_name; ?></s><span class="float-right"><small class="text-secondary"><i class="fa fa-fw fa-clock mr-1"></i><?php echo $task_completed_at; ?></small></span>
-                        </div>
-                    <?php } else { ?>
-                        <div class='mt-1'>
-                            <a href="post.php?complete_task=<?php echo $task_id; ?>"><i class="fas fa-fw fa-check-circle mr-2"></i></a><?php echo $task_name; ?>
-                            <?php if ($ticket_status !== "Closed") { ?>
-                                <div class="float-right">
-                                    <a  href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
-                                        <i class="fas fa-fw fa-edit"></i>
-                                    </a>
-                                    <a class="confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>">
-                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                                    </a>  
-                                </div>
+                ?>
+                    <tr>
+                        <td>
+                            <?php if($task_completed_at) { ?>
+                            <i class="far fa-fw fa-check-square text-primary mr-3"></i>
+                            <?php } else { ?>
+                            <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                <i class="far fa-fw fa-square text-secondary mr-3"></i>
+                            </a>
                             <?php } ?>
-                        </div>
-                        <?php require "task_edit_modal.php"; ?>
-                    <?php } ?>
-                
+                            <?php echo $task_name; ?>
+                        </td>
+                    </tr>
                 <?php } ?>
-            </div>
-        <?php } ?>
-        <!-- End Tasks card -->
+            </table>
+        </div>
+        <!-- End Tasks Card -->
 
     </div> <!-- End col-3 -->
 

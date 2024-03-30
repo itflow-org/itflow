@@ -11,6 +11,27 @@
                 <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; } else { echo 0; } ?>">
 
                 <div class="modal-body bg-white">
+                    
+                    <div class="form-group">
+                        <label>Template</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                            </div>
+                            <select class="form-control select2" name="template_id" required>
+                                <option value="">- Template -</option>
+                                <?php
+                                $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
+                                while ($row = mysqli_fetch_array($sql)) {
+                                    $project_template_id = intval($row['project_template_id']);
+                                    $project_template_name = nullable_htmlentities($row['project_template_name']);
+                                ?>
+                                <option value="<?php echo $project_template_id; ?>"><?php echo $project_template_name; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Project Name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
@@ -31,6 +52,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label>Date Due</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                            </div>
+                            <input type="date" class="form-control" name="due_date">
+                        </div>
+                    </div>
+
                     <?php if (empty($_GET['client_id'])) { ?>
                     <div class="form-group">
                         <label>Client <strong class="text-danger">*</strong></label>
@@ -47,6 +78,28 @@
                                     $client_name = nullable_htmlentities($row['client_name']);
                                 ?>
                                 <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                    <?php if ($_GET['client_id']) { ?>
+                    <div class="form-group">
+                        <label>Contact <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            </div>
+                            <select class="form-control select2" name="contact_id" required>
+                                <option value="">- Client -</option>
+                                <?php
+                                $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
+                                while ($row = mysqli_fetch_array($sql)) {
+                                    $contact_id = intval($row['contact_id']);
+                                    $contact_name = nullable_htmlentities($row['contact_name']);
+                                ?>
+                                <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
                                 <?php } ?>
                             </select>
                         </div>

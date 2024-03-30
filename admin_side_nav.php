@@ -49,15 +49,26 @@
                 </li>
                 <li class="nav-header mt-3">TEMPLATES</li>
                 <li class="nav-item">
-                    <a href="admin_project_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_project_templates.php") {echo "active";} ?>">
+                    <a href="admin_project_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_project_templates.php" || basename($_SERVER["PHP_SELF"]) == "admin_project_template_details.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-project-diagram"></i>
                         <p>Project Templates</p>
                     </a>
+                </li>
+                <li class="nav-item">
                     <a href="admin_ticket_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_ticket_templates.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-life-ring"></i>
                         <p>Ticket Templates</p>
                     </a>
                 </li>
+                <?php if (basename($_SERVER["PHP_SELF"]) == "admin_ticket_template_details.php") { ?>
+                    <li class="nav-item ">
+                        
+                        <div class="nav-link active"> 
+                            <i class="nav-icon fas fa-circle"></i>
+                            <p class="nav-child-indent">Details</p>
+                        </div>
+                    </li>
+                <?php } ?>
                 <li class="nav-item">
                     <a href="admin_vendor_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_vendor_templates.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-building"></i>
