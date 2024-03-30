@@ -1688,7 +1688,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.1.3') {
-        
         mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_subnet` VARCHAR(200) DEFAULT NULL AFTER `network`");
         mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_primary_dns` VARCHAR(200) DEFAULT NULL AFTER `network_gateway`");
         mysqli_query($mysqli, "ALTER TABLE `networks` ADD `network_secondary_dns` VARCHAR(200) DEFAULT NULL AFTER `network_primary_dns`");
@@ -1747,10 +1746,39 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.5') {
-    //     // Insert queries here required to update to DB version 1.1.6
+    if (CURRENT_DATABASE_VERSION == '1.1.5') {
+
+        // Add new ticket_statuses table
+        mysqli_query($mysqli,
+            "CREATE TABLE `ticket_statuses` (
+            `ticket_status_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `ticket_status_name` VARCHAR(200) NOT NULL,
+            `ticket_status_color` VARCHAR(200) NOT NULL,
+            `ticket_status_active` TINYINT(1) NOT NULL DEFAULT '1',
+            PRIMARY KEY (`ticket_status_id`)
+        )");
+
+        // Pre-seed default system/built-in ticket statuses
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = 'danger'"); // Default ID for new tickets is 1
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = 'primary'"); // 2
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = 'success'"); // 3
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Auto Close', ticket_status_color = 'dark'"); // 4
+        mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = 'dark'"); // 5
+
+        // Update existing tickets to use new values
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 1 WHERE ticket_status = 'New'"); // New
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_status = 'Open'"); // Open
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 3 WHERE ticket_status = 'On Hold'"); // On Hold
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4 WHERE ticket_status = 'Auto Close'"); // Auto Close
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5 WHERE ticket_closed_at IS NOT NULL"); // Closed
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.6') {
+    //     // Insert queries here required to update to DB version 1.1.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.7'");
     // }
 
 } else {

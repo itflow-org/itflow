@@ -122,7 +122,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $message = nl2br($message);
     $message = mysqli_escape_string($mysqli, "<i>Email from: $contact_email at $date:-</i> <br><br>$message");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 'New', ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -243,7 +243,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         $client_name = sanitizeInput($row['client_name']);
 
         // Check ticket isn't closed - tickets can't be re-opened
-        if ($ticket_status == "Closed") {
+        if ($ticket_status == 5) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Email parser: $from_email attempted to re-open ticket $config_ticket_prefix$ticket_number (ID $ticket_id) - check inbox manually to see email', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id");
 
             $email_subject = "Action required: This ticket is already closed";
@@ -360,7 +360,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         }
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Open' WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         echo "Updated existing ticket.<br>";
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email updated ticket $config_ticket_prefix$ticket_number ($subject)', log_client_id = $client_id");

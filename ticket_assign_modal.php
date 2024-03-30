@@ -9,7 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
+                <input type="hidden" name="ticket_status" value="<?php echo $ticket_status_id; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

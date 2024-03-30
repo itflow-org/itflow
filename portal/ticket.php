@@ -20,10 +20,21 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
     if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
         // For a primary / technical contact viewing all tickets
-        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
+        $ticket_sql = mysqli_query($mysqli,
+            "SELECT * FROM tickets 
+            LEFT JOIN users on ticket_assigned_to = user_id 
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+            WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id"
+        );
+
     } else {
         // For a user viewing their own ticket
-        $ticket_sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
+        $ticket_sql = mysqli_query($mysqli,
+            "SELECT * FROM tickets 
+            LEFT JOIN users on ticket_assigned_to = user_id 
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+            WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id"
+        );
     }
 
     $ticket_row = mysqli_fetch_array($ticket_sql);
@@ -32,11 +43,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         $ticket_prefix = nullable_htmlentities($ticket_row['ticket_prefix']);
         $ticket_number = intval($ticket_row['ticket_number']);
-        $ticket_status = nullable_htmlentities($ticket_row['ticket_status']);
+        $ticket_status = nullable_htmlentities($ticket_row['ticket_status_name']);
         $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
         $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
         $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
+        $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
         $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
 
         ?>
@@ -56,7 +68,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h4 class="mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
-                    if ($ticket_status !== "Closed") { ?>
+                    if (empty($ticket_closed_at)) { ?>
                         <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
                     <?php } ?>
                 </h4>
@@ -70,7 +82,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     <br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?>
                     <br>
-                    <?php if (!empty($ticket_assigned_to) && $ticket_status !== "Closed") { ?>
+                    <?php if (empty($ticket_closed_at)) { ?>
                         <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
                     <?php } ?>
                 </p>
@@ -81,7 +93,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
 
-        <?php if ($ticket_status !== "Closed") { ?>
+        <?php if (empty($ticket_closed_at)) { ?>
 
             <form action="portal_post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">

@@ -225,9 +225,7 @@ foreach ($warranty_alert_array as $day) {
 
 // Notify of New Tickets
 // Get Ticket Pending Assignment
-$sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets
-    WHERE ticket_status = 'New'"
-);
+$sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets WHERE ticket_status = 1");
 
 $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
@@ -258,9 +256,9 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $contact_id = intval($row['scheduled_ticket_contact_id']);
         $asset_id = intval($row['scheduled_ticket_asset_id']);
 
-        $ticket_status = 'New'; // Default
+        $ticket_status = 1; // Default
         if ($assigned_id > 0) {
-            $ticket_status = 'Open'; // Set to open if we've auto-assigned an agent
+            $ticket_status = 2; // Set to open if we've auto-assigned an agent
         }
 
         // Assign this new ticket the next ticket number
@@ -381,7 +379,7 @@ if ($config_ticket_autoclose == 1) {
     $sql_tickets_to_chase = mysqli_query(
         $mysqli,
         "SELECT * FROM tickets 
-        WHERE ticket_status = 'Auto Close'
+        WHERE ticket_status = 4
         AND ticket_updated_at < NOW() - INTERVAL $config_ticket_autoclose_hours HOUR"
     );
 
@@ -395,7 +393,7 @@ if ($config_ticket_autoclose == 1) {
         $ticket_assigned_to = sanitizeInput($row['ticket_assigned_to']);
         $client_id = intval($row['ticket_client_id']);
 
-        mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
+        mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_prefix$ticket_number auto closed', log_entity_id = $ticket_id");
@@ -410,7 +408,7 @@ if ($config_ticket_autoclose == 1) {
         "SELECT contact_name, contact_email, ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_client_id FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id
-        WHERE ticket_status = 'Auto Close'
+        WHERE ticket_status = 4
         AND ticket_updated_at < NOW() - INTERVAL 48 HOUR"
     );
 
@@ -422,7 +420,7 @@ if ($config_ticket_autoclose == 1) {
         $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_subject = sanitizeInput($row['ticket_subject']);
-        $ticket_status = sanitizeInput($row['ticket_status']);
+        $ticket_status = sanitizeInput( getTicketStatusName($row['ticket_status']));
         $client_id = intval($row['ticket_client_id']);
 
         $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply FROM ticket_replies WHERE ticket_reply_type = 'Public' AND ticket_reply_ticket_id = $ticket_id ORDER BY ticket_reply_created_at DESC LIMIT 1");
@@ -431,7 +429,7 @@ if ($config_ticket_autoclose == 1) {
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
 
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status <br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         $data = [
             [

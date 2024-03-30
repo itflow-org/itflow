@@ -1139,15 +1139,32 @@ function createiCalStrCancel($originaliCalStr) {
 }
 
 function getTicketStatusColor($ticket_status) {
-    if ($ticket_status == "New") {
-        return "danger";
-    } elseif ($ticket_status == "Open") {
-        return "primary";
-    } elseif ($ticket_status == "On Hold") {
-        return "success";
-    } elseif ($ticket_status == "Auto Close") {
-        return "dark";
-    } elseif ($ticket_status == "Closed") {
-        return "dark";
+
+    global $mysqli;
+
+    $status_id = intval($ticket_status);
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_status_color FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
+
+    if ($row) {
+        return nullable_htmlentities($row['ticket_status_color']);
     }
+
+    // Default return
+    return "Unknown";
+}
+
+function getTicketStatusName($ticket_status) {
+
+    global $mysqli;
+
+    $status_id = intval($ticket_status);
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
+
+    if ($row) {
+        return nullable_htmlentities($row['ticket_status_name']);
+    }
+
+    // Default return
+    return "Unknown";
+
 }

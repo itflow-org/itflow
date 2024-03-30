@@ -257,7 +257,7 @@ if (isset($_POST['add_company_settings'])) {
         unlink('uploads/tmp/cronkey.php');
     }
 
-    
+
 
     // Create Main Account Types
     mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Asset', account_type_parent = 1, account_type_description = 'Assets are economic resources which are expected to benefit the business in the future.'");
@@ -295,6 +295,12 @@ if (isset($_POST['add_company_settings'])) {
     //Create Calendar
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
 
+    // Add default ticket statuses
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'New', ticket_status_color = 'danger'"); // Default ID for new tickets is 1
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Open', ticket_status_color = 'primary'"); // 2
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'On Hold', ticket_status_color = 'success'"); // 3
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Auto Close', ticket_status_color = 'success'"); // 4
+    mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = 'dark'"); // 5
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
