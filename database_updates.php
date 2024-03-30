@@ -1781,7 +1781,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     if (CURRENT_DATABASE_VERSION == '1.1.6') {
 
         // Update existing tickets that did not use the defined statuses to Open
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_status NOT IN ('New', 'Open', 'On Hold', 'Auto Close') AND ticket_closed_at IS NULL");
+        //mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_status NOT IN ('New', 'Open', 'On Hold', 'Auto Close') AND ticket_closed_at IS NULL");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.7'");
     }
