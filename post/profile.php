@@ -250,6 +250,24 @@ if(isset($_POST['disable_2fa'])){
 
 }
 
+if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
+
+    // CSRF
+    validateCSRFToken($_POST['csrf_token']);
+
+    // Delete tokens
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name revoked all their remember-me tokens', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $session_user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Remember me tokens revoked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['logout'])) {
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logout', log_action = 'Success', log_description = '$session_name logged out', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
     mysqli_query($mysqli, "UPDATE users SET user_php_session = '' WHERE user_id = $session_user_id");

@@ -1,6 +1,10 @@
 <?php
 require_once "inc_all_user.php";
 
+// User remember me tokens
+$sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+$remember_token_count = mysqli_num_rows($sql_remember_tokens);
+
 ?>
 
 <div class="card card-dark">
@@ -85,6 +89,34 @@ require_once "inc_all_user.php";
             </form>
         <?php } ?>
     </div>
+</div>
+
+<?php if ($remember_token_count > 0) { ?>
+    <div class="card card-dark">
+        <div class="card-header py-3">
+            <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>2FA Remember-Me Tokens</h3>
+        </div>
+        <div class="card-body">
+
+            <ul>
+                <?php while ($row = mysqli_fetch_array($sql_remember_tokens)) {
+                    $token_id = intval($row['remember_token_id']);
+                    $token_created = nullable_htmlentities($row['remember_token_created_at']);
+
+                    echo "<li>ID: $token_id | Created: $token_created</li>";
+                } ?>
+            </ul>
+
+            <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
+                <button type="submit" name="revoke_your_2fa_remember_tokens" class="btn btn-danger btn-block mt-3"><i class="fas fa-exclamation-triangle mr-2"></i>Revoke Remember-Me Tokens</button>
+
+            </form>
+
+        </div>
+    </div>
+<?php } ?>
 
 <?php
 require_once "footer.php";

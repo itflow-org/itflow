@@ -229,14 +229,13 @@ if (isset($_GET['revoke_remember_me'])) {
     $user_id = intval($_GET['revoke_remember_me']);
 
     // Get User Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id"));
     $user_name = sanitizeInput($row['user_name']);
 
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
     //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name revoked all remember me tokens', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name revoked all remember me tokens for user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
