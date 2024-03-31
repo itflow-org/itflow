@@ -99,6 +99,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
                         $project_due = nullable_htmlentities($row['project_due']);
+                        if ($project_due) {
+                            $project_due_display = $project_due;
+                        } else {
+                            $project_due_display = "-";
+                        }
                         $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
                         $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
@@ -161,7 +166,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fa fas fa-fw fa-life-ring mr-2"></i>
                                     <div class="progress-bar bg-success" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
                                 </div>
-                                <?php } ?>
+                                <?php } else { echo "<div>-</div>"; } ?>
                                 <?php if($task_count) { ?>
                                 <div class="progress mt-2" style="height: 20px;">
                                     <i class="fa fas fa-fw fa-tasks mr-2"></i>
@@ -169,7 +174,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <?php } ?>
                             </td>
-                            <td><?php echo $project_due; ?></td>
+                            <td><?php echo $project_due_display; ?></td>
                             <td>
                                 <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
                                     <?php echo $client_name; ?>
