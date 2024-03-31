@@ -306,6 +306,7 @@ if (isset($_GET['project_id'])) {
     <div class="col-md-4">
         
         <!-- Tasks Card -->
+        <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
         <div class="card card-body card-outline card-dark">
             <h5 class="text-secondary"><i class="fas fa-fw fa-tasks mr-2"></i>All Tasks</h5>
             <table class="table">
@@ -331,6 +332,7 @@ if (isset($_GET['project_id'])) {
                 <?php } ?>
             </table>
         </div>
+        <?php } ?>
         <!-- End Tasks Card -->
 
     </div> <!-- End col-3 -->
