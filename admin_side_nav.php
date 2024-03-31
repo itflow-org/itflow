@@ -47,6 +47,12 @@
                         <p>Account Types</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="admin_ticket_statuses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_ticket_statuses.php") {echo "active";} ?>">
+                        <i class="nav-icon fas fa-info-circle"></i>
+                        <p>Ticket Statuses</p>
+                    </a>
+                </li>
                 <li class="nav-header mt-3">TEMPLATES</li>
                 <li class="nav-item">
                     <a href="admin_project_templates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_project_templates.php" || basename($_SERVER["PHP_SELF"]) == "admin_project_template_details.php") {echo "active";} ?>">
