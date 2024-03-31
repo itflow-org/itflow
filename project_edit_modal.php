@@ -32,6 +32,16 @@
             </div>
           </div>
 
+          <div class="form-group">
+              <label>Date Due</label>
+              <div class="input-group">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                  </div>
+                  <input type="date" class="form-control" name="due_date" value="<?php echo $project_due; ?>">
+              </div>
+          </div>
+
         </div>
         <div class="modal-footer bg-white">
           <button type="submit" name="edit_project" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>

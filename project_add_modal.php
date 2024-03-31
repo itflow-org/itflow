@@ -84,27 +84,6 @@
                     </div>
                     <?php } ?>
 
-                    <?php if ($_GET['client_id']) { ?>
-                    <div class="form-group">
-                        <label>Contact <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="contact_id" required>
-                                <option value="">- Client -</option>
-                                <?php
-                                $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
-                                while ($row = mysqli_fetch_array($sql)) {
-                                    $contact_id = intval($row['contact_id']);
-                                    $contact_name = nullable_htmlentities($row['contact_name']);
-                                ?>
-                                <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-                    <?php } ?>
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_project" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
