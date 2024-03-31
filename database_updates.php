@@ -1786,10 +1786,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.7') {
-    //     // Insert queries here required to update to DB version 1.1.8
+    if (CURRENT_DATABASE_VERSION == '1.1.7') {
+
+        mysqli_query($mysqli, "ALTER TABLE `projects` ADD `project_due` DATE DEFAULT NULL AFTER `project_description`");
+        mysqli_query($mysqli, "ALTER TABLE `tasks` ADD `task_order` INT(11) NOT NULL DEFAULT 0 AFTER `task_status`");
+        mysqli_query($mysqli, "ALTER TABLE `task_templates` ADD `task_template_order` INT(11) NOT NULL DEFAULT 0 AFTER `task_template_description`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.8') {
+    //     // Insert queries here required to update to DB version 1.1.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.8");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.9");
     // }
 
 } else {

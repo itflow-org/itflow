@@ -960,6 +960,7 @@ CREATE TABLE `projects` (
   `project_id` int(11) NOT NULL AUTO_INCREMENT,
   `project_name` varchar(255) NOT NULL,
   `project_description` text DEFAULT NULL,
+  `project_due` date DEFAULT NULL,
   `project_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `project_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `project_completed_at` datetime DEFAULT NULL,
@@ -1511,6 +1512,7 @@ CREATE TABLE `task_templates` (
   `task_template_id` int(11) NOT NULL AUTO_INCREMENT,
   `task_template_name` varchar(200) NOT NULL,
   `task_template_description` text DEFAULT NULL,
+  `task_template_order` int(11) NOT NULL DEFAULT 0,
   `task_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `task_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `task_template_archived_at` datetime DEFAULT NULL,
@@ -1531,6 +1533,7 @@ CREATE TABLE `tasks` (
   `task_name` varchar(255) NOT NULL,
   `task_description` text DEFAULT NULL,
   `task_status` varchar(255) DEFAULT NULL,
+  `task_order` int(11) NOT NULL DEFAULT 0,
   `task_completed_at` datetime DEFAULT NULL,
   `task_completed_by` int(11) DEFAULT NULL,
   `task_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1878,4 +1881,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-30 15:05:47
+-- Dump completed on 2024-03-31 13:55:08
