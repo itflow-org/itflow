@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($remember_token_count > 0) { ?>
-                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remmeber_token_count; ?> Remember Tokens
+                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remember_token_count; ?> Remember Tokens
                                     </a>
                                     <?php } ?>
                                     <?php if ($user_status == 0) { ?>

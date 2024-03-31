@@ -116,32 +116,50 @@ if (isset($_POST['login'])) {
         $user_extension_key = $row['user_extension_key'];
         if($force_mfa == 1 && $token == NULL) {
             $config_start_page = "user_security.php";
+            $_SESSION['alert_message'] = "Please set up MFA.";
         }
 
-        // Get remember tokens less than 2 days old
-        $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL 2 DAY)");
+        $mfa_is_complete = false; // Default to requiring MFA
+        $extended_log = ''; // Default value
 
-        $bypass_2fa = false;
+        if (empty($token)) {
+            // MFA is not configured
+            $mfa_is_complete = true;
+        }
+
+        // Validate MFA via a remember-me cookie
         if (isset($_COOKIE['rememberme'])) {
+            // Get remember tokens less than 2 days old
+            $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL 2 DAY)");
             while ($row = mysqli_fetch_assoc($remember_tokens)) {
                 if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
-                    $bypass_2fa = true;
+                    $mfa_is_complete = true;
+                    $extended_log = 'with 2FA remember-me cookie';
                     break;
                 }
             }
-        } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
-            $bypass_2fa = true;
         }
 
-        if ($bypass_2fa) {
+        // Validate MFA code
+        if (TokenAuth6238::verify($token, $current_code)) {
+            $mfa_is_complete = true;
+            $extended_log = 'with 2FA';
+        }
+
+        if ($mfa_is_complete) {
+            // MFA Completed successfully
+
+            // FULL LOGIN SUCCESS
+
+            // Create a remember me token, if requested
             if (isset($_POST['remember_me'])) {
+                // TODO: Record the UA and IP a token is generated from so that can be shown later on
                 $newRememberToken = bin2hex(random_bytes(64));
                 setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
-                $updateTokenQuery = "INSERT INTO remember_tokens (remember_token_user_id, remember_token_token) VALUES ($user_id, '$newRememberToken')";
-                mysqli_query($mysqli, $updateTokenQuery);
-            }
+                mysqli_query($mysqli, "INSERT INTO remember_tokens SET remember_token_user_id = $user_id, remember_token_token = '$newRememberToken'");
 
-            // FULL LOGIN SUCCESS - 2FA not configured or was successful
+                $extended_log .= ", generated a new remember-me token";
+            }
 
             // Check this login isn't suspicious
             $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = $user_id"));
@@ -169,12 +187,6 @@ if (isset($_POST['login'])) {
             }
 
 
-            // Determine whether 2FA was used (for logs)
-            $extended_log = ''; // Default value
-            if ($current_code !== 0) {
-                $extended_log = 'with 2FA';
-            }
-
             // Logging successful login
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in $extended_log', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
 
@@ -191,15 +203,15 @@ if (isset($_POST['login'])) {
                 generateUserSessionKey($site_encryption_master_key);
 
                 // Setup extension - currently unused
-                if (is_null($user_extension_key)) {
+                //if (is_null($user_extension_key)) {
                     // Extension cookie
                     // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                    setcookie("user_extension_key", "$user_extension_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+                    //setcookie("user_extension_key", "$user_extension_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
                     // Set PHP session in DB, so we can access the session encryption data (above)
-                    $user_php_session = session_id();
-                    mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
-                }
+                    //$user_php_session = session_id();
+                    //mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
+                //}
 
             }
 
