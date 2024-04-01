@@ -52,6 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_name&order=<?php echo $disp; ?>">Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_color&order=<?php echo $disp; ?>">Color</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_arctive&order=<?php echo $disp; ?>">Status</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -62,15 +63,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $ticket_status_id = intval($row['ticket_status_id']);
                         $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
                         $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+                        $ticket_status_active = intval($row['ticket_status_active']);
+                        if ($ticket_status_active) {
+                            $ticket_status_display = "<div class='text-success text-bold'>Active</div>";
+                        } else {
+                            $ticket_status_display = "<div class='text-secondary'>Disabled</div>";
+                        }
 
                         ?>
                         <tr>
                             <td>
                                 <a href="#" data-toggle="modal" data-target="#editTicketStatusModal<?php echo $ticket_status_id; ?>">
-                                    <span class="badge text-light p-2 mr-1 bg-<?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                    <?php echo $ticket_status_name; ?>
                                 </a>
                             </td>
-                            <td><i class="fas fa-circle fa-2x text-<?php echo $ticket_status_color; ?>"></i></td>
+                            <td>
+                                <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                            <td><?php echo $ticket_status_display; ?></td>
                             <td>
                                 <?php if ( $ticket_status_id > 5 ) { ?>
                                 <div class="dropdown dropleft text-center">

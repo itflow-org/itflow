@@ -220,8 +220,9 @@ if (isset($_POST['edit_ticket_status'])) {
     $ticket_status_id = intval($_POST['ticket_status_id']);
     $name = sanitizeInput($_POST['name']);
     $color = sanitizeInput($_POST['color']);
+    $status = intval($_POST['status']);
 
-    mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color' WHERE ticket_status_id = $ticket_status_id");
+    mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color', ticket_status_active = $status WHERE ticket_status_id = $ticket_status_id");
 
     $ticket_status_id = mysqli_insert_id($mysqli);
 

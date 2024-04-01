@@ -644,12 +644,13 @@ if ($user_config_dashboard_technical_enable == 1) {
     $sql_your_tickets = mysqli_query(
         $mysqli,
         "SELECT * FROM tickets
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id
-    WHERE ticket_assigned_to = $session_user_id
-    AND ticket_closed_at IS NULL
-    ORDER BY ticket_number DESC"
-    );
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+            LEFT JOIN clients ON ticket_client_id = client_id
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            WHERE ticket_assigned_to = $session_user_id
+            AND ticket_closed_at IS NULL
+            ORDER BY ticket_number DESC"
+        );
 
 ?>
 
@@ -773,7 +774,8 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                     $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                                     $ticket_status_id = intval($row['ticket_status']);
-                                    $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
+                                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                                     $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                                     $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
@@ -792,7 +794,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_id = intval($row['ticket_contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
 
-                                    $ticket_status_color = getTicketStatusColor($ticket_status_id);
+                                    
 
                                     if ($ticket_priority == "High") {
                                         $ticket_priority_color = "danger";
@@ -822,7 +824,9 @@ if ($user_config_dashboard_technical_enable == 1) {
                                         </td>
                                         <td><?php echo $contact_display; ?></td>
                                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>
-                                        <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span></td>
+                                        <td>
+                                            <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                        </td>
                                         <td><?php echo $ticket_updated_at_display; ?></td>
                                     </tr>
 

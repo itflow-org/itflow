@@ -448,7 +448,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                                 <!-- Ticket Status -->
                                 <td>
-                                    <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span> <?php if (isset ($ticket_scheduled_for)) { echo "<div class=\"mt-1\"> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?>
+                                    <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                    <?php if (isset ($ticket_scheduled_for)) { echo "<div class=\"mt-1\"> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?>
                                 </td>
 
                                 <!-- Ticket Assigned agent -->

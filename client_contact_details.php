@@ -53,7 +53,10 @@ if (isset($_GET['contact_id'])) {
     $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN users on ticket_assigned_to = user_id WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     ?>
@@ -479,9 +482,11 @@ if (isset($_GET['contact_id'])) {
                                 $ticket_id = intval($row['ticket_id']);
                                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
-                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                                $ticket_subject = intval($row['ticket_subject']);
                                 $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                                 $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                                $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                                 $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                 $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
@@ -494,14 +499,6 @@ if (isset($_GET['contact_id'])) {
                                     $ticket_updated_at_display = $ticket_updated_at;
                                 }
                                 $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-
-                                if ($ticket_status == "Open") {
-                                    $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-                                } elseif ($ticket_status == "Working") {
-                                    $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-                                } else {
-                                    $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
-                                }
 
                                 if ($ticket_priority == "High") {
                                     $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -529,7 +526,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
-                                    <td><?php echo $ticket_status_display; ?></td>
+                                    <td><span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span></td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
                                     <td><?php echo $ticket_updated_at_display; ?></td>
                                     <td><?php echo $ticket_created_at; ?></td>

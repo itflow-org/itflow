@@ -260,7 +260,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
 
                         <!-- Ticket Status -->
                         <td>
-                            <span class='p-2 badge badge-pill badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name; ?></span>
+                            <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
                         </td>
 
                         <!-- Ticket Assigned agent -->

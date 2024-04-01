@@ -472,7 +472,7 @@ if (isset($_GET['asset_id'])) {
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
                                     <td>
-                                        <span class="p-2 badge badge-<?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                        <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
                                     </td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
                                     <td><?php echo $ticket_updated_at_display; ?></td>

@@ -1795,10 +1795,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.8') {
-    //     // Insert queries here required to update to DB version 1.1.9
+    if (CURRENT_DATABASE_VERSION == '1.1.8') {
+        // Update Ticket Status color to use colors to allow more predefined colors
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_color = '#dc3545' WHERE ticket_status_id = 1"); // New
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_color = '#007bff' WHERE ticket_status_id = 2"); // Open
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_color = '#28a745' WHERE ticket_status_id = 3"); // On Hold
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_color = '#343a40' WHERE ticket_status_id = 4"); // Auto Close
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_color = '#343a40' WHERE ticket_status_id = 5"); // Closed
+ 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.1.9') {
+    //     // Insert queries here required to update to DB version 1.2.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.9");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.0");
     // }
 
 } else {

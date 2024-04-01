@@ -265,7 +265,7 @@ if (isset($_GET['ticket_id'])) {
             <div class="row">
 
                 <div class="col-7">
-                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='p-2 badge badge-<?php echo $ticket_status_color; ?>'><?php echo $ticket_status_name ?></span></h3>
+                    <h3><i class="fas fa-fw fa-life-ring text-secondary mr-2"></i>Ticket <?php echo "$ticket_prefix$ticket_number"; ?> <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span></h3>
                 </div>
 
                 <div class="col-5">
