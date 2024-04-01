@@ -124,7 +124,7 @@ if (isset($_GET['project_id'])) {
                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <div class="dropdown-menu">
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                         </a>
@@ -337,6 +337,7 @@ if (isset($_GET['project_id'])) {
 <?php
 
 require_once "project_edit_modal.php";
+require_once "project_ticket_add_modal.php";
 
 }
 
