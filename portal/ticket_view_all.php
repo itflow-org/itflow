@@ -13,8 +13,8 @@ if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
 }
 
 // Ticket status from GET
-if (!isset($_GET['status'])) {
-    // If nothing is set, assume we only want to see open tickets
+if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
+    // Default to showing open
     $status = 'Open';
     $ticket_status_snippet = "ticket_closed_at IS NULL";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
