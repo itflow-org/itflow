@@ -11,14 +11,24 @@
                 <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; } else { echo 0; } ?>">
 
                 <div class="modal-body bg-white">
-                    
+
                     <div class="form-group">
-                        <label>Template</label>
+                        <label>Project Name <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="name" placeholder="Project Name" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Template <small class="text-info">(WIP)</small></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <select class="form-control select2" name="template_id" required>
+                            <select class="form-control select2" name="template_id">
                                 <option value="">- Template -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
@@ -33,16 +43,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Project Name <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="name" placeholder="Project Name" required autofocus>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Description</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -52,13 +52,14 @@
                         </div>
                     </div>
 
+
                     <div class="form-group">
-                        <label>Date Due</label>
+                        <label>Date Due <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="due_date">
+                            <input type="date" class="form-control" name="due_date" required>
                         </div>
                     </div>
 
