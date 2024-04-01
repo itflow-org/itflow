@@ -26,11 +26,6 @@ if (isset($_GET['project_id'])) {
     $project_name = nullable_htmlentities($row['project_name']);
     $project_description = nullable_htmlentities($row['project_description']);
     $project_due = nullable_htmlentities($row['project_due']);
-    if ($project_due) {
-        $project_due_display = "<small class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i>$project_due</small>";
-    } else {
-        $project_due_display = "<small class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i>No Date Set</small>";
-    }
     $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
     $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
@@ -103,7 +98,7 @@ if (isset($_GET['project_id'])) {
                 <i class="fa fa-fw fa-2x fa-user text-secondary mr-3"></i>
                 <div class="media-body">
                     <h3 class="mb-0"><?php echo $client_name; ?></h3>
-                    <div><?php echo $project_due_display; ?></div>
+                    <div><small class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></small></div>
                 </div>
             </div>
         </div>

@@ -99,11 +99,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
                         $project_due = nullable_htmlentities($row['project_due']);
-                        if ($project_due) {
-                            $project_due_display = $project_due;
-                        } else {
-                            $project_due_display = "-";
-                        }
                         $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
                         $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
@@ -174,7 +169,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <?php } ?>
                             </td>
-                            <td><?php echo $project_due_display; ?></td>
+                            <td><?php echo $project_due; ?></td>
                             <td>
                                 <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
                                     <?php echo $client_name; ?>
