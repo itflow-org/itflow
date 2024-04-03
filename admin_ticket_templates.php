@@ -91,9 +91,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketTemplateModal<?php echo $ticket_template_id; ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
                                     <?php if($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?php echo $ticket_template_id; ?>">
@@ -105,13 +102,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                     </tr>
 
-                    <?php
-
-                    require "admin_ticket_template_edit_modal.php";
-
-                }
-
-                ?>
+                    <?php } ?>
 
                 </tbody>
             </table>

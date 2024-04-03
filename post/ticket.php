@@ -25,6 +25,19 @@ if (isset($_POST['add_ticket'])) {
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
+    $ticket_template_id = intval($_POST['ticket_template_id']);
+
+    // Check to see if adding a ticket by template
+    if($ticket_template_id) { 
+        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $row = mysqli_fetch_array($sql);
+        $subject = sanitizeInput($row['ticket_template_subject']);
+        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
+
+        // Get Associated Tasks from the ticket template
+        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+
+    }
 
 
     // Add the primary contact as the ticket contact if "Use primary contact" is checked
@@ -67,6 +80,19 @@ if (isset($_POST['add_ticket'])) {
         }
     }
 
+    // Add Tasks from Template if Template was selected
+    if($ticket_template_id) {
+        if (mysqli_num_rows($sql_task_templates) > 0) {
+            while ($row = mysqli_fetch_array($sql_task_templates)) {
+                $task_order = intval($row['task_template_order']);
+                $task_name = sanitizeInput($row['task_template_name']);
+                $task_description = sanitizeInput($row['task_description']);
+                
+                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_description = '$task_description', task_order = $task_order, task_ticket_id = $ticket_id");
+            }
+        }
+    }
+    
     // Add Watchers
     if (!empty($_POST['watchers'])) {
         foreach ($_POST['watchers'] as $watcher) {
@@ -851,6 +877,52 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
+
+// Currenly not UI Frontend for this
+if (isset($_POST['bulk_add_ticket_project'])) {
+
+    // Role check
+    validateTechRole();
+
+    // POST variables
+    $project_id = intval($_POST['project_id']);
+
+    // Get a Ticket Count
+    $ticket_count = count($_POST['ticket_ids']);
+
+    // Assign Tech to Selected Tickets
+    if (!empty($_POST['ticket_ids'])) {
+        foreach ($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $row = mysqli_fetch_array($sql);
+
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
+            $ticket_subject = sanitizeInput($row['ticket_subject']);
+            $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+            $client_id = intval($row['ticket_client_id']);
+
+            // Get Project Name
+            $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+            $row = mysqli_fetch_array($sql);
+            $project_name = sanitizeInput($row['project_name']);
+
+            // Update ticket & insert reply
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+
+            // Logging
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Edit', log_description = '$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+        } // End For Each Ticket ID Loop
+    }
+
+    $_SESSION['alert_message'] = "You added <b>$ticket_count</b> Tickets to the project <b>$project_name</b>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 
 if (isset($_POST['add_ticket_reply'])) {
 

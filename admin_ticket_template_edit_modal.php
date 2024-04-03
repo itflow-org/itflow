@@ -64,7 +64,7 @@
 
                             <?php if($config_ai_enable) { ?>
                             <div class="form-group">
-                                <textarea class="form-control tinymceai" id="textInput" name="details"><?php echo $ticket_template_details; ?>"</textarea>
+                                <textarea class="form-control tinymceai" id="textInput" name="details"><?php echo $ticket_template_details; ?></textarea>
                             </div>
 
                             <div class="mb-3">
