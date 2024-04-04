@@ -66,6 +66,8 @@ $config_client_portal_enable = intval($row['config_client_portal_enable']);
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 
+$config_login_remember_me_days_expire = intval($row['config_login_remember_me_days_expire']);
+
 // Login key verification
 //  If no/incorrect 'key' is supplied, send to client portal instead
 if ($config_login_key_required) {
@@ -129,8 +131,8 @@ if (isset($_POST['login'])) {
 
         // Validate MFA via a remember-me cookie
         if (isset($_COOKIE['rememberme'])) {
-            // Get remember tokens less than 2 days old
-            $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL 2 DAY)");
+            // Get remember tokens less than $config_login_remember_me_days_expire days old
+            $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL $config_login_remember_me_expire DAY)");
             while ($row = mysqli_fetch_assoc($remember_tokens)) {
                 if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
                     $mfa_is_complete = true;

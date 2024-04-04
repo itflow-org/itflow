@@ -107,6 +107,7 @@ $config_client_portal_enable = intval($row['config_client_portal_enable']);
 $config_login_message = $row['config_login_message'];
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
+$config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 
 // Locale
 $config_currency_format = "US_en";

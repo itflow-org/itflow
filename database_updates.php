@@ -1806,10 +1806,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.1.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.1.9') {
-    //     // Insert queries here required to update to DB version 1.2.0
+    if (CURRENT_DATABASE_VERSION == '1.1.9') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_login_remember_me_expire` INT(11) NOT NULL DEFAULT 3 AFTER `config_login_key_secret`");
+ 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.2.0') {
+    //     // Insert queries here required to update to DB version 1.2.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.0");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.1");
     // }
 
 } else {

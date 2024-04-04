@@ -33,6 +33,16 @@ require_once "inc_all_settings.php";
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Remember Me Expire <small class="text-secondary">(The amount of days before a device remember me token will expire)</small></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    </div>
+                    <input type="number" class="form-control" name="config_login_remember_me_expire" placeholder="Enter Days to Expire" value="<?php echo intval($config_login_remember_me_expire); ?>">
+                </div>
+            </div>
+
             <hr>
 
             <button type="submit" name="edit_security_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>

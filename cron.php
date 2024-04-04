@@ -65,6 +65,9 @@ $config_telemetry = intval($row['config_telemetry']);
 $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_expire']);
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 
+// Remmeber Token Expire
+$config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
+
 // Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
@@ -119,7 +122,7 @@ mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
 
 // Clean-up old remember me tokens (2 or more days old)
-mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_at < CURDATE() - INTERVAL 2 DAY");
+mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_at < CURDATE() - INTERVAL $config_login_remember_me_expire DAY");
 
 //Logging
 //mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Task', log_description = 'Cron cleaned up old data'");
