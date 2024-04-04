@@ -66,7 +66,7 @@ $config_client_portal_enable = intval($row['config_client_portal_enable']);
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 
-$config_login_remember_me_days_expire = intval($row['config_login_remember_me_days_expire']);
+$config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 
 // Login key verification
 //  If no/incorrect 'key' is supplied, send to client portal instead
