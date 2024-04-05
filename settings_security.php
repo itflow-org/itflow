@@ -34,7 +34,7 @@ require_once "inc_all_settings.php";
             </div>
 
             <div class="form-group">
-                <label>Remember Me Expire <small class="text-secondary">(The amount of days before a device remember me token will expire)</small></label>
+                <label>2FA Remember Me Expire <small class="text-secondary">(The amount of days before a device 2FA remember me token will expire)</small></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
