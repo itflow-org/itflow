@@ -28,7 +28,7 @@ if (isset($_POST['add_ticket'])) {
     $ticket_template_id = intval($_POST['ticket_template_id']);
 
     // Check to see if adding a ticket by template
-    if($ticket_template_id) { 
+    if($ticket_template_id) {
         $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_array($sql);
         $subject = sanitizeInput($row['ticket_template_subject']);
@@ -87,12 +87,12 @@ if (isset($_POST['add_ticket'])) {
                 $task_order = intval($row['task_template_order']);
                 $task_name = sanitizeInput($row['task_template_name']);
                 $task_description = sanitizeInput($row['task_description']);
-                
+
                 mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_description = '$task_description', task_order = $task_order, task_ticket_id = $ticket_id");
             }
         }
     }
-    
+
     // Add Watchers
     if (!empty($_POST['watchers'])) {
         foreach ($_POST['watchers'] as $watcher) {
@@ -931,7 +931,6 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
     $ticket_status = intval($_POST['status']);
-    $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
     // Handle the time inputs for hours, minutes, and seconds
     $hours = intval($_POST['hours']);
     $minutes = intval($_POST['minutes']);
@@ -962,10 +961,11 @@ if (isset($_POST['add_ticket_reply'])) {
     }
 
     // Get Ticket Details
-    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_created_by, ticket_assigned_to 
+    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_client_id, ticket_created_by, ticket_assigned_to 
         FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id
     ");
 
@@ -976,6 +976,8 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_status = intval($row['ticket_status']);
+    $ticket_status_name = sanitizeInput($row['ticket_status_name']);
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -995,15 +997,14 @@ if (isset($_POST['add_ticket_reply'])) {
 
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            // Slightly different email subject/text depending on if this update closed the ticket or not
+            // Slightly different email subject/text depending on if this update set auto-close
 
-            if ($ticket_status == 5) {
-                $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-                $body = "Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been closed.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-            } elseif ($ticket_status == 4) {
+            if ($ticket_status == 4) {
+                // Auto-close
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
                 $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please respond to let us know!  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             } else {
+                // Anything else
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
                 $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
             }
