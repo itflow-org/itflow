@@ -45,6 +45,27 @@ if (isset($_POST['edit_project'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['complete_project'])) {
+
+    validateTechRole();
+
+    $project_id = intval($_GET['complete_project']);
+
+    // Get Project Name and client id for logging
+    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['project_client_id']);
+    $project_name = sanitizeInput($row['project_name']);
+
+    mysqli_query($mysqli, "UPDATE projects SET project_completed_at = NOW() WHERE project_id = $project_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Complete', log_description = '$session_name marked project $project_name completed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+
+    $_SESSION['alert_message'] = "You marked Project <strong>$project_name</strong> as completed";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
 
 if (isset($_GET['delete_project'])) {
 

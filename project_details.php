@@ -26,11 +26,18 @@ if (isset($_GET['project_id'])) {
     $project_name = nullable_htmlentities($row['project_name']);
     $project_description = nullable_htmlentities($row['project_description']);
     $project_due = nullable_htmlentities($row['project_due']);
+    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
     $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
     $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
+
+    if($project_completed_at) {
+        $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Complete</span>";
+    } else {
+        $project_status_display = "<span class='badge badge-pill badge-primary ml-2'>Open</span>";
+    }
 
     // Get Tickets
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -88,7 +95,7 @@ if (isset($_GET['project_id'])) {
             <div class="media">
                 <i class="fa fa-fw fa-2x fa-project-diagram text-secondary mr-3"></i>
                 <div class="media-body">
-                    <h3 class="mb-0"><?php echo $project_name; ?></h3>
+                    <h3 class="mb-0"><?php echo $project_name; ?><?php echo $project_status_display; ?></h3>
                     <div><small class="text-secondary"><?php echo $project_description; ?></small></div>
                 </div>
             </div>
@@ -120,6 +127,11 @@ if (isset($_GET['project_id'])) {
         
         <div class="col-sm-3">
             <div class="btn-group float-right d-print-none">
+                <?php if($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
+                <a class="btn btn-primary btn-sm confirm-link" href="post.php?complete_project=<?php echo $project_id; ?>">
+                    <i class="fas fa-fw fa-check mr-2"></i>Complete
+                </a>
+                <?php } ?>
                 <div class="dropdown dropleft text-center ml-3">
                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
