@@ -92,7 +92,7 @@ if (isset($_POST['export_client_logins_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = strtoAZaz09($client_name) . "-Logins-" . date('Y-m-d') . ".csv";
+        $filename = strtoAZaz09($client_name) . "-Credentials-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Login</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Credential</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -65,12 +65,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Password <strong class="text-danger">*</strong></label>
+                                <label>Password / Key <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password or Key" required autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -81,7 +81,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>OTP</label>
+                                <label>TOTP Seed</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>

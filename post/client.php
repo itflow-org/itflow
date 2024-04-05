@@ -731,7 +731,7 @@ if (isset($_POST['export_client_pdf'])) {
                 //Logins Start
                 <?php if(mysqli_num_rows($sql_logins) > 0 && $export_logins == 1){ ?>
                 {
-                    text: 'Logins',
+                    text: 'Credentials',
                     style: 'title'
                 },
 

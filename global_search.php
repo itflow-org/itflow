@@ -564,7 +564,7 @@ if (isset($_GET['query'])) {
             <div class="col-sm-6">
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Logins</h6>
+                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Credentials</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
