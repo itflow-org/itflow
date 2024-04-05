@@ -93,21 +93,21 @@ if (isset($_GET['project_template_id'])) {
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
-                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
+                            <i class="fas fa-fw fa-edit mr-2"></i>Edit Template
                         </a>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
-                            <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
+                            <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket Template
                         </a>
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project=<?php echo $project_id; ?>">
+                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project_template=<?php echo $project_template_id; ?>">
                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                             </a>
                         <?php } ?>
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project_template=<?php echo $project_template_id; ?>">
                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         <?php } ?>
@@ -134,6 +134,7 @@ if (isset($_GET['project_template_id'])) {
                             <th>Template Name</th>
                             <th>Description</th>
                             <th>Ticket Subject</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -158,6 +159,11 @@ if (isset($_GET['project_template_id'])) {
                                 </td>
                                 <td><?php echo $ticket_template_description; ?></td>
                                 <td><?php echo $ticket_template_subject; ?></td>
+                                <td>
+                                    <a href="post.php?remove_ticket_template_from_project_template=<?php echo $ticket_template_id; ?>" class="btn btn-default btn-sm confirm-link">
+                                        <i class="fa fa-fw fa-times"></i>
+                                    </a>
+                                </td>
                             </tr>
 
                         <?php } ?>
@@ -172,6 +178,7 @@ if (isset($_GET['project_template_id'])) {
     <div class="col-md-4">
         
         <!-- Task Templates Card -->
+        <?php if (mysqli_num_rows($sql_task_templates) > 0) { ?>
         <div class="card card-body card-outline card-dark">
             <h5 class="text-secondary"><i class="fas fa-fw fa-tasks mr-2"></i>Project Task Templates</h5>
             <table class="table">
@@ -190,6 +197,7 @@ if (isset($_GET['project_template_id'])) {
                 <?php } ?>
             </table>
         </div>
+        <?php  } ?>
         <!-- End Task TemplatesCard -->
 
     </div> <!-- End col-3 -->
@@ -199,6 +207,7 @@ if (isset($_GET['project_template_id'])) {
 <?php
 
 require_once "admin_project_template_edit_modal.php";
+require_once "admin_project_template_ticket_template_add_modal.php";
 
 }
 

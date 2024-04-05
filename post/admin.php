@@ -42,6 +42,37 @@ if (isset($_POST['edit_project_template'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['add_ticket_template_to_project_template'])) {
+
+    validateTechRole();
+    $project_template_id = intval($_POST['project_template_id']);
+    $ticket_template_id = intval($_POST['ticket_template_id']);
+
+    mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_project_template_id = $project_template_id WHERE ticket_template_id = $ticket_template_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Edit', log_description = '$session_name added a ticket template to project template', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
+
+    $_SESSION['alert_message'] = "You added a ticket template to the project template";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['remove_ticket_template_from_project_template'])) {
+
+    validateTechRole();
+    $ticket_template_id = intval($_GET['remove_ticket_template_from_project_template']);
+
+    mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_project_template_id = 0 WHERE ticket_template_id = $ticket_template_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Edit', log_description = '$session_name removed a ticket template from a project template', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_template_id");
+
+    $_SESSION['alert_message'] = "You removed ticket template from the project template";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['delete_project_template'])) {
 
     validateTechRole();
