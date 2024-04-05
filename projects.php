@@ -6,6 +6,20 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Status Query
+
+$status = 0;
+
+if (isset($_GET['status'])) {
+    $status = intval($_GET['status']);
+}
+
+if($status == 1) {
+    $status_query = "IS NOT NULL";
+} else {
+    $status_query = "IS NULL";
+}
+
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -17,6 +31,7 @@ $sql_projects = mysqli_query(
     WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%')
     AND project_archived_at IS NULL
+    AND project_completed_at $status_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -42,6 +57,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="btn-toolbar float-right">
+                            <div class="btn-group mr-2">
+                                <a href="?status=0" class="btn btn-<?php if($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open mr-2"></i>Open</a>
+                                <a href="?status=1" class="btn btn-<?php if($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
+                            </div>
+                           
                         </div>
                     </div>
                 </div>
@@ -85,7 +109,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_name&order=<?php echo $disp; ?>">Project</a></th>
                         <th>Tickets / Tasks</th>
-                        <th>Due</th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_due&order=<?php echo $disp; ?>">Due</a></th>
+                        
+                        <?php if ($status == 1) { ?>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_completed_at&order=<?php echo $disp; ?>">Completed</a></th>
+                        <?php } ?>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_created_at&order=<?php echo $disp; ?>">Created</a></th>
                         <th class="text-center">Action</th>
@@ -99,6 +127,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
                         $project_due = nullable_htmlentities($row['project_due']);
+                        $project_completed_at = date("Y-m-d", strtotime($row['project_completed_at']));
                         $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
                         $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
@@ -170,6 +199,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                             </td>
                             <td><?php echo $project_due; ?></td>
+                            <?php if ($status == 1) { ?>
+                            <td><?php echo $project_completed_at; ?></td>
+                            <?php } ?>
                             <td>
                                 <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
                                     <?php echo $client_name; ?>
@@ -182,6 +214,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
+                                        
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>

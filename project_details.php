@@ -34,7 +34,7 @@ if (isset($_GET['project_id'])) {
     $client_name = nullable_htmlentities($row['client_name']);
 
     if($project_completed_at) {
-        $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Complete</span>";
+        $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Closed</span>";
     } else {
         $project_status_display = "<span class='badge badge-pill badge-primary ml-2'>Open</span>";
     }
@@ -128,8 +128,8 @@ if (isset($_GET['project_id'])) {
         <div class="col-sm-3">
             <div class="btn-group float-right d-print-none">
                 <?php if($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
-                <a class="btn btn-primary btn-sm confirm-link" href="post.php?complete_project=<?php echo $project_id; ?>">
-                    <i class="fas fa-fw fa-check mr-2"></i>Complete
+                <a class="btn btn-primary btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
+                    <i class="fas fa-fw fa-check mr-2"></i>Close
                 </a>
                 <?php } ?>
                 <div class="dropdown dropleft text-center ml-3">
