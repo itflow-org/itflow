@@ -28,7 +28,7 @@ if (isset($_GET['project_template_id'])) {
     $project_template_updated_at = nullable_htmlentities($row['project_template_updated_at']);
 
     // Get Associated Ticket Templates
-    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id ORDER BY ticket_template_name ASC");
+    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id ORDER BY ticket_template_order ASC, ticket_template_name ASC");
     $ticket_template_count = mysqli_num_rows($sql_ticket_templates);
 
     // Get All Task Templates
