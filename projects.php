@@ -127,8 +127,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $project_name = nullable_htmlentities($row['project_name']);
                         $project_description = nullable_htmlentities($row['project_description']);
                         $project_due = nullable_htmlentities($row['project_due']);
-                        $project_completed_at = date("Y-m-d", strtotime($row['project_completed_at']));
-                        $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
+                        $project_completed_at = nullable_htmlentities($row['project_completed_at']);
+                        $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
+                        $project_created_at = nullable_htmlentities($row['project_created_at']);
+                        $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
                         $project_updated_at = nullable_htmlentities($row['project_updated_at']);
 
                         $client_id = intval($row['client_id']);
@@ -200,25 +202,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td><?php echo $project_due; ?></td>
                             <?php if ($status == 1) { ?>
-                            <td><?php echo $project_completed_at; ?></td>
+                            <td><?php echo $project_completed_at_display; ?></td>
                             <?php } ?>
                             <td>
                                 <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
                                     <?php echo $client_name; ?>
                                 </a>
                             </td>
-                            <td><?php echo $project_created_at; ?></td>
+                            <td><?php echo $project_created_at_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        
+                                        <?php if(empty($project_completed_at)) { ?>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
+                                        <?php } ?>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Delete
                                         </a>

@@ -35,8 +35,10 @@ if (isset($_GET['project_id'])) {
 
     if($project_completed_at) {
         $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Closed</span>";
+        $project_completed_date_display = "<div class='text-primary text-bold'><small><i class='fa fa-fw fa-door-closed mr-2'></i>" . date('Y-m-d', strtotime($project_completed_at)) . "</small></div>";
     } else {
         $project_status_display = "<span class='badge badge-pill badge-primary ml-2'>Open</span>";
+        $project_completed_date_display = "";
     }
 
     // Get Tickets
@@ -106,6 +108,7 @@ if (isset($_GET['project_id'])) {
                 <div class="media-body">
                     <h3 class="mb-0"><?php echo $client_name; ?></h3>
                     <div><small class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></small></div>
+                    <?php echo $project_completed_date_display; ?>
                 </div>
             </div>
         </div>
@@ -137,14 +140,16 @@ if (isset($_GET['project_id'])) {
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu">
+                        <?php if(empty($project_completed_at)) { ?>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                         </a>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
                             <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket
                         </a>
+                        <div class="dropdown-divider"></div>
+                        <?php } ?>
                         <?php if ($session_user_role == 3) { ?>
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project=<?php echo $project_id; ?>">
                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                             </a>
