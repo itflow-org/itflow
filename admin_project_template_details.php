@@ -142,6 +142,7 @@ if (isset($_GET['project_template_id'])) {
 
                         while ($row = mysqli_fetch_array($sql_ticket_templates)) {
                             $ticket_template_id = intval($row['ticket_template_id']);
+                            $ticket_template_order = intval($row['ticket_template_order']);
                             $ticket_template_name = nullable_htmlentities($row['ticket_template_name']);
                             $ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
                             $ticket_template_subject = nullable_htmlentities($row['ticket_template_subject']);
@@ -151,7 +152,13 @@ if (isset($_GET['project_template_id'])) {
                             ?>
 
                             <tr>
-                                <td>1</td>
+                                <td class="pr-0">
+                                    <form action="post.php" method="post" autocomplete="off">
+                                        <input type="hidden" name="edit_ticket_template_order" value="1">
+                                        <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+                                        <input type="text" class="form-control pr-0" onchange="this.form.submit()" name="order" value="<?php echo $ticket_template_order; ?>">
+                                    </form>
+                                </td>
                                 <td>
                                     <a href="admin_ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
                                         <?php echo $ticket_template_name; ?>        

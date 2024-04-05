@@ -42,6 +42,17 @@ if (isset($_POST['edit_project_template'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['edit_ticket_template_order'])) {
+
+    validateTechRole();
+    $ticket_template_id = intval($_POST['ticket_template_id']);
+    $order = intval($_POST['order']);
+
+    mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_order = $order WHERE ticket_template_id = $ticket_template_id");
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['add_ticket_template_to_project_template'])) {
 
     validateTechRole();

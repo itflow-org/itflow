@@ -1630,6 +1630,7 @@ CREATE TABLE `ticket_templates` (
   `ticket_template_description` text DEFAULT NULL,
   `ticket_template_subject` varchar(200) DEFAULT NULL,
   `ticket_template_details` longtext DEFAULT NULL,
+  `ticket_template_order` int(11) NOT NULL DEFAULT 0,
   `ticket_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ticket_template_archived_at` datetime DEFAULT NULL,
@@ -1882,4 +1883,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-04 19:52:07
+-- Dump completed on 2024-04-05 18:19:29
