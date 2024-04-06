@@ -32,8 +32,6 @@ if (isset($_POST['edit_project_template'])) {
 
     mysqli_query($mysqli, "UPDATE project_templates SET project_template_name = '$name', project_template_description = '$description' WHERE project_template_id = $project_template_id");
 
-    $ticket_template_id = mysqli_insert_id($mysqli);
-
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Edit', log_description = '$session_name edited Project template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
 
@@ -100,16 +98,8 @@ if (isset($_GET['delete_project_template'])) {
 
     mysqli_query($mysqli, "DELETE FROM project_templates WHERE project_template_id = $project_template_id");
 
-    // Delete Associated Ticket Tasks
-    // First we need to get ticket_template_id Get ticket Templates
-    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id");
-    while($row = mysqli_fetch_array($sql_ticket_templates)) {
-        $ticket_template_id = intval($row['ticket_template_id']);
-        mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-    }
-
-    // Then Delete Associated Ticket Templates
-    mysqli_query($mysqli, "DELETE FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id");
+    // Remove Associated Ticket Templates
+    mysqli_query($mysqli, "DELETE FROM project_template_ticket_templates WHERE project_template_id = $project_template_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project Template', log_action = 'Delete', log_description = '$session_name deleted ticket template $project_template_name and its associated ticket templates and its tasks', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_template_id");
@@ -129,16 +119,20 @@ if (isset($_POST['add_ticket_template'])) {
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
     $project_template_id = intval($_POST['project_template']);
 
-    mysqli_query($mysqli, "INSERT INTO ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details', ticket_template_project_template_id = $project_template_id");
+    mysqli_query($mysqli, "INSERT INTO ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details'");
 
     $ticket_template_id = mysqli_insert_id($mysqli);
+
+    if($project_template_id) {
+        mysqli_query($mysqli, "INSERT INTO project_template_ticket_templates SET project_template_id = $project_template_id, ticket_template_id = $ticket_template_id");
+    }
 
     // Add Tasks to ticket template
     if (!empty($_POST['tasks'])) {
         foreach($_POST['tasks'] as $task) {
             $task_template_name = sanitizeInput($task);
             if (!empty($task_template_name)) {
-                mysqli_query($mysqli,"INSERT INTO task_templates SET task_template_name = '$task_template_name', task_templates_ticket_template_id = $ticket_template_id");
+                mysqli_query($mysqli,"INSERT INTO task_templates SET task_template_name = '$task_template_name', task_template_ticket_template_id = $ticket_template_id");
             }
         }
     }
@@ -162,9 +156,7 @@ if (isset($_POST['edit_ticket_template'])) {
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
     $project_template_id = intval($_POST['project_template']);
 
-    mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details', ticket_template_project_template_id = $project_template_id WHERE ticket_template_id = $ticket_template_id");
-
-    $ticket_template_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details' WHERE ticket_template_id = $ticket_template_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Template', log_action = 'Edit', log_description = '$session_name edited ticket template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_template_id");
@@ -189,6 +181,9 @@ if (isset($_GET['delete_ticket_template'])) {
 
     // Delete Associated Tasks
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+
+    // Remove from Associated Project Templates
+    mysqli_query($mysqli, "DELETE FROM project_template_ticket_templates WHERE ticket_template_id = $ticket_template_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Template', log_action = 'Delete', log_description = '$session_name deleted ticket template $ticket_template_name and its tasks', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_template_id");
@@ -268,8 +263,6 @@ if (isset($_POST['edit_ticket_status'])) {
     $status = intval($_POST['status']);
 
     mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color', ticket_status_active = $status WHERE ticket_status_id = $ticket_status_id");
-
-    $ticket_status_id = mysqli_insert_id($mysqli);
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Status', log_action = 'Edit', log_description = '$session_name edited ticket status $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_status_id");
