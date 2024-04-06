@@ -1818,10 +1818,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.2.1') {
-    //     // Insert queries here required to update to DB version 1.2.2
+    if (CURRENT_DATABASE_VERSION == '1.2.1') {
+        
+        // Ticket Templates can have many project templates and Project Template can have have many ticket template, so instead create a many to many table relationship
+        mysqli_query($mysqli, "ALTER TABLE `ticket_templates` DROP `ticket_template_order`");
+        mysqli_query($mysqli, "ALTER TABLE `ticket_templates` DROP `ticket_template_project_template_id`");
+
+        mysqli_query($mysqli,
+            "CREATE TABLE `project_template_ticket_templates` (
+            `ticket_template_id` INT(11) NOT NULL,
+            `project_template_id` INT(11) NOT NULL,
+            `ticket_template_order` INT(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`ticket_template_id`,`project_template_id`)
+        )");
+ 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.2.2') {
+    //     // Insert queries here required to update to DB version 1.2.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.2");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.3");
     // }
 
 } else {

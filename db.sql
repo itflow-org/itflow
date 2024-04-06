@@ -932,6 +932,21 @@ CREATE TABLE `products` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `project_template_ticket_templates`
+--
+
+DROP TABLE IF EXISTS `project_template_ticket_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `project_template_ticket_templates` (
+  `ticket_template_id` int(11) NOT NULL,
+  `project_template_id` int(11) NOT NULL,
+  `ticket_template_order` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_template_id`,`project_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `project_templates`
 --
 
@@ -1630,11 +1645,9 @@ CREATE TABLE `ticket_templates` (
   `ticket_template_description` text DEFAULT NULL,
   `ticket_template_subject` varchar(200) DEFAULT NULL,
   `ticket_template_details` longtext DEFAULT NULL,
-  `ticket_template_order` int(11) NOT NULL DEFAULT 0,
   `ticket_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ticket_template_archived_at` datetime DEFAULT NULL,
-  `ticket_template_project_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1883,4 +1896,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-05 18:19:29
+-- Dump completed on 2024-04-06 18:36:53

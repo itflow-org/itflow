@@ -67,6 +67,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $project_template_description = nullable_htmlentities($row['project_template_description']);
                     $project_template_created_at = nullable_htmlentities($row['project_template_created_at']);
 
+                    // Get Ticket Template Count
+                    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
+                        WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
+                        AND project_template_ticket_templates.project_template_id = $project_template_id
+                        ORDER BY ticket_template_order ASC, ticket_template_name ASC");
+                    $ticket_template_count = mysqli_num_rows($sql_ticket_templates);
+
+                    // Get Tasks Template Count
+                    $sql_task_templates = mysqli_query($mysqli,
+                        "SELECT * FROM ticket_templates, task_templates, project_template_ticket_templates
+                        WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
+                        AND project_template_ticket_templates.project_template_id = $project_template_id
+                        AND ticket_templates.ticket_template_id = task_template_ticket_template_id
+                        ORDER BY task_template_created_at ASC"
+                    );
+                    $task_template_count = mysqli_num_rows($sql_task_templates);
+
                     ?>
                     <tr>
                         <td>
@@ -84,8 +101,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </a>
                         </td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td><?php echo $ticket_template_count; ?></td>
+                        <td><?php echo $task_template_count; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" data-toggle="dropdown">

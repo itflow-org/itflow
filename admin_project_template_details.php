@@ -21,21 +21,24 @@ if (isset($_GET['project_template_id'])) {
 
     $row = mysqli_fetch_array($sql_project_templates);
     
-    $project_template_id = intval($row['project_template_id']);
     $project_template_name = nullable_htmlentities($row['project_template_name']);
     $project_template_description = nullable_htmlentities($row['project_template_description']);
     $project_template_created_at = date("Y-m-d", strtotime($row['project_template_created_at']));
     $project_template_updated_at = nullable_htmlentities($row['project_template_updated_at']);
 
     // Get Associated Ticket Templates
-    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id = $project_template_id ORDER BY ticket_template_order ASC, ticket_template_name ASC");
+    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
+        WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
+        AND project_template_ticket_templates.project_template_id = $project_template_id
+        ORDER BY ticket_template_order ASC, ticket_template_name ASC");
     $ticket_template_count = mysqli_num_rows($sql_ticket_templates);
 
     // Get All Task Templates
     $sql_task_templates = mysqli_query($mysqli,
-        "SELECT * FROM ticket_templates, task_templates
-        WHERE ticket_template_id = task_template_ticket_template_id
-        AND ticket_template_project_template_id = $project_template_id
+        "SELECT * FROM ticket_templates, task_templates, project_template_ticket_templates
+        WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
+        AND project_template_ticket_templates.project_template_id = $project_template_id
+        AND ticket_templates.ticket_template_id = task_template_ticket_template_id
         ORDER BY task_template_created_at ASC"
     );
     $task_template_count = mysqli_num_rows($sql_task_templates);
@@ -154,7 +157,8 @@ if (isset($_GET['project_template_id'])) {
                             <tr>
                                 <td class="pr-0">
                                     <form action="post.php" method="post" autocomplete="off">
-                                        <input type="hidden" name="edit_ticket_template_order" value="1">
+                                        <input type="hidden" name="edit_ticket_template_order">
+                                        <input type="hidden" name="project_template_id" value="<?php echo $project_template_id; ?>">
                                         <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
                                         <input type="text" class="form-control pr-0" onchange="this.form.submit()" name="order" value="<?php echo $ticket_template_order; ?>">
                                     </form>
@@ -167,9 +171,14 @@ if (isset($_GET['project_template_id'])) {
                                 <td><?php echo $ticket_template_description; ?></td>
                                 <td><?php echo $ticket_template_subject; ?></td>
                                 <td>
-                                    <a href="post.php?remove_ticket_template_from_project_template=<?php echo $ticket_template_id; ?>" class="btn btn-default btn-sm confirm-link">
-                                        <i class="fa fa-fw fa-times"></i>
-                                    </a>
+                                    <form action="post.php" method="post" autocomplete="off">
+                                        <input type="hidden" name="project_template_id" value="<?php echo $project_template_id; ?>">
+                                        <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+                                        <button type="submit" class="btn btn-default btn-sm confirm-link"
+                                            name="remove_ticket_template_from_project_template">
+                                            <i class="fa fa-fw fa-times"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
 

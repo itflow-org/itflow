@@ -12,7 +12,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <label>Ticket Template<strong class="text-danger">*</strong></label>
+                        <label>Ticket Template <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
@@ -21,7 +21,14 @@
                                 <option value="">- Select a Ticket Template -</option>
                                 <?php
 
-                                $sql_ticket_templates_select = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_project_template_id != $project_template_id AND ticket_template_archived_at IS NULL");
+                                $sql_ticket_templates_select = mysqli_query($mysqli, "SELECT * FROM ticket_templates
+                                    WHERE ticket_template_id NOT IN (
+                                        SELECT ticket_template_id FROM project_template_ticket_templates
+                                        WHERE project_template_id = $project_template_id
+                                    )
+                                    AND ticket_template_archived_at IS NULL
+                                    ORDER BY ticket_template_name ASC"
+                                );
                                 while ($row = mysqli_fetch_array($sql_ticket_templates_select)) {
                                     $ticket_template_id_select = intval($row['ticket_template_id']);
                                     $ticket_template_subject_select = nullable_htmlentities($row['ticket_template_subject']);
@@ -32,6 +39,16 @@
 
                                 ?>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Order</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="order" value="1">
                         </div>
                     </div>
 
