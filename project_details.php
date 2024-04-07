@@ -136,7 +136,7 @@ if (isset($_GET['project_id'])) {
                 </a>
                 <?php } else { ?>
                 <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
-                    <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket
+                    <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket
                 </button>
                 <?php } ?>
                 <div class="dropdown dropleft text-center ml-3">

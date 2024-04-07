@@ -92,7 +92,7 @@ if (isset($_GET['project_template_id'])) {
         <div class="col-sm-2">
             <div class="btn-group float-right">
                 <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
-                    <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket Template
+                    <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket Template
                 </button>
                 <div class="dropdown dropleft text-center ml-3">
                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
