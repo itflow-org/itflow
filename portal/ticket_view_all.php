@@ -25,7 +25,7 @@ if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$all_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
+$all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, contact_name FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 ?>
 
     <h2>All tickets</h2>
