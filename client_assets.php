@@ -173,10 +173,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 } ?>
                             </div>
                             <div class="btn-group mr-2">
-                                <?php if($archived == 1){ ?>
-                                <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                <?php if($archived == 1) { ?>
+                                    <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                                 <?php } else { ?>
-                                <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                    <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                                 <?php } ?>
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -416,7 +416,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php if (!empty($asset_uri)) { ?>
                                             <a class="btn btn-default btn-sm" href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt"></i></a>
                                         <?php } ?>
-                                        
+
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
