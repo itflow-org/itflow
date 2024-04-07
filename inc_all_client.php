@@ -45,6 +45,7 @@ if (isset($_GET['client_id'])) {
         $client_rate = floatval($row['client_rate']);
         $client_notes = nullable_htmlentities($row['client_notes']);
         $client_created_at = nullable_htmlentities($row['client_created_at']);
+        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);

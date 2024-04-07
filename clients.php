@@ -37,7 +37,7 @@ $sql = mysqli_query(
            OR contacts.contact_mobile LIKE '%$phone_query%' OR locations.location_address LIKE '%$q%'
            OR locations.location_city LIKE '%$q%' OR locations.location_state LIKE '%$q%' OR locations.location_zip LIKE '%$q%'
            OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
-      AND clients.client_archived_at IS NULL
+      AND clients.client_$archive_query
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND clients.client_lead = $leads
     GROUP BY clients.client_id
@@ -73,6 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body p-2 p-md-3">
             <form class="mb-4" autocomplete="off">
                 <input type="hidden" name="leads" value="<?php echo $leads; ?>">
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
@@ -89,7 +90,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a href="?leads=0" class="btn btn-<?php if($leads == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
                                 <a href="?leads=1" class="btn btn-<?php if($leads == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
                             </div>
-                           
+
+                            <div class="btn-group mr-2">
+                                <?php if($archived == 1) { ?>
+                                    <a href="?<?php echo $url_query_strings_sort ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                <?php } else { ?>
+                                    <a href="?<?php echo $url_query_strings_sort ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                <?php } ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,7 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_notes = nullable_htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = nullable_htmlentities($row['client_updated_at']);
-                        $client_archive_at = nullable_htmlentities($row['client_archived_at']);
+                        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
                         $client_is_lead = intval($row['client_lead']);
 
                         // Client Tags
@@ -317,10 +325,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
+
+                                            <?php if (empty($client_archived_at)) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
+                                            <?php } ?>
+
                                         </div>
                                     </div>
                                 </td>
