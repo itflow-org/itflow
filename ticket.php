@@ -370,7 +370,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <div class="mb-3">
-                                <button id="rewordButton" class="btn btn-primary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
+                                <button id="rewordButton" class="btn btn-secondary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>AI Reword</button>
                                 <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
                             </div>
                             <?php } else { ?>
