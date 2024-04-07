@@ -90,7 +90,10 @@ if (isset($_GET['project_template_id'])) {
         </div>
         
         <div class="col-sm-2">
-            <div class="btn-group float-right d-print-none">
+            <div class="btn-group float-right">
+                <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
+                    <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket Template
+                </button>
                 <div class="dropdown dropleft text-center ml-3">
                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -98,9 +101,6 @@ if (isset($_GET['project_template_id'])) {
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit Template
-                        </a>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
-                            <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket Template
                         </a>
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>

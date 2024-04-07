@@ -134,6 +134,10 @@ if (isset($_GET['project_id'])) {
                 <a class="btn btn-primary btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
                     <i class="fas fa-fw fa-check mr-2"></i>Close
                 </a>
+                <?php } else { ?>
+                <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
+                    <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket
+                </button>
                 <?php } ?>
                 <div class="dropdown dropleft text-center ml-3">
                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -143,9 +147,6 @@ if (isset($_GET['project_id'])) {
                         <?php if(empty($project_completed_at)) { ?>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                        </a>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
-                            <i class="fas fa-fw fa-life-ring mr-2"></i>Add Ticket
                         </a>
                         <div class="dropdown-divider"></div>
                         <?php } ?>
