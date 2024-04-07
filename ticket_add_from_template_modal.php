@@ -64,6 +64,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>Override Subject</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="subject" placeholder="Fill this in to override the templates subject">
+                                </div>
+                            </div>
+
 
                             <?php if (empty($_GET['client_id'])) { ?>
 

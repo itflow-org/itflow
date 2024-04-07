@@ -31,7 +31,11 @@ if (isset($_POST['add_ticket'])) {
     if($ticket_template_id) {
         $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_array($sql);
-        $subject = sanitizeInput($row['ticket_template_subject']);
+        
+        // Overide Template Subject
+        if(empty($subject)) {
+            $subject = sanitizeInput($row['ticket_template_subject']);
+        }
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
 
         // Get Associated Tasks from the ticket template
