@@ -88,10 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
-    <!-- 
-    Favicon
-    If Fav Icon exists else use the default one 
-    -->
+    <!-- Favicon - If Fav Icon exists else use the default one -->
     <?php if(file_exists('../uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
     <?php } ?>

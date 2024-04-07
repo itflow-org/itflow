@@ -66,16 +66,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' AND contact_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
 
-        $id = intval($row['contact_id']);
-        $name = sanitizeInput($row['contact_name']);
-        $client = intval($row['contact_client_id']);
-
         if ($row['contact_email'] == $email) {
+            $id = intval($row['contact_id']);
+            $name = sanitizeInput($row['contact_name']);
+            $client = intval($row['contact_client_id']);
+
             $token = randomString(156);
             $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
-
 
             // Send reset email
             $subject = "Password reset for $company_name Client Portal";
@@ -98,17 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail'");
             }
-
             //End Mail IF
-        } else {
-            sleep(rand(2, 4)); // Mimic the e-mail send delay even if email is invalid to help prevent user enumeration
         }
 
-        $_SESSION['login_message'] = "If your account exists, a reset link is on it's way!";
+        $_SESSION['login_message'] = "If your account exists, a reset link is on it's way! Please allow a few minutes for it to reach you.";
 
-        /*
-         * Do password reset
-         */
+    /*
+     * Link is being used - Perform password reset
+     */
     } elseif (isset($_POST['password_reset_set_password'])) {
 
         if (!isset($_POST['new_password']) || !isset($_POST['email']) || !isset($_POST['token']) || !isset($_POST['client'])) {
@@ -149,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 ]
             ];
 
-            $mail = addToMailQueue($mysqli, $data); 
+            $mail = addToMailQueue($mysqli, $data);
 
             // Error handling
             if ($mail !== true) {
@@ -186,9 +182,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
 
-    <!-- 
+    <!--
     Favicon
-    If Fav Icon exists else use the default one 
+    If Fav Icon exists else use the default one
     -->
     <?php if(file_exists('../uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
@@ -254,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 } else { ?>
 
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
+                        <input type="email" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
