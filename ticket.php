@@ -278,10 +278,6 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="fas fa-fw fa-plus mr-2"></i>Add
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTaskModal">
-                                    <i class="fas fa-fw fa-tasks mr-2"></i>Create Task
-                                </a>
-                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>">
                                     <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                 </a>
@@ -999,8 +995,6 @@ if (isset($_GET['ticket_id'])) {
         require_once "ticket_edit_schedule_modal.php";
 
         require_once "ticket_merge_modal.php";
-
-        require_once "task_add_modal.php";
 
         if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
