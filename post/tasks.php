@@ -10,7 +10,6 @@ if (isset($_POST['add_task'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $task_name = sanitizeInput($_POST['name']);
-    $task_description = sanitizeInput($_POST['description']);
 
     // Get Client ID from tickets using the ticket_id
     $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
@@ -18,7 +17,7 @@ if (isset($_POST['add_task'])) {
     $client_id = intval($row['ticket_client_id']);
 
     
-    mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_description = '$task_description', task_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
 
     $task_id = mysqli_insert_id($mysqli);
 
@@ -36,14 +35,13 @@ if (isset($_POST['edit_task'])) {
 
     $task_id = intval($_POST['task_id']);
     $task_name = sanitizeInput($_POST['name']);
-    $task_description = sanitizeInput($_POST['description']);
 
     // Get Client ID
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['ticket_client_id']);
 
-    mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_description = '$task_description' WHERE task_id = $task_id");
+    mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name' WHERE task_id = $task_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Edit', log_description = '$session_name edited task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");

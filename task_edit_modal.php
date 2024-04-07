@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-tasks mr-2"></i>Editing task: <strong><?php echo $task_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-tasks mr-2"></i>Editing task</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -18,16 +18,6 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             </div>
                             <input type="text" class="form-control" name="name" placeholder="Name the task" value="<?php echo $task_name; ?>" required autofocus>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Description</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="description" placeholder="Description of the task" value="<?php echo $task_description; ?>">
                         </div>
                     </div>
                 

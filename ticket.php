@@ -805,7 +805,11 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 </td>
                             </tr>
-                        <?php } ?>
+
+                        <?php 
+
+                        require "task_edit_modal.php";
+                    } ?>
                     </table>
                 </div>
                 <!-- End Tasks Card -->
