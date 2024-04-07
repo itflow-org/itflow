@@ -45,7 +45,7 @@ if (isset($_GET['project_id'])) {
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE ticket_project_id = $project_id ORDER BY ticket_number DESC"
+        WHERE ticket_project_id = $project_id ORDER BY ticket_number ASC"
     );
     $ticket_count = mysqli_num_rows($sql_tickets);
 

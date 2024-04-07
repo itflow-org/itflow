@@ -23,12 +23,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Template <small class="text-info">(WIP)</small></label>
+                        <label>Template</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <select class="form-control select2" name="template_id">
+                            <select class="form-control select2" name="project_template_id">
                                 <option value="">- Template -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");

@@ -12,10 +12,51 @@ if (isset($_POST['add_project'])) {
     $project_description = sanitizeInput($_POST['description']);
     $due_date = sanitizeInput($_POST['due_date']);
     $client_id = intval($_POST['client_id']);
+    $project_template_id = intval($_POST['project_template_id']);
     
     mysqli_query($mysqli, "INSERT INTO projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_client_id = $client_id");
 
     $project_id = mysqli_insert_id($mysqli);
+
+    // If project template is selected add Ticket Templates and convert them to real tickets
+    if($project_template_id) {
+         // Get Associated Ticket Templates
+        $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
+            WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
+            AND project_template_ticket_templates.project_template_id = $project_template_id");
+        $ticket_template_count = mysqli_num_rows($sql_ticket_templates);
+
+        while ($row = mysqli_fetch_array($sql_ticket_templates)) {
+            $ticket_template_id = intval($row['ticket_template_id']);
+            $ticket_template_order = intval($row['ticket_template_order']);
+            $ticket_template_subject = sanitizeInput($row['ticket_template_subject']);
+            $ticket_template_details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
+
+            // Get the next Ticket Number and add 1 for the new ticket number
+            $ticket_number = $config_ticket_next_number;
+            $new_config_ticket_next_number = $config_ticket_next_number + 1;
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$ticket_template_subject', ticket_details = '$ticket_template_details', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = $session_user_id, ticket_client_id = $client_id, ticket_project_id = $project_id");
+
+            $config_ticket_next_number = $config_ticket_next_number + 1;
+
+            $ticket_id = mysqli_insert_id($mysqli);
+
+            // Task Templates for Ticket template and add the to the ticket
+            $sql_task_templates = mysqli_query($mysqli,
+                "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+            $task_template_count = mysqli_num_rows($sql_task_templates);
+
+            while ($row = mysqli_fetch_array($sql_task_templates)) {
+                $task_template_id = intval($row['task_template_id']);
+                $task_template_order = intval($row['task_template_order']);
+                $task_template_name = sanitizeInput($row['task_template_name']);
+
+                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_template_name', task_order = $task_template_order, task_ticket_id = $ticket_id");
+            } // End task Loop
+        } // End Ticket Loop
+    } // End If Project Template
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Create', log_description = '$session_name created project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
