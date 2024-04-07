@@ -63,7 +63,7 @@ if (isset($_GET['project_template_id'])) {
             <div class="media">
                 <i class="fa fa-fw fa-2x fa-project-diagram text-secondary mr-3"></i>
                 <div class="media-body">
-                    <h3 class="mb-0"><?php echo $project_template_name; ?> Template</h3>
+                    <h3 class="mb-0"><?php echo $project_template_name; ?><span class='badge badge-pill badge-info ml-2'>Template</span></h3>
                     <div><small class="text-secondary"><?php echo $project_template_description; ?></small></div>
                 </div>
             </div>
