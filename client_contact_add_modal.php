@@ -25,7 +25,7 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-photo"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-secure"><i class="fa fa-fw fa-lock mr-2"></i>Secure</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-access"><i class="fa fa-fw fa-lock mr-2"></i>Access</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
@@ -132,35 +132,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-row">
-
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1">
-                                            <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1">
-                                            <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1">
-                                            <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="pills-photo">
@@ -172,7 +143,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-secure">
+                        <div class="tab-pane fade" id="pills-access">
 
                             <div class="form-group">
                                 <label>Pin</label>
@@ -218,6 +189,36 @@
                                     </div>
                                 </div>
                             <?php } ?>
+                            
+                            <label>Roles:</label>
+                            <div class="form-row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1">
+                                            <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1">
+                                            <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1">
+                                            <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
 
                         </div>
 

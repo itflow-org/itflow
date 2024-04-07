@@ -154,7 +154,6 @@ if (isset($_POST['edit_ticket_template'])) {
     $description = sanitizeInput($_POST['description']);
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
-    $project_template_id = intval($_POST['project_template']);
 
     mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details' WHERE ticket_template_id = $ticket_template_id");
 

@@ -17,9 +17,6 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-ticket"><i class="fa fa-fw fa-life-ring mr-2"></i>Template</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-project-template"><i class="fa fa-fw fa-project-diagram mr-2"></i>Project Template</a>
-                        </li>
                     </ul>
 
                     <hr>
@@ -77,31 +74,6 @@
                             </div>
                             <?php } ?>
                         
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-project-template">
-
-                            <div class="form-group">
-                                <label>Project Template</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="project_template">
-                                        <option value="0">- None -</option>
-                                        <?php
-
-                                        $sql_project_templates = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_project_templates)) {
-                                            $project_template_id_select = intval($row['project_template_id']);
-                                            $project_template_name_select = nullable_htmlentities($row['project_template_name']); ?>
-                                            <option <?php if($project_template_id == $project_template_id_select) { echo "selected"; } ?> value="<?php echo $project_template_id_select; ?>"><?php echo $project_template_name_select; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
                         </div>
 
                     </div>
