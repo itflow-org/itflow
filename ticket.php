@@ -273,8 +273,8 @@ if (isset($_GET['ticket_id'])) {
                     <div class="btn-group float-right d-print-none">
 
                         <?php if (empty($ticket_closed_at)) { ?>
-                        <div class="dropdown dropleft text-center mr-3">
-                            <button class="btn btn-default btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                        <div class="dropdown dropdown text-center mr-3">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                 <i class="fas fa-fw fa-plus mr-2"></i>Add
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -301,7 +301,7 @@ if (isset($_GET['ticket_id'])) {
                         <?php }
 
                         if (empty($ticket_closed_at)) { ?>
-                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm confirm-link" id="ticket_close">
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
                             <i class="fas fa-fw fa-gavel mr-2"></i>Close
                         </a>
 
@@ -400,7 +400,6 @@ if (isset($_GET['ticket_id'])) {
                                     </select>
                                 </div>
                             </div>
-
 
 
                             <div class="custom-tt-horizontal-spacing"></div> <!-- Add custom class for smaller spacing -->
@@ -678,73 +677,67 @@ if (isset($_GET['ticket_id'])) {
 
 
                 <!-- Contact card -->
+                <?php if ($contact_id) { ?>
                 <div class="card card-body card-outline card-dark mb-3">
                     <h5 class="text-secondary">Contact</h5>
+                    <div>
+                        <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                        </a>
+                    </div>
 
-                    <?php if (!empty($contact_id)) { ?>
+                    <?php
 
-                        <div>
-                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
-                            </a>
+                    if (!empty($location_name)) { ?>
+                        <div class="mt-2">
+                            <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
                         </div>
+                    <?php }
 
-                        <?php
+                    if (!empty($contact_email)) { ?>
+                        <div class="mt-2">
+                            <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+                        </div>
+                    <?php }
 
-                        if (!empty($location_name)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
-                            </div>
-                        <?php }
+                    if (!empty($contact_phone)) { ?>
+                        <div class="mt-2">
+                            <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
+                        </div>
+                    <?php }
 
-                        if (!empty($contact_email)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
-                            </div>
-                        <?php }
-
-                        if (!empty($contact_phone)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
-                            </div>
-                        <?php }
-
-                        if (!empty($contact_mobile)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
-                            </div>
-                        <?php } ?>
-
-                        <?php
-
-                        // Previous tickets
-                        $prev_ticket_id = $prev_ticket_subject = $prev_ticket_status = ''; // Default blank
-
-                        $sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id  <> $ticket_id ORDER BY ticket_id DESC LIMIT 1";
-                        $prev_ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
-
-                        if ($prev_ticket_row) {
-                            $prev_ticket_id = intval($prev_ticket_row['ticket_id']);
-                            $prev_ticket_subject = nullable_htmlentities($prev_ticket_row['ticket_subject']);
-                            $prev_ticket_status = nullable_htmlentities( getTicketStatusName($prev_ticket_row['ticket_status']));
-                        ?>
-
-                            <hr>
-                            <div>
-                                <i class="fa fa-fw fa-history text-secondary mr-2"></i><b>Previous ticket:</b>
-                                <a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a>
-                            </div>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-hourglass-start text-secondary mr-2"></i><strong>Status:</strong>
-                                <span class="text-success"><?php echo $prev_ticket_status; ?></span>
-                            </div>
-                        <?php } ?>
-
-                    <?php } else { ?>
-                        <div class="d-print-none">
-                            <a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-plus mr-2"></i>Add a Contact</a>
+                    if (!empty($contact_mobile)) { ?>
+                        <div class="mt-2">
+                            <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
                         </div>
                     <?php } ?>
+
+                    <?php
+
+                    // Previous tickets
+                    $prev_ticket_id = $prev_ticket_subject = $prev_ticket_status = ''; // Default blank
+
+                    $sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id  <> $ticket_id ORDER BY ticket_id DESC LIMIT 1";
+                    $prev_ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
+
+                    if ($prev_ticket_row) {
+                        $prev_ticket_id = intval($prev_ticket_row['ticket_id']);
+                        $prev_ticket_subject = nullable_htmlentities($prev_ticket_row['ticket_subject']);
+                        $prev_ticket_status = nullable_htmlentities( getTicketStatusName($prev_ticket_row['ticket_status']));
+                    ?>
+
+                        <hr>
+                        <div>
+                            <i class="fa fa-fw fa-history text-secondary mr-2"></i><b>Previous ticket:</b>
+                            <a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a>
+                        </div>
+                        <div class="mt-1">
+                            <i class="fa fa-fw fa-hourglass-start text-secondary mr-2"></i><strong>Status:</strong>
+                            <span class="text-success"><?php echo $prev_ticket_status; ?></span>
+                        </div>
+                    <?php } ?>
+
                 </div>
+                <?php } ?>
                 <!-- End contact card -->
 
 
