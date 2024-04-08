@@ -28,8 +28,9 @@ $sql_projects = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM projects
     LEFT JOIN clients ON client_id = project_client_id
+    LEFT JOIN users ON user_id = project_manager
     WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%')
+    AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%' OR user_name LIKE '%$q%')
     AND project_archived_at IS NULL
     AND project_completed_at $status_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -114,6 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php if ($status == 1) { ?>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_completed_at&order=<?php echo $disp; ?>">Completed</a></th>
                         <?php } ?>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Manager</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_created_at&order=<?php echo $disp; ?>">Created</a></th>
                         <th class="text-center">Action</th>
@@ -135,6 +137,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
+
+                        $project_manager = intval($row['user_id']);
+                        if ($project_manager) {
+                            $project_manager_display = nullable_htmlentities($row['user_name']);
+                        } else {
+                            $project_manager_display = "-";
+                        }
+
 
                         // Get Tasks and Tickets Stats
                         // Get Tickets
@@ -204,6 +214,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php if ($status == 1) { ?>
                             <td><?php echo $project_completed_at_display; ?></td>
                             <?php } ?>
+                            <td><?php echo $project_manager_display; ?></td>
                             <td>
                                 <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
                                     <?php echo $client_name; ?>

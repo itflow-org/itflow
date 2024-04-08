@@ -10,6 +10,7 @@ if (isset($_GET['project_id'])) {
         $mysqli,
         "SELECT * FROM projects
         LEFT JOIN clients ON project_client_id = client_id
+        LEFT JOIN users ON project_manager = user_id
         WHERE project_id = $project_id LIMIT 1"
     );
 
@@ -32,6 +33,14 @@ if (isset($_GET['project_id'])) {
 
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
+
+    $project_manager = intval($row['user_id']);
+    $project_manager_name = nullable_htmlentities($row['user_name']);
+    if ($project_manager) {
+        $project_manager_display = "<div class='text-secondary'><i class='fas fa-fw fa-user-tie mr-2'></i>$project_manager_name</div>";
+    } else {
+        $project_manager_display = "-";
+    }
 
     if($project_completed_at) {
         $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Closed</span>";
@@ -104,10 +113,11 @@ if (isset($_GET['project_id'])) {
         </div>
         <div class="col-sm-3">
             <div class="media">
-                <i class="fa fa-fw fa-2x fa-user text-secondary mr-3"></i>
+                <i class="fa fa-fw fa-2x fa-users text-secondary mr-3"></i>
                 <div class="media-body">
                     <h3 class="mb-0"><?php echo $client_name; ?></h3>
-                    <div><small class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></small></div>
+                    <?php echo $project_manager_display; ?>
+                    <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></div>
                     <?php echo $project_completed_date_display; ?>
                 </div>
             </div>
