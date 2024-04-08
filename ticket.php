@@ -260,6 +260,34 @@ if (isset($_GET['ticket_id'])) {
 
         // Get Tasks
         $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_created_at ASC");
+        $task_count = mysqli_num_rows($sql_tasks);
+
+        // Get Completed Task Count
+        $sql_tasks_completed = mysqli_query($mysqli,
+            "SELECT * FROM tasks
+            WHERE task_ticket_id = $ticket_id
+            AND task_completed_at IS NOT NULL"
+        );
+        $completed_task_count = mysqli_num_rows($sql_tasks_completed);
+
+        // Tasks Completed Percent
+        if($task_count) {
+            $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+        }
+
+        // Get all Assigned ticket Users as a comma-separated string
+        $sql_ticket_collaborators = mysqli_query($mysqli, "
+            SELECT GROUP_CONCAT(DISTINCT user_name SEPARATOR ', ') AS user_names
+            FROM users
+            LEFT JOIN ticket_replies ON user_id = ticket_reply_by 
+            WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id
+        ");
+
+        // Fetch the result
+        $row = mysqli_fetch_assoc($sql_ticket_collaborators);
+
+        // The user names in a comma-separated string
+        $ticket_collaborators = nullable_htmlentities($row['user_names']);
 
 ?>
 
@@ -275,7 +303,7 @@ if (isset($_GET['ticket_id'])) {
         </ol>
         <div class="card card-body">
             <div class="row">
-                <div class="col-4">
+                <div class="col-sm-4">
                     <div class="media">
                         <i class="fa fa-fw fa-2x fa-life-ring text-secondary mr-2"></i>
                         <div class="media-body">
@@ -319,7 +347,7 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 </div>
 
-                <div class="col-3">
+                <div class="col-sm-3">
                     <div class="media">
                         <i class="fa fa-fw fa-2x fa-users text-secondary mr-2"></i>
                         <div class="media-body">
@@ -361,11 +389,22 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 </div>
 
-                <div class="col-3">
+                <div class="col-sm-2">
+                    <?php if($task_count) { ?>
+                    Tasks Completed<span class="float-right text-bold"><?php echo $tasks_completed_percent; ?>%</span>
+                    <div class="progress mt-2" style="height: 20px;">
+                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+                    </div>
+                    <?php } ?>
 
+                    <?php if($ticket_collaborators) { ?>
+                    <div class="mt-2">
+                        <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?php echo $ticket_collaborators; ?>
+                    </div>
+                    <?php } ?>
                 </div>
 
-                <div class="col-2">
+                <div class="col-sm-3">
 
                     <div class="btn-group float-right d-print-none">
 
