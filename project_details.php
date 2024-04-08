@@ -91,12 +91,28 @@ if (isset($_GET['project_id'])) {
     }
 
     //Get Total Ticket Time
-    $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies 
+    $sql_ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies 
         LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
         WHERE ticket_reply_archived_at IS NULL AND ticket_project_id = $project_id");
-    $row = mysqli_fetch_array($ticket_total_reply_time);
+    $row = mysqli_fetch_array($sql_ticket_total_reply_time);
     $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
-?>
+
+    // Get all Assigned ticket Users as a comma-separated string
+    $sql_project_collaborators = mysqli_query($mysqli, "
+        SELECT GROUP_CONCAT(DISTINCT user_name SEPARATOR ', ') AS user_names
+        FROM users
+        LEFT JOIN ticket_replies ON user_id = ticket_reply_by 
+        LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
+        WHERE ticket_reply_archived_at IS NULL AND ticket_project_id = $project_id
+    ");
+
+    // Fetch the result
+    $row = mysqli_fetch_assoc($sql_project_collaborators);
+
+    // The user names in a comma-separated string
+    $ticket_collaborators = nullable_htmlentities($row['user_names']);
+    
+    ?>
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb d-print-none">
@@ -147,6 +163,11 @@ if (isset($_GET['project_id'])) {
             <div class="progress mt-2" style="height: 20px;">
                 <i class="fa fas fa-fw fa-tasks mr-2"></i>
                 <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+            </div>
+            <?php } ?>
+            <?php if($ticket_collaborators) { ?>
+            <div class=mt-1>
+                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?php echo $ticket_collaborators; ?>
             </div>
             <?php } ?>
         </div>
