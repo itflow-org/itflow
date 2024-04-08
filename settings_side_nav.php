@@ -97,6 +97,14 @@
 
         <?php if ($config_module_enable_ticketing) { ?>
         <li class="nav-item">
+          <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_project.php") { echo "active"; } ?>"
+            href="settings_project.php">
+            <i class="nav-icon fas fa-project-diagram"></i>
+            <p>Project</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "settings_ticket.php") { echo "active"; } ?>"
             href="settings_ticket.php">
             <i class="nav-icon fas fa-life-ring"></i>

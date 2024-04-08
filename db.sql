@@ -973,6 +973,8 @@ DROP TABLE IF EXISTS `projects`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `projects` (
   `project_id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_prefix` varchar(200) DEFAULT NULL,
+  `project_number` int(11) NOT NULL DEFAULT 1,
   `project_name` varchar(255) NOT NULL,
   `project_description` text DEFAULT NULL,
   `project_due` date DEFAULT NULL,
@@ -1311,6 +1313,8 @@ CREATE TABLE `settings` (
   `config_default_calendar` int(11) DEFAULT NULL,
   `config_default_net_terms` int(11) DEFAULT NULL,
   `config_default_hourly_rate` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `config_project_prefix` varchar(200) NOT NULL DEFAULT 'PRJ-',
+  `config_project_next_number` int(11) NOT NULL DEFAULT 1,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_invoice_next_number` int(11) DEFAULT NULL,
   `config_invoice_footer` text DEFAULT NULL,
@@ -1895,4 +1899,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-08 12:22:49
+-- Dump completed on 2024-04-08 16:47:46

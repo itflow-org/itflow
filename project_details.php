@@ -24,6 +24,8 @@ if (isset($_GET['project_id'])) {
     $row = mysqli_fetch_array($sql_project);
     
     $project_id = intval($row['project_id']);
+    $project_prefix = nullable_htmlentities($row['project_prefix']);
+    $project_number = intval($row['project_number']);
     $project_name = nullable_htmlentities($row['project_name']);
     $project_description = nullable_htmlentities($row['project_description']);
     $project_due = nullable_htmlentities($row['project_due']);

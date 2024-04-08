@@ -14,8 +14,17 @@ if (isset($_POST['add_project'])) {
     $project_manager = intval($_POST['project_manager']);
     $client_id = intval($_POST['client_id']);
     $project_template_id = intval($_POST['project_template_id']);
+
+    // Sanitize Project Prefix
+    $config_project_prefix = sanitizeInput($config_project_prefix);
+
+    // Get the next Project Number and add 1 for the new Project number
+    $project_number = $config_project_next_number;
+    $new_config_project_next_number = $config_project_next_number + 1;
+
+    mysqli_query($mysqli, "UPDATE settings SET config_project_next_number = $new_config_project_next_number WHERE company_id = 1");
     
-    mysqli_query($mysqli, "INSERT INTO projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO projects SET project_prefix = '$config_project_prefix', project_number = $project_number, project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id");
 
     $project_id = mysqli_insert_id($mysqli);
 

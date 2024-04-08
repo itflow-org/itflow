@@ -1850,10 +1850,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.4'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.2.4') {
-    //     // Insert queries here required to update to DB version 1.2.5
+    if (CURRENT_DATABASE_VERSION == '1.2.4') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_project_prefix` VARCHAR(200) NOT NULL DEFAULT 'PRJ-' AFTER `config_default_hourly_rate`");
+
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_project_next_number` INT(11) NOT NULL DEFAULT 1 AFTER `config_project_prefix`");
+ 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.5'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.2.5') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `projects` ADD `project_prefix` VARCHAR(200) DEFAULT NULL AFTER `project_id`");
+        mysqli_query($mysqli, "ALTER TABLE `projects` ADD `project_number` INT(11) NOT NULL DEFAULT 1 AFTER `project_prefix`");
+ 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.2.6') {
+    //     // Insert queries here required to update to DB version 1.2.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.5");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.7");
     // }
 
 } else {

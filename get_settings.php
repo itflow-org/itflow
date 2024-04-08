@@ -47,7 +47,7 @@ $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 
-// Recurring
+// Recurring Invoices
 $config_recurring_prefix = $row['config_recurring_prefix'];
 $config_recurring_next_number = intval($row['config_recurring_next_number']);
 
@@ -57,6 +57,10 @@ $config_quote_next_number = intval($row['config_quote_next_number']);
 $config_quote_footer = $row['config_quote_footer'];
 $config_quote_from_name = $row['config_quote_from_name'];
 $config_quote_from_email = $row['config_quote_from_email'];
+
+// Projects
+$config_project_prefix = $row['config_project_prefix'];
+$config_project_next_number = intval($row['config_project_next_number']);
 
 // Tickets
 $config_ticket_prefix = $row['config_ticket_prefix'];
