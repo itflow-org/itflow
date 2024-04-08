@@ -81,7 +81,13 @@
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-comment-dollar"></i>
-                            <p>Quotes</p>
+                            <p>
+                                Quotes
+                                <?php
+                                if ($num_open_quotes) { ?>
+                                    <span class="right badge text-light"><?php echo $num_open_quotes; ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">

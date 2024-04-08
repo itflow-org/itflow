@@ -24,6 +24,11 @@ $num_active_projects = $row['num'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') AND invoice_archived_at IS NULL"));
 $num_open_invoices = $row['num'];
 
+// Open Quotes Count
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL"));
+$num_open_quotes = $row['num'];
+
+
 require_once "side_nav.php";
 
 require_once "inc_wrapper.php";
