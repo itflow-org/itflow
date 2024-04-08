@@ -330,7 +330,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php }
 
                             // Time tracking
-                            if (!empty($ticket_total_reply_time)) { ?>
+                            if ($ticket_total_reply_time) { ?>
                                 <div class="mt-1">
                                     <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
                                 </div>

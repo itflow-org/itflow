@@ -89,6 +89,13 @@ if (isset($_GET['project_id'])) {
     if($task_count) {
         $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
     }
+
+    //Get Total Ticket Time
+    $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies 
+        LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
+        WHERE ticket_reply_archived_at IS NULL AND ticket_project_id = $project_id");
+    $row = mysqli_fetch_array($ticket_total_reply_time);
+    $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
 ?>
 
 <!-- Breadcrumbs-->
@@ -119,6 +126,12 @@ if (isset($_GET['project_id'])) {
                     <?php echo $project_manager_display; ?>
                     <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></div>
                     <?php echo $project_completed_date_display; ?>
+                    <!-- Time tracking -->
+                    <?php if ($ticket_total_reply_time) { ?>
+                        <div>
+                            <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
