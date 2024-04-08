@@ -39,14 +39,26 @@
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Tickets</p>
+                            <p>
+                                Tickets
+                                <?php
+                                if ($num_active_tickets) { ?>
+                                    <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a href="projects.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "projects.php" || basename($_SERVER["PHP_SELF"]) == "project_details.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-project-diagram"></i>
-                            <p>Projects</p>
+                            <p>
+                                Projects
+                                <?php
+                                if ($num_active_projects) { ?>
+                                    <span class="right badge text-light"><?php echo $num_active_projects; ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
 
@@ -77,7 +89,13 @@
                                                                     echo "active";
                                                                 } ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
-                            <p>Invoices</p>
+                            <p>
+                                Invoices
+                                <?php
+                                if ($num_open_invoices) { ?>
+                                    <span class="right badge text-light"><?php echo $num_open_invoices; ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
