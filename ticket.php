@@ -59,11 +59,11 @@ if (isset($_GET['ticket_id'])) {
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
         $ticket_billable = intval($row['ticket_billable']);
         $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
-        $ticket_onsite = nullable_htmlentities($row['ticket_onsite']);
-        if (empty($ticket_scheduled_for)) {
-            $ticket_scheduled_wording = "Add";
-        } else {
+        $ticket_onsite = intval($row['ticket_onsite']);
+        if ($ticket_scheduled_for) {
             $ticket_scheduled_wording = "$ticket_scheduled_for";
+        } else {
+            $ticket_scheduled_wording = "Add";
         }
 
         //Set Ticket Badge Color based of priority
@@ -74,7 +74,7 @@ if (isset($_GET['ticket_id'])) {
         } elseif ($ticket_priority == "Low") {
             $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
         } else {
-            $ticket_priority_display = "-";
+            $ticket_priority_display = "";
         }
         $ticket_feedback = nullable_htmlentities($row['ticket_feedback']);
 
@@ -138,6 +138,8 @@ if (isset($_GET['ticket_id'])) {
         $location_phone = formatPhoneNumber($row['location_phone']);
 
         $project_id = intval($row['project_id']);
+        $project_prefix = nullable_htmlentities($row['project_prefix']);
+        $project_number = intval($row['project_number']);
         $project_name = nullable_htmlentities($row['project_name']);
         $project_description = nullable_htmlentities($row['project_description']);
         $project_due = nullable_htmlentities($row['project_due']);
@@ -437,9 +439,11 @@ if (isset($_GET['ticket_id'])) {
                         <?php }
 
                         if (empty($ticket_closed_at)) { ?>
-                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                            <i class="fas fa-fw fa-gavel mr-2"></i>Close
-                        </a>
+                            <?php if($task_count == $completed_task_count) { ?>
+                            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
+                                <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                            </a>
+                            <?php } ?>
 
                         <div class="dropdown dropleft text-center ml-3">
                             <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
