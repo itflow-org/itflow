@@ -373,7 +373,7 @@ if (isset($_POST['assign_ticket'])) {
     // POST variables
     $ticket_id = intval($_POST['ticket_id']);
     $assigned_to = intval($_POST['assigned_to']);
-    $ticket_status = sanitizeInput($_POST['ticket_status']);
+    $ticket_status = intval($_POST['ticket_status']);
 
     // New > Open as assigned
     if ($ticket_status == 1 && $assigned_to !== 0) {
@@ -516,7 +516,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN ticket_status ON ticket_status = ticket_status_id WHERE ticket_id = $ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_array($sql);
 
             $ticket_prefix = sanitizeInput($row['ticket_prefix']);
