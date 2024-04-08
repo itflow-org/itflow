@@ -976,6 +976,7 @@ CREATE TABLE `projects` (
   `project_name` varchar(255) NOT NULL,
   `project_description` text DEFAULT NULL,
   `project_due` date DEFAULT NULL,
+  `project_manager` int(11) NOT NULL DEFAULT 0,
   `project_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `project_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `project_completed_at` datetime DEFAULT NULL,
@@ -1894,4 +1895,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-06 22:06:56
+-- Dump completed on 2024-04-08 12:22:49
