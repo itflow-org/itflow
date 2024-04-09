@@ -274,7 +274,7 @@ if (isset($_GET['ticket_id'])) {
 
         // Tasks Completed Percent
         if($task_count) {
-            $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+            $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
         }
 
         // Get all Assigned ticket Users as a comma-separated string

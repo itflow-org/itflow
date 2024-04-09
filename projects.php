@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         
                         // Ticket Closed Percent
                         if($ticket_count) {
-                            $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+                            $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
                         }
                         // Get All Tasks
                         $sql_tasks = mysqli_query($mysqli,
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Tasks Completed Percent
                         if($task_count) {
-                            $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+                            $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
                         }
 
                         ?>

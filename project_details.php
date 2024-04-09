@@ -66,7 +66,7 @@ if (isset($_GET['project_id'])) {
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
     
     if($ticket_count) {
-        $tickets_closed_percent = ($closed_ticket_count / $ticket_count) * 100;
+        $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
     }
 
     // Get All Tasks
@@ -89,7 +89,7 @@ if (isset($_GET['project_id'])) {
 
     // Tasks Completed Percent
     if($task_count) {
-        $tasks_completed_percent = ($completed_task_count / $task_count) * 100;
+        $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
     }
 
     //Get Total Ticket Time
