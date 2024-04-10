@@ -158,13 +158,13 @@ if (isset($_GET['project_id'])) {
             <?php if($ticket_count) { ?>
             <div class="progress" style="height: 20px;">
                 <i class="fa fas fa-fw fa-life-ring mr-2"></i>
-                <div class="progress-bar bg-success" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
+                <div class="progress-bar bg-primary" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
             </div>
             <?php } ?>
             <?php if($task_count) { ?>
             <div class="progress mt-2" style="height: 20px;">
                 <i class="fa fas fa-fw fa-tasks mr-2"></i>
-                <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+                <div class="progress-bar bg-secondary" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
             </div>
             <?php } ?>
             <?php if($ticket_collaborators) { ?>
