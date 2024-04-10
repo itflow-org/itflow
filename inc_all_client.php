@@ -240,3 +240,6 @@ require_once "inc_client_top_head.php";
 
 require_once "pagination_head.php";
 
+?>
+
+<script>document.title = "<?php echo $client_name; ?>"</script>
