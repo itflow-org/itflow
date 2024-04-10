@@ -70,6 +70,47 @@ function populateDomainEditModal(client_id, domain_id) {
                 }
             });
 
+            // DNS Host dropdown
+            var dnshostDropdown = document.getElementById("editDomainDNShostId");
+
+            // Clear registrar dropdown
+            var i, L = dnshostDropdown.options.length -1;
+            for(i = L; i >= 0; i--) {
+                dnshostDropdown.remove(i);
+            }
+            dnshostDropdown[dnshostDropdown.length] = new Option('- Vendor -', '0');
+
+            // Populate dropdown
+            vendors.forEach(vendor => {
+                if (parseInt(vendor.vendor_id) == parseInt(domain.domain_dnshost)) {
+                    // Selected domain
+                    dnshostDropdown[dnshostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
+                }
+                else{
+                    dnshostDropdown[dnshostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                }
+            });
+
+            // Mail Host dropdown
+            var mailhostDropdown = document.getElementById("editDomainMailhostId");
+
+            // Clear mailhost dropdown
+            var i, L = mailhostDropdown.options.length -1;
+            for(i = L; i >= 0; i--) {
+                mailhostDropdown.remove(i);
+            }
+            mailhostDropdown[mailhostDropdown.length] = new Option('- Vendor -', '0');
+
+            // Populate dropdown
+            vendors.forEach(vendor => {
+                if (parseInt(vendor.vendor_id) == parseInt(domain.domain_mailhost)) {
+                    // Selected domain
+                    mailhostDropdown[mailhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id, true, true);
+                }
+                else{
+                    mailhostDropdown[mailhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                }
+            });
 
         }
     );

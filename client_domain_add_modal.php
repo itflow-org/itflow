@@ -90,6 +90,48 @@
                             </div>
 
                             <div class="form-group">
+                                <label>DNS Host</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="dnshost">
+                                        <option value="">- Vendor -</option>
+                                        <?php
+
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $vendor_id = intval($row['vendor_id']);
+                                            $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                            ?>
+                                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mail Host</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="mailhost">
+                                        <option value="">- Vendor -</option>
+                                        <?php
+
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $vendor_id = intval($row['vendor_id']);
+                                            $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                            ?>
+                                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Expire Date</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

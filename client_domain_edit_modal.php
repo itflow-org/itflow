@@ -73,6 +73,28 @@
                             </div>
 
                             <div class="form-group">
+                                <label>DNS Host</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                                    </div>
+                                    <select class="form-control select2" id="editDomainDNShostId" name="dnshost">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mail Host</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                                    </div>
+                                    <select class="form-control select2" id="editDomainMailhostId" name="mailhost">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Expire Date</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

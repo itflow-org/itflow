@@ -10,11 +10,19 @@ require_once "inc_all_client.php";
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM domains 
-    LEFT JOIN vendors ON domain_registrar = vendor_id
-    WHERE domain_client_id = $client_id 
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*,
+    registrar.vendor_name AS registrar_name,
+    dnshost.vendor_name AS dnshost_name,
+    mailhost.vendor_name AS mailhost_name,
+    webhost.vendor_name AS webhost_name
+    FROM domains
+    LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+    LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
+    LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
+    LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+    WHERE domain_client_id = $client_id
     AND domain_archived_at IS NULL
-    AND (domain_name LIKE '%$q%' OR vendor_name LIKE '%$q%') 
+    AND (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -83,8 +91,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_name&order=<?php echo $disp; ?>">Domain</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">Registrar</a></th>
-                            <th>Web Host</th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=registrar_name&order=<?php echo $disp; ?>">Registrar</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=webhost_name&order=<?php echo $disp; ?>">Web Host</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=dnshost_name&order=<?php echo $disp; ?>">DNS Host</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=mailhost_name&order=<?php echo $disp; ?>">Mail Host</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_expire&order=<?php echo $disp; ?>">Expires</a></th>
                             <th class="text-center">Action</th>
                         </tr>
@@ -96,21 +106,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $domain_id = intval($row['domain_id']);
                             $domain_name = nullable_htmlentities($row['domain_name']);
                             $domain_description = nullable_htmlentities($row['domain_description']);
-                            $domain_registrar = intval($row['domain_registrar']);
-                            $domain_webhost = intval($row['domain_webhost']);
                             $domain_expire = nullable_htmlentities($row['domain_expire']);
-                            $domain_registrar_name = nullable_htmlentities($row['vendor_name']);
+                            $domain_registrar_name = nullable_htmlentities($row['registrar_name']);
+                            if($domain_registrar_name) {
+                                $domain_registrar_name_display = $domain_registrar_name;
+                            } else {
+                                $domain_registrar_name_display = "-";
+                            }
+                            $domain_webhost_name = nullable_htmlentities($row['webhost_name']);
+                            $domain_dnshost_name = nullable_htmlentities($row['dnshost_name']);
+                            $domain_mailhost_name = nullable_htmlentities($row['mailhost_name']);
                             $domain_created_at = nullable_htmlentities($row['domain_created_at']);
-                            if (empty($domain_registrar_name)) {
-                                $domain_registrar_name = "-";
-                            }
-
-                            $sql_domain_webhost = mysqli_query($mysqli, "SELECT vendor_name FROM vendors WHERE vendor_id = $domain_webhost");
-                            $row = mysqli_fetch_array($sql_domain_webhost);
-                            $domain_webhost_name = "-";
-                            if ($row) {
-                                $domain_webhost_name = nullable_htmlentities($row['vendor_name']);
-                            }
+                            // Add - if empty on the table
+                            $domain_registrar_name_display = $domain_registrar_name ? $domain_registrar_name : "-";
+                            $domain_webhost_name_display = $domain_webhost_name ? $domain_webhost_name : "-";
+                            $domain_dnshost_name_display = $domain_dnshost_name ? $domain_dnshost_name : "-";
+                            $domain_mailhost_name_display = $domain_mailhost_name ? $domain_mailhost_name : "-";
 
                             ?>
                             <tr>
@@ -131,8 +142,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </div>
                                     </a>
                                 </td>
-                                <td><?php echo $domain_registrar_name; ?></td>
-                                <td><?php echo $domain_webhost_name; ?></td>
+                                <td><?php echo $domain_registrar_name_display; ?></td>
+                                <td><?php echo $domain_webhost_name_display; ?></td>
+                                <td><?php echo $domain_dnshost_name_display; ?></td>
+                                <td><?php echo $domain_mailhost_name_display; ?></td>
                                 <td><?php echo $domain_expire; ?></td>
                                 <td>
                                     <div class="dropdown dropleft text-center">

@@ -1867,10 +1867,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.2.6') {
-    //     // Insert queries here required to update to DB version 1.2.7
+    if (CURRENT_DATABASE_VERSION == '1.2.6') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_dnshost` INT(11) NOT NULL DEFAULT 0 AFTER `domain_webhost`");
+        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_mailhost` INT(11) NOT NULL DEFAULT 0 AFTER `domain_dnshost`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.2.7') {
+    //     // Insert queries here required to update to DB version 1.2.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.7");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.8");
     // }
 
 } else {

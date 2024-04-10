@@ -504,6 +504,8 @@ CREATE TABLE `domains` (
   `domain_accessed_at` datetime DEFAULT NULL,
   `domain_registrar` int(11) NOT NULL DEFAULT 0,
   `domain_webhost` int(11) NOT NULL DEFAULT 0,
+  `domain_dnshost` int(11) NOT NULL DEFAULT 0,
+  `domain_mailhost` int(11) NOT NULL DEFAULT 0,
   `domain_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1899,4 +1901,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-08 16:47:46
+-- Dump completed on 2024-04-10 13:20:42
