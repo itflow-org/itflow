@@ -54,7 +54,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-8">
                     <div class="float-right">
                         <div class="btn-group float-right">
-                            <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="btn btn-outline-primary"><i class="fa fa-fw fa-file-invoice mr-2"></i>Back to Invoices</a>
                         </div>
                     </div>
                 </div>

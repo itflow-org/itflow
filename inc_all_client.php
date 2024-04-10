@@ -114,7 +114,7 @@ if (isset($_GET['client_id'])) {
 
         $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
-        //Badge Counts
+        // Badge Counts
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id"));
         $num_contacts = $row['num'];

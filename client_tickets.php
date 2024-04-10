@@ -58,11 +58,6 @@ $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS to
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
-//Get Total Scheduled tickets
-$sql_total_scheduled_tickets = mysqli_query($mysqli, "SELECT COUNT(scheduled_ticket_id) AS total_scheduled_tickets FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
-$row = mysqli_fetch_array($sql_total_scheduled_tickets);
-$total_scheduled_tickets = intval($row['total_scheduled_tickets']);
-
 ?>
 
 <div class="card card-dark">
@@ -105,14 +100,7 @@ $total_scheduled_tickets = intval($row['total_scheduled_tickets']);
                     </div>
                 </div>
 
-
-
                 <div class="col-md-8">
-                    <div class="float-right">
-                        <a href="client_recurring_tickets.php?client_id=<?php echo $client_id; ?>" class="btn btn-outline-info">
-                            <i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring Tickets | <strong> <?php echo $total_scheduled_tickets; ?></strong>
-                        </a>
-                    </div>
                 </div>
 
             </div>

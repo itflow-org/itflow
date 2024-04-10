@@ -21,9 +21,6 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_archived_at IS NULL AND recurring_client_id = $client_id"));
-$recurring_invoice_count = $row['num'];
-
 ?>
 
 <div class="card card-dark">
@@ -60,7 +57,6 @@ $recurring_invoice_count = $row['num'];
                 <div class="col-md-8">
                     <div class="float-right">
                         <div class="btn-group float-right">
-                            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="btn btn-outline-primary"><i class="fa fa-fw fa-redo-alt mr-2"></i>Recurring | <b><?php echo $recurring_invoice_count; ?></b></a>
                             <?php if ($balance > 0) { ?>
                                 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addBulkPaymentModal"><i class="fa fa-credit-card mr-2"></i>Batch Payment</button>
                             <?php } ?>
