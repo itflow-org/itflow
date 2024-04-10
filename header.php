@@ -16,7 +16,7 @@ header("X-Frame-Options: DENY");
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title><?php echo nullable_htmlentities($session_company_name); ?> | <?php echo nullable_htmlentities($config_app_name); ?></title>
+    <title><?php echo $session_company_name; ?></title>
 
     <!-- 
     Favicon
