@@ -27,7 +27,8 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
-        LEFT JOIN projects ON ticket_project_id = project_id 
+        LEFT JOIN projects ON ticket_project_id = project_id
+        LEFT JOIN invoices ON ticket_invoice_id = invoice_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id LIMIT 1"
     );
@@ -150,6 +151,11 @@ if (isset($_GET['ticket_id'])) {
             $row = mysqli_fetch_array($sql_project_manager);
             $project_manager_name = nullable_htmlentities($row['user_name']);
         }
+
+        $invoice_id = intval($row['ticket_invoice_id']);
+        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
 
         if ($contact_id) {
             //Get Contact Ticket Stats
@@ -305,7 +311,7 @@ if (isset($_GET['ticket_id'])) {
         </ol>
         <div class="card card-body">
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="media">
                         <i class="fa fa-fw fa-2x fa-life-ring text-secondary mr-2"></i>
                         <div class="media-body">
@@ -374,6 +380,11 @@ if (isset($_GET['ticket_id'])) {
 
                             // Billable
                             if ($config_module_enable_accounting) { ?>
+                                <?php if($invoice_id) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <?php echo "$invoice_prefix$invoice_number"; ?>
+                                </div>
+                                <?php } else { ?>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Billable:
                                     <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
@@ -386,12 +397,13 @@ if (isset($_GET['ticket_id'])) {
                                         ?>
                                     </a>
                                 </div>
-                            <?php } ?>
+                                <?php } // End if Invoice ?>
+                            <?php } // End If Accounting mod enabled ?>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <?php if($task_count) { ?>
                     Tasks Completed<span class="float-right text-bold"><?php echo $tasks_completed_percent; ?>%</span>
                     <div class="progress mt-2" style="height: 20px;">
@@ -432,7 +444,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <?php } ?>
 
-                        <?php if ($config_module_enable_accounting && $ticket_billable == 1) { ?>
+                        <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id)) { ?>
                             <a href="#" class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                                 <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
                             </a>
