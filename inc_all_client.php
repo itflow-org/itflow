@@ -32,6 +32,7 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_array($sql);
         $client_name = nullable_htmlentities($row['client_name']);
+        $client_name_title = $row['client_name'];
         $client_is_lead = intval($row['client_lead']);
         $client_type = nullable_htmlentities($row['client_type']);
         $client_website = nullable_htmlentities($row['client_website']);
@@ -242,4 +243,5 @@ require_once "pagination_head.php";
 
 ?>
 
-<script>document.title = "<?php echo $client_name; ?>"</script>
+<!-- Set the browser window title to the clients name -->
+<script>document.title = "<?php echo $client_name_title; ?>"</script>
