@@ -98,7 +98,7 @@ if (isset($_GET['domain_get_json_details'])) {
     }
 
     // Get all registrars/webhosts (vendors) for this client that could be linked to this domain
-    $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id");
+    $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
     while ($row = mysqli_fetch_array($vendor_sql)) {
         $response['vendors'][] = $row;
     }
