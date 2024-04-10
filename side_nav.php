@@ -26,12 +26,23 @@
                 <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
                     <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">
-                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php" || basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
+                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>
                                 Tickets
                                 <?php if ($num_active_tickets) { ?>
                                     <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <p>
+                                Recurring
+                                <?php if ($num_recurring_tickets) { ?>
+                                    <span class="right badge text-light"><?php echo $num_recurring_tickets; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -68,12 +79,23 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
+                        <a href="invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>
                                 Invoices
                                 <?php if ($num_open_invoices) { ?>
                                     <span class="right badge text-light"><?php echo $num_open_invoices; ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <p>
+                                Recurring
+                                <?php if ($num_recurring_invoices) { ?>
+                                    <span class="right badge text-light"><?php echo $num_recurring_invoices; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -106,9 +128,20 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php" || basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
+                        <a href="expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Expenses</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <p>
+                                Recurring
+                                <?php if ($num_recurring_expenses) { ?>
+                                    <span class="right badge text-light"><?php echo $num_recurring_expenses; ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
