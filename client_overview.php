@@ -99,7 +99,7 @@ $sql_asset_retire = mysqli_query(
 
         <div class="col-md-12">
 
-            <div class="card card-dark mb-3 elevation-3">
+            <div class="card card-dark mb-3">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
                 </div>
