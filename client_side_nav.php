@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
-    <a class="brand-link pb-1 mt-1" href="clients.php">    
+    <a class="brand-link pb-1 mt-1" href="clients.php">
         <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong><?php echo shortenClient($client_name); ?></strong></p>
     </a>
 
@@ -46,7 +46,7 @@
                     </a>
                 </li>
 
-                
+
                 <?php if ($config_module_enable_ticketing == 1) { ?>
                 <li class="nav-header mt-3">SUPPORT</li>
 
@@ -255,8 +255,8 @@
                             <p>
                                 Recurring
                                 <?php
-                                if ($num_recurring_invoices > 0) { ?>
-                                    <span class="right badge"><?php echo $num_recurring_invoices; ?></span>
+                                if ($num_recurring > 0) { ?>
+                                    <span class="right badge"><?php echo $num_recurring; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -353,7 +353,7 @@
         <!-- /.sidebar-menu -->
 
         <div class="mb-3"></div>
-        
+
     </div>
     <!-- /.sidebar -->
 </aside>
