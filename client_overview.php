@@ -43,7 +43,7 @@ $sql_stale_tickets = mysqli_query(
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
     AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
-    AND ticket_status != 'Closed'
+    AND ticket_closed_at IS NULL
     ORDER BY ticket_updated_at DESC"
 );
 
