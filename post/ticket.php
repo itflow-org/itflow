@@ -31,7 +31,7 @@ if (isset($_POST['add_ticket'])) {
     if($ticket_template_id) {
         $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_array($sql);
-        
+
         // Overide Template Subject
         if(empty($subject)) {
             $subject = sanitizeInput($row['ticket_template_subject']);
@@ -1107,25 +1107,28 @@ if (isset($_POST['merge_ticket'])) {
 
     validateTechRole();
 
-    $ticket_id = intval($_POST['ticket_id']);
-    $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']);
-    $merge_comment = sanitizeInput($_POST['merge_comment']);
-    $ticket_reply_type = 'Internal';
+    $ticket_id = intval($_POST['ticket_id']); // Child ticket ID to be closed
+    $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']); // Parent ticket *number*
+    $merge_comment = sanitizeInput($_POST['merge_comment']); // Merge comment
+    $move_replies = intval($_POST['merge_move_replies']); // Whether to move replies to the new parent ticket
+    $ticket_reply_type = 'Internal'; // Default all replies to internal
 
-    //Get current ticket details
+    // Get current ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = $ticket_id");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "No ticket with that ID found.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
+    // CURRENT ticket details
     $row = mysqli_fetch_array($sql);
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
     $ticket_details = sanitizeInput($row['ticket_details']);
 
-    //Get merge into ticket id (as it may differ from the number)
+    // NEW PARENT ticket details
+    // Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "Cannot merge into that ticket.";
@@ -1135,20 +1138,26 @@ if (isset($_POST['merge_ticket'])) {
     $merge_row = mysqli_fetch_array($sql);
     $merge_into_ticket_id = intval($merge_row['ticket_id']);
 
+    // Sanity check
     if ($ticket_number == $merge_into_ticket_number) {
         $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
     }
 
-    //Update current ticket
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id") or die(mysqli_error($mysqli));
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 'Closed', ticket_closed_at = NOW() WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+    // Move ticket replies from child > parent
+    if ($move_replies) {
+        mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_ticket_id = $merge_into_ticket_id WHERE ticket_reply_ticket_id = $ticket_id");
+    }
 
-    //Update new ticket
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id") or die(mysqli_error($mysqli));
+    // Update current ticket
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_closed_at = NOW() WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
-    //Logging
+    //Update new parent ticket
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
+
+    // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number";

@@ -9,6 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" id="current_ticket_id" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                <input type="hidden" name="merge_move_replies" value="0"> <!-- Default 0 -->
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -38,6 +39,20 @@
                             <input type="text" class="form-control" name="merge_comment" placeholder="Comments" required>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="merge_move_replies" value="1" id="checkMoveReplies">
+                            <label class="form-check-label" for="checkMoveReplies">
+                                Move notes & replies to the new parent ticket
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-dark" role="alert">
+                        <i>The current ticket will be closed once merging is complete.</i>
+                    </div>
+
 
                     <hr>
                     <div class="form-group" id="merge_into_details_div" hidden>
