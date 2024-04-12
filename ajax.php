@@ -114,13 +114,15 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject, ticket_priority, ticket_status, client_name, contact_name FROM tickets
-      LEFT JOIN clients ON ticket_client_id = client_id 
-      LEFT JOIN contacts ON ticket_contact_id = contact_id
-      WHERE ticket_number = $merge_into_ticket_number");
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_subject, ticket_priority, ticket_status, ticket_status_name, client_name, contact_name FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id 
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_number = $merge_into_ticket_number");
 
     if (mysqli_num_rows($sql) == 0) {
         //Do nothing.
+        echo "No ticket found!";
     } else {
         //Return ticket, client and contact details for the given ticket number
         $response = mysqli_fetch_array($sql);
