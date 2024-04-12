@@ -1060,6 +1060,7 @@ CREATE TABLE `recurring` (
   `recurring_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_currency_code` varchar(200) NOT NULL,
   `recurring_note` text DEFAULT NULL,
+  `recurring_invoice_email_notify` tinyint(1) NOT NULL DEFAULT 1,
   `recurring_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `recurring_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `recurring_archived_at` datetime DEFAULT NULL,
@@ -1901,4 +1902,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-10 13:20:42
+-- Dump completed on 2024-04-12 19:37:23
