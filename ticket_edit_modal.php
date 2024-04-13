@@ -132,7 +132,7 @@
                             <?php if (!empty($config_smtp_host)) { ?>
                                 <div class="form-group">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact" <?php if ($config_ticket_client_general_notifications) { echo "checked"; } ?>>
+                                        <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact">
                                         <label class="form-check-label" for="checkNotifyContact">
                                             Send email notification
                                         </label>
