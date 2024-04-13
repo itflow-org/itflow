@@ -559,14 +559,15 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     $recurring_discount_amount = floatval($row['recurring_discount_amount']);
     $recurring_amount = floatval($row['recurring_amount']);
     $recurring_currency_code = sanitizeInput($row['recurring_currency_code']);
-    $recurring_note = sanitizeInput($row['recurring_note']); //Escape SQL
+    $recurring_note = sanitizeInput($row['recurring_note']);
+    $recurring_invoice_email_notify = intval($row['recurring_invoice_email_notify']);
     $category_id = intval($row['recurring_category_id']);
     $client_id = intval($row['recurring_client_id']);
-    $client_name = sanitizeInput($row['client_name']); //Escape SQL just in case a name is like Safran's etc
+    $client_name = sanitizeInput($row['client_name']);
     $client_net_terms = intval($row['client_net_terms']);
 
 
-    //Get the last Invoice Number and add 1 for the new invoice number
+    // Get the last Invoice Number and add 1 for the new invoice number
     $sql_invoice_number = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
     $row = mysqli_fetch_array($sql_invoice_number);
     $config_invoice_next_number = intval($row['config_invoice_next_number']);
@@ -610,7 +611,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
     mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
 
-    if ($config_recurring_auto_send_invoice == 1) {
+    if ($config_recurring_auto_send_invoice == 1 && $recurring_invoice_email_notify == 1) {
         $sql = mysqli_query(
             $mysqli,
             "SELECT * FROM invoices
