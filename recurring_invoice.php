@@ -98,13 +98,17 @@ if (isset($_GET['recurring_id'])) {
         <div class="card-header d-print-none">
 
             <div class="row">
+
                 <div class="col-8">
-                    <?php if($recurring_invoice_email_notify) { ?>
-                    <a href="post.php?recurring_invoice_email_notify=0&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
-                    <?php } else { ?>
-                    <a href="post.php?recurring_invoice_email_notify=1&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
+                    <?php if ($config_recurring_auto_send_invoice) { ?>
+                        <?php if ($recurring_invoice_email_notify) { ?>
+                            <a href="post.php?recurring_invoice_email_notify=0&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
+                        <?php } else { ?>
+                            <a href="post.php?recurring_invoice_email_notify=1&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
+                        <?php } ?>
                     <?php } ?>
                 </div>
+
                 <div class="col-4">
                     <div class="dropdown dropleft text-center float-right">
                         <button class="btn btn-secondary" type="button" data-toggle="dropdown">
@@ -181,8 +185,8 @@ if (isset($_GET['recurring_id'])) {
                             <td>Created</td>
                             <td class="text-right text-secondary"><?php echo $recurring_created_at; ?></td>
                         </tr>
-                        
-                        
+
+
                     </table>
                 </div>
             </div>
@@ -224,7 +228,7 @@ if (isset($_GET['recurring_id'])) {
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
                                     $item_order = intval($row['item_order']);
-                                    
+
                                     // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
                                     $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
                                     $row = mysqli_fetch_array($sql);
@@ -266,10 +270,10 @@ if (isset($_GET['recurring_id'])) {
                                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
-                                                    
-                                                    
+
+
                                                 </div>
-                                            </div>  
+                                            </div>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
@@ -291,7 +295,7 @@ if (isset($_GET['recurring_id'])) {
                                     <tr class="d-print-none">
                                         <form action="post.php" method="post">
                                             <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
-                                            <input type="hidden" name="item_order" value="<?php 
+                                            <input type="hidden" name="item_order" value="<?php
                                                 //find largest order number and add 1
                                                 $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
                                                 $row = mysqli_fetch_array($sql);
