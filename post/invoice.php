@@ -1407,6 +1407,24 @@ if (isset($_POST['update_invoice_item_order'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['recurring_invoice_email_notify'])) {
+    $recurring_invoice_email_notify = intval($_GET['recurring_invoice_email_notify']);
+    $recurring_id = intval($_GET['recurring_id']);
+
+    mysqli_query($mysqli,"UPDATE recurring SET recurring_invoice_email_notify = $recurring_invoice_email_notify WHERE recurring_id = $recurring_id");
+
+    if ($recurring_invoice_email_notify) {
+        $_SESSION['alert_message'] = "EMail Notifications On";
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "EMail Notifications Off";
+    }
+
+    
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['link_invoice_to_ticket'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);

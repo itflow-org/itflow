@@ -31,6 +31,7 @@ if (isset($_GET['recurring_id'])) {
     $recurring_discount = floatval($row['recurring_discount_amount']);
     $recurring_currency_code = nullable_htmlentities($row['recurring_currency_code']);
     $recurring_note = nullable_htmlentities($row['recurring_note']);
+    $recurring_invoice_email_notify = intval($row['recurring_invoice_email_notify']);
     $category_id = intval($row['recurring_category_id']);
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
@@ -98,6 +99,11 @@ if (isset($_GET['recurring_id'])) {
 
             <div class="row">
                 <div class="col-8">
+                    <?php if($recurring_invoice_email_notify) { ?>
+                    <a href="post.php?recurring_invoice_email_notify=0&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
+                    <?php } else { ?>
+                    <a href="post.php?recurring_invoice_email_notify=1&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
+                    <?php } ?>
                 </div>
                 <div class="col-4">
                     <div class="dropdown dropleft text-center float-right">
