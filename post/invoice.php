@@ -1414,13 +1414,11 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
     mysqli_query($mysqli,"UPDATE recurring SET recurring_invoice_email_notify = $recurring_invoice_email_notify WHERE recurring_id = $recurring_id");
 
     if ($recurring_invoice_email_notify) {
-        $_SESSION['alert_message'] = "EMail Notifications On";
+        $_SESSION['alert_message'] = "Email Notifications On";
     } else {
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "EMail Notifications Off";
+        $_SESSION['alert_message'] = "Email Notifications Off";
     }
-
-    
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
