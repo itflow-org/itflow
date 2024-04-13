@@ -6,6 +6,15 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Account Filter
+if (isset($_GET['account']) & !empty($_GET['account'])) {
+    $account_query = 'AND (expense_account_id = ' . intval($_GET['account']) . ')';
+    $account = intval($_GET['account']);
+} else {
+    // Default - any
+    $account_query = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -19,6 +28,7 @@ $sql = mysqli_query(
     WHERE expense_vendor_id > 0
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
+    $account_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -46,7 +56,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            </div>
+                            <select class="form-control select2" name="account" onchange="this.form.submit()">
+                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+
+                                <?php
+                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                    $account_id = intval($row['account_id']);
+                                    $account_name = nullable_htmlentities($row['account_name']);
+                                ?>
+                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
                         <div class="btn-group float-right">
                             <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
