@@ -30,7 +30,7 @@
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
-    <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
+    <a href="https://forum.itflow.org/t/bug">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
     ·
@@ -127,7 +127,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
-See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
+See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
 
 
 <!-- CONTRIBUTING -->
