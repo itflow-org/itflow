@@ -9,6 +9,11 @@
                 </button>
             </div>
             <div class="modal-body">
+
+                <div class="alert alert-danger" role="alert">
+                    This "Open Tickets" tracker will be removed in a future version of IFlow. Time tracking will still be a feature.
+                </div>
+
                 <div id="openTicketsContainer">
                     <!-- Open tickets will be loaded here via JavaScript -->
                 </div>
