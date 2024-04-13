@@ -324,7 +324,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="mt-1">
                                 <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at; ?></strong>
                             </div>
-                            
+
                             <!-- Ticket closure info -->
                             <?php
                             if (!empty($ticket_closed_at)) {
@@ -346,7 +346,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php } else { ?>
                                 <div class="mt-1">
                                     <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?> 
+                                        <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                     </a>
                                 </div>
                             <?php } ?>
@@ -468,6 +468,7 @@ if (isset($_GET['ticket_id'])) {
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                 </a>
+                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
                                     <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
                                 </a>
@@ -865,7 +866,7 @@ if (isset($_GET['ticket_id'])) {
                                 </td>
                             </tr>
 
-                        <?php 
+                        <?php
 
                         require "task_edit_modal.php";
                     } ?>

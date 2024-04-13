@@ -11,6 +11,7 @@
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <input type="hidden" name="ticket_number" value="<?php echo "$ticket_prefix$ticket_number"; ?>">
+                <input type="hidden" name="contact_notify" value="0"> <!-- Default 0 -->
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -120,13 +121,24 @@
                                             } else {
                                                 $contact_title_display_select = "";
                                             }
-                                            
+
                                             ?>
                                             <option value="<?php echo $contact_id_select; ?>" <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>><?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
                             </div>
+
+                            <?php if (!empty($config_smtp_host)) { ?>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact">
+                                        <label class="form-check-label" for="checkNotifyContact">
+                                            Send email notification
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php } ?>
 
                         </div>
 

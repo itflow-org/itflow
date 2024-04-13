@@ -187,6 +187,7 @@ if (isset($_POST['edit_ticket'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
+    $notify = intval($_POST['contact_notify']);
     $subject = sanitizeInput($_POST['subject']);
     $billable = intval($_POST['billable']);
     $priority = sanitizeInput($_POST['priority']);
@@ -197,9 +198,62 @@ if (isset($_POST['edit_ticket'])) {
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
     $client_id = intval($_POST['client_id']);
-    $ticket_number = intval($_POST['ticket_number']);
+    $ticket_number = sanitizeInput($_POST['ticket_number']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+
+    // Notify new contact if selected
+    if ($notify && !empty($config_smtp_host)) {
+
+        // Get contact/ticket details
+        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
+            WHERE ticket_id = $ticket_id 
+            AND ticket_closed_at IS NULL");
+        $row = mysqli_fetch_array($sql);
+
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_category = sanitizeInput($row['ticket_category']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_status = sanitizeInput($row['ticket_status_name']);
+        $client_id = intval($row['ticket_client_id']);
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        // Email content
+        $data = []; // Queue array
+
+        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+
+        // Only add contact to email queue if email is valid
+        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ];
+        }
+
+        addToMailQueue($mysqli, $data);
+    }
 
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
@@ -235,8 +289,62 @@ if (isset($_POST['edit_ticket_contact'])) {
     $contact_id = intval($_POST['contact']);
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
+    $notify = intval($_POST['contact_notify']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id");
+
+    // Notify new contact if selected
+    if ($notify && !empty($config_smtp_host)) {
+
+        // Get contact/ticket details
+        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
+            WHERE ticket_id = $ticket_id 
+            AND ticket_closed_at IS NULL");
+        $row = mysqli_fetch_array($sql);
+
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_category = sanitizeInput($row['ticket_category']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_status = sanitizeInput($row['ticket_status_name']);
+        $client_id = intval($row['ticket_client_id']);
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        // Email content
+        $data = []; // Queue array
+
+        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+
+        // Only add contact to email queue if email is valid
+        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ];
+        }
+
+        addToMailQueue($mysqli, $data);
+    }
 
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name changed contact for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
@@ -254,8 +362,60 @@ if (isset($_POST['add_ticket_watcher'])) {
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
     $watcher_email = sanitizeInput($_POST['watcher_email']);
+    $notify = intval($_POST['watcher_notify']);
 
     mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+
+    // Notify watcher
+    if ($notify && !empty($config_smtp_host)) {
+
+        // Get contact/ticket details
+        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
+            WHERE ticket_id = $ticket_id 
+            AND ticket_closed_at IS NULL");
+        $row = mysqli_fetch_array($sql);
+
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_category = sanitizeInput($row['ticket_category']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_status = sanitizeInput($row['ticket_status_name']);
+        $client_id = intval($row['ticket_client_id']);
+        $ticket_created_by = intval($row['ticket_created_by']);
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        // Email content
+        $data = []; // Queue array
+
+        $subject = "Ticket Notification - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>You are now a watcher on a ticket regarding \"$ticket_subject\".<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+
+        // Only add watcher to email queue if email is valid
+        if (filter_var($watcher_email, FILTER_VALIDATE_EMAIL)) {
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $watcher_email,
+                'recipient_name' => $watcher_email,
+                'subject' => $subject,
+                'body' => $body
+            ];
+        }
+
+        addToMailQueue($mysqli, $data);
+    }
 
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name added watcher $watcher_email to ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
