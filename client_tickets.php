@@ -89,6 +89,7 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
     <div class="card-body">
         <form autocomplete="off">
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="status" value="<?php echo $status; ?>">
             <div class="row">
 
                 <div class="col-md-4">

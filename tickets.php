@@ -119,6 +119,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
         </div>
         <div class="card-body">
             <form autocomplete="off">
+                <input type="hidden" name="status" value="<?php echo $status; ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
