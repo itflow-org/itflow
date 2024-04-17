@@ -9,7 +9,7 @@ header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.g
 require_once '../config.php';
 
 // Set Timezone
-require_once "inc_set_timezone.php";
+require_once "../inc_set_timezone.php";
 
 require_once '../functions.php';
 
