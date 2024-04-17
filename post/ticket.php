@@ -1735,8 +1735,8 @@ if (isset($_POST['edit_ticket_schedule'])) {
         $mysqli,
         "UPDATE tickets SET
         ticket_schedule = '$schedule',
-        ticket_onsite = '$onsite',
-        ticket_status = 'On Hold'
+        ticket_onsite = $onsite,
+        ticket_status = 3
         WHERE ticket_id = $ticket_id"
     );
 
@@ -1745,7 +1745,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
     //TODO make this configurable
     $start = date('Y-m-d H:i:s', strtotime($schedule) - 7200);
     $end = date('Y-m-d H:i:s', strtotime($schedule) + 7200);
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_schedule BETWEEN '$start' AND '$end' AND ticket_id != $ticket_id AND ticket_status = 'Scheduled'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_schedule BETWEEN '$start' AND '$end' AND ticket_id != $ticket_id");
     if (mysqli_num_rows($sql) > 0) {
         $conflicting_tickets = [];
         while ($row = mysqli_fetch_array($sql)) {
@@ -1777,6 +1777,12 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $cal_description = $ticket_details_truncated . " - " . $full_ticket_url;
     $cal_location = sanitizeInput($row["location_address"]);
     $email_datetime = date('l, F j, Y \a\t g:ia', strtotime($schedule));
+
+    // Sanitize Config Vars
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+    $session_company_name = sanitizeInput($session_company_name);
+
 
     /// Create iCal event
     $cal_str = createiCalStr($schedule, $cal_subject, $cal_description, $cal_location);
@@ -1908,7 +1914,12 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $ticket_schedule = sanitizeInput($row['ticket_schedule']);
     $ticket_cal_str = sanitizeInput($row['ticket_cal_str']);
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL, ticket_status = 'Open' WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL, ticket_status = 2 WHERE ticket_id = $ticket_id");
+
+    // Sanitize Config Vars
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+    $session_company_name = sanitizeInput($session_company_name);
 
     //Create iCal event
     $cal_str = createiCalStrCancel($ticket_cal_str);

@@ -37,6 +37,12 @@ echo "<H1>$start_date</H1>";
 <?php echo randomString(100); ?>
 <br>
 
+<?php
+// show the current Date and Time
+$date_time = date('Y-m-d H:i:s');
+echo "Current Date and Time: <strong>$date_time</strong>"; 
+?>
+
 <script>toastr.success('Have Fun Wozz!!')</script>
 
 <?php require_once "footer.php";

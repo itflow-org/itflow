@@ -1019,8 +1019,7 @@ function generateReadablePassword($security_level)
     return $password;
 }
 
-function addToMailQueue($mysqli, $data)
-{
+function addToMailQueue($mysqli, $data) {
 
     foreach ($data as $email) {
         $from = strval($email['from']);
@@ -1037,13 +1036,13 @@ function addToMailQueue($mysqli, $data)
 
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
-            $queued_at = $email['queued_at'];
+            $queued_at = "'" . sanitizeInput($email['queued_at']) . "'";
         } else {
             // Use the current date and time if 'email_queued_at' is not set or empty
-            $queued_at = date('Y-m-d H:i:s');
+            $queued_at = 'CURRENT_TIMESTAMP()';
         }
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = '$queued_at', email_cal_str = '$cal_str'");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str'");
     }
 
     return true;
