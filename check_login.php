@@ -22,6 +22,9 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
     exit;
 }
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 // User IP & UA
 $session_ip = sanitizeInput(getIP());
 $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
@@ -52,14 +55,6 @@ $session_company_name = $row['company_name'];
 $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
-$session_timezone = $row['config_timezone'];
-
-// Set Timezone to the companies timezone
-// 2024-02-08 JQ - The option to set the timezone in PHP was disabled to prevent inconsistencies with MariaDB/MySQL, which utilize the system's timezone, It is now consdered best practice to set the timezone on system itself
-//date_default_timezone_set($session_timezone);
-
-// 2024-03-21 JQ - Re-Enabled Timezone setting as new PHP update does not respect System Time but defaulted to UTC
-date_default_timezone_set($session_timezone);
 
 //Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);

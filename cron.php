@@ -5,6 +5,9 @@ chdir(dirname(__FILE__));
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
 
 
@@ -32,7 +35,6 @@ $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
 $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
-$config_timezone = sanitizeInput($row['config_timezone']);
 
 // Mail Settings
 $config_smtp_host = $row['config_smtp_host'];
@@ -70,9 +72,6 @@ $config_login_remember_me_expire = intval($row['config_login_remember_me_expire'
 
 // Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
-
-// Set Timezone
-date_default_timezone_set($config_timezone);
 
 $argv = $_SERVER['argv'];
 

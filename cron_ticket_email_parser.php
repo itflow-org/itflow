@@ -18,6 +18,9 @@ chdir(dirname(__FILE__));
 // Get ITFlow config & helper functions
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
 
 // Get settings for the "default" company
@@ -31,10 +34,6 @@ $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.
 $row = mysqli_fetch_array($sql);
 $company_name = sanitizeInput($row['company_name']);
 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-$config_timezone = sanitizeInput($row['config_timezone']);
-
-// Set Timezone
-date_default_timezone_set($config_timezone);
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {

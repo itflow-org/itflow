@@ -10,6 +10,8 @@ if (!file_exists('config.php')) {
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
 
 // Check if the application is configured for HTTPS-only access
 if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') && (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')) {

@@ -2,6 +2,9 @@
 // Not including the guest header as we don't want any HTML output
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
 
 

@@ -6,8 +6,10 @@
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
-$session_company_id = 1;
 require_once '../config.php';
+
+// Set Timezone
+require_once "inc_set_timezone.php";
 
 require_once '../functions.php';
 

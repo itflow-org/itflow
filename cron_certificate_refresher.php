@@ -2,6 +2,9 @@
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
 
 
@@ -12,10 +15,6 @@ $row = mysqli_fetch_array($sql_settings);
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
 $config_cron_key = $row['config_cron_key'];
-$config_timezone = sanitizeInput($row['config_timezone']);
-
-// Set Timezone
-date_default_timezone_set($config_timezone);
 
 $argv = $_SERVER['argv'];
 
