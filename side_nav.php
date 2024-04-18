@@ -38,7 +38,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
                                 Recurring
                                 <?php if ($num_recurring_tickets) { ?>
@@ -91,7 +91,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
                                 Recurring
                                 <?php if ($num_recurring_invoices) { ?>
@@ -135,7 +135,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-redo-alt ml-1"></i>
+                            <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
                                 Recurring
                                 <?php if ($num_recurring_expenses) { ?>
