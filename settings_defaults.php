@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
  ?>
 
 <div class="card card-dark">

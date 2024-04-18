@@ -185,13 +185,6 @@
                             <i class="fas fa-angle-right nav-icon float-right"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="settings_company.php" class="nav-link">
-                            <i class="nav-icon fas fa-cogs"></i>
-                            <p>Settings</p>
-                            <i class="fas fa-angle-right nav-icon float-right"></i>
-                        </a>
-                    </li>
                 <?php } ?>
             </ul>
         </nav>

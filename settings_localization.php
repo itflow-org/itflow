@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
 
 
 $sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
