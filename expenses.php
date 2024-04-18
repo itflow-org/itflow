@@ -56,26 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="input-group">
-                            <select class="form-control select2" name="account" onchange="this.form.submit()">
-                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
-
-                                <?php
-                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                                while ($row = mysqli_fetch_array($sql_accounts_filter)) {
-                                    $account_id = intval($row['account_id']);
-                                    $account_name = nullable_htmlentities($row['account_name']);
-                                ?>
-                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
-                                <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         <div class="btn-group float-right">
                             <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -98,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['canned_date'] !== "custom" || $_GET['account']) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -128,7 +109,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Account</label>
+                                <select class="form-control select2" name="account" onchange="this.form.submit()">
+                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+
+                                    <?php
+                                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                        $account_id = intval($row['account_id']);
+                                        $account_name = nullable_htmlentities($row['account_name']);
+                                    ?>
+                                        <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="float-right">
                                 <button type="button" class="btn btn-default mt-4" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                             </div>
