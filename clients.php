@@ -20,6 +20,15 @@ if($leads == 1){
     $leads_query = 0;
 }
 
+// Industry Filter
+if (isset($_GET['industry']) & !empty($_GET['industry'])) {
+    $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
+    $industry = nullable_htmlentities($_GET['industry']);
+} else {
+    // Default - any
+    $industry_query = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -40,6 +49,7 @@ $sql = mysqli_query(
       AND clients.client_$archive_query
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND clients.client_lead = $leads
+      $industry_query
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
@@ -101,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['industry'] || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -129,6 +139,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date to</label>
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Industry</label>
+                                <select class="form-control select2" name="industry" onchange="this.form.submit()">
+                                    <option value="" <?php if ($industry == "") { echo "selected"; } ?>>- All Industries -</option>
+
+                                    <?php
+                                    $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_archived_at IS NULL AND client_type != '' ORDER BY client_type ASC");
+                                    while ($row = mysqli_fetch_array($sql_industries_filter)) {
+                                        $industry_name = nullable_htmlentities($row['client_type']);
+                                    ?>
+                                        <option <?php if ($industry_name == $industry) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
                             </div>
                         </div>
                     </div>
