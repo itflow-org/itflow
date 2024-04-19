@@ -29,6 +29,15 @@ if (isset($_GET['industry']) & !empty($_GET['industry'])) {
     $industry_query = '';
 }
 
+// Referral Filter
+if (isset($_GET['referral']) & !empty($_GET['referral'])) {
+    $referral_query = "AND (clients.client_referral  = '" . sanitizeInput($_GET['referral']) . "')";
+    $referral = nullable_htmlentities($_GET['referral']);
+} else {
+    // Default - any
+    $referral_query = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -50,6 +59,7 @@ $sql = mysqli_query(
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND clients.client_lead = $leads
       $industry_query
+      $referral_query
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
@@ -111,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['industry'] || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['industry'] || $_GET['referral'] || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -153,6 +163,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $industry_name = nullable_htmlentities($row['client_type']);
                                     ?>
                                         <option <?php if ($industry_name == $industry) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Referral</label>
+                                <select class="form-control select2" name="referral" onchange="this.form.submit()">
+                                    <option value="" <?php if ($referral == "") { echo "selected"; } ?>>- All Referrals -</option>
+
+                                    <?php
+                                    $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_archived_at IS NULL AND client_referral != '' ORDER BY client_referral ASC");
+                                    while ($row = mysqli_fetch_array($sql_referrals_filter)) {
+                                        $referral_name = nullable_htmlentities($row['client_referral']);
+                                    ?>
+                                        <option <?php if ($referral_name == $referral) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
                                     <?php
                                     }
                                     ?>
