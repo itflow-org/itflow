@@ -218,8 +218,10 @@ if (isset($_POST['login'])) {
                 //}
 
             }
-
-            header("Location: $config_start_page");
+            if($_GET['url'])
+                header("Location: ".$_GET['url']);
+            else
+                header("Location: $config_start_page");
 
         } else {
 
