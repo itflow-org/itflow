@@ -19,37 +19,22 @@ require_once "rfc6238.php";
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
  */
 if (isset($_GET['certificate_fetch_parse_json_details'])) {
+
     // PHP doesn't appreciate attempting SSL sockets to non-existent domains
     if (empty($_GET['domain'])) {
         exit();
     }
-    $domain = $_GET['domain'];
 
-    // FQDNs in database shouldn't have a URL scheme, adding one
-    $domain = "https://".$domain;
+    $name = $_GET['domain'];
 
-    // Parse host and port
-    $url = parse_url($domain, PHP_URL_HOST);
-    $port = parse_url($domain, PHP_URL_PORT);
-    // Default port
-    if (!$port) {
-        $port = "443";
-    }
+    // Get SSL cert for domain (if exists)
+    $certificate = getSSL($name);
 
-    // Get certificate (using verify peer false to allow for self-signed certs)
-    $socket = "ssl://$url:$port";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
-    $read = stream_socket_client($socket, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $get);
-    $cert = stream_context_get_params($read);
-    $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
-    openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
-
-    // Process data
-    if ($cert_public_key_obj) {
+    if ($certificate['success'] == "TRUE") {
         $response['success'] = "TRUE";
-        $response['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
-        $response['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
-        $response['public_key'] = $export; //nl2br
+        $response['expire'] = $certificate['expire'];
+        $response['issued_by'] = $certificate['issued_by'];
+        $response['public_key'] = $certificate['public_key'];
     } else {
         $response['success'] = "FALSE";
     }
