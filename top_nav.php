@@ -29,18 +29,6 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-        <?php if ($config_module_enable_ticketing == 1) { ?>
-            
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="modal" data-target="#openTicketsModal">
-                    <i class="fas fa-hourglass-half"></i>
-                    <span class="badge" id="runningTicketsCount">0</span>
-                </a>
-            </li>
-           
-        <?php } ?>
-
-
         <!-- New Notifications Dropdown -->
         <?php
         $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
@@ -84,7 +72,7 @@
                         <small class="text-secondary"><?php echo $notification; ?></small>
                     </a>
                 </div>
-  
+
                 <?php } ?>
 
                 <div class="dropdown-divider"></div>
@@ -114,7 +102,7 @@
         <?php } ?>
         <!-- End New Notifications Dropdown -->
 
-        
+
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link" data-toggle="dropdown">
                 <?php if (empty($session_avatar)) { ?>
@@ -151,7 +139,7 @@
     </ul>
 </nav>
 
-<?php if ($config_module_enable_ticketing == 1) { 
+<?php if ($config_module_enable_ticketing == 1) {
     include_once "top_nav_tickets_modal.php";
     } ?>
 <!-- /.navbar -->
