@@ -843,8 +843,9 @@ if (isset($_POST['add_telemetry'])) {
                             <ul>
                                 <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
                                 <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
+                                <li><i>Your PHP Error log is at: <?php echo ini_get('error_log') ?></i></li>
                             </ul>
-                            <br><p>A database must be created before proceeding - click on the button below to get started</p>
+                            <br><p>A database must be created before proceeding - click on the button below to get started.</p>
                             <br><hr>
                             <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
                             <?php

@@ -39,7 +39,7 @@ function countFilesInDirectory($dir) {
 // Function to compare two arrays recursively and return the differences
 function arrayDiffRecursive($array1, $array2) {
     $diff = array();
-    
+
     foreach ($array1 as $key => $value) {
         if (is_array($value)) {
             if (!isset($array2[$key]) || !is_array($array2[$key])) {
@@ -56,7 +56,7 @@ function arrayDiffRecursive($array1, $array2) {
             }
         }
     }
-    
+
     return $diff;
 }
 
@@ -64,17 +64,17 @@ function arrayDiffRecursive($array1, $array2) {
 function loadTableStructuresFromSQLDumpURL($fileURL) {
     $context = stream_context_create(array('http' => array('header' => 'Accept: application/octet-stream')));
     $fileContent = file_get_contents($fileURL, false, $context);
-    
+
     if ($fileContent === false) {
         return null;
     }
-    
+
     $structure = array();
     $queries = explode(";", $fileContent);
-    
+
     foreach ($queries as $query) {
         $query = trim($query);
-        
+
         if (!empty($query)) {
             if (preg_match("/^CREATE TABLE `(.*)` \((.*)\)$/s", $query, $matches)) {
                 $tableName = $matches[1];
@@ -83,7 +83,7 @@ function loadTableStructuresFromSQLDumpURL($fileURL) {
             }
         }
     }
-    
+
     return $structure;
 }
 
@@ -91,31 +91,31 @@ function loadTableStructuresFromSQLDumpURL($fileURL) {
 function fetchDatabaseStructureFromServer() {
 
     global $mysqli;
-    
+
     $tables = array();
-    
+
     // Fetch table names
     $result = $mysqli->query("SHOW TABLES");
-    
+
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_row()) {
             $tableName = $row[0];
             $tables[$tableName] = array();
         }
     }
-    
+
     // Fetch table structures
     foreach ($tables as $tableName => &$table) {
         $result = $mysqli->query("SHOW CREATE TABLE `$tableName`");
-        
+
         if ($result->num_rows > 0) {
             $row = $result->fetch_row();
             $table['structure'] = $row[1];
         }
     }
-    
+
     //$mysqli->close();
-    
+
     return $tables;
 }
 
@@ -185,11 +185,12 @@ while ($row = $tablesResult->fetch_row()) {
 //Get loaded PHP modules
 $loadedModules = get_loaded_extensions();
 
-//Get Versions
+//Get Server Info / Service versions
 $phpVersion = phpversion();
 $mysqlVersion = $mysqli->server_version;
-$operatingSystem = shell_exec('uname -a');
+$operatingSystem = php_uname();
 $webServer = $_SERVER['SERVER_SOFTWARE'];
+$errorLog = ini_get('error_log');
 
 ?>
 
@@ -198,20 +199,43 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
             <h3 class="card-title"><i class="fas fa-fw fa-bug mr-2"></i>Debug</h3>
         </div>
         <div class="card-body">
-            
-            <h3>Database Structure Check</h3>
-            
+
+            <h3>Server Info</h3>
+
+            <?php
+            echo "PHP version: " . $phpVersion . "<br>";
+            echo "MySQL Version: " . $mysqlVersion . "<br>";
+            echo "Operating System: " . $operatingSystem . "<br>";
+            echo "Web Server: " . $webServer  . "<br>";
+            echo "PHP Error Log: " . $errorLog
+            ?>
+
             <hr>
 
+            <h3>File System</h3>
+            <?php
+            $result = countFilesInDirectory($folderPath);
+
+            $totalFiles = $result['count'];
+            $totalSizeMB = round($result['size'] / (1024 * 1024), 2);
+
+            echo "Total number of files in $folderPath and its subdirectories: " . $totalFiles . "<br>";
+            echo "Total size of files in $folderPath and its subdirectories: " . $totalSizeMB . " MB";
+            ?>
+
+            <hr>
+
+            <h3>Database Structure Check</h3>
+
             <h4>Database stats</h4>
-            
+
             <?php
             echo "Number of tables: " . $numTables . "<br>";
             echo "Total number of fields: " . $numFields . "<br>";
             echo "Total number of rows: " . $numRows . "<br>";
             echo "Current Database Version: " . CURRENT_DATABASE_VERSION . "<br>";
             ?>
-            
+
             <hr>
 
             <h4>Table Stats</h4>
@@ -255,34 +279,8 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
 
             <hr>
 
-            <h3>Versions</h3>
-            
-            <?php
-            echo "PHP version: " . $phpVersion . "<br>";
-            echo "MySQL Version: " . $mysqlVersion . "<br>";
-            echo "Operating System: " . $operatingSystem . "<br>";
-            echo "Web Server: " . $webServer;
-
-            
-            ?>
-
-            <hr>
-
-            <h3>File System</h3>
-            <?php
-            $result = countFilesInDirectory($folderPath);
-
-            $totalFiles = $result['count'];
-            $totalSizeMB = round($result['size'] / (1024 * 1024), 2);
-
-            echo "Total number of files in $folderPath and its subdirectories: " . $totalFiles . "<br>";
-            echo "Total size of files in $folderPath and its subdirectories: " . $totalSizeMB . " MB";
-            ?>
-
-            <hr>
-                    
             <h3>PHP Modules Installed</h3>
-            
+
             <?php
             foreach ($loadedModules as $module) {
                 echo $module . "<br>";
@@ -311,7 +309,7 @@ $webServer = $_SERVER['SERVER_SOFTWARE'];
             //Output the result
             echo $phpinfo;
             ?>
-            
+
             <hr>
         </div>
     </div>
