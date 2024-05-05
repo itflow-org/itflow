@@ -427,8 +427,17 @@ function getDomainRecords($name)
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSSL($name)
+function getSSL($full_name)
 {
+
+    // Parse host and port
+    $name = parse_url("//$full_name", PHP_URL_HOST);
+    $port = parse_url("//$full_name", PHP_URL_PORT);
+
+    // Default port
+    if (!$port) {
+        $port = "443";
+    }
 
     $certificate = array();
     $certificate['success'] = false;
@@ -442,7 +451,7 @@ function getSSL($name)
     }
 
     // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
-    $socket = "ssl://$name:443";
+    $socket = "ssl://$name:$port";
     $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
     $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
 
