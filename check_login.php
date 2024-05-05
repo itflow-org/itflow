@@ -18,7 +18,11 @@ if (!isset($config_enable_setup) || $config_enable_setup == 1) {
 
 // Check user is logged in with a valid session
 if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
-    header("Location: login.php");
+    if ($_SERVER["REQUEST_URI"] == "/") {
+        header("Location: login.php");
+    } else {
+        header("Location: login.php?last_visited=" . base64_encode($_SERVER["REQUEST_URI"]) );
+    }
     exit;
 }
 
@@ -84,4 +88,3 @@ $num_notifications = $row['num'];
 //if ($session_user_config_force_mfa == 1 && $session_token == NULL) {
 //    header("Location: force_mfa.php");
 //}
-

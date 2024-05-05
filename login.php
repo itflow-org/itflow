@@ -218,9 +218,11 @@ if (isset($_POST['login'])) {
                 //}
 
             }
-
-            header("Location: $config_start_page");
-
+            if ($_GET['last_visited']) {
+                header("Location: ".$_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
+            } else {
+                header("Location: $config_start_page");
+            }
         } else {
 
             // MFA is configured and needs to be confirmed, or was unsuccessful
