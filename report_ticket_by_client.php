@@ -50,7 +50,7 @@ if (isset($_GET['year'])) {
 
 $sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_at) AS ticket_year FROM tickets ORDER BY ticket_year DESC");
 
-$sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+$sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
 
 ?>
 
@@ -79,6 +79,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         <th>Client</th>
                         <th class="text-right">Tickets raised</th>
                         <th class="text-right">Tickets closed</th>
+                        <th class="text-right">Time worked <i>(H:M:S)</i></th>
                         <th class="text-right">Avg time to close</th>
                     </tr>
                     </thead>
@@ -101,6 +102,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         // Used to calculate average time to close tickets that were raised in period specified
                         $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_closed_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
 
+                        // Calculate total time tracked towards tickets in the period
+                        $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
+                        $row = mysqli_fetch_array($sql_time);
+                        $ticket_total_time_worked = nullable_htmlentities($row['total_time']);
+
                         if ($ticket_raised_count > 0) {
 
                             // Calculate average time to solve
@@ -120,6 +126,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <td><?php echo $client_name; ?></td>
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_closed_count; ?></td>
+                                <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
                                 <td class="text-right"><?php echo secondsToTime($total); ?></td>
                             </tr>
                             <?php
