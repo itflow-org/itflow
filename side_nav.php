@@ -20,7 +20,12 @@
                 <li class="nav-item">
                     <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-user-friends"></i>
-                        <p>Clients</p>
+                        <p>
+                          Clients
+                          <?php if ($num_active_clients) { ?>
+                                  <span class="right badge text-light"><?php echo $num_active_clients; ?></span>
+                          <?php } ?>
+                        </p>
                     </a>
                 </li>
                 <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
