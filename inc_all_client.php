@@ -6,13 +6,14 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
-require_once "header.php";
-
-require_once "top_nav.php";
-
-
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
+
+    // Check to see if the logged in user has permission to access this client (Admins have access to all no matter what perms are set)
+    if(!in_array($client_id, $client_access_array) AND !empty($client_access_string) AND $session_user_role < 3) {
+        echo "You don't have permission to access this client";
+        exit();
+    }
 
     $sql = mysqli_query($mysqli, "UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id");
 
@@ -230,6 +231,10 @@ if (isset($_GET['client_id'])) {
 
     }
 }
+
+require_once "header.php";
+
+require_once "top_nav.php";
 
 require_once "client_side_nav.php";
 

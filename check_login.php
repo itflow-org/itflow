@@ -73,12 +73,12 @@ try {
     $user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
     $user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
 
-    $access_client_ids = [];
+    $client_access_array = [];
     while ($row = mysqli_fetch_assoc($user_client_access_result)) {
-        $access_client_ids[] = $row['client_id'];
+        $client_access_array[] = $row['client_id'];
     }
 
-    $client_access_string = implode(',', $access_client_ids);
+    $client_access_string = implode(',', $client_access_array);
 
     // Role / Client Access Permission Check
     if ($session_user_role < 3 && !empty($client_access_string)) {
