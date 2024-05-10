@@ -212,6 +212,16 @@ function truncate($text, $chars)
 
 function formatPhoneNumber($phoneNumber)
 {
+    global $mysqli;
+
+    // Get Phone Mask Option
+    $phone_mask = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_phone_mask FROM settings WHERE company_id = 1"))[0];
+
+    if ($phone_mask == 0) {
+        return $phoneNumber;
+    }
+
+    
     $phoneNumber = $phoneNumber ? preg_replace('/[^0-9]/', '', $phoneNumber) : "";
 
     if (strlen($phoneNumber) > 10) {
@@ -885,7 +895,7 @@ function getSettingValue($mysqli, $setting_name)
 function getMonthlyTax($tax_name, $month, $year, $mysqli)
 {
     // SQL to calculate monthly tax
-    $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items 
+    $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items
             LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
             LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) = $month
@@ -902,7 +912,7 @@ function getQuarterlyTax($tax_name, $quarter, $year, $mysqli)
     $end_month = $start_month + 2;
 
     // SQL to calculate quarterly tax
-    $sql = "SELECT SUM(item_tax) AS quarterly_tax FROM invoice_items 
+    $sql = "SELECT SUM(item_tax) AS quarterly_tax FROM invoice_items
             LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
             LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) BETWEEN $start_month AND $end_month
@@ -915,7 +925,7 @@ function getQuarterlyTax($tax_name, $quarter, $year, $mysqli)
 function getTotalTax($tax_name, $year, $mysqli)
 {
     // SQL to calculate total tax
-    $sql = "SELECT SUM(item_tax) AS total_tax FROM invoice_items 
+    $sql = "SELECT SUM(item_tax) AS total_tax FROM invoice_items
             LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
             LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
             WHERE YEAR(payments.payment_date) = $year
