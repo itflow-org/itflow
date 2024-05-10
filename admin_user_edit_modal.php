@@ -85,6 +85,29 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Restrict Client Access</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                            </div>
+                            <select class="form-control select2" name="clients[]" data-placeholder="Restrict Client Access" multiple>
+                                <?php
+
+                                $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                while ($row = mysqli_fetch_array($sql_client_select)) {
+                                    $client_id_select = intval($row['client_id']);
+                                    $client_name_select = nullable_htmlentities($row['client_name']);
+
+                                    ?>
+                                    <option <?php if (in_array($client_id_select, $client_access_array)) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <small class="text-muted">Leave Blank for Full access to all clients, no affect on users with the admin role.</small>
+                    </div>
+
+                    <div class="form-group">
                         <label>Avatar</label>
                         <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
                     </div>

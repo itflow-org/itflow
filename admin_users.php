@@ -125,8 +125,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
                     }
 
+                    // Get User Client Access Permissions
+                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_permissions WHERE user_id = $user_id");
+                    $client_access_array = [];
+                    while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
+                        $client_access_array[] = intval($row['client_id']);
+                    }
+
                     $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
                     $remember_token_count = mysqli_num_rows($sql_remember_tokens);
+
+
 
                     ?>
                     <tr>

@@ -66,7 +66,7 @@
                         <label>Restrict Client Access</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+                                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                             </div>
                             <select class="form-control select2" name="clients[]" data-placeholder="Restrict Client Access" multiple>
                                 <?php

@@ -113,6 +113,15 @@ if (isset($_POST['edit_user'])) {
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
 
+    // Update Client Access
+    mysqli_query($mysqli,"DELETE FROM user_permissions WHERE user_id = $user_id");
+    if (!empty($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+        }
+    }
+
     // Get current Avatar
     $sql = mysqli_query($mysqli, "SELECT user_avatar FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_array($sql);
