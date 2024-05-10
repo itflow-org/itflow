@@ -68,28 +68,28 @@ $session_company_currency = $row['company_currency'];
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
 
-// Get User Client Access Permissions
-$user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
-$user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
+try {
+    // Get User Client Access Permissions
+    $user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
+    $user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
 
-$access_client_ids = [];
-if ($user_client_access_result) {
-    while($row = mysqli_fetch_assoc($user_client_access_result)) {
+    $access_client_ids = [];
+    while ($row = mysqli_fetch_assoc($user_client_access_result)) {
         $access_client_ids[] = $row['client_id'];
     }
-} else {
-    // Log the error and set access client IDs to an empty array
-    error_log('Error fetching client IDs: ' . mysqli_error($mysqli));
-    $access_client_ids = [];  // Ensure the array is empty and defined
-}
 
-$client_access_string = implode(',', $access_client_ids);
+    $client_access_string = implode(',', $access_client_ids);
 
-// Role / Client Access Permission Check
-if ($session_user_role < 3 && !empty($client_access_string)) {
-    $access_permission_query = "AND client_id IN ($client_access_string)";
-} else {
-    $access_permission_query = "";
+    // Role / Client Access Permission Check
+    if ($session_user_role < 3 && !empty($client_access_string)) {
+        $access_permission_query = "AND client_id IN ($client_access_string)";
+    } else {
+        $access_permission_query = "";
+    }
+} catch (Exception $e) {
+    // Handle exception
+    error_log('MySQL error: ' . $e->getMessage());
+    $access_permission_query = ""; // Ensure safe default if query fails
 }
 
 
