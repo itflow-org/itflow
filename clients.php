@@ -58,6 +58,7 @@ $sql = mysqli_query(
       AND clients.client_$archive_query
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND clients.client_lead = $leads
+      $access_permission_query
       $industry_query
       $referral_query
     GROUP BY clients.client_id

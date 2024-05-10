@@ -10,7 +10,8 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-//Check to see if setup is enabled
+
+// Check to see if setup is enabled
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
     header("Location: setup.php");
     exit;
@@ -26,8 +27,10 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
     exit;
 }
 
+
 // Set Timezone
 require_once "inc_set_timezone.php";
+
 
 // User IP & UA
 $session_ip = sanitizeInput(getIP());
@@ -60,9 +63,34 @@ $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
 
-//Set Currency Format
+
+// Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
+
+// Get User Client Access Permissions
+$user_client_access_sql = mysqli_query($mysqli, "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id");
+
+$access_client_ids = [];
+if ($user_client_access_sql) {  // This ensures the codes wont break if user_permissions table does not exist. This can be removed once all ITFlow instances are updated
+    while($row = mysqli_fetch_assoc($user_client_access_sql)) {
+        $access_client_ids[] = $row['client_id'];
+    }
+} else {
+    // Handle error in query execution (e.g., table doesn't exist)
+    error_log('Error fetching client IDs: ' . mysqli_error($mysqli));
+}
+
+$client_access_string = implode(',', $access_client_ids);
+
+// Role / Client Access Permission Check
+if ($session_user_role < 3 && !empty($client_access_string)) {
+    $access_permission_query = "AND client_id IN ($client_access_string)";
+} else {
+    $access_permission_query = "";
+}
+
+// Include the settings vars
 require_once "get_settings.php";
 
 
@@ -77,12 +105,15 @@ if ($iPod || $iPhone || $iPad) {
     $session_map_source = "google";
 }
 
-//Check if mobile device
+
+// Check if mobile device
 $session_mobile = isMobile();
 
-//Get Notification Count for the badge on the top nav
+
+// Get Notification Count for the badge on the top nav
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];
+
 
 // FORCE MFA Setup
 //if ($session_user_config_force_mfa == 1 && $session_token == NULL) {
