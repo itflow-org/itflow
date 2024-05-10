@@ -69,16 +69,18 @@ $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRE
 
 
 // Get User Client Access Permissions
-$user_client_access_sql = mysqli_query($mysqli, "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id");
+$user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
+$user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
 
 $access_client_ids = [];
-if ($user_client_access_sql) {  // This ensures the codes wont break if user_permissions table does not exist. This can be removed once all ITFlow instances are updated
-    while($row = mysqli_fetch_assoc($user_client_access_sql)) {
+if ($user_client_access_result) {
+    while($row = mysqli_fetch_assoc($user_client_access_result)) {
         $access_client_ids[] = $row['client_id'];
     }
 } else {
-    // Handle error in query execution (e.g., table doesn't exist)
+    // Log the error and set access client IDs to an empty array
     error_log('Error fetching client IDs: ' . mysqli_error($mysqli));
+    $access_client_ids = [];  // Ensure the array is empty and defined
 }
 
 $client_access_string = implode(',', $access_client_ids);
@@ -89,6 +91,7 @@ if ($session_user_role < 3 && !empty($client_access_string)) {
 } else {
     $access_permission_query = "";
 }
+
 
 // Include the settings vars
 require_once "get_settings.php";
