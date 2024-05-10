@@ -1886,10 +1886,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.2.9') {
-    //     // Insert queries here required to update to DB version 1.2.10
+    if (CURRENT_DATABASE_VERSION == '1.2.9') {
+
+        mysqli_query($mysqli, "CREATE TABLE `user_permissions` (`user_id` int(11) NOT NULL,`client_id` int(11) NOT NULL, PRIMARY KEY (`user_id`,`client_id`))");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.3.0') {
+    //     // Insert queries here required to update to DB version 1.3.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.2.10");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.1");
     // }
 
 } else {
