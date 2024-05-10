@@ -18,6 +18,14 @@ if (isset($_POST['add_user'])) {
 
     $user_id = mysqli_insert_id($mysqli);
 
+    // Add Client Access Permissions if set
+    if (!empty($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+        }
+    }
+
     if (!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
     }
