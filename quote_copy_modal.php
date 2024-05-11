@@ -12,12 +12,12 @@
         <div class="modal-body bg-white">
 
           <div class="form-group">
-              <label>Client</label>
+              <label>Client <strong class="text-danger">*</strong></label>
               <div class="input-group">
                   <div class="input-group-prepend">
                       <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                   </div>
-                  <select class="form-control select2" name="client">
+                  <select class="form-control select2" name="client" required>
                       <?php
 
                       $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
