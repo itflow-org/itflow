@@ -12,6 +12,28 @@
         <div class="modal-body bg-white">
 
           <div class="form-group">
+              <label>Client</label>
+              <div class="input-group">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                  </div>
+                  <select class="form-control select2" name="client">
+                      <?php
+
+                      $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                      while ($row = mysqli_fetch_array($sql_client_select)) {
+                          $client_id_select = intval($row['client_id']);
+                          $client_name_select = nullable_htmlentities($row['client_name']);
+
+                          ?>
+                          <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+
+                      <?php } ?>
+                  </select>
+              </div>
+          </div>
+
+          <div class="form-group">
             <label>Set Date for New Quote <strong class="text-danger">*</strong></label>
             <div class="input-group">
               <div class="input-group-prepend">

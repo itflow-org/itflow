@@ -36,6 +36,7 @@ if (isset($_POST['add_quote'])) {
 if (isset($_POST['add_quote_copy'])) {
 
     $quote_id = intval($_POST['quote_id']);
+    $client_id = intval($_POST['client']);
     $date = sanitizeInput($_POST['date']);
     $expire = sanitizeInput($_POST['expire']);
 
@@ -51,7 +52,6 @@ if (isset($_POST['add_quote_copy'])) {
     $quote_currency_code = sanitizeInput($row['quote_currency_code']);
     $quote_scope = sanitizeInput($row['quote_scope']);
     $quote_note = sanitizeInput($row['quote_note']);
-    $client_id = intval($row['quote_client_id']);
     $category_id = intval($row['quote_category_id']);
 
     //Generate a unique URL key for clients to access
@@ -80,7 +80,7 @@ if (isset($_POST['add_quote_copy'])) {
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote copied";
 
