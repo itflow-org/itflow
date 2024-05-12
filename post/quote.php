@@ -8,7 +8,6 @@ if (isset($_POST['add_quote'])) {
 
     require_once 'post/quote_model.php';
 
-
     $client = intval($_POST['client']);
 
     //Get the last Quote Number and add 1 for the new Quote number
@@ -37,6 +36,7 @@ if (isset($_POST['add_quote'])) {
 if (isset($_POST['add_quote_copy'])) {
 
     $quote_id = intval($_POST['quote_id']);
+    $client_id = intval($_POST['client']);
     $date = sanitizeInput($_POST['date']);
     $expire = sanitizeInput($_POST['expire']);
 
@@ -47,17 +47,17 @@ if (isset($_POST['add_quote_copy'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
+    $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = sanitizeInput($row['quote_currency_code']);
     $quote_scope = sanitizeInput($row['quote_scope']);
     $quote_note = sanitizeInput($row['quote_note']);
-    $client_id = intval($row['quote_client_id']);
     $category_id = intval($row['quote_category_id']);
 
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_expire = '$expire', quote_category_id = $category_id, quote_status = 'Draft', quote_amount = $quote_amount, quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$quote_scope', quote_date = '$date', quote_expire = '$expire', quote_category_id = $category_id, quote_status = 'Draft', quote_discount_amount = $quote_discount_amount, quote_amount = $quote_amount, quote_currency_code = '$quote_currency_code', quote_note = '$quote_note', quote_url_key = '$quote_url_key', quote_client_id = $client_id");
 
     $new_quote_id = mysqli_insert_id($mysqli);
 
@@ -73,13 +73,14 @@ if (isset($_POST['add_quote_copy'])) {
         $item_subtotal = floatval($row['item_subtotal']);
         $item_tax = floatval($row['item_tax']);
         $item_total = floatval($row['item_total']);
+        $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
 
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
+        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Quote copied";
 
@@ -99,6 +100,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
+    $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = sanitizeInput($row['quote_currency_code']);
     $quote_scope = sanitizeInput($row['quote_scope']);
@@ -110,7 +112,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_amount = $quote_amount, invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_discount_amount = $quote_discount_amount, invoice_amount = $quote_amount, invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
@@ -355,55 +357,60 @@ if (isset($_GET['email_quote'])) {
     );
 
     $row = mysqli_fetch_array($sql);
-    $quote_prefix = $row['quote_prefix'];
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
-    $quote_scope = $row['quote_scope'];
-    $quote_status = $row['quote_status'];
-    $quote_date = $row['quote_date'];
-    $quote_expire = $row['quote_expire'];
+    $quote_scope = sanitizeInput($row['quote_scope']);
+    $quote_status = sanitizeInput($row['quote_status']);
+    $quote_date = sanitizeInput($row['quote_date']);
+    $quote_expire = sanitizeInput($row['quote_expire']);
     $quote_amount = floatval($row['quote_amount']);
-    $quote_url_key = $row['quote_url_key'];
-    $quote_currency_code = $row['quote_currency_code'];
+    $quote_url_key = sanitizeInput($row['quote_url_key']);
+    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = $row['client_name'];
-    $contact_name = $row['contact_name'];
-    $contact_email = $row['contact_email'];
-    $quote_prefix_escaped = sanitizeInput($row['quote_prefix']);
-    $contact_name_escaped = sanitizeInput($row['contact_name']);
-    $contact_email_escaped = sanitizeInput($row['contact_email']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
 
-    $company_name = $row['company_name'];
-    $company_country = $row['company_country'];
-    $company_address = $row['company_address'];
-    $company_city = $row['company_city'];
-    $company_state = $row['company_state'];
-    $company_zip = $row['company_zip'];
-    $company_phone = formatPhoneNumber($row['company_phone']);
-    $company_email = $row['company_email'];
-    $company_website = $row['company_website'];
-    $company_logo = $row['company_logo'];
+    $company_name = sanitizeInput($row['company_name']);
+    $company_country = sanitizeInput($row['company_country']);
+    $company_address = sanitizeInput($row['company_address']);
+    $company_city = sanitizeInput($row['company_city']);
+    $company_state = sanitizeInput($row['company_state']);
+    $company_zip = sanitizeInput($row['company_zip']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_email = sanitizeInput($row['company_email']);
+    $company_website = sanitizeInput($row['company_website']);
+    $company_logo = sanitizeInput($row['company_logo']);
 
     // Sanitize Config vars from get_settings.php
-    $config_quote_from_name_escaped = sanitizeInput($config_quote_from_name);
-    $config_quote_from_email_escaped = sanitizeInput($config_quote_from_email);
+    $config_quote_from_name = sanitizeInput($config_quote_from_name);
+    $config_quote_from_email = sanitizeInput($config_quote_from_email);
+    $config_base_url = sanitizeInput($config_base_url);
 
-    $subject = sanitizeInput("Quote [$quote_scope]");
-    $body    = mysqli_escape_string($mysqli, "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href='https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key'>here</a><br><br><br>~<br>$company_name<br>Sales<br>$config_quote_from_email<br>$company_phone");
+    $subject = "Quote [$quote_scope]";
+    $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
 
     // Queue Mail
-    mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email_escaped', email_recipient_name = '$contact_name_escaped', email_from = '$config_quote_from_email_escaped', email_from_name = '$config_quote_from_name_escaped', email_subject = '$subject', email_content = '$body'");
-
-    // Get Email ID for reference
-    $email_id = mysqli_insert_id($mysqli);
+    $data = [
+        [
+            'from' => $config_quote_from_email,
+            'from_name' => $config_quote_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject,
+            'body' => $body,
+        ]
+    ];
+    addToMailQueue($mysqli, $data);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote!', history_quote_id = $quote_id");
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$session_name emailed Quote $quote_prefix_escaped$quote_number to $contact_email_escaped Email ID: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Quote Queued', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$session_name emailed Quote $quote_prefix$quote_number to $contact_email Email ID: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $quote_id");
 
-    $_SESSION['alert_message'] = "Quote has been sent";
+    $_SESSION['alert_message'] = "Quote has been queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {

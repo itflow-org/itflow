@@ -1,6 +1,7 @@
 <?php
 $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
+$description = sanitizeInput($_POST['description']);
 $country = sanitizeInput($_POST['country']);
 $address = sanitizeInput($_POST['address']);
 $city = sanitizeInput($_POST['city']);

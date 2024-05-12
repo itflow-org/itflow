@@ -2,6 +2,9 @@
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
 
 
@@ -23,6 +26,14 @@ $browser = sanitizeInput(getWebBrowser($user_agent));
     <meta name="robots" content="noindex">
 
     <title><?php echo nullable_htmlentities($config_app_name); ?></title>
+
+    <!-- 
+    Favicon
+    If Fav Icon exists else use the default one 
+    -->
+    <?php if(file_exists('uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
+    <?php } ?>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">

@@ -9,7 +9,6 @@ if (isset($_GET['asset_id'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
-        LEFT JOIN logins ON login_asset_id = asset_id
         WHERE asset_id = $asset_id
         AND asset_client_id = $client_id
     ");
@@ -19,42 +18,19 @@ if (isset($_GET['asset_id'])) {
     $asset_type = nullable_htmlentities($row['asset_type']);
     $asset_name = nullable_htmlentities($row['asset_name']);
     $asset_description = nullable_htmlentities($row['asset_description']);
-    if (empty($asset_description)) {
-        $asset_description_display = "-";
-    } else {
-        $asset_description_display = $asset_description;
-    }
     $asset_make = nullable_htmlentities($row['asset_make']);
     $asset_model = nullable_htmlentities($row['asset_model']);
     $asset_serial = nullable_htmlentities($row['asset_serial']);
-    if (empty($asset_serial)) {
-        $asset_serial_display = "-";
-    } else {
-        $asset_serial_display = $asset_serial;
-    }
     $asset_os = nullable_htmlentities($row['asset_os']);
-    if (empty($asset_os)) {
-        $asset_os_display = "-";
-    } else {
-        $asset_os_display = $asset_os;
-    }
     $asset_ip = nullable_htmlentities($row['asset_ip']);
-    if (empty($asset_ip)) {
-        $asset_ip_display = "-";
-    } else {
-        $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text=" . $asset_ip . "><i class='far fa-copy text-secondary'></i></button>";
-    }
+    $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
     $asset_mac = nullable_htmlentities($row['asset_mac']);
     $asset_uri = nullable_htmlentities($row['asset_uri']);
+    $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
     $asset_status = nullable_htmlentities($row['asset_status']);
     $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
     $asset_install_date = nullable_htmlentities($row['asset_install_date']);
-    if (empty($asset_install_date)) {
-        $asset_install_date_display = "-";
-    } else {
-        $asset_install_date_display = $asset_install_date;
-    }
     $asset_notes = nullable_htmlentities($row['asset_notes']);
     $asset_created_at = nullable_htmlentities($row['asset_created_at']);
     $asset_vendor_id = intval($row['asset_vendor_id']);
@@ -65,34 +41,30 @@ if (isset($_GET['asset_id'])) {
     $device_icon = getAssetIcon($asset_type);
 
     $contact_name = nullable_htmlentities($row['contact_name']);
-    if (empty($contact_name)) {
-        $contact_name = "-";
-    }
+    $contact_email = nullable_htmlentities($row['contact_email']);
+    $contact_phone = nullable_htmlentities($row['contact_phone']);
+    $contact_mobile = nullable_htmlentities($row['contact_mobile']);
     $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-    if (empty($contact_archived_at)) {
-        $contact_archived_display = "";
+    if ($contact_archived_at) {
+        $contact_name_display = "<span class='text-danger' title='Archived'><s>$contact_name</s></span>";
     } else {
-        $contact_archived_display = "Archived - ";
+        $contact_name_display = $contact_name;
     }
-
     $location_name = nullable_htmlentities($row['location_name']);
     if (empty($location_name)) {
         $location_name = "-";
     }
     $location_archived_at = nullable_htmlentities($row['location_archived_at']);
-    if (empty($location_archived_at)) {
-        $location_archived_display = "";
+    if ($location_archived_at) {
+        $location_name_display = "<span class='text-danger' title='Archived'><s>$location_name</s></span>";
     } else {
-        $location_archived_display = "Archived - ";
+        $location_name_display = $location_name;
     }
-
-    $login_id = intval($row['login_id']);
-    $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-    $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
     // Related Tickets Query
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
         LEFT JOIN users on ticket_assigned_to = user_id
+        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
         WHERE ticket_asset_id = $asset_id
         ORDER BY ticket_number DESC"
     );
@@ -117,9 +89,8 @@ if (isset($_GET['asset_id'])) {
     $file_count = mysqli_num_rows($sql_related_files);
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM asset_logins 
-        LEFT JOIN logins ON asset_logins.login_id = logins.login_id
-        WHERE asset_logins.asset_id = $asset_id
+    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
+        WHERE login_asset_id = $asset_id
         AND login_archived_at IS NULL
         ORDER BY login_name DESC"
     );
@@ -143,55 +114,106 @@ if (isset($_GET['asset_id'])) {
 
         <div class="col-md-3">
 
-            <div class="card card-dark">
-                <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <button type="button" class="btn btn-light float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                        <i class="fas fa-fw fa-edit"></i>
+                    </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
-                    <?php if (!empty($asset_description)) { ?>
+                    <?php if ($asset_description) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
                     <?php } ?>
-
-                    <hr>
-                    <?php if (!empty($location_name)) { ?>
-                        <div class="mb-1"><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                </div>
+                <div class="card-body">
+                    <?php if ($asset_type) { ?>
+                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?php echo $asset_type; ?></div>
                     <?php }
-                    if (!empty($contact_email)) { ?>
-                        <div><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    if ($asset_make) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
                     <?php }
-                    if (!empty($contact_phone)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo "$contact_phone $contact_extension"; ?></div>
+                    if ($asset_os) { ?>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
                     <?php }
-                    if (!empty($contact_mobile)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo $contact_mobile; ?></div>
+                    if ($asset_serial) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
                     <?php }
-                    if (!empty($contact_pin)) { ?>
-                        <div class="mb-2"><i class="fa fa-fw fa-key text-secondary mr-3"></i><?php echo $contact_pin; ?></div>
+                    if ($asset_purchase_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                    <?php }
+                    if ($asset_install_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                    <?php }
+                    if ($asset_warranty_expire) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
                     <?php } ?>
-                    <div class="mb-2"><i class="fa fa-fw fa-clock text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_created_at)); ?></div>
-                    <hr>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
-                        <i class="fas fa-fw fa-edit"></i> Edit
-                    </button>
-
-                    <?php require_once "client_asset_edit_modal.php";
- ?>
-
                 </div>
             </div>
 
-            <div class="card mb-3">
+            <div class="card card-dark">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Notes</h5>
+                    <h5 class="card-title">Network</h5>
                 </div>
-                <div class="card-body p-1">
-                    <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>
+                <div class="card-body">
+                    <?php if ($asset_ip) { ?>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-3"></i><?php echo $asset_ip; ?></div>
+                    <?php } ?>
+                    <?php if ($asset_nat_ip) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-3"></i><?php echo $asset_nat_ip; ?></div>
+                    <?php }
+                    if ($asset_mac) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-3"></i><?php echo $asset_mac; ?></div>
+                    <?php }
+                    if ($asset_uri) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link</a></div>
+                    <?php }
+                    if ($asset_uri_2) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link 2</a></div>
+                    <?php } ?>
                 </div>
             </div>
+
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($location_name) { ?>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                    <?php }
+                    if ($contact_name) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name_display; ?></div>
+                    <?php }
+                    if ($contact_email) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    <?php }
+                    if ($contact_phone) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
+                    <?php }
+                    if ($contact_mobile) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
+                    <?php } ?>
+                
+                </div>
+            </div>
+
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Notes</h5>
+                </div>
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
+            </div>
+
+            <?php require_once "client_asset_edit_modal.php"; ?>
 
         </div>
 
         <div class="col-md-9">
 
             <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="clients.php">Clients</a>
+                </li>
                 <li class="breadcrumb-item">
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                 </li>
@@ -408,7 +430,8 @@ if (isset($_GET['asset_id'])) {
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                 $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                                $ticket_status = nullable_htmlentities($row['ticket_status']);
+                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                                $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                                 $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                 $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
@@ -422,14 +445,6 @@ if (isset($_GET['asset_id'])) {
                                 }
                                 $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
-                                if ($ticket_status == "Open") {
-                                    $ticket_status_display = "<span class='p-2 badge badge-primary'>$ticket_status</span>";
-                                } elseif ($ticket_status == "Working") {
-                                    $ticket_status_display = "<span class='p-2 badge badge-success'>$ticket_status</span>";
-                                } else {
-                                    $ticket_status_display = "<span class='p-2 badge badge-secondary'>$ticket_status</span>";
-                                }
-
                                 if ($ticket_priority == "High") {
                                     $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
                                 } elseif ($ticket_priority == "Medium") {
@@ -441,7 +456,7 @@ if (isset($_GET['asset_id'])) {
                                 }
                                 $ticket_assigned_to = intval($row['ticket_assigned_to']);
                                 if (empty($ticket_assigned_to)) {
-                                    if ($ticket_status == "Closed") {
+                                    if ($ticket_status == 5) {
                                         $ticket_assigned_to_display = "<p>Not Assigned</p>";
                                     } else {
                                         $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
@@ -456,7 +471,9 @@ if (isset($_GET['asset_id'])) {
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
                                     <td><?php echo $ticket_priority_display; ?></td>
-                                    <td><?php echo $ticket_status_display; ?></td>
+                                    <td>
+                                        <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                    </td>
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
                                     <td><?php echo $ticket_updated_at_display; ?></td>
                                     <td><?php echo $ticket_created_at; ?></td>

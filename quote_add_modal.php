@@ -71,7 +71,7 @@
 
                             </select>
                             <div class="input-group-append">
-                                <a class="btn btn-secondary" href="categories.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                                <a class="btn btn-secondary" href="admin_categories.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                             </div>
                         </div>
                     </div>

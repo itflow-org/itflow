@@ -9,10 +9,10 @@ function fetchSSL(type)
 
     }
     if (type == 'edit') {
-        var domain = document.getElementById("editDomain").value;
-        var issuedBy = document.getElementById("editIssuedBy");
-        var expire = document.getElementById("editExpire");
-        var publicKey = document.getElementById("editPublicKey");
+        var domain = document.getElementById("editCertificateDomain").value;
+        var issuedBy = document.getElementById("editCertificateIssuedBy");
+        var expire = document.getElementById("editCertificateExpire");
+        var publicKey = document.getElementById("editCertificatePublicKey");
     }
 
     //Send a GET request to post.php as post.php?certificate_fetch_parse_json_details=TRUE&domain=DOMAIN

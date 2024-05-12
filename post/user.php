@@ -8,7 +8,6 @@ if (isset($_POST['add_user'])) {
 
     require_once 'post/user_model.php';
 
-
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
@@ -18,6 +17,14 @@ if (isset($_POST['add_user'])) {
     mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
 
     $user_id = mysqli_insert_id($mysqli);
+
+    // Add Client Access Permissions if set
+    if (!empty($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+        }
+    }
 
     if (!file_exists("uploads/users/$user_id/")) {
         mkdir("uploads/users/$user_id");
@@ -47,16 +54,36 @@ if (isset($_POST['add_user'])) {
     // Create Settings
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_config_force_mfa = $force_mfa");
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+
+    // Sanitize Config vars from get_settings.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_login_key_secret = mysqli_real_escape_string($mysqli, $config_login_key_secret);
+    $config_base_url = sanitizeInput($config_base_url);
+
     // Send user e-mail, if specified
     if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
-        $subject = "Your new $session_company_name ITFlow account";
-        $body = "Hello, $name<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $_POST[password]<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>~<br>$session_company_name<br>Support Department<br>$config_ticket_from_email";
+        $password = mysqli_real_escape_string($mysqli, $_POST['password']);
 
-        $mail = sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port,
-            $config_ticket_from_email, $config_ticket_from_name,
-            $email, $name,
-            $subject, $body);
+        $subject = "Your new $company_name ITFlow account";
+        $body = "Hello $name,<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $password<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>--<br>$company_name - Support<br>$config_ticket_from_email";
+
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $email,
+                'recipient_name' => $name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($mysqli, $data);
 
         if ($mail !== true) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
@@ -85,6 +112,15 @@ if (isset($_POST['edit_user'])) {
 
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
+
+    // Update Client Access
+    mysqli_query($mysqli,"DELETE FROM user_permissions WHERE user_id = $user_id");
+    if (!empty($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+        }
+    }
 
     // Get current Avatar
     $sql = mysqli_query($mysqli, "SELECT user_avatar FROM users WHERE user_id = $user_id");
@@ -188,6 +224,10 @@ if (isset($_GET['disable_user'])) {
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
+    // Un-assign tickets
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_assigned_to = 0 WHERE scheduled_ticket_assigned_to = $user_id");
+
     //Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
 
@@ -201,22 +241,21 @@ if (isset($_GET['disable_user'])) {
 if (isset($_GET['revoke_remember_me'])) {
 
     validateAdminRole();
-    //validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken($_GET['csrf_token']);
 
     $user_id = intval($_GET['revoke_remember_me']);
 
     // Get User Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id"));
     $user_name = sanitizeInput($row['user_name']);
 
-    mysqli_query($mysqli, "UPDATE user_settings SET user_config_remember_me_token = NULL WHERE user_id = $user_id");
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
     //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name revoked remember me token', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name revoked all remember me tokens for user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me token revoked";
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

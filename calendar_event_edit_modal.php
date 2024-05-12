@@ -18,7 +18,7 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar mr-2"></i>Event</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-more<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-details<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
@@ -63,24 +63,24 @@
                                 </div>
                             </div>
 
-                            <label>Start / End <strong class="text-danger">*</strong></label>
-                            <div class="form-row">
-                                <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <input type="datetime-local" class="form-control form-control-sm" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>"required>
-                                </div>
-                            </div>
-
                             <div class="form-group">
-                                <label>Description</label>
-                                <textarea class="form-control" rows="4" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                                <label>Start / End <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                    </div>
+                                    <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
+                                </div>
                             </div>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-more<?php echo $event_id; ?>">
+                                
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                    </div>
+                                    <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>"required>
+                                </div>
+                            </div>
 
                             <div class="form-group">
                                 <label>Repeat</label>
@@ -96,7 +96,26 @@
                                         <option <?php if ($event_repeat == "Year") { echo "selected"; } ?>>Year</option>
                                     </select>
                                 </div>
+                            </div>  
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-details<?php echo $event_id; ?>">
+                            <div class="form-group">
+                                <label>Location</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location" value="<?php echo $event_location; ?>" placeholder="Location of the event">
+                                </div>
                             </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                            </div>
+                            
 
                         </div>
 

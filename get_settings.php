@@ -47,7 +47,7 @@ $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 
-// Recurring
+// Recurring Invoices
 $config_recurring_prefix = $row['config_recurring_prefix'];
 $config_recurring_next_number = intval($row['config_recurring_next_number']);
 
@@ -57,6 +57,10 @@ $config_quote_next_number = intval($row['config_quote_next_number']);
 $config_quote_footer = $row['config_quote_footer'];
 $config_quote_from_name = $row['config_quote_from_name'];
 $config_quote_from_email = $row['config_quote_from_email'];
+
+// Projects
+$config_project_prefix = $row['config_project_prefix'];
+$config_project_next_number = intval($row['config_project_next_number']);
 
 // Tickets
 $config_ticket_prefix = $row['config_ticket_prefix'];
@@ -79,12 +83,23 @@ $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_exp
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 $config_invoice_overdue_reminders = intval($row['config_invoice_overdue_reminders']);
 
-// Online Payment
+// Online Stripe Payment
 $config_stripe_enable = intval($row['config_stripe_enable']);
 $config_stripe_publishable = $row['config_stripe_publishable'];
 $config_stripe_secret = $row['config_stripe_secret'];
-$config_stripe_account = $row['config_stripe_account'];
+$config_stripe_account = intval($row['config_stripe_account']);
+$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
+$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
+$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
 $config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
+
+// AI Provider Details
+$config_ai_enable = intval($row['config_ai_enable']);
+$config_ai_provider = $row['config_ai_provider'];
+$config_ai_model = $row['config_ai_model'];
+$config_ai_url = $row['config_ai_url'];
+$config_ai_api_key = $row['config_ai_api_key'];
 
 // Modules
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
@@ -96,6 +111,7 @@ $config_client_portal_enable = intval($row['config_client_portal_enable']);
 $config_login_message = $row['config_login_message'];
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
+$config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 
 // Locale
 $config_currency_format = "US_en";
@@ -108,10 +124,34 @@ $config_theme_mode = "dark_mode";
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);
 
+// Destructive Deletes
+$config_destructive_deletes_enable = intval($row['config_destructive_deletes_enable']);
+
 
 // Select Arrays
 
+$theme_colors_array = array (
+    'lightblue',
+    'blue',
+    'green',
+    'cyan',
+    'yellow',
+    'red',
+    'black',
+    'gray',
+    'indigo',
+    'navy',
+    'purple',
+    'fuchsia',
+    'pink',
+    'maroon',
+    'orange',
+    'teal',
+    'olive'
+);
+
 $colors_array = array (
+    'lightblue',
     'blue',
     'green',
     'cyan',
@@ -203,17 +243,10 @@ $asset_status_array = array (
 );
 
 $ticket_status_array = array (
-    'Pending-Assignment',
-    'Assigned',
-    'Client-Replied',
-    'In-Progress',
-    'Pending-Shipment',
-    'Pending-Client',
-    'Pending-Vendor',
-    'Scheduled',
-    'Closed',
     'Open',
-    'Auto Close'
+    'On Hold',
+    'Auto Close',
+    'Closed'
 );
 
 $industry_select_array = array(
@@ -243,9 +276,7 @@ $industry_select_array = array(
 );
 
 $start_page_select_array = array (
-    'dashboard.php'=>'Personal Dashboard',
-    'dashboard_financial.php'=>'Administrative Dashboard',
-    'dashboard_technical.php' => 'Technical Dashboard',
+    'dashboard.php'=>'Dashboard',
     'clients.php'=> 'Client Management',
     'tickets.php'=> 'Support Tickets',
     'invoices.php' => 'Invoices'

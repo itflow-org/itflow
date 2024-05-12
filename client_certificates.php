@@ -50,14 +50,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
 
                 <div class="col-md-8">
-                    <div class="float-right">
-                        <div class="dropdown" id="multiActionButton" hidden>
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-list mr-2"></i>Selected (<span id="selectedCount">0</span>)
+                    <div class="btn-group float-right">
+                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item text-danger text-bold"
-                                        type="submit" form="multi_actions" name="bulk_delete_certificates">
+                                        type="submit" form="bulkActions" name="bulk_delete_certificates">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                             </div>
@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <hr>
         <div class="table-responsive-sm">
 
-            <form id="multi_actions" action="post.php" method="post">
+            <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <table class="table table-striped table-borderless table-hover">
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td class="pr-0">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
                         </td>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">Name</a></th>
@@ -94,6 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_array($sql)) {
                         $certificate_id = intval($row['certificate_id']);
                         $certificate_name = nullable_htmlentities($row['certificate_name']);
+                        $certificate_description = nullable_htmlentities($row['certificate_description']);
                         $certificate_domain = nullable_htmlentities($row['certificate_domain']);
                         $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
                         $certificate_expire = nullable_htmlentities($row['certificate_expire']);
@@ -103,12 +104,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
+                                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                 </div>
                             </td>
-
-                            <td><a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal"><?php echo $certificate_name; ?></a></td>
-
+                            <td>
+                                <a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-lock mr-3"></i>
+                                        <div class="media-body">
+                                            <div><?php echo $certificate_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $certificate_description; ?></small></div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </td>
                             <td><?php echo $certificate_domain; ?></td>
 
                             <td><?php echo $certificate_issued_by; ?></td>
@@ -126,11 +136,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_certificate=<?php echo $certificate_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?php echo $certificate_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?php echo $certificate_id; ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>
@@ -163,7 +173,7 @@ require_once "client_certificate_export_modal.php";
 ?>
 
 <script src="js/certificate_edit_modal.js"></script>
-<script src="js/multi_actions.js"></script>
+<script src="js/bulk_actions.js"></script>
 <script src="js/certificate_fetch_ssl.js"></script>
 
 <?php require_once "footer.php";

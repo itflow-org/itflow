@@ -10,8 +10,10 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
-
 // Load specific module logic
+
+require_once "post/admin.php";
+
 require_once "post/account.php";
 
 require_once "post/account_type.php";
@@ -19,6 +21,8 @@ require_once "post/account_type.php";
 require_once "post/api.php";
 
 require_once "post/asset.php";
+
+require_once "post/bulk_mail.php";
 
 require_once "post/category.php";
 
@@ -54,6 +58,8 @@ require_once "post/product.php";
 
 require_once "post/profile.php";
 
+require_once "post/project.php";
+
 require_once "post/quote.php";
 
 require_once "post/revenue.php";
@@ -70,6 +76,8 @@ require_once "post/tax.php";
 
 require_once "post/ticket.php";
 
+require_once "post/tasks.php";
+
 require_once "post/transfer.php";
 
 require_once "post/trip.php";
@@ -80,8 +88,7 @@ require_once "post/vendor.php";
 
 require_once "post/budget.php";
 
+require_once "post/ai.php";
+
 require_once "post/misc.php";
-
-
-?>
 

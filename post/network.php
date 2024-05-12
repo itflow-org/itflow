@@ -10,13 +10,18 @@ if (isset($_POST['add_network'])) {
 
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $vlan = intval($_POST['vlan']);
     $network = sanitizeInput($_POST['network']);
+    $subnet = sanitizeInput($_POST['subnet']);
     $gateway = sanitizeInput($_POST['gateway']);
+    $primary_dns = sanitizeInput($_POST['primary_dns']);
+    $secondary_dns = sanitizeInput($_POST['secondary_dns']);
     $dhcp_range = sanitizeInput($_POST['dhcp_range']);
+    $notes = sanitizeInput($_POST['notes']);
     $location_id = intval($_POST['location']);
 
-    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id, network_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
 
     $network_id = mysqli_insert_id($mysqli);
 
@@ -35,14 +40,19 @@ if (isset($_POST['edit_network'])) {
 
     $network_id = intval($_POST['network_id']);
     $name = sanitizeInput($_POST['name']);
+    $description = sanitizeInput($_POST['description']);
     $vlan = intval($_POST['vlan']);
     $network = sanitizeInput($_POST['network']);
+    $subnet = sanitizeInput($_POST['subnet']);
     $gateway = sanitizeInput($_POST['gateway']);
+    $primary_dns = sanitizeInput($_POST['primary_dns']);
+    $secondary_dns = sanitizeInput($_POST['secondary_dns']);
     $dhcp_range = sanitizeInput($_POST['dhcp_range']);
+    $notes = sanitizeInput($_POST['notes']);
     $location_id = intval($_POST['location']);
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_dhcp_range = '$dhcp_range', network_location_id = $location_id WHERE network_id = $network_id");
+    mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Network', log_action = 'Modify', log_description = '$session_name modified network $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");
@@ -100,6 +110,36 @@ if (isset($_GET['delete_network'])) {
 
 }
 
+if (isset($_POST['bulk_delete_networks'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $network_ids = $_POST['network_ids']; // Get array of network IDs to be deleted
+    $client_id = intval($_POST['client_id']);
+
+    if (!empty($network_ids)) {
+
+        // Cycle through array and delete each network
+        foreach ($network_ids as $network_id) {
+
+            $network_id = intval($network_id);
+            mysqli_query($mysqli, "DELETE FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Network', log_action = 'Delete', log_description = '$session_name deleted a network (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $network_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Certificate', log_action = 'Network', log_description = '$session_name bulk deleted $count networks', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count network(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['export_client_networks_csv'])) {
 
     validateTechRole();
@@ -124,12 +164,12 @@ if (isset($_POST['export_client_networks_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'vLAN', 'Network', 'Gateway', 'DHCP Range');
+        $fields = array('Name', 'Description', 'vLAN', 'IP/Network', 'Subnet Mask', 'Gateway', 'Primary DNS', 'Secondary DNS', 'DHCP Range');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['network_name'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range']);
+            $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_subnet'], $row['network_gateway'], $row['network_primary_dns'], $row['network_secondary_dns'], $row['network_dhcp_range']);
             fputcsv($f, $lineData, $delimiter);
         }
 

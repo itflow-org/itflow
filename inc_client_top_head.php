@@ -2,7 +2,7 @@
     <div class="card-body py-2">
         <div class="row">
             <div class="col">
-                <a href="#" data-toggle="collapse" data-target="#clientHeader"><h4 class="text-secondary"><strong><?php echo $client_name; ?></strong></h4></a>
+                <a href="#" data-toggle="collapse" data-target="#clientHeader"><h4 class="text-secondary"><strong><?php echo $client_name; ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
             </div>
             <div class="col">
                 <?php if ($session_user_role == 3) { ?>
@@ -18,23 +18,33 @@
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exportClientPDFModal">
                             <i class="fas fa-fw fa-file-pdf mr-2"></i>Export Data
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
-                            <i class="fas fa-fw fa-archive mr-2"></i>Archive Client
-                        </a>
-                        <?php if ($session_user_role == 3) { ?>
+
+                        <?php if (empty($client_archived_at)) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
+                                <i class="fas fa-fw fa-archive mr-2"></i>Archive Client
+                            </a>
+                        <?php } else { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-primary confirm-link" href="post.php?undo_archive_client=<?php echo $client_id; ?>">
+                                <i class="fas fa-fw fa-archive mr-2"></i>Unarchive Client
+                            </a>
+                        <?php } ?>
+
+                        <?php if ($session_user_role == 3 && $client_archived_at) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-trash mr-2"></i>Delete Client
                         </a>
                         <?php } ?>
+
                     </div>
                 </div>
                 <?php } ?>
             </div>
         </div>
 
-        <div class="collapse show" id="clientHeader">
+        <div class="collapse <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "show"; } ?>" id="clientHeader">
 
             <div class="row">
 
@@ -44,7 +54,7 @@
                         <div>
                             <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
                                 <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2"></i><?php echo $location_address; ?>
-                                <div class="ml-4"><?php echo "$location_city $location_state $location_zip"; ?></div>
+                                <div><i class="fa fa-fw ml-1 mr-2"></i><?php echo "$location_city $location_state $location_zip"; ?></div>
                             </a>
                         </div>
                     <?php }

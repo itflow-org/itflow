@@ -15,7 +15,7 @@ if (isset($_POST['add_transfer'])) {
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$session_company_currency', revenue_account_id = $account_to, revenue_category_id = 0");
     $revenue_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_expense_id = $expense_id, transfer_revenue_id = $revenue_id, transfer_notes = '$notes'");
+    mysqli_query($mysqli,"INSERT INTO transfers SET transfer_expense_id = $expense_id, transfer_revenue_id = $revenue_id, transfer_method = '$transfer_method', transfer_notes = '$notes'");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -39,7 +39,7 @@ if (isset($_POST['edit_transfer'])) {
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_account_id = $account_to WHERE revenue_id = $revenue_id");
 
-    mysqli_query($mysqli,"UPDATE transfers SET transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
+    mysqli_query($mysqli,"UPDATE transfers SET transfer_method = '$transfer_method', transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Modifed', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -72,4 +72,3 @@ if (isset($_GET['delete_transfer'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
-

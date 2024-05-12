@@ -14,7 +14,6 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 
-                    
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="contacts" name="export_contacts" value="1" checked>
@@ -55,7 +54,7 @@
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="logins" name="export_logins" value="1">
                                         <label for="logins" class="custom-control-label">
-                                            <i class='fas fa-fw fa-key mr-2'></i>Logins
+                                            <i class='fas fa-fw fa-key mr-2'></i>Credentials
                                         </label>
                                     </div>
                                 </li>

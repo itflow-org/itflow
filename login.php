@@ -10,6 +10,8 @@ if (!file_exists('config.php')) {
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
 
 // Check if the application is configured for HTTPS-only access
 if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') && (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')) {
@@ -56,8 +58,8 @@ $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
-$config_mail_from_email = $row['config_mail_from_email'];
-$config_mail_from_name = $row['config_mail_from_name'];
+$config_mail_from_email = sanitizeInput($row['config_mail_from_email']);
+$config_mail_from_name = sanitizeInput($row['config_mail_from_name']);
 
 // Client Portal Enabled
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
@@ -65,6 +67,8 @@ $config_client_portal_enable = intval($row['config_client_portal_enable']);
 // Login key (if setup)
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
+
+$config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 
 // Login key verification
 //  If no/incorrect 'key' is supplied, send to client portal instead
@@ -111,27 +115,55 @@ if (isset($_POST['login'])) {
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
-        $remember_token = $row['user_config_remember_me_token'];
+        $user_role = intval($row['user_role']);
+        $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+        $user_extension_key = $row['user_extension_key'];
         if($force_mfa == 1 && $token == NULL) {
-            $config_start_page = "user_profile.php";
+            $config_start_page = "user_security.php";
+            $_SESSION['alert_message'] = "Please set up MFA.";
         }
 
-        $bypass_2fa = false;
-        if (isset($_COOKIE['rememberme']) && $_COOKIE['rememberme'] == $remember_token) {
-            $bypass_2fa = true;
-        } elseif (empty($token) || TokenAuth6238::verify($token, $current_code)) {
-            $bypass_2fa = true;
+        $mfa_is_complete = false; // Default to requiring MFA
+        $extended_log = ''; // Default value
+
+        if (empty($token)) {
+            // MFA is not configured
+            $mfa_is_complete = true;
         }
 
-        if ($bypass_2fa) {
-            if (isset($_POST['remember_me'])) {
-                $newRememberToken = bin2hex(random_bytes(64));
-                setcookie('rememberme', $newRememberToken, time() + 86400*14, "/", null, true, true);
-                $updateTokenQuery = "UPDATE user_settings SET user_config_remember_me_token = '$newRememberToken' WHERE user_id = $user_id";
-                mysqli_query($mysqli, $updateTokenQuery);
+        // Validate MFA via a remember-me cookie
+        if (isset($_COOKIE['rememberme'])) {
+            // Get remember tokens less than $config_login_remember_me_days_expire days old
+            $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL $config_login_remember_me_expire DAY)");
+            while ($row = mysqli_fetch_assoc($remember_tokens)) {
+                if (hash_equals($row['remember_token_token'], $_COOKIE['rememberme'])) {
+                    $mfa_is_complete = true;
+                    $extended_log = 'with 2FA remember-me cookie';
+                    break;
+                }
             }
+        }
 
-            // FULL LOGIN SUCCESS - 2FA not configured or was successful
+        // Validate MFA code
+        if (TokenAuth6238::verify($token, $current_code)) {
+            $mfa_is_complete = true;
+            $extended_log = 'with 2FA';
+        }
+
+        if ($mfa_is_complete) {
+            // MFA Completed successfully
+
+            // FULL LOGIN SUCCESS
+
+            // Create a remember me token, if requested
+            if (isset($_POST['remember_me'])) {
+                // TODO: Record the UA and IP a token is generated from so that can be shown later on
+                $newRememberToken = bin2hex(random_bytes(64));
+                setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
+                mysqli_query($mysqli, "INSERT INTO remember_tokens SET remember_token_user_id = $user_id, remember_token_token = '$newRememberToken'");
+
+                $extended_log .= ", generated a new remember-me token";
+            }
 
             // Check this login isn't suspicious
             $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = $user_id"));
@@ -145,27 +177,19 @@ if (isset($_POST['login'])) {
                 $subject = "$config_app_name new login for $user_name";
                 $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
-                $mail = sendSingleEmail(
-                    $config_smtp_host,
-                    $config_smtp_username,
-                    $config_smtp_password,
-                    $config_smtp_encryption,
-                    $config_smtp_port,
-                    $config_mail_from_email,
-                    $config_mail_from_name,
-                    $user_email,
-                    $user_name,
-                    $subject,
-                    $body
-                );
+                $data = [
+                    [
+                        'from' => $config_mail_from_email,
+                        'from_name' => $config_mail_from_name,
+                        'recipient' => $user_email,
+                        'recipient_name' => $user_name,
+                        'subject' => $subject,
+                        'body' => $body
+                    ]
+                ];
+                addToMailQueue($mysqli, $data);
             }
 
-
-            // Determine whether 2FA was used (for logs)
-            $extended_log = ''; // Default value
-            if ($current_code !== 0) {
-                $extended_log = 'with 2FA';
-            }
 
             // Logging successful login
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in $extended_log', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
@@ -173,30 +197,32 @@ if (isset($_POST['login'])) {
             // Session info
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
-            $_SESSION['user_role'] = intval($row['user_role']);
+            $_SESSION['user_role'] = $user_role;
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;
 
             // Setup encryption session key
-            if (isset($row['user_specific_encryption_ciphertext']) && $row['user_role'] > 1) {
-                $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
+            if (isset($user_encryption_ciphertext) && $user_role > 1) {
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
 
-                // Setup extension
-                if (isset($row['user_extension_key']) && !empty($row['user_extension_key'])) {
+                // Setup extension - currently unused
+                //if (is_null($user_extension_key)) {
                     // Extension cookie
                     // Note: Browsers don't accept cookies with SameSite None if they are not HTTPS.
-                    setcookie("user_extension_key", "$row[user_extension_key]", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+                    //setcookie("user_extension_key", "$user_extension_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 
                     // Set PHP session in DB, so we can access the session encryption data (above)
-                    $user_php_session = session_id();
-                    mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
-                }
+                    //$user_php_session = session_id();
+                    //mysqli_query($mysqli, "UPDATE users SET user_php_session = '$user_php_session' WHERE user_id = $user_id");
+                //}
+
             }
-
-            header("Location: $config_start_page");
-
+            if ($_GET['last_visited']) {
+                header("Location: ".$_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
+            } else {
+                header("Location: $config_start_page");
+            }
         } else {
 
             // MFA is configured and needs to be confirmed, or was unsuccessful
@@ -222,20 +248,17 @@ if (isset($_POST['login'])) {
                 if (!empty($config_smtp_host)) {
                     $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
                     $body = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
-
-                    $mail = sendSingleEmail(
-                        $config_smtp_host,
-                        $config_smtp_username,
-                        $config_smtp_password,
-                        $config_smtp_encryption,
-                        $config_smtp_port,
-                        $config_mail_from_email,
-                        $config_mail_from_name,
-                        $user_email,
-                        $user_name,
-                        $subject,
-                        $body
-                    );
+                    $data = [
+                        [
+                            'from' => $config_mail_from_email,
+                            'from_name' => $config_mail_from_name,
+                            'recipient' => $user_email,
+                            'recipient_name' => $user_name,
+                            'subject' => $subject,
+                            'body' => $body
+                        ]
+                    ];
+                    $mail = addToMailQueue($mysqli, $data);
                 }
 
                 // HTML feedback for incorrect 2FA code
@@ -277,6 +300,15 @@ if (isset($_POST['login'])) {
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+
+    <!--
+    Favicon
+    If Fav Icon exists else use the default one
+    -->
+    <?php if(file_exists('uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
+    <?php } ?>
+
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
@@ -300,7 +332,7 @@ if (isset($_POST['login'])) {
             <?php if(!empty($config_login_message)){ ?>
             <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
-           
+
             <?php if (isset($response)) { ?>
             <p><?php echo $response; ?></p>
             <?php } ?>
@@ -324,8 +356,8 @@ if (isset($_POST['login'])) {
                     </div>
                 </div>
 
-                <?php 
-                if (isset($token_field)) { 
+                <?php
+                if (isset($token_field)) {
 
                     echo $token_field;
                 ?>
@@ -338,10 +370,10 @@ if (isset($_POST['login'])) {
                 </div>
 
                 <?php
-                
+
                 }
 
-                ?>    
+                ?>
 
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 

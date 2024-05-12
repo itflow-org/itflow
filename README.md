@@ -30,7 +30,7 @@
     ·
     <a href="https://forum.itflow.org/">Forum</a>
     ·
-    <a href="https://github.com/itflow-org/itflow/issues">Report Bug</a>
+    <a href="https://forum.itflow.org/t/bug">Report Bug</a>
     ·
     <a href="https://forum.itflow.org/t/features">Request Feature</a>
     ·
@@ -58,7 +58,7 @@
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by December 2023.
+* We are hoping to have a stable 1.0 release by early 2024.
 
 <!-- BUILT WITH -->
 ### Built With
@@ -69,6 +69,7 @@
   * PHPMailer
   * HTML Purifier
   * PHP Mime Mail Parser
+  * Zap Calendar
 
 * CSS
   * Bootstrap
@@ -84,6 +85,7 @@
   * TinyMCE
   * FullCalendar.io
 
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
@@ -97,7 +99,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   - Clean Install of Debian 12 or Ubuntu 22.04
   - A public IP Address
   - Ports 80 (HTTP) and 443 (HTTPS) TCP accessible from the outside in
-  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com, NOT itflow.xyz.example.com
+  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com
 
   **Process**
   - Login as root
@@ -125,19 +127,17 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
 * Recent caller toast alerts to click and bring up the clients account right away
 * FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
-See the [forum](https://forum.itflow.org/d/11-road-map) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
+See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
 
 
 <!-- CONTRIBUTING -->
 ## Support & Contributions
 
 ### Forum
-For help using ITFlow, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
-For bugs, please raise an [issue](https://github.com/itflow-org/itflow/issues).
+For help using ITFlow, bugs, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
 
 ### Contributing
-If you are able to make a contribution that would make ITFlow better, please fork the repo and create a pull request. Please make sure you're following our [code standards](https://docs.itflow.org/code_standards). 
-For large changes / new features, please discuss the issue with other contributors first.
+If you want to improve ITFlow, feel free to fork the repo and create a pull request, but make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our  [code standards](https://docs.itflow.org/code_standards).
 
 #### Contributors
 <a href="https://github.com/itflow-org/itflow/graphs/contributors">

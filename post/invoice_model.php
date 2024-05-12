@@ -4,3 +4,5 @@ $category = intval($_POST['category']);
 $scope = sanitizeInput($_POST['scope']);
 $invoice_discount = floatval($_POST['invoice_discount']);
 $recurring_discount = floatval($_POST['recurring_discount']);
+
+$config_invoice_prefix = sanitizeInput($config_invoice_prefix);

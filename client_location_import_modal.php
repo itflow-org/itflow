@@ -10,7 +10,7 @@
 			<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
 				<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 				<div class="modal-body bg-white">
-					<p><strong>Format csv file with headings & data:</strong><br>Name, Address, City, State, Postal Code, Phone, Hours</p>
+					<p><strong>Format csv file with headings & data:</strong><br>Name, Description, Address, City, State, Postal Code, Phone, Hours</p>
 					<hr>
 					<div class="form-group my-4">
 						<input type="file" class="form-control-file" name="file" accept=".csv">

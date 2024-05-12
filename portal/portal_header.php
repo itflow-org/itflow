@@ -18,6 +18,14 @@ header("X-Frame-Options: DENY"); // Legacy
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
+    <!-- 
+    Favicon
+    If Fav Icon exists else use the default one 
+    -->
+    <?php if(file_exists('../uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
+    <?php } ?>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
 
@@ -33,7 +41,7 @@ header("X-Frame-Options: DENY"); // Legacy
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="index.php"><?php echo nullable_htmlentities($session_company_name); ?></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -64,12 +72,12 @@ header("X-Frame-Options: DENY"); // Legacy
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-                        <?php echo nullable_htmlentities($session_contact_name); ?>
+                        <?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?>
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="profile.php">Profile</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="profile.php"><i class="fas fa-fw fa-user mr-2"></i>Account</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="portal_post.php?logout">Sign out</a>
+                        <a class="dropdown-item" href="portal_post.php?logout"><i class="fas fa-fw fa-sign-out-alt mr-2"></i>Sign out</a>
                     </div>
                 </li>
             </ul>
@@ -81,3 +89,23 @@ header("X-Frame-Options: DENY"); // Legacy
 
 <!-- Page content container -->
 <div class="container">
+
+    <div class="row mb-3">
+        <div class="col-md-1 text-center">
+            <?php if (!empty($session_contact_photo)) { ?>
+                <img src="<?php echo "../uploads/clients/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
+
+            <?php } else { ?>
+
+                <span class="fa-stack fa-2x rounded-left">
+                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                    <span class="fa fa-stack-1x text-white"><?php echo $session_contact_initials; ?></span>
+                </span>
+            <?php } ?>
+        </div>
+
+        <div class="col-md-11 p-0">
+            <h4>Welcome, <strong><?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?></strong>!</h4>
+            <hr>
+        </div>
+    </div>

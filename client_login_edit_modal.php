@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>Editing login: <strong><?php echo $login_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>Editing credential: <strong><?php echo $login_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -66,12 +66,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Password <strong class="text-danger">*</strong></label>
+                                <label>Password / Key <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" value="<?php echo $login_password; ?>" required autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" value="<?php echo $login_password; ?>" required autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -107,6 +107,22 @@
                                     </div>
                                     <div class="input-group-append">
                                         <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" value="<?php echo $login_uri_2; ?>">
+                                    <div class="input-group-append">
+                                        <a href="<?php echo $login_uri_2; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $login_uri_2; ?>"><i class="fa fa-fw fa-copy"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -168,12 +184,19 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = intval($row['asset_id']);
                                             $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                            $asset_location_select = nullable_htmlentities($row['location_name']);
+
+                                            $asset_select_display_string = $asset_name_select;
+                                            if (!empty($asset_location_select)) {
+                                                $asset_select_display_string = "$asset_name_select ($asset_location_select)";
+                                            }
+
                                             ?>
-                                            <option <?php if ($login_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                                            <option <?php if ($login_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_select_display_string; ?></option>
 
                                         <?php } ?>
                                     </select>
@@ -207,7 +230,7 @@
                         <div class="tab-pane fade" id="pills-notes<?php echo $login_id; ?>">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="note"><?php echo $login_note; ?></textarea>
+                                <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?php echo $login_note; ?></textarea>
                             </div>
 
                         </div>

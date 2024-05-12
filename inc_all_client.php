@@ -6,13 +6,21 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
-require_once "header.php";
-
-require_once "top_nav.php";
-
-
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
+
+    // Check to see if the logged in user has permission to access this client (Admins have access to all no matter what perms are set)
+    if(!in_array($client_id, $client_access_array) AND !empty($client_access_string) AND $session_user_role < 3) {
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Access', log_description = '$session_name was denied permission from accessing client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $client_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Access Denied - You do not have permission to access that client!";
+
+        echo "<script>window.history.back();</script>";
+
+        exit();
+    }
 
     $sql = mysqli_query($mysqli, "UPDATE clients SET client_accessed_at = NOW() WHERE client_id = $client_id");
 
@@ -32,6 +40,7 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_array($sql);
         $client_name = nullable_htmlentities($row['client_name']);
+        $client_name_title = $row['client_name'];
         $client_is_lead = intval($row['client_lead']);
         $client_type = nullable_htmlentities($row['client_type']);
         $client_website = nullable_htmlentities($row['client_website']);
@@ -45,6 +54,7 @@ if (isset($_GET['client_id'])) {
         $client_rate = floatval($row['client_rate']);
         $client_notes = nullable_htmlentities($row['client_notes']);
         $client_created_at = nullable_htmlentities($row['client_created_at']);
+        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
@@ -113,7 +123,7 @@ if (isset($_GET['client_id'])) {
 
         $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
-        //Badge Counts
+        // Badge Counts
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id"));
         $num_contacts = $row['num'];
@@ -124,10 +134,10 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
         $num_assets = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status != 'Closed' AND ticket_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_closed_at IS NULL AND ticket_status != 4 AND ticket_client_id = $client_id"));
         $num_active_tickets = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_status = 'Closed' AND ticket_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_closed_at IS NOT NULL AND ticket_client_id = $client_id"));
         $num_closed_tickets = $row['num'];
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id"));
@@ -229,6 +239,10 @@ if (isset($_GET['client_id'])) {
     }
 }
 
+require_once "header.php";
+
+require_once "top_nav.php";
+
 require_once "client_side_nav.php";
 
 require_once "inc_wrapper.php";
@@ -239,3 +253,7 @@ require_once "inc_client_top_head.php";
 
 require_once "pagination_head.php";
 
+?>
+
+<!-- Set the browser window title to the clients name -->
+<script>document.title = "<?php echo $client_name_title; ?>"</script>

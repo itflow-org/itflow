@@ -16,10 +16,10 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     // Setup
     if ($expected_ticket_state == "Closed") {
         // Closed tickets
-        $ticket_state_snippet = "ticket_status = 'Closed'";
+        $ticket_state_snippet = "ticket_status = 5";
     } else {
         // Open (working/hold) tickets
-        $ticket_state_snippet = "ticket_status != 'Closed'";
+        $ticket_state_snippet = "ticket_status != 5";
     }
 
     // Verify the contact has access to the provided ticket ID

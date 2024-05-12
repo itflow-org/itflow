@@ -8,7 +8,12 @@
 
 require_once "config.php";
 
+// Set Timezone
+require_once "inc_set_timezone.php";
+
 require_once "functions.php";
+
+require_once "rfc6238.php";
 
 
 /*
@@ -54,6 +59,8 @@ if (isset($_GET['stripe_create_pi'])) {
     $config_sql = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
     $config_row = mysqli_fetch_array($config_sql);
     $config_stripe_client_pays_fees = intval($config_row['config_stripe_client_pays_fees']);
+    $config_stripe_percentage_fee = floatval($config_row['config_stripe_percentage_fee']);
+    $config_stripe_flat_fee = floatval($config_row['config_stripe_flat_fee']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -63,11 +70,8 @@ if (isset($_GET['stripe_create_pi'])) {
 
     // Check config to see if client pays fees is enabled
     if ($config_stripe_client_pays_fees == 1) {
-        // Get fees from config
-        $percentage_fee = 0.029; // Default Stripe fee
-        $flat_fee = 0.30; // Default Stripe fee
         // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $flat_fee) / (1 - $percentage_fee);
+        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
     }
 
     $balance_to_pay = round($balance_to_pay, 2);
@@ -119,4 +123,10 @@ if (isset($_GET['stripe_create_pi'])) {
         echo json_encode(['error' => $e->getMessage()]);
     }
 
+}
+
+if (isset($_GET['get_totp_token'])) {
+    $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
+
+    echo json_encode($otp);
 }

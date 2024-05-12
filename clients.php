@@ -20,6 +20,24 @@ if($leads == 1){
     $leads_query = 0;
 }
 
+// Industry Filter
+if (isset($_GET['industry']) & !empty($_GET['industry'])) {
+    $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
+    $industry = nullable_htmlentities($_GET['industry']);
+} else {
+    // Default - any
+    $industry_query = '';
+}
+
+// Referral Filter
+if (isset($_GET['referral']) & !empty($_GET['referral'])) {
+    $referral_query = "AND (clients.client_referral  = '" . sanitizeInput($_GET['referral']) . "')";
+    $referral = nullable_htmlentities($_GET['referral']);
+} else {
+    // Default - any
+    $referral_query = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -37,9 +55,12 @@ $sql = mysqli_query(
            OR contacts.contact_mobile LIKE '%$phone_query%' OR locations.location_address LIKE '%$q%'
            OR locations.location_city LIKE '%$q%' OR locations.location_state LIKE '%$q%' OR locations.location_zip LIKE '%$q%'
            OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
-      AND clients.client_archived_at IS NULL
+      AND clients.client_$archive_query
       AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND clients.client_lead = $leads
+      $access_permission_query
+      $industry_query
+      $referral_query
     GROUP BY clients.client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
@@ -73,6 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body p-2 p-md-3">
             <form class="mb-4" autocomplete="off">
                 <input type="hidden" name="leads" value="<?php echo $leads; ?>">
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
@@ -89,16 +111,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a href="?leads=0" class="btn btn-<?php if($leads == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
                                 <a href="?leads=1" class="btn btn-<?php if($leads == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
                             </div>
-                           
+
+                            <div class="btn-group mr-2">
+                                <?php if($archived == 1) { ?>
+                                    <a href="?<?php echo $url_query_strings_sort ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                <?php } else { ?>
+                                    <a href="?<?php echo $url_query_strings_sort ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
+                                <?php } ?>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['industry'] || $_GET['referral'] || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Canned date</label>
-                                <select class="form-control select2" name="canned_date">
+                                <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
                                     <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
                                     <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
                                     <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
@@ -114,13 +143,51 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date from</label>
-                                <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
+                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Date to</label>
-                                <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Industry</label>
+                                <select class="form-control select2" name="industry" onchange="this.form.submit()">
+                                    <option value="" <?php if ($industry == "") { echo "selected"; } ?>>- All Industries -</option>
+
+                                    <?php
+                                    $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_archived_at IS NULL AND client_type != '' ORDER BY client_type ASC");
+                                    while ($row = mysqli_fetch_array($sql_industries_filter)) {
+                                        $industry_name = nullable_htmlentities($row['client_type']);
+                                    ?>
+                                        <option <?php if ($industry_name == $industry) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Referral</label>
+                                <select class="form-control select2" name="referral" onchange="this.form.submit()">
+                                    <option value="" <?php if ($referral == "") { echo "selected"; } ?>>- All Referrals -</option>
+
+                                    <?php
+                                    $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_archived_at IS NULL AND client_referral != '' ORDER BY client_referral ASC");
+                                    while ($row = mysqli_fetch_array($sql_referrals_filter)) {
+                                        $referral_name = nullable_htmlentities($row['client_referral']);
+                                    ?>
+                                        <option <?php if ($referral_name == $referral) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -132,8 +199,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">Primary address </a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Primary contact</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">Primary Location </a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Primary Contact</a></th>
                         <?php if (($session_user_role == 3 || $session_user_role == 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
                         <?php if ($session_user_role == 3) { ?> <th class="text-center">Action</th> <?php } ?>
                     </tr>
@@ -172,7 +239,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_notes = nullable_htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = nullable_htmlentities($row['client_updated_at']);
-                        $client_archive_at = nullable_htmlentities($row['client_archived_at']);
+                        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
                         $client_is_lead = intval($row['client_lead']);
 
                         // Client Tags
@@ -317,10 +384,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
+
+                                            <?php if (empty($client_archived_at)) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
+                                            <?php } ?>
+
                                         </div>
                                     </div>
                                 </td>

@@ -9,7 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
-                <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
                 <div class="modal-body bg-white">
@@ -19,13 +18,13 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $asset_id; ?>">Details</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-network<?php echo $asset_id; ?>">Network</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-assignment<?php echo $asset_id; ?>">Assignment</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-purchase<?php echo $asset_id; ?>">Purchase</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-login<?php echo $asset_id; ?>">Login</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $asset_id; ?>">Notes</a>
@@ -119,79 +118,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-assignment<?php echo $asset_id; ?>">
-
-                            <div class="form-group">
-                                <label>Location</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="location">
-                                        <option value="">- Location -</option>
-                                        <?php
-
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE (location_archived_at > '$asset_created_at' OR location_archived_at IS NULL) AND location_client_id = $client_id ORDER BY location_archived_at ASC, location_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_locations)) {
-                                            $location_id_select = intval($row['location_id']);
-                                            $location_name_select = nullable_htmlentities($row['location_name']);
-                                            $location_archived_at = nullable_htmlentities($row['location_archived_at']);
-                                            if (empty($location_archived_at)) {
-                                                $location_archived_display = "";
-                                            } else {
-                                                $location_archived_display = "Archived - ";
-                                            }
-                                            ?>
-                                            <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo "$location_archived_display$location_name_select"; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Assign To</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="contact">
-                                        <option value="">- Contact -</option>
-                                        <?php
-
-                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$asset_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_contacts)) {
-                                            $contact_id_select = intval($row['contact_id']);
-                                            $contact_name_select = nullable_htmlentities($row['contact_name']);
-                                            $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-                                            if (empty($contact_archived_at)) {
-                                                $contact_archived_display = "";
-                                            } else {
-                                                $contact_archived_display = "Archived - ";
-                                            }
-                                            ?>
-                                            <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>">
-                                                <?php echo "$contact_archived_display$contact_name_select"; ?>
-                                            </option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Status</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="status">
-                                        <?php foreach($asset_status_array as $asset_status_select) { ?>
-                                            <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>><?php echo $asset_status_select; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
+                        <div class="tab-pane fade" id="pills-network<?php echo $asset_id; ?>">
 
                             <div class="form-group">
                                 <label>Network</label>
@@ -203,20 +130,20 @@
                                         <option value="">- Network -</option>
                                         <?php
 
-                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE (network_archived_at > '$asset_created_at' OR network_archived_at IS NULL) AND network_client_id = $client_id ORDER BY network_archived_at ASC, network_name ASC");
+                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $asset_network_id OR network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                                         while ($row = mysqli_fetch_array($sql_networks)) {
                                             $network_id_select = intval($row['network_id']);
                                             $network_name_select = nullable_htmlentities($row['network_name']);
                                             $network_select = nullable_htmlentities($row['network']);
                                             $network_archived_at = nullable_htmlentities($row['network_archived_at']);
-                                            if (empty($network_archived_at)) {
-                                                $network_archived_display = "";
+                                            if ($network_archived_at) {
+                                                $network_name_select_display = "($network_name_select - $network_select) - ARCHIVED";
                                             } else {
-                                                $network_archived_display = "Archived - ";
+                                                $network_name_select_display = "$network_name_select - $network_select";
                                             }
 
                                             ?>
-                                            <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo "$network_archived_display$network_name_select"; ?> - <?php echo $network_select; ?></option>
+                                            <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select_display; ?></option>
 
                                         <?php } ?>
                                     </select>
@@ -235,6 +162,16 @@
                                             <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>NAT IP</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="nat_ip" value="<?php echo $asset_nat_ip; ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
                                 </div>
                             </div>
 
@@ -258,6 +195,92 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" value="<?php echo $asset_uri_2; ?>">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-assignment<?php echo $asset_id; ?>">
+
+                            <div class="form-group">
+                                <label>Location</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="location">
+                                        <option value="">- Location -</option>
+                                        <?php
+
+                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $asset_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_locations)) {
+                                            $location_id_select = intval($row['location_id']);
+                                            $location_name_select = nullable_htmlentities($row['location_name']);
+                                            $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                                            if ($location_archived_at) {
+                                                $location_name_select_display = "($location_name_select) - ARCHIVED";
+                                            } else {
+                                                $location_name_select_display = $location_name_select;
+                                            }
+                                            ?>
+                                            <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select_display; ?></option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Assign To</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="contact">
+                                        <option value="">- Contact -</option>
+                                        <?php
+
+                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $asset_contact_id OR contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_contacts)) {
+                                            $contact_id_select = intval($row['contact_id']);
+                                            $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                            $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                            if ($contact_archived_at) {
+                                                $contact_name_select_display = "($contact_name_select) - ARCHIVED";
+                                            } else {
+                                                $contact_name_select_display = $contact_name_select;
+                                            }
+                                            ?>
+                                            <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>">
+                                                <?php echo $contact_name_select_display; ?>
+                                            </option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Status</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="status">
+                                        <?php foreach($asset_status_array as $asset_status_select) { ?>
+                                            <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>><?php echo $asset_status_select; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-purchase<?php echo $asset_id; ?>">
@@ -272,18 +295,18 @@
                                         <option value="">- Vendor -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$asset_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id ORDER BY vendor_archived_at ASC, vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $asset_vendor_id OR vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);
                                             $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
-                                            if (empty($vendor_archived_at)) {
-                                                $vendor_archived_display = "";
+                                            if ($vendor_archived_at) {
+                                                $vendor_name_select_display = "($vendor_name_select) - ARCHIVED";
                                             } else {
-                                                $vendor_archived_display = "Archived - ";
+                                                $vendor_name_select_display = $vendor_name_select;
                                             }
                                             ?>
-                                            <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo "$vendor_archived_display$vendor_name_select"; ?></option>
+                                            <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select_display; ?></option>
 
                                         <?php } ?>
                                     </select>
@@ -321,30 +344,6 @@
                                     </div>
                                 </div>
                             <?php } ?>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-login<?php echo $asset_id; ?>">
-
-                            <div class="form-group">
-                                <label>Username</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa  fa-fw fa-user"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username" value="<?php echo $login_username; ?>">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" value="<?php echo $login_password; ?>" autocomplete="new-password">
-                                </div>
-                            </div>
 
                         </div>
 

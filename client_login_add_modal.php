@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Login</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Credential</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -65,12 +65,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Password <strong class="text-danger">*</strong></label>
+                                <label>Password / Key <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password" required autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password or Key" required autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -81,7 +81,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>OTP</label>
+                                <label>TOTP Seed</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
@@ -100,6 +100,16 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="uri" placeholder=" http://192.168.1.1">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001">
                                 </div>
                             </div>
 
@@ -165,12 +175,19 @@
                                         <option value="">- Asset -</option>
                                         <?php
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id ORDER BY asset_name ASC");
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $asset_id = intval($row['asset_id']);
                                             $asset_name = nullable_htmlentities($row['asset_name']);
+                                            $asset_location = nullable_htmlentities($row['location_name']);
+
+                                            $asset_display_string = $asset_name;
+                                            if (!empty($asset_location)) {
+                                                $asset_display_string = "$asset_name ($asset_location)";
+                                            }
+
                                             ?>
-                                            <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
+                                            <option value="<?php echo $asset_id; ?>"><?php echo $asset_display_string; ?></option>
 
                                             <?php
                                         }
@@ -208,7 +225,7 @@
                         <div class="tab-pane fade" id="pills-notes">
 
                             <div class="form-group">
-                                <textarea class="form-control" rows="8" placeholder="Enter some notes" name="note"></textarea>
+                                <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"></textarea>
                             </div>
 
                         </div>

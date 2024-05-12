@@ -20,6 +20,9 @@ if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
     die;
 }
 
+// Set Timezone
+require_once "../inc_set_timezone.php";
+
 // User IP & UA
 $session_ip = sanitizeInput(getIP());
 $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);

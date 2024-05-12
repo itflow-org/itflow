@@ -21,9 +21,6 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-login">Login</a>
-                        </li>
                     </ul>
 
                     <hr>
@@ -49,6 +46,16 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="version" placeholder="Software version">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="description" placeholder="Short description">
                                 </div>
                             </div>
 
@@ -178,34 +185,7 @@
 
                         <div class="tab-pane fade" id="pills-notes">
 
-                            <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-login">
-
-                            <div class="form-group">
-                                <label>Username</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Password</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password" autocomplete="new-password">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    </div>
-                                </div>
-                            </div>
+                            <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"></textarea>
 
                         </div>
 

@@ -15,7 +15,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM locations 
     WHERE location_client_id = $client_id
     AND location_$archive_query
-    AND (location_name LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
+    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -89,6 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 while ($row = mysqli_fetch_array($sql)) {
                     $location_id = intval($row['location_id']);
                     $location_name = nullable_htmlentities($row['location_name']);
+                    $location_description = nullable_htmlentities($row['location_description']);
                     $location_country = nullable_htmlentities($row['location_country']);
                     $location_address = nullable_htmlentities($row['location_address']);
                     $location_city = nullable_htmlentities($row['location_city']);
@@ -112,18 +113,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $location_contact_id = intval($row['location_contact_id']);
                     $location_primary = intval($row['location_primary']);
                     if ( $location_primary == 1 ) {
-                        $location_primary_display = "<p class='text-success'>Primary Location</p>";
+                        $location_primary_display = "<small class='text-success'><i class='fa fa-fw fa-check'></i> Primary</small>";
                     } else {
                         $location_primary_display = "";
                     }
 
                     ?>
                     <tr>
-                        <th>
-                            <i class="fa fa-fw fa-map-marker-alt text-secondary"></i>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>"><?php echo $location_name; ?></a>
-                            <?php echo $location_primary_display; ?>
-                        </th>
+                        <td>
+                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                <div class="media">
+                                    <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
+                                    <div class="media-body">
+                                        <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
+                                        <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
+                                        <div><?php echo $location_primary_display; ?></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </td>
                         <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
                         <td><?php echo $location_phone_display; ?></td>
                         <td><?php echo $location_hours_display; ?></td>
@@ -141,10 +149,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?php echo $location_id; ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                         </a>
+                                        <?php if ($config_destructive_deletes_enable) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?php echo $location_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
+                                        <?php } ?>
                                     <?php } ?>
                                 </div>
                             </div>

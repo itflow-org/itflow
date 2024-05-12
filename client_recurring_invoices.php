@@ -53,6 +53,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
+                        <div class="btn-group float-right">
+                        </div>
                     </div>
                 </div>
 

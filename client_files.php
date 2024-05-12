@@ -45,7 +45,7 @@ $sql = mysqli_query(
     WHERE file_client_id = $client_id
     AND file_folder_id = $folder_id
     AND file_archived_at IS NULL
-    AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%')
+    AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%' OR file_description LIKE '%$q%')
     $query_images
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -147,6 +147,7 @@ $num_of_files = mysqli_num_rows($sql);
                 <form autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <input type="hidden" name="view" value="<?php echo $view; ?>">
+                    <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="input-group mb-3 mb-md-0">
@@ -157,9 +158,21 @@ $num_of_files = mysqli_num_rows($sql);
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="float-right">
+                            <div class="btn-group float-right">
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=0" class="btn <?php if($view == 0){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-list-ul"></i></a>
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=1" class="btn <?php if($view == 1){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-th-large"></i></a>
+                                
+                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveFilesModal">
+                                            <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                        </a>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -213,96 +226,123 @@ $num_of_files = mysqli_num_rows($sql);
 
                 <?php } else { ?>
 
-                <div class="table-responsive-sm">
-                    <table class="table border">
-                        
-                        <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                        <tr>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_name&order=<?php echo $disp; ?>">Name</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_created_at&order=<?php echo $disp; ?>">Uploaded</a></th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                        </thead>
-                        
-                        <tbody>
+                <form id="bulkActions" action="post.php" method="post">
 
-                        <?php
-                        while ($row = mysqli_fetch_array($sql)) {
-                            $file_id = intval($row['file_id']);
-                            $file_name = nullable_htmlentities($row['file_name']);
-                            $file_reference_name = nullable_htmlentities($row['file_reference_name']);
-                            $file_ext = nullable_htmlentities($row['file_ext']);
-                            if ($file_ext == 'pdf') {
-                                $file_icon = "file-pdf";
-                            } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
-                                $file_icon = "file-archive";
-                            } elseif ($file_ext == 'txt' || $file_ext == 'md') {
-                                $file_icon = "file-alt";
-                            } elseif ($file_ext == 'msg') {
-                                $file_icon = "envelope";
-                            } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
-                                $file_icon = "file-word";
-                            } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
-                                $file_icon = "file-excel";
-                            } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
-                                $file_icon = "file-powerpoint";
-                            } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
-                                $file_icon = "file-audio";
-                            } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
-                                $file_icon = "file-video";
-                            } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
-                                $file_icon = "file-image";
-                            } else {
-                                $file_icon = "file";
-                            }
-                            $file_created_at = nullable_htmlentities($row['file_created_at']);
-                            ?>
-
+                    <div class="table-responsive-sm">
+                        <table class="table border">
+                            
+                            <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
-                                <td><a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary"><i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i> <?php echo basename($file_name); ?></a></td>
-                                <td><?php echo $file_created_at; ?></td>
-                                <td>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
-                                                <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
-                                            </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
-                                                <i class="fas fa-fw fa-share mr-2"></i>Share
-                                            </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFileModal<?php echo $file_id; ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Rename
-                                            </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveFileModal<?php echo $file_id; ?>">
-                                                <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                        </div>
+                                <td class="bg-light">
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                     </div>
                                 </td>
+                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_name&order=<?php echo $disp; ?>">Name</a></th>
+                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_created_at&order=<?php echo $disp; ?>">Uploaded</a></th>
+                                <th class="text-center">Action</th>
                             </tr>
+                            </thead>
+                            
+                            <tbody>
+
                             <?php
-                            require "client_file_rename_modal.php";
+                            while ($row = mysqli_fetch_array($sql)) {
+                                $file_id = intval($row['file_id']);
+                                $file_name = nullable_htmlentities($row['file_name']);
+                                $file_description = nullable_htmlentities($row['file_description']);
+                                $file_reference_name = nullable_htmlentities($row['file_reference_name']);
+                                $file_ext = nullable_htmlentities($row['file_ext']);
+                                if ($file_ext == 'pdf') {
+                                    $file_icon = "file-pdf";
+                                } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
+                                    $file_icon = "file-archive";
+                                } elseif ($file_ext == 'txt' || $file_ext == 'md') {
+                                    $file_icon = "file-alt";
+                                } elseif ($file_ext == 'msg') {
+                                    $file_icon = "envelope";
+                                } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
+                                    $file_icon = "file-word";
+                                } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
+                                    $file_icon = "file-excel";
+                                } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
+                                    $file_icon = "file-powerpoint";
+                                } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
+                                    $file_icon = "file-audio";
+                                } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
+                                    $file_icon = "file-video";
+                                } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
+                                    $file_icon = "file-image";
+                                } else {
+                                    $file_icon = "file";
+                                }
+                                $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                ?>
 
-                            require "client_file_move_modal.php";
+                                <tr>
+                                    <td class="bg-light">
+                                        <div class="form-check">
+                                            <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?php echo $file_id ?>">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary">
+                                            <div class="media">
+                                                <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i>
+                                                <div class="media-body">
+                                                    <p>
+                                                        <?php echo basename($file_name); ?>
+                                                        <br>
+                                                        <small class="text-secondary"><?php echo $file_description; ?></small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td><?php echo $file_created_at; ?></td>
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                                    <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
+                                                    <i class="fas fa-fw fa-share mr-2"></i>Share
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFileModal<?php echo $file_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Rename
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveFileModal<?php echo $file_id; ?>">
+                                                    <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php
+                                require "client_file_rename_modal.php";
 
-                        }
-                        ?>
-                        </tbody>
+                                require "client_file_move_modal.php";
 
-                    </table>
-                </div>
-                
+                            }
+                            ?>
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <?php require_once "client_file_bulk_move_modal.php"; ?>
+                </form>
 
                 <?php } ?>
 
@@ -314,6 +354,8 @@ $num_of_files = mysqli_num_rows($sql);
     </div>
 </div>
 
+<script src="js/bulk_actions.js"></script>
+
 <?php
 require_once "client_file_upload_modal.php";
 
@@ -322,5 +364,3 @@ require_once "share_modal.php";
 require_once "client_file_delete_modal.php";
 
 require_once "footer.php";
-
-

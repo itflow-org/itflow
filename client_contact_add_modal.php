@@ -25,7 +25,7 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-photo"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-secure"><i class="fa fa-fw fa-lock mr-2"></i>Secure</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-access"><i class="fa fa-fw fa-lock mr-2"></i>Access</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
@@ -64,12 +64,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Department</label>
+                                <label>Department / Group</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="department" placeholder="Department">
+                                    <input type="text" class="form-control" name="department" placeholder="Department or group">
                                 </div>
                             </div>
 
@@ -124,41 +124,12 @@
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $location_id = intval($row['location_id']);
                                             $location_name = nullable_htmlentities($row['location_name']);
-                                            ?>
+                                        ?>
                                             <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                                         <?php } ?>
 
                                     </select>
                                 </div>
-                            </div>
-
-                            <div class="form-row">
-
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1" >
-                                            <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1" >
-                                            <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1" >
-                                            <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
 
                         </div>
@@ -172,7 +143,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-secure">
+                        <div class="tab-pane fade" id="pills-access">
 
                             <div class="form-group">
                                 <label>Pin</label>
@@ -183,37 +154,71 @@
                                     <input type="text" class="form-control" name="pin" placeholder="Security code or pin">
                                 </div>
                             </div>
-                            <?php if($config_client_portal_enable == 1) { ?>
-                            <div class="authForm">
-                                <div class="form-group">
-                                    <label>Login</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                            <?php if ($config_client_portal_enable == 1) { ?>
+                                <div class="authForm">
+                                    <div class="form-group">
+                                        <label>Login</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                                            </div>
+                                            <select class="form-control select2 authMethod" name="auth_method">
+                                                <option value="">- None -</option>
+                                                <option value="local">Local</option>
+                                                <option value="azure">Azure</option>
+                                            </select>
                                         </div>
-                                        <select class="form-control select2 authMethod" name="auth_method">
-                                            <option value="">- None -</option>
-                                            <option value="local">Local</option>
-                                            <option value="azure">Azure</option>
-                                        </select>
+                                    </div>
+
+                                    <div class="form-group passwordGroup" style="display: none;">
+                                        <label>Password</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                            </div>
+                                            <input type="password" class="form-control" data-toggle="password" id="password-add" name="contact_password" placeholder="Password" autocomplete="new-password">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                            </div>
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-default" onclick="generatePassword('add')">
+                                                    <i class="fa fa-fw fa-question"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                            
+                            <label>Roles:</label>
+                            <div class="form-row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1">
+                                            <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1">
+                                            <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1">
+                                            <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Password Form Group (Initially hidden) -->
-                                <div class="form-group passwordGroup" style="display: none;">
-                                    <label>Password</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                                        </div>
-                                        <input type="password" class="form-control" data-toggle="password" name="contact_password" placeholder="Enter a password" autocomplete="new-password">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                            <?php } ?>
 
                         </div>
 

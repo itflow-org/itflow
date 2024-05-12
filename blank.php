@@ -1,5 +1,4 @@
-<?php require_once "inc_all.php";
- ?>
+<?php require_once "inc_all.php"; ?>
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
@@ -24,22 +23,26 @@ echo "<H1>$start_date</H1>";
 ?>
 <br>
 
+<dl>
+    <dt>Requester</dt>
+    <dd>Sam Adams</dd>
+
+    <dt>Created</dt>
+    <dd><time datetime="2024-04-11T17:52:30+00:00" title="2024-04-11 13:52" data-datetime="calendar">Today at 13:52</time></dd>
+
+    <dt>Last activity</dt>
+    <dd><time datetime="2024-04-11T18:08:55+00:00" title="2024-04-11 14:08" data-datetime="calendar">Today at 14:08</time></dd>
+</dl>
+
 <?php echo randomString(100); ?>
 <br>
-<form>
+
 <?php
-$timezones = DateTimeZone::listIdentifiers();
-echo '<select name="timezone">';
-foreach ($timezones as $timezone) {
-  echo '<option value="' . $timezone . '">' . $timezone . '</option>';
-}
-echo '</select>';
-
+// show the current Date and Time
+$date_time = date('Y-m-d H:i:s');
+echo "Current Date and Time: <strong>$date_time</strong>"; 
 ?>
-</form>
-
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 
 <?php require_once "footer.php";
- ?>

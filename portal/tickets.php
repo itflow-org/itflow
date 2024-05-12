@@ -10,63 +10,37 @@ require_once "inc_portal.php";
 
 
 // Ticket status from GET
-if (!isset($_GET['status'])) {
-    // If nothing is set, assume we only want to see open tickets
+if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
+    // Default to showing open
     $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Open') {
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_status != 'Closed'";
+    $ticket_status_snippet = "ticket_closed_at IS NULL";
 } elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
-    $ticket_status_snippet = "ticket_status = 'Closed'";
+    $ticket_status_snippet = "ticket_closed_at IS NOT NULL";
 } else {
     $status = '%';
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$contact_tickets = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id WHERE $ticket_status_snippet AND ticket_contact_id = $session_contact_id AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
+$contact_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_contact_id = $session_contact_id AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_status = 'Closed' AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_closed_at IS NULL AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
 //Get Total tickets
-$sql_total_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets FROM tickets WHERE  ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
+$sql_total_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets FROM tickets WHERE ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
 $row = mysqli_fetch_array($sql_total_tickets);
 $total_tickets = intval($row['total_tickets']);
 
 
 ?>
-
-<div class="row">
-    <div class="col-md-1 text-center">
-        <?php if (!empty($session_contact_photo)) { ?>
-            <img src="<?php echo "../uploads/clients/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
-
-        <?php } else { ?>
-
-            <span class="fa-stack fa-2x rounded-left">
-                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                <span class="fa fa-stack-1x text-white"><?php echo $session_contact_initials; ?></span>
-            </span>
-        <?php } ?>
-    </div>
-
-    <div class="col-md-11 p-0">
-        <h4>Welcome, <strong><?php echo $session_contact_name ?></strong>!</h4>
-        <hr>
-    </div>
-
-</div>
-
-<br>
 
 <div class="row">
 
@@ -88,7 +62,7 @@ $total_tickets = intval($row['total_tickets']);
                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                 $ticket_number = intval($row['ticket_number']);
                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                $ticket_status = nullable_htmlentities($row['ticket_status']);
+                $ticket_status = nullable_htmlentities($row['ticket_status_name']);
             ?>
 
                 <tr>

@@ -75,182 +75,176 @@ $document_parent = intval($row['document_parent']);
   </div>
 
 	<div class="col-md-3 d-print-none">
+    <div class="row">
+      <div class="col-12 mb-3">
+        <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+          <i class="fas fa-fw fa-edit mr-2"></i>Edit
+        </button>
+        <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#shareModal"
+          onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
+          <i class="fas fa-fw fa-share mr-2"></i>Share
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+      </div>
+    </div>
     <div class="card card-body bg-light">
-      <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
-        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-      </button>
-      <button type="button" class="btn btn-secondary btn-block" data-toggle="modal" data-target="#shareModal"
-        onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
-        <i class="fas fa-fw fa-share mr-2"></i>Share
-      </button>
-      <button type="button" class="btn btn-secondary btn-block" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
-      <hr>
-      <h5 class="mb-3">Related</h5>
+      <h5 class="mb-3"><i class="fas fa-tags mr-2"></i>Related Items</h5>
       <h6>
         <i class="fas fa-fw fa-paperclip text-secondary mr-2"></i>Files
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkFileToDocumentModal">
           <i class="fas fa-fw fa-plus"></i>
         </button>
       </h6>
-      <ul>
+      <?php
+      $sql_files = mysqli_query($mysqli, "SELECT * FROM files, document_files
+        WHERE document_files.file_id = files.file_id 
+        AND document_files.document_id = $document_id
+        ORDER BY file_name ASC"
+      );
+
+      $linked_files = array();
+
+      while ($row = mysqli_fetch_array($sql_files)) {
+        $file_id = intval($row['file_id']);
+        $folder_id = intval($row['file_folder_id']);
+        $file_name = nullable_htmlentities($row['file_name']);
+
+        $linked_files[] = $file_id;
+
+        ?>
+        <div class="ml-2">
+          <a href="client_files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>&q=<?php echo $file_name; ?>" target="_blank"><?php echo $file_name; ?></a>
+          <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
+            <i class="fas fa-fw fa-trash-alt text-secondary float-right"></i>
+          </a>
+        </div>
         <?php
-        $sql_files = mysqli_query($mysqli, "SELECT * FROM files, document_files
-          WHERE document_files.file_id = files.file_id 
-          AND document_files.document_id = $document_id
-          ORDER BY file_name ASC"
-        );
-
-        $linked_files = array();
-
-        while ($row = mysqli_fetch_array($sql_files)) {
-          $file_id = intval($row['file_id']);
-          $file_name = nullable_htmlentities($row['file_name']);
-
-          $linked_files[] = $file_id;
-
-          ?>
-          <li>
-            <?php echo $file_name; ?>
-            <a href="post.php?unlink_file_from_document&file_id=<?php echo $file_id; ?>&document_id=<?php echo $document_id; ?>">
-              <i class="fas fa-fw fa-times text-secondary ml-2"></i>
-            </a>
-          </li>
-          <?php
-          }
-          ?>
-      </ul>
+        }
+        ?>
       <h6>
-        <i class="fas fa-fw fa-users text-secondary mr-2"></i>Contacts
+        <i class="fas fa-fw fa-users text-secondary mt-3 mr-2"></i>Contacts
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkContactToDocumentModal">
           <i class="fas fa-fw fa-plus"></i>
         </button>
       </h6>
-      <ul>
+      <?php
+      $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts, contact_documents
+        WHERE contacts.contact_id = contact_documents.contact_id 
+        AND contact_documents.document_id = $document_id
+        ORDER BY contact_name ASC"
+      );
+
+      $linked_contacts = array();
+
+      while ($row = mysqli_fetch_array($sql_contacts)) {
+        $contact_id = intval($row['contact_id']);
+        $contact_name = nullable_htmlentities($row['contact_name']);
+
+        $linked_contacts[] = $contact_id;
+
+        ?>
+        <div class="ml-2">
+          <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank"><?php echo $contact_name; ?></a>
+          <a class="confirm-link float-right" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
+            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+          </a>
+        </div>
         <?php
-        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts, contact_documents
-          WHERE contacts.contact_id = contact_documents.contact_id 
-          AND contact_documents.document_id = $document_id
-          ORDER BY contact_name ASC"
-        );
-
-        $linked_contacts = array();
-
-        while ($row = mysqli_fetch_array($sql_contacts)) {
-          $contact_id = intval($row['contact_id']);
-          $contact_name = nullable_htmlentities($row['contact_name']);
-
-          $linked_contacts[] = $contact_id;
-
-          ?>
-          <li>
-            <?php echo $contact_name; ?>
-            <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
-              <i class="fas fa-fw fa-times text-secondary ml-2"></i>
-            </a>
-          </li>
-          <?php
-          }
-          ?>
-      </ul>
+        }
+        ?>
       <h6>
-        <i class="fas fa-fw fa-laptop text-secondary mr-2"></i>Assets
+        <i class="fas fa-fw fa-laptop text-secondary mr-2 mt-3"></i>Assets
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkAssetToDocumentModal">
           <i class="fas fa-fw fa-plus"></i>
         </button>
       </h6>
-      <ul>
-        <?php
-        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_documents
-          WHERE assets.asset_id = asset_documents.asset_id 
-          AND asset_documents.document_id = $document_id
-          ORDER BY asset_name ASC"
-        );
+      <?php
+      $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_documents
+        WHERE assets.asset_id = asset_documents.asset_id
+        AND asset_documents.document_id = $document_id
+        ORDER BY asset_name ASC"
+      );
 
-        $linked_assets = array();
+      $linked_assets = array();
 
-        while ($row = mysqli_fetch_array($sql_assets)) {
-          $asset_id = intval($row['asset_id']);
-          $asset_name = nullable_htmlentities($row['asset_name']);
+      while ($row = mysqli_fetch_array($sql_assets)) {
+        $asset_id = intval($row['asset_id']);
+        $asset_name = nullable_htmlentities($row['asset_name']);
 
-          $linked_assets[] = $asset_id;
+        $linked_assets[] = $asset_id;
 
-          ?>
-          <li>
-            <?php echo $asset_name; ?>
-            <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
-              <i class="fas fa-fw fa-times text-secondary ml-2"></i>
-            </a>
-          </li>
-          <?php
-          }
-          ?>
-      </ul>
+        ?>
+        <div class="ml-2">
+          <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?></a>
+          <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
+            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+          </a>
+        </div>
+      <?php
+      }
+      ?>
       <h6>
-        <i class="fas fa-fw fa-cube text-secondary mr-2"></i>Licenses
+        <i class="fas fa-fw fa-cube text-secondary mr-2 mt-3"></i>Licenses
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkSoftwareToDocumentModal">
           <i class="fas fa-fw fa-plus"></i>
         </button>
       </h6>
-      <ul>
+      <?php
+      $sql_software = mysqli_query($mysqli, "SELECT * FROM software, software_documents
+        WHERE software.software_id = software_documents.software_id 
+        AND software_documents.document_id = $document_id
+        ORDER BY software_name ASC"
+      );
+
+      $linked_software = array();
+
+      while ($row = mysqli_fetch_array($sql_software)) {
+        $software_id = intval($row['software_id']);
+        $software_name = nullable_htmlentities($row['software_name']);
+
+        $linked_software[] = $software_id;
+
+        ?>
+        <div class="ml-2">
+          <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
+          <a class="confirm-link float-right" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
+            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+          </a>
+        </div>
         <?php
-        $sql_software = mysqli_query($mysqli, "SELECT * FROM software, software_documents
-          WHERE software.software_id = software_documents.software_id 
-          AND software_documents.document_id = $document_id
-          ORDER BY software_name ASC"
-        );
-
-        $linked_software = array();
-
-        while ($row = mysqli_fetch_array($sql_software)) {
-          $software_id = intval($row['software_id']);
-          $software_name = nullable_htmlentities($row['software_name']);
-
-          $linked_software[] = $software_id;
-
-          ?>
-          <li>
-            <?php echo $software_name; ?>
-            <a href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
-              <i class="fas fa-fw fa-times text-secondary ml-2"></i>
-            </a>
-          </li>
-          <?php
-          }
-          ?>
-      </ul>
+        }
+        ?>
       <h6>
-        <i class="fas fa-fw fa-building text-secondary mr-2"></i>Vendors
+        <i class="fas fa-fw fa-building text-secondary mr-2 mt-3"></i>Vendors
         <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#linkVendorToDocumentModal">
           <i class="fas fa-fw fa-plus"></i>
         </button>
       </h6>
-      <ul>
-        <?php
-        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors, vendor_documents
-          WHERE vendors.vendor_id = vendor_documents.vendor_id 
-          AND vendor_documents.document_id = $document_id
-          ORDER BY vendor_name ASC"
-        );
+      <?php
+      $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors, vendor_documents
+        WHERE vendors.vendor_id = vendor_documents.vendor_id 
+        AND vendor_documents.document_id = $document_id
+        ORDER BY vendor_name ASC"
+      );
 
-        $associated_vendors = array();
+      $associated_vendors = array();
 
-        while ($row = mysqli_fetch_array($sql_vendors)) {
-          $vendor_id = intval($row['vendor_id']);
-          $vendor_name = nullable_htmlentities($row['vendor_name']);
+      while ($row = mysqli_fetch_array($sql_vendors)) {
+        $vendor_id = intval($row['vendor_id']);
+        $vendor_name = nullable_htmlentities($row['vendor_name']);
 
-          $associated_vendors[] = $vendor_id;
+        $associated_vendors[] = $vendor_id;
 
-          ?>
-          <li>
-            <?php echo $vendor_name; ?>
-            <a href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
-              <i class="fas fa-fw fa-times text-secondary ml-2"></i>
-            </a>
-          </li>
-          <?php
-          }
-          ?>
-      </ul>
+        ?>
+        <div class="ml-2">
+          <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>" target="_blank"><?php echo $vendor_name; ?></a>
+          <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
+            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+          </a>
+        </div>
+      <?php
+      }
+      ?>
     </div>
 
     <div class="card card-body bg-light">
@@ -273,10 +267,14 @@ $document_parent = intval($row['document_parent']);
 
         ?>
         <div class="mt-1 <?php if($document_id == $revision_document_id){ echo "text-bold"; } ?>">
-          <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "$revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo " (Parent)"; } ?>
-          <a href="post.php?delete_document=<?php echo $revision_document_id; ?>">
-            <i class="fas fa-fw fa-times text-danger ml-2"></i>
-          </a>
+          <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "  $revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo "<span class='float-right'>(Parent)</span>"; 
+            } else { ?>
+              <a class="confirm-link float-right" href="post.php?delete_document_version=<?php echo $revision_document_id; ?>">
+                <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+              </a>
+            <?php 
+            } 
+            ?>
         </div>
         <?php
         }

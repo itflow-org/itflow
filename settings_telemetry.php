@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_settings.php";
+require_once "inc_all_admin.php";
  ?>
 
     <div class="card card-dark">
@@ -29,16 +29,8 @@ require_once "inc_all_settings.php";
                     <small class="form-text">We respect your privacy. <a href="https://docs.itflow.org/telemetry" target="_blank">Click here <i class="fas fa-external-link-alt"></i></a> for additional details regarding the information we gather. </small>
                 </div>
 
-                <div class="form-group">
-                    <label>Comments</label>
-                    <textarea class="form-control" rows="4" name="comments" placeholder="Any one-off comments to send before hitting Send Telemetry Data?"></textarea>
-                </div>
-
                 <hr>
 
-                <?php if ($config_telemetry > 0) { ?>
-                    <button type="submit" name="send_telemetry_data" class="btn btn-success"><i class="fas fa-fw fa-paper-plane mr-2"></i>Send Telemetry Data</button>
-                <?php } ?>
                 <button type="submit" name="edit_telemetry_settings" class="btn btn-primary text-bold float-right"><i class="fas fa-check mr-2"></i>Save</button>
 
             </form>

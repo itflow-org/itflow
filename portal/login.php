@@ -6,12 +6,14 @@
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
-$session_company_id = 1;
 require_once '../config.php';
+
+// Set Timezone
+require_once "../inc_set_timezone.php";
 
 require_once '../functions.php';
 
-require_once ('../get_settings.php');
+require_once '../get_settings.php';
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
@@ -50,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['login_message'] = 'Invalid e-mail';
     } else {
-        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_array($sql);
         if ($row['contact_auth_method'] == 'local') {
             if (password_verify($password, $row['contact_password_hash'])) {
@@ -87,6 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
+
+    <!-- Favicon - If Fav Icon exists else use the default one -->
+    <?php if(file_exists('../uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
+    <?php } ?>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">

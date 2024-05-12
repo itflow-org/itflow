@@ -17,6 +17,9 @@
                             <a class="nav-link active" data-toggle="pill" href="#pillsDetailsCopy<?php echo $asset_id; ?>">Details</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pillsNetworkCopy<?php echo $asset_id; ?>">Network</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pillsAssignmentCopy<?php echo $asset_id; ?>">Assignment</a>
                         </li>
                         <li class="nav-item">
@@ -117,6 +120,89 @@
 
                         </div>
 
+                        <div class="tab-pane fade" id="pillsNetworkCopy<?php echo $asset_id; ?>">
+
+                            <div class="form-group">
+                                <label>Network</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="network">
+                                        <option value="">- Network -</option>
+                                        <?php
+
+                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_networks)) {
+                                            $network_id_select = intval($row['network_id']);
+                                            $network_name_select = nullable_htmlentities($row['network_name']);
+                                            $network_select = nullable_htmlentities($row['network']);
+
+                                            ?>
+                                            <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select; ?> - <?php echo $network_select; ?></option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>IP Address or DHCP</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>NAT IP</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>MAC Address</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>URI 2</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc">
+                                </div>
+                            </div>
+
+                        </div>
+
                         <div class="tab-pane fade" id="pillsAssignmentCopy<?php echo $asset_id; ?>">
 
                             <div class="form-group">
@@ -129,7 +215,7 @@
                                         <option value="">- Location -</option>
                                         <?php
 
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id ORDER BY location_name ASC");
+                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
                                             $location_id_select = intval($row['location_id']);
                                             $location_name_select = nullable_htmlentities($row['location_name']);
@@ -177,65 +263,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Network</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="network">
-                                        <option value="">- Network -</option>
-                                        <?php
-
-                                        $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE (network_archived_at > '$asset_created_at' OR network_archived_at IS NULL) AND network_client_id = $client_id ORDER BY network_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_networks)) {
-                                            $network_id_select = intval($row['network_id']);
-                                            $network_name_select = nullable_htmlentities($row['network_name']);
-                                            $network_select = nullable_htmlentities($row['network']);
-
-                                            ?>
-                                            <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select; ?> - <?php echo $network_select; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>IP Address or DHCP</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
-                                    <div class="input-group-append">
-                                        <div class="input-group-text">
-                                            <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>MAC Address</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>URI</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
-                                </div>
-                            </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="pillsPurchaseCopy<?php echo $asset_id; ?>">
@@ -250,7 +277,7 @@
                                         <option value="">- Vendor -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$asset_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id  AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);
@@ -314,7 +341,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="new-password">
+                                    <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="off">
                                 </div>
                             </div>
 
