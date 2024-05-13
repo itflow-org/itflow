@@ -33,7 +33,7 @@ if (!empty($_GET['folder_id'])) {
 // Set Folder Location Var used when creating folders
 $folder_location = 0;
 
-if ($folder == 0 && $_GET["q"]) {
+if ($get_folder_id == 0 && $_GET["q"]) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT SQL_CALC_FOUND_ROWS * FROM documents
