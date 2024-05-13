@@ -1190,7 +1190,7 @@ function getTicketStatusName($ticket_status) {
 
 function fetchUpdates() {
 
-    global $mysqli, $repo_branch;
+    global $repo_branch;
 
     // Fetch the latest code changes but don't apply them
     exec("git fetch", $output, $result);

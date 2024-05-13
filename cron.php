@@ -987,7 +987,7 @@ $update_message = $updates->update_message;
 
 if ($updates->current_version !== $updates->latest_version) {
     // Send Alert to inform Updates Available
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Updates', notification = '$update_message', notification_action = 'admin_update.php'");
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Update', notification = '$update_message', notification_action = 'admin_update.php'");
 }
 
 
