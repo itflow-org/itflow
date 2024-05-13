@@ -979,6 +979,19 @@ if ($config_telemetry > 0 OR $config_telemetry = 2) {
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron', log_action = 'Telemetry', log_description = 'Cron sent telemetry results to ITFlow Developers'");
 }
 
+
+// Fetch Updates
+$updates = fetchUpdates();
+
+$update_message = $updates->update_message;
+
+if ($updates->current_version !== $updates->latest_version) {
+    // Send Alert to inform Updates Available
+    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Updates', notification = '$update_message', notification_action = 'admin_update.php'");
+}
+
+
+
 /*
  * ###############################################################################################################
  *  FINISH UP
