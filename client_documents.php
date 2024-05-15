@@ -33,17 +33,31 @@ if (!empty($_GET['folder_id'])) {
 // Set Folder Location Var used when creating folders
 $folder_location = 0;
 
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM documents
-    LEFT JOIN users ON document_created_by = user_id
-    WHERE document_client_id = $client_id
-    AND document_template = 0
-    AND document_folder_id = $folder
-    AND document_archived_at IS NULL
-    $query_snippet
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
-);
+if ($get_folder_id == 0 && $_GET["q"]) {
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+        LEFT JOIN users ON document_created_by = user_id
+        WHERE document_client_id = $client_id
+        AND document_template = 0
+        
+        AND document_archived_at IS NULL
+        $query_snippet
+        ORDER BY $sort $order LIMIT $record_from, $record_to"
+    );
+}else{
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT SQL_CALC_FOUND_ROWS * FROM documents
+        LEFT JOIN users ON document_created_by = user_id
+        WHERE document_client_id = $client_id
+        AND document_template = 0
+        AND document_folder_id = $folder
+        AND document_archived_at IS NULL
+        $query_snippet
+        ORDER BY $sort $order LIMIT $record_from, $record_to"
+    );
+}
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
