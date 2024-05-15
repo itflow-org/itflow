@@ -1186,3 +1186,34 @@ function getTicketStatusName($ticket_status) {
     return "Unknown";
 
 }
+
+
+function fetchUpdates() {
+
+    global $repo_branch;
+
+    // Fetch the latest code changes but don't apply them
+    exec("git fetch", $output, $result);
+    $latest_version = exec("git rev-parse origin/$repo_branch");
+    $current_version = exec("git rev-parse HEAD");
+
+    if ($current_version == $latest_version) {
+        $update_message = "No Updates available";
+    } else {
+        $update_message = "New Updates are Available [$latest_version]";
+    }
+
+    
+
+    $updates = new stdClass();
+    $updates->output = $output;
+    $updates->result = $result;
+    $updates->current_version = $current_version;
+    $updates->latest_version = $latest_version;
+    $updates->update_message = $update_message;
+    
+    
+    
+    return $updates;
+
+}

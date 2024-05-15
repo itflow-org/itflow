@@ -3,19 +3,12 @@ require_once "inc_all_admin.php";
 
 require_once "database_version.php";
 
-require_once "config.php";
 
+$updates = fetchUpdates();
 
-// Fetch the latest code changes but don't apply them
-exec("git fetch", $output, $result);
-$latest_version = exec("git rev-parse origin/$repo_branch");
-$current_version = exec("git rev-parse HEAD");
-
-if ($current_version == $latest_version) {
-    $update_message = "No Updates available";
-} else {
-    $update_message = "New Updates are Available [$latest_version]";
-}
+$latest_version = $updates->latest_version;
+$current_version = $updates->current_version;
+$result = $updates->result;
 
 $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format:'<tr><td>%h</td><td>%ar</td><td>%s</td></tr>'");
 
