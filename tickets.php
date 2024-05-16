@@ -395,6 +395,23 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 $ticket_reply_created_at_time_ago = timeAgo($ticket_reply_created_at);
                             }
 
+
+                            // Get Tasks
+                            $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_created_at ASC");
+                            $task_count = mysqli_num_rows($sql_tasks);
+                                    // Get Completed Task Count
+                            $sql_tasks_completed = mysqli_query($mysqli,
+                                "SELECT * FROM tasks
+                                WHERE task_ticket_id = $ticket_id
+                                AND task_completed_at IS NOT NULL"
+                            );
+                            $completed_task_count = mysqli_num_rows($sql_tasks_completed);
+
+                            // Tasks Completed Percent
+                            if($task_count) {
+                                $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
+                            }
+                            
                             ?>
 
                             <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
