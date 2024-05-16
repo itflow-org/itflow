@@ -90,6 +90,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($login_uri)) {
                             $login_uri_display = "-";
                         } else {
+                            $login_uri_display_size = 40;
+                            $login_uri_display_ellipsis = "";
+                            if (strlen($login_uri) > $login_uri_display_size) {
+                                $login_uri_display_ellipsis = "...";
+                            }     
                             $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
