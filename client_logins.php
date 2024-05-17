@@ -89,8 +89,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $login_uri = nullable_htmlentities($row['login_uri']);
                         if (empty($login_uri)) {
                             $login_uri_display = "-";
-                        } else {
-                            $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
+                        } else {    
+                            $login_uri_display = truncate($login_uri,40) . "<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
                         $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
