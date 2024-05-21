@@ -180,6 +180,29 @@ while ($row = mysqli_fetch_array($sql)) {
                     echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
                 }
 
+                // Recurring Tickets
+                $sql = mysqli_query($mysqli, "SELECT * FROM clients
+                    LEFT JOIN scheduled_tickets ON client_id = scheduled_ticket_client_id
+                    LEFT JOIN users ON scheduled_ticket_assigned_to = user_id"
+                );
+                while ($row = mysqli_fetch_array($sql)) {
+                    $event_id = intval($row['scheduled_ticket_id']);
+                    $client_id = intval($row['client_id']);
+                    $username = $row['user_name'];
+                    $frequency = $row['scheduled_ticket_frequency'];
+                    if (empty($username)) {
+                        $username = "";
+                    } else {
+                        //Limit to  characters and add ...
+                        $username = "[". substr($row['user_name'], 0, 9) . "...]";
+                    }
+
+                    $event_title = json_encode("R Ticket ($frequency) - " . $row['scheduled_ticket_subject'] . " " . $username);
+                    $event_start = json_encode($row['scheduled_ticket_next_run']);
+
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'client_recurring_tickets.php?client_id=$client_id' },";
+                }
+
                 //Tickets Scheduled
                 $sql = mysqli_query($mysqli, "SELECT * FROM clients
                     LEFT JOIN tickets ON client_id = ticket_client_id
