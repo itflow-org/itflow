@@ -159,7 +159,7 @@ if (isset($_POST['login'])) {
             if (isset($_POST['remember_me'])) {
                 // TODO: Record the UA and IP a token is generated from so that can be shown later on
                 $newRememberToken = bin2hex(random_bytes(64));
-                setcookie('rememberme', $newRememberToken, time() + 86400*2, "/", null, true, true);
+                setcookie('rememberme', $newRememberToken, time() + 86400*$config_login_remember_me_expire, "/", null, true, true);
                 mysqli_query($mysqli, "INSERT INTO remember_tokens SET remember_token_user_id = $user_id, remember_token_token = '$newRememberToken'");
 
                 $extended_log .= ", generated a new remember-me token";
