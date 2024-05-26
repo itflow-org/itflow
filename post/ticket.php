@@ -188,6 +188,7 @@ if (isset($_POST['edit_ticket'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
     $notify = intval($_POST['contact_notify']);
+    $category = intval($_POST['category']);
     $subject = sanitizeInput($_POST['subject']);
     $billable = intval($_POST['billable']);
     $priority = sanitizeInput($_POST['priority']);
@@ -200,7 +201,7 @@ if (isset($_POST['edit_ticket'])) {
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category, ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
     // Notify new contact if selected
     if ($notify && !empty($config_smtp_host)) {

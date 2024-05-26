@@ -30,6 +30,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN projects ON ticket_project_id = project_id
         LEFT JOIN invoices ON ticket_invoice_id = invoice_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id LIMIT 1"
     );
 
@@ -54,7 +55,8 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
-        $ticket_category = nullable_htmlentities($row['ticket_category']);
+        $ticket_category = intval($row['ticket_category']);
+        $ticket_category_display = htmlentities($row['category_name']);
         $ticket_subject = nullable_htmlentities($row['ticket_subject']);
         $ticket_details = $purifier->purify($row['ticket_details']);
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
@@ -404,18 +406,25 @@ if (isset($_GET['ticket_id'])) {
                 </div>
 
                 <div class="col-sm-3">
-                    <?php if($task_count) { ?>
+                    <?php if ($task_count) { ?>
                     Tasks Completed<span class="float-right text-bold"><?php echo $tasks_completed_percent; ?>%</span>
                     <div class="progress mt-2" style="height: 20px;">
                         <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
                     </div>
                     <?php } ?>
 
-                    <?php if($ticket_collaborators) { ?>
+                    <?php if ($ticket_collaborators) { ?>
                     <div class="mt-2">
                         <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?php echo $ticket_collaborators; ?>
                     </div>
                     <?php } ?>
+
+                    <?php if ($ticket_category > 0) { ?>
+                        <div class="mt-2">
+                            <i class="fas fa-fw fa-layer-group mr-2 text-secondary"></i><?php echo $ticket_category_display; ?>
+                        </div>
+                    <?php } ?>
+
                 </div>
 
                 <div class="col-sm-3">
@@ -451,7 +460,7 @@ if (isset($_GET['ticket_id'])) {
                         <?php }
 
                         if (empty($ticket_closed_at)) { ?>
-                            <?php if($task_count == $completed_task_count) { ?>
+                            <?php if ($task_count == $completed_task_count) { ?>
                             <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
                                 <i class="fas fa-fw fa-gavel mr-2"></i>Close
                             </a>
@@ -625,7 +634,7 @@ if (isset($_GET['ticket_id'])) {
                     <!-- End IF for reply modal -->
                 <?php } ?>
 
-                <?php if($ticket_responses) { ?><h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5><?php } ?>
+                <?php if ($ticket_responses) { ?><h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5><?php } ?>
 
                 <!-- Ticket replies -->
                 <?php
@@ -837,7 +846,7 @@ if (isset($_GET['ticket_id'])) {
                         ?>
                             <tr>
                                 <td>
-                                    <?php if($task_completed_at) { ?>
+                                    <?php if ($task_completed_at) { ?>
                                     <i class="far fa-fw fa-check-square text-primary"></i>
                                     <?php } else { ?>
                                     <a href="post.php?complete_task=<?php echo $task_id; ?>">

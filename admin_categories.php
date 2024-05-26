@@ -93,6 +93,12 @@ if (isset($_GET['archived'])) {
                                 echo 'btn-default';
                             } ?>">Payment
                             Method</a>
+                        <a href="?category=Ticket"
+                           class="btn <?php if ($category == 'Ticket') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Ticket</a>
                         <a href="?archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';
@@ -125,7 +131,7 @@ if (isset($_GET['archived'])) {
                         $category_id = intval($row['category_id']);
                         $category_name = nullable_htmlentities($row['category_name']);
                         $category_color = nullable_htmlentities($row['category_color']);
-                    
+
                         ?>
                         <tr>
                             <td><a class="text-dark" href="#" data-toggle="modal"
@@ -170,7 +176,7 @@ if (isset($_GET['archived'])) {
                         </tr>
 
                         <?php
-                    
+
                         include "admin_category_edit_modal.php";
 
                     }
