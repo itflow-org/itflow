@@ -261,6 +261,14 @@ while ($row = mysqli_fetch_array($sql)) {
             ?>
         ],
         eventOrder: 'allDay,start,-duration,title',
+
+        <?php
+        // User preference for Calendar start day (Sunday/Monday)
+        // Fetch User Dashboard Settings
+        $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
+        $user_config_calendar_first_day = intval($row['user_config_calendar_first_day']);
+        ?>
+        firstDay: <?php echo $user_config_calendar_first_day ?>,
         });
 
         calendar.render();

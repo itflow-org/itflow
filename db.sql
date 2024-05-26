@@ -1822,6 +1822,7 @@ CREATE TABLE `user_settings` (
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_calendar_first_day` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
