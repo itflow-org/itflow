@@ -12,6 +12,8 @@
     <!-- Center navbar links -->
     <ul class="navbar-nav ml-auto">
 
+
+
         <!-- SEARCH FORM -->
         <form class="form-inline" action="global_search.php">
             <div class="input-group input-group-sm">
