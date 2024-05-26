@@ -12,8 +12,9 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings
+    "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings, user_roles
     WHERE users.user_id = user_settings.user_id
+    AND user_settings.user_role = user_roles.user_role_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -98,13 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = $row['user_role'];
-                    if ($user_role == 3) {
-                        $user_role_display = "Administrator";
-                    } elseif ($user_role == 2) {
-                        $user_role_display = "Technician";
-                    } else {
-                        $user_role_display = "Accountant";
-                    }
+                    $user_role_display = nullable_htmlentities($row['user_role_name']);
                     $user_initials = nullable_htmlentities(initials($user_name));
 
                     $sql_last_login = mysqli_query(
