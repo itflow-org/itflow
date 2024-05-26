@@ -36,8 +36,9 @@ require_once "header.php";
 
                 if (!empty($session_token)) {
 
-                    //Generate QR Code based off the generated key
-                    print sprintf('<img src="%s"/>', TokenAuth6238::getBarCodeUrl($session_name, ' ', $session_token, $_SERVER['SERVER_NAME']));
+                    // Generate QR Code
+                    $data = "otpauth://totp/ITFlow:$session_email?secret=$session_token";
+                    print "<img src='plugins/barcode/barcode.php?f=png&s=qr&d=$data'>";
 
                     echo "<p class='text-secondary'>$session_token</p>";
                 }
