@@ -1895,7 +1895,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
      if (CURRENT_DATABASE_VERSION == '1.3.0') {
 
-         mysqli_query($mysqli, "CREATE TABLE `itflow`.`user_roles` (`user_role_id` INT(11) NOT NULL AUTO_INCREMENT , `user_role_name` VARCHAR(200) NOT NULL , `user_role_description` VARCHAR(200) NULL DEFAULT NULL , `user_role_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `user_role_updated_at` DATETIME on update CURRENT_TIMESTAMP NULL , `user_role_archived_at` DATETIME NULL , PRIMARY KEY (`user_role_id`)) ENGINE = InnoDB");
+         mysqli_query($mysqli, "CREATE TABLE `user_roles` (
+            `user_role_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `user_role_name` VARCHAR(200) NOT NULL,
+            `user_role_description` VARCHAR(200) NULL DEFAULT NULL,
+            `user_role_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `user_role_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `user_role_archived_at` DATETIME NULL,
+            PRIMARY KEY (`user_role_id`)
+        )");
 
          mysqli_query($mysqli, "INSERT INTO `user_roles` SET user_role_id = 1, user_role_name = 'Accountant', user_role_description = 'Built-in - Limited access to financial-focused modules'");
          mysqli_query($mysqli, "INSERT INTO `user_roles` SET user_role_id = 2, user_role_name = 'Technician', user_role_description = 'Built-in - Limited access to technical-focused modules'");
