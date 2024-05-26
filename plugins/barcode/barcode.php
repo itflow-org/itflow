@@ -26,6 +26,10 @@ DEALINGS IN THE SOFTWARE.
 
 \****************************************************************************/
 
+// Check php-gd is installed
+$testGD = get_extension_funcs("gd");
+if (!$testGD){ echo "The GD extension is not installed, please install using 'apt install php-gd', restart Apache, and try again"; exit; }
+
 if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
 	if (isset($_POST['s']) && isset($_POST['d'])) {
 		$generator = new barcode_generator();
