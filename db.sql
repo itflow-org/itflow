@@ -1791,6 +1791,23 @@ CREATE TABLE `user_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `user_roles`
+--
+
+DROP TABLE IF EXISTS `user_roles`;
+CREATE TABLE IF NOT EXISTS `user_roles` (
+  `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_role_name` varchar(200) NOT NULL,
+  `user_role_description` varchar(200) DEFAULT NULL,
+  `user_role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `user_role_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`user_role_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 --
 -- Table structure for table `user_settings`
 --

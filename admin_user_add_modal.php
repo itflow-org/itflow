@@ -55,9 +55,15 @@
                             </div>
                             <select class="form-control select2" name="role" required>
                                 <option value="">- Role -</option>
-                                <option value="3">Administrator</option>
-                                <option value="2">Technician</option>
-                                <option value="1">Accountant</option>
+                                <?php
+                                    $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE user_role_archived_at IS NULL");
+                                    while ($row = mysqli_fetch_array($sql_user_roles)) {
+                                        $user_role_id = intval($row['user_role_id']);
+                                        $user_role_name = nullable_htmlentities($row['user_role_name']);
+
+                                    ?>
+                                    <option value="<?php echo $user_role_id; ?>"><?php echo $user_role_name; ?></option>
+                                <?php } ?>
                             </select>
                         </div>
                     </div>

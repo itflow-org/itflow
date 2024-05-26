@@ -67,19 +67,16 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
                             </div>
                             <select class="form-control select2" name="role" required>
-                                <option value="">- Role -</option>
-                                <option <?php if ($user_role == 3) {
-                                    echo "selected";
-                                } ?> value="3">Administrator
-                                </option>
-                                <option <?php if ($user_role == 2) {
-                                    echo "selected";
-                                } ?> value="2">Technician
-                                </option>
-                                <option <?php if ($user_role == 1) {
-                                    echo "selected";
-                                } ?> value="1">Accountant
-                                </option>
+                                <?php
+                                $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE user_role_archived_at IS NULL");
+                                while ($row = mysqli_fetch_array($sql_user_roles)) {
+                                    $user_role_id = intval($row['user_role_id']);
+                                    $user_role_name = nullable_htmlentities($row['user_role_name']);
+
+                                    ?>
+                                    <option <?php if ($user_role == $user_role_id) {echo "selected";} ?> value="<?php echo $user_role_id; ?>"><?php echo $user_role_name; ?></option>
+                                <?php } ?>
+
                             </select>
                         </div>
                     </div>
