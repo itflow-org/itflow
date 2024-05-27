@@ -1912,10 +1912,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.1'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.3.1') {
-    //     // Insert queries here required to update to DB version 1.3.1
+     if (CURRENT_DATABASE_VERSION == '1.3.1') {
+         mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_calendar_first_day` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_dashboard_technical_enable`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.2'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.3.2') {
+    //     // Insert queries here required to update to DB version 1.3.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.3'");
     // }
 
 } else {
