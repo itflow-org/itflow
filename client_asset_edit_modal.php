@@ -104,17 +104,18 @@
                                 </div>
                             <?php } ?>
 
-                            <?php if ($asset_type !== 'Phone' && $asset_type !== 'Mobile Phone' && $asset_type !== 'Tablet' && $asset_type !== 'Access Point' && $asset_type !== 'Printer' && $asset_type !== 'Camera' && $asset_type !== 'TV' && $asset_type !== 'Other') { ?>
-                                <div class="form-group">
-                                    <label>Operating System</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
-                                    </div>
-                                </div>
-                            <?php } ?>
+<!--                            Commenting out to remove this from the page-->
+<!--                            --><?php //if ($asset_type !== 'Phone' && $asset_type !== 'Mobile Phone' && $asset_type !== 'Tablet' && $asset_type !== 'Access Point' && $asset_type !== 'Printer' && $asset_type !== 'Camera' && $asset_type !== 'TV' && $asset_type !== 'Other') { ?>
+<!--                                <div class="form-group">-->
+<!--                                    <label>Operating System</label>-->
+<!--                                    <div class="input-group">-->
+<!--                                        <div class="input-group-prepend">-->
+<!--                                            <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>-->
+<!--                                        </div>-->
+<!--                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="--><?php //echo $asset_os; ?><!--">-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            --><?php //} ?>
 
                         </div>
 
