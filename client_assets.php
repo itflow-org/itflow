@@ -222,9 +222,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if ($_GET['type'] !== 'virtual') { ?>
                                 <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_serial&order=<?php echo $disp; ?>">Serial</a></th>
                             <?php }
-                            if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_os&order=<?php echo $disp; ?>">OS</a></th>
-                            <?php } ?>
+//                            Should be top row of table, removing OS text
+//                            if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+<!--                                <th><a class="text-secondary" href="?--><?php //echo $url_query_strings_sort; ?><!--&sort=asset_os&order=--><?php //echo $disp; ?><!--">OS</a></th>-->
+<!--                            --><?php //} ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_ip&order=<?php echo $disp; ?>">IP</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">Install Date</a></th>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
@@ -348,9 +349,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($_GET['type'] !== 'virtual') { ?>
                                     <td><?php echo $asset_serial_display; ?></td>
                                 <?php } ?>
-                                <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
-                                    <td><?php echo $asset_os_display; ?></td>
-                                <?php } ?>
+<!--                                Should be bottom row, commenting out OS result-->
+<!--                                --><?php //if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+<!--                                    <td>--><?php //echo $asset_os_display; ?><!--</td>-->
+<!--                                --><?php //} ?>
                                 <td><?php echo $asset_ip_display; ?></td>
                                 <td><?php echo $asset_install_date_display; ?></td>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
