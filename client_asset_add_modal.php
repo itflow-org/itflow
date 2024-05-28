@@ -109,7 +109,7 @@
                                 </div>
                             <?php } ?>
 
-<!--                            --Commenting the following to remove OS input box from add asset screen>
+<!--                            --test Commenting the following to remove OS input box from add asset screen>
 <!--                            --><?php //if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
 <!--                                <div class="form-group">-->
 <!--                                    <label>Operating System</label>-->
