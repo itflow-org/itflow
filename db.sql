@@ -1156,6 +1156,7 @@ CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_details` longtext NOT NULL,
   `scheduled_ticket_priority` varchar(200) DEFAULT NULL,
   `scheduled_ticket_frequency` varchar(10) NOT NULL,
+  `scheduled_ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
   `scheduled_ticket_start_date` date NOT NULL,
   `scheduled_ticket_next_run` date NOT NULL,
   `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1341,6 +1342,7 @@ CREATE TABLE `settings` (
   `config_ticket_autoclose` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
+  `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_cron_key` varchar(255) DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
@@ -1791,13 +1793,14 @@ CREATE TABLE `user_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
 --
 -- Table structure for table `user_roles`
 --
 
 DROP TABLE IF EXISTS `user_roles`;
-CREATE TABLE IF NOT EXISTS `user_roles` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_roles` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_role_name` varchar(200) NOT NULL,
   `user_role_description` varchar(200) DEFAULT NULL,
@@ -1805,7 +1808,7 @@ CREATE TABLE IF NOT EXISTS `user_roles` (
   `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `user_role_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`user_role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1935,4 +1938,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-10 11:33:39
+-- Dump completed on 2024-05-29 17:56:36
