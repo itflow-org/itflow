@@ -197,21 +197,46 @@ $category_types_array = array (
 );
 
 $asset_types_array = array (
-    'Laptop'=>'fa-laptop',
-    'Desktop'=>'fa-desktop',
+    'X-Ray Extra Oral' => 'fa-radiation',
+    'X-Ray Intra Oral' => 'fa-radiation',
+    'Intra Oral Scanner' => 'fa-radiation',
+    'Intra Oral Camera' => 'fa-camera',
     'Server'=>'fa-server',
-    'Phone'=>'fa-phone',
-    'Mobile Phone'=>'fa-mobile-alt',
-    'Tablet'=>'fa-tablet-alt',
-    'Firewall/Router'=>'fa-network-wired',
-    'Switch'=>'fa-network-wired',
-    'Access Point'=>'fa-wifi',
-    'Printer'=>'fa-print',
-    'Camera'=>'fa-video',
-    'TV'=>'fa-tv',
-    'Virtual Machine'=>'fa-cloud',
-    'Other'=>'fa-tag'
+    'Workstation'=>'fa-desktop',
+    'DI Acquisition PC'=>'fa-desktop',
+    'IT Other'=>'fa-ethernet',
+    'Software'=>'fa-floppy-o'
 );
+
+// Populates the drop-down list for asset manufacturers
+$asset_makes_array = array (
+    'Acteon',
+    'Carestream',
+    'Dexis',
+    'iTero',
+    'Dell',
+    'HP',
+    'Lenovo',
+    '360o Custom',
+    'Other'
+);
+
+//    Original
+//    'Laptop'=>'fa-laptop',
+//    'Desktop'=>'fa-desktop',
+//    'Server'=>'fa-server',
+//    'Phone'=>'fa-phone',
+//    'Mobile Phone'=>'fa-mobile-alt',
+//    'Tablet'=>'fa-tablet-alt',
+//    'Firewall/Router'=>'fa-network-wired',
+//    'Switch'=>'fa-network-wired',
+//    'Access Point'=>'fa-wifi',
+//    'Printer'=>'fa-print',
+//    'Camera'=>'fa-video',
+//    'TV'=>'fa-tv',
+//    'Virtual Machine'=>'fa-cloud',
+//    'Other'=>'fa-tag'
+
 
 $software_types_array = array (
     'SaaS',
