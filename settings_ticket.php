@@ -11,6 +11,7 @@ require_once "inc_all_admin.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="config_ticket_email_parse" value="0">
                 <input type="hidden" name="config_ticket_autoclose" value="0">
+                <input type="hidden" name="config_ticket_default_billable" value="0">
 
                 <div class="form-group">
                     <label>Ticket Prefix</label>
@@ -38,6 +39,15 @@ require_once "inc_all_admin.php";
                         <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing <small class="text-secondary">(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
                     </div>
                 </div>
+
+                <?php if ($config_module_enable_accounting) { ?>
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_default_billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="ticketBillableSwitch<?php echo $ticket_id; ?>">
+                        <label class="custom-control-label" for="ticketBillableSwitch<?php echo $ticket_id; ?>">Default to Billable <small class="text-secondary">(This will check the billable box on all new tickets)</small></label>
+                    </div>
+                </div>
+                <?php } ?>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">

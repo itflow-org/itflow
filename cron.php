@@ -252,6 +252,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
         $priority = sanitizeInput($row['scheduled_ticket_priority']);
         $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
+        $billable = intval($row['scheduled_ticket_billable']);
         $created_id = intval($row['scheduled_ticket_created_by']);
         $assigned_id = intval($row['scheduled_ticket_assigned_to']);
         $client_id = intval($row['scheduled_ticket_client_id']);
@@ -272,7 +273,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
         $id = mysqli_insert_id($mysqli);
 
         // Logging

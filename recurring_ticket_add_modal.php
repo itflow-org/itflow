@@ -11,6 +11,7 @@
                 <?php if (isset($client_id)) { ?>
                        <input type="hidden" name="client" value="<?php echo $client_id; ?>>">
                 <?php } ?>
+                <input type="hidden" name="billable" value="0">
 
                 <div class="modal-body bg-white">
 
@@ -85,6 +86,15 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <?php if ($config_module_enable_accounting) { ?>
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
+                                    <label class="custom-control-label" for="billable">Mark Billable</label>
+                                </div>
+                            </div>
+                            <?php } ?>
 
                         </div>
 

@@ -1918,10 +1918,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.2'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.3.2') {
-    //     // Insert queries here required to update to DB version 1.3.2
+    if (CURRENT_DATABASE_VERSION == '1.3.2') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_default_billable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `config_ticket_new_ticket_notification_email`");
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` ADD `scheduled_ticket_billable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `scheduled_ticket_frequency`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.3'");
+    }
+
+     // if (CURRENT_DATABASE_VERSION == '1.3.3') {
+    //     // Insert queries here required to update to DB version 1.3.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.4'");
     // }
 
 } else {
