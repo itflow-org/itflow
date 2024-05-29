@@ -109,17 +109,18 @@
                                 </div>
                             <?php } ?>
 
-                            <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
-                                <div class="form-group">
-                                    <label>Operating System</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
-                                    </div>
-                                </div>
-                            <?php } ?>
+<!--                            --test Commenting the following to remove OS input box from add asset screen>
+<!--                            --><?php //if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+<!--                                <div class="form-group">-->
+<!--                                    <label>Operating System</label>-->
+<!--                                    <div class="input-group">-->
+<!--                                        <div class="input-group-prepend">-->
+<!--                                            <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>-->
+<!--                                        </div>-->
+<!--                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            --><?php //} ?>
 
                         </div>
 
