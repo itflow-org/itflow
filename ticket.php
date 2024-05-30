@@ -532,8 +532,8 @@ if (isset($_GET['ticket_id'])) {
                         </li>
                     </ul>
                     <div class="tab-content" id="myTabContent">
-                        <div class="tab-pane fade show active" id="public-comment-tab">...</div>
-                        <div class="tab-pane fade" id="internal-note-tab">...</div>
+                        <div class="tab-pane fade show active" id="publicComment">Public Comment</div>
+                        <div class="tab-pane fade" id="internalNote">Internal Note</div>
                     </div>
 
                     <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
@@ -664,9 +664,10 @@ if (isset($_GET['ticket_id'])) {
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="allComments">...</div>
-                    <div class="tab-pane fade" id="publicComments">...</div>
-                    <div class="tab-pane fade" id="notes">...</div>
+                    <div class="tab-pane fade show active" id="allComments">All Comments</div>
+                    <div class="tab-pane fade" id="publicComments">Public Comments</div>
+                    <div class="tab-pane fade" id="notes">Internal Notes</div>
+                    <div class="tab-pane fade" id="events">Events</div>
                 </div>
 
                 <!-- Ticket replies -->
