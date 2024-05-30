@@ -522,6 +522,20 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (empty($ticket_closed_at)) { ?>
+
+                    <ul class="nav nav-tabs" id="commentType">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="public-comment-tab" data-toggle="tab" data-target="#publicComment" type="button">Public Comment</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="internal-note-tab" data-toggle="tab" data-target="#internalNote" type="button">Internal Note</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="public-comment-tab">...</div>
+                        <div class="tab-pane fade" id="internal-note-tab">...</div>
+                    </div>
+
                     <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
@@ -634,7 +648,26 @@ if (isset($_GET['ticket_id'])) {
                     <!-- End IF for reply modal -->
                 <?php } ?>
 
-                <?php if ($ticket_responses) { ?><h5 class="mb-4">Responses (<?php echo $ticket_responses; ?>)</h5><?php } ?>
+                <!-- Ticket Responses -->
+                <ul class="nav nav-tabs" id="ticketComments">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="all-comments-tab" data-toggle="tab" data-target="#allComments" type="button">All Comments<span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">Public</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">Notes</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="events-tab" data-toggle="tab" data-target="#events" type="button">Events</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="allComments">...</div>
+                    <div class="tab-pane fade" id="publicComments">...</div>
+                    <div class="tab-pane fade" id="notes">...</div>
+                </div>
 
                 <!-- Ticket replies -->
                 <?php
