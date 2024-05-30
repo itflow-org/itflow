@@ -544,6 +544,9 @@ if (isset($_GET['ticket_id'])) {
                                 <label class="btn btn-light">
                                     <input type="radio" name="public_reply_type" value="0">Internal Note
                                 </label>
+                                <label class="btn btn-light mx-auto">
+                                    <input type="radio" class="float-right" name="public_reply_type" value="2">Email Client
+                                </label>
                             </div>
                             <?php if ($config_ai_enable) { ?>
                                 <div class="float-right">
@@ -583,7 +586,7 @@ if (isset($_GET['ticket_id'])) {
                             <!-- Time Tracking -->
                             <div class="col-md-6">
                                 <div class="input-group mb-3">
-                                    <div class="input-group px-0 col-2">
+                                    <div class="input-group pr-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                     </div>
 
@@ -604,7 +607,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <div class="col-md-2">
                                 <div class="float-right">
-                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Submit</button>
+                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary btn-block text-bold"><i class="fas fa-check mr-2"></i>Submit</button>
                                 </div>
                             </div>
 
@@ -630,8 +633,14 @@ if (isset($_GET['ticket_id'])) {
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">
-                            Notes
+                            Internal Notes
                             <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_internal_notes_count; ?></span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">
+                            Client Communication
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_public_comments_count; ?></span>
                         </button>
                     </li>
                     <li class="nav-item ml-auto">

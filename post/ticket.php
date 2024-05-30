@@ -1105,9 +1105,14 @@ if (isset($_POST['add_ticket_reply'])) {
 
     $client_id = intval($_POST['client_id']);
 
+    $send_email = 0;
+
     if ($_POST['public_reply_type'] == 1 ){
         $ticket_reply_type = 'Public';
-    } else {
+    } elseif ($_POST['public_reply_type'] == 2 ) {
+        $ticket_reply_type = 'Public';
+        $send_email = 1;
+    } else { 
         $ticket_reply_type = 'Internal';
     }
 
@@ -1157,7 +1162,7 @@ if (isset($_POST['add_ticket_reply'])) {
     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
     // Send e-mail to client if public update & email is set up
-    if ($ticket_reply_type == 'Public' && !empty($config_smtp_host)) {
+    if ($ticket_reply_type == 'Public' && $send_email == 1 && !empty($config_smtp_host)) {
 
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
