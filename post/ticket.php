@@ -1105,7 +1105,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
     $client_id = intval($_POST['client_id']);
 
-    if (isset($_POST['public_reply_type'])) {
+    if ($_POST['public_reply_type'] == 1 ){
         $ticket_reply_type = 'Public';
     } else {
         $ticket_reply_type = 'Internal';

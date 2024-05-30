@@ -523,22 +523,21 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (empty($ticket_closed_at)) { ?>
 
-                    <ul class="nav nav-tabs" id="commentType">
-                        <li class="nav-item">
-                            <button class="nav-link active" id="public-comment-tab" data-toggle="tab" data-target="#publicComment" type="button">Public Comment</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" id="internal-note-tab" data-toggle="tab" data-target="#internalNote" type="button">Internal Note</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="myTabContent">
-                        <div class="tab-pane fade show active" id="publicComment">Public Comment</div>
-                        <div class="tab-pane fade" id="internalNote">Internal Note</div>
-                    </div>
-
                     <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
+
+                        <div class="form-group">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-light active">
+                                    <input type="radio" name="public_reply_type" value="1" checked>Public Comment
+                                </label>
+                                <label class="btn btn-light">
+                                    <input type="radio" name="public_reply_type" value="0">Internal Note
+                                </label>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <?php if ($config_ai_enable) { ?>
                             <div class="form-group">
@@ -609,37 +608,8 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-
-
-                            <?php
-                            // Set the initial ticket response type (private/internal note)
-                            //  Future updates of the wording/icon are done by Javascript
-
-                            // Public responses by default (maybe configurable in future?)
-                            $ticket_reply_button_wording = "Respond";
-                            $ticket_reply_button_check = "checked";
-                            $ticket_reply_button_icon = "paper-plane";
-
-                            // Internal responses by default if 1) the contact email is empty or 2) the contact email matches the agent responding
-                            if (empty($contact_email) || $contact_email == $session_email) {
-                                // Internal
-                                $ticket_reply_button_wording = "Add note";
-                                $ticket_reply_button_check = "";
-                                $ticket_reply_button_icon = "sticky-note";
-                            } ?>
-
-
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="ticket_reply_type_checkbox" name="public_reply_type" value="1" <?php echo $ticket_reply_button_check ?>>
-                                            <label class="custom-control-label" for="ticket_reply_type_checkbox">Public Update<br><small class="text-secondary">(Emails contact)</small></label>
-                                        </div>
-                                    </div>
-                                </div>
-
                             <div class="col-md-2">
-                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-<?php echo $ticket_reply_button_icon ?> mr-2"></i><?php echo $ticket_reply_button_wording ?></button>
+                                <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Submit</button>
                             </div>
 
                         </div>
@@ -651,16 +621,34 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket Responses -->
                 <ul class="nav nav-tabs" id="ticketComments">
                     <li class="nav-item">
-                        <button class="nav-link active" id="all-comments-tab" data-toggle="tab" data-target="#allComments" type="button">All Comments<span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span></button>
+                        <button class="nav-link active" id="all-comments-tab" data-toggle="tab" data-target="#allComments" type="button">
+                            All Comments
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">Public</button>
+                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">
+                            Public
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">Notes</button>
+                        <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">
+                            Notes
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                        </button>
+                    </li>
+                    <li class="nav-item ml-auto">
+                        <button class="nav-link" id="events-tab" data-toggle="tab" data-target="#events" type="button">
+                            Events
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" id="events-tab" data-toggle="tab" data-target="#events" type="button">Events</button>
+                        <button class="nav-link" id="tasks-tab" data-toggle="tab" data-target="#tasks" type="button">
+                            Tasks
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                        </button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -668,6 +656,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="tab-pane fade" id="publicComments">Public Comments</div>
                     <div class="tab-pane fade" id="notes">Internal Notes</div>
                     <div class="tab-pane fade" id="events">Events</div>
+                    <div class="tab-pane fade" id="tasks">Tasks</div>
                 </div>
 
                 <!-- Ticket replies -->
@@ -1142,7 +1131,6 @@ require_once "footer.php";
 
     <!-- Ticket collision detect JS (jQuery is called in footer, so collision detection script MUST be below it) -->
     <script src="js/ticket_collision_detection.js"></script>
-    <script src="js/ticket_button_respond_note.js"></script>
 <?php } ?>
 
 <script src="js/pretty_content.js"></script>
