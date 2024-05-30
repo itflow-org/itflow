@@ -382,13 +382,6 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             <?php }
 
-                            // Time tracking
-                            if ($ticket_total_reply_time) { ?>
-                                <div class="mt-1">
-                                    <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
-                                </div>
-                            <?php }
-
                             // Billable
                             if ($config_module_enable_accounting) { ?>
                                 <?php if($invoice_id) { ?>
@@ -420,6 +413,14 @@ if (isset($_GET['ticket_id'])) {
                     <div class="progress mt-2" style="height: 20px;">
                         <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
                     </div>
+                    <?php } ?>
+
+                    <?php
+                    // Time tracking
+                    if ($ticket_total_reply_time) { ?>
+                        <div class="mt-1">
+                            <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
+                        </div>
                     <?php } ?>
 
                     <?php if ($ticket_collaborators) { ?>
