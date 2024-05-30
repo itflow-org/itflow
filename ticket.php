@@ -541,7 +541,6 @@ if (isset($_GET['ticket_id'])) {
                                 <label class="btn btn-light active">
                                     <input type="radio" name="public_reply_type" value="2" checked>Public Comment & Email
                                 </label>
-
                                 <label class="btn btn-light">
                                     <input type="radio" name="public_reply_type" value="1">Public Comment
                                 </label>
