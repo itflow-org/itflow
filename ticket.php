@@ -208,6 +208,22 @@ if (isset($_GET['ticket_id'])) {
         $row = mysqli_fetch_array($ticket_responses_sql);
         $ticket_responses = intval($row['ticket_responses']);
 
+        $ticket_all_comments_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_all_comments_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($ticket_all_comments_sql);
+        $ticket_all_comments_count = intval($row['ticket_all_comments_count']);
+
+        $ticket_internal_notes_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_internal_notes_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_type = 'Internal' AND ticket_reply_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($ticket_internal_notes_sql);
+        $ticket_internal_notes_count = intval($row['ticket_internal_notes_count']);
+
+        $ticket_public_comments_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_public_comments_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND (ticket_reply_type = 'Public' OR ticket_reply_type = 'Client') AND ticket_reply_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($ticket_public_comments_sql);
+        $ticket_public_comments_count = intval($row['ticket_public_comments_count']);
+
+        $ticket_events_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_events_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_type = 'Event' AND ticket_reply_ticket_id = $ticket_id");
+        $row = mysqli_fetch_array($ticket_events_sql);
+        $ticket_events_count = intval($row['ticket_events_count']);
+
 
         // Get & format asset warranty expiry
         $date = date('Y-m-d H:i:s');
@@ -623,19 +639,19 @@ if (isset($_GET['ticket_id'])) {
                     <li class="nav-item">
                         <button class="nav-link active" id="all-comments-tab" data-toggle="tab" data-target="#allComments" type="button">
                             All Comments
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_all_comments_count; ?></span>
                         </button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">
                             Public
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_public_comments_count; ?></span>
                         </button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">
                             Notes
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_internal_notes_count; ?></span>
                         </button>
                     </li>
                     <li class="nav-item ml-auto">
@@ -647,7 +663,7 @@ if (isset($_GET['ticket_id'])) {
                     <li class="nav-item">
                         <button class="nav-link" id="tasks-tab" data-toggle="tab" data-target="#tasks" type="button">
                             Tasks
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $task_count; ?></span>
                         </button>
                     </li>
                 </ul>
