@@ -15,6 +15,12 @@ $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 $os = sanitizeInput(getOS($user_agent));
 $browser = sanitizeInput(getWebBrowser($user_agent));
 
+// Get Company Name
+$sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
+$row = mysqli_fetch_array($sql);
+
+$session_company_name = $row['company_name'];
+
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +31,7 @@ $browser = sanitizeInput(getWebBrowser($user_agent));
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title><?php echo nullable_htmlentities($config_app_name); ?></title>
+    <title><?php echo nullable_htmlentities($session_company_name); ?></title>
 
     <!-- 
     Favicon
