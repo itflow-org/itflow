@@ -539,13 +539,14 @@ if (isset($_GET['ticket_id'])) {
                         <div class="form-group">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-light active">
-                                    <input type="radio" name="public_reply_type" value="1" checked>Public Comment
+                                    <input type="radio" name="public_reply_type" value="2" checked>Public Comment & Email
+                                </label>
+
+                                <label class="btn btn-light">
+                                    <input type="radio" name="public_reply_type" value="1">Public Comment
                                 </label>
                                 <label class="btn btn-light">
                                     <input type="radio" name="public_reply_type" value="0">Internal Note
-                                </label>
-                                <label class="btn btn-light mx-auto">
-                                    <input type="radio" class="float-right" name="public_reply_type" value="2">Email Client
                                 </label>
                             </div>
                             <?php if ($config_ai_enable) { ?>
