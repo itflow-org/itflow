@@ -6,6 +6,19 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the status array
+    $sanitizedTags = array();
+    foreach ($_GET['tags'] as $tag) {
+        // Escape each status to prevent SQL injection
+        $sanitizedTags[] = "'" . intval($tag) . "'";
+    }
+
+    // Convert the sanitized tags into a comma-separated string
+    $sanitizedTagsString = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -16,6 +29,7 @@ $sql = mysqli_query(
     LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
     LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
     WHERE location_client_id = $client_id
+    $tag_query
     AND location_$archive_query
     AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%') 
     GROUP BY location_id
@@ -62,7 +76,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                                <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2");
+                                while ($row = mysqli_fetch_array($sql_tags)) {
+                                    $tag_id = intval($row['tag_id']);
+                                    $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                    <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                                <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <div class="float-right">
                         <?php if($archived == 1){ ?>
                         <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>

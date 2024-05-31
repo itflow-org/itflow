@@ -176,10 +176,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 <div 
                     class="collapse 
                         <?php 
-                        if (!empty($_GET['dtf']) 
+                        if (
+                            !empty($_GET['dtf']) 
                             || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") 
                             || (isset($_GET['status']) && is_array($_GET['status']) 
-                            || (isset($_GET['assigned']) && $_GET['assigned']))) 
+                            || (isset($_GET['assigned']) && $_GET['assigned']
+                        ))) 
                             { echo "show"; } 
                         ?>" 
                     id="advancedFilter"

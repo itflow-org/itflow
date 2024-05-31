@@ -20,6 +20,20 @@ if($leads == 1){
     $leads_query = 0;
 }
 
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the status array
+    $sanitizedTags = array();
+    foreach ($_GET['tags'] as $tag) {
+        // Escape each status to prevent SQL injection
+        $sanitizedTags[] = "'" . intval($tag) . "'";
+    }
+
+    // Convert the sanitized tags into a comma-separated string
+    $sanitizedTagsString = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+}
+
 // Industry Filter
 if (isset($_GET['industry']) & !empty($_GET['industry'])) {
     $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
@@ -59,6 +73,7 @@ $sql = mysqli_query(
       AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
       AND client_lead = $leads
       $access_permission_query
+      $tag_query
       $industry_query
       $referral_query
     GROUP BY client_id
@@ -122,7 +137,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['industry'] || $_GET['referral'] || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+                <div 
+                    class="collapse mt-3 
+                        <?php 
+                        if (
+                        $_GET['dtf']
+                        || $_GET['industry']
+                        || $_GET['referral']
+                        || (isset($_GET['tags']) && is_array($_GET['tags']))
+                        || $_GET['canned_date'] !== "custom" ) 
+                        { 
+                            echo "show"; 
+                        } 
+                        ?>
+                    "
+                    id="advancedFilter"
+                >
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -150,6 +180,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date to</label>
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Tag</label>
+                                <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+                                    <?php 
+                                    $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1");
+                                    while ($row = mysqli_fetch_array($sql_tags)) {
+                                        $tag_id = intval($row['tag_id']);
+                                        $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                        <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                                    <?php } ?>
+                                </select>
                             </div>
                         </div>
                         <div class="col-sm-2">
