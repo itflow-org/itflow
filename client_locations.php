@@ -12,13 +12,13 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS locations.*, GROUP_CONCAT(tags.tag_name) AS tag_names FROM locations 
+    "SELECT SQL_CALC_FOUND_ROWS locations.*, GROUP_CONCAT(tag_name) FROM locations 
     LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
     LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
     WHERE location_client_id = $client_id
     AND location_$archive_query
-    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tags.tag_name LIKE '%$q%') 
-    GROUP BY locations.location_id
+    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%') 
+    GROUP BY location_id
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
