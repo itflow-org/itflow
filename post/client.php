@@ -65,7 +65,7 @@ if (isset($_POST['add_client'])) {
     if (isset($_POST['tags'])) {
         foreach($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_tag_client_id = $client_id, client_tag_tag_id = $tag");
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
@@ -135,12 +135,12 @@ if (isset($_POST['edit_client'])) {
 
     // Tags
     // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_tag_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     // Add new tags
     foreach($_POST['tags'] as $tag) {
         $tag = intval($tag);
-        mysqli_query($mysqli, "INSERT INTO client_tags SET client_tag_client_id = $client_id, client_tag_tag_id = $tag");
+        mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
     }
 
     // Logging
@@ -296,6 +296,9 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
+
+    // Delete tags
+    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     //Delete Client Files
     removeDirectory('uploads/clients/$client_id');

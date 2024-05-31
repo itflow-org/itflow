@@ -44,24 +44,24 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "
-    SELECT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, GROUP_CONCAT(tags.tag_name) AS tag_names
+    SELECT SQL_CALC_FOUND_ROWS clients.*, contacts.*, locations.*, GROUP_CONCAT(tag_name)
     FROM clients
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-    LEFT JOIN client_tags ON client_tags.client_tag_client_id = clients.client_id
-    LEFT JOIN tags ON tags.tag_id = client_tags.client_tag_tag_id
-    WHERE (clients.client_name LIKE '%$q%' OR clients.client_type LIKE '%$q%' OR clients.client_referral LIKE '%$q%'
-           OR contacts.contact_email LIKE '%$q%' OR contacts.contact_name LIKE '%$q%' OR contacts.contact_phone LIKE '%$phone_query%'
-           OR contacts.contact_mobile LIKE '%$phone_query%' OR locations.location_address LIKE '%$q%'
-           OR locations.location_city LIKE '%$q%' OR locations.location_state LIKE '%$q%' OR locations.location_zip LIKE '%$q%'
-           OR tags.tag_name LIKE '%$q%' OR clients.client_tax_id_number LIKE '%$q%')
-      AND clients.client_$archive_query
-      AND DATE(clients.client_created_at) BETWEEN '$dtf' AND '$dtt'
-      AND clients.client_lead = $leads
+    LEFT JOIN client_tags ON client_tags.client_id = clients.client_id
+    LEFT JOIN tags ON tags.tag_id = client_tags.tag_id
+    WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
+           OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
+           OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
+           OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%'
+           OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
+      AND client_$archive_query
+      AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
+      AND client_lead = $leads
       $access_permission_query
       $industry_query
       $referral_query
-    GROUP BY clients.client_id
+    GROUP BY client_id
     ORDER BY $sort $order
     LIMIT $record_from, $record_to
 ");
@@ -246,7 +246,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $client_tag_name_display_array = array();
                         $client_tag_id_array = array();
-                        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.client_tag_tag_id = tags.tag_id WHERE client_tags.client_tag_client_id = $client_id ORDER BY tag_name ASC");
+                        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
                         while ($row = mysqli_fetch_array($sql_client_tags)) {
 
                             $client_tag_id = intval($row['tag_id']);
