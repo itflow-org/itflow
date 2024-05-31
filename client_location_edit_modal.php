@@ -194,6 +194,27 @@
                                 <textarea class="form-control" rows="12" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"><?php echo $location_notes; ?></textarea>
                             </div>
 
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                        <?php
+
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                            $tag_id_select = intval($row['tag_id']);
+                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                            ?>
+                                            <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $location_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                        <?php } ?>
+
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>

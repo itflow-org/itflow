@@ -19,6 +19,14 @@ if(isset($_POST['add_location'])){
 
     $location_id = mysqli_insert_id($mysqli);
 
+    // Add Tags
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+        }
+    }
+
     // Update Primay location in clients if primary location is checked
     if ($location_primary == 1) {
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 0 WHERE location_client_id = $client_id");
@@ -80,6 +88,16 @@ if(isset($_POST['edit_location'])){
     if ($location_primary == 1) {
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 0 WHERE location_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 1 WHERE location_id = $location_id");
+    }
+
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
+
+    // Add new tags
+    foreach($_POST['tags'] as $tag) {
+        $tag = intval($tag);
+        mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
     }
 
     //Check to see if a file is attached
@@ -173,6 +191,10 @@ if(isset($_GET['delete_location'])){
     $client_id = intval($row['location_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
+
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");

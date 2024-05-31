@@ -62,6 +62,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $tag_id = intval($row['tag_id']);
                         $tag_name = nullable_htmlentities($row['tag_name']);
                         $tag_type = intval($row['tag_type']);
+                        if ( $tag_type == 1) {
+                            $tag_type_display = "Client Tag";
+                        } elseif ( $tag_type == 2) {
+                            $tag_type_display = "Location Tag";
+                        } else {
+                            $tag_type_display = "Unknown Tag";
+                        }
                         $tag_color = nullable_htmlentities($row['tag_color']);
                         $tag_icon = nullable_htmlentities($row['tag_icon']);
 
@@ -72,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <span class='badge text-light p-2 mr-1' style="background-color: <?php echo $tag_color; ?>"><i class="fa fa-fw fa-<?php echo $tag_icon; ?> mr-2"></i><?php echo $tag_name; ?></span>
                                 </a>
                             </td>
-                            <td><?php echo $tag_type; ?></td>
+                            <td><?php echo $tag_type_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

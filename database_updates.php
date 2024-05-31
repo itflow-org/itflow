@@ -1924,12 +1924,22 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.3'");
     }
 
-     // if (CURRENT_DATABASE_VERSION == '1.3.3') {
+    if (CURRENT_DATABASE_VERSION == '1.3.3') {
     //     // Insert queries here required to update to DB version 1.3.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.4'");
+        mysqli_query($mysqli, "CREATE TABLE `location_tags` (`location_id` int(11) NOT NULL,`tag_id` int(11) NOT NULL, PRIMARY KEY (`location_id`,`tag_id`))");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.3.4') {
+    //     // Insert queries here required to update to DB version 1.3.5
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.5'");
     // }
 
 } else {
     // Up-to-date
 }
+
+
+

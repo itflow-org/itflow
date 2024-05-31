@@ -12,10 +12,13 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM locations 
+    "SELECT SQL_CALC_FOUND_ROWS locations.*, GROUP_CONCAT(tags.tag_name) AS tag_names FROM locations 
+    LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
+    LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
     WHERE location_client_id = $client_id
     AND location_$archive_query
-    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%') 
+    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tags.tag_name LIKE '%$q%') 
+    GROUP BY locations.location_id
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -118,6 +121,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $location_primary_display = "";
                     }
 
+                    // Tags
+
+                    $location_tag_name_display_array = array();
+                    $location_tag_id_array = array();
+                    $sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
+                    while ($row = mysqli_fetch_array($sql_location_tags)) {
+
+                        $location_tag_id = intval($row['tag_id']);
+                        $location_tag_name = nullable_htmlentities($row['tag_name']);
+                        $location_tag_color = nullable_htmlentities($row['tag_color']);
+                        if (empty($location_tag_color)) {
+                            $location_tag_color = "dark";
+                        }
+                        $location_tag_icon = nullable_htmlentities($row['tag_icon']);
+                        if (empty($location_tag_icon)) {
+                            $location_tag_icon = "tag";
+                        }
+
+                        $location_tag_id_array[] = $location_tag_id;
+                        $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&q=$location_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
+                    }
+                    $location_tags_display = implode('', $location_tag_name_display_array);
+
                     ?>
                     <tr>
                         <td>
@@ -128,6 +154,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
                                         <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
                                         <div><?php echo $location_primary_display; ?></div>
+                                         <?php
+                                        if (!empty($location_tags_display)) { ?>
+                                            <div class="mt-1">
+                                                <?php echo $location_tags_display; ?>
+                                            </div>
+                                        <?php } ?>
                                     </div>
                                 </div>
                             </a>
