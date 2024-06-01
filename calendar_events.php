@@ -49,8 +49,11 @@ if (isset($_GET['calendar_id'])) {
             </div>
         </div>
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">System Calendars</h3>
+            <div class="card-header py-2">
+                <h3 class="card-title mt-1">System Calendars</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-dark btn-sm"><i class="fas fa-eye"></i></button>
+                </div>
             </div>
             <div class="card-body">
             </div>
