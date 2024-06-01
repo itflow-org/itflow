@@ -16,9 +16,52 @@ if (isset($_GET['calendar_id'])) {
         cursor: pointer;
     }
 </style>
-<div class="card">
-    <div id='calendar'></div>
+
+<div class="row">
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header py-2">
+                <h3 class="card-title mt-1">Calendars</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#addCalendarModal"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                
+                <form>
+                    <?php 
+                    $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $calendar_id = intval($row['calendar_id']);
+                        $calendar_name = nullable_htmlentities($row['calendar_name']);
+                        $calendar_color = nullable_htmlentities($row['calendar_color']);
+                    ?>
+                    <div class="form-group">
+                        <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
+                        <i class="fas fa-fw fa-pencil-alt text-secondary float-right"></i>
+                    </div>
+                    <?php } ?>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">System Calendars</h3>
+            </div>
+            <div class="card-body">
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div id='calendar'></div>
+        </div>
+    </div>
+
 </div>
+
 <?php
 
 require_once "calendar_event_add_modal.php";
@@ -59,25 +102,18 @@ while ($row = mysqli_fetch_array($sql)) {
             themeSystem: 'bootstrap',
             defaultView: 'dayGridMonth',
             customButtons: {
-                addEvent: {
-                    text: 'Add Event',
-                    bootstrapFontAwesome: 'fa fa-plus',
+                newEvent: {
+                    text: 'New Event',
+                    bootstrapFontAwesome: 'fas fa-plus',
                     click: function() {
                         $("#addCalendarEventModal").modal();
-                    }
-                },
-                addCalendar: {
-                    text: 'Add Calendar',
-                    bootstrapFontAwesome: 'fa fa-calendar-plus',
-                    click: function() {
-                        $("#addCalendarModal").modal();
                     }
                 }
             },
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth addEvent addCalendar'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth newEvent'
             },
             <?php if (!$session_mobile) {
             ?>aspectRatio: 2.5,
