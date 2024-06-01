@@ -70,6 +70,51 @@ $document_parent = intval($row['document_parent']);
             </div>
             <div class="card-body prettyContent">
                 <?php echo $document_content; ?>
+                <hr>
+                <h4>Documentation Revision History</h4>
+
+                <table class="table table-sm">
+                    <thead class="thead-light">
+                        <th>Revision</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Author</th>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
+                            LEFT JOIN users ON document_created_by = user_id
+                            WHERE document_parent = $document_parent
+                            ORDER BY document_created_at ASC"
+                        );
+
+                        $revision_count = 1; // Initialize the revision counter
+
+                        while ($row = mysqli_fetch_array($sql_document_revisions)) {
+                            $revision_document_id = intval($row['document_id']);
+                            $revision_document_name = nullable_htmlentities($row['document_name']);
+                            $revision_document_description = nullable_htmlentities($row['document_description']);
+                            if ($revision_document_description ) {
+                                $revision_document_description_display = $revision_document_description;
+                            } else {
+                                $revision_document_description_display = "-";
+                            }
+                            $revision_document_author = nullable_htmlentities($row['user_name']);
+                            $revision_document_created_date = date('Y-m-d', strtotime($row['document_created_at']));
+
+                        ?>
+                        <tr>
+                            <td><?php echo "$revision_count.0"; ?></td>
+                            <td><?php echo $revision_document_created_date; ?></td>
+                            <td><?php echo $revision_document_description_display; ?></td>
+                            <td><?php echo $revision_document_author; ?></td>
+                        </tr>
+                        <?php 
+                        $revision_count++; // Increment the counter
+                        } 
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -262,7 +307,6 @@ $document_parent = intval($row['document_parent']);
                 $revision_document_name = nullable_htmlentities($row['document_name']);
                 $revision_document_description = nullable_htmlentities($row['document_description']);
                 $revision_document_created_by_name = nullable_htmlentities($row['user_name']);
-                $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
                 $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
 
                 ?>
