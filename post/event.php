@@ -22,6 +22,23 @@ if (isset($_POST['add_calendar'])) {
 
 }
 
+if (isset($_POST['edit_calendar'])) {
+
+    $calendar_id = intval($_POST['calendar_id']);
+    $name = sanitizeInput($_POST['name']);
+    $color = sanitizeInput($_POST['color']);
+
+    mysqli_query($mysqli,"UPDATE calendars SET calendar_name = '$name', calendar_color = '$color' WHERE calendar_id = $calendar_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Calendar', log_action = 'Edit', log_description = '$session_name Edited calendar $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $calendar_id");
+
+    $_SESSION['alert_message'] = "Calendar <strong>$name</strong> edited";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['add_event'])) {
 
     require_once 'post/event_model.php';

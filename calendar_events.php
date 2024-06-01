@@ -39,9 +39,12 @@ if (isset($_GET['calendar_id'])) {
                     ?>
                     <div class="form-group">
                         <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
-                        <i class="fas fa-fw fa-pencil-alt text-secondary float-right"></i>
+                        <button type="button" class="btn btn-link btn-sm float-right" data-toggle="modal" data-target="#editCalendarModal<?php echo $calendar_id; ?>"><i class="fas fa-fw fa-pencil-alt text-secondary"></i></button>
                     </div>
-                    <?php } ?>
+                    <?php 
+                    require "calendar_edit_modal.php";
+                    } 
+                    ?>
                 </form>
             </div>
         </div>
