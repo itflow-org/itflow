@@ -1291,7 +1291,7 @@ if (isset($_POST['merge_ticket'])) {
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
-    $ticket_details = sanitizeInput($row['ticket_details']);
+    $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
 
     // NEW PARENT ticket details
     // Get merge into ticket id (as it may differ from the number)
