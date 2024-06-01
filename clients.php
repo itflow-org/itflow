@@ -244,7 +244,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-hover table-borderless">
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client Name</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">Primary Location </a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Primary Contact</a></th>
                         <?php if (($session_user_role == 3 || $session_user_role == 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
@@ -347,7 +347,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <i class="fas fa-fw fa-arrow-circle-right"></i></a>
+                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
 
                                 <?php
                                 if (!empty($client_type)) {
