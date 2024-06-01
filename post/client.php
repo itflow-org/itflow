@@ -210,7 +210,6 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_tag_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
     // Delete Contacts and contact tags
