@@ -27,6 +27,14 @@ if (isset($_POST['add_contact'])) {
 
     $contact_id = mysqli_insert_id($mysqli);
 
+    // Add Tags
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+        }
+    }
+
     //Update Primary contact in clients if primary contact is checked
     if ($contact_primary == 1) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
@@ -81,6 +89,17 @@ if (isset($_POST['edit_contact'])) {
     }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
+
+    
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+
+    // Add new tags
+    foreach($_POST['tags'] as $tag) {
+        $tag = intval($tag);
+        mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+    }
 
     // Update Primary contact in clients if primary contact is checked
     if ($contact_primary == 1) {
@@ -447,6 +466,10 @@ if (isset($_GET['delete_contact'])) {
     $client_id = intval($row['contact_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
+
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");

@@ -1937,10 +1937,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.3.5') {
-    //     // Insert queries here required to update to DB version 1.3.6
+    if (CURRENT_DATABASE_VERSION == '1.3.5') {
+        mysqli_query($mysqli, "CREATE TABLE `contact_tags` (`contact_id` int(11) NOT NULL,`tag_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`tag_id`))");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.3.6') {
+    //     // Insert queries here required to update to DB version 1.3.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.7'");
     // }
 
 } else {

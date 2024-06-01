@@ -367,6 +367,20 @@ CREATE TABLE `contact_logins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contact_tags`
+--
+
+DROP TABLE IF EXISTS `contact_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contact_tags` (
+  `contact_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`contact_id`,`tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `contacts`
 --
 
@@ -1952,4 +1966,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-31 16:45:46
+-- Dump completed on 2024-06-01 14:25:19

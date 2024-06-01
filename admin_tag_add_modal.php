@@ -31,6 +31,7 @@
                 <option value="">- Type -</option>
                 <option value="1">Client Tag</option>
                 <option value="2">Location Tag</option>
+                <option value="3">Contact Tag</option>
               </select>
             </div>
           </div>

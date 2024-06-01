@@ -190,7 +190,7 @@
                                                 }
 
                                                 ?>
-                                                <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
+                                                <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1 || $contact_id == isset($_GET['contact_id'])) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
 
                                             <?php } ?>
                                         </select>

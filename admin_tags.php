@@ -66,6 +66,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $tag_type_display = "Client Tag";
                         } elseif ( $tag_type == 2) {
                             $tag_type_display = "Location Tag";
+                        } elseif ( $tag_type == 3) {
+                            $tag_type_display = "Contact Tag";
                         } else {
                             $tag_type_display = "Unknown Tag";
                         }

@@ -6,15 +6,32 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the status array
+    $sanitizedTags = array();
+    foreach ($_GET['tags'] as $tag) {
+        // Escape each status to prevent SQL injection
+        $sanitizedTags[] = "'" . intval($tag) . "'";
+    }
+
+    // Convert the sanitized tags into a comma-separated string
+    $sanitizedTagsString = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM contacts
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*, GROUP_CONCAT(tags.tag_name) FROM contacts
     LEFT JOIN locations ON location_id = contact_location_id
+    LEFT JOIN contact_tags ON contact_tags.contact_id = contacts.contact_id
+    LEFT JOIN tags ON tags.tag_id = contact_tags.tag_id
     WHERE contact_$archive_query
-    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%')
-    AND contact_client_id = $client_id 
+    $tag_query
+    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%')
+    AND contact_client_id = $client_id
+    GROUP BY contact_id
     ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -60,7 +77,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
 
-                    <div class="col-md-8">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                                <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 3");
+                                while ($row = mysqli_fetch_array($sql_tags)) {
+                                    $tag_id = intval($row['tag_id']);
+                                    $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                    <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
                         <div class="btn-group float-right">
                             <?php if($archived == 1){ ?>
                             <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
@@ -203,6 +236,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
                             $ticket_count = mysqli_num_rows($sql_related_tickets);
 
+                            // Tags
+                            $contact_tag_name_display_array = array();
+                            $contact_tag_id_array = array();
+                            $sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+                            while ($row = mysqli_fetch_array($sql_contact_tags)) {
+
+                                $contact_tag_id = intval($row['tag_id']);
+                                $contact_tag_name = nullable_htmlentities($row['tag_name']);
+                                $contact_tag_color = nullable_htmlentities($row['tag_color']);
+                                if (empty($contact_tag_color)) {
+                                    $contact_tag_color = "dark";
+                                }
+                                $contact_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                if (empty($contact_tag_icon)) {
+                                    $contact_tag_icon = "tag";
+                                }
+
+                                $contact_tag_id_array[] = $contact_tag_id;
+                                $contact_tag_name_display_array[] = "<a href='client_contacts.php?client_id=$client_id&q=$contact_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon mr-2'></i>$contact_tag_name</span></a>";
+                            }
+                            $contact_tags_display = implode('', $contact_tag_name_display_array);
+
                             ?>
                             <tr>
                                 <td class="pr-0 bg-light">
@@ -234,6 +289,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </div>
                                         </div>
                                     </a>
+                                    <?php
+                                    if (!empty($contact_tags_display)) { ?>
+                                        <div class="mt-1">
+                                            <?php echo $contact_tags_display; ?>
+                                        </div>
+                                    <?php } ?>
                                 </td>
                                 <td><?php echo $contact_department_display; ?></td>
                                 <td><?php echo $contact_info_display; ?></td>
