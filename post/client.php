@@ -218,6 +218,7 @@ if (isset($_GET['delete_client'])) {
         $contact_id = $row['contact_id'];
         mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
     }
+    mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
 
     // Delete Domains and associated records
     $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains WHERE domain_client_id = $client_id");
@@ -241,7 +242,14 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM invoices WHERE invoice_client_id = $client_id");
 
+    // Delete Locations and location tags
+    $sql = mysqli_query($mysqli, "SELECT location_id FROM locations WHERE location_client_id = location_id");
+    while($row = mysqli_fetch_array($sql)) {
+        $location_id = $row['location_id'];
+        mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
+    }
     mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
+
     mysqli_query($mysqli, "DELETE FROM logins WHERE login_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM networks WHERE network_client_id = $client_id");
