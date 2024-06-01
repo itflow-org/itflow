@@ -211,8 +211,14 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_tag_client_id = $client_id");
-    mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
+
+    // Delete Contacts and contact tags
+    $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id");
+    while($row = mysqli_fetch_array($sql)) {
+        $contact_id = $row['contact_id'];
+        mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+    }
 
     // Delete Domains and associated records
     $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains WHERE domain_client_id = $client_id");
@@ -242,7 +248,7 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM networks WHERE network_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");
 
-    //Delete Quote  and related items
+    //Delete Quote and related items
     $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)) {
         $quote_id = $row['quote_id'];
