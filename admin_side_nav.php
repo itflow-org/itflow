@@ -76,13 +76,13 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="admin_project_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_project_templates.php' ? 'active' : ''); ?>">
+                            <a href="admin_project_templates.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_project_templates.php', 'admin_project_template_details.php']) ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-project-diagram"></i>
                                 <p>Project Templates</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="admin_ticket_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_ticket_templates.php' ? 'active' : ''); ?>">
+                            <a href="admin_ticket_templates.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_ticket_templates.php', 'admin_ticket_template_details.php']) ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-life-ring"></i>
                                 <p>Ticket Templates</p>
                             </a>
@@ -100,7 +100,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="admin_document_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_document_templates.php' ? 'active' : ''); ?>">
+                            <a href="admin_document_templates.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_document_templates.php', 'admin_document_template_details.php']) ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-file"></i>
                                 <p>Document Templates</p>
                             </a>
@@ -118,7 +118,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="admin_mail_queue.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_mail_queue.php' ? 'active' : ''); ?>">
+                            <a href="admin_mail_queue.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_mail_queue.php', 'admin_mail_queue_message_view.php']) ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-mail-bulk"></i>
                                 <p>Mail Queue</p>
                             </a>
