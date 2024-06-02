@@ -1220,22 +1220,109 @@ function getDomainExpirationDateOld($name)
 
 // Get Domain Expire Date -- getDomainExpireDate($domain)
 function getDomainExpirationDate($domain) {
+    // Execute the whois command
     $result = shell_exec("whois " . escapeshellarg($domain));
     $expireDate = '';
 
-    if (preg_match('/Expiration Date: (.+)/', $result, $matches)) {
-        $expireDate = $matches[1];
-    } elseif (preg_match('/Registry Expiry Date: (.+)/', $result, $matches)) {
-        $expireDate = $matches[1];
-    } elseif (preg_match('/expires: (.+)/', $result, $matches)) {
-        $expireDate = $matches[1];
+    // TLD-specific patterns
+    $tldPatterns = [
+        'com' => '/Expiration Date: (.+)/',
+        'net' => '/Expiration Date: (.+)/',
+        'org' => '/Registry Expiry Date: (.+)/',
+        'info' => '/Registry Expiry Date: (.+)/',
+        'biz' => '/Registry Expiry Date: (.+)/',
+        'us' => '/Registry Expiry Date: (.+)/',
+        'co.uk' => '/Expiry Date: (.+)/',
+        'ca' => '/Expiry date: (.+)/',
+        'de' => '/Expires: (.+)/',
+        'au' => '/Expiry Date: (.+)/',
+        'eu' => '/Expiry Date: (.+)/',
+        'in' => '/Expiry Date: (.+)/',
+        'ru' => '/paid-till: (.+)/',
+        'cn' => '/Expiration Time: (.+)/',
+        'nl' => '/Expiry Date: (.+)/',
+        'fr' => '/Expiry Date: (.+)/',
+        'br' => '/expires: (.+)/',
+        'it' => '/Expire Date: (.+)/',
+        'pl' => '/Expiration date: (.+)/',
+        'se' => '/Expires: (.+)/',
+        'dk' => '/Expires: (.+)/',
+        'fi' => '/expires: (.+)/',
+        'at' => '/expires: (.+)/',
+        'be' => '/Expiry Date: (.+)/',
+        'ch' => '/Expiry Date: (.+)/',
+        'es' => '/Expires On: (.+)/',
+        'pt' => '/Expiry Date: (.+)/',
+        'no' => '/Expiry Date: (.+)/',
+        'ie' => '/renewal date: (.+)/',
+        'nz' => '/Domain Expiry Date: (.+)/',
+        'mx' => '/Expiration Date: (.+)/',
+        'za' => '/Expiry Date: (.+)/',
+    ];
+
+    // Known date formats
+    $knownFormats = [
+        "Y-m-d",
+        "Y-m-d H:i:s",
+        "d-M-Y",
+        "d-M-Y H:i:s",
+        "d/m/Y",
+        "d.m.Y",
+        "Y/m/d",
+        "Ymd",
+        "D M d H:i:s T Y",
+        "d.m.Y H:i:s",
+        "Y-m-d\TH:i:s\Z",
+        "Y-m-d\TH:i:s",
+        "Y-m-d H:i:s\Z",
+        "d/m/Y H:i:s",
+        "d/m/Y H:i:s T",
+        "B d Y",
+        "before M-Y",
+        "before Y-m-d",
+        "before Ymd"
+    ];
+
+    // Determine the TLD
+    $tld = substr(strrchr($domain, '.'), 1);
+
+    // Check the TLD-specific pattern
+    if (isset($tldPatterns[$tld])) {
+        if (preg_match($tldPatterns[$tld], $result, $matches)) {
+            $expireDate = trim($matches[1]);
+        }
+    } else {
+        // Fallback to generic patterns
+        $genericPatterns = [
+            '/Expiration Date: (.+)/',
+            '/Registry Expiry Date: (.+)/',
+            '/expires: (.+)/',
+            '/Expiry Date: (.+)/',
+            '/renewal date: (.+)/',
+            '/Expires On: (.+)/',
+            '/paid-till: (.+)/',
+            '/Expiration Time: (.+)/'
+        ];
+
+        foreach ($genericPatterns as $pattern) {
+            if (preg_match($pattern, $result, $matches)) {
+                $expireDate = trim($matches[1]);
+                break;
+            }
+        }
     }
 
     if ($expireDate) {
-        // Convert to a more readable format if needed
-        $expireDate = date('Y-m-d', strtotime($expireDate));
+        // Try parsing with known formats
+        foreach ($knownFormats as $format) {
+            $parsedDate = DateTime::createFromFormat($format, $expireDate);
+            if ($parsedDate) {
+                $expireDate = $parsedDate->format('Y-m-d');
+                break;
+            }
+        }
     } else {
-        $expireDate = 'Expiration date not found';
+        return "NULL";
     }
 
     return $expireDate;
