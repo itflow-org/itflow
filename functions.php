@@ -1189,7 +1189,7 @@ function fetchUpdates() {
 }
 
 // Get domain expiration date -- Remove in the future Replace with PHP function
-function getDomainExpirationDate($name)
+function getDomainExpirationDateOLD($name)
 {
 
     // Only run if we think the domain is valid
@@ -1216,4 +1216,79 @@ function getDomainExpirationDate($name)
 
     // Default return
     return "NULL";
+}
+
+function getDomainExpirationDate($domain) {
+    // Execute the whois command
+    $result = shell_exec("whois " . escapeshellarg($domain));
+    $expireDate = '';
+
+    // Regular expressions to match different date formats
+    $patterns = [
+        '/Expiration Date: (.+)/',
+        '/Registry Expiry Date: (.+)/',
+        '/expires: (.+)/',
+        '/Expiry Date: (.+)/',
+        '/renewal date: (.+)/',
+        '/Expires On: (.+)/',
+        '/paid-till: (.+)/',
+        '/Expiration Time: (.+)/'
+    ];
+
+    // Known date formats
+    $knownFormats = [
+        "d-M-Y",        // 02-Jan-2000
+        "d-F-Y",        // 11-February-2000
+        "d-m-Y",        // 20-10-2000
+        "Y-m-d",        // 2000-01-02
+        "d.m.Y",        // 2.1.2000
+        "Y.m.d",        // 2000.01.02
+        "Y/m/d",        // 2000/01/02
+        "Y/m/d H:i:s",  // 2011/06/01 01:05:01
+        "Ymd",          // 20170209
+        "Ymd H:i:s",    // 20110908 14:44:51
+        "d/m/Y",        // 02/01/2013
+        "Y. m. d.",     // 2000. 01. 02.
+        "Y.m.d H:i:s",  // 2014.03.08 10:28:24
+        "d-M-Y H:i:s",  // 24-Jul-2009 13:20:03 UTC
+        "D M d H:i:s T Y", // Tue Jun 21 23:59:59 GMT 2011
+        "D M d Y",      // Tue Dec 12 2000
+        "Y-m-d\TH:i:s", // 2007-01-26T19:10:31
+        "Y-m-d\TH:i:s\Z", // 2007-01-26T19:10:31Z
+        "Y-m-d H:i:s\Z", // 2000-08-22 18:55:20Z
+        "Y-m-d H:i:s",  // 2000-08-22 18:55:20
+        "d M Y H:i:s",  // 08 Apr 2013 05:44:00
+        "d/m/Y H:i:s",  // 23/04/2015 12:00:07 EEST
+        "d/m/Y H:i:s T", // 23/04/2015 12:00:07 EEST
+        "B d Y",        // August 14 2017
+        "d.m.Y H:i:s",  // 08.03.2014 10:28:24
+        "before M-Y",   // before aug-1996
+        "before Y-m-d", // before 1996-01-01
+        "before Ymd",   // before 19960821
+        "Y-m-d H:i:s (\T\Z\Z)", // 2017-09-26 11:38:29 (GMT+00:00)
+        "Y-M-d.",       // 2024-Apr-02.
+    ];
+
+    // Check each pattern to find a match
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $result, $matches)) {
+            $expireDate = $matches[1];
+            break;
+        }
+    }
+
+    if ($expireDate) {
+        // Try parsing with known formats
+        foreach ($knownFormats as $format) {
+            $parsedDate = DateTime::createFromFormat($format, $expireDate);
+            if ($parsedDate) {
+                $expireDate = $parsedDate->format('Y-m-d');
+                break;
+            }
+        }
+    } else {
+        $expireDate = 'Expiration date not found';
+    }
+
+    return $expireDate;
 }
