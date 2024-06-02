@@ -380,36 +380,6 @@ function encryptLoginEntry($login_password_cleartext)
     return $iv . $ciphertext;
 }
 
-// Get domain expiration date
-function getDomainExpirationDate($name)
-{
-
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        return "NULL";
-    }
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $response = json_decode(curl_exec($ch), 1);
-
-    if ($response) {
-        if (is_array($response['expiration_date'])) {
-            $expiry = new DateTime($response['expiration_date'][1]);
-        } elseif (isset($response['expiration_date'])) {
-            $expiry = new DateTime($response['expiration_date']);
-        } else {
-            return "NULL";
-        }
-
-        return $expiry->format('Y-m-d');
-    }
-
-    // Default return
-    return "NULL";
-}
-
 // Get domain general info (whois + NS/A/MX records)
 function getDomainRecords($name)
 {
@@ -1216,4 +1186,57 @@ function fetchUpdates() {
     
     return $updates;
 
+}
+
+// OLD Get domain expiration date -- Remove in the future
+function getDomainExpirationDateOld($name)
+{
+
+    // Only run if we think the domain is valid
+    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        return "NULL";
+    }
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = json_decode(curl_exec($ch), 1);
+
+    if ($response) {
+        if (is_array($response['expiration_date'])) {
+            $expiry = new DateTime($response['expiration_date'][1]);
+        } elseif (isset($response['expiration_date'])) {
+            $expiry = new DateTime($response['expiration_date']);
+        } else {
+            return "NULL";
+        }
+
+        return $expiry->format('Y-m-d');
+    }
+
+    // Default return
+    return "NULL";
+}
+
+// Get Domain Expire Date -- getDomainExpireDate($domain)
+function getDomainExpirationDate($domain) {
+    $result = shell_exec("whois " . escapeshellarg($domain));
+    $expireDate = '';
+
+    if (preg_match('/Expiration Date: (.+)/', $result, $matches)) {
+        $expireDate = $matches[1];
+    } elseif (preg_match('/Registry Expiry Date: (.+)/', $result, $matches)) {
+        $expireDate = $matches[1];
+    } elseif (preg_match('/expires: (.+)/', $result, $matches)) {
+        $expireDate = $matches[1];
+    }
+
+    if ($expireDate) {
+        // Convert to a more readable format if needed
+        $expireDate = date('Y-m-d', strtotime($expireDate));
+    } else {
+        $expireDate = 'Expiration date not found';
+    }
+
+    return $expireDate;
 }
