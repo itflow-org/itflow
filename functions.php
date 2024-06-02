@@ -1233,7 +1233,34 @@ function getDomainExpirationDate($domain) {
         '/Expires On: (.+)/',
         '/paid-till: (.+)/',
         '/Expiration Time: (.+)/',
-        '/\[Expires on\]\s+(.+)/'  // New pattern 1 for "Expires on"
+        '/\[Expires on\]\s+(.+)/',   // New pattern 1 for "Expires on"
+        '/expire: (.+)/',            // New pattern 2 for "expire"
+        '/validity: (.+)/',          // New pattern 3 for "validity"
+        '/Expires on.*: (.+)/i',     // New pattern 4 for "Expires on" (case insensitive)
+        '/Expiry on.*: (.+)/i',      // New pattern 5 for "Expiry on" (case insensitive)
+        '/renewal: (.+)/i',          // New pattern 6 for "renewal"
+        '/Expir\w+ Date: (.+)/i',    // New pattern 7 for "Expir Date" (case insensitive)
+        '/Valid Until: (.+)/i',      // New pattern 8 for "Valid Until"
+        '/Valid until: (.+)/i',      // New pattern 9 for "Valid until"
+        '/expire-date: (.+)/i',      // New pattern 10 for "expire-date"
+        '/Expiration Date: (.+)/i',  // from WhoisKg
+        '/Registry Expiry Date: (.+)/i',  // from WhoisID
+        '/Expire Date: (.+)/i',      // from WhoisIt
+        '/expiry: (.+)/i',           // from WhoisChLi
+        '/expires: (.+)/i',          // from WhoisSe
+        '/Registry Expiry Date: (.+)/i',  // from WhoisJobs
+        '/Expiration Time: (.+)/i',  // from WhoisMx
+        '/validity: (.+)/i',         // from WhoisIl
+        '/expires: (.+)/i',          // from WhoisDk
+        '/paid-till: (.+)/i',        // from WhoisRu
+        '/Expire Date: (.+)/i',      // from WhoisSa
+        '/Expiration Date: (.+)/i',  // from WhoisAe
+        '/expire: (.+)/i',           // from WhoisIt
+        '/expiry: (.+)/i',           // from WhoisChLi
+        '/renewal date: (.+)/i',     // from WhoisCat
+        '/Expiration Date: (.+)/i',  // from WhoisHr
+        '/Expiration Time: (.+)/i',  // from WhoisZhongGuo
+        '/Expires: (.+)/i',          // from WhoisEdu
     ];
 
     // Known date formats
