@@ -213,7 +213,7 @@ if (isset($_GET['ticket_id'])) {
         $row = mysqli_fetch_array($ticket_public_comments_sql);
         $ticket_public_comments_count = intval($row['ticket_public_comments_count']);
 
-        $ticket_events_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_events_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_type = 'Event' AND ticket_reply_ticket_id = $ticket_id");
+        $ticket_events_sql = mysqli_query($mysqli, "SELECT COUNT(log_id) AS ticket_events_count FROM logs WHERE log_type = 'Ticket' AND  log_entity_id = $ticket_id");
         $row = mysqli_fetch_array($ticket_events_sql);
         $ticket_events_count = intval($row['ticket_events_count']);
 
@@ -242,6 +242,14 @@ if (isset($_GET['ticket_id'])) {
             WHERE ticket_reply_ticket_id = $ticket_id
             AND ticket_reply_archived_at IS NULL
             ORDER BY ticket_reply_id DESC"
+        );
+
+        // Get all Events
+        $sql_ticket_events = mysqli_query($mysqli, "SELECT * FROM logs 
+            LEFT JOIN users ON log_user_id = user_id
+            WHERE log_type = 'Ticket'
+            AND log_entity_id = $ticket_id
+            ORDER BY log_id DESC"
         );
 
 
@@ -647,7 +655,7 @@ if (isset($_GET['ticket_id'])) {
                     <li class="nav-item ml-auto">
                         <button class="nav-link" id="events-tab" data-toggle="tab" data-target="#events" type="button">
                             Events
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_responses; ?></span>
+                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_events_count; ?></span>
                         </button>
                     </li>
                     <li class="nav-item">
@@ -661,7 +669,43 @@ if (isset($_GET['ticket_id'])) {
                     <div class="tab-pane fade show active" id="allComments">All Comments</div>
                     <div class="tab-pane fade" id="publicComments">Public Comments</div>
                     <div class="tab-pane fade" id="notes">Internal Notes</div>
-                    <div class="tab-pane fade" id="events">Events</div>
+                    <div class="tab-pane fade" id="events">
+                        <div class="card">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Description</th>
+                                        <th>User</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+
+                                    <!-- Ticket Events -->
+                                    <?php
+
+                                    while ($row = mysqli_fetch_array($sql_ticket_events)) {
+                                        $log_id = intval($row['log_id']);
+                                        $log_description = nullable_htmlentities($row['log_description']);
+                                        $log_created_at = nullable_htmlentities($row['log_created_at']);
+                                        $log_user_id = intval($row['log_user_id']);
+                                        $log_user_name = nullable_htmlentities($row['user_name']);
+                                    ?>
+                                        <tr>
+                                            <td><?php echo $log_created_at; ?></td>
+                                            <td><?php echo $log_description; ?></td>
+                                            <td><?php echo $log_user_name; ?></td>
+                                        </tr>
+                                    <?php
+                                    }
+                                    ?>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        
+                    </div>
                     <div class="tab-pane fade" id="tasks">Tasks</div>
                 </div>
 
