@@ -1232,7 +1232,8 @@ function getDomainExpirationDate($domain) {
         '/renewal date: (.+)/',
         '/Expires On: (.+)/',
         '/paid-till: (.+)/',
-        '/Expiration Time: (.+)/'
+        '/Expiration Time: (.+)/',
+        '/\[Expires on\]\s+(.+)/'  // New pattern 1 for "Expires on"
     ];
 
     // Known date formats
