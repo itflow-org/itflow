@@ -95,20 +95,26 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
         <table class="table table-striped table-sm">
           <?php
           while($row = mysqli_fetch_array($sql_task_templates)){
-            $task_template_id = intval($row['task_template_id']);
-            $task_template_name = nullable_htmlentities($row['task_template_name']);
-            $task_template_description = nullable_htmlentities($row['task_template_description']);
+            $task_id = intval($row['task_template_id']);
+            $task_name = nullable_htmlentities($row['task_template_name']);
+            $task_description = nullable_htmlentities($row['task_template_description']);
           ?>
           <tr>
             <td><i class="far fa-fw fa-square text-secondary"></i></td>
-            <td><?php echo $task_template_name; ?></td>
+            <td><?php echo $task_name; ?></td>
             <td class="text-right">
-              <a href="post.php?delete_task_template=<?php echo $task_template_id; ?>" class="btn btn-link btn-sm text-secondary">
+              <button type="button" class="btn btn-link btn-sm text-secondary" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                <i class="fa fa-fw fa-pencil-alt"></i>
+              </button>
+              <a href="post.php?delete_task_template=<?php echo $task_id; ?>" class="btn btn-link btn-sm text-danger">
                 <i class="fa fa-fw fa-trash-alt"></i>
               </a>
             </td>
           </tr>
-          <?php } ?>
+          <?php 
+          require "task_edit_modal.php";
+          } 
+          ?>
         </table>
       </div>
     </div>
