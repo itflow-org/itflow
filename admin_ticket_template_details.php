@@ -26,7 +26,7 @@ $ticket_template_created_at = nullable_htmlentities($row['ticket_template_create
 $ticket_template_updated_at = nullable_htmlentities($row['ticket_template_updated_at']);
 
 // Get Task Templates
-$sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+$sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
 
 ?>
 
@@ -97,6 +97,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
           while($row = mysqli_fetch_array($sql_task_templates)){
             $task_id = intval($row['task_template_id']);
             $task_name = nullable_htmlentities($row['task_template_name']);
+            $task_order = intval($row['task_template_order']);
             $task_description = nullable_htmlentities($row['task_template_description']);
           ?>
           <tr>

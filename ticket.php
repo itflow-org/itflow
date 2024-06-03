@@ -286,7 +286,7 @@ if (isset($_GET['ticket_id'])) {
 
 
         // Get Tasks
-        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_created_at ASC");
+        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
 
         // Get Completed Task Count
@@ -914,6 +914,7 @@ if (isset($_GET['ticket_id'])) {
                         while($row = mysqli_fetch_array($sql_tasks)){
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
+                            $task_order = intval($row['task_order']);
                             $task_description = nullable_htmlentities($row['task_description']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                         ?>
