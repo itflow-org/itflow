@@ -6,6 +6,14 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Account Filter
+if (isset($_GET['account']) & !empty($_GET['account'])) {
+    $account_query = 'AND (payment_account_id = ' . intval($_GET['account']) . ')';
+    $account = intval($_GET['account']);
+} else {
+    // Default - any
+    $account_query = '';
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -71,6 +79,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date To</label>
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Account</label>
+                                <select class="form-control select2" name="account" onchange="this.form.submit()">
+                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+
+                                    <?php
+                                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                        $account_id = intval($row['account_id']);
+                                        $account_name = nullable_htmlentities($row['account_name']);
+                                    ?>
+                                        <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
                             </div>
                         </div>
                     </div>
