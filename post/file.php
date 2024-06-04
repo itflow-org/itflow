@@ -60,12 +60,13 @@ if (isset($_POST['rename_file'])) {
     $file_id = intval($_POST['file_id']);
     $client_id = intval($_POST['client_id']);
     $file_name = sanitizeInput($_POST['file_name']);
+    $file_description = sanitizeInput($_POST['file_description']);
 
     // Folder edit query
-    mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' WHERE file_id = $file_id");
+    mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' ,file_description = '$file_description' WHERE file_id = $file_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Rename', log_description = '$session_name renamed file to $file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Rename', log_description = '$session_name renamed file to $file_name $file_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
 
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> renamed";
 
@@ -178,6 +179,43 @@ if (isset($_POST['bulk_move_files'])) {
     }
 
     $_SESSION['alert_message'] = "You moved <b>$file_count</b> files to the folder <b>$folder_name</b>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_asset_to_file'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $file_id = intval($_POST['file_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Link', log_description = 'Created File Asset link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset linked with File";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_asset_from_file'])) {
+
+    validateTechRole();
+    $asset_id = intval($_GET['asset_id']);
+    $file_id = intval($_GET['file_id']);
+
+    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'unLink', log_description = 'File Asset link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset has been unlinked";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

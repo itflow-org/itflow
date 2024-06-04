@@ -331,6 +331,9 @@ $num_of_files = mysqli_num_rows($sql);
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveFileModal<?php echo $file_id; ?>">
                                                     <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                                 </a>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkAssetToFileModal<?php echo $file_id; ?>">
+                                                    <i class="fas fa-fw fa-desktop mr-2"></i>Asset
+                                                </a>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
@@ -347,6 +350,8 @@ $num_of_files = mysqli_num_rows($sql);
                                 require "client_file_rename_modal.php";
 
                                 require "client_file_move_modal.php";
+
+                                require "client_file_link_asset_modal.php";
 
                             }
                             ?>
