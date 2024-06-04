@@ -1,4 +1,4 @@
-<div class="modal" id="linkAssetToFileModal" tabindex="-1">
+<div class="modal" id="linkAssetToFileModal<?php echo $file_id; ?>" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
