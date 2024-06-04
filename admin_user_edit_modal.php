@@ -18,7 +18,7 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-user-details<?php echo $user_id; ?>">Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-user-access<?php echo $user_id; ?>">Access</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-user-access<?php echo $user_id; ?>">Restrict Access</a>
                         </li>
                     </ul>
 
@@ -131,7 +131,7 @@
                         <div class="tab-pane fade" id="pills-user-access<?php echo $user_id; ?>">
 
                             <div class="alert alert-info">
-                                Leave Blank for Full access to all clients, no affect on users with the admin role.
+                                Check boxes to authorize user client access. No boxes grant full client access. Admin users are unaffected.
                             </div>
 
                             <ul class="list-group">
