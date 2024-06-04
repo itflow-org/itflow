@@ -182,3 +182,40 @@ if (isset($_POST['bulk_move_files'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_POST['link_asset_to_file'])) {
+
+    validateTechRole();
+
+    $client_id = intval($_POST['client_id']);
+    $file_id = intval($_POST['file_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Link', log_description = 'Created File Asset link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset linked with File";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_asset_from_file'])) {
+
+    validateTechRole();
+    $asset_id = intval($_GET['asset_id']);
+    $file_id = intval($_GET['file_id']);
+
+    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'unLink', log_description = 'File Asset link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Asset has been unlinked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
