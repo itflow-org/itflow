@@ -135,24 +135,30 @@
                             </div>
 
                             <ul class="list-group">
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.client-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Restrict Access to Clients</strong></label>
+                                    </div>
+                                </li>
 
-                            <?php
+                                <?php
 
-                            $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                            while ($row = mysqli_fetch_array($sql_client_select)) {
-                                $client_id_select = intval($row['client_id']);
-                                $client_name_select = nullable_htmlentities($row['client_name']);
+                                $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                while ($row = mysqli_fetch_array($sql_client_select)) {
+                                    $client_id_select = intval($row['client_id']);
+                                    $client_name_select = nullable_htmlentities($row['client_name']);
 
-                            ?>
+                                ?>
 
                                 <li class="list-group-item">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if (in_array($client_id_select, $client_access_array)) { echo "checked"; } ?>>
+                                        <input type="checkbox" class="form-check-input client-checkbox" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if (in_array($client_id_select, $client_access_array)) { echo "checked"; } ?>>
                                         <label class="form-check-label ml-2"><?php echo $client_name_select; ?></label>
                                     </div>
                                 </li>
 
-                            <?php } ?>
+                                <?php } ?>
 
                             </ul>
 

@@ -115,6 +115,12 @@
                             </div>
 
                             <ul class="list-group">
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.client-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Restrict Access to Clients</strong></label>
+                                    </div>
+                                </li>
 
                                 <?php
 
@@ -126,8 +132,8 @@
                                 ?>
                                 <li class="list-group-item">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id; ?>">
-                                        <label class="form-check-label ml-2"><?php echo $client_name; ?></label>
+                                        <input type="checkbox" class="form-check-input client-checkbox" name="clients[]" value="<?php echo $client_id; ?>">
+                                        <label class="form-check-label ml-3"><?php echo $client_name; ?></label>
                                     </div>
                                 </li>
 
