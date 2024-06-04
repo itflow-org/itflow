@@ -376,7 +376,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <div class="col-sm-3">
                     <div class="media">
-                        <i class="fa fa-fw fa-2x fa-users text-secondary mr-2"></i>
+                        <i class="fa fa-fw fa-2x fa-building text-secondary mr-2"></i>
                         <div class="media-body">
                             <h3 class="mb-0"><?php echo $client_name; ?></h3>
                             <div>
