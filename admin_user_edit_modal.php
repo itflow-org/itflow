@@ -130,9 +130,11 @@
 
                         <div class="tab-pane fade" id="pills-user-access<?php echo $user_id; ?>">
 
-                            <h6>Restrict Client Access To<br><small class="text-muted">Leave Blank for Full access to all clients, no affect on users with the admin role.</small></h6>
+                            <div class="alert alert-info">
+                                Leave Blank for Full access to all clients, no affect on users with the admin role.
+                            </div>
 
-                            <hr>
+                            <ul class="list-group">
 
                             <?php
 
@@ -143,12 +145,16 @@
 
                             ?>
 
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if (in_array($client_id_select, $client_access_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ml-2"><?php echo $client_name_select; ?></label>
-                            </div>
+                                <li class="list-group-item">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if (in_array($client_id_select, $client_access_array)) { echo "checked"; } ?>>
+                                        <label class="form-check-label ml-2"><?php echo $client_name_select; ?></label>
+                                    </div>
+                                </li>
 
                             <?php } ?>
+
+                            </ul>
 
                         </div>
 

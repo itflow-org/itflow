@@ -109,25 +109,31 @@
                         </div>
 
                         <div class="tab-pane fade" id="pills-user-access">
-                            
-                            <h5>Restrict Client Access</h5>
-                            <small class="text-muted">Leave Blank for Full access to all clients, no affect on users with the admin role.</small>
 
-                            <?php
-
-                            $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                            while ($row = mysqli_fetch_array($sql_client_select)) {
-                                $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
-
-                            ?>
-
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id; ?>">
-                                <label class="form-check-label ml-2"><?php echo $client_name; ?></label>
+                            <div class="alert alert-info">
+                                Leave Blank for Full access to all clients, no affect on users with the admin role.
                             </div>
 
-                            <?php } ?>
+                            <ul class="list-group">
+
+                                <?php
+
+                                $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                while ($row = mysqli_fetch_array($sql_client_select)) {
+                                    $client_id = intval($row['client_id']);
+                                    $client_name = nullable_htmlentities($row['client_name']);
+
+                                ?>
+                                <li class="list-group-item">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="clients[]" value="<?php echo $client_id; ?>">
+                                        <label class="form-check-label ml-2"><?php echo $client_name; ?></label>
+                                    </div>
+                                </li>
+
+                                <?php } ?>
+
+                            </ul>
 
                         </div>
 
