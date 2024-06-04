@@ -143,11 +143,15 @@
 
                         <div class="tab-pane fade" id="pills-device-licenses<?php echo $software_id; ?>">
 
-                            <div class="alert alert-info">
-                                Select Assets that are licensed for this software
-                            </div>
-
                             <ul class="list-group">
+
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.asset-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Licensed Devices</strong></label>
+                                    </div>
+                                </li>
+
 
                                 <?php
                                 $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE (asset_archived_at > '$software_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
@@ -167,7 +171,7 @@
                                     ?>
                                     <li class="list-group-item">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
+                                            <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
                                             <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
                                         </div>
                                     </li>
@@ -180,11 +184,14 @@
 
                         <div class="tab-pane fade" id="pills-user-licenses<?php echo $software_id; ?>">
 
-                            <div class="alert alert-info">
-                                Select Users that are licensed for this software
-                            </div>
-
                             <ul class="list-group">
+
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.user-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Licensed Users</strong></label>
+                                    </div>
+                                </li>
 
                                 <?php
                                 $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$software_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
@@ -203,7 +210,7 @@
                                     ?>
                                     <li class="list-group-item">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
+                                            <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
                                             <label class="form-check-label ml-2"><?php echo "$contact_archived_display$contact_name_select - $contact_email_select"; ?></label>
                                         </div>
                                     </li>

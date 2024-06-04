@@ -19,6 +19,12 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-licensing">Licensing</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-device-licenses">Devices</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-user-licenses">Users</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
                         </li>
                     </ul>
@@ -133,53 +139,79 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Devices</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-device-licenses">
+
+                            <ul class="list-group">
+
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.asset-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Licensed Devices</strong></label>
                                     </div>
-                                    <select class="form-control select2" name="assets[]" data-placeholder="Select licensed Assets" multiple>
-                                        <?php
+                                </li>
 
-                                       $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_name ASC");
 
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $asset_id = intval($row['asset_id']);
-                                            $asset_name = nullable_htmlentities($row['asset_name']);
-                                            $asset_type = nullable_htmlentities($row['asset_type']);
-                                            $contact_name = nullable_htmlentities($row['contact_name']);
-                                        ?>
-                                            <option value="<?php echo $asset_id; ?>"><?php echo "$asset_name - $contact_name"; ?></option>
-                                        <?php } ?>
+                                <?php
+                                $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE (asset_archived_at > '$software_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
 
-                                    </select>
-                                </div>
-                            </div>
+                                while ($row = mysqli_fetch_array($sql_assets_select)) {
+                                    $asset_id_select = intval($row['asset_id']);
+                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                    $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                                    if (empty($asset_archived_at)) {
+                                        $asset_archived_display = "";
+                                    } else {
+                                        $asset_archived_display = "Archived - ";
+                                    }
+                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
 
-                            <div class="form-group">
-                                <label>Users</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                                    ?>
+                                    <li class="list-group-item">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?php echo $asset_id_select; ?>">
+                                            <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
+                                        </div>
+                                    </li>
+
+                                <?php } ?>
+
+                            </ul>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-user-licenses">
+
+                            <ul class="list-group">
+
+                                <li class="list-group-item bg-dark">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.user-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
+                                        <label class="form-check-label ml-3"><strong>Licensed Users</strong></label>
                                     </div>
-                                    <select class="form-control select2" name="contacts[]" data-placeholder="Select licensed Users" multiple>
-                                        <?php
+                                </li>
 
-                                       $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                                <?php
+                                $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
 
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $contact_id = intval($row['contact_id']);
-                                            $contact_name = nullable_htmlentities($row['contact_name']);
-                                            $contact_email = nullable_htmlentities($row['contact_email']);
-                                            
-                                            ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo "$contact_name - $contact_email"; ?></option>
-                                        <?php } ?>
+                                while ($row = mysqli_fetch_array($sql_contacts_select)) {
+                                    $contact_id_select = intval($row['contact_id']);
+                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                    $contact_email_select = nullable_htmlentities($row['contact_email']);
 
-                                    </select>
-                                </div>
-                            </div>
+                                    ?>
+                                    <li class="list-group-item">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?php echo $contact_id_select; ?>">
+                                            <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
+                                        </div>
+                                    </li>
+
+                                <?php } ?>
+
+                            </ul>
 
                         </div>
 
