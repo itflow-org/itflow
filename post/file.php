@@ -60,12 +60,13 @@ if (isset($_POST['rename_file'])) {
     $file_id = intval($_POST['file_id']);
     $client_id = intval($_POST['client_id']);
     $file_name = sanitizeInput($_POST['file_name']);
+    $file_description = sanitizeInput($_POST['file_description']);
 
     // Folder edit query
-    mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' WHERE file_id = $file_id");
+    mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' ,file_description = '$file_description' WHERE file_id = $file_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Rename', log_description = '$session_name renamed file to $file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Rename', log_description = '$session_name renamed file to $file_name $file_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
 
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> renamed";
 
