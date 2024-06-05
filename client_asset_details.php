@@ -79,6 +79,7 @@ if (isset($_GET['asset_id'])) {
     );
     $document_count = mysqli_num_rows($sql_related_documents);
 
+
     // Related Files
     $sql_related_files = mysqli_query($mysqli, "SELECT * FROM asset_files 
         LEFT JOIN files ON asset_files.file_id = files.file_id
@@ -86,7 +87,19 @@ if (isset($_GET['asset_id'])) {
         AND file_archived_at IS NULL
         ORDER BY file_name DESC"
     );
-    $file_count = mysqli_num_rows($sql_related_files);
+    $files_count = mysqli_num_rows($sql_related_files);
+    // View Mode -- 0 List, 1 Thumbnail
+    if (!empty($_GET['view'])) {
+        $view = intval($_GET['view']);
+    } else {
+        $view = 0;
+    }
+    if ($view == 1) {
+        $query_images = "AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG' OR file_ext LIKE 'webp' OR file_ext LIKE 'WEBP')";
+    } else {
+        $query_images = '';
+    }
+
 
     // Related Logins Query
     $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
@@ -107,6 +120,8 @@ if (isset($_GET['asset_id'])) {
     );
 
     $software_count = mysqli_num_rows($sql_related_software);
+
+
 
     ?>
 
@@ -327,7 +342,7 @@ if (isset($_GET['asset_id'])) {
 
                 </div>
             </div>
-
+            
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
@@ -389,6 +404,87 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $software_type; ?></td>
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
+                                </tr>
+
+                                <?php
+
+                            }
+
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-dark <?php if ($files_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Files</h3>
+                    <div class="btn-group float-right">
+                        <?php
+                            if ($view == 0) {
+                        ?>
+                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary"><i class="fas fa-list-ul"></i></a>
+                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary"><i class="fas fa-th-large"></i></a>
+                        <?php
+                            } else {
+                        ?>
+                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary"><i class="fas fa-list-ul"></i></a>
+                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary"><i class="fas fa-th-large"></i></a>
+                        <?php
+                            }
+                        ?>
+
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Uploaded</th>
+                                
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_related_files)) {
+                                $file_id = intval($row['file_id']);
+                                $file_name = nullable_htmlentities($row['file_name']);
+                                $file_description = nullable_htmlentities($row['file_description']);
+                                $file_reference_name = nullable_htmlentities($row['file_reference_name']);
+                                $file_ext = nullable_htmlentities($row['file_ext']);
+                                if ($file_ext == 'pdf') {
+                                    $file_icon = "file-pdf";
+                                } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
+                                    $file_icon = "file-archive";
+                                } elseif ($file_ext == 'txt' || $file_ext == 'md') {
+                                    $file_icon = "file-alt";
+                                } elseif ($file_ext == 'msg') {
+                                    $file_icon = "envelope";
+                                } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
+                                    $file_icon = "file-word";
+                                } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
+                                    $file_icon = "file-excel";
+                                } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
+                                    $file_icon = "file-powerpoint";
+                                } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
+                                    $file_icon = "file-audio";
+                                } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
+                                    $file_icon = "file-video";
+                                } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
+                                    $file_icon = "file-image";
+                                } else {
+                                    $file_icon = "file";
+                                }
+                                $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                ?>
+                                <tr>
+                                    <td><a class="text-dark" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                                    <td><?php echo $file_created_at; ?></td>
                                 </tr>
 
                                 <?php
