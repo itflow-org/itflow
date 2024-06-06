@@ -319,6 +319,85 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
 }
 
+if (isset($_POST['bulk_archive_assets'])) {
+    validateAdminRole();
+    //validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $asset_ids = $_POST['asset_ids']; // Get array of asset IDs to be deleted
+
+    if (!empty($asset_ids)) {
+
+        // Cycle through array and delete each network
+        foreach ($asset_ids as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
+
+            // Individual Asset logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Archive', log_description = '$session_name archived asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Archive', log_description = '$session_name archived $count assets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Archived $count asset(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_unarchive_assets'])) {
+    validateAdminRole();
+    //validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $asset_ids = $_POST['asset_ids']; // Get array of asset IDs to be deleted
+
+    if (!empty($asset_ids)) {
+
+        // Cycle through array and delete each network
+        foreach ($asset_ids as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
+
+            // Individual Asset logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived $count assets', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Unarchived $count asset(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST["import_client_assets_csv"])) {
 
     validateTechRole();
