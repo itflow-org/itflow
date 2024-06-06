@@ -189,6 +189,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="float-right">
+                                <button type="button" class="btn btn-default mt-4" data-toggle="modal" data-target="#exportInvoicesModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -312,6 +317,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "invoice_add_modal.php";
+require_once "invoice_export_modal.php";
 
 require_once "footer.php";
 

@@ -305,8 +305,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             require "expense_refund_modal.php";
 
-                            require "expense_export_modal.php";
-
 
                         }
 
@@ -328,5 +326,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "expense_add_modal.php";
+require_once "expense_export_modal.php";
 
 require_once "footer.php";

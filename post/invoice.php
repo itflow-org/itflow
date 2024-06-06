@@ -1253,6 +1253,57 @@ if (isset($_POST['export_client_invoices_csv'])) {
 
 }
 
+if (isset($_POST['export_invoices_csv'])) {
+    $date_from = sanitizeInput($_POST['date_from']);
+    $date_to = sanitizeInput($_POST['date_to']);
+    if (!empty($date_from) && !empty($date_to)) {
+        $date_query = "DATE(invoice_date) BETWEEN '$date_from' AND '$date_to'";
+        $file_name_date = "$date_from-to-$date_to";
+    }else{
+        $date_query = "";
+        $file_name_date = date('Y-m-d');
+    }
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query ORDER BY invoice_number ASC");
+
+    $row = mysqli_fetch_array($sql);
+    $client_name = $row['client_name'];
+
+    if ($sql->num_rows > 0) {
+        $delimiter = ",";
+        $filename = "$session_company_name-Invoices-$file_name_date.csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()) {
+            $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Export', log_description = '$session_name exported invoices to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+    
+    exit;
+
+}
+
 if (isset($_POST['export_client_recurring_csv'])) {
     $client_id = intval($_POST['client_id']);
 
