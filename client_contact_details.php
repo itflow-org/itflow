@@ -190,7 +190,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
                             <thead>
                             <tr>
                                 <th>Name/Description</th>
@@ -323,8 +323,8 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Related Logins</h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive-sm-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -429,7 +429,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
                             <thead class="text-dark">
                             <tr>
                                 <th>Software</th>
@@ -504,7 +504,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
                             <thead class="text-dark">
                             <tr>
                                 <th>Number</th>

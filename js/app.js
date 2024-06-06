@@ -166,3 +166,6 @@ clipboard.on('error', function(e) {
 $(function () {
   $('[data-toggle="popover"]').popover()
 });
+
+// Data Tables
+new DataTable('.dataTables');

@@ -26,6 +26,7 @@
 <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <script src="plugins/clipboardjs/clipboard.min.js"></script>
 <script src="js/keepalive.js"></script>
+<script src="plugins/DataTables/datatables.min.js"></script>
 
 
 <!-- AdminLTE App -->

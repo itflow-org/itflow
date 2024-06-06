@@ -38,6 +38,7 @@ header("X-Frame-Options: DENY");
     <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
     <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="plugins/DataTables/datatables.min.css" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>
