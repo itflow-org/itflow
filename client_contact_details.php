@@ -523,7 +523,7 @@ if (isset($_GET['contact_id'])) {
                                 $ticket_id = intval($row['ticket_id']);
                                 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
-                                $ticket_subject = intval($row['ticket_subject']);
+                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                 $ticket_priority = nullable_htmlentities($row['ticket_priority']);
                                 $ticket_status = nullable_htmlentities($row['ticket_status']);
                                 $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
