@@ -82,7 +82,7 @@ try {
 
     // Role / Client Access Permission Check
     if ($session_user_role < 3 && !empty($client_access_string)) {
-        $access_permission_query = "AND client_id IN ($client_access_string)";
+        $access_permission_query = "AND clients.client_id IN ($client_access_string)";
     } else {
         $access_permission_query = "";
     }

@@ -32,6 +32,8 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     // Convert the sanitized tags into a comma-separated string
     $sanitizedTagsString = implode(",", $sanitizedTags);
     $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+} else{ 
+    $tag_query = '';    
 }
 
 // Industry Filter
