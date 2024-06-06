@@ -31,6 +31,12 @@ if (isset($_GET['contact_id'])) {
     $contact_location_id = intval($row['contact_location_id']);
     $location_name = nullable_htmlentities($row['location_name']);
     $auth_method = nullable_htmlentities($row['contact_auth_method']);
+    $contact_client_id = intval($row['contact_client_id']);
+
+    // Check to see if Contact belongs to client
+    if($contact_client_id !== $client_id) {
+        exit();
+    }
 
     // Related Assets Query
     $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
