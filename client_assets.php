@@ -283,6 +283,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                             $asset_notes = nullable_htmlentities($row['asset_notes']);
                             $asset_created_at = nullable_htmlentities($row['asset_created_at']);
+                            $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
                             $asset_vendor_id = intval($row['asset_vendor_id']);
                             $asset_location_id = intval($row['asset_location_id']);
                             $asset_contact_id = intval($row['asset_contact_id']);
@@ -427,9 +428,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                                 </a>
                                                 <?php if ($session_user_role > 2) { ?>
+                                                    <?php if ($asset_archived_at) { ?>
+                                                    <a class="dropdown-item text-info" href="post.php?unarchive_asset=<?php echo $asset_id; ?>">
+                                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                                    </a>
+                                                    <?php } else { ?>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?php echo $asset_id; ?>">
                                                         <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                     </a>
+                                                    <?php } ?>
                                                     <?php if ($config_destructive_deletes_enable) { ?>
                                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?php echo $asset_id; ?>">
                                                         <i class="fas fa-fw fa-archive mr-2"></i>Delete

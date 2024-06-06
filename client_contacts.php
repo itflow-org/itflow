@@ -202,6 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $contact_billing = intval($row['contact_billing']);
                             $contact_technical = intval($row['contact_technical']);
                             $contact_created_at = nullable_htmlentities($row['contact_created_at']);
+                            $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
                             if ($contact_primary == 1) {
                                 $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
                             } else {
@@ -312,14 +313,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
+                                                <?php if ($contact_archived_at) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
-                                                    <i class="fas fa-fw fa-user-secret mr-2"></i>Anonymize & Archive
+                                                <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_contact=<?php echo $contact_id; ?>">
+                                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                                 </a>
+                                                <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?php echo $contact_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?php echo $contact_id; ?>">
+                                                    <i class="fas fa-fw fa-user-secret mr-2"></i>Anonymize & Archive
+                                                </a>
+                                                <?php } ?>
+
                                                 <?php if ($config_destructive_deletes_enable) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?php echo $contact_id; ?>">

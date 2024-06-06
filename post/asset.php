@@ -160,6 +160,29 @@ if (isset($_GET['archive_asset'])) {
 
 }
 
+if (isset($_GET['unarchive_asset'])) {
+
+    validateTechRole();
+
+    $asset_id = intval($_GET['unarchive_asset']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
+
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> Unarchived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_asset'])) {
 
     validateAdminRole();

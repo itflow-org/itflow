@@ -453,6 +453,28 @@ if (isset($_GET['archive_contact'])) {
 
 }
 
+if (isset($_GET['unarchive_contact'])) {
+
+    validateAdminRole();
+
+    $contact_id = intval($_GET['unarchive_contact']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+
+    mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Unarchive', log_description = '$session_name unarchived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> Unarchived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
 if (isset($_GET['delete_contact'])) {
 
     validateAdminRole();
