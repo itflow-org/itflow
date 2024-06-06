@@ -1221,6 +1221,10 @@ function getDomainExpirationDateOLD($name)
 function getDomainExpirationDate($domain) {
     // Execute the whois command
     $result = shell_exec("whois " . escapeshellarg($domain));
+    if (!$result) {
+        return null; // Return null if WHOIS query fails
+    }
+
     $expireDate = '';
 
     // Regular expressions to match different date formats
@@ -1233,74 +1237,74 @@ function getDomainExpirationDate($domain) {
         '/Expires On: (.+)/',
         '/paid-till: (.+)/',
         '/Expiration Time: (.+)/',
-        '/\[Expires on\]\s+(.+)/',   // New pattern 1 for "Expires on"
-        '/expire: (.+)/',            // New pattern 2 for "expire"
-        '/validity: (.+)/',          // New pattern 3 for "validity"
-        '/Expires on.*: (.+)/i',     // New pattern 4 for "Expires on" (case insensitive)
-        '/Expiry on.*: (.+)/i',      // New pattern 5 for "Expiry on" (case insensitive)
-        '/renewal: (.+)/i',          // New pattern 6 for "renewal"
-        '/Expir\w+ Date: (.+)/i',    // New pattern 7 for "Expir Date" (case insensitive)
-        '/Valid Until: (.+)/i',      // New pattern 8 for "Valid Until"
-        '/Valid until: (.+)/i',      // New pattern 9 for "Valid until"
-        '/expire-date: (.+)/i',      // New pattern 10 for "expire-date"
-        '/Expiration Date: (.+)/i',  // from WhoisKg
-        '/Registry Expiry Date: (.+)/i',  // from WhoisID
-        '/Expire Date: (.+)/i',      // from WhoisIt
-        '/expiry: (.+)/i',           // from WhoisChLi
-        '/expires: (.+)/i',          // from WhoisSe
-        '/Registry Expiry Date: (.+)/i',  // from WhoisJobs
-        '/Expiration Time: (.+)/i',  // from WhoisMx
-        '/validity: (.+)/i',         // from WhoisIl
-        '/expires: (.+)/i',          // from WhoisDk
-        '/paid-till: (.+)/i',        // from WhoisRu
-        '/Expire Date: (.+)/i',      // from WhoisSa
-        '/Expiration Date: (.+)/i',  // from WhoisAe
-        '/expire: (.+)/i',           // from WhoisIt
-        '/expiry: (.+)/i',           // from WhoisChLi
-        '/renewal date: (.+)/i',     // from WhoisCat
-        '/Expiration Date: (.+)/i',  // from WhoisHr
-        '/Expiration Time: (.+)/i',  // from WhoisZhongGuo
-        '/Expires: (.+)/i',          // from WhoisEdu
+        '/\[Expires on\]\s+(.+)/',
+        '/expire: (.+)/',
+        '/validity: (.+)/',
+        '/Expires on.*: (.+)/i',
+        '/Expiry on.*: (.+)/i',
+        '/renewal: (.+)/i',
+        '/Expir\w+ Date: (.+)/i',
+        '/Valid Until: (.+)/i',
+        '/Valid until: (.+)/i',
+        '/expire-date: (.+)/i',
+        '/Expiration Date: (.+)/i',
+        '/Registry Expiry Date: (.+)/i',
+        '/Expire Date: (.+)/i',
+        '/expiry: (.+)/i',
+        '/expires: (.+)/i',
+        '/Registry Expiry Date: (.+)/i',
+        '/Expiration Time: (.+)/i',
+        '/validity: (.+)/i',
+        '/expires: (.+)/i',
+        '/paid-till: (.+)/i',
+        '/Expire Date: (.+)/i',
+        '/Expiration Date: (.+)/i',
+        '/expire: (.+)/i',
+        '/expiry: (.+)/i',
+        '/renewal date: (.+)/i',
+        '/Expiration Date: (.+)/i',
+        '/Expiration Time: (.+)/i',
+        '/Expires: (.+)/i',
     ];
 
     // Known date formats
     $knownFormats = [
-        "d-M-Y",        // 02-Jan-2000
-        "d-F-Y",        // 11-February-2000
-        "d-m-Y",        // 20-10-2000
-        "Y-m-d",        // 2000-01-02
-        "d.m.Y",        // 2.1.2000
-        "Y.m.d",        // 2000.01.02
-        "Y/m/d",        // 2000/01/02
-        "Y/m/d H:i:s",  // 2011/06/01 01:05:01
-        "Ymd",          // 20170209
-        "Ymd H:i:s",    // 20110908 14:44:51
-        "d/m/Y",        // 02/01/2013
-        "Y. m. d.",     // 2000. 01. 02.
-        "Y.m.d H:i:s",  // 2014.03.08 10:28:24
-        "d-M-Y H:i:s",  // 24-Jul-2009 13:20:03 UTC
-        "D M d H:i:s T Y", // Tue Jun 21 23:59:59 GMT 2011
-        "D M d Y",      // Tue Dec 12 2000
-        "Y-m-d\TH:i:s", // 2007-01-26T19:10:31
-        "Y-m-d\TH:i:s\Z", // 2007-01-26T19:10:31Z
-        "Y-m-d H:i:s\Z", // 2000-08-22 18:55:20Z
-        "Y-m-d H:i:s",  // 2000-08-22 18:55:20
-        "d M Y H:i:s",  // 08 Apr 2013 05:44:00
-        "d/m/Y H:i:s",  // 23/04/2015 12:00:07 EEST
-        "d/m/Y H:i:s T", // 23/04/2015 12:00:07 EEST
-        "B d Y",        // August 14 2017
-        "d.m.Y H:i:s",  // 08.03.2014 10:28:24
-        "before M-Y",   // before aug-1996
-        "before Y-m-d", // before 1996-01-01
-        "before Ymd",   // before 19960821
-        "Y-m-d H:i:s (\T\Z\Z)", // 2017-09-26 11:38:29 (GMT+00:00)
-        "Y-M-d.",       // 2024-Apr-02.
+        "d-M-Y",
+        "d-F-Y",
+        "d-m-Y",
+        "Y-m-d",
+        "d.m.Y",
+        "Y.m.d",
+        "Y/m/d",
+        "Y/m/d H:i:s",
+        "Ymd",
+        "Ymd H:i:s",
+        "d/m/Y",
+        "Y. m. d.",
+        "Y.m.d H:i:s",
+        "d-M-Y H:i:s",
+        "D M d H:i:s T Y",
+        "D M d Y",
+        "Y-m-d\TH:i:s",
+        "Y-m-d\TH:i:s\Z",
+        "Y-m-d H:i:s\Z",
+        "Y-m-d H:i:s",
+        "d M Y H:i:s",
+        "d/m/Y H:i:s",
+        "d/m/Y H:i:s T",
+        "B d Y",
+        "d.m.Y H:i:s",
+        "before M-Y",
+        "before Y-m-d",
+        "before Ymd",
+        "Y-m-d H:i:s (\T\Z\Z)",
+        "Y-M-d.",
     ];
 
     // Check each pattern to find a match
     foreach ($patterns as $pattern) {
         if (preg_match($pattern, $result, $matches)) {
-            $expireDate = $matches[1];
+            $expireDate = trim($matches[1]);
             break;
         }
     }
@@ -1309,14 +1313,17 @@ function getDomainExpirationDate($domain) {
         // Try parsing with known formats
         foreach ($knownFormats as $format) {
             $parsedDate = DateTime::createFromFormat($format, $expireDate);
-            if ($parsedDate) {
-                $expireDate = $parsedDate->format('Y-m-d');
-                break;
+            if ($parsedDate && $parsedDate->format($format) === $expireDate) {
+                return $parsedDate->format('Y-m-d');
             }
         }
-    } else {
-        $expireDate = 'Expiration date not found';
+
+        // If none of the formats matched, try to parse it directly
+        $parsedDate = date_create($expireDate);
+        if ($parsedDate) {
+            return $parsedDate->format('Y-m-d');
+        }
     }
 
-    return $expireDate;
+    return null; // Return null if expiration date is not found
 }
