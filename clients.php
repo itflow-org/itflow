@@ -286,6 +286,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_net_terms = intval($row['client_net_terms']);
                         $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
                         $client_referral = nullable_htmlentities($row['client_referral']);
+                        $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
                         $client_notes = nullable_htmlentities($row['client_notes']);
                         $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
                         $client_updated_at = nullable_htmlentities($row['client_updated_at']);

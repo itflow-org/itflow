@@ -185,6 +185,16 @@
                         <div class="tab-pane fade" id="pills-client-more<?php echo $client_id; ?>">
 
                             <div class="form-group">
+                                <label>Abbreviation</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="abbreviation" placeholder="Abbreviated name for client" value="<?php echo $client_abbreviation; ?>" maxlength="5">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <textarea class="form-control" rows="8" placeholder="Enter some notes"
                                     name="notes"><?php echo $client_notes; ?></textarea>
                             </div>
