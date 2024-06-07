@@ -60,7 +60,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Expenses</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus mr-2"></i>New Expense</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus mr-2"></i>New Expense</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportExpensesModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -187,11 +195,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     ?>
 
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="float-right">
-                                <button type="button" class="btn btn-default mt-4" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
                             </div>
                         </div>
                     </div>
