@@ -120,6 +120,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditRoleModal">
                                         <i class="fas fa-fw fa-user-shield mr-2"></i>Set Roles
                                     </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                        <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                    </a>
                                     <?php if ($_GET['archived']) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-info"
@@ -369,6 +373,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php require_once "client_contact_bulk_edit_phone_modal.php"; ?>
                 <?php require_once "client_contact_bulk_edit_department_modal.php"; ?>
                 <?php require_once "client_contact_bulk_edit_role_modal.php"; ?>
+                <?php require_once "client_contact_bulk_assign_tags_modal.php"; ?>
             </form>
             <?php require_once "pagination.php";
 ?>

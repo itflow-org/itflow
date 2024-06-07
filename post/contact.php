@@ -334,6 +334,46 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
 }
 
+if (isset($_POST['bulk_assign_contact_tags'])) {
+
+    validateTechRole();
+
+    // Get Selected Contacts Count
+    $count = count($_POST['contact_ids']);
+    
+    // Assign Location to Selected Contacts
+    if (!empty($_POST['contact_ids'])) {
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+
+            // Add new tags
+            foreach($_POST['bulk_tags'] as $tag) {
+                $tag = intval($tag);
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
+                if (mysqli_num_rows($sql) == 0) {
+                    mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+                }
+            }
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name added tags to $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "Assigned tags for <b>$count</b> contacts";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_archive_contacts'])) {
     validateAdminRole();
     //validateCSRFToken($_POST['csrf_token']);
