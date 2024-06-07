@@ -145,9 +145,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     class="collapse mt-3 
                         <?php 
                         if (
-                        $_GET['dtf']
-                        || $_GET['industry']
-                        || $_GET['referral']
+                        isset($_GET['dtf'])
+                        || isset($_GET['industry'])
+                        || isset($_GET['referral'])
                         || (isset($_GET['tags']) && is_array($_GET['tags']))
                         || $_GET['canned_date'] !== "custom" ) 
                         { 

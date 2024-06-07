@@ -12,6 +12,7 @@ if (isset($_GET['account_from']) & !empty($_GET['account_from'])) {
 } else {
     // Default - any
     $account_from_query = '';
+    $account_from = '';
 }
 
 // Account Transfer To Filter
@@ -21,6 +22,7 @@ if (isset($_GET['account_to']) & !empty($_GET['account_to'])) {
 } else {
     // Default - any
     $account_to_query = '';
+    $account_to = '';
 }
 
 
@@ -64,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || $_GET['account_from'] || $_GET['account_to'] ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || isset($_GET['account_from']) || isset($_GET['account_to']) ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -118,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Account To</label>
                                 <select class="form-control select2" name="account_to" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                    <option value="" <?php if ($account_to == "") { echo "selected"; } ?>>- All Accounts -</option>
 
                                     <?php
                                     $sql_accounts_to_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");

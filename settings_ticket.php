@@ -43,8 +43,8 @@ require_once "inc_all_admin.php";
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_ticket_default_billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="ticketBillableSwitch<?php echo $ticket_id; ?>">
-                        <label class="custom-control-label" for="ticketBillableSwitch<?php echo $ticket_id; ?>">Default to Billable <small class="text-secondary">(This will check the billable box on all new tickets)</small></label>
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_default_billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="ticketBillableSwitch">
+                        <label class="custom-control-label" for="ticketBillableSwitch">Default to Billable <small class="text-secondary">(This will check the billable box on all new tickets)</small></label>
                     </div>
                 </div>
                 <?php } ?>

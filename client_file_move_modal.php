@@ -26,7 +26,7 @@
                                     $folder_id_select = intval($row['folder_id']);
                                     $folder_name_select = nullable_htmlentities($row['folder_name']);
                                     ?>
-                                    <option <?php if ($folder_id_select == $document_folder_id) echo "selected"; ?> value="<?php echo $folder_id_select ?>"><?php echo $folder_name_select; ?></option>
+                                    <option <?php if ($folder_id_select == $get_folder_id) echo "selected"; ?> value="<?php echo $folder_id_select ?>"><?php echo $folder_name_select; ?></option>
                                     <?php
                                 }
                                 ?>

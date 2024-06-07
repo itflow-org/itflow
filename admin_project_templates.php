@@ -87,7 +87,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_id; ?>">
+                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
                                     <div class="media-body">

@@ -39,7 +39,7 @@ if ($view == 1) {
 // Set Folder Location Var used when creating folders
 $folder_location = 1;
 
-if ($get_folder_id == 0 && $_GET["q"]) {
+if ($get_folder_id == 0 && isset($_GET["q"])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT SQL_CALC_FOUND_ROWS * FROM files

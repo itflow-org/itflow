@@ -29,6 +29,7 @@ if (isset($_GET['location']) & !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
+    $location = '';
 }
 
 //Get Asset Counts
@@ -194,7 +195,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
                                             <i class="fas fa-fw fa-info mr-2"></i>Set Status
                                         </a>
-                                        <?php if ($_GET['archived']) { ?>
+                                        <?php if (isset($_GET['archived'])) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-info"
                                             type="submit" form="bulkActions" name="bulk_unarchive_assets">

@@ -84,7 +84,7 @@
                                 <select class="form-control select2" name="account" required>
                                     <?php
 
-                                    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance, account_archived_at FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                                    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance, account_archived_at FROM accounts WHERE (account_archived_at > '$recurring_expense_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts)) {
                                         $account_id_select = intval($row['account_id']);
                                         $account_name_select = nullable_htmlentities($row['account_name']);
@@ -129,7 +129,7 @@
                                 <select class="form-control select2" name="vendor" required>
                                     <?php
 
-                                    $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
+                                    $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND (vendor_archived_at > '$recurring_expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_select)) {
                                         $vendor_id_select = intval($row['vendor_id']);
                                         $vendor_name_select = nullable_htmlentities($row['vendor_name']);
@@ -174,7 +174,7 @@
                                 <select class="form-control select2" name="category" required>
                                     <?php
 
-                                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$recurring_expense_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_select)) {
                                         $category_id_select = intval($row['category_id']);
                                         $category_name_select = nullable_htmlentities($row['category_name']);

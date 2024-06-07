@@ -13,6 +13,7 @@ if (isset($_GET['account']) & !empty($_GET['account'])) {
 } else {
     // Default - any
     $account_query = '';
+    $account = '';
 }
 
 // Vendor Filter
@@ -22,6 +23,7 @@ if (isset($_GET['vendor']) & !empty($_GET['vendor'])) {
 } else {
     // Default - any
     $vendor_query = '';
+    $vendor = '';
 }
 
 // Category Filter
@@ -31,6 +33,7 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 } else {
     // Default - any
     $category_query = '';
+    $category = '';
 }
 
 //Rebuild URL
@@ -107,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['canned_date'] !== "custom" || $_GET['account'] || $_GET['vendor'] || $_GET['category']) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (isset($_GET['dtf']) || $_GET['canned_date'] !== "custom" || isset($_GET['account']) || isset($_GET['vendor']) || isset($_GET['category'])) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">

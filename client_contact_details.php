@@ -236,6 +236,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
+                                $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
                                 $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -246,6 +247,8 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $asset_install_date_display = $asset_install_date;
                                 }
+                                $asset_uri = nullable_htmlentities($row['asset_uri']);
+                                $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
                                 $asset_notes = nullable_htmlentities($row['asset_notes']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                                 $asset_vendor_id = intval($row['asset_vendor_id']);
@@ -355,6 +358,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
+                                $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                 if (empty($login_username)) {
                                     $login_username_display = "-";
@@ -460,11 +464,6 @@ if (isset($_GET['contact_id'])) {
                                 $software_notes = nullable_htmlentities($row['software_notes']);
 
                                 $seat_count = 0;
-
-                                // Get Login
-                                $login_id = intval($row['login_id']);
-                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
 
                                 // Asset Licenses
                                 $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
