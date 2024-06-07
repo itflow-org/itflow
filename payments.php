@@ -6,6 +6,17 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+
+// Payment Method Filter
+if (isset($_GET['method']) & !empty($_GET['method'])) {
+    $payment_method_query = "AND (payment_method  = '" . sanitizeInput($_GET['method']) . "')";
+    $method = nullable_htmlentities($_GET['method']);
+} else {
+    // Default - any
+    $payment_method_query = '';
+    $method = '';
+}
+
 // Account Filter
 if (isset($_GET['account']) & !empty($_GET['account'])) {
     $account_query = 'AND (payment_account_id = ' . intval($_GET['account']) . ')';
@@ -13,6 +24,7 @@ if (isset($_GET['account']) & !empty($_GET['account'])) {
 } else {
     // Default - any
     $account_query = '';
+    $account = '';
 }
 
 //Rebuild URL
@@ -26,6 +38,8 @@ $sql = mysqli_query(
     LEFT JOIN accounts ON payment_account_id = account_id
     WHERE DATE(payment_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
+    $account_query
+    $payment_method_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -48,6 +62,44 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select class="form-control select2" name="account" onchange="this.form.submit()">
+                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+
+                                <?php
+                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                    $account_id = intval($row['account_id']);
+                                    $account_name = nullable_htmlentities($row['account_name']);
+                                ?>
+                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <select class="form-control select2" name="method" onchange="this.form.submit()">
+                                <option value="" <?php if ($method == "") { echo "selected"; } ?>>- All Payment Methods -</option>
+
+                                <?php
+                                $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method FROM payments ORDER BY payment_method ASC");
+                                while ($row = mysqli_fetch_array($sql_payment_methods_filter)) {
+                                    $payment_method = nullable_htmlentities($row['payment_method']);
+                                ?>
+                                    <option <?php if ($method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -79,26 +131,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date To</label>
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Account</label>
-                                <select class="form-control select2" name="account" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
-
-                                    <?php
-                                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                                    while ($row = mysqli_fetch_array($sql_accounts_filter)) {
-                                        $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
-                                    ?>
-                                        <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
-                                    <?php
-                                    }
-                                    ?>
-
-                                </select>
                             </div>
                         </div>
                     </div>

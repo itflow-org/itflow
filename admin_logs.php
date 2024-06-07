@@ -13,6 +13,7 @@ if (isset($_GET['user']) & !empty($_GET['user'])) {
 } else {
     // Default - any
     $user_query = '';
+    $user = '';
 }
 
 // Log Type Filter
@@ -22,6 +23,7 @@ if (isset($_GET['type']) & !empty($_GET['type'])) {
 } else {
     // Default - any
     $log_type_query = '';
+    $type = '';
 }
 
 // Log Action Filter
@@ -31,6 +33,7 @@ if (isset($_GET['action']) & !empty($_GET['action'])) {
 } else {
     // Default - any
     $log_action_query = '';
+    $action = '';
 }
 
 //Rebuild URL

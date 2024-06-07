@@ -43,6 +43,7 @@ if (isset($_GET['industry']) & !empty($_GET['industry'])) {
 } else {
     // Default - any
     $industry_query = '';
+    $industry = '';
 }
 
 // Referral Filter
@@ -52,6 +53,7 @@ if (isset($_GET['referral']) & !empty($_GET['referral'])) {
 } else {
     // Default - any
     $referral_query = '';
+    $referral = '';
 }
 
 //Rebuild URL
