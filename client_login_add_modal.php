@@ -55,12 +55,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Username</label>
+                                <label>Username / ID</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username">
+                                    <input type="text" class="form-control" name="username" placeholder="Username or ID">
                                 </div>
                             </div>
 

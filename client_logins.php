@@ -72,8 +72,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         } ?>">
                     <tr>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th>Username</th>
-                        <th>Password</th>
+                        <th>Username / ID</th>
+                        <th>Password / Key</th>
                         <th>OTP</th>
                         <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">URI</a></th>
                         <th class="text-center">Action</th>
