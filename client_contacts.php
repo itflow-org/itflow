@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
                                         <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                     </a>
-                                    <?php if (isset($_GET['archived'])) { ?>
+                                    <?php if ($archived) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-info"
                                         type="submit" form="bulkActions" name="bulk_unarchive_contacts">
