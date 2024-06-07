@@ -340,7 +340,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
     // Get Selected Contacts Count
     $count = count($_POST['contact_ids']);
-    
+
     // Assign Location to Selected Contacts
     if (!empty($_POST['contact_ids'])) {
         foreach($_POST['contact_ids'] as $contact_id) {
@@ -351,6 +351,11 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
             $row = mysqli_fetch_array($sql);
             $contact_name = sanitizeInput($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
+
+            if($_POST['bulk_remove_tags']) {
+                // Delete tags if chosed to do so
+                mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+            }
 
             // Add new tags
             foreach($_POST['bulk_tags'] as $tag) {

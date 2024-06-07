@@ -9,6 +9,12 @@
             </div>
 
             <div class="modal-body bg-white">
+                <input type="hidden" name="bulk_remove_tags" value="0">
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" name="bulk_remove_tags" value="1">
+                    <label class="form-check-label text-danger">Remove Existing Tags</label>
+                </div>
 
                 <div class="form-group">
                     <label>Tags</label>
