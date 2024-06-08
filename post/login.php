@@ -16,7 +16,7 @@ if (isset($_POST['add_login'])) {
     $login_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Create', log_description = '$session_name created login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Create', log_description = '$session_name created login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
     $_SESSION['alert_message'] = "Login <strong>$name</strong> created";
 
@@ -45,12 +45,56 @@ if (isset($_POST['edit_login'])) {
     mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_uri_2 = '$uri_2', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
     $_SESSION['alert_message'] = "Login <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if(isset($_GET['archive_login'])){
+
+    validateTechRole();
+
+    $login_id = intval($_GET['archive_login']);
+
+    // Get Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_archived_at = NOW() WHERE login_id = $login_id");
+
+    //logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Archive', log_description = '$session_name archived login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if(isset($_GET['unarchive_login'])){
+
+    $login_id = intval($_GET['unarchive_login']);
+
+    // Get Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_archived_at = NULL WHERE login_id = $login_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Unarchive', log_description = '$session_name restored credential $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+
+    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> restored";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_GET['delete_login'])) {
@@ -67,13 +111,141 @@ if (isset($_GET['delete_login'])) {
 
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Delete', log_description = '$session_name deleted login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+    // Remove Relations
+    mysqli_query($mysqli,"DELETE FROM client_logins WHERE login_id = $login_id");
+    mysqli_query($mysqli,"DELETE FROM service_logins WHERE login_id = $login_id");
+    mysqli_query($mysqli,"DELETE FROM software_logins WHERE login_id = $login_id");
+    mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE login_id = $login_id");
+
+
+    // Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Delete', log_description = '$session_name deleted login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
     $_SESSION['alert_message'] = "Login <strong>$login_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if (isset($_POST['bulk_archive_logins'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $login_ids = $_POST['login_ids']; // Get array of IDs to be deleted
+
+    if (!empty($login_ids)) {
+
+        // Cycle through array and archive each record
+        foreach ($login_ids as $login_id) {
+
+            $login_id = intval($login_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+            $row = mysqli_fetch_array($sql);
+            $login_name = sanitizeInput($row['login_name']);
+            $client_id = intval($row['login_client_id']);
+
+            mysqli_query($mysqli,"UPDATE logins SET login_archived_at = NOW() WHERE login_id = $login_id");
+
+            // Individual Contact logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Archive', log_description = '$session_name archived login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Archive', log_description = '$session_name archived $count logins', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Archived $count credential(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_unarchive_logins'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $login_ids = $_POST['login_ids']; // Get array of IDs
+
+    if (!empty($login_ids)) {
+
+        // Cycle through array and unarchive
+        foreach ($login_ids as $login_id) {
+
+            $login_id = intval($login_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+            $row = mysqli_fetch_array($sql);
+            $login_name = sanitizeInput($row['login_name']);
+            $client_id = intval($row['login_client_id']);
+
+            mysqli_query($mysqli,"UPDATE logins SET login_archived_at = NULL WHERE login_id = $login_id");
+
+            // Individual logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Unarchive', log_description = '$session_name Unarchived login $logins_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+
+
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Unarchive', log_description = '$session_name Unarchived $count logins', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Unarchived $count credential(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_delete_logins'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $login_ids = $_POST['login_ids']; // Get array of IDs to be deleted
+
+    if (!empty($login_ids)) {
+
+        // Cycle through array and delete each record
+        foreach ($login_ids as $login_id) {
+
+            $login_id = intval($login_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+            $row = mysqli_fetch_array($sql);
+            $login_name = sanitizeInput($row['login_name']);
+            $client_id = intval($row['login_client_id']);
+
+            
+            mysqli_query($mysqli, "DELETE FROM logins WHERE login_id = $login_id AND login_client_id = $client_id");
+
+            // Remove Relations
+            mysqli_query($mysqli,"DELETE FROM client_logins WHERE login_id = $login_id");
+            mysqli_query($mysqli,"DELETE FROM service_logins WHERE login_id = $login_id");
+            mysqli_query($mysqli,"DELETE FROM software_logins WHERE login_id = $login_id");
+            mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE login_id = $login_id");
+
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Delete', log_description = '$session_name deleted login $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Delete', log_description = '$session_name bulk deleted $count logins', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count credential(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST['export_client_logins_csv'])) {
@@ -121,7 +293,7 @@ if (isset($_POST['export_client_logins_csv'])) {
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Export', log_description = '$session_name exported $num_rows login(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Export', log_description = '$session_name exported $num_rows login(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
     exit;
 
@@ -196,7 +368,7 @@ if (isset($_POST["import_client_logins_csv"])) {
         fclose($file);
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'Import', log_description = '$session_name imported $row_count login(s) via csv file. $duplicate_count duplicate(s) detected and not imported', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Import', log_description = '$session_name imported $row_count login(s) via csv file. $duplicate_count duplicate(s) detected and not imported', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
         $_SESSION['alert_message'] = "$row_count Login(s) imported, $duplicate_count duplicate(s) detected and not imported";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
