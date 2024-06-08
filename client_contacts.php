@@ -22,6 +22,16 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
+// Location Filter
+if (isset($_GET['location']) & !empty($_GET['location'])) {
+    $location_query = 'AND (contact_location_id = ' . intval($_GET['location']) . ')';
+    $location = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query = '';
+    $location = '';
+}
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
@@ -33,6 +43,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*
     $tag_query
     AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%')
     AND contact_client_id = $client_id
+    $location_query
     GROUP BY contact_id
     ORDER BY contact_primary DESC, contact_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
@@ -95,7 +106,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <select class="form-control select2" name="location" onchange="this.form.submit()">
+                                <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Locations -</option>
+
+                                <?php
+                                $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                                while ($row = mysqli_fetch_array($sql_locations_filter)) {
+                                    $location_id = intval($row['location_id']);
+                                    $location_name = nullable_htmlentities($row['location_name']);
+                                ?>
+                                    <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
                         <div class="btn-group float-right">
                             <?php if($archived == 1){ ?>
                             <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
