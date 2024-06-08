@@ -461,6 +461,50 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['bulk_delete_contacts'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $contact_ids = $_POST['contact_ids']; // Get array of IDs to be deleted
+
+    if (!empty($contact_ids)) {
+
+        // Cycle through array and delete each record
+        foreach ($contact_ids as $contact_id) {
+
+            $contact_id = intval($contact_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $client_id = intval($row['contact_client_id']);
+            
+            mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
+
+            // Remove Relations
+            mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+            mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
+            mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
+            mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
+            mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
+
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name bulk deleted $count contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count contact(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['anonymize_contact'])) {
 
     validateAdminRole();
@@ -616,9 +660,12 @@ if (isset($_GET['delete_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
-    // Tags
-    // Delete existing tags
+    // Remove Relations
     mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+    mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
+    mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
+    mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
+    mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
