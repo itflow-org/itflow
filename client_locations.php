@@ -95,147 +95,199 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
 
                 <div class="col-md-6">
-                    <div class="float-right">
+                    <div class="btn-group float-right">
                         <?php if($archived == 1){ ?>
                         <a href="?client_id=<?php echo $client_id; ?>&archived=0" class="btn btn-primary"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                         <?php } else { ?>
                         <a href="?client_id=<?php echo $client_id; ?>&archived=1" class="btn btn-default"><i class="fa fa-fw fa-archive mr-2"></i>Archived</a>
                         <?php } ?>
+                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                    <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                </a>
+                                <?php if ($archived) { ?>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-info"
+                                    type="submit" form="bulkActions" name="bulk_unarchive_locations">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-danger text-bold"
+                                    type="submit" form="bulkActions" name="bulk_delete_locations">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                                <?php } else { ?>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-danger confirm-link"
+                                    type="submit" form="bulkActions" name="bulk_archive_locations">
+                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                </button>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
         </form>
         <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_address&order=<?php echo $disp; ?>">Address</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_phone&order=<?php echo $disp; ?>">Phone</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_hours&order=<?php echo $disp; ?>">Hours</a></th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_array($sql)) {
-                    $location_id = intval($row['location_id']);
-                    $location_name = nullable_htmlentities($row['location_name']);
-                    $location_description = nullable_htmlentities($row['location_description']);
-                    $location_country = nullable_htmlentities($row['location_country']);
-                    $location_address = nullable_htmlentities($row['location_address']);
-                    $location_city = nullable_htmlentities($row['location_city']);
-                    $location_state = nullable_htmlentities($row['location_state']);
-                    $location_zip = nullable_htmlentities($row['location_zip']);
-                    $location_phone = formatPhoneNumber($row['location_phone']);
-                    if (empty($location_phone)) {
-                        $location_phone_display = "-";
-                    } else {
-                        $location_phone_display = $location_phone;
-                    }
-                    $location_hours = nullable_htmlentities($row['location_hours']);
-                    if (empty($location_hours)) {
-                        $location_hours_display = "-";
-                    } else {
-                        $location_hours_display = $location_hours;
-                    }
-                    $location_photo = nullable_htmlentities($row['location_photo']);
-                    $location_notes = nullable_htmlentities($row['location_notes']);
-                    $location_created_at = nullable_htmlentities($row['location_created_at']);
-                    $location_contact_id = intval($row['location_contact_id']);
-                    $location_primary = intval($row['location_primary']);
-                    if ( $location_primary == 1 ) {
-                        $location_primary_display = "<small class='text-success'><i class='fa fa-fw fa-check'></i> Primary</small>";
-                    } else {
-                        $location_primary_display = "";
-                    }
-
-                    // Tags
-
-                    $location_tag_name_display_array = array();
-                    $location_tag_id_array = array();
-                    $sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
-                    while ($row = mysqli_fetch_array($sql_location_tags)) {
-
-                        $location_tag_id = intval($row['tag_id']);
-                        $location_tag_name = nullable_htmlentities($row['tag_name']);
-                        $location_tag_color = nullable_htmlentities($row['tag_color']);
-                        if (empty($location_tag_color)) {
-                            $location_tag_color = "dark";
-                        }
-                        $location_tag_icon = nullable_htmlentities($row['tag_icon']);
-                        if (empty($location_tag_icon)) {
-                            $location_tag_icon = "tag";
-                        }
-
-                        $location_tag_id_array[] = $location_tag_id;
-                        $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&q=$location_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
-                    }
-                    $location_tags_display = implode('', $location_tag_name_display_array);
-
-                    ?>
+        <form id="bulkActions" action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <td>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
-                                <div class="media">
-                                    <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
-                                    <div class="media-body">
-                                        <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
-                                        <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
-                                        <div><?php echo $location_primary_display; ?></div>
-                                         <?php
-                                        if (!empty($location_tags_display)) { ?>
-                                            <div class="mt-1">
-                                                <?php echo $location_tags_display; ?>
-                                            </div>
+                        <td class="bg-light pr-0">
+                            <div class="form-check">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                            </div>
+                        </td>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Name</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_address&order=<?php echo $disp; ?>">Address</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_phone&order=<?php echo $disp; ?>">Phone</a></th>
+                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_hours&order=<?php echo $disp; ?>">Hours</a></th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $location_id = intval($row['location_id']);
+                        $location_name = nullable_htmlentities($row['location_name']);
+                        $location_description = nullable_htmlentities($row['location_description']);
+                        $location_country = nullable_htmlentities($row['location_country']);
+                        $location_address = nullable_htmlentities($row['location_address']);
+                        $location_city = nullable_htmlentities($row['location_city']);
+                        $location_state = nullable_htmlentities($row['location_state']);
+                        $location_zip = nullable_htmlentities($row['location_zip']);
+                        $location_phone = formatPhoneNumber($row['location_phone']);
+                        if (empty($location_phone)) {
+                            $location_phone_display = "-";
+                        } else {
+                            $location_phone_display = $location_phone;
+                        }
+                        $location_hours = nullable_htmlentities($row['location_hours']);
+                        if (empty($location_hours)) {
+                            $location_hours_display = "-";
+                        } else {
+                            $location_hours_display = $location_hours;
+                        }
+                        $location_photo = nullable_htmlentities($row['location_photo']);
+                        $location_notes = nullable_htmlentities($row['location_notes']);
+                        $location_created_at = nullable_htmlentities($row['location_created_at']);
+                        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                        $location_contact_id = intval($row['location_contact_id']);
+                        $location_primary = intval($row['location_primary']);
+                        if ( $location_primary == 1 ) {
+                            $location_primary_display = "<small class='text-success'><i class='fa fa-fw fa-check'></i> Primary</small>";
+                        } else {
+                            $location_primary_display = "";
+                        }
+
+                        // Tags
+
+                        $location_tag_name_display_array = array();
+                        $location_tag_id_array = array();
+                        $sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
+                        while ($row = mysqli_fetch_array($sql_location_tags)) {
+
+                            $location_tag_id = intval($row['tag_id']);
+                            $location_tag_name = nullable_htmlentities($row['tag_name']);
+                            $location_tag_color = nullable_htmlentities($row['tag_color']);
+                            if (empty($location_tag_color)) {
+                                $location_tag_color = "dark";
+                            }
+                            $location_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            if (empty($location_tag_icon)) {
+                                $location_tag_icon = "tag";
+                            }
+
+                            $location_tag_id_array[] = $location_tag_id;
+                            $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&q=$location_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
+                        }
+                        $location_tags_display = implode('', $location_tag_name_display_array);
+
+                        ?>
+                        <tr>
+                            <td class="pr-0 bg-light">
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="location_ids[]" value="<?php echo $location_id ?>">
+                                </div>
+                            </td>
+                            <td>
+                                <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                    <div class="media">
+                                        <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
+                                        <div class="media-body">
+                                            <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
+                                            <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
+                                            <div><?php echo $location_primary_display; ?></div>
+                                             <?php
+                                            if (!empty($location_tags_display)) { ?>
+                                                <div class="mt-1">
+                                                    <?php echo $location_tags_display; ?>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            </td>
+                            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
+                            <td><?php echo $location_phone_display; ?></td>
+                            <td><?php echo $location_hours_display; ?></td>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
+                                            <?php if ($location_archived_at) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_location=<?php echo $location_id; ?>">
+                                                <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                            </a>
+                                            <?php } else { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?php echo $location_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
+                                            <?php } ?>
+                                            <?php if ($config_destructive_deletes_enable) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?php echo $location_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                            <?php } ?>
                                         <?php } ?>
                                     </div>
                                 </div>
-                            </a>
-                        </td>
-                        <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
-                        <td><?php echo $location_phone_display; ?></td>
-                        <td><?php echo $location_hours_display; ?></td>
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?php echo $location_id; ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                        </a>
-                                        <?php if ($config_destructive_deletes_enable) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?php echo $location_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                        <?php } ?>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                            <?php require "client_location_edit_modal.php";
- ?>
-                        </td>
-                    </tr>
+                                <?php require "client_location_edit_modal.php";
+     ?>
+                            </td>
+                        </tr>
 
-                <?php } ?>
+                    <?php } ?>
 
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+            <?php require_once "client_location_bulk_assign_tags_modal.php"; ?>
+        </form>
         <?php require_once "pagination.php";
  ?>
     </div>
 </div>
+
+<script src="js/bulk_actions.js"></script>
 
 <?php
 

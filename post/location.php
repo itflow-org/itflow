@@ -158,9 +158,9 @@ if(isset($_GET['archive_location'])){
 
 }
 
-if(isset($_GET['undo_archive_location'])){
+if(isset($_GET['unarchive_location'])){
 
-    $location_id = intval($_GET['undo_archive_location']);
+    $location_id = intval($_GET['unarchive_location']);
 
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
@@ -171,7 +171,7 @@ if(isset($_GET['undo_archive_location'])){
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Undo Archive', log_description = '$session_name restored location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Unarchive', log_description = '$session_name restored location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
 
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> restored";
 
@@ -204,6 +204,170 @@ if(isset($_GET['delete_location'])){
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if (isset($_POST['bulk_assign_location_tags'])) {
+
+    validateTechRole();
+
+    // Get Selected Count
+    $count = count($_POST['location_ids']);
+
+    // Assign Tags to Selected
+    if (!empty($_POST['location_ids'])) {
+        foreach($_POST['location_ids'] as $location_id) {
+            $location_id = intval($location_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+            $row = mysqli_fetch_array($sql);
+            $location_name = sanitizeInput($row['location_name']);
+            $client_id = intval($row['location_client_id']);
+
+            if($_POST['bulk_remove_tags']) {
+                // Delete tags if chosed to do so
+                mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
+            }
+
+            // Add new tags
+            foreach($_POST['bulk_tags'] as $tag) {
+                $tag = intval($tag);
+                
+                $sql = mysqli_query($mysqli,"SELECT * FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
+                if (mysqli_num_rows($sql) == 0) {
+                    mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+                }
+            }
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name added tags to $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+
+        } // End Assign Location Loop
+        
+        $_SESSION['alert_message'] = "Assigned tags for <b>$count</b> locations";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_archive_locations'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $location_ids = $_POST['location_ids']; // Get array of IDs to be deleted
+
+    if (!empty($location_ids)) {
+
+        // Cycle through array and archive each contact
+        foreach ($location_ids as $location_id) {
+
+            $location_id = intval($location_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id, location_primary FROM locations WHERE location_id = $location_id");
+            $row = mysqli_fetch_array($sql);
+            $location_name = sanitizeInput($row['location_name']);
+            $location_primary = intval($row['location_primary']);
+            $client_id = intval($row['location_client_id']);
+
+
+            if($location_primary == 0) {
+                mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
+
+                // Individual Contact logging
+                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+                $count++;
+            }
+
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Archived $count location(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_unarchive_locations'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $location_ids = $_POST['location_ids']; // Get array of IDs
+
+    if (!empty($location_ids)) {
+
+        // Cycle through array and unarchive
+        foreach ($location_ids as $location_id) {
+
+            $location_id = intval($location_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+            $row = mysqli_fetch_array($sql);
+            $location_name = sanitizeInput($row['location_name']);
+            $client_id = intval($row['location_client_id']);
+
+            mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
+
+            // Individual logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+
+
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Unarchived $count location(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_delete_locations'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $location_ids = $_POST['location_ids']; // Get array of IDs to be deleted
+
+    if (!empty($location_ids)) {
+
+        // Cycle through array and delete each record
+        foreach ($location_ids as $location_id) {
+
+            $location_id = intval($location_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+            $row = mysqli_fetch_array($sql);
+            $location_name = sanitizeInput($row['location_name']);
+            $client_id = intval($row['location_client_id']);
+
+            
+            mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name bulk deleted $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count location(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if(isset($_POST['export_client_locations_csv'])){

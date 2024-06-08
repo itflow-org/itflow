@@ -103,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td>
+                            <td class="pr-0">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
                                 </div>
