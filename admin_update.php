@@ -34,7 +34,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
 
             <?php if (!empty($git_log)) { ?>
                 <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
-                <a class="btn btn-primary" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>FORCE Update App</h5></a>
+                <a class="btn btn-danger" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
                 <hr>
 
             <?php } else {
