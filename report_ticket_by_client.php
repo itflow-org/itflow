@@ -79,7 +79,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         <th>Client</th>
                         <th class="text-right">Tickets raised</th>
                         <th class="text-right">Tickets closed</th>
-                        <th class="text-right">Time worked <i>(H:M:S)</i></th>
+                        <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
                         <th class="text-right">Avg time to close</th>
                     </tr>
                     </thead>
@@ -119,6 +119,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $total += ($closedTime->getTimestamp() - $openedTime->getTimestamp());
                                 $count++;
                             }
+                            $avg_time_to_close = $total / $count;
 
                             ?>
 
@@ -127,7 +128,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_closed_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                <td class="text-right"><?php echo secondsToTime($total); ?></td>
+                                <td class="text-right"><?php echo secondsToTime($avg_time_to_close); ?></td>
                             </tr>
                             <?php
                         }
