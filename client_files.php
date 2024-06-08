@@ -246,7 +246,7 @@ $num_of_files = mysqli_num_rows($sql);
                             
                             <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
-                                <td class="bg-light">
+                                <td class="bg-light pr-0">
                                     <div class="form-check">
                                         <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                     </div>
@@ -293,7 +293,7 @@ $num_of_files = mysqli_num_rows($sql);
                                 ?>
 
                                 <tr>
-                                    <td class="bg-light">
+                                    <td class="bg-light pr-0">
                                         <div class="form-check">
                                             <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?php echo $file_id ?>">
                                         </div>

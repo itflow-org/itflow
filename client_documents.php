@@ -200,10 +200,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <form id="bulkActions" action="post.php" method="post">
 
                         <div class="table-responsive-sm">
-                            <table class="table table-striped table-sm table-borderless table-hover">
-                                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                            <table class="table table-border">
+                                <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                                 <tr>
-                                    <td class="bg-light">
+                                    <td class="bg-light pr-0">
                                         <div class="form-check">
                                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                         </div>
@@ -238,7 +238,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     ?>
 
                                     <tr>
-                                        <td class="bg-light">
+                                        <td class="bg-light pr-0">
                                             <div class="form-check">
                                                 <input class="form-check-input bulk-select" type="checkbox" name="document_ids[]" value="<?php echo $document_id ?>">
                                             </div>
