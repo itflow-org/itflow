@@ -215,6 +215,26 @@ if (isset($_GET['archive_vendor'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if(isset($_GET['unarchive_vendor'])){
+
+    $vendor_id = intval($_GET['unarchive_vendor']);
+
+    // Get Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
+    $row = mysqli_fetch_array($sql);
+    $vendor_name = sanitizeInput($row['vendor_name']);
+    $client_id = intval($row['vendor_client_id']);
+
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Unarchive', log_description = '$session_name restored credential $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $vendor_id");
+
+    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> restored";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['delete_vendor'])) {
     $vendor_id = intval($_GET['delete_vendor']);
 
@@ -232,11 +252,143 @@ if (isset($_GET['delete_vendor'])) {
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
 
+    // Remove Relations
+    mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_archive_vendors'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $vendor_ids = $_POST['vendor_ids']; // Get array of IDs to be deleted
+
+    if (!empty($vendor_ids)) {
+
+        // Cycle through array and archive each record
+        foreach ($vendor_ids as $vendor_id) {
+
+            $vendor_id = intval($vendor_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
+            $row = mysqli_fetch_array($sql);
+            $vendor_name = sanitizeInput($row['vendor_name']);
+            $client_id = intval($row['vendor_client_id']);
+
+            mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
+
+            // Individual Contact logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archive', log_description = '$session_name archived vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $vendor_id");
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Vendor', log_action = 'Archive', log_description = '$session_name archived $count vendors', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Archived $count credential(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_unarchive_vendors'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $vendor_ids = $_POST['vendor_ids']; // Get array of IDs
+
+    if (!empty($vendor_ids)) {
+
+        // Cycle through array and unarchive
+        foreach ($vendor_ids as $vendor_id) {
+
+            $vendor_id = intval($vendor_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
+            $row = mysqli_fetch_array($sql);
+            $vendor_name = sanitizeInput($row['vendor_name']);
+            $client_id = intval($row['vendor_client_id']);
+
+            mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
+
+            // Individual logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Unarchive', log_description = '$session_name Unarchived vendor $vendors_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $vendor_id");
+
+
+            $count++;
+        }
+
+        // Bulk Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Vendor', log_action = 'Unarchive', log_description = '$session_name Unarchived $count vendors', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Unarchived $count vendor(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_delete_vendors'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $vendor_ids = $_POST['vendor_ids']; // Get array of IDs to be deleted
+
+    if (!empty($vendor_ids)) {
+
+        // Cycle through array and delete each record
+        foreach ($vendor_ids as $vendor_id) {
+
+            $vendor_id = intval($vendor_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id, vendor_template_id FROM vendors WHERE vendor_id = $vendor_id");
+            $row = mysqli_fetch_array($sql);
+            $vendor_name = sanitizeInput($row['vendor_name']);
+            $client_id = intval($row['vendor_client_id']);
+            $vendor_template_id = intval($row['vendor_template_id']);
+
+            // If its a template reset all vendors based off this template to no template base
+            if ($vendor_template_id > 0) {
+                mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
+            }
+            
+            mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
+
+            // Remove Relations
+            mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
+            mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
+            mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
+            mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
+
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $vendor_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name bulk deleted $count vendors', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "Deleted $count vendor(s)";
+
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
