@@ -762,14 +762,14 @@ if (isset($_GET['update'])) {
 
     validateAdminRole();
 
-    exec("git pull");
-
-    //FORCE UPDATE FUNCTION (Will be added later as a checkbox)
     //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
 
-    //exec("git fetch --all");
-    //exec("git reset --hard origin/master");
-
+    if(isset($_GET['force_update'] == 1)) {
+        exec("git fetch --all");
+        exec("git reset --hard origin/master");
+    } else {
+        exec("git pull");
+    }
     //header("Location: post.php?update_db");
 
 
