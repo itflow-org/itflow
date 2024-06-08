@@ -49,13 +49,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
+                <div class="col-md-8">
+                    <div class="btn-group float-right">
+                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                            </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item text-danger text-bold"
+                                        type="submit" form="bulkActions" name="bulk_delete_recurring_tickets">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </form>
         <hr>
 
         <div class="table-responsive-sm">
 
-            <form id="bulk_actions" action="post.php" method="post">
+            <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <table class="table table-striped table-borderless table-hover">
@@ -63,7 +79,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         echo "d-none";
                     } ?>">
                     <tr>
-                        <th><a class="text-dark">Select</a></th>
+                        <td class="pr-0">
+                            <div class="form-check">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                            </div>
+                        </td>
                         <th><a class="text-dark">Subject</a></th>
                         <th><a class="text-dark">Priority</a></th>
                         <th><a class="text-dark">Frequency</a></th>
@@ -85,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="scheduled_ticket_ids[]" onchange="showBulkDeleteButton()" value="<?php echo $scheduled_ticket_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
                                 </div>
                             </td>
 
@@ -126,10 +146,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </form>
 
-        </div>
-
-        <div class="form-check">
-            <input type="submit" id="button_bulk_delete" form="bulk_actions" name="bulk_delete_recurring_tickets" value="Bulk Delete" hidden>
         </div>
 
         <?php require_once 'pagination.php';

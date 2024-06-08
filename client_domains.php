@@ -81,7 +81,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                         <tr>
@@ -128,7 +129,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td class="pr-0">
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="domain_ids[]" value="<?php echo $domain_id ?>">
-                                        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                     </div>
                                 </td>
                                 <td>
