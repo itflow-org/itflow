@@ -6,17 +6,29 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Category Filter
+if (isset($_GET['category']) & !empty($_GET['category'])) {
+    $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
+    $category = intval($_GET['category']);
+} else {
+    // Default - any
+    $category_query = '';
+    $category = '';
+}
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'o' => $order)));
+$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM products
     LEFT JOIN categories ON product_category_id = category_id
     LEFT JOIN taxes ON product_tax_id = tax_id
-    WHERE product_archived_at IS NULL
-    AND (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%' OR tax_percent LIKE '%$q%')
+    WHERE (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%' OR tax_percent LIKE '%$q%')
+    AND product_$archive_query
+    $category_query
+    
+    
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -28,12 +40,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-box-open mr-2"></i>Products</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-plus mr-2"></i>New Product</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-plus mr-2"></i>New Product</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportProductsModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
@@ -43,6 +64,56 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+
+                                <?php
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
+                                while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                    $category_id = intval($row['category_id']);
+                                    $category_name = nullable_htmlentities($row['category_name']);
+                                ?>
+                                    <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="btn-group float-right">
+                        <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                        </a>
+                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                            </button>
+                            <div class="dropdown-menu">
+                                <?php if ($archived) { ?>
+                                <button class="dropdown-item text-info"
+                                    type="submit" form="bulkActions" name="bulk_unarchive_logins">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-danger text-bold"
+                                    type="submit" form="bulkActions" name="bulk_delete_logins">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                                <?php } else { ?>
+                                <button class="dropdown-item text-danger confirm-link"
+                                    type="submit" form="bulkActions" name="bulk_archive_logins">
+                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                </button>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 </div>
             </form>
             <hr>
