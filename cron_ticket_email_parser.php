@@ -106,7 +106,7 @@ require_once "plugins/php-mime-mail-parser/src/Parser.php";
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
 
 // Function to raise a new ticket for a given contact and email them confirmation (if configured)
-function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments) {
+function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file) {
 
     // Access global variables
     global $mysqli,$config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
@@ -128,8 +128,19 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     echo "Created new ticket.<br>";
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email created ticket $config_ticket_prefix$ticket_number ($subject) ($id)', log_client_id = $client_id");
 
-    // Process attachments (after ticket is logged as created)
-    mkdirMissing('uploads/tickets/');
+    // -- Process attachments (after ticket is logged as created because we save to the folder named after the ticket ID) --
+
+    mkdirMissing('uploads/tickets/'); // Create tickets dir
+
+    // Setup directory for this ticket ID
+    $att_dir = "uploads/tickets/" . $id . "/";
+    mkdirMissing($att_dir);
+
+    // Save original email message as ticket attachment
+    rename("uploads/tmp/{$original_message_file}", "{$att_dir}/{$original_message_file}");
+    mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = 'Original-parsed-email.eml', ticket_attachment_reference_name = '$original_message_file', ticket_attachment_ticket_id = $id");
+
+    // Process each attachment
     foreach ($attachments as $attachment) {
 
         // Get name and extension
@@ -139,10 +150,6 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
         // Check the extension is allowed
         if (in_array($att_extension, $allowed_extensions)) {
-
-            // Setup directory for this ticket ID
-            $att_dir = "uploads/tickets/" . $id . "/";
-            mkdirMissing($att_dir);
 
             // Save attachment with a random name
             $att_saved_path = $attachment->save($att_dir, Parser::ATTACHMENT_RANDOM_FILENAME);
@@ -411,6 +418,11 @@ if ($emails) {
         // Default false
         $email_processed = false;
 
+        // Save the original email (to be moved later)
+        mkdirMissing('uploads/tmp/'); // Create tmp dir
+        $original_message_file = "processed-eml-" . randomString(200) . ".eml";
+        imap_savebody($imap, "uploads/tmp/{$original_message_file}", $email);
+
         // Get details from message and invoke PHP Mime Mail Parser
         $msg_to_parse = imap_fetchheader($imap, $email, FT_PREFETCHTEXT) . imap_body($imap, $email, FT_PEEK);
         $parser = new PhpMimeMailParser\Parser();
@@ -474,7 +486,7 @@ if ($emails) {
                 $contact_email = sanitizeInput($row['contact_email']);
                 $client_id = intval($row['contact_client_id']);
 
-                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments)) {
+                if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file)) {
                     $email_processed = true;
                 }
 
@@ -503,7 +515,7 @@ if ($emails) {
                     echo "Created new contact.<br>";
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact $contact_name', log_client_id = $client_id");
 
-                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments)) {
+                    if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file)) {
                         $email_processed = true;
                     }
 
@@ -523,9 +535,14 @@ if ($emails) {
             imap_setflag_full($imap, $email, "\\Seen");
             imap_mail_move($imap, $email, $imap_folder);
         } else {
-            // Basically just flags all emails keep them unread and it doesnt move closed tickets
+            // Basically just flags all emails to be manually checked
             echo "Failed to process email - flagging for manual review.";
             imap_setflag_full($imap, $email, "\\Flagged");
+        }
+
+        // Remove temp original message if still there
+        if (file_exists("uploads/tmp/{$original_message_file}")) {
+            unlink("uploads/tmp/{$original_message_file}");
         }
 
     }
