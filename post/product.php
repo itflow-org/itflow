@@ -84,3 +84,47 @@ if (isset($_GET['delete_product'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_POST['export_products_csv'])) {
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM products
+      LEFT JOIN categories ON product_category_id = category_id
+      LEFT JOIN taxes ON product_tax_id = tax_id
+      WHERE product_archived_at IS NULL
+      ORDER BY product_name DESC
+    ");
+
+    if (mysqli_num_rows($sql) > 0) {
+        $delimiter = ",";
+        $filename = "$session_company_name-Products.csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Product', 'Description', 'Price', 'Currency', 'Category', 'Tax');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = mysqli_fetch_assoc($sql)) {
+            $lineData = array($row['product_name'], $row['product_description'], $row['product_price'], $row['product_currency_code'], $row['category_name'], $row['tax_name']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Product', log_action = 'Export', log_description = '$session_name exported products to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+
+    exit;
+}
