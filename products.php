@@ -84,129 +84,160 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-md-6">
-                    <div class="btn-group float-right">
-                        <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
-                        </a>
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                            </button>
-                            <div class="dropdown-menu">
-                                <?php if ($archived) { ?>
-                                <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_logins">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                        <div class="btn-group float-right">
+                            <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                                class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            </a>
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item text-danger text-bold"
-                                    type="submit" form="bulkActions" name="bulk_delete_logins">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                </button>
-                                <?php } else { ?>
-                                <button class="dropdown-item text-danger confirm-link"
-                                    type="submit" form="bulkActions" name="bulk_archive_logins">
-                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                </button>
-                                <?php } ?>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
+                                        <i class="fas fa-fw fa-list mr-2"></i>Set Category
+                                    </a>
+                                    <?php if ($archived) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-info"
+                                        type="submit" form="bulkActions" name="bulk_unarchive_products">
+                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                    </button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger text-bold"
+                                        type="submit" form="bulkActions" name="bulk_delete_products">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </button>
+                                    <?php } else { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger confirm-link"
+                                        type="submit" form="bulkActions" name="bulk_archive_products">
+                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    </button>
+                                    <?php } ?>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                </div>
             </form>
             <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_description&order=<?php echo $disp; ?>">Description</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">Tax Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">Tax Rate</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_price&order=<?php echo $disp; ?>">Price</a></th>
-                        
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_array($sql)) {
-                        $product_id = intval($row['product_id']);
-                        $product_name = nullable_htmlentities($row['product_name']);
-                        $product_description = nullable_htmlentities($row['product_description']);
-                        if (empty($product_description)) {
-                            $product_description_display = "-";
-                        } else {
-                            $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
-                        }
-                        $product_price = floatval($row['product_price']);
-                        $product_currency_code = nullable_htmlentities($row['product_currency_code']);
-                        $product_created_at = nullable_htmlentities($row['product_created_at']);
-                        $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
-                        $product_tax_id = intval($row['product_tax_id']);
-                        $tax_name = nullable_htmlentities($row['tax_name']);
-                        if (empty($tax_name)) {
-                            $tax_name_display = "-";
-                        } else {
-                            $tax_name_display = $tax_name;
-                        }
-                        $tax_percent = floatval($row['tax_percent']);
-
-
-                        ?>
+            <form id="bulkActions" action="post.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <div class="table-responsive-sm">
+                    <table class="table table-striped table-borderless table-hover">
+                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                         <tr>
-                            <th><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></th>
-                            <td><?php echo $category_name; ?></td>
-                            <td><?php echo $product_description_display; ?></td>
-                            <td><?php echo $tax_name_display; ?></td>
-                            <td><?php echo $tax_percent; ?>%</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
-                            
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?php echo $product_id; ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                        </a>
-                                        <?php if ($config_destructive_deletes_enable) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?php echo $product_id; ?>">
-                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                         </a>
-                                        <?php } ?>
-                                    </div>
+                            <td class="bg-light pr-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_name&order=<?php echo $disp; ?>">Name</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_description&order=<?php echo $disp; ?>">Description</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">Tax Name</a></th>
+                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">Tax Rate</a></th>
+                            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_price&order=<?php echo $disp; ?>">Price</a></th>
+                            
+                            <th class="text-center">Action</th>
                         </tr>
-
+                        </thead>
+                        <tbody>
                         <?php
 
-                        require "product_edit_modal.php";
+                        while ($row = mysqli_fetch_array($sql)) {
+                            $product_id = intval($row['product_id']);
+                            $product_name = nullable_htmlentities($row['product_name']);
+                            $product_description = nullable_htmlentities($row['product_description']);
+                            if (empty($product_description)) {
+                                $product_description_display = "-";
+                            } else {
+                                $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
+                            }
+                            $product_price = floatval($row['product_price']);
+                            $product_currency_code = nullable_htmlentities($row['product_currency_code']);
+                            $product_created_at = nullable_htmlentities($row['product_created_at']);
+                            $product_archived_at = nullable_htmlentities($row['product_archived_at']);
+                            $category_id = intval($row['category_id']);
+                            $category_name = nullable_htmlentities($row['category_name']);
+                            $product_tax_id = intval($row['product_tax_id']);
+                            $tax_name = nullable_htmlentities($row['tax_name']);
+                            if (empty($tax_name)) {
+                                $tax_name_display = "-";
+                            } else {
+                                $tax_name_display = $tax_name;
+                            }
+                            $tax_percent = floatval($row['tax_percent']);
 
 
-                    }
+                            ?>
+                            <tr>
+                                <td class="pr-0 bg-light">
+                                    <div class="form-check">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="product_ids[]" value="<?php echo $product_id ?>">
+                                    </div>
+                                </td>
+                                <th><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></th>
+                                <td><?php echo $category_name; ?></td>
+                                <td><?php echo $product_description_display; ?></td>
+                                <td><?php echo $tax_name_display; ?></td>
+                                <td><?php echo $tax_percent; ?>%</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
+                                
+                                <td>
+                                    <div class="dropdown dropleft text-center">
+                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">
+                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            </a>
+                                            <?php if ($session_user_role == 3) { ?>
+                                                <?php if ($product_archived_at) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-info" href="post.php?unarchive_product=<?php echo $product_id; ?>">
+                                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                                </a>
+                                                <?php if ($config_destructive_deletes_enable) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?php echo $product_id; ?>">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
+                                                <?php } ?>
+                                                <?php } else { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?php echo $product_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
+                                                <?php } ?>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
 
-                    ?>
+                            <?php
 
-                    </tbody>
-                </table>
-            </div>
+                            require "product_edit_modal.php";
+
+
+                        }
+
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+                <?php require_once "product_bulk_edit_category_modal.php"; ?>
+            </form>
             <?php require_once "pagination.php";
  ?>
         </div>
     </div>
+
+<script src="js/bulk_actions.js"></script>
 
 <?php
 
