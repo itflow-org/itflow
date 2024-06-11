@@ -4,8 +4,7 @@
 $sort = "domain_name";
 $order = "ASC";
 
-require_once "inc_all.php";
-
+require_once "inc_all_reports.php";
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -22,8 +21,8 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*,
     LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
     LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-    AND domain_archived_at IS NULL
-    AND (domain_name LIKE '%$q%' OR domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%') 
+    WHERE domain_archived_at IS NULL
+    AND (domains.domain_name LIKE '%$q%' OR domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

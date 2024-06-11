@@ -28,12 +28,7 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-globe"></i>
-                        <p>All Domains</p>
-                    </a>
-                </li>
+                
                 <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
                     <li class="nav-header mt-3">SUPPORT</li>
                     <li class="nav-item">

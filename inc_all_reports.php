@@ -16,6 +16,7 @@ require_once "inc_wrapper.php";
 
 require_once "inc_alert_feedback.php";
 
+require_once "pagination_head.php";
 
 // Set variable default values
 $largest_income_month = 0;
