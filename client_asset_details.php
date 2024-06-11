@@ -23,6 +23,7 @@ if (isset($_GET['asset_id'])) {
     $asset_serial = nullable_htmlentities($row['asset_serial']);
     $asset_os = nullable_htmlentities($row['asset_os']);
     $asset_ip = nullable_htmlentities($row['asset_ip']);
+    $asset_ipv6 = nullable_htmlentities($row['asset_ipv6']);
     $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
     $asset_mac = nullable_htmlentities($row['asset_mac']);
     $asset_uri = nullable_htmlentities($row['asset_uri']);

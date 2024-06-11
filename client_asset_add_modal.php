@@ -175,6 +175,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>IPv6 Address</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="ipv6" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>MAC Address</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

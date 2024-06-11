@@ -1948,10 +1948,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.7'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.3.7') {
-    //     // Insert queries here required to update to DB version 1.3.8
+    if (CURRENT_DATABASE_VERSION == '1.3.7') {
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_ipv6` VARCHAR(200) DEFAULT NULL AFTER `asset_ip`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.3.8') {
+    //     // Insert queries here required to update to DB version 1.3.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.9'");
     // }
 
 

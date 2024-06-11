@@ -47,7 +47,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN locations ON asset_location_id = location_id 
         WHERE asset_client_id = $client_id
         AND asset_$archive_query
-        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
+        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
         $location_query
     ) AS filtered_assets;
 "));
@@ -80,7 +80,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON asset_location_id = location_id 
     WHERE asset_client_id = $client_id
     AND asset_$archive_query
-    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
     AND ($type_query)
     $location_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -281,6 +281,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $asset_ip_display = $asset_ip;
                             }
+                            $asset_ipv6 = nullable_htmlentities($row['asset_ipv6']);
                             $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
                             $asset_mac = nullable_htmlentities($row['asset_mac']);
                             $asset_uri = nullable_htmlentities($row['asset_uri']);

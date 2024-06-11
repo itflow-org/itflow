@@ -20,6 +20,7 @@ if (isset($_POST['add_asset'])) {
     if($_POST['dhcp'] == 1){
         $ip = 'DHCP';
     }
+    $ipv6 = sanitizeInput($_POST['ipv6']);
     $nat_ip = sanitizeInput($_POST['nat_ip']);
     $mac = sanitizeInput($_POST['mac']);
     $uri = sanitizeInput($_POST['uri']);
@@ -51,7 +52,7 @@ if (isset($_POST['add_asset'])) {
 
     $alert_extended = "";
 
-    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_ipv6 = '$ipv6', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
 
     $asset_id = mysqli_insert_id($mysqli);
 
@@ -96,6 +97,7 @@ if (isset($_POST['edit_asset'])) {
     if($_POST['dhcp'] == 1){
         $ip = 'DHCP';
     }
+    $ipv6 = sanitizeInput($_POST['ipv6']);
     $nat_ip = sanitizeInput($_POST['nat_ip']);
     $mac = sanitizeInput($_POST['mac']);
     $uri = sanitizeInput($_POST['uri']);
@@ -125,7 +127,7 @@ if (isset($_POST['edit_asset'])) {
     }
     $notes = sanitizeInput($_POST['notes']);
 
-    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$ip', asset_ipv6 = '$ipv6', asset_nat_ip = '$nat_ip', asset_mac = '$mac', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network WHERE asset_id = $asset_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
