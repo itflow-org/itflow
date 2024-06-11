@@ -237,6 +237,7 @@ if (isset($_GET['contact_id'])) {
                                     $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
                                 $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
+                                $asset_ipv6 = nullable_htmlentities($row['asset_nat_ipv6']);
                                 $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
