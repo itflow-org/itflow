@@ -14,10 +14,13 @@ $insert_id = false;
 
 if (!empty($name) && !empty($client_id)) {
     // Insert into Database
-    $insert_sql = mysqli_query($mysqli, "INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_ip = '$aip', asset_mac = '$mac', asset_uri = '$uri', asset_status = '$status', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_network_id = $network, asset_client_id = $client_id");
+    $insert_sql = mysqli_query($mysqli, "INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_status = '$status', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_notes = '$notes', asset_client_id = $client_id");
 
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
+
+        // Add Primary Interface
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_mac = '$mac', interface_ip = '$ip', interface_port = 'eth0', interface_primary = 1, asset_network_id = $network, interface_asset_id = $insert_id");
 
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = '$client_id'");
