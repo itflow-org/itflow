@@ -208,7 +208,6 @@ if (isset($_GET['delete_client'])) {
 
     // Delete Client Data
     mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_client_id = $client_id");
-    mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
@@ -219,6 +218,14 @@ if (isset($_GET['delete_client'])) {
         mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
     }
     mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
+
+    // Delete Assets and Interfaces
+    $sql = mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id");
+    while($row = mysqli_fetch_array($sql)) {
+        $asset_id = $row['asset_id'];
+        mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
+    }
+    mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
 
     // Delete Domains and associated records
     $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains WHERE domain_client_id = $client_id");

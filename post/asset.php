@@ -556,7 +556,7 @@ if (isset($_POST['export_client_assets_csv'])) {
     $client_id = intval($_POST['client_id']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 LEFT JOIN clients ON asset_client_id = client_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
