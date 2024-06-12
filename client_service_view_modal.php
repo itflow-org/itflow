@@ -31,8 +31,8 @@
                                     mysqli_data_seek($sql_assets, 0);
 
                                     while ($row = mysqli_fetch_array($sql_assets)) {
-                                        if (!empty($row['asset_ip'])) {
-                                            $ip = '('.nullable_htmlentities($row["asset_ip"]).')';
+                                        if (!empty($row['interface_ip'])) {
+                                            $ip = '('.nullable_htmlentities($row["interface_ip"]).')';
                                         } else {
                                             $ip = '';
                                         }
