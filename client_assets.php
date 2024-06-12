@@ -303,7 +303,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_vendor_id = intval($row['asset_vendor_id']);
                             $asset_location_id = intval($row['asset_location_id']);
                             $asset_contact_id = intval($row['asset_contact_id']);
-                            $asset_network_id = intval($row['asset_network_id']);
+                            $asset_network_id = intval($row['interface_network_id']);
 
                             $device_icon = getAssetIcon($asset_type);
 
