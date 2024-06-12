@@ -48,7 +48,7 @@ if (isset($_GET['asset_id'])) {
 }
 // All assets
 else {
-    $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id LIKE '$client_id' ORDER BY asset_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

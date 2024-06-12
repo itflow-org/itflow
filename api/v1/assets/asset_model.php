@@ -57,17 +57,17 @@ if (isset($_POST['asset_os'])) {
 }
 
 if (isset($_POST['asset_ip'])) {
-    $aip = sanitizeInput($_POST['asset_ip']);
-} elseif (isset($asset_row) && isset($asset_row['asset_ip'])) {
-    $aip = $asset_row['asset_ip'];
+    $ip = sanitizeInput($_POST['asset_ip']);
+} elseif (isset($asset_row) && isset($asset_row['interface_ip'])) {
+    $ip = $asset_row['interface_ip'];
 } else {
-    $aip = '';
+    $ip = '';
 }
 
 if (isset($_POST['asset_mac'])) {
     $mac = sanitizeInput($_POST['asset_mac']);
-} elseif (isset($asset_row) && isset($asset_row['asset_mac'])) {
-    $mac = $asset_row['asset_mac'];
+} elseif (isset($asset_row) && isset($asset_row['interface_mac'])) {
+    $mac = $asset_row['interface_mac'];
 } else {
     $mac = '';
 }
@@ -146,8 +146,8 @@ if (isset($_POST['asset_contact_id'])) {
 
 if (isset($_POST['asset_network_id'])) {
     $network = intval($_POST['asset_network_id']);
-} elseif (isset($asset_row) && isset($asset_row['asset_network_id'])) {
-    $network = $asset_row['asset_network_id'];
+} elseif (isset($asset_row) && isset($asset_row['interface_network_id'])) {
+    $network = $asset_row['interface_network_id'];
 } else {
     $network = '0';
 }
