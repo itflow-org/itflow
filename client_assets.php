@@ -45,9 +45,10 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         SELECT assets.* FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_$archive_query
-        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
+        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
         $location_query
     ) AS filtered_assets;
 "));
@@ -78,9 +79,10 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM assets 
     LEFT JOIN contacts ON asset_contact_id = contact_id 
     LEFT JOIN locations ON asset_location_id = location_id 
+    LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
     WHERE asset_client_id = $client_id
     AND asset_$archive_query
-    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR asset_ip LIKE '%$q%' OR asset_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
+    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
     AND ($type_query)
     $location_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -275,15 +277,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $asset_os_display = $asset_os;
                             }
-                            $asset_ip = nullable_htmlentities($row['asset_ip']);
+                            $asset_ip = nullable_htmlentities($row['interface_ip']);
                             if (empty($asset_ip)) {
                                 $asset_ip_display = "-";
                             } else {
                                 $asset_ip_display = $asset_ip;
                             }
-                            $asset_ipv6 = nullable_htmlentities($row['asset_ipv6']);
-                            $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
-                            $asset_mac = nullable_htmlentities($row['asset_mac']);
+                            $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
+                            $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
+                            $asset_mac = nullable_htmlentities($row['interface_mac']);
                             $asset_uri = nullable_htmlentities($row['asset_uri']);
                             $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
                             $asset_status = nullable_htmlentities($row['asset_status']);

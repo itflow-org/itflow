@@ -418,15 +418,16 @@ if (isset($_POST['export_client_pdf'])) {
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_archived_at IS NULL
         ORDER BY asset_type ASC"
     );
-    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_type = 'server' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-    $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
-    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_workstations = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id = $client_id AND (asset_type = 'desktop' OR asset_type = 'laptop') AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_servers = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id = $client_id AND asset_type = 'server' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_vms = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id = $client_id AND asset_type = 'virtual machine' AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+    $sql_asset_network = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id = $client_id AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
+    $sql_asset_other = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_client_id = $client_id AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point') AND asset_archived_at IS NULL ORDER BY asset_type ASC");
     $sql_networks = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC");
     $sql_domains = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC");
     $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC");
@@ -892,8 +893,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_model = $row['asset_model'];
                             $asset_serial = $row['asset_serial'];
                             $asset_os = $row['asset_os'];
-                            $asset_ip = $row['asset_ip'];
-                            $asset_mac = $row['asset_mac'];
+                            $asset_ip = $row['interface_ip'];
+                            $asset_mac = $row['interface_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
@@ -1011,8 +1012,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_model = $row['asset_model'];
                             $asset_serial = $row['asset_serial'];
                             $asset_os = $row['asset_os'];
-                            $asset_ip = $row['asset_ip'];
-                            $asset_mac = $row['asset_mac'];
+                            $asset_ip = $row['interface_ip'];
+                            $asset_mac = $row['interface_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
@@ -1105,8 +1106,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_model = $row['asset_model'];
                             $asset_serial = $row['asset_serial'];
                             $asset_os = $row['asset_os'];
-                            $asset_ip = $row['asset_ip'];
-                            $asset_mac = $row['asset_mac'];
+                            $asset_ip = $row['interface_ip'];
+                            $asset_mac = $row['interface_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
@@ -1198,8 +1199,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_model = $row['asset_model'];
                             $asset_serial = $row['asset_serial'];
                             $asset_os = $row['asset_os'];
-                            $asset_ip = $row['asset_ip'];
-                            $asset_mac = $row['asset_mac'];
+                            $asset_ip = $row['interface_ip'];
+                            $asset_mac = $row['interface_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];
@@ -1312,8 +1313,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $asset_model = $row['asset_model'];
                             $asset_serial = $row['asset_serial'];
                             $asset_os = $row['asset_os'];
-                            $asset_ip = $row['asset_ip'];
-                            $asset_mac = $row['asset_mac'];
+                            $asset_ip = $row['interface_ip'];
+                            $asset_mac = $row['interface_mac'];
                             $asset_purchase_date = $row['asset_purchase_date'];
                             $asset_warranty_expire = $row['asset_warranty_expire'];
                             $asset_install_date = $row['asset_install_date'];

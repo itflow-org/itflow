@@ -19,6 +19,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN users ON ticket_assigned_to = user_id
         LEFT JOIN locations ON ticket_location_id = location_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         LEFT JOIN vendors ON ticket_vendor_id = vendor_id
         LEFT JOIN projects ON ticket_project_id = project_id
         LEFT JOIN invoices ON ticket_invoice_id = invoice_id
@@ -101,7 +102,7 @@ if (isset($_GET['ticket_id'])) {
         $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
         $asset_id = intval($row['asset_id']);
-        $asset_ip = nullable_htmlentities($row['asset_ip']);
+        $asset_ip = nullable_htmlentities($row['interface_ip']);
         $asset_name = nullable_htmlentities($row['asset_name']);
         $asset_type = nullable_htmlentities($row['asset_type']);
         $asset_uri = nullable_htmlentities($row['asset_uri']);

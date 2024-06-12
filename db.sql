@@ -118,6 +118,32 @@ CREATE TABLE `asset_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_interfaces`
+--
+
+DROP TABLE IF EXISTS `asset_interfaces`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_interfaces` (
+  `interface_id` int(11) NOT NULL AUTO_INCREMENT,
+  `interface_name` varchar(200) NOT NULL,
+  `interface_mac` varchar(200) DEFAULT NULL,
+  `interface_ip` varchar(200) DEFAULT NULL,
+  `interface_nat_ip` varchar(200) DEFAULT NULL,
+  `interface_ipv6` varchar(200) DEFAULT NULL,
+  `interface_port` varchar(200) DEFAULT NULL,
+  `interface_notes` text DEFAULT NULL,
+  `interface_primary` tinyint(1) DEFAULT 0,
+  `interface_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `interface_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `interface_archived_at` datetime DEFAULT NULL,
+  `interface_network_id` int(11) DEFAULT NULL,
+  `interface_asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`interface_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `assets`
 --
 
@@ -133,10 +159,6 @@ CREATE TABLE `assets` (
   `asset_model` varchar(200) DEFAULT NULL,
   `asset_serial` varchar(200) DEFAULT NULL,
   `asset_os` varchar(200) DEFAULT NULL,
-  `asset_ip` varchar(20) DEFAULT NULL,
-  `asset_ipv6` varchar(200) DEFAULT NULL,
-  `asset_nat_ip` varchar(200) DEFAULT NULL,
-  `asset_mac` varchar(17) DEFAULT NULL,
   `asset_uri` varchar(500) DEFAULT NULL,
   `asset_uri_2` varchar(500) DEFAULT NULL,
   `asset_status` varchar(200) DEFAULT NULL,
@@ -152,7 +174,6 @@ CREATE TABLE `assets` (
   `asset_vendor_id` int(11) NOT NULL DEFAULT 0,
   `asset_location_id` int(11) NOT NULL DEFAULT 0,
   `asset_contact_id` int(11) NOT NULL DEFAULT 0,
-  `asset_network_id` int(11) NOT NULL DEFAULT 0,
   `asset_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`asset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -685,29 +706,6 @@ CREATE TABLE `history` (
   `history_quote_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `interfaces`
---
-
-DROP TABLE IF EXISTS `interfaces`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `interfaces` (
-  `interface_id` int(11) NOT NULL AUTO_INCREMENT,
-  `interface_number` int(11) DEFAULT NULL,
-  `interface_description` varchar(200) DEFAULT NULL,
-  `interface_connected_asset` varchar(200) DEFAULT NULL,
-  `interface_ip` varchar(200) DEFAULT NULL,
-  `interface_created_at` datetime DEFAULT current_timestamp(),
-  `interface_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `interface_archived_at` datetime DEFAULT NULL,
-  `interface_connected_asset_id` int(11) NOT NULL DEFAULT 0,
-  `interface_network_id` int(11) NOT NULL DEFAULT 0,
-  `interface_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`interface_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1968,4 +1966,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-10 22:10:02
+-- Dump completed on 2024-06-11 21:34:13

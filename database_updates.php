@@ -1953,10 +1953,60 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.3.8') {
-    //     // Insert queries here required to update to DB version 1.3.9
+    if (CURRENT_DATABASE_VERSION == '1.3.8') {
+        mysqli_query($mysqli, "DROP TABLE `interfaces`");
+
+        mysqli_query($mysqli, "CREATE TABLE `asset_interfaces` (
+            `interface_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `interface_name` VARCHAR(200) NOT NULL,
+            `interface_mac` VARCHAR(200) DEFAULT NULL,
+            `interface_ip` VARCHAR(200) DEFAULT NULL,
+            `interface_nat_ip` VARCHAR(200) DEFAULT NULL,
+            `interface_ipv6` VARCHAR(200) DEFAULT NULL,
+            `interface_port` VARCHAR(200) DEFAULT NULL,
+            `interface_notes` TEXT DEFAULT NULL,
+            `interface_primary` TINYINT(1) DEFAULT 0,
+            `interface_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `interface_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `interface_archived_at` DATETIME NULL,
+            `interface_network_id` INT(11) DEFAULT NULL,
+            `interface_asset_id` INT(11) NOT NULL,
+            PRIMARY KEY (`interface_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.9'");
+    
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.3.9') {
+        // Migrate all Network Info from Assets to Interface Table and make it primary interface
+        $sql = mysqli_query($mysqli, "SELECT * FROM assets");
+        while ($row = mysqli_fetch_array($sql)) {
+            $asset_id = intval($row['asset_id']);
+            $mac = sanitizeInput($row['asset_mac']);
+            $ip = sanitizeInput($row['asset_ip']);
+            $nat_ip = sanitizeInput($row['asset_nat_ip']);
+            $ipv6 = sanitizeInput($row['asset_ipv6']);
+            $network = intval($row['asset_network_id']);
+
+            mysqli_query($mysqli, "INSERT INTO `asset_interfaces` SET interface_name = 'Primary', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_port = 'eth0', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+        }
+
+        // Drop Fields from assets as they moved to asset_interfaces
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_ip`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_ipv6`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_nat_ip`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_mac`");
+        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_network_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.0'");
+
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.0') {
+    //     // Insert queries here required to update to DB version 1.4.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.1'");
     // }
 
 

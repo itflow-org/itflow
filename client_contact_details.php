@@ -39,7 +39,7 @@ if (isset($_GET['contact_id'])) {
     }
 
     // Related Assets Query
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
+    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Related Logins Query
@@ -230,15 +230,15 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $asset_os_display = $asset_os;
                                 }
-                                $asset_ip = nullable_htmlentities($row['asset_ip']);
+                                $asset_ip = nullable_htmlentities($row['interface_ip']);
                                 if (empty($asset_ip)) {
                                     $asset_ip_display = "-";
                                 } else {
                                     $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
-                                $asset_nat_ip = nullable_htmlentities($row['asset_nat_ip']);
-                                $asset_ipv6 = nullable_htmlentities($row['asset_nat_ipv6']);
-                                $asset_mac = nullable_htmlentities($row['asset_mac']);
+                                $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
+                                $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
+                                $asset_mac = nullable_htmlentities($row['interface_mac']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
                                 $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
@@ -254,7 +254,7 @@ if (isset($_GET['contact_id'])) {
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                                 $asset_vendor_id = intval($row['asset_vendor_id']);
                                 $asset_location_id = intval($row['asset_location_id']);
-                                $asset_network_id = intval($row['asset_network_id']);
+                                $asset_network_id = intval($row['interface_network_id']);
                                 $asset_contact_id = intval($row['asset_contact_id']);
 
                                 $login_id = $row['login_id'];
@@ -287,7 +287,6 @@ if (isset($_GET['contact_id'])) {
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAssetInterfaceModal<?php echo $asset_id; ?>">Interfaces</a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
@@ -313,8 +312,6 @@ if (isset($_GET['contact_id'])) {
                                 require "client_asset_edit_modal.php";
 
                                 require "client_asset_copy_modal.php";
-
-                                require "client_asset_interface_add_modal.php";
 
 
                             }
