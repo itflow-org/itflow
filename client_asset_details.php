@@ -149,6 +149,9 @@ if (isset($_GET['asset_id'])) {
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
+                    <?php if ($asset_photo) { ?>
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "uploads/clients/$client_id/$asset_photo"; ?>">
+                    <?php } ?>
                     <?php if ($asset_description) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
                     <?php } ?>
