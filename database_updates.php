@@ -2003,18 +2003,86 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.0') {
-    //     // Insert queries here required to update to DB version 1.4.1
-    //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.1'");
-    // }
+    if (CURRENT_DATABASE_VERSION == '1.4.0') {
 
+        mysqli_query($mysqli, "CREATE TABLE `racks` (
+            `rack_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `rack_name` VARCHAR(200) NOT NULL,
+            `rack_description` TEXT DEFAULT NULL,
+            `rack_model` VARCHAR(200) DEFAULT NULL,
+            `rack_depth` VARCHAR(50) DEFAULT NULL,
+            `rack_type` VARCHAR(50) DEFAULT NULL,
+            `rack_units` INT(11) NOT NULL,
+            `rack_photo` VARCHAR(200) DEFAULT NULL,
+            `rack_physical_location` VARCHAR(200) DEFAULT NULL,
+            `rack_notes` TEXT DEFAULT NULL,
+            `rack_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `rack_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `rack_archived_at` DATETIME NULL,
+            `rack_location_id` INT(11) DEFAULT NULL,
+            `rack_client_id` INT(11) NOT NULL,
+            PRIMARY KEY (`rack_id`)
+        )");
 
+        mysqli_query($mysqli, "CREATE TABLE `rack_units` (
+            `unit_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `unit_start_number` INT(11) NOT NULL,
+            `unit_end_number` INT(11) NOT NULL,
+            `unit_device` VARCHAR(200) DEFAULT NULL,
+            `unit_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `unit_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `unit_archived_at` DATETIME NULL,
+            `unit_asset_id` INT(11) DEFAULT NULL,
+            `unit_rack_id` INT(11) NOT NULL,
+            PRIMARY KEY (`unit_id`),
+            FOREIGN KEY (`unit_rack_id`) REFERENCES `racks`(`rack_id`) ON DELETE CASCADE
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `patch_panels` (
+            `patch_panel_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `patch_panel_name` VARCHAR(200) NOT NULL,
+            `patch_panel_description` TEXT DEFAULT NULL,
+            `patch_panel_type` VARCHAR(200) DEFAULT NULL,
+            `patch_panel_ports` INT(11) NOT NULL,
+            `patch_panel_physical_location` VARCHAR(200) DEFAULT NULL,
+            `patch_panel_notes` TEXT DEFAULT NULL,
+            `patch_panel_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `patch_panel_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `patch_panel_archived_at` DATETIME NULL,
+            `patch_panel_location_id` INT(11) DEFAULT NULL,
+            `patch_panel_rack_id` INT(11) DEFAULT NULL,
+            `patch_panel_client_id` INT(11) NOT NULL,
+            PRIMARY KEY (`patch_panel_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `patch_panel_ports` (
+            `port_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `port_number` INT(11) NOT NULL,
+            `port_name` VARCHAR(200) DEFAULT NULL,
+            `port_description` TEXT DEFAULT NULL,
+            `port_type` VARCHAR(200) DEFAULT NULL,
+            `port_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `port_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `port_archived_at` DATETIME NULL,
+            `port_asset_id` INT(11) DEFAULT NULL,
+            `port_patch_panel_id` INT(11) NOT NULL,
+            PRIMARY KEY (`port_id`),
+            FOREIGN KEY (`port_patch_panel_id`) REFERENCES `patch_panels`(`patch_panel_id`) ON DELETE CASCADE
+        )");
+
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_photo` VARCHAR(200) DEFAULT NULL AFTER `asset_install_date`");
+
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_physical_location` VARCHAR(200) DEFAULT NULL AFTER `asset_photo`");
     
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.1') {
+    //     // Insert queries here required to update to DB version 1.4.2
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
+    // }
 
 } else {
     // Up-to-date
 }
-
-
-

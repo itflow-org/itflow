@@ -165,6 +165,8 @@ CREATE TABLE `assets` (
   `asset_purchase_date` date DEFAULT NULL,
   `asset_warranty_expire` date DEFAULT NULL,
   `asset_install_date` date DEFAULT NULL,
+  `asset_photo` varchar(200) DEFAULT NULL,
+  `asset_physical_location` varchar(200) DEFAULT NULL,
   `asset_notes` text DEFAULT NULL,
   `asset_important` tinyint(1) NOT NULL DEFAULT 0,
   `asset_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -917,6 +919,55 @@ CREATE TABLE `notifications` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `patch_panel_ports`
+--
+
+DROP TABLE IF EXISTS `patch_panel_ports`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `patch_panel_ports` (
+  `port_id` int(11) NOT NULL AUTO_INCREMENT,
+  `port_number` int(11) NOT NULL,
+  `port_name` varchar(200) DEFAULT NULL,
+  `port_description` text DEFAULT NULL,
+  `port_type` varchar(200) DEFAULT NULL,
+  `port_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `port_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `port_archived_at` datetime DEFAULT NULL,
+  `port_asset_id` int(11) DEFAULT NULL,
+  `port_patch_panel_id` int(11) NOT NULL,
+  PRIMARY KEY (`port_id`),
+  KEY `port_patch_panel_id` (`port_patch_panel_id`),
+  CONSTRAINT `patch_panel_ports_ibfk_1` FOREIGN KEY (`port_patch_panel_id`) REFERENCES `patch_panels` (`patch_panel_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `patch_panels`
+--
+
+DROP TABLE IF EXISTS `patch_panels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `patch_panels` (
+  `patch_panel_id` int(11) NOT NULL AUTO_INCREMENT,
+  `patch_panel_name` varchar(200) NOT NULL,
+  `patch_panel_description` text DEFAULT NULL,
+  `patch_panel_type` varchar(200) DEFAULT NULL,
+  `patch_panel_ports` int(11) NOT NULL,
+  `patch_panel_physical_location` varchar(200) DEFAULT NULL,
+  `patch_panel_notes` text DEFAULT NULL,
+  `patch_panel_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `patch_panel_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `patch_panel_archived_at` datetime DEFAULT NULL,
+  `patch_panel_location_id` int(11) DEFAULT NULL,
+  `patch_panel_rack_id` int(11) DEFAULT NULL,
+  `patch_panel_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`patch_panel_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `payments`
 --
 
@@ -1044,6 +1095,56 @@ CREATE TABLE `quotes` (
   `quote_category_id` int(11) NOT NULL,
   `quote_client_id` int(11) NOT NULL,
   PRIMARY KEY (`quote_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rack_units`
+--
+
+DROP TABLE IF EXISTS `rack_units`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rack_units` (
+  `unit_id` int(11) NOT NULL AUTO_INCREMENT,
+  `unit_start_number` int(11) NOT NULL,
+  `unit_end_number` int(11) NOT NULL,
+  `unit_device` varchar(200) DEFAULT NULL,
+  `unit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `unit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `unit_archived_at` datetime DEFAULT NULL,
+  `unit_asset_id` int(11) DEFAULT NULL,
+  `unit_rack_id` int(11) NOT NULL,
+  PRIMARY KEY (`unit_id`),
+  KEY `unit_rack_id` (`unit_rack_id`),
+  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `racks`
+--
+
+DROP TABLE IF EXISTS `racks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `racks` (
+  `rack_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rack_name` varchar(200) NOT NULL,
+  `rack_description` text DEFAULT NULL,
+  `rack_model` varchar(200) DEFAULT NULL,
+  `rack_depth` varchar(50) DEFAULT NULL,
+  `rack_type` varchar(50) DEFAULT NULL,
+  `rack_units` int(11) NOT NULL,
+  `rack_photo` varchar(200) DEFAULT NULL,
+  `rack_physical_location` varchar(200) DEFAULT NULL,
+  `rack_notes` text DEFAULT NULL,
+  `rack_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `rack_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `rack_archived_at` datetime DEFAULT NULL,
+  `rack_location_id` int(11) DEFAULT NULL,
+  `rack_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`rack_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1966,4 +2067,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-11 21:34:13
+-- Dump completed on 2024-06-13 12:39:55
