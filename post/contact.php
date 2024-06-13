@@ -19,10 +19,6 @@ if (isset($_POST['add_contact'])) {
         $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
     }
 
-    if (!file_exists("uploads/clients/$client_id")) {
-        mkdir("uploads/clients/$client_id");
-    }
-
     mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password_hash', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
@@ -42,29 +38,27 @@ if (isset($_POST['add_contact'])) {
     }
 
     // Check for and process image/photo
-    $extended_alert_description = '';
     if ($_FILES['file']['tmp_name'] != '') {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
+            if (!file_exists("uploads/clients/$client_id")) {
+                mkdir("uploads/clients/$client_id");
+            }
             $upload_file_dir = "uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
         }
     }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
 
-    $_SESSION['alert_message'] = "Contact <strong>$name</strong> created" . $extended_alert_description;
+    $_SESSION['alert_message'] = "Contact <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

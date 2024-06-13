@@ -250,6 +250,8 @@ if (isset($_GET['contact_id'])) {
                                 }
                                 $asset_uri = nullable_htmlentities($row['asset_uri']);
                                 $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
+                                $asset_photo = nullable_htmlentities($row['asset_photo']);
+                                $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
                                 $asset_notes = nullable_htmlentities($row['asset_notes']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                                 $asset_vendor_id = intval($row['asset_vendor_id']);

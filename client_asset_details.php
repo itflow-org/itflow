@@ -29,6 +29,8 @@ if (isset($_GET['asset_id'])) {
     $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
     $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+    $asset_photo = nullable_htmlentities($row['asset_photo']);
+    $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
     $asset_notes = nullable_htmlentities($row['asset_notes']);
     $asset_created_at = nullable_htmlentities($row['asset_created_at']);
     $asset_vendor_id = intval($row['asset_vendor_id']);

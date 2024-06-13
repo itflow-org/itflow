@@ -297,6 +297,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $asset_install_date_display = $asset_install_date;
                             }
+                            $asset_photo = nullable_htmlentities($row['asset_photo']);
+                            $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
                             $asset_notes = nullable_htmlentities($row['asset_notes']);
                             $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                             $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
