@@ -92,3 +92,4 @@ require_once "post/ai.php";
 
 require_once "post/misc.php";
 
+require_once "post/rack.php";

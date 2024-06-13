@@ -283,3 +283,11 @@ $start_page_select_array = array (
     'invoices.php' => 'Invoices'
 );
 
+$rack_type_select_array = array(
+    "Open Wall-Mount",
+    "Enclosed Wall-Mount",
+    "Open Floor-Standing",
+    "Enclosed Floor-Standing",
+    "Other"
+);
+

@@ -163,6 +163,19 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="client_racks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_racks.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-server"></i>
+                        <p>
+                            Racks
+                            <?php
+                            if ($num_racks > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_racks; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="client_certificates.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_certificates.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-lock"></i>
                         <p>
