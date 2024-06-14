@@ -149,15 +149,18 @@ if (isset($_GET['delete_rack'])) {
     $rack_id = intval($_GET['delete_rack']);
 
     // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
+    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id, rack_photo FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_array($sql);
     $rack_name = sanitizeInput($row['rack_name']);
+    $rack_photo = sanitizeInput($row['rack_photo']);
     $client_id = intval($row['rack_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM racks WHERE rack_id = $rack_id");
 
-    // Delete related units
-    mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_rack_id = $rack_id"); 
+    // Delete Photo if exists
+    if ($rack_photo) {
+        unlink("uploads/clients/$client_id/$rack_photo");
+    }
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Rack', log_action = 'Delete', log_description = '$session_name deleted rack $rack_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
