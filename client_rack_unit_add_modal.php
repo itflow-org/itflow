@@ -34,8 +34,17 @@
                             <select class="form-control select2" name="asset">
                                 <option value="">- Asset -</option>
                                 <?php
+                                // Fetch IDs of all assets already assigned to any rack
+                                $assigned_assets = [];
+                                $assigned_sql = mysqli_query($mysqli, "SELECT unit_asset_id FROM rack_units");
+                                while ($assigned_row = mysqli_fetch_assoc($assigned_sql)) {
+                                    $assigned_assets[] = intval($assigned_row['unit_asset_id']);
+                                }
+                                $assigned_assets_list = implode(',', $assigned_assets);
+                                $assigned_assets_list = empty($assigned_assets_list) ? '0' : $assigned_assets_list;
 
-                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_name ASC");
+                                // Fetch assets not assigned to any rack
+                                $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id AND asset_id NOT IN ($assigned_assets_list) ORDER BY asset_name ASC");
                                 while ($row = mysqli_fetch_array($sql_assets)) {
                                     $asset_id = intval($row['asset_id']);
                                     $asset_name = nullable_htmlentities($row['asset_name']);
