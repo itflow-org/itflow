@@ -6,8 +6,7 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
-
-//Rebuild URL
+// Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
@@ -17,7 +16,8 @@ $sql = mysqli_query(
     WHERE rack_client_id = $client_id
     AND rack_$archive_query
     AND (rack_name LIKE '%$q%' OR rack_type LIKE '%$q%' OR rack_units LIKE '%$q%')
-    ORDER BY $sort $order LIMIT $record_from, $record_to");
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -78,6 +78,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 $rack_location_name = nullable_htmlentities($row['location_name']);
                 $rack_created_at = nullable_htmlentities($row['rack_created_at']);
 
+                // Fetch rack units
+                $unit_sql = mysqli_query($mysqli, "SELECT * FROM rack_units LEFT JOIN assets ON unit_asset_id = asset_id WHERE unit_rack_id = $rack_id ORDER BY unit_start_number ASC");
+                $rack_units_data = [];
+                while ($unit_row = mysqli_fetch_assoc($unit_sql)) {
+                    $rack_units_data[] = $unit_row;
+                }
+
                 ?>
                 <div class="col-md-6">
 
@@ -100,11 +107,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $ticket_reply_id; ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $rack_id; ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_rack=<?php echo $ticket_reply_id; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_rack=<?php echo $rack_id; ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>
@@ -114,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-7">
+                                <div class="col-md-6">
                                     <?php if ($rack_photo) { ?>
                                         <img class="img-fluid" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
                                     <?php } ?>
@@ -133,12 +140,52 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <dt>Notes:</dt>
                                     <dd><?php echo $rack_notes; ?></dd>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <table class="table table-bordered">
-                                        <?php for ($i = $rack_units; $i >= 1; $i--) { ?>
-                                        <tr>
-                                            <td class="text-center"><?php echo sprintf('%02d', $i); ?></td>
-                                        </tr>
+                                        <?php 
+                                        for ($i = $rack_units; $i >= 1; $i--) { 
+                                            $unit_devices = [];
+                                            foreach ($rack_units_data as $unit_data) {
+                                                if ($i >= $unit_data['unit_start_number'] && $i <= $unit_data['unit_end_number']) {
+                                                    $unit_devices[] = [
+                                                        'unit_id' => intval($unit_data['unit_id']),
+                                                        'device' => nullable_htmlentities($unit_data['unit_device']),
+                                                        'asset_id' => intval($unit_data['asset_id']),
+                                                        'asset_name' => nullable_htmlentities($unit_data['asset_name']),
+                                                        'asset_type' => nullable_htmlentities($unit_data['asset_type']),
+                                                        'icon' => getAssetIcon($unit_data['asset_type'])
+                                                    ];
+                                                }
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td class="px-0 text-center bg-light"><?php echo sprintf('%02d', $i); ?></td>
+                                                <td class="text-center">
+                                                    <?php foreach ($unit_devices as $unit_device) { ?>
+                                                        <?php echo $unit_device['device']; ?>
+                                                        <?php if ($unit_device['asset_name']) { ?>
+                                                        <i class="fa fa-fw fa-<?php echo $unit_device['icon']; ?> mr-1"></i>
+                                                        <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $unit_device['asset_id']; ?>" target="_blank"><?php echo $unit_device['asset_name']; ?><i class="fas fa-fw fa-external-link-alt ml-1"></i></a>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                </td>
+                                                <?php if(!empty($unit_devices)) { ?>
+                                                <td class="px-0 text-right">
+                                                    <div class="dropdown dropleft">
+                                                        <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                                            <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <?php foreach ($unit_devices as $unit_device) { ?>
+                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?remove_rack_unit=<?php echo $unit_device['unit_id']; ?>">
+                                                                <i class="fas fa-fw fa-minus mr-2"></i>Remove
+                                                            </a>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <?php } ?>
+                                            </tr>
                                         <?php } ?>
                                     </table>
                                 </div>
@@ -161,3 +208,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 require_once "client_rack_add_modal.php";
 require_once "footer.php";
+?>

@@ -180,17 +180,31 @@ if (isset($_POST['add_rack_unit'])) {
     $unit_end = intval($_POST['unit_end']);
     $asset = intval($_POST['asset']);
 
-    mysqli_query($mysqli,"INSERT INTO rack_units SET unit_device = '$name', unit_asset_id = $asset, unit_start_number = $unit_start, unit_end_number = $unit_end, unit_rack_id = $rack_id");
+    // Check if the unit range is already occupied
+    $check_sql = mysqli_query($mysqli, "SELECT * FROM rack_units WHERE unit_rack_id = $rack_id AND 
+        ((unit_start_number <= $unit_start AND unit_end_number >= $unit_start) OR 
+        (unit_start_number <= $unit_end AND unit_end_number >= $unit_end) OR 
+        ($unit_start <= unit_start_number AND $unit_end >= unit_start_number))");
+
+    if (mysqli_num_rows($check_sql) > 0) {
+        // If there is an overlap, return an error message
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Units $unit_start to $unit_end are already in use by another device.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    // If no overlap, proceed with the insertion
+    mysqli_query($mysqli, "INSERT INTO rack_units SET unit_device = '$name', unit_asset_id = $asset, unit_start_number = $unit_start, unit_end_number = $unit_end, unit_rack_id = $rack_id");
 
     $unit_id = mysqli_insert_id($mysqli);
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Rack Unit', log_action = 'Create', log_description = '$session_name added a unit the rack', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Rack Unit', log_action = 'Create', log_description = '$session_name added a unit the rack', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
 
     $_SESSION['alert_message'] = "Device Added to Unit $unit_start - $unit_end to rack";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }
 
 if (isset($_POST['edit_rack_unit'])) {
@@ -216,20 +230,20 @@ if (isset($_POST['edit_rack_unit'])) {
 
 }
 
-if (isset($_GET['delete_rack_unit'])) {
+if (isset($_GET['remove_rack_unit'])) {
 
     validateAdminRole();
 
-    $unit_id = intval($_GET['delete_rack_unit']);
+    $unit_id = intval($_GET['remove_rack_unit']);
 
     // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_id, rack_client_id FROM racks LEFT JOIN rack_units ON unit_rack_id = rack_id WHERE rack_id = $rack_id");
+    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_id, rack_client_id FROM racks LEFT JOIN rack_units ON unit_rack_id = rack_id WHERE unit_id = $unit_id");
     $row = mysqli_fetch_array($sql);
     $rack_name = sanitizeInput($row['rack_name']);
     $client_id = intval($row['rack_client_id']);
     $rack_id = intval($row['rack_id']);
 
-    mysqli_query($mysqli,"DELETE FROM rack_unit WHERE unit_id = $unit_id");
+    mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_id = $unit_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Rack Unit', log_action = 'Delete', log_description = '$session_name removed device from rack', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
