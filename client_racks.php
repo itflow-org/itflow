@@ -82,12 +82,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-6">
 
                     <div class="card card-dark">
-                        <div class="card-header py-2">
-                            <h3 class="card-title mt-2"><i class="fas fa-fw fa-server mr-2"></i><?php echo "$rack_name - $rack_units"; ?>U</h3>
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-fw fa-server mr-2"></i><?php echo "$rack_name - $rack_units"; ?>U</h3>
+                            
                             <div class="card-tools">
-                                <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#editRackModal<?php echo $rack_id; ?>">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                <div class="dropdown dropleft">
+                                    <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRackUnitModal<?php echo $rack_id; ?>">
+                                            <i class="fas fa-fw fa-plus text-secondary mr-2"></i>Add Device
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#editRackModal<?php echo $rack_id; ?>">
+                                            <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                        </a>
+                                        <?php if ($session_user_role == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $ticket_reply_id; ?>">
+                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_rack=<?php echo $ticket_reply_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -126,6 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 
                 </div>
                 <?php require "client_rack_edit_modal.php"; ?>
+                <?php require "client_rack_unit_add_modal.php"; ?>
             <?php } ?>
 
         </div>
