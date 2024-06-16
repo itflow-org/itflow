@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Device</label>
+                        <label>Or Select a Device</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
@@ -57,21 +57,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Unit Number Start <strong class="text-danger">*</strong></label>
+                        <label>Unit Number Start - End <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                             </div>
                             <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?php echo $rack_units; ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Unit Number End <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
-                            </div>
                             <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?php echo $rack_units; ?>" required>
                         </div>
                     </div>
