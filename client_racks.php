@@ -123,22 +123,54 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php if ($rack_photo) { ?>
-                                        <img class="img-fluid" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
+                                        <img class="img-fluid mb-3" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
                                     <?php } ?>
-                                    <dt>Description:</dt>
-                                    <dd><?php echo $rack_description; ?></dd>
-                                    <dt>Type:</dt>
-                                    <dd><?php echo $rack_type; ?></dd>
-                                    <dt>Model:</dt>
-                                    <dd><?php echo $rack_model; ?></dd>
-                                    <dt>Depth:</dt>
-                                    <dd><?php echo $rack_depth; ?></dd>
-                                    <dt>Location:</dt>
-                                    <dd><?php echo $rack_location_name; ?></dd>
-                                    <dt>Physical Location:</dt>
-                                    <dd><?php echo $rack_physical_location; ?></dd>
-                                    <dt>Notes:</dt>
-                                    <dd><?php echo $rack_notes; ?></dd>
+                                    <table class="table table-sm table-borderless">
+                                        <tbody>
+                                            <?php if ($rack_description) { ?>
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <td><?php echo $rack_description; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_type) { ?>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <td><?php echo $rack_type; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_model) { ?>
+                                                <tr>
+                                                    <th>Model</th>
+                                                    <td><?php echo $rack_model; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_depth) { ?>
+                                                <tr>
+                                                    <th>Depth</th>
+                                                    <td><?php echo $rack_depth; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_location_name) { ?>
+                                                <tr>
+                                                    <th>Location</th>
+                                                    <td><?php echo $rack_location_name; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_physical_location) { ?>
+                                                <tr>
+                                                    <th>Physical Location</th>
+                                                    <td><?php echo $rack_physical_location; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                            <?php if ($rack_notes) { ?>
+                                                <tr>
+                                                    <th>Notes</th>
+                                                    <td><?php echo $rack_notes; ?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-bordered">
