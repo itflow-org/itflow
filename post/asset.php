@@ -158,8 +158,15 @@ if (isset($_POST['edit_asset'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes' WHERE asset_id = $asset_id");
 
-    // Update Primary Interface
-    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+    $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+
+    if(mysqli_num_rows($sql_interfaces) == 0 ) {
+        // Add Primary Interface
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_port = 'eth0', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+    } else {
+        // Update Primary Interface
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+    }
 
     // Update Photo
     if ($_FILES['file']['tmp_name'] != '') {
@@ -541,6 +548,12 @@ if (isset($_POST["import_client_assets_csv"])) {
             if ($duplicate_detect == 0) {
                 //Add
                 mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+
+                $asset_id = mysqli_insert_id($mysqli);
+                
+                // Add Primary Interface
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_port = 'eth0', interface_primary = 1, interface_asset_id = $asset_id");
+
                 $row_count = $row_count + 1;
             } else {
                 $duplicate_count = $duplicate_count + 1;
