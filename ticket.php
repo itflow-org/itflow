@@ -403,9 +403,9 @@ if (isset($_GET['ticket_id'])) {
                                     <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                         <?php
                                         if ($ticket_billable == 1) {
-                                            echo "<span class='badge badge-pill badge-success p-2'>$</span>";
+                                            echo "<span class='badge badge-pill badge-success p-2'>Yes</span>";
                                         } else {
-                                            echo "<span class='badge badge-pill badge-secondary p-2'>X</span>";
+                                            echo "<span class='badge badge-pill badge-secondary p-2'>No</span>";
                                         }
                                         ?>
                                     </a>
