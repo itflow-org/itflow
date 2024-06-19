@@ -20,13 +20,6 @@
                             <select class="form-control select2" name="asset_id">
                                 <option value="">- Select an Asset -</option>
                                 <?php
-                                // Check if there are any associated vendors
-                                if (!empty($linked_assets)) {
-                                    $excluded_asset_ids = implode(",", $linked_assets);
-                                    $exclude_condition = "AND asset_id NOT IN ($excluded_asset_ids)";
-                                } else {
-                                    $exclude_condition = "";  // No condition if there are no displayed vendors
-                                }
 
                                 $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets
                                     WHERE asset_client_id = $client_id 
