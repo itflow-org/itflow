@@ -324,8 +324,31 @@ $client = $clientManager->make([
 // Connect to the IMAP server
 $client->connect();
 
-$inbox = $client->getFolder('INBOX');
-$messages = $inbox->query()->unseen()->get();
+// Possible names for the inbox folder
+$inboxNames = ['Inbox', 'INBOX', 'inbox'];
+
+// Function to get the correct inbox folder
+function getInboxFolder($client, $inboxNames) {
+    foreach ($inboxNames as $name) {
+        try {
+            $folder = $client->getFolder($name);
+            if ($folder) {
+                return $folder;
+            }
+        } catch (Exception $e) {
+            // Continue to the next name if the current one fails
+            continue;
+        }
+    }
+    throw new Exception("No inbox folder found.");
+}
+
+try {
+    $inbox = getInboxFolder($client, $inboxNames);
+    $messages = $inbox->query()->unseen()->get();
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
 
 if ($messages->count() > 0) {
     foreach ($messages as $message) {
