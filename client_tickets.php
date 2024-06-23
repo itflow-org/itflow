@@ -154,11 +154,11 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
 
                     if ($ticket_priority == "High") {
-                        $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                        $ticket_priority_display = "<span class='p-2 badge badge-pill badge-danger'>$ticket_priority</span>";
                     } elseif ($ticket_priority == "Medium") {
-                        $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                        $ticket_priority_display = "<span class='p-2 badge badge-pill badge-warning'>$ticket_priority</span>";
                     } elseif ($ticket_priority == "Low") {
-                        $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                        $ticket_priority_display = "<span class='p-2 badge badge-pill badge-info'>$ticket_priority</span>";
                     } else{
                         $ticket_priority_display = "-";
                     }
