@@ -448,9 +448,14 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <td>
                                     <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
 
-                                    <?php if($task_count) { ?>
-                                    <div class="progress mt-2" style="height: 20px;">
-                                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+                                    <?php if($task_count && $completed_task_count > 0) { ?>
+                                    <div class="progress mt-2" style="height: 20px;"> 
+                                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count.' / '.$task_count; ?></div>
+                                    </div>
+                                    <?php } ?>
+                                    <?php if($task_count && $completed_task_count == 0) { ?>
+                                    <div class="mt-2" style="height: 20px; background-color:#e9ecef;">   
+                                        <p class="text-center" ><?php echo $completed_task_count.' / '.$task_count; ?></p>
                                     </div>
                                     <?php } ?>
                                 </td>
