@@ -199,7 +199,7 @@ if (isset($_POST['test_email_imap'])) {
     validateAdminRole();
 
     // Autoload Composer dependencies
-    require_once __DIR__ . '..//plugins/php-imap/vendor/autoload.php';
+    require_once __DIR__ . '../plugins/php-imap/vendor/autoload.php';
 
     // Webklex PHP-IMAP
     use Webklex\PHPIMAP\ClientManager;
