@@ -46,11 +46,6 @@ if (!function_exists('imap_open')) {
     exit("Email Parser: PHP IMAP extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
-// Check mailparse extension works/installed
-if (!function_exists('mailparse_msg_parse_file')) {
-    exit("Email Parser: PHP mailparse extension is not installed. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
-}
-
 // Get system temp directory
 $temp_dir = sys_get_temp_dir();
 
