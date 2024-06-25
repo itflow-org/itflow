@@ -198,17 +198,32 @@ if (isset($_POST['test_email_imap'])) {
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
-    // Prepare connection string with encryption (TLS/SSL/<blank>)
-    $imap_mailbox = "$config_imap_host:$config_imap_port/imap/readonly/$config_imap_encryption";
+    // Autoload Composer dependencies
+    require_once __DIR__ . '/plugins/php-imap/vendor/autoload.php';
 
-    // Connect
-    $imap = imap_open("{{$imap_mailbox}}INBOX", $config_imap_username, $config_imap_password);
+    // Webklex PHP-IMAP
+    use Webklex\PHPIMAP\ClientManager;
 
-    if ($imap) {
+    try {
+        // Initialize the client manager and create the client
+        $clientManager = new ClientManager();
+        $client = $clientManager->make([
+            'host'          => $config_imap_host,
+            'port'          => $config_imap_port,
+            'encryption'    => $config_imap_encryption,
+            'validate_cert' => true,
+            'username'      => $config_imap_username,
+            'password'      => $config_imap_password,
+            'protocol'      => 'imap'
+        ]);
+
+        // Connect to the IMAP server
+        $client->connect();
+
         $_SESSION['alert_message'] = "Connected successfully";
-    } else {
+    } catch (Exception $e) {
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Test IMAP connection failed";
+        $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
