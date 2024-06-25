@@ -193,16 +193,18 @@ if (isset($_POST['test_email_smtp'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+
+// Test IMAP
+// Autoload Composer dependencies
+require_once __DIR__ . '/../plugins/php-imap/vendor/autoload.php';
+
+// Webklex PHP-IMAP
+use Webklex\PHPIMAP\ClientManager;
+
 if (isset($_POST['test_email_imap'])) {
 
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
-
-    // Autoload Composer dependencies
-    require_once __DIR__ . '../plugins/php-imap/vendor/autoload.php';
-
-    // Webklex PHP-IMAP
-    use Webklex\PHPIMAP\ClientManager;
 
     try {
         // Initialize the client manager and create the client
