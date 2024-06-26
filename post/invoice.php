@@ -676,12 +676,7 @@ if (isset($_POST['add_payment'])) {
             if ($email_receipt == 1) {
 				
 				// Get Email Template
-				$config_et_client_invoice_paymentfull = htmlspecialchars_decode($config_et_client_invoice_paymentfull);
-				$config_et_client_invoice_paymentfull = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-					$var_name = $matches[1];
-					global $$var_name;
-					return $$var_name;
-				}, $config_et_client_invoice_paymentfull);
+				$config_et_client_invoice_paymentfull = prepareEmailTemplate($config_et_client_invoice_paymentfull);
 
 				$subject = "$company_name Payment Received - Invoice $invoice_prefix$invoice_number";
 				$body = "$config_et_client_invoice_paymentfull";
@@ -715,13 +710,8 @@ if (isset($_POST['add_payment'])) {
 
             if ($email_receipt == 1) {
 
-			// Get Email Template
-			$config_et_client_invoice_paymentpartial = htmlspecialchars_decode($config_et_client_invoice_paymentpartial);
-			$config_et_client_invoice_paymentpartial = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_invoice_paymentpartial);
+				// Get Email Template
+				$config_et_client_invoice_paymentpartial = prepareEmailTemplate($config_et_client_invoice_paymentpartial);
 
                 $subject = "$company_name Partial Payment Received - Invoice $invoice_prefix$invoice_number";
 				$body = "$config_et_client_invoice_paymentpartial";
@@ -883,12 +873,7 @@ if (isset($_POST['add_bulk_payment'])) {
         $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
 		
 		// Get Email Template
-		$config_et_client_invoice_paymentmultiple = htmlspecialchars_decode($config_et_client_invoice_paymentmultiple);
-		$config_et_client_invoice_paymentmultiple = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_invoice_paymentmultiple);
+		$config_et_client_invoice_paymentmultiple = prepareEmailTemplate($config_et_client_invoice_paymentmultiple);
 
         $subject = "Payment Received - Multiple Invoices";
 		$body = "$config_et_client_invoice_paymentmultiple";
@@ -1016,24 +1001,14 @@ if (isset($_GET['email_invoice'])) {
     if ($invoice_status == 'Paid') {
 		
 		// Get Email Template
-		$config_et_client_invoice_paid = htmlspecialchars_decode($config_et_client_invoice_paid);
-		$config_et_client_invoice_paid = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_invoice_paid);
+		$config_et_client_invoice_paid = prepareEmailTemplate($config_et_client_invoice_paid);
 		
         $subject = "$company_name Invoice $invoice_prefix$invoice_number Receipt";
 		$body = "$config_et_client_invoice_paid";
     } else {
 		
 		// Get Email Template
-		$config_et_client_invoice_new = htmlspecialchars_decode($config_et_client_invoice_new);
-		$config_et_client_invoice_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_invoice_new);
+		$config_et_client_invoice_new = prepareEmailTemplate($config_et_client_invoice_new);
 		
         $subject = "$company_name Invoice $invoice_prefix$invoice_number";
 		$body = "$config_et_client_invoice_new";
@@ -1214,12 +1189,7 @@ if (isset($_GET['force_recurring'])) {
         $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
 		
 		// Get Email Template
-		$config_et_client_invoice_newrecurring = htmlspecialchars_decode($config_et_client_invoice_newrecurring);
-		$config_et_client_invoice_newrecurring = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring = prepareEmailTemplate($config_et_client_invoice_newrecurring);
 
         // Email to client
 

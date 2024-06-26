@@ -391,12 +391,7 @@ if (isset($_GET['email_quote'])) {
     $config_base_url = sanitizeInput($config_base_url);
 	
 	// Get Email Template
-	$config_et_client_quote_new = htmlspecialchars_decode($config_et_client_quote_new);
-	$config_et_client_quote_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $config_et_client_quote_new);
+	$config_et_client_quote_new = prepareEmailTemplate($config_et_client_quote_new);
 
     $subject = "Quote [$quote_scope]";
 	$body = "$config_et_client_quote_new";

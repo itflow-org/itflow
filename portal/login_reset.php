@@ -79,12 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
 			// Get Email Template
-			$config_et_client_app_passwordreset = htmlspecialchars_decode($config_et_client_app_passwordreset);
-			$config_et_client_app_passwordreset = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_app_passwordreset);
+			$config_et_client_app_passwordreset = prepareEmailTemplate($config_et_client_app_passwordreset);
 
             // Send reset email
             $subject = "Password reset for $company_name Client Portal";
@@ -140,12 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 			
 			// Get Email Template
-			$config_et_client_app_passwordresetcomplete = htmlspecialchars_decode($config_et_client_app_passwordresetcomplete);
-			$config_et_client_app_passwordresetcomplete = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_app_passwordresetcomplete);
+			$config_et_client_app_passwordresetcomplete = prepareEmailTemplate($config_et_client_app_passwordresetcomplete);
 			
             // Send confirmation email
             $subject = "Password reset confirmation for $company_name Client Portal";

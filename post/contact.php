@@ -151,12 +151,7 @@ if (isset($_POST['edit_contact'])) {
         }
 		
 		// Get Email Template
-		$config_et_client_app_newaccount = htmlspecialchars_decode($config_et_client_app_newaccount);
-		$config_et_client_app_newaccount = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_app_newaccount);
+		$config_et_client_app_newaccount = prepareEmailTemplate($config_et_client_app_newaccount);
 
         $subject = "Your new $company_name portal account";
 		$body = "$config_et_client_app_newaccount";

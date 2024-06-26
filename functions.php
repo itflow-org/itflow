@@ -730,10 +730,22 @@ function sanitizeInput($input)
 
 function sanitizeForEmail($data)
 {
-    $sanitized = htmlspecialchars($data);
+    $sanitized = htmlspecialchars($data, ENT_QUOTES);
     $sanitized = strip_tags($sanitized);
     $sanitized = trim($sanitized);
     return $sanitized;
+}
+
+function prepareEmailTemplate($emailtemplate)
+{
+	$emailtemplate = htmlspecialchars_decode($emailtemplate, ENT_QUOTES);
+	$emailtemplate = str_replace("'", "\'", $emailtemplate);
+	$emailtemplate = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+		$var_name = $matches[1];
+		global $$var_name;
+		return $$var_name;
+	}, $emailtemplate);
+	return $emailtemplate;
 }
 
 function timeAgo($datetime)

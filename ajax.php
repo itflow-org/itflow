@@ -302,12 +302,7 @@ if (isset($_GET['share_generate_link'])) {
     $config_mail_from_email = sanitizeInput($config_mail_from_email);
 	
 	// Get Email Template
-	$config_et_client_securelink = htmlspecialchars_decode($config_et_client_securelink);
-	$config_et_client_securelink = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $config_et_client_securelink);
+	$config_et_client_securelink = prepareEmailTemplate($config_et_client_securelink);
 
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){

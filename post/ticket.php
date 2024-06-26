@@ -26,7 +26,6 @@ if (isset($_POST['add_ticket'])) {
     $project_id = intval($_POST['project']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
     $ticket_template_id = intval($_POST['ticket_template_id']);
-	$config_et_client_ticket_update = $row['config_et_client_ticket_update'];
 
     // Check to see if adding a ticket by template
     if($ticket_template_id) {
@@ -136,12 +135,7 @@ if (isset($_POST['add_ticket'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-			$config_et_client_ticket_new = htmlspecialchars_decode($config_et_client_ticket_new);
-			$config_et_client_ticket_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
 
         // Verify contact email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -244,12 +238,7 @@ if (isset($_POST['edit_ticket'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_new = htmlspecialchars_decode($config_et_client_ticket_new);
-		$config_et_client_ticket_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
 
         // Email content
         $data = []; // Queue array
@@ -342,12 +331,7 @@ if (isset($_POST['edit_ticket_contact'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_new = htmlspecialchars_decode($config_et_client_ticket_new);
-		$config_et_client_ticket_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
 
         // Email content
         $data = []; // Queue array
@@ -420,12 +404,7 @@ if (isset($_POST['add_ticket_watcher'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_watcher_notify = htmlspecialchars_decode($config_et_watcher_notify);
-		$config_et_watcher_notify = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_watcher_notify);
+		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify);
 
 
         // Email content
@@ -896,12 +875,7 @@ if (isset($_POST['bulk_close_tickets'])) {
                 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 				
 				// Get Email Template
-				$config_et_client_ticket_closed = htmlspecialchars_decode($config_et_client_ticket_closed);
-				$config_et_client_ticket_closed = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-					$var_name = $matches[1];
-					global $$var_name;
-					return $$var_name;
-				}, $config_et_client_ticket_closed);
+				$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
 
                 // Check email valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -1021,12 +995,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 			
 			// Get Email Template
-			$config_et_client_ticket_update = htmlspecialchars_decode($config_et_client_ticket_update);
-			$config_et_client_ticket_update = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_ticket_update);
+			$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update);
 
             // Send e-mail to client if public update & email is set up
             if ($private_note == 0 && !empty($config_smtp_host)) {
@@ -1208,22 +1177,6 @@ if (isset($_POST['add_ticket_reply'])) {
     $company_name = sanitizeInput($row['company_name']);
     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 	
-	// Get Email Template AutoClose
-	$config_et_client_ticket_autoclose = htmlspecialchars_decode($config_et_client_ticket_autoclose);
-	$config_et_client_ticket_autoclose = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $config_et_client_ticket_autoclose);
-
-	// Get Email Template Update
-	$config_et_client_ticket_update = htmlspecialchars_decode($config_et_client_ticket_update);
-	$config_et_client_ticket_update = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $config_et_client_ticket_update);
-	
 	
     // Send e-mail to client if public update & email is set up
     if ($ticket_reply_type == 'Public' && $send_email == 1 && !empty($config_smtp_host)) {
@@ -1233,10 +1186,18 @@ if (isset($_POST['add_ticket_reply'])) {
             // Slightly different email subject/text depending on if this update set auto-close
 
             if ($ticket_status == 4) {
+				
+				// Get Email Template AutoClose
+				$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose);
+				
                 // Auto-close
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
 				$body = "$config_et_client_ticket_autoclose";
             } else {
+				
+				// Get Email Template Update
+				$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update);
+				
                 // Anything else
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
                 $body = "$config_et_client_ticket_update";
@@ -1463,12 +1424,7 @@ if (isset($_GET['close_ticket'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_closed = htmlspecialchars_decode($config_et_client_ticket_closed);
-		$config_et_client_ticket_closed = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_ticket_closed);
+		$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
 
         // Check email valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {

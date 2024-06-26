@@ -354,12 +354,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_base_url = sanitizeInput($config_base_url);
 	
 	// Get Email Template
-	$config_et_client_invoice_paymentstripe = htmlspecialchars_decode($config_et_client_invoice_paymentstripe);
-	$config_et_client_invoice_paymentstripe = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $config_et_client_invoice_paymentstripe);
+	$config_et_client_invoice_paymentstripe = prepareEmailTemplate($config_et_client_invoice_paymentstripe);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";

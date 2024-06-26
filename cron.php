@@ -431,12 +431,7 @@ if ($config_ticket_autoclose == 1) {
         $ticket_reply = $ticket_reply_row['ticket_reply'];
 		
 		// Get Email Template
-		$config_et_client_ticket_autoclose = htmlspecialchars_decode($config_et_client_ticket_autoclose);
-		$config_et_client_ticket_autoclose = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_ticket_autoclose);
+		$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose);
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
 
@@ -500,12 +495,7 @@ if ($config_send_invoice_reminders == 1) {
             $contact_email = sanitizeInput($row['contact_email']);
 			
 			// Get Email Template
-			$config_et_client_invoice_paymentreminder = htmlspecialchars_decode($config_et_client_invoice_paymentreminder);
-			$config_et_client_invoice_paymentreminder = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-				$var_name = $matches[1];
-				global $$var_name;
-				return $$var_name;
-			}, $config_et_client_invoice_paymentreminder);
+			$config_et_client_invoice_paymentreminder = prepareEmailTemplate($config_et_client_invoice_paymentreminder);
 
             // Late Charges
 
@@ -648,12 +638,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $contact_email = sanitizeInput($row['contact_email']);
 		
 		// Get Email Template
-		$config_et_client_invoice_newrecurring = htmlspecialchars_decode($config_et_client_invoice_newrecurring);
-		$config_et_client_invoice_newrecurring = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring = prepareEmailTemplate($config_et_client_invoice_newrecurring);
 
         $subject = "$company_name Invoice $invoice_prefix$invoice_number";
 		$body = "$config_et_client_invoice_newrecurring";

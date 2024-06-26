@@ -127,13 +127,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
     $data = [];
     if ($config_ticket_client_general_notifications == 1) {
+		
 		// Get Email Template
-		$config_et_client_ticket_new = htmlspecialchars_decode($config_et_client_ticket_new);
-		$config_et_client_ticket_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-			$var_name = $matches[1];
-			global $$var_name;
-			return $$var_name;
-		}, $config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
 			
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
 		$body = "$config_et_client_ticket_new";
