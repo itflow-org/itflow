@@ -636,6 +636,7 @@ if (isset($_POST['add_payment'])) {
         $invoice_number = intval($row['invoice_number']);
         $invoice_url_key = sanitizeInput($row['invoice_url_key']);
         $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+		$invoice_date = sanitizeInput($row['invoice_date']);
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
@@ -673,9 +674,17 @@ if (isset($_POST['add_payment'])) {
             $invoice_status = "Paid";
 
             if ($email_receipt == 1) {
+				
+				// Get Email Template
+				$config_et_client_invoice_paymentfull = htmlspecialchars_decode($config_et_client_invoice_paymentfull);
+				$config_et_client_invoice_paymentfull = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+					$var_name = $matches[1];
+					global $$var_name;
+					return $$var_name;
+				}, $config_et_client_invoice_paymentfull);
 
-                $subject = "$company_name Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received your payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+				$subject = "$company_name Payment Received - Invoice $invoice_prefix$invoice_number";
+				$body = "$config_et_client_invoice_paymentfull";
 
                 // Queue Mail
                 $email = [
@@ -706,8 +715,16 @@ if (isset($_POST['add_payment'])) {
 
             if ($email_receipt == 1) {
 
+			// Get Email Template
+			$config_et_client_invoice_paymentpartial = htmlspecialchars_decode($config_et_client_invoice_paymentpartial);
+			$config_et_client_invoice_paymentpartial = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+				$var_name = $matches[1];
+				global $$var_name;
+				return $$var_name;
+			}, $config_et_client_invoice_paymentpartial);
+
                 $subject = "$company_name Partial Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+				$body = "$config_et_client_invoice_paymentpartial";
 
                 // Queue Mail
                 $email = [
@@ -864,9 +881,17 @@ if (isset($_POST['add_bulk_payment'])) {
         // Sanitize Config vars from get_settings.php
         $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
         $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+		
+		// Get Email Template
+		$config_et_client_invoice_paymentmultiple = htmlspecialchars_decode($config_et_client_invoice_paymentmultiple);
+		$config_et_client_invoice_paymentmultiple = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_invoice_paymentmultiple);
 
         $subject = "Payment Received - Multiple Invoices";
-        $body = "Hello $contact_name,<br><br>Thank you for your payment of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " We\'ve applied your payment to the following invoices, updating their balances accordingly:<br><br>$email_body_invoices<br><br><br>We appreciate your continued business!<br><br>Sincerely,<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+		$body = "$config_et_client_invoice_paymentmultiple";
 
         // Queue Mail
         mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$contact_email', email_recipient_name = '$contact_name', email_from = '$config_invoice_from_email', email_from_name = '$config_invoice_from_name', email_subject = '$subject', email_content = '$body'");
@@ -989,11 +1014,29 @@ if (isset($_GET['email_invoice'])) {
     $balance = $invoice_amount - $amount_paid;
 
     if ($invoice_status == 'Paid') {
+		
+		// Get Email Template
+		$config_et_client_invoice_paid = htmlspecialchars_decode($config_et_client_invoice_paid);
+		$config_et_client_invoice_paid = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_invoice_paid);
+		
         $subject = "$company_name Invoice $invoice_prefix$invoice_number Receipt";
-        $body = "Hello $contact_name,<br><br>Please click on the link below to see your invoice regarding \"$invoice_scope\" marked <b>paid</b>.<br><br><a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>Invoice Link</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+		$body = "$config_et_client_invoice_paid";
     } else {
+		
+		// Get Email Template
+		$config_et_client_invoice_new = htmlspecialchars_decode($config_et_client_invoice_new);
+		$config_et_client_invoice_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_invoice_new);
+		
         $subject = "$company_name Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>Please view the details of your invoice regarding \"$invoice_scope\" below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+		$body = "$config_et_client_invoice_new";
     }
 
     // Queue Mail
@@ -1169,11 +1212,19 @@ if (isset($_GET['force_recurring'])) {
         // Sanitize Config Vars
         $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
         $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
+		
+		// Get Email Template
+		$config_et_client_invoice_newrecurring = htmlspecialchars_decode($config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_invoice_newrecurring);
 
         // Email to client
 
         $subject = "$company_name Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$company_phone";
+		$body = "$config_et_client_invoice_newrecurring";
 
 
         $data = [

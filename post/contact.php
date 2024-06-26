@@ -149,9 +149,17 @@ if (isset($_POST['edit_contact'])) {
         } else {
             $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
         }
+		
+		// Get Email Template
+		$config_et_client_app_newaccount = htmlspecialchars_decode($config_et_client_app_newaccount);
+		$config_et_client_app_newaccount = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_app_newaccount);
 
         $subject = "Your new $company_name portal account";
-        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+		$body = "$config_et_client_app_newaccount";
 
         // Queue Mail
         $data = [

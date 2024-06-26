@@ -215,6 +215,65 @@ if (isset($_POST['test_email_imap'])) {
 
 }
 
+// Email templates
+if (isset($_POST['edit_mail_email_template'])) {
+
+	validateCSRFToken($_POST['csrf_token']);
+    validateAdminRole();
+
+    $config_et_client_ticket_new = sanitizeForEmail($_POST['config_et_client_ticket_new']);
+	$config_et_client_ticket_update = sanitizeForEmail($_POST['config_et_client_ticket_update']);
+	$config_et_client_ticket_autoclose = sanitizeForEmail($_POST['config_et_client_ticket_autoclose']);
+	$config_et_client_ticket_updatedpendingclosure = sanitizeForEmail($_POST['config_et_client_ticket_updatedpendingclosure']);
+	$config_et_client_ticket_closed = sanitizeForEmail($_POST['config_et_client_ticket_closed']);
+	$config_et_client_app_newaccount = sanitizeForEmail($_POST['config_et_client_app_newaccount']);
+	$config_et_client_app_passwordreset = sanitizeForEmail($_POST['config_et_client_app_passwordreset']);
+	$config_et_client_app_passwordresetcomplete = sanitizeForEmail($_POST['config_et_client_app_passwordresetcomplete']);
+	$config_et_client_calendar_rescheduled = sanitizeForEmail($_POST['config_et_client_calendar_rescheduled']);
+	$config_et_client_calendar_scheduled = sanitizeForEmail($_POST['config_et_client_calendar_scheduled']);
+	$config_et_client_invoice_new = sanitizeForEmail($_POST['config_et_client_invoice_new']);
+	$config_et_client_invoice_newrecurring = sanitizeForEmail($_POST['config_et_client_invoice_newrecurring']);
+	$config_et_client_invoice_paid = sanitizeForEmail($_POST['config_et_client_invoice_paid']);
+	$config_et_client_invoice_paymentfull = sanitizeForEmail($_POST['config_et_client_invoice_paymentfull']);
+	$config_et_client_invoice_paymentmultiple = sanitizeForEmail($_POST['config_et_client_invoice_paymentmultiple']);
+	$config_et_client_invoice_paymentpartial = sanitizeForEmail($_POST['config_et_client_invoice_paymentpartial']);
+	$config_et_client_invoice_paymentreminder = sanitizeForEmail($_POST['config_et_client_invoice_paymentreminder']);
+	$config_et_client_invoice_paymentstripe = sanitizeForEmail($_POST['config_et_client_invoice_paymentstripe']);
+	$config_et_client_quote_new = sanitizeForEmail($_POST['config_et_client_quote_new']);
+	$config_et_client_securelink = sanitizeForEmail($_POST['config_et_client_securelink']);
+	$config_et_watcher_notify = sanitizeForEmail($_POST['config_et_watcher_notify']);
+
+	mysqli_query($mysqli, "UPDATE settings SET 
+    config_et_client_ticket_new = '$config_et_client_ticket_new', 
+    config_et_client_ticket_update = '$config_et_client_ticket_update', 
+    config_et_client_ticket_autoclose = '$config_et_client_ticket_autoclose', 
+    config_et_client_ticket_updatedpendingclosure = '$config_et_client_ticket_updatedpendingclosure', 
+    config_et_client_ticket_closed = '$config_et_client_ticket_closed',
+    config_et_client_app_newaccount = '$config_et_client_app_newaccount',
+    config_et_client_app_passwordreset = '$config_et_client_app_passwordreset',
+    config_et_client_app_passwordresetcomplete = '$config_et_client_app_passwordresetcomplete',
+    config_et_client_calendar_rescheduled = '$config_et_client_calendar_rescheduled',
+    config_et_client_calendar_scheduled = '$config_et_client_calendar_scheduled',
+    config_et_client_invoice_new = '$config_et_client_invoice_new',
+    config_et_client_invoice_newrecurring = '$config_et_client_invoice_newrecurring',
+    config_et_client_invoice_paid = '$config_et_client_invoice_paid',
+    config_et_client_invoice_paymentfull = '$config_et_client_invoice_paymentfull',
+    config_et_client_invoice_paymentmultiple = '$config_et_client_invoice_paymentmultiple',
+    config_et_client_invoice_paymentpartial = '$config_et_client_invoice_paymentpartial',
+    config_et_client_invoice_paymentreminder = '$config_et_client_invoice_paymentreminder',
+    config_et_client_invoice_paymentstripe = '$config_et_client_invoice_paymentstripe',
+    config_et_client_quote_new = '$config_et_client_quote_new',
+    config_et_client_securelink = '$config_et_client_securelink',
+    config_et_watcher_notify = '$config_et_watcher_notify'
+	WHERE company_id = 1");
+
+	
+	$_SESSION['alert_message'] = "Email Template updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+	
+}
+
 if (isset($_POST['edit_invoice_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);

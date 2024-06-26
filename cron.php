@@ -429,10 +429,18 @@ if ($config_ticket_autoclose == 1) {
         $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply FROM ticket_replies WHERE ticket_reply_type = 'Public' AND ticket_reply_ticket_id = $ticket_id ORDER BY ticket_reply_created_at DESC LIMIT 1");
         $ticket_reply_row = mysqli_fetch_array($sql_ticket_reply);
         $ticket_reply = $ticket_reply_row['ticket_reply'];
+		
+		// Get Email Template
+		$config_et_client_ticket_autoclose = htmlspecialchars_decode($config_et_client_ticket_autoclose);
+		$config_et_client_ticket_autoclose = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_ticket_autoclose);
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
 
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello, $contact_name<br><br>This is an automatic friendly reminder that your ticket regarding \"$ticket_subject\" will be closed, unless you respond.<br><br>--------------------------------<br>$ticket_reply--------------------------------<br><br>If your issue is resolved, you can ignore this email - the ticket will automatically close. If you need further assistance, please respond to this email.  <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status <br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "$config_et_client_ticket_autoclose";
 
         $data = [
             [
@@ -490,6 +498,14 @@ if ($config_send_invoice_reminders == 1) {
             $client_name = sanitizeInput($row['client_name']);
             $contact_name = sanitizeInput($row['contact_name']);
             $contact_email = sanitizeInput($row['contact_email']);
+			
+			// Get Email Template
+			$config_et_client_invoice_paymentreminder = htmlspecialchars_decode($config_et_client_invoice_paymentreminder);
+			$config_et_client_invoice_paymentreminder = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+				$var_name = $matches[1];
+				global $$var_name;
+				return $$var_name;
+			}, $config_et_client_invoice_paymentreminder);
 
             // Late Charges
 
@@ -513,9 +529,7 @@ if ($config_send_invoice_reminders == 1) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
             $subject = "$company_name Overdue Invoice $invoice_prefix$invoice_number";
-            $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
-                <br><br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+			$body = "$config_et_client_invoice_paymentreminder";
 
             $mail = addToMailQueue($mysqli, [
                 [
@@ -632,9 +646,17 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
+		
+		// Get Email Template
+		$config_et_client_invoice_newrecurring = htmlspecialchars_decode($config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+			$var_name = $matches[1];
+			global $$var_name;
+			return $$var_name;
+		}, $config_et_client_invoice_newrecurring);
 
         $subject = "$company_name Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+		$body = "$config_et_client_invoice_newrecurring";
 
         $mail = addToMailQueue($mysqli, [
             [

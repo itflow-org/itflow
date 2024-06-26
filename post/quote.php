@@ -389,9 +389,17 @@ if (isset($_GET['email_quote'])) {
     $config_quote_from_name = sanitizeInput($config_quote_from_name);
     $config_quote_from_email = sanitizeInput($config_quote_from_email);
     $config_base_url = sanitizeInput($config_base_url);
+	
+	// Get Email Template
+	$config_et_client_quote_new = htmlspecialchars_decode($config_et_client_quote_new);
+	$config_et_client_quote_new = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+		$var_name = $matches[1];
+		global $$var_name;
+		return $$var_name;
+	}, $config_et_client_quote_new);
 
     $subject = "Quote [$quote_scope]";
-    $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
+	$body = "$config_et_client_quote_new";
 
     // Queue Mail
     $data = [
