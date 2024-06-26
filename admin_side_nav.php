@@ -23,6 +23,12 @@
                         <p>API Keys</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="admin_bulk_mail.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_bulk_mail.php") {echo "active";} ?>">
+                        <i class="nav-icon fas fa-paper-plane"></i>
+                        <p>Bulk Mail</p>
+                    </a>
+                </li>
 
                 <!-- TAGS & CATEGORIES Section -->
                 <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_tags.php', 'admin_categories.php', 'admin_taxes.php', 'admin_account_types.php', 'admin_ticket_statuses.php']) ? 'menu-open' : ''); ?>">

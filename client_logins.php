@@ -186,6 +186,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
+                                                    <i class="fas fa-fw fa-share mr-2"></i>Share
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <?php if ($login_archived_at) { ?>
                                                     <div class="dropdown-divider"></div>
