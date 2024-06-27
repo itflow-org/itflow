@@ -329,6 +329,24 @@ $client->connect();
 // Possible names for the inbox folder
 $inboxNames = ['Inbox', 'INBOX', 'inbox'];
 
+// Initialize the client manager and create the client
+$clientManager = new ClientManager();
+$client = $clientManager->make([
+    'host'          => $config_imap_host,
+    'port'          => $config_imap_port,
+    'encryption'    => $config_imap_encryption,
+    'validate_cert' => true,
+    'username'      => $config_imap_username,
+    'password'      => $config_imap_password,
+    'protocol'      => 'imap'
+]);
+
+// Connect to the IMAP server
+$client->connect();
+
+// Possible names for the inbox folder
+$inboxNames = ['Inbox', 'INBOX', 'inbox'];
+
 // Function to get the correct inbox folder
 function getInboxFolder($client, $inboxNames) {
     foreach ($inboxNames as $name) {
@@ -369,7 +387,12 @@ if ($messages->count() > 0) {
 
         $subject = sanitizeInput($message->getSubject() ?? 'No Subject');
         $date = sanitizeInput($message->getDate() ?? date('Y-m-d H:i:s'));
-        $message_body = $message->getHtmlBody() ?? $message->getTextBody() ?? '';
+        $message_body = $message->getHtmlBody() ?? '';
+
+        if (empty($message_body)) {
+            $text_body = $message->getTextBody() ?? '';
+            $message_body = nl2br(htmlspecialchars($text_body));
+        }
 
         if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
             preg_match('/\d+/', $ticket_number[0], $ticket_number);
@@ -434,4 +457,3 @@ $client->disconnect();
 
 // Remove the lock file
 unlink($lock_file_path);
-?>
