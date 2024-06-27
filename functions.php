@@ -736,17 +736,30 @@ function sanitizeForEmail($data)
     return $sanitized;
 }
 
-function prepareEmailTemplate($emailtemplate)
+function prepareEmailTemplate($emailtemplate, $ticketreply = false)
 {
-	$emailtemplate = htmlspecialchars_decode($emailtemplate, ENT_QUOTES);
-	$emailtemplate = str_replace("'", "\'", $emailtemplate);
-	$emailtemplate = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-		$var_name = $matches[1];
-		global $$var_name;
-		return $$var_name;
-	}, $emailtemplate);
-	return $emailtemplate;
+    // Check if $ticketreply is true, then prepend the line
+    if ($ticketreply) {
+        $prependText = "<em style=\"color: #808080; font-size: 12pt; font-family: arial;\">##- Please type your reply above this line -##</em>\n<br><br>";
+        $emailtemplate = $prependText . $emailtemplate;
+    }
+
+    // Decode HTML entities
+    $emailtemplate = htmlspecialchars_decode($emailtemplate, ENT_QUOTES);
+    
+    // Replace single quotes with escaped quotes
+    $emailtemplate = str_replace("'", "\'", $emailtemplate);
+    
+    // Perform variable substitution
+    $emailtemplate = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+        $var_name = $matches[1];
+        global $$var_name;
+        return $$var_name;
+    }, $emailtemplate);
+    
+    return $emailtemplate;
 }
+
 
 function timeAgo($datetime)
 {

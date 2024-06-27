@@ -431,7 +431,7 @@ if ($config_ticket_autoclose == 1) {
         $ticket_reply = $ticket_reply_row['ticket_reply'];
 		
 		// Get Email Template
-		$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose);
+		$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose, true);
 
         $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
 

@@ -135,7 +135,7 @@ if (isset($_POST['add_ticket'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
 
         // Verify contact email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -238,7 +238,7 @@ if (isset($_POST['edit_ticket'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
 
         // Email content
         $data = []; // Queue array
@@ -331,7 +331,7 @@ if (isset($_POST['edit_ticket_contact'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
 
         // Email content
         $data = []; // Queue array
@@ -404,7 +404,7 @@ if (isset($_POST['add_ticket_watcher'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify);
+		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify, true);
 
 
         // Email content
@@ -995,7 +995,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 			
 			// Get Email Template
-			$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update);
+			$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
 
             // Send e-mail to client if public update & email is set up
             if ($private_note == 0 && !empty($config_smtp_host)) {
@@ -1188,7 +1188,7 @@ if (isset($_POST['add_ticket_reply'])) {
             if ($ticket_status == 4) {
 				
 				// Get Email Template AutoClose
-				$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose);
+				$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose, true);
 				
                 // Auto-close
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
@@ -1196,7 +1196,7 @@ if (isset($_POST['add_ticket_reply'])) {
             } else {
 				
 				// Get Email Template Update
-				$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update);
+				$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
 				
                 // Anything else
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";

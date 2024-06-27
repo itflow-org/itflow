@@ -135,7 +135,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     if ($config_ticket_client_general_notifications == 1) {
 		
 		// Get Email Template
-		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new);
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
 			
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
 		$body = "$config_et_client_ticket_new";
