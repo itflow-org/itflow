@@ -1188,11 +1188,11 @@ if (isset($_POST['add_ticket_reply'])) {
             if ($ticket_status == 4) {
 				
 				// Get Email Template AutoClose
-				$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose, true);
+				$config_et_client_ticket_updatedpendingclosure = prepareEmailTemplate($config_et_client_ticket_updatedpendingclosure, true);
 				
                 // Auto-close
                 $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-				$body = "$config_et_client_ticket_autoclose";
+				$body = "$config_et_client_ticket_updatedpendingclosure";
             } else {
 				
 				// Get Email Template Update
