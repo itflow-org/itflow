@@ -329,24 +329,6 @@ $client->connect();
 // Possible names for the inbox folder
 $inboxNames = ['Inbox', 'INBOX', 'inbox'];
 
-// Initialize the client manager and create the client
-$clientManager = new ClientManager();
-$client = $clientManager->make([
-    'host'          => $config_imap_host,
-    'port'          => $config_imap_port,
-    'encryption'    => $config_imap_encryption,
-    'validate_cert' => true,
-    'username'      => $config_imap_username,
-    'password'      => $config_imap_password,
-    'protocol'      => 'imap'
-]);
-
-// Connect to the IMAP server
-$client->connect();
-
-// Possible names for the inbox folder
-$inboxNames = ['Inbox', 'INBOX', 'inbox'];
-
 // Function to get the correct inbox folder
 function getInboxFolder($client, $inboxNames) {
     foreach ($inboxNames as $name) {
