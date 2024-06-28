@@ -320,8 +320,7 @@ $client = $clientManager->make([
     'validate_cert' => true,
     'username'      => $config_imap_username,
     'password'      => $config_imap_password,
-    'protocol'      => 'imap',
-    'charset'       => 'UTF-8' // Add charset to avoid encoding issues
+    'protocol'      => 'imap'
 ]);
 
 // Connect to the IMAP server
@@ -346,17 +345,11 @@ function getInboxFolder($client, $inboxNames) {
     throw new Exception("No inbox folder found.");
 }
 
-// Function to convert UTF-7 IMAP to UTF-8
-function convertToUtf8($text) {
-    return mb_convert_encoding($text, 'UTF-8', 'UTF7-IMAP');
-}
-
 try {
     $inbox = getInboxFolder($client, $inboxNames);
     $messages = $inbox->query()->unseen()->get();
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
-    $messages = collect(); // Ensure $messages is defined as an empty collection
 }
 
 if ($messages->count() > 0) {
@@ -376,11 +369,6 @@ if ($messages->count() > 0) {
 
         $subject = sanitizeInput($message->getSubject() ?? 'No Subject');
         $date = sanitizeInput($message->getDate() ?? date('Y-m-d H:i:s'));
-        
-        // Convert message bodies from UTF-7 to UTF-8 if needed
-        $html_body = convertToUtf8($message->getHtmlBody() ?? '');
-        $text_body = convertToUtf8($message->getTextBody() ?? '');
-
         $message_body = $message->getHtmlBody() ?? '';
 
         if (empty($message_body)) {
@@ -444,8 +432,6 @@ if ($messages->count() > 0) {
             unlink("uploads/tmp/{$original_message_file}");
         }
     }
-} else {
-    echo "No unseen messages found.";
 }
 
 $client->expunge();
