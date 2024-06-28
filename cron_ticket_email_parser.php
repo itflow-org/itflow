@@ -320,7 +320,8 @@ $client = $clientManager->make([
     'validate_cert' => true,
     'username'      => $config_imap_username,
     'password'      => $config_imap_password,
-    'protocol'      => 'imap'
+    'protocol'      => 'imap',
+    'charset'       => 'UTF-8' // Add charset to avoid encoding issues
 ]);
 
 // Connect to the IMAP server
@@ -350,6 +351,7 @@ try {
     $messages = $inbox->query()->unseen()->get();
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
+    $messages = collect(); // Ensure $messages is defined as an empty collection
 }
 
 if ($messages->count() > 0) {
@@ -432,6 +434,8 @@ if ($messages->count() > 0) {
             unlink("uploads/tmp/{$original_message_file}");
         }
     }
+} else {
+    echo "No unseen messages found.";
 }
 
 $client->expunge();
