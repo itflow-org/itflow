@@ -303,13 +303,14 @@ if (isset($_GET['share_generate_link'])) {
 	
 	// Get Email Template
 	$config_et_client_securelink = prepareEmailTemplate($config_et_client_securelink);
+	$config_et_client_securelink_subj = prepareEmailTemplateTags($config_et_client_securelink_subj);
 
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
 
-        $subject = "Time sensitive - $company_name secure link enclosed";
+        $subject = "$config_et_client_securelink_subj";
         if ($item_expires_friendly == "never") {
-            $subject = "$company_name secure link enclosed";
+            $subject = "$config_et_client_securelink_subj";
         }
 		$body = "$config_et_client_securelink";
 

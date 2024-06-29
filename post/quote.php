@@ -392,8 +392,9 @@ if (isset($_GET['email_quote'])) {
 	
 	// Get Email Template
 	$config_et_client_quote_new = prepareEmailTemplate($config_et_client_quote_new);
+	$config_et_client_quote_new_subj = prepareEmailTemplateTags($config_et_client_quote_new_subj);
 
-    $subject = "Quote [$quote_scope]";
+    $subject = "$config_et_client_quote_new_subj";
 	$body = "$config_et_client_quote_new";
 
     // Queue Mail

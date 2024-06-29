@@ -432,8 +432,9 @@ if ($config_ticket_autoclose == 1) {
 		
 		// Get Email Template
 		$config_et_client_ticket_autoclose = prepareEmailTemplate($config_et_client_ticket_autoclose, true);
+		$config_et_client_ticket_autoclose_subj = prepareEmailTemplateTags($config_et_client_ticket_autoclose_subj);
 
-        $subject = "Ticket pending closure - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $subject = "$config_et_client_ticket_autoclose_subj";
 
         $body = "$config_et_client_ticket_autoclose";
 
@@ -496,6 +497,7 @@ if ($config_send_invoice_reminders == 1) {
 			
 			// Get Email Template
 			$config_et_client_invoice_paymentreminder = prepareEmailTemplate($config_et_client_invoice_paymentreminder);
+			$config_et_client_invoice_paymentreminder_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentreminder_subj);
 
             // Late Charges
 
@@ -518,7 +520,7 @@ if ($config_send_invoice_reminders == 1) {
 
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Overdue', notification = 'Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $client_id, notification_entity_id = $invoice_id");
 
-            $subject = "$company_name Overdue Invoice $invoice_prefix$invoice_number";
+            $subject = "$config_et_client_invoice_paymentreminder_subj";
 			$body = "$config_et_client_invoice_paymentreminder";
 
             $mail = addToMailQueue($mysqli, [
@@ -639,8 +641,9 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 		
 		// Get Email Template
 		$config_et_client_invoice_newrecurring = prepareEmailTemplate($config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring_subj = prepareEmailTemplateTags($config_et_client_invoice_newrecurring_subj);
 
-        $subject = "$company_name Invoice $invoice_prefix$invoice_number";
+        $subject = "$config_et_client_invoice_newrecurring_subj";
 		$body = "$config_et_client_invoice_newrecurring";
 
         $mail = addToMailQueue($mysqli, [

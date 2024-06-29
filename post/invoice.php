@@ -677,8 +677,9 @@ if (isset($_POST['add_payment'])) {
 				
 				// Get Email Template
 				$config_et_client_invoice_paymentfull = prepareEmailTemplate($config_et_client_invoice_paymentfull);
+				$config_et_client_invoice_paymentfull_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentfull_subj);
 
-				$subject = "$company_name Payment Received - Invoice $invoice_prefix$invoice_number";
+				$subject = "$config_et_client_invoice_paymentfull_subj";
 				$body = "$config_et_client_invoice_paymentfull";
 
                 // Queue Mail
@@ -712,8 +713,9 @@ if (isset($_POST['add_payment'])) {
 
 				// Get Email Template
 				$config_et_client_invoice_paymentpartial = prepareEmailTemplate($config_et_client_invoice_paymentpartial);
+				$config_et_client_invoice_paymentpartial_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentpartial_subj);
 
-                $subject = "$company_name Partial Payment Received - Invoice $invoice_prefix$invoice_number";
+                $subject = "$config_et_client_invoice_paymentpartial_subj";
 				$body = "$config_et_client_invoice_paymentpartial";
 
                 // Queue Mail
@@ -874,8 +876,9 @@ if (isset($_POST['add_bulk_payment'])) {
 		
 		// Get Email Template
 		$config_et_client_invoice_paymentmultiple = prepareEmailTemplate($config_et_client_invoice_paymentmultiple);
+		$config_et_client_invoice_paymentmultiple_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentmultiple_subj);
 
-        $subject = "Payment Received - Multiple Invoices";
+        $subject = "$config_et_client_invoice_paymentmultiple_subj";
 		$body = "$config_et_client_invoice_paymentmultiple";
 
         // Queue Mail
@@ -1002,15 +1005,17 @@ if (isset($_GET['email_invoice'])) {
 		
 		// Get Email Template
 		$config_et_client_invoice_paid = prepareEmailTemplate($config_et_client_invoice_paid);
+		$config_et_client_invoice_paid_subj = prepareEmailTemplateTags($config_et_client_invoice_paid_subj);
 		
-        $subject = "$company_name Invoice $invoice_prefix$invoice_number Receipt";
+        $subject = "$config_et_client_invoice_paid_subj";
 		$body = "$config_et_client_invoice_paid";
     } else {
 		
 		// Get Email Template
 		$config_et_client_invoice_new = prepareEmailTemplate($config_et_client_invoice_new);
+		$config_et_client_invoice_new_subj = prepareEmailTemplateTags($config_et_client_invoice_new_subj);
 		
-        $subject = "$company_name Invoice $invoice_prefix$invoice_number";
+        $subject = "$config_et_client_invoice_new_subj";
 		$body = "$config_et_client_invoice_new";
     }
 
@@ -1190,10 +1195,11 @@ if (isset($_GET['force_recurring'])) {
 		
 		// Get Email Template
 		$config_et_client_invoice_newrecurring = prepareEmailTemplate($config_et_client_invoice_newrecurring);
+		$config_et_client_invoice_newrecurring_subj = prepareEmailTemplateTags($config_et_client_invoice_newrecurring_subj);
 
         // Email to client
 
-        $subject = "$company_name Invoice $invoice_prefix$invoice_number";
+        $subject = "$config_et_client_invoice_newrecurring_subj";
 		$body = "$config_et_client_invoice_newrecurring";
 
 

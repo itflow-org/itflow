@@ -355,9 +355,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 	
 	// Get Email Template
 	$config_et_client_invoice_paymentstripe = prepareEmailTemplate($config_et_client_invoice_paymentstripe);
+	$config_et_client_invoice_paymentstripe_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentstripe_subj);
 
     if (!empty($config_smtp_host)) {
-        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+        $subject = "$config_et_client_invoice_paymentstripe_subj";
 		$body = "$config_et_client_invoice_paymentstripe";
 
             $data = [

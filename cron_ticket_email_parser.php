@@ -136,8 +136,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 		
 		// Get Email Template
 		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 			
-        $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
+        $subject_email = "$config_et_client_ticket_new_subj";
 		$body = "$config_et_client_ticket_new";
 		
         $data[] = [

@@ -136,11 +136,12 @@ if (isset($_POST['add_ticket'])) {
 		
 		// Get Email Template
 		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Verify contact email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            $subject = "Ticket created [$ticket_prefix$ticket_number] - $ticket_subject";
+            $subject = "$config_et_client_ticket_new_subj";
 			$body = "$config_et_client_ticket_new";
 
             // Email Ticket Contact
@@ -239,11 +240,12 @@ if (isset($_POST['edit_ticket'])) {
 		
 		// Get Email Template
 		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $subject = "$config_et_client_ticket_new_subj";
 		$body = "$config_et_client_ticket_new";
 
         // Only add contact to email queue if email is valid
@@ -332,11 +334,12 @@ if (isset($_POST['edit_ticket_contact'])) {
 		
 		// Get Email Template
 		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $subject = "config_et_client_ticket_new_subj";
 		$body = "$config_et_client_ticket_new";
 
         // Only add contact to email queue if email is valid
@@ -405,12 +408,13 @@ if (isset($_POST['add_ticket_watcher'])) {
 		
 		// Get Email Template
 		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify, true);
+		$config_et_watcher_notify_subj = prepareEmailTemplateTags($config_et_watcher_notify_subj);
 
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Notification - [$ticket_prefix$ticket_number] - $ticket_subject";
+        $subject = "$config_et_watcher_notify_subj";
 		$body = "$config_et_watcher_notify";
 
         // Only add watcher to email queue if email is valid
@@ -876,13 +880,14 @@ if (isset($_POST['bulk_close_tickets'])) {
 				
 				// Get Email Template
 				$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
+				$config_et_client_ticket_closed_subj = prepareEmailTemplateTags($config_et_client_ticket_closed_subj);
 
                 // Check email valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
                     $data = [];
 
-                    $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+                    $subject = "$config_et_client_ticket_closed_subj";
 					$body = "$config_et_client_ticket_closed";
 					
                     // Email Ticket Contact
@@ -996,13 +1001,14 @@ if (isset($_POST['bulk_ticket_reply'])) {
 			
 			// Get Email Template
 			$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
+			$config_et_client_ticket_update_subj = prepareEmailTemplateTags($config_et_client_ticket_update_subj);
 
             // Send e-mail to client if public update & email is set up
             if ($private_note == 0 && !empty($config_smtp_host)) {
 
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-                    $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+                    $subject = "$config_et_client_ticket_update_subj";
                     $body = "$config_et_client_ticket_update";
 
                     $data = [];
@@ -1189,17 +1195,19 @@ if (isset($_POST['add_ticket_reply'])) {
 				
 				// Get Email Template AutoClose
 				$config_et_client_ticket_updatedpendingclosure = prepareEmailTemplate($config_et_client_ticket_updatedpendingclosure, true);
+				$config_et_client_ticket_updatedpendingclosure_subj = prepareEmailTemplateTags($config_et_client_ticket_updatedpendingclosure_subj);
 				
                 // Auto-close
-                $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
+                $subject = "$config_et_client_ticket_updatedpendingclosure_subj";
 				$body = "$config_et_client_ticket_updatedpendingclosure";
             } else {
 				
 				// Get Email Template Update
 				$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
+				$config_et_client_ticket_update_subj = prepareEmailTemplateTags($config_et_client_ticket_update_subj);
 				
                 // Anything else
-                $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
+                $subject = "$config_et_client_ticket_update_subj";
                 $body = "$config_et_client_ticket_update";
             }
 
@@ -1425,13 +1433,14 @@ if (isset($_GET['close_ticket'])) {
 		
 		// Get Email Template
 		$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
+		$config_et_client_ticket_closed_subj = prepareEmailTemplateTags($config_et_client_ticket_closed_subj);
 
         // Check email valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
             $data = [];
 
-            $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
+            $subject = "$config_et_client_ticket_closed_subj";
 			$body = "$config_et_client_ticket_closed";
 
             // Email Ticket Contact

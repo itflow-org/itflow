@@ -152,8 +152,9 @@ if (isset($_POST['edit_contact'])) {
 		
 		// Get Email Template
 		$config_et_client_app_newaccount = prepareEmailTemplate($config_et_client_app_newaccount);
+		$config_et_client_app_newaccount_subj = prepareEmailTemplateTags($config_et_client_app_newaccount_subj);
 
-        $subject = "Your new $company_name portal account";
+        $subject = "$config_et_client_app_newaccount_subj";
 		$body = "$config_et_client_app_newaccount";
 
         // Queue Mail

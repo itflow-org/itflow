@@ -80,9 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 			// Get Email Template
 			$config_et_client_app_passwordreset = prepareEmailTemplate($config_et_client_app_passwordreset);
+			$config_et_client_app_passwordreset_subj = prepareEmailTemplateTags($config_et_client_app_passwordreset_subj);
 
             // Send reset email
-            $subject = "Password reset for $company_name Client Portal";
+            $subject = "$config_et_client_app_passwordreset_subj";
 			$body = "$config_et_client_app_passwordreset";
 
             $data = [
@@ -136,9 +137,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 			
 			// Get Email Template
 			$config_et_client_app_passwordresetcomplete = prepareEmailTemplate($config_et_client_app_passwordresetcomplete);
+			$config_et_client_app_passwordresetcomplete_subj = prepareEmailTemplateTags($config_et_client_app_passwordresetcomplete_subj);
 			
             // Send confirmation email
-            $subject = "Password reset confirmation for $company_name Client Portal";
+            $subject = "$config_et_client_app_passwordresetcomplete_subj";
 			$body = "$config_et_client_app_passwordresetcomplete";
 
 

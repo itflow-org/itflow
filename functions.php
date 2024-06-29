@@ -730,12 +730,29 @@ function sanitizeInput($input)
 
 function sanitizeForEmail($data)
 {
-    $sanitized = htmlspecialchars($data, ENT_QUOTES);
+    $sanitized = htmlspecialchars($data);
     $sanitized = strip_tags($sanitized);
     $sanitized = trim($sanitized);
     return $sanitized;
 }
 
+// Email Template [tag] Replacement
+function prepareEmailTemplateTags($emailTemplateTags)
+{
+	// Perform variable substitution - find [tags]
+    $emailTemplateTags = preg_replace_callback('/\[(.*?)\]/', function($matches) {
+        $var_name = $matches[1];
+        global $$var_name;
+        return $$var_name;
+    }, $emailTemplateTags);
+	
+	// Replace single quotes with escaped quotes
+    $emailTemplateTags = str_replace("'", "\'", $emailTemplateTags);
+    
+    return $emailTemplateTags;
+}
+
+// Prepare Email Template
 function prepareEmailTemplate($emailtemplate, $ticketreply = false)
 {
     // Check if $ticketreply is true, then prepend the line
@@ -745,17 +762,10 @@ function prepareEmailTemplate($emailtemplate, $ticketreply = false)
     }
 
     // Decode HTML entities
-    $emailtemplate = htmlspecialchars_decode($emailtemplate, ENT_QUOTES);
+    $emailtemplate = htmlspecialchars_decode($emailtemplate);
     
-    // Replace single quotes with escaped quotes
-    $emailtemplate = str_replace("'", "\'", $emailtemplate);
-    
-    // Perform variable substitution
-    $emailtemplate = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-        $var_name = $matches[1];
-        global $$var_name;
-        return $$var_name;
-    }, $emailtemplate);
+	// Email Template [tag] replacement
+	$emailtemplate = prepareEmailTemplateTags($emailtemplate);
     
     return $emailtemplate;
 }

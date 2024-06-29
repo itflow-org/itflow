@@ -369,28 +369,43 @@ require_once "inc_all_admin.php";
 				</div>
 
 				<div class="form-group">
-					<label>Template HTML</label>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_ticket_new" id="config_et_client_ticket_new"><?php echo $config_et_client_ticket_new; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_ticket_update" id="config_et_client_ticket_update"><?php echo $config_et_client_ticket_update; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_ticket_autoclose" id="config_et_client_ticket_autoclose"><?php echo $config_et_client_ticket_autoclose; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_ticket_updatedpendingclosure" id="config_et_client_ticket_updatedpendingclosure"><?php echo $config_et_client_ticket_updatedpendingclosure; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_ticket_closed" id="config_et_client_ticket_closed"><?php echo $config_et_client_ticket_closed; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_app_newaccount" id="config_et_client_app_newaccount"><?php echo $config_et_client_app_newaccount; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_app_passwordreset" id="config_et_client_app_passwordreset"><?php echo $config_et_client_app_passwordreset; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_app_passwordresetcomplete" id="config_et_client_app_passwordresetcomplete"><?php echo $config_et_client_app_passwordresetcomplete; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_calendar_rescheduled" id="config_et_client_calendar_rescheduled"><?php echo $config_et_client_calendar_rescheduled; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_calendar_scheduled" id="config_et_client_calendar_scheduled"><?php echo $config_et_client_calendar_scheduled; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_new" id="config_et_client_invoice_new"><?php echo $config_et_client_invoice_new; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_newrecurring" id="config_et_client_invoice_newrecurring"><?php echo $config_et_client_invoice_newrecurring; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paid" id="config_et_client_invoice_paid"><?php echo $config_et_client_invoice_paid; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paymentfull" id="config_et_client_invoice_paymentfull"><?php echo $config_et_client_invoice_paymentfull; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paymentmultiple" id="config_et_client_invoice_paymentmultiple"><?php echo $config_et_client_invoice_paymentmultiple; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paymentpartial" id="config_et_client_invoice_paymentpartial"><?php echo $config_et_client_invoice_paymentpartial; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paymentreminder" id="config_et_client_invoice_paymentreminder"><?php echo $config_et_client_invoice_paymentreminder; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_invoice_paymentstripe" id="config_et_client_invoice_paymentstripe"><?php echo $config_et_client_invoice_paymentstripe; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_quote_new" id="config_et_client_quote_new"><?php echo $config_et_client_quote_new; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_client_securelink" id="config_et_client_securelink"><?php echo $config_et_client_securelink; ?></textarea>
-					<textarea class="form-control template-textarea" rows="20" name="config_et_watcher_notify" id="config_et_watcher_notify"><?php echo $config_et_watcher_notify; ?></textarea>
+					<label>Template Subject and Body</label>
+
+					<?php
+					$templates = array(
+						'config_et_client_ticket_new' => 'Client - Ticket - New',
+						'config_et_client_ticket_update' => 'Client - Ticket - Update',
+						'config_et_client_ticket_autoclose' => 'Client - Ticket - Auto-Close',
+						'config_et_client_ticket_updatedpendingclosure' => 'Client - Ticket - Updated Pending Closure',
+						'config_et_client_ticket_closed' => 'Client - Ticket - Closed',
+						'config_et_client_app_newaccount' => 'Client - App - New Account',
+						'config_et_client_app_passwordreset' => 'Client - App - Password Reset',
+						'config_et_client_app_passwordresetcomplete' => 'Client - App - Password Reset Complete',
+						'config_et_client_calendar_rescheduled' => 'Client - Calendar - Rescheduled',
+						'config_et_client_calendar_scheduled' => 'Client - Calendar - Scheduled',
+						'config_et_client_invoice_new' => 'Client - Invoice - New',
+						'config_et_client_invoice_newrecurring' => 'Client - Invoice - New Recurring',
+						'config_et_client_invoice_paid' => 'Client - Invoice - Paid',
+						'config_et_client_invoice_paymentfull' => 'Client - Invoice - Payment Full',
+						'config_et_client_invoice_paymentmultiple' => 'Client - Invoice - Payment Multiple',
+						'config_et_client_invoice_paymentpartial' => 'Client - Invoice - Payment Partial',
+						'config_et_client_invoice_paymentreminder' => 'Client - Invoice - Payment Reminder',
+						'config_et_client_invoice_paymentstripe' => 'Client - Invoice - Payment Stripe',
+						'config_et_client_quote_new' => 'Client - Quote - New',
+						'config_et_client_securelink' => 'Client - Secure Link',
+						'config_et_watcher_notify' => 'Watcher - Notify'
+					);
+
+					foreach ($templates as $key => $label) {
+						$subj = ${$key . '_subj'}; // Assuming you have variables like $config_et_client_ticket_new_subj, etc.
+						$body = ${$key}; // Assuming you have variables like $config_et_client_ticket_new, etc.
+						?>
+
+						<input type="text" class="form-control template-subject" name="<?php echo $key . '_subj'; ?>" id="<?php echo $key . '_subj'; ?>" placeholder="Subject" value="<?php echo $subj; ?>">
+						<textarea class="form-control template-textarea" rows="20" name="<?php echo $key; ?>" id="<?php echo $key; ?>"><?php echo $body; ?></textarea>
+
+					<?php } ?>
+
 				</div>
 
 				<hr>
@@ -400,8 +415,9 @@ require_once "inc_all_admin.php";
 
 			<script>
 			document.addEventListener("DOMContentLoaded", function() {
-				// Initially hide all textareas and initialize TinyMCE for them
+				// Initially hide all textareas, subject inputs, and initialize TinyMCE for them
 				let textareas = document.querySelectorAll('.template-textarea');
+				let subjects = document.querySelectorAll('.template-subject');
 				let editors = {};
 
 				textareas.forEach(textarea => {
@@ -410,7 +426,7 @@ require_once "inc_all_admin.php";
 						selector: '#' + textarea.id,
 						menubar: false,
 						plugins: 'lists link code table fullscreen',
-						toolbar: 'blocks fontfamily fontsize | bold italic forecolor | lineheight | link unlink | bullist numlist | alignleft aligncenter alignright alignjustify | outdent indent | table | code fullscreen',
+						toolbar: 'blocks fontfamily fontsize | bold italic forecolor | link unlink | bullist numlist | alignleft aligncenter alignright alignjustify | outdent indent | table | code fullscreen',
 						setup: function (editor) {
 							editors[textarea.id] = editor;
 							editor.on('init', function () {
@@ -420,11 +436,15 @@ require_once "inc_all_admin.php";
 					});
 				});
 
-				// Function to update textarea visibility based on dropdown selection
+				subjects.forEach(subject => {
+					subject.style.display = 'none';
+				});
+
+				// Function to update textarea and subject visibility based on dropdown selection
 				function updateTextareaVisibility() {
 					let selectedValue = document.getElementById('template_selection').value;
 
-					// Hide all textareas and TinyMCE editors
+					// Hide all textareas, TinyMCE editors, and subject inputs
 					textareas.forEach(textarea => {
 						textarea.style.display = 'none';
 						if (editors[textarea.id]) {
@@ -432,10 +452,15 @@ require_once "inc_all_admin.php";
 						}
 					});
 
-					// Show the selected textarea and its TinyMCE editor
+					subjects.forEach(subject => {
+						subject.style.display = 'none';
+					});
+
+					// Show the selected textarea, its TinyMCE editor, and the corresponding subject input
 					if (selectedValue && editors[selectedValue]) {
 						document.getElementById(selectedValue).style.display = 'block';
 						editors[selectedValue].show();
+						document.getElementById(selectedValue + '_subj').style.display = 'block';
 					}
 				}
 
@@ -443,6 +468,7 @@ require_once "inc_all_admin.php";
 				document.getElementById('template_selection').addEventListener('change', updateTextareaVisibility);
 			});
 			</script>
+
 
         </div>
     </div>
