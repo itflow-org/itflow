@@ -471,11 +471,20 @@ require_once "inc_all_admin.php";
 								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[contact_email]`)},
 								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[contact_name]`)},
 								{type: 'menuitem', text: 'Invoice Amount', onAction: () => editor.insertContent(`[invoice_amount]`)},
+								{type: 'menuitem', text: 'Invoice Amount Paid', onAction: () => editor.insertContent(`[amount_paid]`)},
+								{type: 'menuitem', text: 'Invoice Balance', onAction: () => editor.insertContent(`[invoice_balance]`)},
+								{type: 'menuitem', text: 'Invoice Balance 2', onAction: () => editor.insertContent(`[balance]`)},
 								{type: 'menuitem', text: 'Invoice Date', onAction: () => editor.insertContent(`[invoice_date]`)},
+								{type: 'menuitem', text: 'Invoice Due Date', onAction: () => editor.insertContent(`[invoice_due]`)},
 								{type: 'menuitem', text: 'Invoice Number', onAction: () => editor.insertContent(`[invoice_number]`)},
+								{type: 'menuitem', text: 'Invoice Scope', onAction: () => editor.insertContent(`[invoice_scope]`)},
+								{type: 'menuitem', text: 'Invoice Total Payments Amount', onAction: () => editor.insertContent(`[total_payments_amount]`)},
 								{type: 'menuitem', text: 'Invoice Prefix', onAction: () => editor.insertContent(`[invoice_prefix]`)},
 								{type: 'menuitem', text: 'Invoice URL Key', onAction: () => editor.insertContent(`[invoice_url_key]`)},
 								{type: 'menuitem', text: 'Invoice URL', onAction: () => editor.insertContent(`https://[config_base_url]/guest_view_invoice.php?invoice_id=[invoice_id]&url_key=[invoice_url_key]`)},
+								{type: 'menuitem', text: 'Multiple Invoice Summary', onAction: () => editor.insertContent(`[email_body_invoices]`)},
+								{type: 'menuitem', text: 'Stripe Currency Type', onAction: () => editor.insertContent(`[pi_currency]`)},
+								{type: 'menuitem', text: 'Stripe Amount Paid', onAction: () => editor.insertContent(`[pi_amount]`)},
 								]}							
 							);
 							editor.ui.registry.addNestedMenuItem('quotesub', {

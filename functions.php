@@ -788,7 +788,18 @@ function prepareEmailTemplateTags($emailTemplateTags)
         'start',
         'title',
 		'ticket_reply',
-		'company_phone'
+		'company_phone',
+		'total_payments_amount',
+		'invoice_balance',
+		'invoice_scope',
+		'invoice_due',
+		'amount_paid',
+		'balance',
+		'email_body_invoices',
+		'pi_currency',
+		'pi_amount_paid'
+		
+		
     ];
 
     // Perform variable substitution for double-bracketed tags [[this]] or [[this][that]]
