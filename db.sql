@@ -1501,6 +1501,7 @@ CREATE TABLE `settings` (
   `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_key_secret` varchar(255) DEFAULT NULL,
   `config_login_remember_me_expire` int(11) NOT NULL DEFAULT 3,
+  `config_log_retention` int(11) NOT NULL DEFAULT 90,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
