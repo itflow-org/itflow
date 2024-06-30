@@ -196,13 +196,13 @@ if (isset($_POST['test_email_smtp'])) {
 
 // Test IMAP
 // Autoload Composer dependencies
-require_once __DIR__ . '/../plugins/php-imap/vendor/autoload.php';
+// require_once __DIR__ . '/../plugins/php-imap/vendor/autoload.php';
 
 // Webklex PHP-IMAP
-use Webklex\PHPIMAP\ClientManager;
+//use Webklex\PHPIMAP\ClientManager;
 
 if (isset($_POST['test_email_imap'])) {
-
+/*
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
@@ -227,10 +227,13 @@ if (isset($_POST['test_email_imap'])) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
     }
+*/
+    $_SESSION['alert_message'] = "Test is Work In Progress";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
 
 // Email templates
 if (isset($_POST['edit_mail_email_template'])) {

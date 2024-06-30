@@ -679,8 +679,10 @@ if (isset($_POST['add_payment'])) {
 				$config_et_client_invoice_paymentfull = prepareEmailTemplate($config_et_client_invoice_paymentfull);
 				$config_et_client_invoice_paymentfull_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentfull_subj);
 
+
 				$subject = "$config_et_client_invoice_paymentfull_subj";
 				$body = "$config_et_client_invoice_paymentfull";
+
 
                 // Queue Mail
                 $email = [
@@ -711,12 +713,14 @@ if (isset($_POST['add_payment'])) {
 
             if ($email_receipt == 1) {
 
+
 				// Get Email Template
 				$config_et_client_invoice_paymentpartial = prepareEmailTemplate($config_et_client_invoice_paymentpartial);
 				$config_et_client_invoice_paymentpartial_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentpartial_subj);
 
                 $subject = "$config_et_client_invoice_paymentpartial_subj";
 				$body = "$config_et_client_invoice_paymentpartial";
+
 
                 // Queue Mail
                 $email = [

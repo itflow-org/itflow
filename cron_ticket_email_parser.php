@@ -157,7 +157,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         $client_name = sanitizeInput($client_row['client_name']);
 
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
-        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$message";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
 
         $data[] = [
             'from' => $config_ticket_from_email,
@@ -179,14 +179,13 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_smtp_host, $config_smtp_port, $config_smtp_encryption, $config_smtp_username, $config_smtp_password, $allowed_extensions;
 
     $ticket_reply_type = 'Client';
-    
     // Clean up the message
     $message_parts = explode("##- Please type your reply above this line -##", $message);
     $message_body = $message_parts[0];
     $message_body = trim($message_body); // Remove leading/trailing whitespace
-    $message_body = preg_replace('/\s+/', ' ', $message_body); // Replace multiple spaces with a single space
-    $message_body = nl2br($message_body); // Convert newlines to <br>
-    
+    $message_body = preg_replace('/\r\n|\r|\n/', ' ', $message_body); // Replace newlines with a space
+    $message_body = nl2br($message_body); // Convert remaining newlines to <br>
+
     // Wrap the message in a div with controlled line height
     $message = "<i>Email from: $from_email at $date:-</i> <br><br><div style='line-height:1.5;'>$message_body</div>";
 
@@ -375,7 +374,12 @@ if ($messages->count() > 0) {
 
         $subject = sanitizeInput($message->getSubject() ?? 'No Subject');
         $date = sanitizeInput($message->getDate() ?? date('Y-m-d H:i:s'));
-        $message_body = $message->getHtmlBody() ?? $message->getTextBody() ?? '';
+        $message_body = $message->getHtmlBody() ?? '';
+
+        if (empty($message_body)) {
+            $text_body = $message->getTextBody() ?? '';
+            $message_body = nl2br(htmlspecialchars($text_body));
+        }
 
         if (preg_match("/\[$config_ticket_prefix\d+\]/", $subject, $ticket_number)) {
             preg_match('/\d+/', $ticket_number[0], $ticket_number);
@@ -440,4 +444,3 @@ $client->disconnect();
 
 // Remove the lock file
 unlink($lock_file_path);
-?>
