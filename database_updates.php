@@ -2077,31 +2077,11 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.1'");
     }
 
-    if (CURRENT_DATABASE_VERSION == '1.4.1') {
-         mysqli_query($mysqli, "ALTER TABLE `settings` 
-			ADD `config_et_client_ticket_new` TEXT,
-			ADD `config_et_client_ticket_update` TEXT,
-			ADD `config_et_client_ticket_autoclose` TEXT,
-			ADD `config_et_client_ticket_updatedpendingclosure` TEXT,
-			ADD `config_et_client_ticket_closed` TEXT,
-			ADD `config_et_client_app_newaccount` TEXT,
-			ADD `config_et_client_app_passwordreset` TEXT,
-			ADD `config_et_client_app_passwordresetcomplete` TEXT,
-			ADD `config_et_client_calendar_rescheduled` TEXT,
-			ADD `config_et_client_calendar_scheduled` TEXT,
-			ADD `config_et_client_invoice_new` TEXT,
-			ADD `config_et_client_invoice_newrecurring` TEXT,
-			ADD `config_et_client_invoice_paid` TEXT,
-			ADD `config_et_client_invoice_paymentfull` TEXT,
-			ADD `config_et_client_invoice_paymentmultiple` TEXT,
-			ADD `config_et_client_invoice_paymentpartial` TEXT,
-			ADD `config_et_client_invoice_paymentreminder` TEXT,
-			ADD `config_et_client_invoice_paymentstripe` TEXT,
-			ADD `config_et_client_quote_new` TEXT,
-			ADD `config_et_client_securelink` TEXT,
-			ADD `config_et_watcher_notify` TEXT");
-         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
-     }
+    // if (CURRENT_DATABASE_VERSION == '1.4.1') {
+    //     // Insert queries here required to update to DB version 1.4.2
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
+    // }
 
 } else {
     // Up-to-date
