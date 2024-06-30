@@ -736,21 +736,105 @@ function sanitizeForEmail($data)
     return $sanitized;
 }
 
-// Email Template [tag] Replacement
+// Email Template [tag] [[tag]] and [[tag][tag2]] Replacements
 function prepareEmailTemplateTags($emailTemplateTags)
 {
-	// Perform variable substitution - find [tags]
-    $emailTemplateTags = preg_replace_callback('/\[(.*?)\]/', function($matches) {
-        $var_name = $matches[1];
-        global $$var_name;
-        return $$var_name;
+    // Placeholder to avoid collision with actual content
+    $placeholderPrefix = '__DOUBLE_BRACKET__';
+    $placeholders = [];
+    $counter = 0;
+
+    // Define the predetermined list of accepted tags
+    $acceptedTags = [
+        'company_name',
+        'config_base_url',
+        'ticket_client_id',
+        'contact_email',
+        'contact_name',
+        'ticket_assigned_to',
+        'ticket_category',
+        'ticket_created_by',
+        'ticket_details',
+        'ticket_number',
+        'ticket_prefix',
+        'ticket_priority',
+        'ticket_subject',
+        'ticket_id',
+        'client_id',
+        'client_name',
+        'invoice_amount',
+        'invoice_date',
+        'invoice_number',
+        'invoice_prefix',
+        'invoice_url_key',
+        'quote_amount',
+        'quote_date',
+        'quote_expire',
+        'quote_number',
+        'quote_prefix',
+        'quote_scope',
+        'quote_url_key',
+        'client_id',
+        'contact_email',
+        'contact_name',
+        'item_email',
+        'item_expires_friendly',
+        'item_type',
+        'item_view_limit',
+        'url',
+        'name',
+        'password_info',
+        'username',
+        'start',
+        'title',
+		'ticket_reply',
+		'company_phone'
+    ];
+
+    // Perform variable substitution for double-bracketed tags [[this]] or [[this][that]]
+    $emailTemplateTags = preg_replace_callback('/\[\[(.*?)\]\]/', function($matches) use (&$placeholders, &$counter, $placeholderPrefix, $acceptedTags) {
+        $innerContent = $matches[1];
+        $parts = explode('][', $innerContent);
+
+        $result = array_map(function($part) use ($acceptedTags) {
+            $part = trim($part);
+            if (in_array($part, $acceptedTags)) {
+                global $$part;
+                return isset($$part) ? $$part : '$' . $part;
+            }
+            return $part; // Keep the part unchanged if it's not in the accepted list
+        }, $parts);
+
+        $placeholder = $placeholderPrefix . $counter++;
+        $placeholders[$placeholder] = '[' . implode('', $result) . ']';
+        return $placeholder;
     }, $emailTemplateTags);
-	
-	// Replace single quotes with escaped quotes
+
+    // Perform variable substitution for single-bracketed tags [this]
+    $emailTemplateTags = preg_replace_callback('/\[(.*?)\]/', function($matches) use ($acceptedTags) {
+        // Ensure the match is not double-bracketed
+        if (strpos($matches[0], '[[') === false && strpos($matches[0], ']]') === false) {
+            $var_name = $matches[1];
+            if (in_array($var_name, $acceptedTags)) {
+                global $$var_name;
+                return isset($$var_name) ? $$var_name : $matches[0];
+            }
+        }
+        return $matches[0]; // Return the match unchanged if it is double-bracketed or not in the accepted list
+    }, $emailTemplateTags);
+
+    // Replace placeholders with actual double-bracketed replacements
+    foreach ($placeholders as $placeholder => $replacement) {
+        $emailTemplateTags = str_replace($placeholder, $replacement, $emailTemplateTags);
+    }
+
+    // Replace single quotes with escaped quotes
     $emailTemplateTags = str_replace("'", "\'", $emailTemplateTags);
-    
+
     return $emailTemplateTags;
 }
+
+
 
 // Prepare Email Template
 function prepareEmailTemplate($emailtemplate, $ticketreply = false)

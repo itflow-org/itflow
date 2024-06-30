@@ -407,7 +407,7 @@ if (isset($_POST['add_ticket_watcher'])) {
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 		
 		// Get Email Template
-		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify, true);
+		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify);
 		$config_et_watcher_notify_subj = prepareEmailTemplateTags($config_et_watcher_notify_subj);
 
 

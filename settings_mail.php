@@ -401,7 +401,7 @@ require_once "inc_all_admin.php";
 						$body = ${$key}; // Assuming you have variables like $config_et_client_ticket_new, etc.
 						?>
 
-						<input type="text" class="form-control template-subject" name="<?php echo $key . '_subj'; ?>" id="<?php echo $key . '_subj'; ?>" placeholder="Subject" value="<?php echo $subj; ?>">
+						<input type="text" class="form-control template-subject" name="<?php echo $key . '_subj'; ?>" id="<?php echo $key . '_subj'; ?>" placeholder="Subject" value="<?php echo $subj; ?>" style="margin-bottom: 20px;">
 						<textarea class="form-control template-textarea" rows="20" name="<?php echo $key; ?>" id="<?php echo $key; ?>"><?php echo $body; ?></textarea>
 
 					<?php } ?>
@@ -424,7 +424,12 @@ require_once "inc_all_admin.php";
 					textarea.style.display = 'none';
 					tinymce.init({
 						selector: '#' + textarea.id,
-						menubar: false,
+						promotion: false,
+						branding: false,
+						menubar: 'custom',
+						menu: {
+							custom: { title: 'Shortcodes', items: 'info divider companyname companyphone baseurl appsub calendarsub invoicesub ticketsub quotesub securelinksub watchersub' }
+						},
 						plugins: 'lists link code table fullscreen',
 						toolbar: 'blocks fontfamily fontsize | bold italic forecolor | link unlink | bullist numlist | alignleft aligncenter alignright alignjustify | outdent indent | table | code fullscreen',
 						setup: function (editor) {
@@ -432,6 +437,110 @@ require_once "inc_all_admin.php";
 							editor.on('init', function () {
 								editor.hide();
 							});
+							editor.ui.registry.addMenuItem('companyname', {text: 'Company Name', onAction: () => editor.insertContent(`[company_name]`)});
+							editor.ui.registry.addMenuItem('companyphone', {text: 'Company Phone', onAction: () => editor.insertContent(`[company_phone]`)});
+							editor.ui.registry.addMenuItem('baseurl', {text: 'Base URL', onAction: () => editor.insertContent(`[config_base_url]`)});
+							editor.ui.registry.addMenuItem('divider', {text: '-----------------------'});
+							editor.ui.registry.addMenuItem('info', {text: 'Shortcode Help', onAction: () => editor.notificationManager.open({
+								text: 'Please test your email templates before deployment.<br><br> Not all shortcodes are available even for their given email template type.<br> Other shortcodes than what are listed may be available.<br><br> Shortcodes may also be used in the Subject line.',
+								type: 'info'
+							})});
+							editor.ui.registry.addNestedMenuItem('ticketsub', {
+								text: 'Ticket',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client ID', onAction: () => editor.insertContent(`[ticket_client_id]`)},
+								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[contact_email]`)},
+								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[contact_name]`)},
+								{type: 'menuitem', text: 'Ticket Assigned To', onAction: () => editor.insertContent(`[ticket_assigned_to]`)},
+								{type: 'menuitem', text: 'Ticket Category', onAction: () => editor.insertContent(`[ticket_category]`)},
+								{type: 'menuitem', text: 'Ticket Created By', onAction: () => editor.insertContent(`[ticket_created_by]`)},
+								{type: 'menuitem', text: 'Ticket Details', onAction: () => editor.insertContent(`[ticket_details]`)},
+								{type: 'menuitem', text: 'Ticket Number', onAction: () => editor.insertContent(`[ticket_number]`)},
+								{type: 'menuitem', text: 'Ticket Prefix', onAction: () => editor.insertContent(`[ticket_prefix]`)},
+								{type: 'menuitem', text: 'Ticket Priority', onAction: () => editor.insertContent(`[ticket_priority]`)},
+								{type: 'menuitem', text: 'Ticket Reply Text', onAction: () => editor.insertContent(`[ticket_reply]`)},
+								{type: 'menuitem', text: 'Ticket Subject', onAction: () => editor.insertContent(`[ticket_subject]`)},
+								{type: 'menuitem', text: 'Ticket URL', onAction: () => editor.insertContent(`https://[config_base_url]/portal/ticket.php?id=[ticket_id]`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('invoicesub', {
+								text: 'Invoice',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client ID', onAction: () => editor.insertContent(`[client_id]`)},
+								{type: 'menuitem', text: 'Client Name', onAction: () => editor.insertContent(`[client_name]`)},
+								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[contact_email]`)},
+								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[contact_name]`)},
+								{type: 'menuitem', text: 'Invoice Amount', onAction: () => editor.insertContent(`[invoice_amount]`)},
+								{type: 'menuitem', text: 'Invoice Date', onAction: () => editor.insertContent(`[invoice_date]`)},
+								{type: 'menuitem', text: 'Invoice Number', onAction: () => editor.insertContent(`[invoice_number]`)},
+								{type: 'menuitem', text: 'Invoice Prefix', onAction: () => editor.insertContent(`[invoice_prefix]`)},
+								{type: 'menuitem', text: 'Invoice URL Key', onAction: () => editor.insertContent(`[invoice_url_key]`)},
+								{type: 'menuitem', text: 'Invoice URL', onAction: () => editor.insertContent(`https://[config_base_url]/guest_view_invoice.php?invoice_id=[invoice_id]&url_key=[invoice_url_key]`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('quotesub', {
+								text: 'Quote',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client ID', onAction: () => editor.insertContent(`[client_id]`)},
+								{type: 'menuitem', text: 'Client Name', onAction: () => editor.insertContent(`[client_name]`)},
+								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[contact_email]`)},
+								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[contact_name]`)},
+								{type: 'menuitem', text: 'Quote Amount', onAction: () => editor.insertContent(`[quote_amount]`)},
+								{type: 'menuitem', text: 'Quote Date', onAction: () => editor.insertContent(`[quote_date]`)},
+								{type: 'menuitem', text: 'Quote Expire', onAction: () => editor.insertContent(`[quote_expire]`)},
+								{type: 'menuitem', text: 'Quote Number', onAction: () => editor.insertContent(`[quote_number]`)},
+								{type: 'menuitem', text: 'Quote Prefix', onAction: () => editor.insertContent(`[quote_prefix]`)},
+								{type: 'menuitem', text: 'Quote Scope', onAction: () => editor.insertContent(`[quote_scope]`)},
+								{type: 'menuitem', text: 'Quote URL Key', onAction: () => editor.insertContent(`[quote_url_key]`)},
+								{type: 'menuitem', text: 'Quote URL', onAction: () => editor.insertContent(`https://[config_base_url]/guest_view_quote.php?quote_id=[quote_id]&url_key=[quote_url_key]`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('securelinksub', {
+								text: 'Secure Link',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client ID', onAction: () => editor.insertContent(`[client_id]`)},
+								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[item_email]`)},
+								{type: 'menuitem', text: 'Item Expires In', onAction: () => editor.insertContent(`[item_expires_friendly]`)},
+								{type: 'menuitem', text: 'Item Type', onAction: () => editor.insertContent(`[item_type]`)},
+								{type: 'menuitem', text: 'Item View Limit', onAction: () => editor.insertContent(`[item_view_limit]`)},
+								{type: 'menuitem', text: 'Secure Link URL', onAction: () => editor.insertContent(`[url]`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('appsub', {
+								text: 'App',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[name]`)},
+								{type: 'menuitem', text: 'Password Reset URL', onAction: () => editor.insertContent(`[url]`)},
+								{type: 'menuitem', text: 'Temporary Password', onAction: () => editor.insertContent(`[password_info]`)},
+								{type: 'menuitem', text: 'Username', onAction: () => editor.insertContent(`[username]`)},
+								{type: 'menuitem', text: 'Portal URL', onAction: () => editor.insertContent(`https://[config_base_url]/portal/`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('calendarsub', {
+								text: 'Calendar',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client Name', onAction: () => editor.insertContent(`[client_name]`)},
+								{type: 'menuitem', text: 'Contact Name', onAction: () => editor.insertContent(`[contact_name]`)},
+								{type: 'menuitem', text: 'Contact Email', onAction: () => editor.insertContent(`[contact_email]`)},
+								{type: 'menuitem', text: 'Appointment Date', onAction: () => editor.insertContent(`[start]`)},
+								{type: 'menuitem', text: 'Appointment Title', onAction: () => editor.insertContent(`[title]`)},
+								]}							
+							);
+							editor.ui.registry.addNestedMenuItem('watchersub', {
+								text: 'Watcher',
+								getSubmenuItems: () => [
+								{type: 'menuitem', text: 'Client ID', onAction: () => editor.insertContent(`[ticket_client_id]`)},
+								{type: 'menuitem', text: 'Ticket Assigned To', onAction: () => editor.insertContent(`[ticket_assigned_to]`)},
+								{type: 'menuitem', text: 'Ticket Category', onAction: () => editor.insertContent(`[ticket_category]`)},
+								{type: 'menuitem', text: 'Ticket Created By', onAction: () => editor.insertContent(`[ticket_created_by]`)},
+								{type: 'menuitem', text: 'Ticket Details', onAction: () => editor.insertContent(`[ticket_details]`)},
+								{type: 'menuitem', text: 'Ticket Number', onAction: () => editor.insertContent(`[ticket_number]`)},
+								{type: 'menuitem', text: 'Ticket Prefix', onAction: () => editor.insertContent(`[ticket_prefix]`)},
+								{type: 'menuitem', text: 'Ticket Priority', onAction: () => editor.insertContent(`[ticket_priority]`)},
+								{type: 'menuitem', text: 'Ticket Subject', onAction: () => editor.insertContent(`[ticket_subject]`)},
+								{type: 'menuitem', text: 'Ticket URL', onAction: () => editor.insertContent(`https://[config_base_url]/portal/ticket.php?id=[ticket_id]`)},
+								]}							
+							);
 						}
 					});
 				});
