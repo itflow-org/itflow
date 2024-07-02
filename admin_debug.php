@@ -5,7 +5,6 @@ require_once "database_version.php";
 
 require_once "config.php";
 
-
 $folderPath = 'uploads';
 
 function countFilesInDirectory($dir) {
@@ -190,7 +189,8 @@ $phpVersion = phpversion();
 $mysqlVersion = $mysqli->server_version;
 $operatingSystem = php_uname();
 $webServer = $_SERVER['SERVER_SOFTWARE'];
-$errorLog = ini_get('error_log');
+$errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
+$updates = fetchUpdates();
 
 ?>
 
@@ -207,7 +207,7 @@ $errorLog = ini_get('error_log');
             echo "MySQL Version: " . $mysqlVersion . "<br>";
             echo "Operating System: " . $operatingSystem . "<br>";
             echo "Web Server: " . $webServer  . "<br>";
-            echo "PHP Error Log: " . $errorLog
+            echo "Apache/PHP Error Log: " . $errorLog
             ?>
 
             <hr>
@@ -221,6 +221,14 @@ $errorLog = ini_get('error_log');
 
             echo "Total number of files in $folderPath and its subdirectories: " . $totalFiles . "<br>";
             echo "Total size of files in $folderPath and its subdirectories: " . $totalSizeMB . " MB";
+            ?>
+
+            <hr>
+            <h3>ITFlow app</h3>
+            <?php
+            echo "App Version: " . $updates->current_version . "<br>";
+            echo "Cron enabled: " . $config_enable_cron . "<br>";
+            echo "App Timezone: " . $config_timezone;
             ?>
 
             <hr>
