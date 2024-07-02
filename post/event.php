@@ -74,14 +74,18 @@ if (isset($_POST['add_event'])) {
         $company_email = sanitizeInput($row['company_email']);
         $company_website = sanitizeInput($row['company_website']);
         $company_logo = sanitizeInput($row['company_logo']);
+		
+		// Get Email Template
+		$config_et_client_calendar_scheduled = prepareEmailTemplate($config_et_client_calendar_scheduled);
+		$config_et_client_calendar_scheduled_subj = prepareEmailTemplateTags($config_et_client_calendar_scheduled_subj);
 
         // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
         $config_mail_from_name = sanitizeInput($config_mail_from_name);
         $config_mail_from_email = sanitizeInput($config_mail_from_email);
 
-        $subject = "New Calendar Event";
-        $body = "Hello $contact_name,<br><br>A calendar event has been scheduled:<br><br>Event Title: $title<br>Event Date: $start<br><br><br>--<br>$company_name<br>$company_phone";
-
+        $subject = "$config_et_client_calendar_scheduled_subj";
+		$body = "$config_et_client_calendar_scheduled";
+		
         $data = [
             [
                 'from' => $config_mail_from_email,
@@ -144,13 +148,17 @@ if (isset($_POST['edit_event'])) {
         $company_website = sanitizeInput($row['company_website']);
         $company_logo = sanitizeInput($row['company_logo']);
 
+		// Get Email Template
+		$config_et_client_calendar_rescheduled = prepareEmailTemplate($config_et_client_calendar_rescheduled);
+		$config_et_client_calendar_rescheduled_subj = prepareEmailTemplateTags($config_et_client_calendar_rescheduled_subj);
+
         // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
         $config_mail_from_name = sanitizeInput($config_mail_from_name);
         $config_mail_from_email = sanitizeInput($config_mail_from_email);
 
 
-        $subject = "Calendar Event Rescheduled";
-        $body = "Hello $contact_name,<br><br>A calendar event has been rescheduled:<br><br>Event Title: $title<br>Event Date: $start<br><br><br>--<br>$company_name<br>$company_phone";
+        $subject = "$config_et_client_calendar_rescheduled_subj";
+		$body = "$config_et_client_calendar_rescheduled";
 
         $data = [
             [
