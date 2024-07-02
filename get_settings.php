@@ -113,6 +113,7 @@ $config_login_message = $row['config_login_message'];
 $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 $config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
+$config_log_retention = intval($row['config_log_retention']);
 
 // Locale
 $config_currency_format = "US_en";

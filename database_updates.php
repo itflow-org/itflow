@@ -1944,7 +1944,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '1.3.6') {
         mysqli_query($mysqli, "ALTER TABLE `clients` ADD `client_abbreviation` VARCHAR(10) DEFAULT NULL AFTER `client_tax_id_number`");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.7'");
      }
 
@@ -1975,7 +1975,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         )");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.3.9'");
-    
+
     }
 
     if (CURRENT_DATABASE_VERSION == '1.3.9') {
@@ -2073,14 +2073,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_photo` VARCHAR(200) DEFAULT NULL AFTER `asset_install_date`");
 
         mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_physical_location` VARCHAR(200) DEFAULT NULL AFTER `asset_photo`");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.1') {
-    //     // Insert queries here required to update to DB version 1.4.2
+    if (CURRENT_DATABASE_VERSION == '1.4.1') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_log_retention` INT(11) NOT NULL DEFAULT '90' AFTER `config_login_remember_me_expire`;");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_log_retention` = '2555' WHERE company_id = 1;"); // Set to 7 years for existing installs
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.2') {
+    //     // Insert queries here required to update to DB version 1.4.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.3'");
     // }
 
 } else {
