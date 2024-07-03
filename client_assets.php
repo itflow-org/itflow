@@ -431,11 +431,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </div>
 
                                         <?php } ?>
-
-                                        <?php if (!empty($asset_uri)) { ?>
-                                            <a class="btn btn-default btn-sm" href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                                        <?php if ( !empty($asset_uri) || !empty($asset_uri_2) ) { ?>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-default btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fa fa-fw fa-external-link-alt"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <?php if ($asset_uri) { ?>
+                                                <a href="<?php echo $asset_uri; ?>" alt="<?php echo $asset_uri; ?>" target="_blank" class="dropdown-item" >
+                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($asset_uri,40); ?>
+                                                </a>
+                                                <?php } ?>
+                                                <?php if ($asset_uri_2) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="<?php echo $asset_uri_2; ?>" target="_blank" class="dropdown-item" >
+                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($asset_uri_2,40); ?>
+                                                </a>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
                                         <?php } ?>
-
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">

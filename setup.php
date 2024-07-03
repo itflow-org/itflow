@@ -20,6 +20,7 @@ if ($config_enable_setup == 0) {
 }
 
 include_once "settings_localization_array.php";
+$errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
 
 // Get a list of all available timezones
 $timezones = DateTimeZone::listIdentifiers();
@@ -848,7 +849,7 @@ if (isset($_POST['add_telemetry'])) {
                             <ul>
                                 <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
                                 <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
-                                <li><i>Your PHP Error log is at: <?php echo ini_get('error_log') ?></i></li>
+                                <li><i>Apache/PHP Error log: <?php echo $errorLog ?></i></li>
                             </ul>
                             <br><p>A database must be created before proceeding - click on the button below to get started.</p>
                             <br><hr>

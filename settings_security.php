@@ -43,6 +43,16 @@ require_once "inc_all_admin.php";
                 </div>
             </div>
 
+            <div class="form-group">
+                <label>Log retention <small class="text-secondary">(The amount of days before audit logs are deleted during nightly cron)</small></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    </div>
+                    <input type="number" class="form-control" name="config_log_retention" placeholder="Enter days to retain" value="<?php echo intval($config_log_retention); ?>">
+                </div>
+            </div>
+
             <hr>
 
             <button type="submit" name="edit_security_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
