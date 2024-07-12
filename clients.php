@@ -355,7 +355,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> <small class='text-muted'>[ <?php echo $client_id; ?> ]</small></a>
+                                <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
 
                                 <?php
                                 if (!empty($client_type)) {
