@@ -58,6 +58,15 @@
                     <div class="form-group">
                         <input type="text" class="form-control" name="description" value="<?php echo $document_description; ?>" placeholder="Short summary of changes">
                     </div>
+                    <label>Publish to Client Portal</label>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><input type="checkbox" class="" name="published" value="1"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="locked" value="Publish this document to the client portal?" readonly>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="modal-footer bg-white">

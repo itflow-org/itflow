@@ -13,12 +13,13 @@ if (isset($_POST['add_document'])) {
     $description = sanitizeInput($_POST['description']);
     $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
+    $document_published = intval($_POST['published']);
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
 
     $folder = intval($_POST['folder']);
 
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id, document_is_public = $document_published");
     $document_id = mysqli_insert_id($mysqli);
 
     // Update field document_parent to be the same id as document ID as this is the only version of the document.
@@ -44,6 +45,7 @@ if (isset($_POST['add_document_from_template'])) {
     $document_description = sanitizeInput($_POST['description']);
     $document_template_id = intval($_POST['document_template_id']);
     $folder = intval($_POST['folder']);
+    $document_published = intval($_POST['published']);
 
     //GET Document Info
     $sql_document = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_id = $document_template_id");
@@ -55,7 +57,7 @@ if (isset($_POST['add_document_from_template'])) {
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
     // Document add query
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_description = '$document_description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_description = '$document_description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id document_is_public = $document_published");
 
     $document_id = mysqli_insert_id($mysqli);
 
@@ -107,11 +109,12 @@ if (isset($_POST['edit_document'])) {
     $description = sanitizeInput($_POST['description']);
     $content = mysqli_real_escape_string($mysqli,$_POST['content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
+    $document_published = intval($_POST['published']);
     // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
     $folder = intval($_POST['folder']);
 
     // Document add query
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $document_created_by, document_updated_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $document_created_by, document_updated_by = $session_user_id, document_client_id = $client_id, document_is_public = $document_published");
 
     $new_document_id = mysqli_insert_id($mysqli);
 

@@ -61,6 +61,16 @@
                             <input type="text" class="form-control" name="description" placeholder="Short summary of the document">
                         </div>
                     </div>
+
+                    <label>Publish to Client Portal</label>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><input type="checkbox" class="" name="published" value="1"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="locked" value="Publish this document to the client portal?" readonly>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_document" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
