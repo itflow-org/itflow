@@ -101,6 +101,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </button>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importClientModal">
+                                <i class="fa fa-fw fa-upload mr-2"></i>Import
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportClientModal">
                                 <i class="fa fa-fw fa-download mr-2"></i>Export
                             </a>
@@ -351,7 +355,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                                <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
 
                                 <?php
                                 if (!empty($client_type)) {
@@ -465,6 +469,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "client_add_modal.php";
+
+require_once "client_import_modal.php";
 
 require_once "client_export_modal.php";
 
