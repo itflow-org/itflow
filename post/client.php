@@ -352,12 +352,12 @@ if (isset($_POST['export_clients_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Address', 'Contact Name', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Creation Date');
+        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['client_name'], $row['client_type'], $row['client_referral'], $row['client_website'], $row['location_address'] . ' ' . $row['location_city'] . ' ' . $row['location_state'] . ' ' . $row['location_zip'], $row['contact_name'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_email'], $row['client_created_at']);
+            $lineData = array($row['client_name'], $row['client_type'], $row['client_referral'], $row['client_website'], $row['location_name'], formatPhoneNumber($row['location_phone']), $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_country'], $row['contact_name'], $row['contact_title'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_email'], $row['client_rate'], $row['client_currency_code'], $row['client_net_terms'], $row['client_tax_id_number'], $row['client_abbreviation']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -371,6 +371,191 @@ if (isset($_POST['export_clients_csv'])) {
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    exit;
+
+}
+
+if (isset($_POST["import_clients_csv"])) {
+
+    validateTechRole();
+
+    $file_name = $_FILES["file"]["tmp_name"];
+    $error = false;
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
+
+    //Check file isn't empty
+    elseif ($_FILES["file"]["size"] < 1) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
+
+    //(Else)Check column count
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if (!$error & count($f_columns) != 22) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if (!$error) {
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== false) {
+            $duplicate_detect = 0;
+            if (isset($column[0])) {
+                $name = sanitizeInput($column[0]);
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name = '$name'")) > 0) {
+                    $duplicate_detect = 1;
+                }
+            }
+            if (isset($column[1])) {
+                $industry = sanitizeInput($column[1]);
+            }
+            if (isset($column[2])) {
+                $referral = sanitizeInput($column[2]);
+            }
+            if (isset($column[3])) {
+                $website = sanitizeInput($column[3]);
+            }
+            if (isset($column[4])) {
+                $location_name = sanitizeInput($column[4]);
+            }
+            if (isset($column[5])) {
+                $location_phone = preg_replace("/[^0-9]/", '',$column[5]);
+            }
+            if (isset($column[6])) {
+                $address = sanitizeInput($column[6]);
+            }
+            if (isset($column[7])) {
+                $city = sanitizeInput($column[7]);
+            }
+            if (isset($column[8])) {
+                $state = sanitizeInput($column[8]);
+            }
+            if (isset($column[9])) {
+                $zip = sanitizeInput($column[9]);
+            }
+            if (isset($column[10])) {
+                $country = sanitizeInput($column[10]);
+            }
+            if (isset($column[11])) {
+                $contact_name = sanitizeInput($column[11]);
+            }
+            if (isset($column[12])) {
+                $title = sanitizeInput($column[12]);
+            }
+            if (isset($column[13])) {
+                $contact_phone = preg_replace("/[^0-9]/", '',$column[13]);
+            }
+            if (isset($column[14])) {
+                $contact_extension = preg_replace("/[^0-9]/", '',$column[14]);
+            }
+            if (isset($column[15])) {
+                $contact_mobile = preg_replace("/[^0-9]/", '',$column[15]);
+            }
+            if (isset($column[16])) {
+                $contact_email = sanitizeInput($column[16]);
+            }
+            if (isset($column[17])) {
+                $hourly_rate = floatval($column[17]);
+            }
+            if (isset($column[18])) {
+                $currency_code = sanitizeInput($column[18]);
+            }
+            if (isset($column[19])) {
+                $payment_terms = intval($column[19]);
+            }
+            if (isset($column[20])) {
+                $tax_id_number = sanitizeInput($column[20]);
+            }
+            if (isset($column[21])) {
+                $abbreviation = sanitizeInput($column[21]);
+            }
+
+            // Check if duplicate was detected
+            if ($duplicate_detect == 0) {
+                //Add
+                // Create client
+                mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$industry', client_website = '$website', client_referral = '$referral', client_rate = $hourly_rate, client_currency_code = '$currency_code', client_net_terms = $payment_terms, client_tax_id_number = '$tax_id_number', client_abbreviation = '$abbreviation'");
+
+                $client_id = mysqli_insert_id($mysqli);
+
+                if (!file_exists("uploads/clients/$client_id")) {
+                    mkdir("uploads/clients/$client_id");
+                    file_put_contents("uploads/clients/$client_id/index.php", "");
+                }
+
+                // Create Referral if it doesn't exist
+                $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+                if(mysqli_num_rows($sql) == 0) {
+                    mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
+                    // Logging
+                    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Category', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+                }
+
+                // Create Location
+                mysqli_query($mysqli, "INSERT INTO locations SET location_name = '$location_name', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+
+                // Create Contact
+                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+        
+                $row_count = $row_count + 1;
+            
+            }else{
+            
+                $duplicate_count = $duplicate_count + 1;
+            
+            }
+        
+        }
+        fclose($file);
+
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Import', log_description = '$session_name imported $row_count clients) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+        $_SESSION['alert_message'] = "$row_count Client(s) added, $duplicate_count duplicate(s) detected";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    }
+
+    //Check for any errors, if there are notify user and redirect
+    if ($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+}
+
+if (isset($_GET['download_clients_csv_template'])) {
+
+    $delimiter = ",";
+    $filename = strtoAZaz09($client_name) . "-Clients-Template.csv";
+
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+
+    //set column headers
+    $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
+    fputcsv($f, $fields, $delimiter);
+
+    //move back to beginning of file
+    fseek($f, 0);
+
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+    //output all remaining data on a file pointer
+    fpassthru($f);
     exit;
 
 }
