@@ -7,16 +7,32 @@ $order = "ASC";
 require_once "inc_all_client.php";
 
 
+// Location Filter
+if (isset($_GET['location']) & !empty($_GET['location'])) {
+    $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
+    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
+    $location = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query_innerjoin = '';
+    $location_query = '';
+    $location = '';
+}
+
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM logins
-    WHERE login_client_id = $client_id
-    AND login_$archive_query
-    AND (login_name LIKE '%$q%' OR login_description LIKE '%$q%' OR login_uri LIKE '%$q%')
-    ORDER BY login_important DESC, $sort $order LIMIT $record_from, $record_to"
+    "SELECT SQL_CALC_FOUND_ROWS * 
+    FROM logins l
+    $location_query_innerjoin
+    WHERE l.login_client_id = $client_id
+    AND l.login_$archive_query
+    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%')
+    $location_query
+    ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -58,7 +74,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                            <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Asset Locations -</option>
+
+                            <?php
+                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            while ($row = mysqli_fetch_array($sql_locations_filter)) {
+                                $location_id = intval($row['location_id']);
+                                $location_name = nullable_htmlentities($row['location_name']);
+                            ?>
+                                <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <div class="btn-group float-right">
                         <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
