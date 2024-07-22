@@ -797,7 +797,9 @@ function prepareEmailTemplateTags($emailTemplateTags)
 		'balance',
 		'email_body_invoices',
 		'pi_currency',
-		'pi_amount_paid'
+		'pi_amount_paid',
+		'invoice_id',
+		'quote_id'
 		
 		
     ];
