@@ -70,10 +70,10 @@ $num_of_files = mysqli_num_rows($sql);
 ?>
 
 <div class="card card-dark">
-    
+
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-paperclip mr-2"></i>Files</h3>
-        
+
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFilesModal">
@@ -88,7 +88,7 @@ $num_of_files = mysqli_num_rows($sql);
             </div>
         </div>
     </div>
-    
+
     <div class="card-body">
         <div class="row">
             <div class="col-md-3 border-right mb-3">
@@ -156,7 +156,7 @@ $num_of_files = mysqli_num_rows($sql);
             </div>
 
             <div class="col-md-9">
-        
+
                 <form autocomplete="off">
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <input type="hidden" name="view" value="<?php echo $view; ?>">
@@ -174,7 +174,7 @@ $num_of_files = mysqli_num_rows($sql);
                             <div class="btn-group float-right">
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=0" class="btn <?php if($view == 0){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-list-ul"></i></a>
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=1" class="btn <?php if($view == 1){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-th-large"></i></a>
-                                
+
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
@@ -190,7 +190,7 @@ $num_of_files = mysqli_num_rows($sql);
                         </div>
                     </div>
                 </form>
-                
+
                 <hr>
 
                 <?php
@@ -225,7 +225,10 @@ $num_of_files = mysqli_num_rows($sql);
 
                                     <small><?php echo $file_name; ?></small>
 
-                                    <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
+                                    <?php } ?>
+
                                 </div>
                             </div>
                         </div>
@@ -243,7 +246,7 @@ $num_of_files = mysqli_num_rows($sql);
 
                     <div class="table-responsive-sm">
                         <table class="table border">
-                            
+
                             <thead class="thead-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
                                 <td class="bg-light pr-0">
@@ -256,7 +259,7 @@ $num_of_files = mysqli_num_rows($sql);
                                 <th class="text-center">Action</th>
                             </tr>
                             </thead>
-                            
+
                             <tbody>
 
                             <?php
@@ -338,10 +341,12 @@ $num_of_files = mysqli_num_rows($sql);
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                </a>
+                                                <?php if ($session_user_role == 3) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </td>
