@@ -24,7 +24,6 @@
                                 $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets
                                     WHERE asset_client_id = $client_id 
                                     AND asset_archived_at IS NULL
-                                    $exclude_condition
                                     ORDER BY asset_name ASC"
                                 );
                                 while ($row = mysqli_fetch_array($sql_assets_select)) {
@@ -65,7 +64,7 @@
                         <?php
                             }
                         ?>
-                        
+
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="link_asset_to_file" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Link</button>
