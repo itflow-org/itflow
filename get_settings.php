@@ -26,6 +26,37 @@ $config_imap_encryption = $row['config_imap_encryption'];
 $config_imap_username = $row['config_imap_username'];
 $config_imap_password = $row['config_imap_password'];
 
+// Mail - Email Templates
+$email_template_keys = [
+    'config_et_client_ticket_new', 'config_et_client_ticket_update', 'config_et_client_ticket_autoclose',
+    'config_et_client_ticket_updatedpendingclosure', 'config_et_client_ticket_closed', 'config_et_client_app_newaccount',
+    'config_et_client_app_passwordreset', 'config_et_client_app_passwordresetcomplete', 'config_et_client_calendar_rescheduled',
+    'config_et_client_calendar_scheduled', 'config_et_client_invoice_new', 'config_et_client_invoice_newrecurring',
+    'config_et_client_invoice_paid', 'config_et_client_invoice_paymentfull', 'config_et_client_invoice_paymentmultiple',
+    'config_et_client_invoice_paymentpartial', 'config_et_client_invoice_paymentreminder', 'config_et_client_invoice_paymentstripe',
+    'config_et_client_quote_new', 'config_et_client_securelink', 'config_et_watcher_notify'
+];
+
+foreach ($email_template_keys as $key) {
+    ${$key} = $row[$key];
+}
+
+// Mail - Email Template Subjects
+$email_subject_keys = [
+    'config_et_client_ticket_new_subj', 'config_et_client_ticket_update_subj', 'config_et_client_ticket_autoclose_subj',
+    'config_et_client_ticket_updatedpendingclosure_subj', 'config_et_client_ticket_closed_subj', 'config_et_client_app_newaccount_subj',
+    'config_et_client_app_passwordreset_subj', 'config_et_client_app_passwordresetcomplete_subj', 'config_et_client_calendar_rescheduled_subj',
+    'config_et_client_calendar_scheduled_subj', 'config_et_client_invoice_new_subj', 'config_et_client_invoice_newrecurring_subj',
+    'config_et_client_invoice_paid_subj', 'config_et_client_invoice_paymentfull_subj', 'config_et_client_invoice_paymentmultiple_subj',
+    'config_et_client_invoice_paymentpartial_subj', 'config_et_client_invoice_paymentreminder_subj', 'config_et_client_invoice_paymentstripe_subj',
+    'config_et_client_quote_new_subj', 'config_et_client_securelink_subj', 'config_et_watcher_notify_subj'
+];
+
+foreach ($email_subject_keys as $key) {
+    ${$key} = $row[$key];
+}
+
+
 // Defaults
 $config_start_page = $row['config_start_page'];
 $config_default_transfer_from_account = intval($row['config_default_transfer_from_account']);
