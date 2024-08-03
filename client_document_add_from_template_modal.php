@@ -26,7 +26,7 @@
                   $document_template_name = nullable_htmlentities($row['document_name']);
 
                 ?>
-                <option value="<?php echo $document_template_id ?>"><?php echo $document_template_name; ?></option>
+                  <option value="<?php echo $document_template_id ?>"><?php echo $document_template_name; ?></option>
                 <?php
                 }
                 ?>
@@ -70,7 +70,7 @@
                   $folder_name = nullable_htmlentities($row['folder_name']);
 
                 ?>
-                <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                  <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
                 <?php
                 }
                 ?>
@@ -78,7 +78,15 @@
               </select>
             </div>
           </div>
-
+          <label>Publish to Client Portal</label>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><input type="checkbox" class="" name="published" value="1"></i></span>
+              </div>
+              <input type="text" class="form-control" name="locked" value="Publish this document to the client portal?" readonly>
+            </div>
+          </div>
         </div>
 
         <div class="modal-footer bg-white">
