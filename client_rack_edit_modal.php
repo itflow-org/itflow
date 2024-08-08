@@ -91,7 +91,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                                     </div>
-                                    <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="44" value="<?php echo $rack_units; ?>" required>
+                                    <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?php echo $rack_units; ?>" required>
                                 </div>
                             </div>
 
