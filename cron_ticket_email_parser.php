@@ -417,7 +417,7 @@ if ($messages->count() > 0) {
                     if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
                         $email_processed = true;
                     }
-                } else if ($config_ticket_email_parse_unknown_senders)  {
+                } elseif ($config_ticket_email_parse_unknown_senders)  {
                     // Parse even if the sender is unknown
 
                     if (addTicket(0, 'Guest', $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
