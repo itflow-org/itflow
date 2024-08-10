@@ -195,6 +195,53 @@ if (isset($_POST['edit_asset'])) {
 
 }
 
+if (isset($_POST['change_client_asset'])) {
+
+    validateTechRole();
+
+    $current_asset_id = intval($_POST['current_asset_id']);
+    $new_client_id = intval($_POST['new_client_id']);
+
+    // Get Asset details and current client ID/Name for logging
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name FROM assets LEFT JOIN clients ON client_id = asset_client_id WHERE asset_id = $current_asset_id"));
+    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_notes = sanitizeInput($row['asset_notes']);
+    $current_client_id = intval($row['asset_client_id']);
+    $current_client_name = sanitizeInput($row['client_name']);
+
+    // Get new client name for logging
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $new_client_id"));
+    $new_client_name = sanitizeInput($row['client_name']);
+
+    // Create new asset
+    mysqli_query($mysqli, "
+        INSERT INTO assets (asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important)
+        SELECT asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important
+        FROM assets
+        WHERE asset_id = $current_asset_id
+    ");
+    $new_asset_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
+
+    // Archive/log the current asset
+    $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Archive', log_description = '$session_name archived asset $asset_name (via transfer)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $current_client_id, log_user_id = $session_user_id, log_entity_id = $current_asset_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Transfer', log_description = 'Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $current_client_id, log_user_id = $session_user_id, log_entity_id = $current_asset_id");
+    mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $current_asset_id");
+
+    // Log the new asset
+    $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$session_name created asset $name (via transfer)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $new_client_id, log_user_id = $session_user_id, log_entity_id = $new_asset_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Transfer', log_description = 'Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $new_client_id, log_user_id = $session_user_id, log_entity_id = $new_asset_id");
+    mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $new_asset_id");
+
+    $_SESSION['alert_message'] = "Asset <strong>$name</strong> transferred";
+
+    header("Location: client_assets.php?client_id=$new_client_id&asset_id=$new_asset_id");
+
+}
+
 if (isset($_GET['archive_asset'])) {
 
     validateTechRole();
