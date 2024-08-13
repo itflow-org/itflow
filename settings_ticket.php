@@ -10,6 +10,7 @@ require_once "inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="config_ticket_email_parse" value="0">
+                <input type="hidden" name="config_ticket_email_parse_unknown_senders" value="0">
                 <input type="hidden" name="config_ticket_autoclose" value="0">
                 <input type="hidden" name="config_ticket_default_billable" value="0">
 
@@ -37,6 +38,13 @@ require_once "inc_all_admin.php";
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse" <?php if($config_ticket_email_parse == 1){ echo "checked"; } ?> value="1" id="emailToTicketParseSwitch">
                         <label class="custom-control-label" for="emailToTicketParseSwitch">Email-to-ticket parsing <small class="text-secondary">(cron_ticket_email_parser.php must also be added to cron and run every few mins)</small></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_email_parse_unknown_senders" <?php if($config_ticket_email_parse_unknown_senders == 1){ echo "checked"; } ?> value="1" id="emailToTicketAnonParseSwitch" <?php if($config_ticket_email_parse == 0){ echo "disabled"; } ?>>
+                        <label class="custom-control-label" for="emailToTicketAnonParseSwitch">Create tickets for emails from unknown senders/domains <small class="text-secondary">(Enable to ensure all emails automatically create tickets)</small></label>
                     </div>
                 </div>
 

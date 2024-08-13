@@ -22,6 +22,7 @@ require_once "get_settings.php";
 
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+$config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_parse_unknown_senders']);
 
 // Get company name & phone & timezone
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
@@ -132,7 +133,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     $data = [];
-    if ($config_ticket_client_general_notifications == 1) {
+    if ($config_ticket_client_general_notifications == 1 && $client_id != 0) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
         $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
@@ -414,6 +415,12 @@ if ($messages->count() > 0) {
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact ".mysqli_real_escape_string($mysqli, $contact_name)."', log_client_id = $client_id");
 
                     if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
+                        $email_processed = true;
+                    }
+                } elseif ($config_ticket_email_parse_unknown_senders)  {
+                    // Parse even if the sender is unknown
+
+                    if (addTicket(0, 'Guest', $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
                         $email_processed = true;
                     }
                 }

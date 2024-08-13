@@ -68,11 +68,13 @@ $config_ticket_next_number = intval($row['config_ticket_next_number']);
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
 $config_ticket_email_parse = intval($row['config_ticket_email_parse']);
+$config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_parse_unknown_senders']);
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
 $config_ticket_autoclose = intval($row['config_ticket_autoclose']);
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 $config_ticket_new_ticket_notification_email = $row['config_ticket_new_ticket_notification_email'];
 $config_ticket_default_billable = intval($row['config_ticket_default_billable']);
+
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);

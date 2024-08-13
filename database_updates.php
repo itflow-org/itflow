@@ -2085,9 +2085,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     // if (CURRENT_DATABASE_VERSION == '1.4.2') {
-    //     // Insert queries here required to update to DB version 1.4.3
+    mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_email_parse_unknown_senders` INT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_email_parse`");
+
+    mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.3'");
+    // }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.3') {
+    //     // Insert queries here required to update to DB version 1.4.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.4'");
     // }
 
 } else {
