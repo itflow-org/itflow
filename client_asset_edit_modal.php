@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $asset_id; ?>">Notes</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pills-history<?php echo $asset_id; ?>">History</a>
+                        </li>
                     </ul>
 
                     <hr>
@@ -383,6 +386,32 @@
                             <div class="form-group">
                                 <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $asset_notes; ?></textarea>
                             </div>
+
+                        </div>
+
+
+                        <div class="tab-pane fade" id="pills-history<?php echo $asset_id; ?>">
+
+                            <?php $sql_history = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_type = 'asset' and log_entity_id = $asset_id and log_client_id = $client_id");  ?>
+
+                            <div class="form-group">
+                                <label>Asset History</label>
+
+                                <ul>
+
+                                    <?php
+                                    while ($row = mysqli_fetch_array($sql_history)) {
+                                        $log_action = nullable_htmlentities(($row['log_action']));
+                                        $log_description = nullable_htmlentities(($row['log_description']));
+                                        $log_created_at = nullable_htmlentities(($row['log_created_at']));
+                                        echo "<li>$log_created_at - $log_action: $log_description</li>";
+                                    }
+                                    ?>
+                                </ul>
+
+                            </div>
+
+
 
                         </div>
 
