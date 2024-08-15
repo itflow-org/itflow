@@ -50,7 +50,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_category = intval($row['ticket_category']);
-        $ticket_category_display = htmlentities($row['category_name']);
+        $ticket_category_display = nullable_htmlentities($row['category_name']);
         $ticket_subject = nullable_htmlentities($row['ticket_subject']);
         $ticket_details = $purifier->purify($row['ticket_details']);
         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
@@ -502,7 +502,7 @@ if (isset($_GET['ticket_id'])) {
                                 </a>
                                 <?php if ($session_user_role == 3) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>">
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 <?php } ?>
@@ -916,7 +916,7 @@ if (isset($_GET['ticket_id'])) {
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
                             $task_order = intval($row['task_order']);
-                            $task_description = nullable_htmlentities($row['task_description']);
+                            //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                         ?>
                             <tr>
@@ -940,8 +940,13 @@ if (isset($_GET['ticket_id'])) {
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
+                                                <?php if ($task_completed_at) { ?>
+                                                    <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
+                                                        <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                                    </a>
+                                                <?php } ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
                                                 </a>
                                             </div>
