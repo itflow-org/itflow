@@ -629,6 +629,9 @@ if (isset($_GET['delete_ticket'])) {
 
     validateAdminRole();
 
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
     $ticket_id = intval($_GET['delete_ticket']);
 
     // Get Ticket and Client ID for logging and alert message
