@@ -374,7 +374,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                             <?php } else { ?>
                                 <div class="mt-1">
-                                    <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?> ?>">
+                                    <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>">
                                         <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                     </a>
                                 </div>
