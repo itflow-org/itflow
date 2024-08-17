@@ -738,6 +738,10 @@ function sanitizeForEmail($data)
 
 function timeAgo($datetime)
 {
+    if (is_null($datetime)) {
+        return "-";
+    }
+
     $time = strtotime($datetime);
     $difference = $time - time(); // Changed to handle future dates
 

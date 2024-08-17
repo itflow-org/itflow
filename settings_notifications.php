@@ -20,7 +20,7 @@ require_once "inc_all_admin.php";
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if ($config_enable_cron == 1) { echo "checked"; } ?> value="1" id="enableCronSwitch">
-                        <label class="custom-control-label" for="enableCronSwitch">Enable Cron <small>(cron.php must also be added to cron and run daily at 1:00AM for alerts to work)</small></label>
+                        <label class="custom-control-label" for="enableCronSwitch">Enable Cron (recommended) <small>(several cron scripts must also be added to cron with correct schedules, <a href="https://docs.itflow.org/cron">docs</a>)</small></label>
                     </div>
                 </div>
 

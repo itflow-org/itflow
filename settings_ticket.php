@@ -11,7 +11,6 @@ require_once "inc_all_admin.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="config_ticket_email_parse" value="0">
                 <input type="hidden" name="config_ticket_email_parse_unknown_senders" value="0">
-                <input type="hidden" name="config_ticket_autoclose" value="0">
                 <input type="hidden" name="config_ticket_default_billable" value="0">
 
                 <div class="form-group">
@@ -58,19 +57,12 @@ require_once "inc_all_admin.php";
                 <?php } ?>
 
                 <div class="form-group">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_ticket_autoclose" <?php if($config_ticket_autoclose == 1){ echo "checked"; } ?> value="1" id="ticketAutoCloseSwitch">
-                        <label class="custom-control-label" for="ticketAutoCloseSwitch">Enable Auto close Tickets <small class="text-secondary">(If no response is received after 48 hrs, a friendly chaser email is sent. The ticket is then automatically closed after the time specified below (defaults to 72 hours). </small></label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Number of hours to auto close ticket</label>
+                    <label>Number of hours to auto close resolved tickets</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                         </div>
-                        <input type="number" min="72" class="form-control" name="config_ticket_autoclose_hours" placeholder="Enter the number of hours to auto close ticket" value="<?php echo intval($config_ticket_autoclose_hours); ?>">
+                        <input type="number" min="72" class="form-control" name="config_ticket_autoclose_hours" placeholder="Delay in hours before a resolved ticket is fully closed" value="<?php echo intval($config_ticket_autoclose_hours); ?>">
                     </div>
                 </div>
 

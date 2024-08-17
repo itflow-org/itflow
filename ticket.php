@@ -84,7 +84,9 @@ if (isset($_GET['ticket_id'])) {
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+        $ticket_resolved_at = nullable_htmlentities($row['ticket_resolved_at']);
         $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+        $ticket_closed_by = intval($row['ticket_closed_by']);
 
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
         if (empty($ticket_assigned_to)) {
@@ -299,7 +301,7 @@ if (isset($_GET['ticket_id'])) {
         $completed_task_count = mysqli_num_rows($sql_tasks_completed);
 
         // Tasks Completed Percent
-        if($task_count) {
+        if ($task_count) {
             $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
         }
 
@@ -348,15 +350,22 @@ if (isset($_GET['ticket_id'])) {
                             <!-- Ticket closure info -->
                             <?php
                             if (!empty($ticket_closed_at)) {
-                                $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
-                                $row = mysqli_fetch_array($sql_closed_by);
-                                $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
+
+                                $ticket_closed_by_display = 'User';
+                                if (!empty($ticket_closed_by)) {
+                                    $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
+                                    $row = mysqli_fetch_array($sql_closed_by);
+                                    $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
+                                }
                             ?>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-user text-secondary mr-2"></i>Closed by: <?php echo ucwords($ticket_closed_by_display); ?>
                                 </div>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-clock text-secondary mr-2"></i>Closed at: <?php echo $ticket_closed_at; ?>
+                                </div>
+                                <div class="mt-1">
+                                    <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                 </div>
                                 <?php if($ticket_feedback) { ?>
                                 <div class="mt-1">
@@ -365,7 +374,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                             <?php } else { ?>
                                 <div class="mt-1">
-                                    <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>">
+                                    <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?> ?>">
                                         <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                     </a>
                                 </div>
@@ -479,9 +488,23 @@ if (isset($_GET['ticket_id'])) {
                         <?php }
 
                         if (empty($ticket_closed_at)) { ?>
-                            <?php if ($task_count == $completed_task_count) { ?>
-                            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                                <i class="fas fa-fw fa-gavel mr-2"></i>Close
+
+                            <?php if (!empty($ticket_resolved_at)) { ?>
+                                <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-fw fa-redo text-white"></i> Reopen
+                                </a>
+                                &nbsp;
+                            <?php } ?>
+
+                            <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                                <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
+                                    <i class="fas fa-fw fa-check mr-2"></i> Resolve
+                                </a>
+                            <?php } ?>
+
+                            <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
+                                <i class="fas fa-fw fa-gavel mr-2"></i> Close
                             </a>
                             <?php } ?>
 
@@ -540,7 +563,7 @@ if (isset($_GET['ticket_id'])) {
                 </div>
 
                 <!-- Only show ticket reply modal if status is not closed -->
-                <?php if (empty($ticket_closed_at)) { ?>
+                <?php if (empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
                     <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
@@ -581,7 +604,12 @@ if (isset($_GET['ticket_id'])) {
                                     <select class="form-control select2" name="status" required>
 
                                         <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
-                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
+                                        <?php
+                                        $status_snippet = '';
+                                        if ($task_count !== $completed_task_count) {
+                                            $status_snippet = "AND ticket_status_id != 4";
+                                        }
+                                        $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet");
                                         while ($row = mysqli_fetch_array($sql_ticket_status)) {
                                             $ticket_status_id_select = intval($row['ticket_status_id']);
                                             $ticket_status_name_select = nullable_htmlentities($row['ticket_status_name']); ?>
@@ -894,22 +922,26 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Tasks Card -->
                 <div class="card card-body card-outline card-dark">
                     <h5 class="text-secondary">Tasks</h5>
-                    <form action="post.php" method="post" autocomplete="off">
-                        <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                        <div class="form-group">
-                            <div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
-                                </div>
-                                <input type="text" class="form-control" name="name" placeholder="Create Task">
-                                <div class="input-group-append">
-                                    <button type="submit" name="add_task" class="btn btn-dark">
-                                        <i class="fas fa-fw fa-check"></i>
-                                    </button>
+
+                    <?php if (empty($ticket_closed_at)) { ?>
+                        <form action="post.php" method="post" autocomplete="off">
+                            <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                            <div class="form-group">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="name" placeholder="Create Task">
+                                    <div class="input-group-append">
+                                        <button type="submit" name="add_task" class="btn btn-dark">
+                                            <i class="fas fa-fw fa-check"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    <?php } ?>
+
                     <table class="table table-sm">
                         <?php
                         while($row = mysqli_fetch_array($sql_tasks)){
@@ -932,25 +964,27 @@ if (isset($_GET['ticket_id'])) {
                                 <td><?php echo $task_name; ?></td>
                                 <td>
                                     <div class="float-right">
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                <i class="fas fa-fw fa-ellipsis-v"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                </a>
-                                                <?php if ($task_completed_at) { ?>
-                                                    <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
-                                                        <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                        <?php if (empty($ticket_closed_at)) { ?>
+                                            <div class="dropdown dropleft text-center">
+                                                <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                     </a>
-                                                <?php } ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
-                                                </a>
+                                                    <?php if ($task_completed_at) { ?>
+                                                        <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
+                                                            <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                                        </a>
+                                                    <?php } ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        <?php } ?>
                                     </div>
                                 </td>
                             </tr>
