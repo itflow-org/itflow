@@ -24,9 +24,9 @@ $url_key = sanitizeInput($_GET['url_key']);
 $ticket_id = intval($_GET['ticket_id']);
 
 $ticket_sql = mysqli_query($mysqli,
-    "SELECT * FROM tickets 
-            LEFT JOIN users on ticket_assigned_to = user_id 
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+    "SELECT * FROM tickets
+            LEFT JOIN users on ticket_assigned_to = user_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
             WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'"
 );
 

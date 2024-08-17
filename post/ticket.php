@@ -375,10 +375,10 @@ if (isset($_POST['add_ticket_watcher'])) {
 
         // Get contact/ticket details
         $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
-            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN clients ON ticket_client_id = client_id
             LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
-            WHERE ticket_id = $ticket_id 
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                         
+            WHERE ticket_id = $ticket_id
             AND ticket_closed_at IS NULL");
         $row = mysqli_fetch_array($sql);
 
