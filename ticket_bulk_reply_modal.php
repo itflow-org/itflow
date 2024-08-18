@@ -15,10 +15,20 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                     </div>
-                    <select class="form-control select2" name="bulk_status">
-                        <option>Open</option>
-                        <option>On Hold</option>
+
+                    <select class="form-control select2" name="bulk_status" required>
+
+                        <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
+                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
+                        while ($row = mysqli_fetch_array($sql_ticket_status)) {
+                            $ticket_status_id_select = intval($row['ticket_status_id']);
+                            $ticket_status_name_select = nullable_htmlentities($row['ticket_status_name']); ?>
+
+                            <option value="<?php echo $ticket_status_id_select ?>"> <?php echo $ticket_status_name_select ?> </option>
+
+                        <?php } ?>
                     </select>
+
                 </div>
 
                 <div class="form-group">

@@ -23,13 +23,14 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     }
 
     // Verify the contact has access to the provided ticket ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $requested_ticket_id AND $ticket_state_snippet AND ticket_client_id = $session_client_id LIMIT 1");
-    $row = mysqli_fetch_array($sql);
-    $ticket_id = $row['ticket_id'];
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $requested_ticket_id AND $ticket_state_snippet AND ticket_client_id = $session_client_id LIMIT 1"));
+    if ($row) {
+        $ticket_id = $row['ticket_id'];
 
-    if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_primary == 1 || $session_contact_is_technical_contact)) {
-        // Client is ticket owner, primary contact, or a technical contact
-        return true;
+        if (intval($ticket_id) && ($session_contact_id == $row['ticket_contact_id'] || $session_contact_primary == 1 || $session_contact_is_technical_contact)) {
+            // Client is ticket owner, primary contact, or a technical contact
+            return true;
+        }
     }
 
     // Client is NOT ticket owner or primary/tech contact

@@ -25,11 +25,11 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 
     if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
         $status = 'Closed';
-        $ticket_status_snippet = "ticket_closed_at IS NOT NULL";
+        $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
     } else {
         // Default - Show open tickets
         $status = 'Open';
-        $ticket_status_snippet = "ticket_closed_at IS NULL";
+        $ticket_status_snippet = "ticket_resolved_at IS NULL";
     }
 }
 
@@ -70,12 +70,12 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_closed_at IS NULL");
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_resolved_at IS NULL");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_closed_at IS NOT NULL");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_resolved_at IS NOT NULL");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
@@ -159,7 +159,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
-                                        <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                                        <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
@@ -533,7 +533,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 </div>
                 <?php require_once "ticket_bulk_assign_modal.php"; ?>
                 <?php require_once "ticket_bulk_edit_priority_modal.php"; ?>
-                <?php require_once "ticket_bulk_close_modal.php"; ?>
+                <?php require_once "ticket_bulk_resolve_modal.php"; ?>
                 <?php require_once "ticket_bulk_reply_modal.php"; ?>
             </form>
             <?php require_once "pagination.php"; ?>

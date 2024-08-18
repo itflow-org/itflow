@@ -9,11 +9,11 @@ require_once "inc_all_client.php";
 
 if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
-    $ticket_status_snippet = "ticket_closed_at IS NOT NULL";
+    $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
 } else {
     // Default - Show open tickets
     $status = 'Open';
-    $ticket_status_snippet = "ticket_closed_at IS NULL";
+    $ticket_status_snippet = "ticket_resolved_at IS NULL";
 }
 
 if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
@@ -49,12 +49,12 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL");
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NULL");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
@@ -215,7 +215,7 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
                     ?>
 
-                    <tr class="<?php if(empty($ticket_reply_created_at)) { echo "text-bold"; }?> <?php if ($ticket_reply_type == "Client") { echo "table-warning"; } ?>">
+                    <tr class="<?php if(empty($ticket_reply_created_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
                         <!-- Ticket Number -->
                         <td>
@@ -263,8 +263,10 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
                         <!-- Ticket Last Response -->
                         <td>
-                            <div title="<?php echo $ticket_reply_created_at; ?>"><?php echo $ticket_reply_created_at_time_ago; ?></div>
-                            <div><?php echo $ticket_reply_by_display; ?></div>
+                            <?php if (!empty($ticket_reply_created_at)) { ?>
+                                <div title="<?php echo $ticket_reply_created_at; ?>"><?php echo $ticket_reply_created_at_time_ago; ?></div>
+                                <div><?php echo $ticket_reply_by_display; ?></div>
+                            <?php } ?>
                         </td>
 
                         <!-- Ticket Created At -->

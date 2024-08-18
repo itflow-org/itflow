@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-gavel mr-2"></i>Closing Multiple Tickets</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-check mr-2"></i>Resolving Multiple Tickets</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -19,7 +19,7 @@
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="bulkPrivateCheckbox" name="bulk_private_note" value="1">
                         <label class="custom-control-label" for="bulkPrivateCheckbox">Mark as Internal</label>
-                        <small class="form-text text-muted">If checked this note will only be visible to agents. The contact / watcher will not be informed this ticket was closed.</small>
+                        <small class="form-text text-muted">If checked this note will only be visible to agents. The contact / watcher will not be informed this ticket was resolved.</small>
                     </div>
                 </div>
 

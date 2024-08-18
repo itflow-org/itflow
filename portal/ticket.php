@@ -48,8 +48,22 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
         $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
+        $ticket_resolved_at = nullable_htmlentities($ticket_row['ticket_resolved_at']);
         $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
         $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
+
+
+        // Get Tasks
+        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
+        $task_count = mysqli_num_rows($sql_tasks);
+
+        // Get Completed Task Count
+        $sql_tasks_completed = mysqli_query($mysqli,
+            "SELECT * FROM tasks
+            WHERE task_ticket_id = $ticket_id
+            AND task_completed_at IS NOT NULL"
+        );
+        $completed_task_count = mysqli_num_rows($sql_tasks_completed);
 
         ?>
 
@@ -60,7 +74,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
             </li>
-            <li class="breadcrumb-item active">Ticket <?php echo $ticket_number; ?></li>
+            <li class="breadcrumb-item active">Ticket <?php echo $ticket_prefix . $ticket_number; ?></li>
         </ol>
 
         <div class="card">
@@ -68,8 +82,8 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h4 class="mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
-                    if (empty($ticket_closed_at)) { ?>
-                        <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Close ticket</a>
+                    if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                        <a href="portal_post.php?resolve_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
                     <?php } ?>
                 </h4>
             </div>
@@ -82,7 +96,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     <br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?>
                     <br>
+
                     <?php if (empty($ticket_closed_at)) { ?>
+                        <?php if ($task_count) { ?>
+                            <strong>Tasks: </strong> <?php echo $completed_task_count . " / " .$task_count ?>
+                            <br>
+                        <?php } ?>
                         <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
                     <?php } ?>
                 </p>
@@ -90,10 +109,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             </div>
         </div>
 
+        <hr>
 
-        <!-- Either show the reply comments box, ticket smiley feedback, or thanks for feedback -->
+        <!-- Either show the reply comments box, option to re-open ticket, show ticket smiley feedback or thanks for feedback -->
 
-        <?php if (empty($ticket_closed_at)) { ?>
+        <?php if (empty($ticket_resolved_at)) { ?>
+            <!-- Reply -->
 
             <form action="portal_post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
@@ -106,9 +127,27 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Reply</button>
             </form>
 
+        <?php } elseif (empty($ticket_closed_at)) { ?>
+            <!-- Re-open -->
+
+            <h4>Your ticket has been resolved</h4>
+
+            <div class="col-6">
+                <div class="row">
+                    <div class="col">
+                        <a href="portal_post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
+                    </div>
+
+                    <div class="col">
+                        <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-success btn-lg confirm-link"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
+                    </div>
+                </div>
+            </div>
+            <br>
+
         <?php } elseif (empty($ticket_feedback)) { ?>
 
-            <h4>Rate your ticket</h4>
+            <h4>Ticket closed. Please rate your ticket</h4>
 
             <form action="portal_post.php" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
@@ -128,7 +167,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <?php } ?>
 
-        <!-- End comments/feedback -->
+        <!-- End comments/reopen/feedback -->
 
         <hr>
         <br>
