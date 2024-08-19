@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
