@@ -11,10 +11,14 @@ if (isset($_POST['add_api_key'])) {
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
-    $secret = sanitizeInput($_POST['key']);
     $name = sanitizeInput($_POST['name']);
     $expire = sanitizeInput($_POST['expire']);
     $client = intval($_POST['client']);
+    $secret = sanitizeInput($_POST['key']); // API Key
+
+    // Credential decryption password
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
+    $apikey_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
     mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_expire = '$expire', api_key_client_id = $client");
 

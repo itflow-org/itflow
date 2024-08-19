@@ -271,7 +271,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
 }
 
 /*
- * For additional users / password changes
+ * For additional users / password changes (and now the API)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
@@ -282,7 +282,7 @@ function encryptUserSpecificKey($user_password)
 
     // Get the session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
-    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_iv = $_SESSION['user_encryption_session_iv'];
     $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
 
     // Decrypt the session key to get the master key
