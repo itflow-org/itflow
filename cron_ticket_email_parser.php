@@ -315,6 +315,50 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
     }
 }
 
+
+// Function to create a folder in the mailbox if it doesn't exist
+function createMailboxFolder($client, $folderName) {
+    try {
+        // Attempt to get the folder
+        $folder = $client->getFolder($folderName);
+
+        // If the folder doesn't exist, create it
+        if (!$folder) {
+            $client->createFolder($folderName);
+            echo "Folder '$folderName' created successfully.<br>";
+            
+            // Disconnect and reconnect to ensure the server registers the new folder
+            $client->disconnect();
+            sleep(1);  // Pause before reconnecting
+            $client->connect();
+        } else {
+            echo "Folder '$folderName' already exists.<br>";
+        }
+
+        // Re-fetch the folder after reconnecting
+        return $client->getFolder($folderName);
+        
+    } catch (Exception $e) {
+        echo "Error creating folder '$folderName': " . $e->getMessage() . "<br>";
+        return null;
+    }
+}
+
+// Function to subscribe to a folder in the mailbox
+function subscribeMailboxFolder($client, $folder) {
+    if ($folder) {
+        try {
+            // Subscribe to the folder
+            $folder->subscribe();
+            echo "Folder '{$folder->name}' subscribed successfully.<br>";
+        } catch (Exception $e) {
+            echo "Error subscribing to folder '{$folder->name}': " . $e->getMessage() . "<br>";
+        }
+    } else {
+        echo "Cannot subscribe to folder because it does not exist.<br>";
+    }
+}
+
 // Initialize the client manager and create the client
 $clientManager = new ClientManager();
 $client = $clientManager->make([
@@ -329,6 +373,12 @@ $client = $clientManager->make([
 
 // Connect to the IMAP server
 $client->connect();
+
+// Create the "ITFlow" mailbox folder if it doesn't exist
+$folder = createMailboxFolder($client, 'ITFlow');
+
+// Subscribe to the "ITFlow" mailbox folder
+subscribeMailboxFolder($client, $folder);
 
 // Possible names for the inbox folder
 $inboxNames = ['Inbox', 'INBOX', 'inbox'];
