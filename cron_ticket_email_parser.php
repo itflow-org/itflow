@@ -325,21 +325,21 @@ function createMailboxFolder($client, $folderName) {
         // If the folder doesn't exist, create it
         if (!$folder) {
             $client->createFolder($folderName);
-            echo "Folder '$folderName' created successfully.<br>";
+            echo "Folder '$folderName' created successfully.";
             
             // Disconnect and reconnect to ensure the server registers the new folder
             $client->disconnect();
             sleep(1);  // Pause before reconnecting
             $client->connect();
         } else {
-            echo "Folder '$folderName' already exists.<br>";
+            echo "Folder '$folderName' already exists.";
         }
 
         // Re-fetch the folder after reconnecting
         return $client->getFolder($folderName);
         
     } catch (Exception $e) {
-        echo "Error creating folder '$folderName': " . $e->getMessage() . "<br>";
+        echo "Error creating folder '$folderName': " . $e->getMessage();
         return null;
     }
 }
@@ -350,12 +350,12 @@ function subscribeMailboxFolder($client, $folder) {
         try {
             // Subscribe to the folder
             $folder->subscribe();
-            echo "Folder '{$folder->name}' subscribed successfully.<br>";
+            echo "Folder '{$folder->name}' subscribed successfully.";
         } catch (Exception $e) {
-            echo "Error subscribing to folder '{$folder->name}': " . $e->getMessage() . "<br>";
+            echo "Error subscribing to folder '{$folder->name}': " . $e->getMessage();
         }
     } else {
-        echo "Cannot subscribe to folder because it does not exist.<br>";
+        echo "Cannot subscribe to folder because it does not exist.";
     }
 }
 
