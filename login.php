@@ -145,7 +145,7 @@ if (isset($_POST['login'])) {
         }
 
         // Validate MFA code
-        if (TokenAuth6238::verify($token, $current_code)) {
+        if (!empty($current_code) && TokenAuth6238::verify($token, $current_code)) {
             $mfa_is_complete = true;
             $extended_log = 'with 2FA';
         }
