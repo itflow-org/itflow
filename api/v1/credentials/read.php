@@ -11,7 +11,7 @@ $sql = false;
 if (isset($_GET['login_id']) && isset($_GET['api_key_decrypt_password'])) {
 
     $id = intval($_GET['login_id']);
-    $password = sanitizeInput($_GET['api_key_decrypt_password']);
+    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
 
     $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$id' AND login_client_id LIKE '$client_id' LIMIT 1");
 
@@ -26,12 +26,14 @@ if (isset($_GET['login_id']) && isset($_GET['api_key_decrypt_password'])) {
 // Usually we just output what is in the database, but credentials need to be decrypted first.
 
 if ($sql && mysqli_num_rows($sql) > 0) {
+
     $return_arr['success'] = "True";
     $return_arr['count'] = mysqli_num_rows($sql);
 
     $row = array();
     while ($row = mysqli_fetch_array($sql)) {
-        //$row['login_username'] = //decrypt
+        $row['login_username'] = apiDecryptLoginEntry($row['login_username'], $api_key_decrypt_hash, $api_key_decrypt_password);
+        $row['login_password'] = apiDecryptLoginEntry($row['login_password'], $api_key_decrypt_hash, $api_key_decrypt_password);
         $return_arr['data'][] = $row;
     }
 

@@ -380,6 +380,21 @@ function encryptLoginEntry($login_password_cleartext)
     return $iv . $ciphertext;
 }
 
+function apiDecryptLoginEntry($login_ciphertext, $api_key_decrypt_hash, $api_key_decrypt_password)
+{
+    // TODO: try marking $api_key_decrypt_password as sensitive
+
+    // Split the login entry (username/password) into IV and Ciphertext
+    $login_iv =  substr($login_ciphertext, 0, 16);
+    $login_ciphertext = $salt = substr($login_ciphertext, 16);
+
+    // Decrypt the api hash to get the master key
+    $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
+
+    // Decrypt the login password using the master key
+    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+}
+
 // Get domain general info (whois + NS/A/MX records)
 function getDomainRecords($name)
 {
