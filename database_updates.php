@@ -2126,7 +2126,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
      }
 
      if (CURRENT_DATABASE_VERSION == '1.4.4') {
-         mysqli_query($mysqli, "ALTER TABLE `api_keys` ADD `api_key_credential_decryption_password` VARCHAR(200) NOT NULL AFTER `api_key_secret`");
+         mysqli_query($mysqli, "ALTER TABLE `api_keys` ADD `api_key_decrypt_hash` VARCHAR(200) NOT NULL AFTER `api_key_secret`");
 
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.5'");
      }

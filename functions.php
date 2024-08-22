@@ -297,7 +297,7 @@ function encryptUserSpecificKey($user_password)
     return $salt . $iv . $ciphertext;
 }
 
-// Given a ciphertext (incl. IV) and the user's password, returns the site master key
+// Given a ciphertext (incl. IV) and the user's (or API key) password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
 function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
 {
