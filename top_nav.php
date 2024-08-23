@@ -42,8 +42,8 @@
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
-                <i class="far fa-bell mr-3"></i>
-                <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
+                <i class="fa fa-bell mr-3"></i>
+                <span class="badge badge-light badge-pill navbar-badge"><?php echo $num_notifications; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
                 <a href="notifications.php" class="dropdown-item dropdown-header">
@@ -78,7 +78,7 @@
                 <div class="dropdown-divider"></div>
                 <a href="post.php?dismiss_all_notifications"
                     class="dropdown-item dropdown-footer text-secondary text-bold"><i
-                        class="fa fa-fw fa-check mr-2"></i>Dismiss Notifications</a>
+                        class="fa fa-fw fa-check-double mr-2"></i>Dismiss all Notifications</a>
             </div>
         </li>
         <?php } else { ?>
