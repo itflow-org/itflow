@@ -7,7 +7,6 @@
              Back | 
              <strong>
                 <?php if($client_abbreviation) { echo $client_abbreviation; } else { echo shortenClient($client_name); } ?>
-                <i class="fas fa-hashtag"></i><?php echo $client_id; ?>
             </strong>
         </p>
     </a>
