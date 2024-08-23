@@ -571,7 +571,7 @@ if ($user_config_dashboard_technical_enable == 1) {
     <div class="row">
         <div class="col-lg-4 col-6">
             <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?date_from=<?php echo $year; ?>-01-01&date_to=<?php echo $year; ?>-12-31">
+            <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
                     <h3><?php echo $clients_added; ?></h3>
                     <p>New Clients</p>
