@@ -324,21 +324,6 @@
 
                 <?php } ?>
 
-                <li class="nav-header mt-3">MISC</li>
-
-                <li class="nav-item">
-                    <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-share"></i>
-                        <p>
-                            Shared Links
-                            <?php
-                            if ($num_shared_links > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_shared_links; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
