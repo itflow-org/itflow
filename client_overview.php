@@ -213,11 +213,11 @@ $sql_asset_retire = mysqli_query(
                                 }
                                 ?>
                                 <tr>
-                                    <td><i class="<?php echo $item_icon; ?> mr-2 text-secondary" data-toggle="tooltip" title="<?php echo $item_type; ?>"></i><?php echo $item_name; ?></td>
+                                    <td title="<?php echo $item_type; ?>"><i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?></td>
                                     <td>Views: <?php echo "$item_views / $item_view_limit" ?></td>
-                                    <td>Expires <?php echo $item_expire_at_human ?></td>
-                                    <td>
-                                        <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>" data-toggle="tooltip" title="Deactivate Link">
+                                    <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>
+                                    <td title="Deactivate Link">
+                                        <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
                                             <i class="fas fa-fw fa-calendar-times mr-2"></i>
                                         </a>
                                     </td>
