@@ -189,7 +189,7 @@
 
                             <?php
                             if ($num_certificates > 0) { ?>
-                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_certificates; ?></span>
+                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning text-dark <?php } ?> text-light"><?php echo $num_certificates; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -203,7 +203,7 @@
 
                             <?php
                             if ($num_domains > 0) { ?>
-                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_domains; ?></span>
+                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning text-dark<?php } ?> text-light"><?php echo $num_domains; ?></span>
                             <?php } ?>
                         </p>
                     </a>
