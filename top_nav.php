@@ -131,9 +131,9 @@
                 <!-- Menu Footer-->
                 <li class="user-footer">
                     <?php if ($session_user_role == 3) { ?>
-                    <a href="admin_users.php" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-cog mr-2"></i>Admin</a>
+                    <a href="admin_users.php" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-tools mr-2"></i>Admin</a>
                     <?php } ?>
-                    <a href="user_details.php" class="btn btn-default btn-flat"><i class="fas fa-cog mr-2"></i>Account</a>
+                    <a href="user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
                     <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                 </li>
             </ul>
