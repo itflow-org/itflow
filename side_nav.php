@@ -19,7 +19,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-user-friends"></i>
+                        <i class="nav-icon fas fa-users"></i>
                         <p>
                           Clients
                           <?php if ($num_active_clients) { ?>

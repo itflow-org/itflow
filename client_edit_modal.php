@@ -44,7 +44,7 @@
                                 <label>Name <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="name" placeholder="Name or Company"
                                         value="<?php echo $client_name; ?>" required>

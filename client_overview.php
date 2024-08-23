@@ -179,16 +179,6 @@ $sql_asset_retire = mysqli_query(
                     </div>
                     <div class="card-body p-2">
                         <table class="table table-borderless table-sm">
-                            <thead class="text-dark">
-                            <tr>
-                                <th>Item Name</th>
-                                <th>Item Type</th>
-                                <th>Share Note</th>
-                                <th>Views</th>
-                                <th>Expires</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                            </thead>
                             <tbody>
                             <?php
 
@@ -203,40 +193,33 @@ $sql_asset_retire = mysqli_query(
                                 $item_view_limit = nullable_htmlentities($row['item_view_limit']);
                                 $item_created_at = nullable_htmlentities($row['item_created_at']);
                                 $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                $item_expire_at_human = timeAgo($row['item_expire_at']);
 
                                 if ($item_type == 'Login') {
-                                    $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = '$item_related_id' AND login_client_id = '$client_id'");
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = $item_related_id AND login_client_id = $client_id");
                                     $share_item = mysqli_fetch_array($share_item_sql);
                                     $item_name = nullable_htmlentities($share_item['login_name']);
+                                    $item_icon = "fas fa-key";
                                 } elseif ($item_type == 'Document') {
-                                    $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = '$item_related_id' AND document_client_id = '$client_id'");
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id");
                                     $share_item = mysqli_fetch_array($share_item_sql);
                                     $item_name = nullable_htmlentities($share_item['document_name']);
+                                    $item_icon = "fas fa-folder";
                                 } elseif ($item_type == 'File') {
-                                    $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = '$item_related_id' AND file_client_id = '$client_id'");
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id");
                                     $share_item = mysqli_fetch_array($share_item_sql);
                                     $item_name = nullable_htmlentities($share_item['file_name']);
+                                    $item_icon = "fas fa-paperclip";
                                 }
                                 ?>
                                 <tr>
-                                    <td><?php echo $item_name; ?></td>
-                                    <td><?php echo $item_type ?></td>
-                                    <td><?php echo $item_note ?></td>
-                                    <td><?php echo "$item_views / $item_view_limit" ?></td>
-                                    <td><?php echo $item_expire_at ?></td>
+                                    <td><i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?></td>
+                                    <td>Views: <?php echo "$item_views / $item_view_limit" ?></td>
+                                    <td>Expires <?php echo $item_expire_at_human ?></td>
                                     <td>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown dropleft text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-h"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
-                                                        <i class="fas fa-fw fa-times mr-2"></i>Deactivate
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
+                                        <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
+                                            <i class="fas fa-fw fa-calendar-times mr-2"></i>
+                                        </a>
                                     </td>
                                 </tr>
 
