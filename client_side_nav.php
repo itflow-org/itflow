@@ -339,19 +339,6 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-history"></i>
-                        <p>
-                            Audit Logs
-                            <?php
-                            if ($num_logs > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_logs; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

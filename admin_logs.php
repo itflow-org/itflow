@@ -16,6 +16,16 @@ if (isset($_GET['user']) & !empty($_GET['user'])) {
     $user = '';
 }
 
+// Client Filter
+if (isset($_GET['client']) & !empty($_GET['client'])) {
+    $client_query = 'AND (log_client_id = ' . intval($_GET['client']) . ')';
+    $client = intval($_GET['client']);
+} else {
+    // Default - any
+    $client_query = '';
+    $client = '';
+}
+
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
     $log_type_query = "AND (log_type  = '" . sanitizeInput($_GET['type']) . "')";
@@ -42,14 +52,15 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM logs
-  LEFT JOIN users ON log_user_id = user_id
-  LEFT JOIN clients ON log_client_id = client_id
-  WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
-  AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
-  $user_query
-  $log_type_query
-  $log_action_query
-  ORDER BY $sort $order LIMIT $record_from, $record_to"
+    LEFT JOIN users ON log_user_id = user_id
+    LEFT JOIN clients ON log_client_id = client_id
+    WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
+    $user_query
+    $client_query
+    $log_type_query
+    $log_action_query
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -72,6 +83,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <select class="form-control select2" name="client" onchange="this.form.submit()">
+                                <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+
+                                <?php
+                                $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                    $client_id = intval($row['client_id']);
+                                    $client_name = nullable_htmlentities($row['client_name']);
+                                ?>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="user" onchange="this.form.submit()">
@@ -170,13 +202,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_created_at&order=<?php echo $disp; ?>">Timestamp</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">User</a></th>
+                        <?php if(empty($client)) { ?>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
+                        <?php } ?>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_type&order=<?php echo $disp; ?>">Type</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_action&order=<?php echo $disp; ?>">Action</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_description&order=<?php echo $disp; ?>">Description</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_ip&order=<?php echo $disp; ?>">IP Address</a></th>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_user_agent&order=<?php echo $disp; ?>">User Agent</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_entity_id&order=<?php echo $disp; ?>">Entity ID</a></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -213,13 +246,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td><?php echo $log_created_at; ?></td>
                             <td><?php echo $user_name_display; ?></td>
+                            <?php if(empty($client)) { ?>
                             <td><?php echo $client_name_display; ?></td>
+                            <?php } ?>
                             <td><?php echo $log_type; ?></td>
                             <td><?php echo $log_action; ?></td>
                             <td><?php echo $log_description; ?></td>
                             <td><?php echo $log_ip; ?></td>
                             <td><?php echo "$log_user_os<br>$log_user_browser"; ?></td>
-                            <td><?php echo $log_entity_id; ?></td>
                         </tr>
 
                         <?php

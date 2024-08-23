@@ -332,6 +332,11 @@ $sql_asset_retire = mysqli_query(
                             </tbody>
                         </table>
                     </div>
+                    <?php if ($session_user_role == 3) { ?>
+                    <div class="card-footer">
+                        <a href="admin_logs.php?client=<?php echo $client_id; ?>">See More...</a>
+                    </div>
+                    <?php } ?>
                 </div>
             </div>
 

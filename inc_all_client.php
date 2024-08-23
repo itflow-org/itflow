@@ -213,9 +213,6 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('item_id') AS num FROM shared_items WHERE item_client_id = $client_id"));
         $num_shared_links = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('log_id') AS num FROM logs WHERE log_client_id = $client_id"));
-        $num_logs = $row['num'];
-
         // Expiring Items
 
         // Count Domains Expiring within 30 Days
