@@ -382,7 +382,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                             // Defaults to prevent undefined errors
                             $ticket_reply_created_at = "";
-                            $ticket_reply_created_at_time_ago = "";
+                            $ticket_reply_created_at_time_ago = "Never";
                             $ticket_reply_by_display = "";
                             $ticket_reply_type = "Client"; // Default to client for un-replied tickets
 
@@ -499,15 +499,15 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
                                 <!-- Ticket Last Response -->
                                 <td>
-                                    <div title="<?php echo $ticket_reply_created_at; ?>"><?php echo $ticket_reply_created_at_time_ago; ?></div>
+                                    <div title="<?php echo $ticket_reply_created_at; ?>">
+                                        <?php echo $ticket_reply_created_at_time_ago; ?>
+                                    </div>
                                     <div><?php echo $ticket_reply_by_display; ?></div>
                                 </td>
 
                                 <!-- Ticket Created At -->
-                                <td>
-                                    <?php echo $ticket_created_at; ?>
-                                    <br>
-                                    <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
+                                <td title="<?php echo $ticket_created_at; ?>">
+                                    <?php echo $ticket_created_at_time_ago; ?>
                                 </td>
 
                             </tr>

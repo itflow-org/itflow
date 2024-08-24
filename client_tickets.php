@@ -270,10 +270,8 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                         </td>
 
                         <!-- Ticket Created At -->
-                        <td>
+                        <td title="<?php echo $ticket_created_at; ?>">
                             <?php echo $ticket_created_at_time_ago; ?>
-                            <br>
-                            <small class="text-secondary"><?php echo $ticket_created_at; ?></small>
                         </td>
 
                     </tr>

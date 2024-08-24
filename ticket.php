@@ -565,7 +565,7 @@ if (isset($_GET['ticket_id'])) {
                         while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
                             $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                             $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                            echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                         }
                         ?>
                     </div>
