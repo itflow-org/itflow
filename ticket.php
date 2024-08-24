@@ -583,12 +583,6 @@ if (isset($_GET['ticket_id'])) {
                                     <input type="radio" name="public_reply_type" value="1">Public Comment
                                 </label>
                             </div>
-                            <?php if ($config_ai_enable) { ?>
-                                <div class="float-right">
-                                    <button id="rewordButton" class="btn btn-secondary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>AI Reword</button>
-                                    <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
-                                </div>
-                            <?php } ?>
                         </div>  
                         
                         <div class="form-group">
