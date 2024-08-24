@@ -358,21 +358,21 @@ if (isset($_GET['ticket_id'])) {
                         if (empty($ticket_closed_at)) { ?>
 
                             <?php if (!empty($ticket_resolved_at)) { ?>
-                                <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-fw fa-redo text-white"></i> Reopen
+                                <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm">
+                                    <i class="fas fa-fw fa-redo mr-2"></i>Reopen
                                 </a>
                                 &nbsp;
                             <?php } ?>
 
                             <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
                                 <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                                    <i class="fas fa-fw fa-check mr-2"></i> Resolve
+                                    <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                 </a>
                             <?php } ?>
 
                             <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
                             <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                                <i class="fas fa-fw fa-gavel mr-2"></i> Close
+                                <i class="fas fa-fw fa-gavel mr-2"></i>Close
                             </a>
                             <?php } ?>
 
@@ -641,7 +641,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <div class="col-md-2">
                                 <div class="float-right">
-                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-primary btn-block text-bold"><i class="fas fa-check mr-2"></i>Submit</button>
+                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success btn-block"><i class="fas fa-check mr-2"></i>Submit</button>
                                 </div>
                             </div>
 
