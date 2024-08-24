@@ -565,20 +565,22 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
-                    <form class="mb-3 d-print-none" action="post.php" method="post" autocomplete="off">
+                    <div class="card card-body d-print-none">
+
+                    <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
 
                         <div class="form-group">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                <label class="btn btn-light active">
-                                    <input type="radio" name="public_reply_type" value="2" checked>Public Comment & Email
+                                <label class="btn btn-outline-secondary active">
+                                    <input type="radio" name="public_reply_type" value="0" checked>Internal Note
                                 </label>
-                                <label class="btn btn-light">
+                                <label class="btn btn-outline-secondary">
+                                    <input type="radio" name="public_reply_type" value="2">Public Comment & Email
+                                </label>
+                                <label class="btn btn-outline-secondary">
                                     <input type="radio" name="public_reply_type" value="1">Public Comment
-                                </label>
-                                <label class="btn btn-light">
-                                    <input type="radio" name="public_reply_type" value="0">Internal Note
                                 </label>
                             </div>
                             <?php if ($config_ai_enable) { ?>
@@ -587,9 +589,7 @@ if (isset($_GET['ticket_id'])) {
                                     <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
                                 </div>
                             <?php } ?>
-                        </div>
-
-                        
+                        </div>  
                         
                         <div class="form-group">
                             <textarea class="form-control tinymce<?php if ($config_ai_enable) { echo "ai"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
@@ -652,91 +652,12 @@ if (isset($_GET['ticket_id'])) {
                         </div>
 
                     </form>
+                </div>
                     <!-- End IF for reply modal -->
                 <?php } ?>
 
                 <!-- Ticket Responses -->
-                <ul class="nav nav-tabs" id="ticketComments">
-                    <li class="nav-item">
-                        <button class="nav-link active" id="all-comments-tab" data-toggle="tab" data-target="#allComments" type="button">
-                            All Comments
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_all_comments_count; ?></span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">
-                            Public
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_public_comments_count; ?></span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="notes-tab" data-toggle="tab" data-target="#notes" type="button">
-                            Internal Notes
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_internal_notes_count; ?></span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="public-comments-tab" data-toggle="tab" data-target="#publicComments" type="button">
-                            Client Communication
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_public_comments_count; ?></span>
-                        </button>
-                    </li>
-                    <li class="nav-item ml-auto">
-                        <button class="nav-link" id="events-tab" data-toggle="tab" data-target="#events" type="button">
-                            Events
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $ticket_events_count; ?></span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tasks-tab" data-toggle="tab" data-target="#tasks" type="button">
-                            Tasks
-                            <span class="right badge badge-pill badge-dark ml-2"><?php echo $task_count; ?></span>
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="allComments">All Comments</div>
-                    <div class="tab-pane fade" id="publicComments">Public Comments</div>
-                    <div class="tab-pane fade" id="notes">Internal Notes</div>
-                    <div class="tab-pane fade" id="events">
-                        <div class="card">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>Description</th>
-                                        <th>User</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-
-                                    <!-- Ticket Events -->
-                                    <?php
-
-                                    while ($row = mysqli_fetch_array($sql_ticket_events)) {
-                                        $log_id = intval($row['log_id']);
-                                        $log_description = nullable_htmlentities($row['log_description']);
-                                        $log_created_at = nullable_htmlentities($row['log_created_at']);
-                                        $log_user_id = intval($row['log_user_id']);
-                                        $log_user_name = nullable_htmlentities($row['user_name']);
-                                    ?>
-                                        <tr>
-                                            <td><?php echo $log_created_at; ?></td>
-                                            <td><?php echo $log_description; ?></td>
-                                            <td><?php echo $log_user_name; ?></td>
-                                        </tr>
-                                    <?php
-                                    }
-                                    ?>
-                                </tbody>
-
-                            </table>
-                        </div>
-                        
-                    </div>
-                    <div class="tab-pane fade" id="tasks">Tasks</div>
-                </div>
+                <h6>Responses <?php echo $ticket_all_comments_count; ?></h6>
 
                 <!-- Ticket replies -->
                 <?php
