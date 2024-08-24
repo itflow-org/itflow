@@ -596,11 +596,8 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         
                         <div class="form-row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                    </div>
                                     <select class="form-control select2" name="status" required>
 
                                         <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
@@ -622,7 +619,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking -->
-                            <div class="col-md-6">
+                            <div class="col-md-5">
                                 <div class="input-group mb-3">
                                     <div class="input-group pr-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
@@ -641,6 +638,13 @@ if (isset($_GET['ticket_id'])) {
                                         <button type="button" class="btn btn-light" id="resetTimer"><i class="fas fa-redo-alt"></i></button>
                                     </div>      
                                 </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <?php if ($config_ai_enable) { ?>
+                                <button id="rewordButton" class="btn btn-secondary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
+                                <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>   
+                                <?php } ?>
                             </div>
 
                             <div class="col-md-2">
