@@ -572,7 +572,7 @@ if (isset($_GET['ticket_id'])) {
                         <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
 
                         <div class="form-group">
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-outline-secondary active">
                                     <input type="radio" name="public_reply_type" value="0" checked>Internal Note
                                 </label>
@@ -637,8 +637,8 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
 
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-success" id="startStopTimer"><i class="fas fa-fw fa-pause"></i></button>
-                                        <button type="button" class="btn btn-danger" id="resetTimer"><i class="fas fa-fw fa-redo-alt"></i></button>
+                                        <button type="button" class="btn btn-light" id="startStopTimer"><i class="fas fa-play"></i></button>
+                                        <button type="button" class="btn btn-light" id="resetTimer"><i class="fas fa-redo-alt"></i></button>
                                     </div>      
                                 </div>
                             </div>
