@@ -350,35 +350,35 @@ if (isset($_GET['ticket_id'])) {
                     </span>
                 </div>
                 
-                <div class="card-tools">
-                    <div class="btn-group float-right d-print-none">
+                <div class="card-tools d-print-none">
+                    <div class="btn-toolbar">
 
                         <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id)) { ?>
-                            <a href="#" class="btn btn-light btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
-                                <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
-                            </a>
+                        <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                            <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
+                        </a>
                         <?php }
 
                         if (empty($ticket_closed_at)) { ?>
 
-                            <?php if (!empty($ticket_resolved_at)) { ?>
-                                <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Reopen
-                                </a>
-                                &nbsp;
-                            <?php } ?>
+                        <?php if (!empty($ticket_resolved_at)) { ?>
+                        <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm ml-3">
+                            <i class="fas fa-fw fa-redo mr-2"></i>Reopen
+                        </a>
+                        &nbsp;
+                        <?php } ?>
 
-                            <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                                    <i class="fas fa-fw fa-check mr-2"></i>Resolve
-                                </a>
-                            <?php } ?>
+                        <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                        <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                        </a>
+                        <?php } ?>
 
-                            <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                            <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link" id="ticket_close">
-                                <i class="fas fa-fw fa-gavel mr-2"></i>Close
-                            </a>
-                            <?php } ?>
+                        <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                            <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                        </a>
+                        <?php } ?>
 
                         <div class="dropdown dropleft text-center ml-3">
                             <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -490,13 +490,13 @@ if (isset($_GET['ticket_id'])) {
                             </div>
                             <?php } else { ?>
                             <div class="mt-1">
-                                <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Billable:
+                                <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
                                 <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                     <?php
                                     if ($ticket_billable == 1) {
-                                        echo "<span class='badge badge-pill badge-success p-2'>Yes</span>";
+                                        echo "<span class='text-bold text-dark'>Billable</span>";
                                     } else {
-                                        echo "<span class='badge badge-pill badge-secondary p-2'>No</span>";
+                                        echo "<span class='text-muted'>Not Billable</span>";
                                     }
                                     ?>
                                 </a>
@@ -575,7 +575,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
-                    <div class="card card-body d-print-none">
+                    <div class="card card-body d-print-none pb-0">
 
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
