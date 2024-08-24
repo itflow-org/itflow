@@ -238,7 +238,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $login_uri_display; ?></td>
                                 <td>
                                     <?php if($item_id) { ?>
-                                    <i class="fas fa-fw fa-link"></i> Shared
+                                    <div title="Expires <?php echo $item_expire_at_human; ?>">
+                                        <i class="fas fa-fw fa-link"></i> Shared
+                                    </div>
                                     <?php } ?>
                                 </td>
                                 <td class="text-center">

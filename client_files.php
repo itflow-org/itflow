@@ -345,7 +345,9 @@ $num_of_files = mysqli_num_rows($sql);
                                     <td><?php echo $file_created_at; ?></td>
                                     <td>
                                         <?php if($item_id) { ?>
-                                        <i class="fas fa-fw fa-link"></i> Shared
+                                        <div title="Expires <?php echo $item_expire_at_human; ?>">
+                                            <i class="fas fa-fw fa-link"></i> Shared
+                                        </div>
                                         <?php } ?>
                                     </td>
                                     <td>
