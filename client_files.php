@@ -256,6 +256,7 @@ $num_of_files = mysqli_num_rows($sql);
                                 </td>
                                 <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_name&order=<?php echo $disp; ?>">Name</a></th>
                                 <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_created_at&order=<?php echo $disp; ?>">Uploaded</a></th>
+                                <th></th>
                                 <th class="text-center">Action</th>
                             </tr>
                             </thead>
@@ -293,6 +294,32 @@ $num_of_files = mysqli_num_rows($sql);
                                     $file_icon = "file";
                                 }
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                
+                                // Check if shared
+                                $sql_shared = mysqli_query(
+                                    $mysqli,
+                                    "SELECT * FROM shared_items
+                                    WHERE item_client_id = $client_id
+                                    AND item_active = 1
+                                    AND item_views != item_view_limit
+                                    AND item_expire_at > NOW()
+                                    AND item_type = 'File'
+                                    AND item_related_id = $file_id
+                                    LIMIT 1"
+                                );
+                                $row = mysqli_fetch_array($sql_shared);
+                                $item_id = intval($row['item_id']);
+                                $item_active = nullable_htmlentities($row['item_active']);
+                                $item_key = nullable_htmlentities($row['item_key']);
+                                $item_type = nullable_htmlentities($row['item_type']);
+                                $item_related_id = intval($row['item_related_id']);
+                                $item_note = nullable_htmlentities($row['item_note']);
+                                $item_views = nullable_htmlentities($row['item_views']);
+                                $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                                $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                $item_expire_at_human = timeAgo($row['item_expire_at']);
+
                                 ?>
 
                                 <tr>
@@ -316,6 +343,11 @@ $num_of_files = mysqli_num_rows($sql);
                                         </a>
                                     </td>
                                     <td><?php echo $file_created_at; ?></td>
+                                    <td>
+                                        <?php if($item_id) { ?>
+                                        <i class="fas fa-fw fa-link"></i> Shared
+                                        <?php } ?>
+                                    </td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

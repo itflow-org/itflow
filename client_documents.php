@@ -217,6 +217,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <th>
                                         <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">Last Update</a>
                                     </th>
+                                    <th></th>
                                     <th class="text-center">
                                         Action
                                     </th>
@@ -235,6 +236,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $document_updated_at = date("m/d/Y",strtotime($row['document_updated_at']));
                                     $document_folder_id = intval($row['document_folder_id']);
 
+                                    // Check if shared
+                                    $sql_shared = mysqli_query(
+                                        $mysqli,
+                                        "SELECT * FROM shared_items
+                                        WHERE item_client_id = $client_id
+                                        AND item_active = 1
+                                        AND item_views != item_view_limit
+                                        AND item_expire_at > NOW()
+                                        AND item_type = 'Document'
+                                        AND item_related_id = $document_id
+                                        LIMIT 1"
+                                    );
+                                    $row = mysqli_fetch_array($sql_shared);
+                                    $item_id = intval($row['item_id']);
+                                    $item_active = nullable_htmlentities($row['item_active']);
+                                    $item_key = nullable_htmlentities($row['item_key']);
+                                    $item_type = nullable_htmlentities($row['item_type']);
+                                    $item_related_id = intval($row['item_related_id']);
+                                    $item_note = nullable_htmlentities($row['item_note']);
+                                    $item_views = nullable_htmlentities($row['item_views']);
+                                    $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                                    $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                    $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                    $item_expire_at_human = timeAgo($row['item_expire_at']);
+
                                     ?>
 
                                     <tr>
@@ -252,6 +278,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <div class="text-secondary mt-1"><?php echo $document_created_by_name; ?>
                                         </td>
                                         <td><?php echo $document_updated_at; ?></td>
+                                        <td>
+                                            <?php if($item_id) { ?>
+                                            <i class="fas fa-fw fa-link"></i> Shared
+                                            <?php } ?>
+                                        </td>
                                         <td>
                                             <div class="dropdown dropleft text-center">
                                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

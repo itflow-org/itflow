@@ -145,6 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <th>Password / Key</th>
                             <th>OTP</th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">URI</a></th>
+                            <th></th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -185,6 +186,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_asset_id = intval($row['login_asset_id']);
                             $login_software_id = intval($row['login_software_id']);
 
+                            // Check if shared
+                            $sql_shared = mysqli_query(
+                                $mysqli,
+                                "SELECT * FROM shared_items
+                                WHERE item_client_id = $client_id
+                                AND item_active = 1
+                                AND item_views != item_view_limit
+                                AND item_expire_at > NOW()
+                                AND item_type = 'Login'
+                                AND item_related_id = $login_id
+                                LIMIT 1"
+                            );
+                            $row = mysqli_fetch_array($sql_shared);
+                            $item_id = intval($row['item_id']);
+                            $item_active = nullable_htmlentities($row['item_active']);
+                            $item_key = nullable_htmlentities($row['item_key']);
+                            $item_type = nullable_htmlentities($row['item_type']);
+                            $item_related_id = intval($row['item_related_id']);
+                            $item_note = nullable_htmlentities($row['item_note']);
+                            $item_views = nullable_htmlentities($row['item_views']);
+                            $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                            $item_created_at = nullable_htmlentities($row['item_created_at']);
+                            $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                            $item_expire_at_human = timeAgo($row['item_expire_at']);
+
+
                         ?>
                             <tr class="<?php if (!empty($login_important)) { echo "text-bold"; } ?>">
                                 <td class="pr-0">
@@ -209,6 +236,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </td>
                                 <td><?php echo $otp_display; ?></td>
                                 <td><?php echo $login_uri_display; ?></td>
+                                <td>
+                                    <?php if($item_id) { ?>
+                                    <i class="fas fa-fw fa-link"></i> Shared
+                                    <?php } ?>
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <?php if ( !empty($login_uri) || !empty($login_uri_2) ) { ?>
