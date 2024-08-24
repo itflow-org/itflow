@@ -847,13 +847,10 @@ if (isset($_GET['ticket_id'])) {
                             <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                             <div class="form-group">
                                 <div class="input-group input-group-sm">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="name" placeholder="Create Task">
                                     <div class="input-group-append">
                                         <button type="submit" name="add_task" class="btn btn-dark">
-                                            <i class="fas fa-fw fa-check"></i>
+                                            <i class="fas fa-check"></i>
                                         </button>
                                     </div>
                                 </div>
