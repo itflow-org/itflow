@@ -804,9 +804,9 @@ if ($balance > 0) {
 
 $sql_current_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
-if ($sql_current_invoices) {
-    $current_invoices_count = mysqli_num_rows($sql_current_invoices);
-    ?>
+$current_invoices_count = mysqli_num_rows($sql_current_invoices);
+
+if ($current_invoices_count > 0) { ?>
 
     <div class="card d-print-none card-dark">
         <div class="card-header">
@@ -867,7 +867,7 @@ $sql_outstanding_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE 
 
 $outstanding_invoices_count = mysqli_num_rows($sql_outstanding_invoices);
 
-if ($sql_outstanding_invoices) { ?>
+if ($outstanding_invoices_count > 0) { ?>
 
     <div class="card d-print-none card-danger">
         <div class="card-header">
