@@ -82,10 +82,14 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+        $ticket_created_at_ago = timeAgo($row['ticket_created_at']);
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+        $ticket_updated_at_ago = timeAgo($row['ticket_updated_at']);
         $ticket_resolved_at = nullable_htmlentities($row['ticket_resolved_at']);
+        $ticket_resolved_at_ago = timeAgo($row['ticket_resolved_at']);
         $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+        $ticket_closed_at_ago = timeAgo($row['ticket_closed_at']);
         $ticket_closed_by = intval($row['ticket_closed_by']);
 
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -340,7 +344,7 @@ if (isset($_GET['ticket_id'])) {
                     <i class="fa fa-2x fa-fw fa fa-life-ring text-secondary mr-2"></i>
                     <span class="h3">
                         <?php echo "$ticket_prefix$ticket_number"; ?>
-                        <span class='badge badge-pill text-light ml-2' style="background-color: <?php echo $ticket_status_color; ?>">
+                        <span class='badge badge-pill text-light ml-1' style="background-color: <?php echo $ticket_status_color; ?>">
                             <?php echo $ticket_status_name; ?>
                         </span>
                     </span>
@@ -350,7 +354,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="btn-group float-right d-print-none">
 
                         <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id)) { ?>
-                            <a href="#" class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                            <a href="#" class="btn btn-light btn-sm" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                                 <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
                             </a>
                         <?php }
@@ -420,15 +424,15 @@ if (isset($_GET['ticket_id'])) {
             
             </div> <!-- Card Header -->
 
-            <div class="card-body">
+            <div class="card-body pt-3 pb-0">
                 <div class="row">
                     <div class="col-sm-4">         
                         <h5><?php echo $client_name; ?></h5>
-                        <div>
-                            <i class="fa fa-fw fa-calendar text-secondary mr-2"></i><?php echo $ticket_created_at; ?>
+                        <div title="<?php echo $ticket_created_at; ?>">
+                            <i class="fa fa-fw fa-calendar text-secondary mr-2"></i><?php echo $ticket_created_at_ago; ?>
                         </div>
-                        <div class="mt-1">
-                            <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at; ?></strong>
+                        <div class="mt-1" title="<?php echo $ticket_updated_at; ?>">
+                            <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at_ago; ?></strong>
                         </div>
 
                         <!-- Ticket closure info -->
@@ -543,7 +547,15 @@ if (isset($_GET['ticket_id'])) {
                 <div class="card card-dark mb-3">
 
                     <div class="card-header">
-                        <h3 class="card-title text-bold"><?php echo $ticket_subject; ?></h3>
+                        <h3 class="card-title">
+                           Ticket Details
+                        </h3>
+                    </div>
+
+                    <div class="card-header bg-light">
+                        <h3 class="card-title">
+                           <span class="text-muted">Subject:</span> <span><?php echo $ticket_subject; ?></span>
+                        </h3>
                     </div>
 
                     <div class="card-body prettyContent" id="ticketDetails">
