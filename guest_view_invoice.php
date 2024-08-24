@@ -170,7 +170,7 @@ if ($balance > 0) {
                         <a class="btn btn-default" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                         <?php
                         if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-1"></i>Pay Now <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
+                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
                         <?php } ?>
                     </div>
                 </div>
@@ -840,7 +840,7 @@ if ($sql_current_invoices) {
 
                     ?>
 
-                    <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
+                    <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
                         <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                         <td><?php echo $invoice_date; ?></td>
                         <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
@@ -880,6 +880,7 @@ if ($sql_outstanding_invoices) { ?>
                     <th class="text-center">Invoice</th>
                     <th>Date</th>
                     <th>Due</th>
+                    <th></th>
                     <th class="text-right">Amount</th>
                 </tr>
                 </thead>
@@ -901,7 +902,7 @@ if ($sql_outstanding_invoices) { ?>
 
                     ?>
 
-                    <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
+                    <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
                         <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                         <td><?php echo $invoice_date; ?></td>
                         <td class="text-danger"><?php echo $invoice_due; ?> (Over Due by <?php echo $days; ?> Days)</td>
