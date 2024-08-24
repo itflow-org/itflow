@@ -528,8 +528,8 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="fas fa-fw fa-layer-group mr-2 text-secondary"></i><?php echo $ticket_category_display; ?>
                             </div>
                         <?php } ?>
-
                     </div>
+                
                 </div>
                 <span class="text-info ml-5" id="ticket_collision_viewing"></span>
             </div>
@@ -948,7 +948,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Asset card -->
                  <?php if ($asset_id) { ?>
-                    <div class="card card-body card-outline card-dark mb-3">
+                    <div class="card card-body mb-3">
                         <h5 class="text-secondary">Asset</h5>
                         <div>
                             <a href='client_asset_details.php?client_id=<?php echo $client_id ?>&asset_id=<?php echo $asset_id ?>'><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong></a>
@@ -1040,7 +1040,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Vendor card -->
                 <?php if ($vendor_id) { ?>
-                    <div class="card card-body card-outline card-dark mb-3">
+                    <div class="card card-body mb-3">
                         <h5 class="text-secondary">Vendor</h5>
 
                         <div>
@@ -1084,7 +1084,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- project card -->
                 <?php if ($project_id) { ?>
-                <div class="card card-body card-outline card-dark mb-3">
+                <div class="card card-body mb-3">
                     <h5 class="text-secondary">Project</h5>
                     <div>
                         <i class="fa fa-fw fa-project-diagram text-secondary mr-3"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
