@@ -166,12 +166,11 @@ if ($balance > 0) {
                 </div>
                 <div class="col-6">
                     <div class="float-right">
-                        <a class="btn btn-secondary" data-toggle="collapse" href="#collapsePreviousInvoices"><i class="fas fa-fw fa-history mr-2"></i>Invoice History</a>
-                        <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-                        <a class="btn btn-primary" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
+                        <a class="btn btn-default" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
+                        <a class="btn btn-default" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                         <?php
                         if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Online <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
+                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-1"></i>Pay Now <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
                         <?php } ?>
                     </div>
                 </div>
@@ -801,79 +800,23 @@ if ($balance > 0) {
 
 <?php
 
-// PREVIOUS UNPAID INVOICES
-
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
-
-if (mysqli_num_rows($sql) > 1) { ?>
-
-    <div class="card d-print-none card-danger">
-        <div class="card-header">
-            <strong><i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Previous Unpaid Invoices</strong>
-        </div>
-        <div card="card-body">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th class="text-center">Invoice #</th>
-                    <th>Date</th>
-                    <th>Due Date</th>
-                    <th class="text-right">Amount</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_array($sql)) {
-                    $invoice_id = intval($row['invoice_id']);
-                    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-                    $invoice_number = intval($row['invoice_number']);
-                    $invoice_date = nullable_htmlentities($row['invoice_date']);
-                    $invoice_due = nullable_htmlentities($row['invoice_due']);
-                    $invoice_amount = floatval($row['invoice_amount']);
-                    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
-                    $invoice_tally_total = $invoice_amount + $invoice_tally_total;
-                    $difference = time() - strtotime($invoice_due);
-                    $days = floor($difference / (60*60*24));
-
-                    ?>
-
-                    <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
-                        <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
-                        <td><?php echo $invoice_date; ?></td>
-                        <td class="text-danger text-bold"><?php echo $invoice_due; ?> (<?php echo $days; ?> Days Late)</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                    </tr>
-
-                    <?php
-                }
-                ?>
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-<?php } // End previous unpaid invoices
-
-
 // CURRENT INVOICES
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
+$sql_current_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
-if (mysqli_num_rows($sql) > 1) { ?>
+if ($sql_current_invoices) {
+    $current_invoices_count = mysqli_num_rows($sql_current_invoices);
+    ?>
 
-
-    <div class="card d-print-none card-light">
+    <div class="card d-print-none card-dark">
         <div class="card-header">
-            <strong><i class="fas fa-fw fa-clock mr-2"></i>Current Invoices</strong>
+            <strong><i class="fas fa-fw fa-clock mr-2"></i><b><?php echo $current_invoices_count; ?></b> Current Invoices</strong>
         </div>
         <div card="card-body">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                 <tr>
-                    <th class="text-center">Invoice #</th>
+                    <th class="text-center">Invoice</th>
                     <th>Date</th>
                     <th>Due</th>
                     <th class="text-right">Amount</th>
@@ -882,7 +825,7 @@ if (mysqli_num_rows($sql) > 1) { ?>
                 <tbody>
                 <?php
 
-                while ($row = mysqli_fetch_array($sql)) {
+                while ($row = mysqli_fetch_array($sql_current_invoices)) {
                     $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
@@ -901,7 +844,7 @@ if (mysqli_num_rows($sql) > 1) { ?>
                         <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                         <td><?php echo $invoice_date; ?></td>
                         <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                        <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                     </tr>
 
                 <?php } ?>
@@ -910,37 +853,40 @@ if (mysqli_num_rows($sql) > 1) { ?>
             </table>
         </div>
     </div>
-    <?php
-}
-?>
+<?php
 
+}
+
+?>
 
 <?php
 
-// PREVIOUS PAID INVOICES
+// OUTSTANDING INVOICES
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_status = 'Paid' ORDER BY invoice_date DESC");
+$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
-if (mysqli_num_rows($sql) > 1) { ?>
+$outstanding_invoices_count = mysqli_num_rows($sql_outstanding_invoices);
 
-    <div class="card d-print-none collapse" id="collapsePreviousInvoices">
-        <div class="card-header bg-dark">
-            <strong><i class="fas fa-fw fa-history mr-2"></i>Previous Invoices Paid</strong>
+if ($sql_outstanding_invoices) { ?>
+
+    <div class="card d-print-none card-danger">
+        <div class="card-header">
+            <strong><i class="fa fa-fw fa-exclamation-triangle mr-2"></i><b><?php echo $outstanding_invoices_count; ?></b> Outstanding Invoices</strong>
         </div>
         <div card="card-body">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                 <tr>
-                    <th class="text-center">Invoice #</th>
+                    <th class="text-center">Invoice</th>
                     <th>Date</th>
-                    <th>Due Date</th>
+                    <th>Due</th>
                     <th class="text-right">Amount</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
 
-                while ($row = mysqli_fetch_array($sql)) {
+                while ($row = mysqli_fetch_array($sql_outstanding_invoices)) {
                     $invoice_id = intval($row['invoice_id']);
                     $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                     $invoice_number = intval($row['invoice_number']);
@@ -950,60 +896,27 @@ if (mysqli_num_rows($sql) > 1) { ?>
                     $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
                     $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
                     $invoice_tally_total = $invoice_amount + $invoice_tally_total;
+                    $difference = time() - strtotime($invoice_due);
+                    $days = floor($difference / (60*60*24));
 
                     ?>
 
                     <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-active'"; } ?>>
                         <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
                         <td><?php echo $invoice_date; ?></td>
-                        <td><?php echo $invoice_due; ?></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4">Payments</th>
+                        <td class="text-danger"><?php echo $invoice_due; ?> (Over Due by <?php echo $days; ?> Days)</td>
+                        <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                     </tr>
 
                     <?php
-
-                    $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_invoice_id = $invoice_id ORDER BY payment_date DESC");
-
-                    while ($row = mysqli_fetch_array($sql_payments)) {
-                        $payment_id = intval($row['payment_id']);
-                        $payment_date = nullable_htmlentities($row['payment_date']);
-                        $payment_amount = floatval($row['payment_amount']);
-                        $payment_currency_code = nullable_htmlentities($row['payment_currency_code']);
-                        $payment_method = nullable_htmlentities($row['payment_method']);
-                        $payment_reference = nullable_htmlentities($row['payment_reference']);
-                        if (strtotime($payment_date) > strtotime($invoice_due)) {
-                            $payment_note = "Late";
-                            $difference = strtotime($payment_date) - strtotime($invoice_due);
-                            $days = floor($difference / (60*60*24)) . " Days";
-                        } else {
-                            $payment_note = "";
-                            $days = "";
-                        }
-
-
-                        $invoice_tally_total = $invoice_amount + $invoice_tally_total;
-
-                        ?>
-
-                        <tr>
-                            <td colspan="4"><?php echo $payment_date; ?> - <?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?> - <?php echo $payment_method; ?> - <?php echo $payment_reference; ?> - <?php echo $days; ?> <?php echo $payment_note; ?></td>
-                        </tr>
-
-                    <?php } ?>
-
-                <?php } ?>
+                }
+                ?>
 
                 </tbody>
             </table>
         </div>
     </div>
 
-<?php } // End previous paid invoices
-
+<?php } // End previous unpaid invoices
 
 require_once "guest_footer.php";
-
