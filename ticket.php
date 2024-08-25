@@ -623,17 +623,17 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <!-- Time Tracking -->
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="input-group mb-3">
-                                    <div class="input-group pr-0 col-2">
+                                    <div class="input-group-prepend px-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                     </div>
 
-                                    <div class="input-group px-0 col-2">
+                                    <div class="input-group-append px-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
                                     </div>
 
-                                    <div class="input-group px-0 col-2">
+                                    <div class="input-group-append px-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
                                     </div>
 
@@ -644,16 +644,13 @@ if (isset($_GET['ticket_id'])) {
                                 </div>
                             </div>
 
-                            <div class="col-md-2">
-                                <?php if ($config_ai_enable) { ?>
-                                <button id="rewordButton" class="btn btn-secondary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
-                                <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>   
-                                <?php } ?>
-                            </div>
-
-                            <div class="col-md-2">
-                                <div class="float-right">
-                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success btn-block"><i class="fas fa-check mr-2"></i>Submit</button>
+                            <div class="col-md-3">
+                                <div class="btn-toolbar float-right">
+                                    <?php if ($config_ai_enable) { ?>
+                                    <button id="rewordButton" class="btn btn-secondary ml-3" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
+                                    <button id="undoButton" class="btn btn-secondary ml-3" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>   
+                                    <?php } ?>
+                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
                                 </div>
                             </div>
 
