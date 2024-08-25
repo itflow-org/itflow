@@ -629,7 +629,7 @@ if (isset($_GET['ticket_id'])) {
                                         <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                     </div>
 
-                                    <div class="input-group-append px-0 col-2">
+                                    <div class="px-0 col-2">
                                         <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
                                     </div>
 
