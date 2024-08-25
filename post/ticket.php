@@ -860,7 +860,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
-    $_SESSION['alert_message'] = "Tickets merged into $ticket_prefix$merge_into_ticket_number";
+    $_SESSION['alert_message'] = "$ticket_count tickets merged into $ticket_prefix$merge_into_ticket_number";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
