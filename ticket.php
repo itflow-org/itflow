@@ -8,6 +8,12 @@ $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
+// Ticket client access snippet
+$ticket_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $ticket_permission_snippet = "AND ticket_client_id IN ($client_access_string)";
+}
+
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
@@ -25,7 +31,9 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN invoices ON ticket_invoice_id = invoice_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
-        WHERE ticket_id = $ticket_id LIMIT 1"
+        WHERE ticket_id = $ticket_id
+        $ticket_permission_snippet
+        LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -532,10 +540,14 @@ if (isset($_GET['ticket_id'])) {
                                 <i class="fas fa-fw fa-layer-group mr-2 text-secondary"></i><?php echo $ticket_category_display; ?>
                             </div>
                         <?php } ?>
+
+                        <div class="mt-2">
+                            <span class="text-info" id="ticket_collision_viewing"></span>
+                        </div>
                     </div>
-                
+
                 </div>
-                <span class="text-info ml-5" id="ticket_collision_viewing"></span>
+                <br>
             </div>
 
         </div>
