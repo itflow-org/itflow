@@ -22,7 +22,6 @@ if (isset($_GET['login_id']) && !empty($api_key_decrypt_password)) {
 
 } elseif (!empty($api_key_decrypt_password)) {
     // All credentials ("logins")
-    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
 
     $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id LIKE '$client_id' ORDER BY login_id LIMIT $limit OFFSET $offset");
 
