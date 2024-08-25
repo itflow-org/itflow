@@ -9,7 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" id="current_ticket_id" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <input type="hidden" name="merge_move_replies" value="0"> <!-- Default 0 -->
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -26,7 +25,7 @@
                                 ?>
                             </div>
                             <input type="text" class="form-control" id="merge_into_ticket_number" name="merge_into_ticket_number" placeholder="Ticket number" required onfocusout="merge_into_number_get_details()">
-                            <!-- Calls Javascript function merge_into_number_get_details() after leaving intput field -->
+                            <!-- Calls Javascript function merge_into_number_get_details() after leaving input field -->
                         </div>
                     </div>
 
