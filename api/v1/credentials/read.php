@@ -4,20 +4,26 @@ require_once '../validate_api_key.php';
 
 require_once '../require_get_method.php';
 
-// Default
+// Defaults
 $sql = false;
 
+$api_key_decrypt_password = '';
+if (isset($_GET['api_key_decrypt_password'])) {
+    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
+}
+
 // Specific credential/login via ID (single)
-if (isset($_GET['login_id']) && isset($_GET['api_key_decrypt_password'])) {
+if (isset($_GET['login_id']) && !empty($api_key_decrypt_password)) {
 
     $id = intval($_GET['login_id']);
-    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
 
     $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$id' AND login_client_id LIKE '$client_id' LIMIT 1");
 
 
-} elseif (isset($_GET['api_key_decrypt_password'])) {
+} elseif (!empty($api_key_decrypt_password)) {
     // All credentials ("logins")
+    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
+
     $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id LIKE '$client_id' ORDER BY login_id LIMIT $limit OFFSET $offset");
 
 }
