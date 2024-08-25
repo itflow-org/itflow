@@ -186,7 +186,7 @@ $loadedModules = get_loaded_extensions();
 
 //Get Server Info / Service versions
 $phpVersion = phpversion();
-$mysqlVersion = $mysqli->server_version;
+$databaseInfo = mysqli_get_server_info($mysqli) . " / " .  $mysqli->server_version;
 $operatingSystem = php_uname();
 $webServer = $_SERVER['SERVER_SOFTWARE'];
 $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
@@ -204,7 +204,7 @@ $updates = fetchUpdates();
 
             <?php
             echo "PHP version: " . $phpVersion . "<br>";
-            echo "MySQL Version: " . $mysqlVersion . "<br>";
+            echo "Database Version: " . $databaseInfo . "<br>";
             echo "Operating System: " . $operatingSystem . "<br>";
             echo "Web Server: " . $webServer  . "<br>";
             echo "Apache/PHP Error Log: " . $errorLog
