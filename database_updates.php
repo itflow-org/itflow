@@ -2123,13 +2123,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          // DB Version
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.4'");
 
-
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.4') {
-    //     // Insert queries here required to update to DB version 1.4.5
+     if (CURRENT_DATABASE_VERSION == '1.4.4') {
+         mysqli_query($mysqli, "ALTER TABLE `api_keys` ADD `api_key_decrypt_hash` VARCHAR(200) NOT NULL AFTER `api_key_secret`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.5'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.5') {
+    //     // Insert queries here required to update to DB version 1.4.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.6'");
     // }
 
 } else {

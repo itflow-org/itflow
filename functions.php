@@ -271,7 +271,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
 }
 
 /*
- * For additional users / password changes
+ * For additional users / password changes (and now the API)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
@@ -282,7 +282,7 @@ function encryptUserSpecificKey($user_password)
 
     // Get the session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
-    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+    $user_encryption_session_iv = $_SESSION['user_encryption_session_iv'];
     $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
 
     // Decrypt the session key to get the master key
@@ -297,7 +297,7 @@ function encryptUserSpecificKey($user_password)
     return $salt . $iv . $ciphertext;
 }
 
-// Given a ciphertext (incl. IV) and the user's password, returns the site master key
+// Given a ciphertext (incl. IV) and the user's (or API key) password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
 function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
 {
@@ -376,6 +376,32 @@ function encryptLoginEntry($login_password_cleartext)
 
     //Encrypt the website/asset login using the master key
     $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+
+    return $iv . $ciphertext;
+}
+
+function apiDecryptLoginEntry($login_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+{
+    // Split the login entry (username/password) into IV and Ciphertext
+    $login_iv =  substr($login_ciphertext, 0, 16);
+    $login_ciphertext = $salt = substr($login_ciphertext, 16);
+
+    // Decrypt the api hash to get the master key
+    $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
+
+    // Decrypt the login password using the master key
+    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+}
+
+function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+{
+    $iv = randomString();
+
+    // Decrypt the api hash to get the master key
+    $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
+
+    // Encrypt the credential using the master key
+    $ciphertext = openssl_encrypt($credential_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
     return $iv . $ciphertext;
 }
