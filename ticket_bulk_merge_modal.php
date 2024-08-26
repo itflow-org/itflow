@@ -25,7 +25,7 @@
                             }
                             ?>
                         </div>
-                        <input type="text" class="form-control" id="merge_into_ticket_number" name="merge_into_ticket_number" placeholder="Ticket number" required onfocusout="merge_into_number_get_details()">
+                        <input type="text" class="form-control" id="merge_into_ticket_number" name="merge_into_ticket_number" placeholder="Ticket number" onfocusout="merge_into_number_get_details()">
                         <!-- Calls Javascript function merge_into_number_get_details() after leaving input field -->
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="merge_comment" placeholder="Comments" required>
+                        <input type="text" class="form-control" name="merge_comment" placeholder="Comments">
                     </div>
                 </div>
 
