@@ -303,10 +303,19 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Resolved', ticket_status_color = '#343a40'"); // 4 - was auto-close, now resolved
     mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = 'Closed', ticket_status_color = '#343a40'"); // 5
 
-    // Add default roles
+    // *Add default roles*
+
+    // 1. Accountant role
     mysqli_query($mysqli, "INSERT INTO `user_roles` SET user_role_id = 1, user_role_name = 'Accountant', user_role_description = 'Built-in - Limited access to financial-focused modules'");
+    mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_clientmgmt_access` = '1', `user_role_sales_access` = '3', `user_role_finance_access` = '3' WHERE `user_roles`.`user_role_id` = 1");
+
+    // 2. Tech role
     mysqli_query($mysqli, "INSERT INTO `user_roles` SET user_role_id = 2, user_role_name = 'Technician', user_role_description = 'Built-in - Limited access to technical-focused modules'");
+    mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_clientmgmt_access` = '2', `user_role_ticketing_access` = '2', `user_role_credential_access` = '2', `user_role_sales_access` = '2' WHERE `user_roles`.`user_role_id` = 2");
+
+    // 3. Admin role
     mysqli_query($mysqli, "INSERT INTO `user_roles` SET user_role_id = 3, user_role_name = 'Administrator', user_role_description = 'Built-in - Full administrative access to all modules (including user management)'");
+    mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_admin_settings_access` = '3', `user_role_clientmgmt_access` = '3', `user_role_ticketing_access` = '3', `user_role_credential_access` = '3', `user_role_sales_access` = '3', `user_role_finance_access` = '3', `user_role_reporting_access` = '3', `user_role_other_access` = '3' WHERE `user_roles`.`user_role_id` = 3");
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";

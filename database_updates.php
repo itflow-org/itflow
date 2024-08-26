@@ -2131,10 +2131,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.5'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.5') {
-    //     // Insert queries here required to update to DB version 1.4.6
+     if (CURRENT_DATABASE_VERSION == '1.4.5') {
+
+         // Add new columns for user role access mappings
+         mysqli_query($mysqli, "ALTER TABLE `user_roles` ADD `user_role_admin_settings_access` INT(11) NOT NULL DEFAULT '0' AFTER `user_role_description`, ADD `user_role_clientmgmt_access` INT NOT NULL DEFAULT '0' AFTER `user_role_admin_settings_access`, ADD `user_role_ticketing_access` INT NOT NULL DEFAULT '0' AFTER `user_role_clientmgmt_access`, ADD `user_role_credential_access` INT NOT NULL DEFAULT '0' AFTER `user_role_ticketing_access`, ADD `user_role_sales_access` INT NOT NULL DEFAULT '0' AFTER `user_role_credential_access`, ADD `user_role_finance_access` INT NOT NULL DEFAULT '0' AFTER `user_role_sales_access`, ADD `user_role_reporting_access` INT NOT NULL DEFAULT '0' AFTER `user_role_finance_access`, ADD `user_role_other_access` INT NOT NULL DEFAULT '0' AFTER `user_role_reporting_access`");
+
+         // Admin role
+         mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_admin_settings_access` = '3', `user_role_clientmgmt_access` = '3', `user_role_ticketing_access` = '3', `user_role_credential_access` = '3', `user_role_sales_access` = '3', `user_role_finance_access` = '3', `user_role_reporting_access` = '3', `user_role_other_access` = '3' WHERE `user_roles`.`user_role_id` = 3");
+
+         // Tech role
+         mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_clientmgmt_access` = '2', `user_role_ticketing_access` = '2', `user_role_credential_access` = '2', `user_role_sales_access` = '2' WHERE `user_roles`.`user_role_id` = 2");
+
+         // Accountant role
+         mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_clientmgmt_access` = '1', `user_role_sales_access` = '3', `user_role_finance_access` = '3' WHERE `user_roles`.`user_role_id` = 1");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.6'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.6') {
+    //     // Insert queries here required to update to DB version 1.4.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.7'");
     // }
 
 } else {
