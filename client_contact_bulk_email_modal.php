@@ -25,11 +25,11 @@
 
                 <div class="form-group">
                     <input type="text" class="form-control" name="mail_from_name" placeholder="From Name"
-                        value="<?php echo nullable_htmlentities($config_mail_from_name); ?>" required>
+                        value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
                 </div>
 
                 <div class="form-group">
-                    <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                    <input type="text" class="form-control" name="subject" placeholder="Subject">
                 </div>
 
                 <div class="form-group">
