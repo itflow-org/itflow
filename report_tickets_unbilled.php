@@ -2,7 +2,6 @@
 
 require_once "inc_all_reports.php";
 
-validateTechRole();
 validateAccountantRole();
 
 function secondsToTime($inputSeconds) {
