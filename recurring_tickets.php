@@ -6,6 +6,11 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Ticket client access snippet
+$rec_ticket_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $rec_ticket_permission_snippet = "AND scheduled_ticket_client_id IN ($client_access_string)";
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -16,6 +21,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
     LEFT JOIN clients on scheduled_ticket_client_id = client_id
     WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
+    $rec_ticket_permission_snippet
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
