@@ -20,6 +20,11 @@ if($status == 1) {
     $status_query = "IS NULL";
 }
 
+// Ticket client access snippet
+$project_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $project_permission_snippet = "AND project_client_id IN ($client_access_string)";
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -33,6 +38,7 @@ $sql_projects = mysqli_query(
     AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%' OR user_name LIKE '%$q%')
     AND project_archived_at IS NULL
     AND project_completed_at $status_query
+    $project_permission_snippet
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
