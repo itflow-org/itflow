@@ -223,6 +223,20 @@ if (isset($_GET['client_id'])) {
         ));
         $num_domains_expiring = intval($row['num']);
 
+        // Count Domains Expired or within 5 days
+        $row = mysqli_fetch_assoc(mysqli_query(
+            $mysqli,
+            "SELECT COUNT('domain_id') AS num FROM domains
+            WHERE domain_client_id = $client_id
+            AND domain_expire IS NOT NULL
+            AND (
+                    domain_expire < CURRENT_DATE
+                    OR domain_expire < CURRENT_DATE + INTERVAL 5 DAY
+                )
+            AND domain_archived_at IS NULL"
+        ));
+        $num_domains_expired = intval($row['num']);
+
         // Count Certificates Expiring within 30 Days
         $row = mysqli_fetch_assoc(mysqli_query(
             $mysqli,

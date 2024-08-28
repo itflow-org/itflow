@@ -203,7 +203,7 @@
 
                             <?php
                             if ($num_domains > 0) { ?>
-                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning text-dark<?php } ?> text-light"><?php echo $num_domains; ?></span>
+                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning text-dark<?php } ?> <?php if ($num_domains_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_domains; ?></span>
                             <?php } ?>
                         </p>
                     </a>
