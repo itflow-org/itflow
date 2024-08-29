@@ -1218,36 +1218,6 @@ function fetchUpdates() {
 
 }
 
-// Get domain expiration date -- Remove in the future Replace with PHP function
-function getDomainExpirationDateOLD($name)
-{
-
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        return "NULL";
-    }
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "http://lookup.itflow.org:8080/$name");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $response = json_decode(curl_exec($ch), 1);
-
-    if ($response) {
-        if (is_array($response['expiration_date'])) {
-            $expiry = new DateTime($response['expiration_date'][1]);
-        } elseif (isset($response['expiration_date'])) {
-            $expiry = new DateTime($response['expiration_date']);
-        } else {
-            return "NULL";
-        }
-
-        return $expiry->format('Y-m-d');
-    }
-
-    // Default return
-    return "NULL";
-}
-
 function getDomainExpirationDate($domain) {
     // Execute the whois command
     $result = shell_exec("whois " . escapeshellarg($domain));
