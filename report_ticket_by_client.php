@@ -5,6 +5,8 @@ require_once "inc_all_reports.php";
 validateTechRole();
 
 function secondsToTime($inputSeconds) {
+    $inputSeconds = floor($inputSeconds);
+
     $secondsInAMinute = 60;
     $secondsInAnHour = 60 * $secondsInAMinute;
     $secondsInADay = 24 * $secondsInAnHour;
@@ -78,9 +80,9 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                     <tr>
                         <th>Client</th>
                         <th class="text-right">Tickets raised</th>
-                        <th class="text-right">Tickets closed</th>
+                        <th class="text-right">Tickets resolved</th>
                         <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
-                        <th class="text-right">Avg time to close</th>
+                        <th class="text-right">Avg time to resolve</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -94,13 +96,13 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                         $row = mysqli_fetch_array($sql_ticket_raised_count);
                         $ticket_raised_count = intval($row['ticket_raised_count']);
 
-                        // Calculate total tickets raised in period that are closed
-                        $sql_ticket_closed_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_closed_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
-                        $row = mysqli_fetch_array($sql_ticket_closed_count);
-                        $ticket_closed_count = intval($row['ticket_closed_count']);
+                        // Calculate total tickets raised in period that are resolved
+                        $sql_ticket_resolved_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_resolved_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
+                        $row = mysqli_fetch_array($sql_ticket_resolved_count);
+                        $ticket_resolved_count = intval($row['ticket_resolved_count']);
 
-                        // Used to calculate average time to close tickets that were raised in period specified
-                        $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_closed_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_closed_at IS NOT NULL");
+                        // Used to calculate average time to resolve tickets that were raised in period specified
+                        $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
 
                         // Calculate total time tracked towards tickets in the period
                         $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
@@ -114,21 +116,21 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             $total = 0;
                             while ($row = mysqli_fetch_array($sql_tickets)) {
                                 $openedTime = new DateTime($row['ticket_created_at']);
-                                $closedTime = new DateTime($row['ticket_closed_at']);
+                                $resolvedTime = new DateTime($row['ticket_resolved_at']);
 
-                                $total += ($closedTime->getTimestamp() - $openedTime->getTimestamp());
+                                $total += ($resolvedTime->getTimestamp() - $openedTime->getTimestamp());
                                 $count++;
                             }
-                            $avg_time_to_close = $total / $count;
+                            $avg_time_to_resolve = $total / $count;
 
                             ?>
 
                             <tr>
                                 <td><?php echo $client_name; ?></td>
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                <td class="text-right"><?php echo $ticket_closed_count; ?></td>
+                                <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                <td class="text-right"><?php echo secondsToTime($avg_time_to_close); ?></td>
+                                <td class="text-right"><?php echo secondsToTime($avg_time_to_resolve); ?></td>
                             </tr>
                             <?php
                         }
