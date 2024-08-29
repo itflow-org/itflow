@@ -48,9 +48,12 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
                     <br>
                     <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                    <br>
+                    <small class="text-secondary">Branch: <?php echo $repo_branch; ?></small>
                 <?php } else { ?>
                     <p class="text-secondary">Current Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
                     <p class="text-secondary">Current App Version:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
+                    <p class="text-secondary">Branch:<br><strong class="text-dark"><?php echo $repo_branch; ?></strong></p>
                     <p class="text-muted">You are up to date!<br>Everything is going to be alright</p>
                     <i class="far fa-3x text-dark fa-smile-wink"></i><br>
                 <?php }
