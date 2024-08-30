@@ -511,7 +511,7 @@ if (isset($_POST["import_clients_csv"])) {
 
                 $row_count = $row_count + 1;
 
-            }else{
+            } else {
 
                 $duplicate_count = $duplicate_count + 1;
 
