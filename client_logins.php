@@ -96,7 +96,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-6">
                     <div class="btn-group float-right">
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                        <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -159,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_uri = nullable_htmlentities($row['login_uri']);
                             if (empty($login_uri)) {
                                 $login_uri_display = "-";
-                            } else {    
+                            } else {
                                 $login_uri_display = truncate($login_uri,40) . "<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
                             }
                             $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
@@ -198,18 +198,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 AND item_related_id = $login_id
                                 LIMIT 1"
                             );
-                            $row = mysqli_fetch_array($sql_shared);
-                            $item_id = intval($row['item_id']);
-                            $item_active = nullable_htmlentities($row['item_active']);
-                            $item_key = nullable_htmlentities($row['item_key']);
-                            $item_type = nullable_htmlentities($row['item_type']);
-                            $item_related_id = intval($row['item_related_id']);
-                            $item_note = nullable_htmlentities($row['item_note']);
-                            $item_views = nullable_htmlentities($row['item_views']);
-                            $item_view_limit = nullable_htmlentities($row['item_view_limit']);
-                            $item_created_at = nullable_htmlentities($row['item_created_at']);
-                            $item_expire_at = nullable_htmlentities($row['item_expire_at']);
-                            $item_expire_at_human = timeAgo($row['item_expire_at']);
+                            if (mysqli_num_rows($sql_shared) > 0) {
+                                $row = mysqli_fetch_array($sql_shared);
+                                $item_id = intval($row['item_id']);
+                                $item_active = nullable_htmlentities($row['item_active']);
+                                $item_key = nullable_htmlentities($row['item_key']);
+                                $item_type = nullable_htmlentities($row['item_type']);
+                                $item_related_id = intval($row['item_related_id']);
+                                $item_note = nullable_htmlentities($row['item_note']);
+                                $item_views = nullable_htmlentities($row['item_views']);
+                                $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                                $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                $item_expire_at_human = timeAgo($row['item_expire_at']);
+                            }
 
 
                         ?>
@@ -237,10 +239,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $otp_display; ?></td>
                                 <td><?php echo $login_uri_display; ?></td>
                                 <td>
-                                    <?php if($item_id) { ?>
-                                    <div title="Expires <?php echo $item_expire_at_human; ?>">
-                                        <i class="fas fa-fw fa-link"></i> Shared
-                                    </div>
+                                    <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
+                                        <div title="Expires <?php echo $item_expire_at_human; ?>">
+                                            <i class="fas fa-fw fa-link"></i> Shared
+                                        </div>
                                     <?php } ?>
                                 </td>
                                 <td class="text-center">
