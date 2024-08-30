@@ -37,10 +37,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addVendorFromTemplateModal">
                             <i class="fa fa-fw fa-puzzle-piece mr-2"></i>Create from Template
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportVendorModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportVendorModal">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -62,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="btn-group float-right">
-                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -137,13 +139,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $vendor_created_at = nullable_htmlentities($row['vendor_created_at']);
                             $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
                             $vendor_template_id = intval($row['vendor_template_id']);
-                            
+
                             if (empty($vendor_website)) {
                                 $vendor_website_display = "-";
                             } else {
                                 $vendor_website_display = "<button class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button><a href='https://$vendor_website' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                             }
-                            
+
                             ?>
                             <tr>
                                 <td class="pr-0">
@@ -161,7 +163,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </div>
                                         </div>
                                     </a>
-                            
+
                                 </td>
                                 <td>
                                     <?php
@@ -231,7 +233,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
-<script src="js/bulk_actions.js"></script>    
+<script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "vendor_add_modal.php";
