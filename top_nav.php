@@ -42,8 +42,8 @@
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
-                <i class="far fa-bell mr-3"></i>
-                <span class="badge badge-danger navbar-badge"><?php echo $num_notifications; ?></span>
+                <i class="fa fa-bell mr-3"></i>
+                <span class="badge badge-light badge-pill navbar-badge"><?php echo $num_notifications; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
                 <a href="notifications.php" class="dropdown-item dropdown-header">
@@ -78,7 +78,7 @@
                 <div class="dropdown-divider"></div>
                 <a href="post.php?dismiss_all_notifications"
                     class="dropdown-item dropdown-footer text-secondary text-bold"><i
-                        class="fa fa-fw fa-check mr-2"></i>Dismiss Notifications</a>
+                        class="fa fa-fw fa-check-double mr-2"></i>Dismiss all Notifications</a>
             </div>
         </li>
         <?php } else { ?>
@@ -130,7 +130,10 @@
                 </li>
                 <!-- Menu Footer-->
                 <li class="user-footer">
-                    <a href="user_details.php" class="btn btn-default btn-flat"><i class="fas fa-cog mr-2"></i>Account</a>
+                    <?php if ($session_user_role == 3) { ?>
+                    <a href="admin_users.php" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-tools mr-2"></i>Admin</a>
+                    <?php } ?>
+                    <a href="user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
                     <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                 </li>
             </ul>

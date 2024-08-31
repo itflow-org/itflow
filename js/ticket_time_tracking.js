@@ -52,7 +52,7 @@
             }
             timerInterval = setInterval(countTime, 1000);
             isPaused = false;
-            document.getElementById("startStopTimer").innerText = "Pause";
+            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-pause'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "true");
 
         }
@@ -66,7 +66,7 @@
             localStorage.setItem(getLocalStorageKey("pausedTime"), currentElapsed.toString());
             localStorage.removeItem(getLocalStorageKey("startTime"));
             isPaused = true;
-            document.getElementById("startStopTimer").innerText = "Start";
+            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "false");
 
         }
@@ -84,7 +84,7 @@
                 elapsedSecs = 0;
                 clearTimeStorage();
                 displayTime();
-                document.getElementById("startStopTimer").innerText = "Start";
+                document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
             }
             localStorage.setItem("ticket-timer-running-" + ticketID, "false");
         }
@@ -95,7 +95,7 @@
             elapsedSecs = 0;
             clearTimeStorage();
             displayTime();
-            document.getElementById("startStopTimer").innerText = "Start";
+            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
         }
 
         function handleInputFocus() {

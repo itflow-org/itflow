@@ -7,7 +7,6 @@
              Back | 
              <strong>
                 <?php if($client_abbreviation) { echo $client_abbreviation; } else { echo shortenClient($client_name); } ?>
-                <i class="fas fa-hashtag"></i><?php echo $client_id; ?>
             </strong>
         </p>
     </a>
@@ -29,7 +28,7 @@
 
                 <li class="nav-item">
                     <a href="client_contacts.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_contacts.php" || basename($_SERVER["PHP_SELF"]) == "client_contact_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-users"></i>
+                        <i class="nav-icon fas fa-address-book"></i>
                         <p>
                             Contacts
                             <?php
@@ -190,7 +189,7 @@
 
                             <?php
                             if ($num_certificates > 0) { ?>
-                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_certificates; ?></span>
+                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning text-dark <?php } ?> text-light"><?php echo $num_certificates; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -204,7 +203,7 @@
 
                             <?php
                             if ($num_domains > 0) { ?>
-                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning <?php } ?> text-light"><?php echo $num_domains; ?></span>
+                                <span class="right badge <?php if ($num_domains_expiring > 0) { ?> badge-warning text-dark<?php } ?> <?php if ($num_domains_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_domains; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -310,15 +309,6 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="client_statement.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_statement.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-file-invoice-dollar"></i>
-                            <p>
-                                Statement
-                            </p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
                         <a href="client_trips.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>
@@ -332,41 +322,6 @@
                     </li>
 
                 <?php } ?>
-
-                <li class="nav-header mt-3">MISC</li>
-
-                <li class="nav-item">
-                    <a href="client_bulk_mail.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_bulk_mail.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-envelope-open"></i>
-                        <p>Bulk Mail</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="client_shared_items.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_shared_items.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-share"></i>
-                        <p>
-                            Shared Links
-                            <?php
-                            if ($num_shared_links > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_shared_links; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="client_logs.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logs.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-history"></i>
-                        <p>
-                            Audit Logs
-                            <?php
-                            if ($num_logs > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_logs; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
 
             </ul>
         </nav>

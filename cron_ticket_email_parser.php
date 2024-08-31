@@ -22,6 +22,7 @@ require_once "get_settings.php";
 
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+$config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_parse_unknown_senders']);
 
 // Get company name & phone & timezone
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
@@ -94,7 +95,10 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $contact_email_esc = mysqli_real_escape_string($mysqli, $contact_email);
     $client_id_esc = intval($client_id);
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject_esc', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_client_id = $client_id_esc");
+    //Generate a unique URL key for clients to access
+    $url_key = randomString(156);
+
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject_esc', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id_esc");
     $id = mysqli_insert_id($mysqli);
 
     echo "Created new ticket.<br>";
@@ -132,7 +136,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     $data = [];
-    if ($config_ticket_client_general_notifications == 1) {
+	
+    if ($config_ticket_client_general_notifications == 1 && $client_id != 0) {
 		
 		// Get Email Template
 		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
@@ -140,7 +145,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 			
         $subject_email = "$config_et_client_ticket_new_subj";
 		$body = "$config_et_client_ticket_new";
-		
+
         $data[] = [
             'from' => $config_ticket_from_email,
             'from_name' => $config_ticket_from_name,
@@ -217,7 +222,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Email parser: $from_email attempted to re-open ticket $config_ticket_prefix_esc$ticket_number_esc (ID $ticket_id_esc) - check inbox manually to see email', notification_action = 'ticket.php?ticket_id=$ticket_id_esc', notification_client_id = $client_id_esc");
 
             $email_subject = "Action required: This ticket is already closed";
-            $email_body = "Hi there, <br><br>You've tried to reply to a ticket that is closed - we won't see your response. <br><br>Please raise a new ticket by sending a fresh e-mail to our support address below. <br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $email_body = "Hi there, <br><br>You've tried to reply to a ticket that is closed - we won't see your response. <br><br>Please raise a new ticket by sending a new e-mail to our support address below. <br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
             $data = [
                 [
@@ -305,7 +310,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             }
         }
 
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         echo "Updated existing ticket.<br>";
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email_esc updated ticket $config_ticket_prefix$ticket_number_esc ($subject)', log_client_id = $client_id");
@@ -313,6 +318,50 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         return true;
     } else {
         return false;
+    }
+}
+
+
+// Function to create a folder in the mailbox if it doesn't exist
+function createMailboxFolder($client, $folderName) {
+    try {
+        // Attempt to get the folder
+        $folder = $client->getFolder($folderName);
+
+        // If the folder doesn't exist, create it
+        if (!$folder) {
+            $client->createFolder($folderName);
+            echo "Folder '$folderName' created successfully.";
+            
+            // Disconnect and reconnect to ensure the server registers the new folder
+            $client->disconnect();
+            sleep(1);  // Pause before reconnecting
+            $client->connect();
+        } else {
+            echo "Folder '$folderName' already exists.";
+        }
+
+        // Re-fetch the folder after reconnecting
+        return $client->getFolder($folderName);
+        
+    } catch (Exception $e) {
+        echo "Error creating folder '$folderName': " . $e->getMessage();
+        return null;
+    }
+}
+
+// Function to subscribe to a folder in the mailbox
+function subscribeMailboxFolder($client, $folder) {
+    if ($folder) {
+        try {
+            // Subscribe to the folder
+            $folder->subscribe();
+            echo "Folder '{$folder->name}' subscribed successfully.";
+        } catch (Exception $e) {
+            echo "Error subscribing to folder '{$folder->name}': " . $e->getMessage();
+        }
+    } else {
+        echo "Cannot subscribe to folder because it does not exist.";
     }
 }
 
@@ -330,6 +379,12 @@ $client = $clientManager->make([
 
 // Connect to the IMAP server
 $client->connect();
+
+// Create the "ITFlow" mailbox folder if it doesn't exist
+$folder = createMailboxFolder($client, 'ITFlow');
+
+// Subscribe to the "ITFlow" mailbox folder
+subscribeMailboxFolder($client, $folder);
 
 // Possible names for the inbox folder
 $inboxNames = ['Inbox', 'INBOX', 'inbox'];
@@ -419,6 +474,12 @@ if ($messages->count() > 0) {
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact ".mysqli_real_escape_string($mysqli, $contact_name)."', log_client_id = $client_id");
 
                     if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
+                        $email_processed = true;
+                    }
+                } elseif ($config_ticket_email_parse_unknown_senders)  {
+                    // Parse even if the sender is unknown
+
+                    if (addTicket(0, 'Guest', $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
                         $email_processed = true;
                     }
                 }

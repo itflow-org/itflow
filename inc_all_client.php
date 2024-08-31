@@ -210,12 +210,6 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('trip_id') AS num FROM trips WHERE trip_archived_at IS NULL AND trip_client_id = $client_id"));
         $num_trips = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('item_id') AS num FROM shared_items WHERE item_client_id = $client_id"));
-        $num_shared_links = $row['num'];
-
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('log_id') AS num FROM logs WHERE log_client_id = $client_id"));
-        $num_logs = $row['num'];
-
         // Expiring Items
 
         // Count Domains Expiring within 30 Days
@@ -228,6 +222,20 @@ if (isset($_GET['client_id'])) {
             AND domain_archived_at IS NULL"
         ));
         $num_domains_expiring = intval($row['num']);
+
+        // Count Domains Expired or within 5 days
+        $row = mysqli_fetch_assoc(mysqli_query(
+            $mysqli,
+            "SELECT COUNT('domain_id') AS num FROM domains
+            WHERE domain_client_id = $client_id
+            AND domain_expire IS NOT NULL
+            AND (
+                    domain_expire < CURRENT_DATE
+                    OR domain_expire < CURRENT_DATE + INTERVAL 5 DAY
+                )
+            AND domain_archived_at IS NULL"
+        ));
+        $num_domains_expired = intval($row['num']);
 
         // Count Certificates Expiring within 30 Days
         $row = mysqli_fetch_assoc(mysqli_query(

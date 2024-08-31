@@ -12,7 +12,7 @@ if (isset($_POST['add_ticket'])) {
     $client_id = intval($session_client_id);
     $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
-    $details = mysqli_real_escape_string($mysqli,($_POST['details']));
+    $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
 
     // Get settings from get_settings.php
     $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
@@ -20,6 +20,9 @@ if (isset($_POST['add_ticket'])) {
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
     $config_base_url = sanitizeInput($config_base_url);
     $config_ticket_new_ticket_notification_email = filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL);
+
+    //Generate a unique URL key for clients to access
+    $url_key = randomString(156);
 
     // Ensure priority is low/med/high (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High") {
@@ -33,7 +36,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email
@@ -194,20 +197,66 @@ if (isset($_POST['add_ticket_feedback'])) {
 
 }
 
+if (isset($_GET['resolve_ticket'])) {
+    $ticket_id = intval($_GET['resolve_ticket']);
+
+    // Verify the contact has access to the provided ticket ID
+    if (verifyContactTicketAccess($ticket_id, "Open")) {
+
+        // Resolve the ticket
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
+
+        // Add reply
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket resolved by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
+
+        //Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = '$ticket_id resolved by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+
+        header("Location: ticket.php?id=" . $ticket_id);
+    } else {
+        // The client does not have access to this ticket - send them home
+        header("Location: index.php");
+        exit();
+    }
+}
+
+if (isset($_GET['reopen_ticket'])) {
+    $ticket_id = intval($_GET['reopen_ticket']);
+
+    // Verify the contact has access to the provided ticket ID
+    if (verifyContactTicketAccess($ticket_id, "Open")) {
+
+        // Re-open ticket
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
+
+        // Add reply
+        mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
+
+        //Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Replied', log_description = '$ticket_id reopened by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+
+        header("Location: ticket.php?id=" . $ticket_id);
+    } else {
+        // The client does not have access to this ticket - send them home
+        header("Location: index.php");
+        exit();
+    }
+}
+
 if (isset($_GET['close_ticket'])) {
     $ticket_id = intval($_GET['close_ticket']);
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
-        // Close ticket
+        // Fully close ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id");
 
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
         //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id Closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
         header("Location: ticket.php?id=" . $ticket_id);
     } else {

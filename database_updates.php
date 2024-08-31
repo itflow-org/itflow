@@ -2084,10 +2084,57 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.2'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.2') {
-    //     // Insert queries here required to update to DB version 1.4.3
+    if (CURRENT_DATABASE_VERSION == '1.4.2') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_email_parse_unknown_senders` INT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_email_parse`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.3'");
+    }
+
+     if (CURRENT_DATABASE_VERSION == '1.4.3') {
+
+         // Add ticket URL key column
+         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_url_key` VARCHAR(200) DEFAULT NULL AFTER `ticket_feedback`");
+         // Populate pre-existing columns for open tickets
+         $sql_tickets_1 = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE tickets.ticket_closed_at IS NULL");
+         foreach ($sql_tickets_1 as $row) {
+             $ticket_id = intval($row['ticket_id']);
+             $url_key = randomString(156);
+             mysqli_query($mysqli, "UPDATE tickets SET ticket_url_key = '$url_key' WHERE ticket_id = '$ticket_id'");
+         }
+
+         // Add ticket resolved at column
+         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_resolved_at` DATETIME DEFAULT NULL AFTER `ticket_updated_at`");
+         // Populate pre-existing columns for closed tickets
+         $sql_tickets_2 = mysqli_query($mysqli, "SELECT ticket_id, ticket_updated_at, ticket_closed_at FROM tickets WHERE tickets.ticket_closed_at IS NOT NULL");
+         foreach ($sql_tickets_2 as $row) {
+             $ticket_id = intval($row['ticket_id']);
+             $ticket_updated_at = sanitizeInput($row['ticket_updated_at']); // To keep old updated_at time
+             $ticket_closed_at = sanitizeInput($row['ticket_closed_at']);
+             mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = '$ticket_closed_at', ticket_updated_at = '$ticket_updated_at' WHERE ticket_id = '$ticket_id'");
+         }
+
+         // Change ticket status 'Auto close' to 'Resolved'
+         mysqli_query($mysqli, "UPDATE `ticket_statuses` SET `ticket_status_name` = 'Resolved' WHERE `ticket_statuses`.`ticket_status_id` = 4");
+
+         // Auto-close is no longer optional
+         mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_ticket_autoclose`");
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_ticket_autoclose_hours` = '72'");
+
+         // DB Version
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.4'");
+
+     }
+
+     if (CURRENT_DATABASE_VERSION == '1.4.4') {
+         mysqli_query($mysqli, "ALTER TABLE `api_keys` ADD `api_key_decrypt_hash` VARCHAR(200) NOT NULL AFTER `api_key_secret`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.5'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.5') {
+    //     // Insert queries here required to update to DB version 1.4.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.6'");
     // }
 
 } else {

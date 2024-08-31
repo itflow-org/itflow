@@ -7,7 +7,7 @@ $sql_recent_activities = mysqli_query(
     $mysqli,
     "SELECT * FROM logs
     WHERE log_client_id = $client_id
-    ORDER BY log_created_at DESC LIMIT 10"
+    ORDER BY log_created_at DESC LIMIT 5"
 );
 
 $sql_important_contacts = mysqli_query(
@@ -16,7 +16,7 @@ $sql_important_contacts = mysqli_query(
     WHERE contact_client_id = $client_id
     AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_primary = 1)
     AND contact_archived_at IS NULL 
-    ORDER BY contact_primary DESC, contact_name DESC"
+    ORDER BY contact_primary DESC, contact_name DESC LIMIT 5"
 );
 
 $sql_recent_tickets = mysqli_query(
@@ -33,6 +33,16 @@ $sql_recent_logins = mysqli_query(
      ORDER BY login_updated_at DESC LIMIT 5"
 );
 
+$sql_shared_items = mysqli_query(
+    $mysqli,
+    "SELECT * FROM shared_items
+    WHERE item_client_id = $client_id
+    AND item_active = 1
+    AND item_views != item_view_limit
+    AND item_expire_at > NOW()
+    ORDER BY item_created_at DESC LIMIT 5"
+);
+
 /*
  * EXPIRING/ACTION ITEMS
  */
@@ -44,7 +54,7 @@ $sql_stale_tickets = mysqli_query(
     WHERE ticket_client_id = $client_id
     AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
     AND ticket_closed_at IS NULL
-    ORDER BY ticket_updated_at DESC"
+    ORDER BY ticket_updated_at DESC LIMIT 5"
 );
 
 // Get Domains Expiring
@@ -55,7 +65,7 @@ $sql_domains_expiring = mysqli_query(
     AND domain_expire IS NOT NULL
     AND domain_archived_at IS NULL
     AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY domain_expire DESC"
+    ORDER BY domain_expire DESC LIMIT 5"
 );
 
 // Get Licenses Expiring
@@ -66,7 +76,7 @@ $sql_licenses_expiring = mysqli_query(
     AND software_expire IS NOT NULL
     AND software_archived_at IS NULL
     AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY software_expire DESC"
+    ORDER BY software_expire DESC LIMIT 5"
 );
 
 // Get Asset Warranties Expiring
@@ -77,7 +87,7 @@ $sql_asset_warranties_expiring = mysqli_query(
     AND asset_warranty_expire IS NOT NULL
     AND asset_archived_at IS NULL
     AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY asset_warranty_expire DESC"
+    ORDER BY asset_warranty_expire DESC LIMIT 5"
 );
 
 // Get Assets Retiring
@@ -88,7 +98,7 @@ $sql_asset_retire = mysqli_query(
     AND asset_install_date IS NOT NULL
     AND asset_archived_at IS NULL
     AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY asset_install_date DESC"
+    ORDER BY asset_install_date DESC LIMIT 5"
 );
 
 ?>
@@ -97,7 +107,7 @@ $sql_asset_retire = mysqli_query(
 
         <!-- Notes -->
 
-        <div class="col-md-12">
+        <div class="col-md-4">
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
@@ -151,6 +161,71 @@ $sql_asset_retire = mysqli_query(
                                 <?php
                             }
                             ?>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <?php if (mysqli_num_rows($sql_shared_items) > 0) { ?>
+
+            <div class="col-md-4">
+
+                <div class="card card-dark mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fa fa-fw fa-share-square mr-2"></i>Shared Items</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <table class="table table-borderless table-sm">
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_shared_items)) {
+                                $item_id = intval($row['item_id']);
+                                $item_active = nullable_htmlentities($row['item_active']);
+                                $item_key = nullable_htmlentities($row['item_key']);
+                                $item_type = nullable_htmlentities($row['item_type']);
+                                $item_related_id = intval($row['item_related_id']);
+                                $item_note = nullable_htmlentities($row['item_note']);
+                                $item_views = nullable_htmlentities($row['item_views']);
+                                $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                                $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                $item_expire_at_human = timeAgo($row['item_expire_at']);
+
+                                if ($item_type == 'Login') {
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = $item_related_id AND login_client_id = $client_id");
+                                    $share_item = mysqli_fetch_array($share_item_sql);
+                                    $item_name = nullable_htmlentities($share_item['login_name']);
+                                    $item_icon = "fas fa-key";
+                                } elseif ($item_type == 'Document') {
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id");
+                                    $share_item = mysqli_fetch_array($share_item_sql);
+                                    $item_name = nullable_htmlentities($share_item['document_name']);
+                                    $item_icon = "fas fa-folder";
+                                } elseif ($item_type == 'File') {
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id");
+                                    $share_item = mysqli_fetch_array($share_item_sql);
+                                    $item_name = nullable_htmlentities($share_item['file_name']);
+                                    $item_icon = "fas fa-paperclip";
+                                }
+                                ?>
+                                <tr>
+                                    <td title="<?php echo $item_type; ?>"><i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?></td>
+                                    <td>Views: <?php echo "$item_views / $item_view_limit" ?></td>
+                                    <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>
+                                    <td title="Deactivate Link">
+                                        <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
+                                            <i class="fas fa-fw fa-calendar-times mr-2"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <?php } ?>
+
+                            </tbody>
 
                         </table>
                     </div>
@@ -303,7 +378,7 @@ $sql_asset_retire = mysqli_query(
 
             <!-- Recent Activities -->
 
-            <div class="col-md-12">
+            <div class="col-md-4">
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
@@ -332,6 +407,11 @@ $sql_asset_retire = mysqli_query(
                             </tbody>
                         </table>
                     </div>
+                    <?php if ($session_user_role == 3) { ?>
+                    <div class="card-footer">
+                        <a href="admin_logs.php?client=<?php echo $client_id; ?>">See More...</a>
+                    </div>
+                    <?php } ?>
                 </div>
             </div>
 

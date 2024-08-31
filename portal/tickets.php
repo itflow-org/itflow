@@ -90,7 +90,7 @@ $total_tickets = intval($row['total_tickets']);
 
         <a href="?status=Open" class="btn btn-danger btn-block p-3 mb-3 text-left">My Open tickets | <strong><?php echo $total_tickets_open ?></strong></a>
 
-        <a href="?status=Closed" class="btn btn-success btn-block p-3 mb-3 text-left">Resolved tickets | <strong><?php echo $total_tickets_closed ?></strong></a>
+        <a href="?status=Closed" class="btn btn-success btn-block p-3 mb-3 text-left">Closed tickets | <strong><?php echo $total_tickets_closed ?></strong></a>
 
         <a href="?status=%" class="btn btn-secondary btn-block p-3 mb-3 text-left">All my tickets | <strong><?php echo $total_tickets ?></strong></a>
         <?php

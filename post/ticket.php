@@ -32,7 +32,7 @@ if (isset($_POST['add_ticket'])) {
         $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_array($sql);
 
-        // Overide Template Subject
+        // Override Template Subject
         if(empty($subject)) {
             $subject = sanitizeInput($row['ticket_template_subject']);
         }
@@ -67,9 +67,12 @@ if (isset($_POST['add_ticket'])) {
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
     $config_base_url = sanitizeInput($config_base_url);
 
+    //Generate a unique URL key for clients to access
+    $url_key = randomString(156);
+
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -381,11 +384,11 @@ if (isset($_POST['add_ticket_watcher'])) {
     if ($notify && !empty($config_smtp_host)) {
 
         // Get contact/ticket details
-        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
-            LEFT JOIN clients ON ticket_client_id = client_id 
+        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id
             LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
-            WHERE ticket_id = $ticket_id 
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                         
+            WHERE ticket_id = $ticket_id
             AND ticket_closed_at IS NULL");
         $row = mysqli_fetch_array($sql);
 
@@ -396,6 +399,7 @@ if (isset($_POST['add_ticket_watcher'])) {
         $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
         $ticket_priority = sanitizeInput($row['ticket_priority']);
         $ticket_status = sanitizeInput($row['ticket_status_name']);
+        $url_key = sanitizeInput($row['ticket_url_key']);
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -643,6 +647,9 @@ if (isset($_GET['delete_ticket'])) {
 
     validateAdminRole();
 
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
     $ticket_id = intval($_GET['delete_ticket']);
 
     // Get Ticket and Client ID for logging and alert message
@@ -815,7 +822,66 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['bulk_close_tickets'])) {
+if (isset($_POST['bulk_merge_tickets'])) {
+
+    // Role check
+    validateTechRole();
+
+    $ticket_count = count($_POST['ticket_ids']); // Get a ticket count
+    $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']); // Parent ticket *number*
+    $merge_comment = sanitizeInput($_POST['merge_comment']); // Merge comment
+
+    // NEW PARENT ticket details
+    // Get merge into ticket id (as it may differ from the number)
+    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
+    if (mysqli_num_rows($sql) == 0) {
+        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+    $merge_row = mysqli_fetch_array($sql);
+    $merge_into_ticket_id = intval($merge_row['ticket_id']); // Parent ticket ID
+
+    // Update & Close the selected tickets
+    if (!empty($_POST['ticket_ids'])) {
+        foreach ($_POST['ticket_ids'] as $ticket_id) {
+            $ticket_id = intval($ticket_id);
+
+            if ($ticket_id !== $merge_into_ticket_id) {
+
+                $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+                $row = mysqli_fetch_array($sql);
+
+                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                $ticket_number = intval($row['ticket_number']);
+                $ticket_subject = sanitizeInput($row['ticket_subject']);
+                $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+                $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+                $client_id = intval($row['ticket_client_id']);
+
+                // Update current ticket
+                mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number bulk merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW() WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+
+                //Update new parent ticket
+                mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was bulk merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
+
+                // Logging
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+            }
+        } // End For Each Ticket ID Loop
+    }
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
+
+    $_SESSION['alert_message'] = "$ticket_count tickets merged into $ticket_prefix$merge_into_ticket_number";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_resolve_tickets'])) {
 
     // Role check
     validateTechRole();
@@ -844,15 +910,16 @@ if (isset($_POST['bulk_close_tickets'])) {
             $ticket_number = intval($row['ticket_number']);
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+            $url_key = sanitizeInput($row['ticket_url_key']);
             $client_id = intval($row['ticket_client_id']);
 
             // Update ticket & insert reply
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id");
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
             // Logging
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Close', log_description = '$session_name closed $ticket_prefix$ticket_number - $ticket_subject in a bulk action', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolve', log_description = '$session_name resolved $ticket_prefix$ticket_number - $ticket_subject in a bulk action', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
 
             // Client notification email
             if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && $private_note == 0) {
@@ -879,16 +946,16 @@ if (isset($_POST['bulk_close_tickets'])) {
                 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 				
 				// Get Email Template
-				$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
-				$config_et_client_ticket_closed_subj = prepareEmailTemplateTags($config_et_client_ticket_closed_subj);
+				$config_et_client_ticket_updatedpendingclosure = prepareEmailTemplate($config_et_client_ticket_updatedpendingclosure);
+				$config_et_client_ticket_updatedpendingclosure_subj = prepareEmailTemplateTags($config_et_client_ticket_updatedpendingclosure_subj);
 
                 // Check email valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
                     $data = [];
 
-                    $subject = "$config_et_client_ticket_closed_subj";
-					$body = "$config_et_client_ticket_closed";
+                    $subject = "$config_et_client_ticket_updatedpendingclosure_subj";
+					$body = "$config_et_client_ticket_updatedpendingclosure";
 					
                     // Email Ticket Contact
                     // Queue Mail
@@ -936,8 +1003,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     // POST variables
     $ticket_reply = mysqli_escape_string($mysqli, $_POST['bulk_reply_details']);
-    $ticket_status = sanitizeInput($_POST['bulk_status']);
-    $ticket_status_name = sanitizeInput(getTicketStatusName($row['ticket_status']));
+    $ticket_status = intval($_POST['bulk_status']);
     $private_note = intval($_POST['bulk_private_reply']);
     if ($private_note == 1) {
         $ticket_reply_type = 'Internal';
@@ -969,6 +1035,12 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
             // Update Ticket Status
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
+
+            // Resolve the ticket, if set
+            if ($ticket_status == 4) {
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = 'Ticket ID $ticket_id resolved', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+            }
 
             // Logging
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Create', log_description = '$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
@@ -1143,16 +1215,17 @@ if (isset($_POST['add_ticket_reply'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    // Update Ticket Last Response Field
+    // Update Ticket Status & Last Response Field
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status WHERE ticket_id = $ticket_id");
 
-    // CLose the ticket, if set
-    if ($ticket_status == 5) {
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_closed_at = NOW() WHERE ticket_id = $ticket_id");
+    // Resolve the ticket, if set
+    if ($ticket_status == 4) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = 'Ticket ID $ticket_id resolved', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
     }
 
     // Get Ticket Details
-    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_client_id, ticket_created_by, ticket_assigned_to 
+    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_url_key, ticket_client_id, ticket_created_by, ticket_assigned_to 
         FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id
@@ -1169,6 +1242,7 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_subject = sanitizeInput($row['ticket_subject']);
     $ticket_status = intval($row['ticket_status']);
     $ticket_status_name = sanitizeInput($row['ticket_status_name']);
+    $url_key = sanitizeInput($row['ticket_url_key']);
     $client_id = intval($row['ticket_client_id']);
     $ticket_created_by = intval($row['ticket_created_by']);
     $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -1351,10 +1425,11 @@ if (isset($_POST['merge_ticket'])) {
 
     // Update current ticket
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into $ticket_prefix$merge_into_ticket_number. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_closed_at = NOW() WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW() WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
     //Update new parent ticket
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Merged', log_description = 'Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
@@ -1386,9 +1461,104 @@ if (isset($_POST['change_client_ticket'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['resolve_ticket'])) {
+
+    validateTechRole();
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
+    $ticket_id = intval($_GET['resolve_ticket']);
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = 'Ticket ID $ticket_id resolved', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    // Client notification email
+    if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
+
+        // Get details
+        $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets 
+            LEFT JOIN clients ON ticket_client_id = client_id 
+            LEFT JOIN contacts ON ticket_contact_id = contact_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+            WHERE ticket_id = $ticket_id
+        ");
+        $row = mysqli_fetch_array($ticket_sql);
+
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $client_id = intval($row['ticket_client_id']);
+        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+        $ticket_status = sanitizeInput($row['ticket_status_name']);
+        $url_key = sanitizeInput($row['ticket_url_key']);
+
+        // Sanitize Config vars from get_settings.php
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_base_url = sanitizeInput($config_base_url);
+
+        // Get Company Info
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        // Check email valid
+        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+            $data = [];
+
+            $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
+            $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+            // Email Ticket Contact
+            // Queue Mail
+
+            $data[] = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+            ];
+
+            // Also Email all the watchers
+            $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+            $body .= "<br><br>----------------------------------------<br>DO NOT REPLY - YOU ARE RECEIVING THIS EMAIL BECAUSE YOU ARE A WATCHER";
+            while ($row = mysqli_fetch_array($sql_watchers)) {
+                $watcher_email = sanitizeInput($row['watcher_email']);
+
+                // Queue Mail
+                $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $watcher_email,
+                    'recipient_name' => $watcher_email,
+                    'subject' => $subject,
+                    'body' => $body
+                ];
+            }
+            addToMailQueue($mysqli, $data);
+        }
+    }
+    //End Mail IF
+
+    $_SESSION['alert_message'] = "Ticket resolved";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['close_ticket'])) {
 
     validateTechRole();
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
 
     $ticket_id = intval($_GET['close_ticket']);
 
@@ -1403,7 +1573,7 @@ if (isset($_GET['close_ticket'])) {
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
         // Get details
-        $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject FROM tickets 
+        $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_url_key FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id 
             LEFT JOIN contacts ON ticket_contact_id = contact_id
             WHERE ticket_id = $ticket_id
@@ -1415,10 +1585,7 @@ if (isset($_GET['close_ticket'])) {
         $ticket_prefix = sanitizeInput($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
         $ticket_subject = sanitizeInput($row['ticket_subject']);
-        $ticket_details = sanitizeInput($row['ticket_details']);
-        $client_id = intval($row['ticket_client_id']);
-        $ticket_created_by = intval($row['ticket_created_by']);
-        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+        $url_key = sanitizeInput($row['ticket_url_key']);
 
         // Sanitize Config vars from get_settings.php
         $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -1477,6 +1644,21 @@ if (isset($_GET['close_ticket'])) {
     //End Mail IF
 
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['reopen_ticket'])) {
+
+    validateTechRole();
+
+    $ticket_id = intval($_GET['reopen_ticket']);
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Reopened', log_description = 'Ticket ID $ticket_id reopened', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_id");
+
+    $_SESSION['alert_message'] = "Ticket re-opened";
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 

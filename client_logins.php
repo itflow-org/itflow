@@ -7,16 +7,32 @@ $order = "ASC";
 require_once "inc_all_client.php";
 
 
+// Location Filter
+if (isset($_GET['location']) & !empty($_GET['location'])) {
+    $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
+    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
+    $location = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query_innerjoin = '';
+    $location_query = '';
+    $location = '';
+}
+
+
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM logins
-    WHERE login_client_id = $client_id
-    AND login_$archive_query
-    AND (login_name LIKE '%$q%' OR login_description LIKE '%$q%' OR login_uri LIKE '%$q%')
-    ORDER BY login_important DESC, $sort $order LIMIT $record_from, $record_to"
+    "SELECT SQL_CALC_FOUND_ROWS * 
+    FROM logins l
+    $location_query_innerjoin
+    WHERE l.login_client_id = $client_id
+    AND l.login_$archive_query
+    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%')
+    $location_query
+    ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -28,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -58,7 +74,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                            <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Asset Locations -</option>
+
+                            <?php
+                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            while ($row = mysqli_fetch_array($sql_locations_filter)) {
+                                $location_id = intval($row['location_id']);
+                                $location_name = nullable_htmlentities($row['location_name']);
+                            ?>
+                                <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <div class="btn-group float-right">
                         <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
@@ -109,6 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <th>Password / Key</th>
                             <th>OTP</th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">URI</a></th>
+                            <th></th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -149,6 +186,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_asset_id = intval($row['login_asset_id']);
                             $login_software_id = intval($row['login_software_id']);
 
+                            // Check if shared
+                            $sql_shared = mysqli_query(
+                                $mysqli,
+                                "SELECT * FROM shared_items
+                                WHERE item_client_id = $client_id
+                                AND item_active = 1
+                                AND item_views != item_view_limit
+                                AND item_expire_at > NOW()
+                                AND item_type = 'Login'
+                                AND item_related_id = $login_id
+                                LIMIT 1"
+                            );
+                            $row = mysqli_fetch_array($sql_shared);
+                            $item_id = intval($row['item_id']);
+                            $item_active = nullable_htmlentities($row['item_active']);
+                            $item_key = nullable_htmlentities($row['item_key']);
+                            $item_type = nullable_htmlentities($row['item_type']);
+                            $item_related_id = intval($row['item_related_id']);
+                            $item_note = nullable_htmlentities($row['item_note']);
+                            $item_views = nullable_htmlentities($row['item_views']);
+                            $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                            $item_created_at = nullable_htmlentities($row['item_created_at']);
+                            $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                            $item_expire_at_human = timeAgo($row['item_expire_at']);
+
+
                         ?>
                             <tr class="<?php if (!empty($login_important)) { echo "text-bold"; } ?>">
                                 <td class="pr-0">
@@ -173,6 +236,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </td>
                                 <td><?php echo $otp_display; ?></td>
                                 <td><?php echo $login_uri_display; ?></td>
+                                <td>
+                                    <?php if($item_id) { ?>
+                                    <div title="Expires <?php echo $item_expire_at_human; ?>">
+                                        <i class="fas fa-fw fa-link"></i> Shared
+                                    </div>
+                                    <?php } ?>
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <?php if ( !empty($login_uri) || !empty($login_uri_2) ) { ?>
