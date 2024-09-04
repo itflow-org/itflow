@@ -27,9 +27,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-credit-card mr-2"></i>Payments</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportPaymentModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
-        </div>
+        <?php if ($num_rows[0] > 0) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportPaymentModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+            </div>
+        <?php } ?>
     </div>
     <div class="card-body">
         <form autocomplete="off">

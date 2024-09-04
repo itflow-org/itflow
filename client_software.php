@@ -36,10 +36,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addSoftwareFromTemplateModal">
                             <i class="fas fa-fw fa-puzzle-piece mr-2"></i>Create from Template
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportSoftwareModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
+                        <?php if ($num_rows[0] > 0) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportSoftwareModal">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -61,7 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
