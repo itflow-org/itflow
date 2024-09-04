@@ -343,11 +343,11 @@ if (isset($_GET['ticket_id'])) {
             </li>
             <li class="breadcrumb-item active">Ticket Details</li>
         </ol>
-        
+
         <div class="card">
-            
+
             <div class="card-header">
-                
+
                 <div class="card-title">
                     <i class="fa fa-2x fa-fw fa fa-life-ring text-secondary mr-2"></i>
                     <span class="h3">
@@ -357,7 +357,7 @@ if (isset($_GET['ticket_id'])) {
                         </span>
                     </span>
                 </div>
-                
+
                 <div class="card-tools d-print-none">
                     <div class="btn-toolbar">
 
@@ -429,12 +429,12 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
                     </div>
                 </div>
-            
+
             </div> <!-- Card Header -->
 
             <div class="card-body pt-3 pb-0">
                 <div class="row">
-                    <div class="col-sm-4">         
+                    <div class="col-sm-4">
                         <h5><?php echo $client_name; ?></h5>
                         <div title="<?php echo $ticket_created_at; ?>">
                             <i class="fa fa-fw fa-calendar text-secondary mr-2"></i><?php echo $ticket_created_at_ago; ?>
@@ -605,12 +605,12 @@ if (isset($_GET['ticket_id'])) {
                                     <input type="radio" name="public_reply_type" value="1">Public Comment
                                 </label>
                             </div>
-                        </div>  
-                        
+                        </div>
+
                         <div class="form-group">
                             <textarea class="form-control tinymce<?php if ($config_ai_enable) { echo "ai"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="input-group mb-3">
@@ -652,7 +652,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-light" id="startStopTimer"><i class="fas fa-play"></i></button>
                                         <button type="button" class="btn btn-light" id="resetTimer"><i class="fas fa-redo-alt"></i></button>
-                                    </div>      
+                                    </div>
                                 </div>
                             </div>
 
@@ -660,7 +660,7 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="btn-toolbar float-right">
                                     <?php if ($config_ai_enable) { ?>
                                     <button id="rewordButton" class="btn btn-secondary ml-3" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
-                                    <button id="undoButton" class="btn btn-secondary ml-3" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>   
+                                    <button id="undoButton" class="btn btn-secondary ml-3" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
                                     <?php } ?>
                                     <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
                                 </div>
@@ -735,13 +735,13 @@ if (isset($_GET['ticket_id'])) {
                                         <div>
                                             <small class="text-muted">
                                                 <div title="<?php echo $ticket_reply_created_at; ?>">
-                                                    <?php echo $ticket_reply_created_at_ago; ?>    
+                                                    <?php echo $ticket_reply_created_at_ago; ?>
                                                 </div>
                                                 <?php if ($ticket_reply_updated_at) { ?>
                                                 <div title="<?php echo $ticket_reply_updated_at; ?>">
                                                     modified: <?php echo $ticket_reply_updated_at_ago; ?>
                                                 </div>
-                                                <?php } ?>    
+                                                <?php } ?>
                                             </small>
                                         </div>
                                         <?php if ($ticket_reply_type !== "Client") { ?>
@@ -1126,25 +1126,27 @@ if (isset($_GET['ticket_id'])) {
         </div> <!-- End row -->
 
 <?php
-        require_once "ticket_edit_modal.php";
+        if (empty($ticket_closed_at)) {
+            require_once "ticket_edit_modal.php";
 
-        require_once "ticket_assign_modal.php";
+            require_once "ticket_assign_modal.php";
 
-        require_once "ticket_edit_contact_modal.php";
+            require_once "ticket_edit_contact_modal.php";
 
-        require_once "ticket_edit_asset_modal.php";
+            require_once "ticket_edit_asset_modal.php";
 
-        require_once "ticket_edit_vendor_modal.php";
+            require_once "ticket_edit_vendor_modal.php";
 
-        require_once "ticket_add_watcher_modal.php";
+            require_once "ticket_add_watcher_modal.php";
 
-        require_once "ticket_edit_priority_modal.php";
+            require_once "ticket_edit_priority_modal.php";
 
-        require_once "ticket_change_client_modal.php";
+            require_once "ticket_change_client_modal.php";
 
-        require_once "ticket_edit_schedule_modal.php";
+            require_once "ticket_edit_schedule_modal.php";
 
-        require_once "ticket_merge_modal.php";
+            require_once "ticket_merge_modal.php";
+       }
 
         if ($config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
