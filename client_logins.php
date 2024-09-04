@@ -55,10 +55,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importLoginModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
                     </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportLoginModal">
-                        <i class="fa fa-fw fa-download mr-2"></i>Export
-                    </a>
+                    <?php if ($num_rows[0] > 0) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportLoginModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
