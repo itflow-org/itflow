@@ -508,15 +508,15 @@ if (isset($_POST["import_clients_csv"])) {
 
                 // Create Contact
                 mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
-        
+
                 $row_count = $row_count + 1;
-            
-            }else{
-            
+
+            } else {
+
                 $duplicate_count = $duplicate_count + 1;
-            
+
             }
-        
+
         }
         fclose($file);
 
@@ -582,6 +582,9 @@ if (isset($_POST['export_client_pdf'])) {
     $export_payments = intval($_POST['export_payments']);
     $export_trips = intval($_POST['export_trips']);
     $export_logs = intval($_POST['export_logs']);
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Client', log_action = 'Export', log_description = '$session_name exported client data to a PDF file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
 
     //get records from database
