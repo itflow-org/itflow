@@ -825,7 +825,9 @@ function prepareEmailTemplateTags($emailTemplateTags)
 		'pi_currency',
 		'pi_amount_paid',
 		'invoice_id',
-		'quote_id'
+		'quote_id',
+		'amount',
+		'ticket_status'
 		
 		
     ];
