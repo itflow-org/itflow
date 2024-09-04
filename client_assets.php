@@ -161,6 +161,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option
                                     <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { echo 'selected'; } ?>>InstallDate
                                 </option>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { echo 'selected'; } ?>>PhysicalLocation
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -275,6 +278,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </th>
                             <?php } ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_physical_location&order=<?php echo $disp; ?>">Physical Location</a>
+                            </th>
+                            <?php } ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">Status</a></th>
                             <th class="text-center">Action</th>
                         </tr>
@@ -287,7 +295,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_type = nullable_htmlentities($row['asset_type']);
                             $asset_name = nullable_htmlentities($row['asset_name']);
                             $asset_description = nullable_htmlentities($row['asset_description']);
-                            if (empty($asset_description)) {
+                            if ($asset_description) {
                                 $asset_description_display = "-";
                             } else {
                                 $asset_description_display = $asset_description;
@@ -295,22 +303,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_make = nullable_htmlentities($row['asset_make']);
                             $asset_model = nullable_htmlentities($row['asset_model']);
                             $asset_serial = nullable_htmlentities($row['asset_serial']);
-                            if (empty($asset_serial)) {
-                                $asset_serial_display = "-";
-                            } else {
+                            if ($asset_serial) {
                                 $asset_serial_display = $asset_serial;
+                            } else {
+                                $asset_serial_display = "-";
                             }
                             $asset_os = nullable_htmlentities($row['asset_os']);
-                            if (empty($asset_os)) {
-                                $asset_os_display = "-";
-                            } else {
+                            if ($asset_os) {
                                 $asset_os_display = $asset_os;
+                            } else {
+                                $asset_os_display = "-";
                             }
                             $asset_ip = nullable_htmlentities($row['interface_ip']);
-                            if (empty($asset_ip)) {
-                                $asset_ip_display = "-";
-                            } else {
+                            if ($asset_ip) {
                                 $asset_ip_display = $asset_ip;
+                            } else {
+                                $asset_ip_display = "-";
                             }
                             $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
                             $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
@@ -321,13 +329,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
                             $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
                             $asset_install_date = nullable_htmlentities($row['asset_install_date']);
-                            if (empty($asset_install_date)) {
-                                $asset_install_date_display = "-";
-                            } else {
+                            if ($asset_install_date) {
                                 $asset_install_date_display = $asset_install_date;
+                            } else {
+                                $asset_install_date_display = "-";
                             }
                             $asset_photo = nullable_htmlentities($row['asset_photo']);
                             $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
+                            if ($asset_physical_location) {
+                                $asset_physical_location_display = $asset_physical_location;
+                            } else {
+                                $asset_physical_location_display = "-";
+                            }
                             $asset_notes = nullable_htmlentities($row['asset_notes']);
                             $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                             $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
@@ -411,6 +424,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <td><?php echo $contact_name_display; ?></td>
                                 <?php } ?>
                                 <td><?php echo $location_name_display; ?></td>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { ?>
+                                    <td><?php echo $asset_physical_location_display; ?></td>
+                                <?php } ?>
                                 <td><?php echo $asset_status; ?></td>
                                 <td class="text-center">
                                     <div class="btn-group">
