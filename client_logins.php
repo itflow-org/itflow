@@ -6,6 +6,9 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
+// Log when users load the Credentials/Logins page
+mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'View', log_description = '$session_name viewed the Credentials page for client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
 
 // Location Filter
 if (isset($_GET['location']) & !empty($_GET['location'])) {
