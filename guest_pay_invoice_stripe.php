@@ -354,8 +354,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_base_url = sanitizeInput($config_base_url);
 	
 	// Get Email Template
-	$config_et_client_invoice_paymentstripe = prepareEmailTemplate($config_et_client_invoice_paymentstripe);
-	$config_et_client_invoice_paymentstripe_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentstripe_subj);
+	$config_et_client_invoice_paymentstripe = prepareEmailTemplate($row['config_et_client_invoice_paymentstripe']);
+	$config_et_client_invoice_paymentstripe_subj = prepareEmailTemplateTags($row['config_et_client_invoice_paymentstripe_subj']);
 
     if (!empty($config_smtp_host)) {
         $subject = "$config_et_client_invoice_paymentstripe_subj";
