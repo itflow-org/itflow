@@ -443,8 +443,8 @@ if ($config_send_invoice_reminders == 1) {
             $contact_email = sanitizeInput($row['contact_email']);
 			
 			// Get Email Template
-			$config_et_client_invoice_paymentreminder = prepareEmailTemplate($config_et_client_invoice_paymentreminder);
-			$config_et_client_invoice_paymentreminder_subj = prepareEmailTemplateTags($config_et_client_invoice_paymentreminder_subj);
+			$config_et_client_invoice_paymentreminder = prepareEmailTemplate($row['$config_et_client_invoice_paymentreminder']);
+			$config_et_client_invoice_paymentreminder_subj = prepareEmailTemplateTags($row['config_et_client_invoice_paymentreminder_subj']);
 
             // Late Charges
 
@@ -587,8 +587,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $contact_email = sanitizeInput($row['contact_email']);
 		
 		// Get Email Template
-		$config_et_client_invoice_newrecurring = prepareEmailTemplate($config_et_client_invoice_newrecurring);
-		$config_et_client_invoice_newrecurring_subj = prepareEmailTemplateTags($config_et_client_invoice_newrecurring_subj);
+		$config_et_client_invoice_newrecurring = prepareEmailTemplater($row['config_et_client_invoice_newrecurring']);
+		$config_et_client_invoice_newrecurring_subj = prepareEmailTemplateTags($row['config_et_client_invoice_newrecurring_subj']);
 
         $subject = "$config_et_client_invoice_newrecurring_subj";
 		$body = "$config_et_client_invoice_newrecurring";
