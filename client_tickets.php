@@ -78,10 +78,12 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketFromTemplateModal">
                         <i class="fa fa-fw fa-plus mr-2"></i>From Template
                     </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
-                        <i class="fa fa-fw fa-download mr-2"></i>Export
-                    </a>
+                    <?php if ($num_rows[0] > 0) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
