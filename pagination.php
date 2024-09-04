@@ -10,7 +10,7 @@
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $user_config_records_per_page);
 
-if ($total_found_rows > 10) {
+if ($total_found_rows > 1) {
     $i = 0;
 
     ?>
