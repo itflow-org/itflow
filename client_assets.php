@@ -149,7 +149,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('OS', $_GET['show_column'])) { echo 'selected'; } ?>>OS
+                                </option>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { echo 'selected'; } ?>>IP
+                                </option>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { echo 'selected'; } ?>>InstallDate
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="btn-toolbar float-right">
                             <div class="btn-group mr-5">
                                 <?php if($all_count) { ?>
@@ -238,14 +253,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php }
                             if ($_GET['type'] !== 'virtual') { ?>
                                 <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_serial&order=<?php echo $disp; ?>">Serial</a></th>
-                            <?php }
-                            if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+                            <?php } ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('OS', $_GET['show_column'])) { ?>
+                            <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                                 <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_os&order=<?php echo $disp; ?>">OS</a></th>
                             <?php } ?>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">IP</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">Install Date</a></th>
+                            <?php } ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">IP</a>
+                            </th>
+                            <?php } ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">Install Date</a>
+                            </th>
+                            <?php } ?>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Assigned To</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Assigned To</a>
+                            </th>
                             <?php } ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">Status</a></th>
@@ -369,11 +396,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($_GET['type'] !== 'virtual') { ?>
                                     <td><?php echo $asset_serial_display; ?></td>
                                 <?php } ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('OS', $_GET['show_column'])) { ?>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
                                     <td><?php echo $asset_os_display; ?></td>
                                 <?php } ?>
-                                <td><?php echo $asset_ip_display; ?></td>
-                                <td><?php echo $asset_install_date_display; ?></td>
+                                <?php } ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { ?>
+                                    <td><?php echo $asset_ip_display; ?></td>
+                                <?php } ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { ?>
+                                    <td><?php echo $asset_install_date_display; ?></td>
+                                <?php } ?>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                     <td><?php echo $contact_name_display; ?></td>
                                 <?php } ?>
