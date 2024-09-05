@@ -13,13 +13,6 @@ if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
     exit();
 }
 
-//Initialize the HTML Purifier to prevent XSS
-require_once "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
-
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
-
 // Check for a contact ID
 if (!isset($_GET['id']) && !intval($_GET['id'])) {
     header("Location: contacts.php");
