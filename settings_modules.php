@@ -40,6 +40,37 @@ require_once "inc_all_admin.php";
 
             <hr>
 
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" disabled class="custom-control-input" name="config_whitelabel_enabled" <?php if ($config_whitelabel_enabled == 1) { echo "checked"; } ?> value="1" id="customSwitch5">
+                    <label class="custom-control-label" for="customSwitch5">White-label <small class="text-secondary">(Hides 'Powered by ITFlow' banner)</small></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>White-label key</label>
+                <textarea class="form-control" name="config_whitelabel_key" rows="2" placeholder="Enter a key to enable white-labelling the client portal"><?php echo nullable_htmlentities($config_whitelabel_key); ?></textarea>
+            </div>
+
+            <?php if ($config_whitelabel_enabled == 1 && validateWhitelabelKey($config_whitelabel_key)) {
+                $key_info = validateWhitelabelKey($config_whitelabel_key);
+                $key_desc = $key_info["description"];
+                $key_org = $key_info["organisation"];
+                $key_expires = $key_info["expires"];
+                ?>
+                <div class="form-group">
+                    <p>White-labelling is active - thank you for your support! :)</p>
+                    <ul>
+                        <li>Key: <?php echo $key_desc ?></li>
+                        <li>Org: <?php echo $key_org ?></li>
+                        <li>Expires: <?php echo $key_expires; if ($key_expires < date('Y-m-d H:i:s')) { echo " (expiring) "; } ?></li>
+                    </ul>
+
+                </div>
+            <?php } ?>
+
+            <hr>
+
             <button type="submit" name="edit_module_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
 
         </form>
