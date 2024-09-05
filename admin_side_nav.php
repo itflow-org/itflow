@@ -31,7 +31,7 @@
                 </li>
 
                 <!-- TAGS & CATEGORIES Section -->
-                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_tags.php', 'admin_categories.php', 'admin_taxes.php', 'admin_account_types.php', 'admin_ticket_statuses.php']) ? 'menu-open' : ''); ?>">
+                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_tags.php', 'admin_categories.php', 'admin_taxes.php', 'admin_account_types.php', 'admin_ticket_statuses.php', 'admin_custom_links.php']) ? 'menu-open' : ''); ?>">
                     <a href="#" class="nav-link">
                         <p>
                             TAGS & CATEGORIES
@@ -67,6 +67,12 @@
                             <a href="admin_ticket_statuses.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_ticket_statuses.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-info-circle"></i>
                                 <p>Ticket Statuses</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="admin_custom_links.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_custom_links.php' ? 'active' : ''); ?>">
+                                <i class="nav-icon fas fa-external-link-alt"></i>
+                                <p>Custom Links</p>
                             </a>
                         </li>
                     </ul>
