@@ -130,6 +130,10 @@ $config_telemetry = intval($row['config_telemetry']);
 // Destructive Deletes
 $config_destructive_deletes_enable = intval($row['config_destructive_deletes_enable']);
 
+// White label
+$config_whitelabel_enabled = intval($row['config_whitelabel_enabled']);
+$config_whitelabel_key = $row['config_whitelabel_key'];
+
 
 // Select Arrays
 

@@ -1509,6 +1509,8 @@ CREATE TABLE `settings` (
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_phone_mask` tinyint(1) NOT NULL DEFAULT 1,
+  `config_whitelabel_enabled` int(11) NOT NULL DEFAULT 0,
+  `config_whitelabel_key` text DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

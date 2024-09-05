@@ -11,7 +11,15 @@
 <br>
 <hr>
 
-<p class="text-center"><?php echo nullable_htmlentities($session_company_name); ?></p>
+<p class="text-center">
+    <?php
+        echo nullable_htmlentities($session_company_name);
+//        if (!$config_whitelabel_enabled) {
+//            echo '<br><small class="text-muted">Powered by ITFlow</small>';
+//        }
+    ?>
+</p>
+
 
 <?php require_once "../inc_confirm_modal.php"; ?>
 

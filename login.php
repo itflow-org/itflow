@@ -378,8 +378,8 @@ if (isset($_POST['login'])) {
                 <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
 
                 <?php if($config_client_portal_enable == 1){ ?>
-                <hr>
-                <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
+                    <hr>
+                    <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
                 <?php } ?>
 
             </form>

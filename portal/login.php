@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
                 <?php
                 if (!empty($config_smtp_host)) { ?>
-                    <h6 class="text-center"><a href="login_reset.php">Forgot password?</a></h6>
+                    <h5 class="text-center"><a href="login_reset.php">Forgot password?</a></h5>
                 <?php } ?>
 
             </form>
@@ -177,6 +177,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
 </div>
 <!-- /.login-box -->
+
+<?php
+//if (!$config_whitelabel_enabled) {
+//    echo '<small class="text-muted">Powered by ITFlow</small>';
+//}
+?>
 
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>
