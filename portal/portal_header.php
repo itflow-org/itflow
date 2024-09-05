@@ -69,6 +69,12 @@ header("X-Frame-Options: DENY"); // Legacy
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "contacts.php") {echo "active";} ?>" href="contacts.php">Contacts</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "domains.php") {echo "active";} ?>" href="domains.php">Domains</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "certificates.php") {echo "active";} ?>" href="certificates.php">Certificates</a>
+                    </li>
                 <?php } ?>
             </ul>
 
