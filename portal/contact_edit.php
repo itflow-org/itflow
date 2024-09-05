@@ -32,6 +32,7 @@ if ($row) {
     $contact_primary = intval($row['contact_primary']);
     $contact_technical = intval($row['contact_technical']);
     $contact_billing = intval($row['contact_billing']);
+    $contact_auth_method = nullable_htmlentities($row['contact_auth_method']);
 } else {
     header("Location: portal_post.php?logout");
     exit();
@@ -93,6 +94,22 @@ if ($row) {
                             <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Portal authentication</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                    </div>
+                    <select class="form-control select2 authMethod" name="contact_auth_method">
+                        <option value="">- No portal access -</option>
+                        <option value="local" <?php if ($contact_auth_method == "local") { echo "selected"; } ?>>Local (Email and password)</option>
+                        <?php if (!empty($config_azure_client_id)) { ?>
+                            <option value="azure" <?php if ($contact_auth_method == "azure") { echo "selected"; } ?>>Azure (Microsoft 365)</option>
+                        <?php } ?>
+                    </select>
                 </div>
             </div>
 
