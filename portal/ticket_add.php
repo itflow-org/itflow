@@ -18,7 +18,7 @@ require_once 'inc_portal.php';
         <li class="breadcrumb-item active">New Ticket</li>
     </ol>
 
-    <h2>Raise a new ticket</h2>
+    <h3>Raise a new ticket</h3>
 
     <div class="col-md-8">
         <form action="portal_post.php" method="post">

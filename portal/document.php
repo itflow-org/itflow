@@ -27,15 +27,30 @@ if (!isset($_GET['id']) && !intval($_GET['id'])) {
 }
 
 $document_id = intval($_GET['id']);
-$sql_document = mysqli_query($mysqli, "SELECT document_id, document_name, document_content FROM documents WHERE document_id = $document_id AND document_client_id = $session_client_id AND document_template = 0 LIMIT 1");
+$sql_document = mysqli_query($mysqli, "SELECT document_id, document_name, document_content FROM documents WHERE document_id = $document_id AND document_client_id = $session_client_id AND document_template = 0 AND document_archived_at IS NULL LIMIT 1");
 
 $row = mysqli_fetch_array($sql_document);
 
-$document_id = intval($row['document_id']);
-$document_name = nullable_htmlentities($row['document_name']);
-$document_content = $purifier->purify($row['document_content']);
+if ($row) {
+    $document_id = intval($row['document_id']);
+    $document_name = nullable_htmlentities($row['document_name']);
+    $document_content = $purifier->purify($row['document_content']);
+} else {
+    header("Location: portal_post.php?logout");
+    exit();
+}
 
 ?>
+
+    <ol class="breadcrumb d-print-none">
+        <li class="breadcrumb-item">
+            <a href="index.php">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="documents.php">Documents</a>
+        </li>
+        <li class="breadcrumb-item active">Document</li>
+    </ol>
 
 <div class="card">
     <div class="card-body prettyContent">
