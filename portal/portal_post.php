@@ -287,3 +287,21 @@ if (isset($_POST['edit_profile'])) {
     }
     header('Location: index.php');
 }
+
+if (isset($_POST['edit_contact'])) {
+    $contact_id = intval($_POST['contact_id']);
+    $contact_name = sanitizeInput($_POST['contact_name']);
+    $contact_email = sanitizeInput($_POST['contact_email']);
+    $contact_technical = intval($_POST['contact_technical']);
+    $contact_billing = intval($_POST['contact_billing']);
+    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
+
+    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$contact_auth_method' WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client $session_contact_name modified contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, log_entity_id = $contact_id");
+
+    $_SESSION['alert_message'] = "Contact updated";
+    header('Location: contacts.php');
+
+}

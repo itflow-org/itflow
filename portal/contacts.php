@@ -1,7 +1,7 @@
 <?php
 /*
 * Client Portal
-* Docs for PTC / technical contacts
+* Contact management for PTC / technical contacts
 */
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
@@ -54,7 +54,7 @@ $contacts_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_
                 ?>
 
                 <tr>
-                    <td><a href="contact.php?id=<?php echo $contact_id?>" disabled="disabled"><?php echo $contact_name ?></a></td>
+                    <td><a href="contact_edit.php?id=<?php echo $contact_id?>"><?php echo $contact_name ?></a></td>
                     <td><?php echo $contact_email; ?></td>
                     <td><?php echo $contact_roles_display ?></td>
                 </tr>
