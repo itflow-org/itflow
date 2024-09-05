@@ -66,7 +66,7 @@ CREATE TABLE `api_keys` (
   `api_key_id` int(11) NOT NULL AUTO_INCREMENT,
   `api_key_name` varchar(255) NOT NULL,
   `api_key_secret` varchar(255) NOT NULL,
-  `api_key_decrypt_hash` varchar(255) NULL,
+  `api_key_decrypt_hash` varchar(200) NOT NULL,
   `api_key_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `api_key_expire` date NOT NULL,
   `api_key_client_id` int(11) NOT NULL DEFAULT 0,
@@ -460,6 +460,26 @@ CREATE TABLE `custom_fields` (
   `custom_field_order` int(11) NOT NULL DEFAULT 999,
   PRIMARY KEY (`custom_field_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_links`
+--
+
+DROP TABLE IF EXISTS `custom_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `custom_links` (
+  `custom_link_id` int(11) NOT NULL AUTO_INCREMENT,
+  `custom_link_name` varchar(200) NOT NULL,
+  `custom_link_description` text DEFAULT NULL,
+  `custom_link_uri` varchar(500) NOT NULL,
+  `custom_link_icon` varchar(200) DEFAULT NULL,
+  `custom_link_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `custom_link_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `custom_link_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`custom_link_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1468,7 +1488,7 @@ CREATE TABLE `settings` (
   `config_ticket_from_name` varchar(200) DEFAULT NULL,
   `config_ticket_from_email` varchar(200) DEFAULT NULL,
   `config_ticket_email_parse` tinyint(1) NOT NULL DEFAULT 0,
-  `config_ticket_email_parse_unknown_senders` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_email_parse_unknown_senders` int(1) NOT NULL DEFAULT 0,
   `config_ticket_client_general_notifications` tinyint(1) NOT NULL DEFAULT 1,
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
@@ -2073,4 +2093,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-13 12:39:55
+-- Dump completed on 2024-09-05 16:21:24

@@ -2138,10 +2138,25 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.6'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.6') {
-    //     // Insert queries here required to update to DB version 1.4.7
+    if (CURRENT_DATABASE_VERSION == '1.4.6') {
+    mysqli_query($mysqli, "CREATE TABLE `custom_links` (
+            `custom_link_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `custom_link_name` VARCHAR(200) NOT NULL,
+            `custom_link_description` TEXT DEFAULT NULL,
+            `custom_link_uri` VARCHAR(500) NOT NULL,
+            `custom_link_icon` VARCHAR(200) DEFAULT NULL,
+            `custom_link_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `custom_link_updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP NULL,
+            `custom_link_archived_at` DATETIME NULL,
+            PRIMARY KEY (`custom_link_id`)
+        )");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.7') {
+    //     // Insert queries here required to update to DB version 1.4.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.8'");
     // }
 
 } else {
