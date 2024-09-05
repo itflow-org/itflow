@@ -62,9 +62,12 @@ header("X-Frame-Options: DENY"); // Legacy
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "quotes.php") {echo "active";} ?>" href="quotes.php">Quotes</a>
                     </li>
                 <?php } ?>
-                <?php if ($session_contact_primary == 1 || $session_contact_is_technical_contact) { ?>
+                <?php if ($config_module_enable_itdoc && ($session_contact_primary == 1 || $session_contact_is_technical_contact)) { ?>
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "documents.php") {echo "active";} ?>" href="documents.php">Documents</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "contacts.php") {echo "active";} ?>" href="contacts.php">Contacts</a>
                     </li>
                 <?php } ?>
             </ul>

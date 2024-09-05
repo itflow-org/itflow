@@ -16,6 +16,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
 $quotes_sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id = $session_client_id AND quote_status != 'Draft' ORDER BY quote_date DESC");
 ?>
 
+<h3>Quotes</h3>
 <div class="row">
 
     <div class="col-md-10">

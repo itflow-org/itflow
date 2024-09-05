@@ -42,6 +42,7 @@ $total_tickets = intval($row['total_tickets']);
 
 ?>
 
+<h3>Tickets</h3>
 <div class="row">
 
     <div class="col-md-10">
