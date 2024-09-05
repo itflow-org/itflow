@@ -303,5 +303,20 @@ if (isset($_POST['edit_contact'])) {
 
     $_SESSION['alert_message'] = "Contact updated";
     header('Location: contacts.php');
+}
 
+if (isset($_POST['add_contact'])) {
+    $contact_name = sanitizeInput($_POST['contact_name']);
+    $contact_email = sanitizeInput($_POST['contact_email']);
+    $contact_technical = intval($_POST['contact_technical']);
+    $contact_billing = intval($_POST['contact_billing']);
+    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
+
+    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$contact_auth_method', contact_client_id = $session_client_id");
+
+    // Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Client $session_contact_name created contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
+
+    $_SESSION['alert_message'] = "Contact created";
+    header('Location: contacts.php');
 }
