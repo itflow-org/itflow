@@ -1,7 +1,7 @@
 <?php
 /*
 * Client Portal
-* Docs for PTC / technical contacts
+* Contact management for PTC / technical contacts
 */
 
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
