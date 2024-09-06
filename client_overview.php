@@ -348,9 +348,9 @@ $sql_asset_retired = mysqli_query(
                             <form class="form-inline">
                                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                 <select onchange="this.form.submit()" class="form-control form-control-sm" name="expiration_days">          
-                                    <option value="7" <?php if ($expiration_days == 7) { echo "selected"; } ?>>7 Days</option>
-                                    <option value="30" <?php if ($expiration_days == 30) { echo "selected"; } ?>>30 Days</option>
-                                    <option value="90" <?php if ($expiration_days == 90) { echo "selected"; } ?>>90 Days</option>
+                                    <option value="7" <?php if ($expiration_days == 7) { echo "selected"; } ?>>Within 7 Days</option>
+                                    <option value="30" <?php if ($expiration_days == 30) { echo "selected"; } ?>>Within 30 Days</option>
+                                    <option value="90" <?php if ($expiration_days == 90) { echo "selected"; } ?>>Within 90 Days</option>
                                 </select>
                             </form>
                         </div>
