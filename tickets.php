@@ -168,6 +168,10 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                         <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
                                     </a>
                                     <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketToProjectModal">
+                                        <i class="fas fa-fw fa-project-diagram mr-2"></i>Add to Project
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
                                         <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                     </a>
@@ -543,6 +547,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 </div>
                 <?php require_once "ticket_bulk_assign_modal.php"; ?>
                 <?php require_once "ticket_bulk_edit_priority_modal.php"; ?>
+                <?php require_once "ticket_bulk_add_project_modal.php"; ?>
                 <?php require_once "ticket_bulk_reply_modal.php"; ?>
                 <?php // 2024-08-25 JQ Disabled not able to change assignee require_once "ticket_bulk_merge_modal.php"; ?>
                 <?php require_once "ticket_bulk_resolve_modal.php"; ?>

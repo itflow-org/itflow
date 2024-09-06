@@ -1123,10 +1123,15 @@ if (isset($_POST['bulk_add_ticket_project'])) {
     // POST variables
     $project_id = intval($_POST['project_id']);
 
+    // Get Project Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    $row = mysqli_fetch_array($sql);
+    $project_name = sanitizeInput($row['project_name']);
+
     // Get a Ticket Count
     $ticket_count = count($_POST['ticket_ids']);
 
-    // Assign Tech to Selected Tickets
+    // Assign Project to Selected Tickets
     if (!empty($_POST['ticket_ids'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
@@ -1139,11 +1144,6 @@ if (isset($_POST['bulk_add_ticket_project'])) {
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $current_ticket_priority = sanitizeInput($row['ticket_priority']);
             $client_id = intval($row['ticket_client_id']);
-
-            // Get Project Name
-            $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
-            $row = mysqli_fetch_array($sql);
-            $project_name = sanitizeInput($row['project_name']);
 
             // Update ticket & insert reply
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
