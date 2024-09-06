@@ -79,6 +79,19 @@ $sql_domains_expiring = mysqli_query(
     LIMIT 5"
 );
 
+// Get Certificates Expiring
+$sql_certificates_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM certificates
+    WHERE certificate_client_id = $client_id
+        AND certificate_expire IS NOT NULL
+        AND certificate_archived_at IS NULL
+        AND certificate_expire > CURRENT_DATE
+        AND certificate_expire < CURRENT_DATE + INTERVAL 90 DAY
+    ORDER BY certificate_expire ASC 
+    LIMIT 5"
+);
+
 // Get Licenses Expiring
 $sql_licenses_expiring = mysqli_query(
     $mysqli,
@@ -105,18 +118,83 @@ $sql_asset_warranties_expiring = mysqli_query(
     LIMIT 5"
 );
 
-// Get Assets Retiring
+// Get Assets Retiring 7 Year
 $sql_asset_retire = mysqli_query(
     $mysqli,
     "SELECT * FROM assets
     WHERE asset_client_id = $client_id
         AND asset_install_date IS NOT NULL
         AND asset_archived_at IS NULL
-        AND asset_install_date > CURRENT_DATE
-        AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
+        AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE  -- Not yet expired
+        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 90 DAY  -- Retiring within 90 days
     ORDER BY asset_install_date ASC
     LIMIT 5"
 );
+
+/*
+ * EXPIRED ITEMS
+ */
+
+// Get Domains Expired
+$sql_domains_expired = mysqli_query(
+    $mysqli,
+    "SELECT * FROM domains
+    WHERE domain_client_id = $client_id
+        AND domain_expire IS NOT NULL
+        AND domain_archived_at IS NULL
+        AND domain_expire < CURRENT_DATE
+    ORDER BY domain_expire ASC 
+    LIMIT 5"
+);
+
+// Get Certificates Expired
+$sql_certificates_expired = mysqli_query(
+    $mysqli,
+    "SELECT * FROM certificates
+    WHERE certificate_client_id = $client_id
+        AND certificate_expire IS NOT NULL
+        AND certificate_archived_at IS NULL
+        AND certificate_expire < CURRENT_DATE
+    ORDER BY certificate_expire ASC 
+    LIMIT 5"
+);
+
+// Get Licenses Expired
+$sql_licenses_expired = mysqli_query(
+    $mysqli,
+    "SELECT * FROM software
+    WHERE software_client_id = $client_id
+        AND software_expire IS NOT NULL
+        AND software_archived_at IS NULL
+        AND software_expire < CURRENT_DATE
+    ORDER BY software_expire ASC
+    LIMIT 5"
+);
+
+// Get Asset Warranties Expired
+$sql_asset_warranties_expired = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_client_id = $client_id
+        AND asset_warranty_expire IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_warranty_expire < CURRENT_DATE
+    ORDER BY asset_warranty_expire ASC
+    LIMIT 5"
+);
+
+// Get Retired Assets
+$sql_asset_retired = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_client_id = $client_id
+        AND asset_install_date IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE  -- Assets retired (installed more than 7 years ago)
+    ORDER BY asset_install_date ASC
+    LIMIT 5"
+);
+
 
 ?>
 
@@ -253,6 +331,7 @@ $sql_asset_retire = mysqli_query(
 
         <?php
         if (mysqli_num_rows($sql_domains_expiring) > 0
+            || mysqli_num_rows($sql_certificates_expiring) > 0
             || mysqli_num_rows($sql_asset_warranties_expiring) > 0
             || mysqli_num_rows($sql_asset_retire) > 0
             || mysqli_num_rows($sql_licenses_expiring) > 0
@@ -279,6 +358,24 @@ $sql_asset_retire = mysqli_query(
                                 <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
                                 <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
                                 <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
+                            </p>
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_certificates_expiring)) {
+                            $certificate_id = intval($row['certificate_id']);
+                            $certificate_name = nullable_htmlentities($row['certificate_name']);
+                            $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                            $certificate_expire_human = timeAgo($row['certificate_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
+                                <a href="client_certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
+                                <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
                             </p>
                             <?php
                         }
@@ -326,6 +423,124 @@ $sql_asset_retire = mysqli_query(
                         <?php
 
                         while ($row = mysqli_fetch_array($sql_licenses_expiring)) {
+                            $software_id = intval($row['software_id']);
+                            $software_name = nullable_htmlentities($row['software_name']);
+                            $software_expire = nullable_htmlentities($row['software_expire']);
+                            $software_expire_human = timeAgo($row['software_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
+                                <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
+                                <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
+                            </p>
+
+                            <?php
+                        }
+                        ?>
+
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
+
+        <?php
+        if (mysqli_num_rows($sql_domains_expired) > 0
+            || mysqli_num_rows($sql_certificates_expired) > 0
+            || mysqli_num_rows($sql_asset_warranties_expired) > 0
+            || mysqli_num_rows($sql_asset_retired) > 0
+            || mysqli_num_rows($sql_licenses_expired) > 0
+        ) 
+        { ?>
+
+            <div class="col-md-4">
+
+                <div class="card card-dark mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-danger mr-2"></i>Expired</h5></h5>
+                    </div>
+                    <div class="card-body p-2">
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_domains_expired)) {
+                            $domain_id = intval($row['domain_id']);
+                            $domain_name = nullable_htmlentities($row['domain_name']);
+                            $domain_expire = nullable_htmlentities($row['domain_expire']);
+                            $domain_expire_human = timeAgo($row['domain_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
+                                <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+                                <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
+                            </p>
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_certificates_expired)) {
+                            $certificate_id = intval($row['certificate_id']);
+                            $certificate_name = nullable_htmlentities($row['certificate_name']);
+                            $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                            $certificate_expire_human = timeAgo($row['certificate_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
+                                <a href="client_certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
+                                <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
+                            </p>
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_asset_warranties_expired)) {
+                            $asset_id = intval($row['asset_id']);
+                            $asset_name = nullable_htmlentities($row['asset_name']);
+                            $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                            $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
+                            </p>
+
+
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_asset_retired)) {
+                            $asset_id = intval($row['asset_id']);
+                            $asset_name = nullable_htmlentities($row['asset_name']);
+                            $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                            $asset_install_date_human = timeAgo($row['asset_install_date']);
+
+                            ?>
+                            <p class="mb-1">
+                                <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
+                            </p>
+
+                            <?php
+                        }
+                        ?>
+
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_licenses_expired)) {
                             $software_id = intval($row['software_id']);
                             $software_name = nullable_htmlentities($row['software_name']);
                             $software_expire = nullable_htmlentities($row['software_expire']);
