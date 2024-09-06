@@ -115,8 +115,8 @@
                 <li class="nav-header">OVERVIEWS</li>
                 
                 <li class="nav-item">
-                    <a href="report_all_assets_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_all_assets_by_client.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-life-ring"></i>
+                    <a href="report_assets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_assets.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-desktop"></i>
                         <p>All Assets</p>
                     </a>
                 </li>
