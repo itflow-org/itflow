@@ -60,6 +60,7 @@ if (isset($_GET['project_id'])) {
     // Get Tickets
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN users ON ticket_assigned_to = user_id
         WHERE ticket_project_id = $project_id ORDER BY ticket_number ASC"
     );
@@ -226,12 +227,12 @@ if (isset($_GET['project_id'])) {
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark">
                         <tr>
-                            <th>Number</th>
-                            <th>Subject</th>
+                            <th>Ticket</th>
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Assigned</th>
                             <th>Last Response</th>
+                            <th>Client</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -285,6 +286,9 @@ if (isset($_GET['project_id'])) {
                             
                             $project_id = intval($row['ticket_project_id']);
 
+                            $client_id = intval($row['client_id']);
+                            $client_name = nullable_htmlentities($row['client_name']);
+                            
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
                             $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
@@ -324,16 +328,13 @@ if (isset($_GET['project_id'])) {
 
                             <tr>
 
-                                <!-- Ticket Number -->
+                                <!-- Ticket Number / Subject -->
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a>
+                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                        <span class="badge badge-pill badge-secondary p-3 mr-2"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                        <?php echo $ticket_subject; ?>
+                                    </a>
                                 </td>
-
-                                <!-- Ticket Subject -->
-                                <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
-                                </td>
-
                                 <!-- Ticket Priority -->
                                 <td><?php echo $ticket_priority_display; ?></a></td>
 
@@ -350,6 +351,7 @@ if (isset($_GET['project_id'])) {
                                     <div><?php echo $ticket_updated_at_display; ?></div>
                                     <div><?php echo $ticket_reply_by_display; ?></div>
                                 </td>
+                                <td><?php echo $client_name; ?></td>
                             </tr>
 
 
