@@ -402,7 +402,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                 <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
                             </p>
 
@@ -422,7 +422,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                 <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
                             </p>
 
@@ -520,7 +520,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                 <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
                             </p>
 
@@ -540,7 +540,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                                <a href="client_assets.php?client_id=<?php echo $client_id; ?>&q=<?php echo $asset_name; ?>"><?php echo $asset_name; ?></a>
+                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                 <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
                             </p>
 
