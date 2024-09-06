@@ -159,10 +159,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { echo 'selected'; } ?>>IP
                                 </option>
                                 <option
-                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { echo 'selected'; } ?>>InstallDate
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { echo 'selected'; } ?>>Purchase_Date
                                 </option>
                                 <option
-                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { echo 'selected'; } ?>>PhysicalLocation
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { echo 'selected'; } ?>>Install_Date
+                                </option>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { echo 'selected'; } ?>>Warranty_Expire
+                                </option>
+                                <option
+                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { echo 'selected'; } ?>>Physical_Location
                                 </option>
                             </select>
                         </div>
@@ -267,9 +273,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">IP</a>
                             </th>
                             <?php } ?>
-                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_purchase_date&order=<?php echo $disp; ?>">Purchase Date</a>
+                            </th>
+                            <?php } ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">Install Date</a>
+                            </th>
+                            <?php } ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_warranty_expire&order=<?php echo $disp; ?>">Warranty Expire</a>
                             </th>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
@@ -278,7 +294,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </th>
                             <?php } ?>
                             <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
-                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { ?>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_physical_location&order=<?php echo $disp; ?>">Physical Location</a>
                             </th>
@@ -327,7 +343,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
                             $asset_status = nullable_htmlentities($row['asset_status']);
                             $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
+                            if ($asset_purchase_date) {
+                                $asset_purchase_date_display = $asset_purchase_date;
+                            } else {
+                                $asset_purchase_date_display = "-";
+                            }
                             $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                            if ($asset_warranty_expire) {
+                                $asset_warranty_expire_display = $asset_warranty_expire;
+                            } else {
+                                $asset_warranty_expire_display = "-";
+                            }
                             $asset_install_date = nullable_htmlentities($row['asset_install_date']);
                             if ($asset_install_date) {
                                 $asset_install_date_display = $asset_install_date;
@@ -417,14 +443,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { ?>
                                     <td><?php echo $asset_ip_display; ?></td>
                                 <?php } ?>
-                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('InstallDate', $_GET['show_column'])) { ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
+                                    <td><?php echo $asset_purchase_date_display; ?></td>
+                                <?php } ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { ?>
                                     <td><?php echo $asset_install_date_display; ?></td>
+                                <?php } ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
+                                    <td><?php echo $asset_warranty_expire_display; ?></td>
                                 <?php } ?>
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                     <td><?php echo $contact_name_display; ?></td>
                                 <?php } ?>
                                 <td><?php echo $location_name_display; ?></td>
-                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('PhysicalLocation', $_GET['show_column'])) { ?>
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { ?>
                                     <td><?php echo $asset_physical_location_display; ?></td>
                                 <?php } ?>
                                 <td><?php echo $asset_status; ?></td>
