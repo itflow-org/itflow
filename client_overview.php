@@ -2,6 +2,8 @@
 
 require_once "inc_all_client.php";
 
+// Get expiration days from select box
+$expiration_days = isset($_GET['expiration_days']) ? intval($_GET['expiration_days']) : 90;
 
 $sql_recent_activities = mysqli_query(
     $mysqli,
@@ -74,7 +76,7 @@ $sql_domains_expiring = mysqli_query(
         AND domain_expire IS NOT NULL
         AND domain_archived_at IS NULL
         AND domain_expire > CURRENT_DATE
-        AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
+        AND domain_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
     ORDER BY domain_expire ASC 
     LIMIT 5"
 );
@@ -87,7 +89,7 @@ $sql_certificates_expiring = mysqli_query(
         AND certificate_expire IS NOT NULL
         AND certificate_archived_at IS NULL
         AND certificate_expire > CURRENT_DATE
-        AND certificate_expire < CURRENT_DATE + INTERVAL 90 DAY
+        AND certificate_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
     ORDER BY certificate_expire ASC 
     LIMIT 5"
 );
@@ -100,7 +102,7 @@ $sql_licenses_expiring = mysqli_query(
         AND software_expire IS NOT NULL
         AND software_archived_at IS NULL
         AND software_expire > CURRENT_DATE
-        AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
+        AND software_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
     ORDER BY software_expire ASC
     LIMIT 5"
 );
@@ -113,7 +115,7 @@ $sql_asset_warranties_expiring = mysqli_query(
         AND asset_warranty_expire IS NOT NULL
         AND asset_archived_at IS NULL
         AND asset_warranty_expire > CURRENT_DATE
-        AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
+        AND asset_warranty_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
     ORDER BY asset_warranty_expire ASC
     LIMIT 5"
 );
@@ -126,7 +128,7 @@ $sql_asset_retire = mysqli_query(
         AND asset_install_date IS NOT NULL
         AND asset_archived_at IS NULL
         AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE  -- Not yet expired
-        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 90 DAY  -- Retiring within 90 days
+        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL $expiration_days DAY
     ORDER BY asset_install_date ASC
     LIMIT 5"
 );
@@ -341,7 +343,17 @@ $sql_asset_retired = mysqli_query(
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations <small>(Within 90 Days)</small></h5></h5>
+                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
+                        <div class="card-tools">
+                            <form class="form-inline">
+                                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                                <select onchange="this.form.submit()" class="form-control form-control-sm" name="expiration_days">          
+                                    <option value="7" <?php if ($expiration_days == 7) { echo "selected"; } ?>>7 Days</option>
+                                    <option value="30" <?php if ($expiration_days == 30) { echo "selected"; } ?>>30 Days</option>
+                                    <option value="90" <?php if ($expiration_days == 90) { echo "selected"; } ?>>90 Days</option>
+                                </select>
+                            </form>
+                        </div>
                     </div>
                     <div class="card-body p-2">
 
