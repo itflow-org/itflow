@@ -136,7 +136,7 @@ if (isset($_GET['project_id'])) {
             <div class="media">
                 <i class="fa fa-fw fa-2x fa-project-diagram text-secondary mr-3"></i>
                 <div class="media-body">
-                    <h3 class="mb-0"><?php echo $project_name; ?><?php echo $project_status_display; ?></h3>
+                    <h3 class="mb-0"><?php echo "$project_prefix$project_number$project_status_display<br><small>$project_name</small>"; ?></h3>
                     <div><small class="text-secondary"><?php echo $project_description; ?></small></div>
                 </div>
             </div>
