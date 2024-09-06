@@ -9,7 +9,7 @@ $sql_recent_activities = mysqli_query(
     $mysqli,
     "SELECT * FROM logs
     WHERE log_client_id = $client_id
-    ORDER BY log_created_at ASC
+    ORDER BY log_created_at DESC
     LIMIT 5"
 );
 
@@ -214,57 +214,55 @@ $sql_asset_retired = mysqli_query(
                     <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
                 </div>
             </div>
-
         </div>
 
-        <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
+        <div class="col-md-4">
 
-            <div class="col-md-4">
+            <?php if (mysqli_num_rows($sql_important_contacts) > 0) { ?>
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
+                </div>
+                <div class="card-body p-2">
+                    <table class="table table-borderless table-sm">
+                        <?php
 
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-users mr-2"></i>Important Contacts</h5>
-                    </div>
-                    <div class="card-body p-2">
-                        <table class="table table-borderless table-sm">
-                            <?php
+                        while ($row = mysqli_fetch_array($sql_important_contacts)) {
+                            $contact_id = intval($row['contact_id']);
+                            $contact_name = nullable_htmlentities($row['contact_name']);
+                            $contact_title = nullable_htmlentities($row['contact_title']);
+                            $contact_email = nullable_htmlentities($row['contact_email']);
+                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_extension = nullable_htmlentities($row['contact_extension']);
+                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
 
-                            while ($row = mysqli_fetch_array($sql_important_contacts)) {
-                                $contact_id = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                $contact_title = nullable_htmlentities($row['contact_title']);
-                                $contact_email = nullable_htmlentities($row['contact_email']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
-                                $contact_extension = nullable_htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
-
-                                ?>
-                                <tr>
-                                    <td>
-                                        <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
-                                        <br>
-                                        <small class="text-secondary"><?php echo $contact_title; ?></small>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($contact_phone)) { ?>
-                                            <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
-                                        <?php } ?>
-                                        <?php if (!empty($contact_mobile)) { ?>
-                                            <br>
-                                            <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
-                                        <?php } ?>
-                                    </td>
-                                </tr>
-                                <?php
-                            }
                             ?>
+                            <tr>
+                                <td>
+                                    <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+                                    <br>
+                                    <small class="text-secondary"><?php echo $contact_title; ?></small>
+                                </td>
+                                <td>
+                                    <?php if (!empty($contact_phone)) { ?>
+                                        <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
+                                    <?php } ?>
+                                    <?php if (!empty($contact_mobile)) { ?>
+                                        <br>
+                                        <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
 
-                        </table>
-                    </div>
+                    </table>
                 </div>
             </div>
+            <?php } ?>
 
-        <?php } ?>
+        </div>
 
         <?php if (mysqli_num_rows($sql_shared_items) > 0) { ?>
 
@@ -662,6 +660,8 @@ $sql_asset_retired = mysqli_query(
         <?php } ?>
 
     </div>
+
+</div>
 
     <script>
         function updateClientNotes(client_id) {
