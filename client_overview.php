@@ -7,15 +7,20 @@ $sql_recent_activities = mysqli_query(
     $mysqli,
     "SELECT * FROM logs
     WHERE log_client_id = $client_id
-    ORDER BY log_created_at DESC LIMIT 5"
+    ORDER BY log_created_at ASC
+    LIMIT 5"
 );
 
 $sql_important_contacts = mysqli_query(
     $mysqli,
     "SELECT * FROM contacts
     WHERE contact_client_id = $client_id
-    AND (contact_important = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_primary = 1)
-    AND contact_archived_at IS NULL 
+        AND (contact_important = 1
+            OR contact_billing = 1
+            OR contact_technical = 1
+            OR contact_primary = 1
+        )
+        AND contact_archived_at IS NULL 
     ORDER BY contact_primary DESC, contact_name DESC LIMIT 5"
 );
 
@@ -23,24 +28,27 @@ $sql_recent_tickets = mysqli_query(
     $mysqli,
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-    ORDER BY ticket_created_at DESC LIMIT 5"
+    ORDER BY ticket_created_at ASC
+    LIMIT 5"
 );
 
 $sql_recent_logins = mysqli_query(
     $mysqli,
     "SELECT * FROM logins
      WHERE login_client_id = $client_id
-     ORDER BY login_updated_at DESC LIMIT 5"
+     ORDER BY login_updated_at ASC
+     LIMIT 5"
 );
 
 $sql_shared_items = mysqli_query(
     $mysqli,
     "SELECT * FROM shared_items
     WHERE item_client_id = $client_id
-    AND item_active = 1
-    AND item_views != item_view_limit
-    AND item_expire_at > NOW()
-    ORDER BY item_created_at DESC LIMIT 5"
+        AND item_active = 1
+        AND item_views != item_view_limit
+        AND item_expire_at > NOW()
+    ORDER BY item_created_at ASC
+    LIMIT 5"
 );
 
 /*
@@ -52,9 +60,10 @@ $sql_stale_tickets = mysqli_query(
     $mysqli,
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-    AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
-    AND ticket_closed_at IS NULL
-    ORDER BY ticket_updated_at DESC LIMIT 5"
+        AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
+        AND ticket_closed_at IS NULL
+    ORDER BY ticket_updated_at ASC 
+    LIMIT 5"
 );
 
 // Get Domains Expiring
@@ -62,10 +71,12 @@ $sql_domains_expiring = mysqli_query(
     $mysqli,
     "SELECT * FROM domains
     WHERE domain_client_id = $client_id
-    AND domain_expire IS NOT NULL
-    AND domain_archived_at IS NULL
-    AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY domain_expire DESC LIMIT 5"
+        AND domain_expire IS NOT NULL
+        AND domain_archived_at IS NULL
+        AND domain_expire > CURRENT_DATE
+        AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
+    ORDER BY domain_expire ASC 
+    LIMIT 5"
 );
 
 // Get Licenses Expiring
@@ -73,10 +84,12 @@ $sql_licenses_expiring = mysqli_query(
     $mysqli,
     "SELECT * FROM software
     WHERE software_client_id = $client_id
-    AND software_expire IS NOT NULL
-    AND software_archived_at IS NULL
-    AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY software_expire DESC LIMIT 5"
+        AND software_expire IS NOT NULL
+        AND software_archived_at IS NULL
+        AND software_expire > CURRENT_DATE
+        AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
+    ORDER BY software_expire ASC
+    LIMIT 5"
 );
 
 // Get Asset Warranties Expiring
@@ -84,10 +97,12 @@ $sql_asset_warranties_expiring = mysqli_query(
     $mysqli,
     "SELECT * FROM assets
     WHERE asset_client_id = $client_id
-    AND asset_warranty_expire IS NOT NULL
-    AND asset_archived_at IS NULL
-    AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY asset_warranty_expire DESC LIMIT 5"
+        AND asset_warranty_expire IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_warranty_expire > CURRENT_DATE
+        AND asset_warranty_expire < CURRENT_DATE + INTERVAL 90 DAY
+    ORDER BY asset_warranty_expire ASC
+    LIMIT 5"
 );
 
 // Get Assets Retiring
@@ -95,10 +110,12 @@ $sql_asset_retire = mysqli_query(
     $mysqli,
     "SELECT * FROM assets
     WHERE asset_client_id = $client_id
-    AND asset_install_date IS NOT NULL
-    AND asset_archived_at IS NULL
-    AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
-    ORDER BY asset_install_date DESC LIMIT 5"
+        AND asset_install_date IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_install_date > CURRENT_DATE
+        AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE + INTERVAL 90 DAY
+    ORDER BY asset_install_date ASC
+    LIMIT 5"
 );
 
 ?>
