@@ -1,5 +1,16 @@
 <?php
 
+// Force HTTPS redirection if accessed over HTTP or forwarded from HTTP
+if (
+    (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') &&
+    (!isset($_SERVER['HTTP_X_FORWARDED_PROTO']) || $_SERVER['HTTP_X_FORWARDED_PROTO'] !== 'https')
+) {
+    $https_url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    header("Location: $https_url");
+    exit;
+}
+
+
 // Enforce a Content Security Policy for security against cross-site scripting
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
