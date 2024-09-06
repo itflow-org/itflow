@@ -23,7 +23,7 @@ if($status == 1) {
 // Ticket client access snippet
 $project_permission_snippet = '';
 if (!empty($client_access_string)) {
-    $project_permission_snippet = "AND project_client_id IN ($client_access_string)";
+    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
 }
 
 //Rebuild URL
@@ -146,6 +146,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
+                        if ($client_name) {
+                            $client_name_display = "<a href='client_tickets.php?client_id=$client_id'>$client_name</a>";
+                        } else {
+                            $client_name_display = "-";
+                        }
 
                         $project_manager = intval($row['user_id']);
                         if ($project_manager) {
@@ -229,11 +234,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $project_completed_at_display; ?></td>
                             <?php } ?>
                             <td><?php echo $project_manager_display; ?></td>
-                            <td>
-                                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">
-                                    <?php echo $client_name; ?>
-                                </a>
-                            </td>
+                            <td><?php echo $client_name_display; ?></td>
                             <td><?php echo $project_created_at_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">

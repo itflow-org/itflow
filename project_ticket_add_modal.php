@@ -17,16 +17,18 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
                             </div>
-                            <select class="form-control select2" name="ticket_id" required>
-                                <option value="">- Select a Ticket -</option>
+                            <select class="form-control select2" multiple name="tickets[]" required>
+                                <option value="">- Select a Tickets -</option>
                                 <?php
 
-                                $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id != $project_id AND ticket_client_id = $client_id AND ticket_closed_at IS NULL");
+                                $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL");
                                 while ($row = mysqli_fetch_array($sql_tickets_select)) {
                                     $ticket_id_select = intval($row['ticket_id']);
+                                    $ticket_prefix_select = nullable_htmlentities($row['ticket_prefix']);
+                                    $ticket_number_select = intval($row['ticket_number']);
                                     $ticket_subject_select = nullable_htmlentities($row['ticket_subject']);
                                     ?>
-                                    <option value="<?php echo $ticket_id_select; ?>"><?php echo $ticket_subject_select; ?></option>
+                                    <option value="<?php echo $ticket_id_select; ?>"><?php echo "$ticket_prefix_select $ticket_number_select - $ticket_subject_select"; ?></option>
                                     <?php
                                 }
 

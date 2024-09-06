@@ -35,6 +35,11 @@ if (isset($_GET['project_id'])) {
 
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
+    if ($client_name) {
+        $client_name_display = "<div class='text-secondary'><i class='fas fa-fw fa-users mr-2'></i>$client_name</div>";
+    } else {
+        $client_name_display = "";
+    }
 
     $project_manager = intval($row['user_id']);
     $project_manager_name = nullable_htmlentities($row['user_name']);
@@ -137,21 +142,16 @@ if (isset($_GET['project_id'])) {
             </div>
         </div>
         <div class="col-sm-3">
-            <div class="media">
-                <i class="fa fa-fw fa-2x fa-users text-secondary mr-3"></i>
-                <div class="media-body">
-                    <h3 class="mb-0"><?php echo $client_name; ?></h3>
-                    <?php echo $project_manager_display; ?>
-                    <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></div>
-                    <?php echo $project_completed_date_display; ?>
-                    <!-- Time tracking -->
-                    <?php if ($ticket_total_reply_time) { ?>
-                        <div>
-                            <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
-                        </div>
-                    <?php } ?>
-                </div>
+            <div><?php echo $client_name_display; ?></div>
+            <div><?php echo $project_manager_display; ?></div>
+            <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></div>
+            <div><?php echo $project_completed_date_display; ?></div>
+            <!-- Time tracking -->
+            <?php if ($ticket_total_reply_time) { ?>
+            <div>
+                <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
             </div>
+            <?php } ?>
         </div>
 
         <div class="col-sm-3">

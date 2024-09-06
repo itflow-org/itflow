@@ -90,13 +90,13 @@
 
                     <?php if (empty($_GET['client_id'])) { ?>
                     <div class="form-group">
-                        <label>Client <strong class="text-danger">*</strong></label>
+                        <label>Client</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                             </div>
-                            <select class="form-control select2" name="client_id" required>
-                                <option value="">- Client -</option>
+                            <select class="form-control select2" name="client_id">
+                                <option vlaue="0">- No Client -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
