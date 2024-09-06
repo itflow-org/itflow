@@ -179,9 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 <!-- /.login-box -->
 
 <?php
-//if (!$config_whitelabel_enabled) {
-//    echo '<small class="text-muted">Powered by ITFlow</small>';
-//}
+if (!$config_whitelabel_enabled) {
+    echo '<small class="text-muted">Powered by ITFlow</small>';
+}
 ?>
 
 <!-- jQuery -->
