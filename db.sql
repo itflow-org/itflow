@@ -526,6 +526,7 @@ CREATE TABLE `documents` (
   `document_content_raw` longtext NOT NULL,
   `document_important` tinyint(1) NOT NULL DEFAULT 0,
   `document_parent` int(11) NOT NULL DEFAULT 0,
+  `document_client_visible` int(11) NOT NULL DEFAULT 1,
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
