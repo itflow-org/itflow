@@ -6,7 +6,7 @@
 
 if(isset($_POST['add_location'])){
 
-    validateAdminRole();
+    validateTechRole();
 
     require_once 'post/client_locations_model.php';
 
@@ -65,7 +65,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    validateAdminRole();
+    validateTechRole();
 
     require_once 'post/client_locations_model.php';
 
@@ -159,6 +159,8 @@ if(isset($_GET['archive_location'])){
 }
 
 if(isset($_GET['unarchive_location'])){
+
+    validateTechRole();
 
     $location_id = intval($_GET['unarchive_location']);
 
