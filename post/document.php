@@ -438,6 +438,23 @@ if (isset($_POST['edit_document_template'])) {
 
 }
 
+if (isset($_POST['document_visible'])) {
+    validateTechRole();
+
+    $document_id = intval($_POST['document_id']);
+    $document_visible = intval($_POST['document_visible']);
+
+    mysqli_query($mysqli,"UPDATE documents SET document_client_visible = $document_visible WHERE document_id = $document_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name modified document visibility', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $document_id");
+
+    $_SESSION['alert_message'] = "Document visibility updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['archive_document'])) {
 
     validateTechRole();
