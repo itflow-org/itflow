@@ -27,7 +27,12 @@ if (!isset($_GET['id']) && !intval($_GET['id'])) {
 }
 
 $document_id = intval($_GET['id']);
-$sql_document = mysqli_query($mysqli, "SELECT document_id, document_name, document_content FROM documents WHERE document_id = $document_id AND document_client_id = $session_client_id AND document_template = 0 AND document_archived_at IS NULL LIMIT 1");
+$sql_document = mysqli_query($mysqli,
+        "SELECT document_id, document_name, document_content
+        FROM documents
+        WHERE document_id = $document_id AND document_client_visible = 1 AND document_client_id = $session_client_id AND document_template = 0 AND document_archived_at IS NULL
+        LIMIT 1"
+);
 
 $row = mysqli_fetch_array($sql_document);
 

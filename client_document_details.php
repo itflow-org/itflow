@@ -35,6 +35,7 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 $document_archived_at = nullable_htmlentities($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
 $document_parent = intval($row['document_parent']);
+$document_client_visible = intval($row['document_client_visible']);
 
 ?>
 
@@ -292,6 +293,24 @@ $document_parent = intval($row['document_parent']);
             ?>
         </div>
 
+        <?php if ($config_client_portal_enable) { ?>
+            <div class="card card-body bg-light">
+                <h6><i class="fas fa-handshake mr-2"></i>Portal Collaboration</h6>
+                <div class="mt-1">
+                    <i class="fa fa-fw fa-eye<?php if (!$document_client_visible) { echo '-slash'; } ?> text-secondary mr-2"></i>Document is
+                    <a href="#" data-toggle="modal" data-target="#editDocumentClientVisibileModal">
+                        <?php
+                        if ($document_client_visible) {
+                            echo "<span class='text-bold text-dark'>visible</span>";
+                        } else {
+                            echo "<span class='text-muted'>not visible</span>";
+                        }
+                        ?>
+                    </a>
+                </div>
+            </div>
+        <?php } ?>
+
         <div class="card card-body bg-light">
             <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
             <?php
@@ -344,6 +363,8 @@ require_once "client_document_link_asset_modal.php";
 require_once "client_document_link_software_modal.php";
 
 require_once "client_document_link_vendor_modal.php";
+
+require_once "document_edit_visibility_modal.php";
 
 require_once "share_modal.php";
 
