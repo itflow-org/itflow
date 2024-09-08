@@ -8,7 +8,6 @@ if(isset($_POST['create_custom_field'])){
 
     require_once 'post/custom_field_model.php';
 
-
     $table = sanitizeInput($_POST['table']);
 
     mysqli_query($mysqli,"INSERT INTO custom_fields SET custom_field_table = '$table', custom_field_label = '$label', custom_field_type = '$type'");
@@ -25,7 +24,6 @@ if(isset($_POST['create_custom_field'])){
 if(isset($_POST['edit_custom_field'])){
 
     require_once 'post/custom_field_model.php';
-
 
     $custom_field_id = intval($_POST['custom_field_id']);
 

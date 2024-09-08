@@ -6,6 +6,7 @@
 
 if (isset($_POST['add_asset'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
@@ -105,6 +106,7 @@ if (isset($_POST['add_asset'])) {
 
 if (isset($_POST['edit_asset'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $asset_id = intval($_POST['asset_id']);
@@ -197,6 +199,7 @@ if (isset($_POST['edit_asset'])) {
 
 if (isset($_POST['change_client_asset'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $current_asset_id = intval($_POST['current_asset_id']);
@@ -244,6 +247,7 @@ if (isset($_POST['change_client_asset'])) {
 
 if (isset($_GET['archive_asset'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     validateTechRole();
 
     $asset_id = intval($_GET['archive_asset']);
@@ -268,6 +272,7 @@ if (isset($_GET['archive_asset'])) {
 
 if (isset($_GET['unarchive_asset'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     validateTechRole();
 
     $asset_id = intval($_GET['unarchive_asset']);
@@ -291,6 +296,7 @@ if (isset($_GET['unarchive_asset'])) {
 
 if (isset($_GET['delete_asset'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     validateAdminRole();
 
     $asset_id = intval($_GET['delete_asset']);
@@ -318,6 +324,7 @@ if (isset($_GET['delete_asset'])) {
 
 if (isset($_POST['bulk_assign_asset_location'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $location_id = intval($_POST['bulk_location_id']);
@@ -357,6 +364,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $contact_id = intval($_POST['bulk_contact_id']);
@@ -396,6 +404,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
 if (isset($_POST['bulk_edit_asset_status'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $status = sanitizeInput($_POST['bulk_status']);
@@ -429,8 +438,9 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 }
 
 if (isset($_POST['bulk_archive_assets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
-    //validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
     $asset_ids = $_POST['asset_ids']; // Get array of asset IDs to be deleted
@@ -469,8 +479,9 @@ if (isset($_POST['bulk_archive_assets'])) {
 }
 
 if (isset($_POST['bulk_unarchive_assets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
-    //validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
     $asset_ids = $_POST['asset_ids']; // Get array of asset IDs to be deleted
@@ -509,6 +520,7 @@ if (isset($_POST['bulk_unarchive_assets'])) {
 
 if (isset($_POST["import_client_assets_csv"])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
@@ -655,6 +667,7 @@ if (isset($_GET['download_client_assets_csv_template'])) {
 
 if (isset($_POST['export_client_assets_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $client_id = intval($_POST['client_id']);
@@ -704,6 +717,7 @@ if (isset($_POST['export_client_assets_csv'])) {
 
 if (isset($_POST['add_asset_interface'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $asset_id = intval($_POST['asset_id']);
@@ -740,6 +754,7 @@ if (isset($_POST['add_asset_interface'])) {
 
 if (isset($_POST['edit_asset_interface'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
     validateTechRole();
 
     $interface_id = intval($_POST['interface_id']);
@@ -775,6 +790,7 @@ if (isset($_POST['edit_asset_interface'])) {
 
 if (isset($_GET['delete_asset_interface'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     validateAdminRole();
 
     $interface_id = intval($_GET['delete_asset_interface']);

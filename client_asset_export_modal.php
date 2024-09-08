@@ -8,11 +8,12 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+
                 <div class="modal-body bg-white">
 
-                    <?php require_once "inc_export_warning.php";
- ?>
+                    <?php require_once "inc_export_warning.php"; ?>
 
                 </div>
                 <div class="modal-footer bg-white">

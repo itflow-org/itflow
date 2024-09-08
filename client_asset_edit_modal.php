@@ -8,6 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
