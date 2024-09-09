@@ -144,6 +144,11 @@ If you want to improve ITFlow, feel free to fork the repo and create a pull requ
   <img src="https://contrib.rocks/image?repo=itflow-org/itflow" />
 </a>
 
+### Supporters
+We’re incredibly grateful to the organizations and individuals who support the project - a big thank you to:
+- CompuMatter
+- JetBrains
+
 <!-- LICENSE -->
 ## License
 
