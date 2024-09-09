@@ -550,7 +550,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                 <?php require_once "ticket_bulk_edit_priority_modal.php"; ?>
                 <?php require_once "ticket_bulk_add_project_modal.php"; ?>
                 <?php require_once "ticket_bulk_reply_modal.php"; ?>
-                <?php // 2024-08-25 JQ Disabled not able to change assignee require_once "ticket_bulk_merge_modal.php"; ?>
+                <?php require_once "ticket_bulk_merge_modal.php"; //2024-08-25 JQ Disabled not able to change assignee ?>
                 <?php require_once "ticket_bulk_resolve_modal.php"; ?>
             </form>
             <?php require_once "pagination.php"; ?>

@@ -8,7 +8,7 @@
                 </button>
             </div>
 
-            <input type="hidden" id="current_ticket_id" name="ticket_id" value="0"> <!-- Can't currently bulk check this -->
+            <input type="hidden" id="current_ticket_id" name="current_ticket_id" value="0"> <!-- Can't currently bulk check this -->
             <input type="hidden" name="merge_move_replies" value="0"> <!-- Default 0 -->
             <div class="modal-body bg-white">
 
