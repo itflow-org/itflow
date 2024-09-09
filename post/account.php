@@ -5,6 +5,7 @@
  */
 
 if (isset($_POST['add_account'])) {
+    validateCSRFToken($_POST['csrf_token']);
 
     $name = sanitizeInput($_POST['name']);
     $opening_balance = floatval($_POST['opening_balance']);
@@ -24,6 +25,7 @@ if (isset($_POST['add_account'])) {
 }
 
 if (isset($_POST['edit_account'])) {
+    validateCSRFToken($_POST['csrf_token']);
 
     $account_id = intval($_POST['account_id']);
     $name = sanitizeInput($_POST['name']);
@@ -42,6 +44,7 @@ if (isset($_POST['edit_account'])) {
 }
 
 if (isset($_GET['archive_account'])) {
+    validateCSRFToken($_GET['csrf_token']);
     $account_id = intval($_GET['archive_account']);
 
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
@@ -55,6 +58,7 @@ if (isset($_GET['archive_account'])) {
 
 }
 
+// Not used anywhere?
 if (isset($_GET['delete_account'])) {
     $account_id = intval($_GET['delete_account']);
 

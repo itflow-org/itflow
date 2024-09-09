@@ -28,6 +28,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     </div>
     <div class="card-body">
         <form id="bulkActions" action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
             <div class="row">
                 
