@@ -480,7 +480,6 @@ function getSSL($full_name)
 
 function strtoAZaz09($string)
 {
-
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
 }
@@ -547,7 +546,6 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     if (empty($config_smtp_username)) {
         $smtp_auth = false;
     } else {
-
         $smtp_auth = true;
     }
 
@@ -635,7 +633,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
     } catch (Exception $e) {
         // If we couldn't send the message return the error, so we can log it in the database (truncated)
         error_log("ITFlow - Failed to send email: " . $mail->ErrorInfo);
-        return substr("Mailer Error: $mail->ErrorInfo", 0, 150) . "...";
+        return substr("Mailer Error: $mail->ErrorInfo", 0, 100) . "...";
     }
 }
 
@@ -1050,7 +1048,7 @@ function addToMailQueue($mysqli, $data) {
 
         $cal_str = '';
         if (isset($email['cal_str'])) {
-            $cal_str = mysqli_escape_string($mysqli,$email['cal_str']);
+            $cal_str = mysqli_escape_string($mysqli, $email['cal_str']);
         }
 
         // Check if 'email_queued_at' is set and not empty
