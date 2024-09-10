@@ -2159,10 +2159,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.8'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.8') {
-    //     // Insert queries here required to update to DB version 1.4.9
+     if (CURRENT_DATABASE_VERSION == '1.4.8') {
+         mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_stripe_client_pays_fees`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.9'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.4.9') {
+    //     // Insert queries here required to update to DB version 1.5.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.0'");
     // }
 
 } else {

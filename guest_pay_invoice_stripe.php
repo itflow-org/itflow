@@ -10,10 +10,10 @@ function log_to_console($message) {
 }
 
 // Define wording
-DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information.</h2>");
+DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
 
 // Setup Stripe
-$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account, config_stripe_expense_vendor, config_stripe_expense_category, config_stripe_percentage_fee, config_stripe_flat_fee, config_stripe_client_pays_fees FROM settings WHERE company_id = 1"));
+$stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret, config_stripe_account, config_stripe_expense_vendor, config_stripe_expense_category, config_stripe_percentage_fee, config_stripe_flat_fee FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
 $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
 $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
@@ -22,13 +22,12 @@ $config_stripe_expense_vendor = intval($stripe_vars['config_stripe_expense_vendo
 $config_stripe_expense_category = intval($stripe_vars['config_stripe_expense_category']);
 $config_stripe_percentage_fee = floatval($stripe_vars['config_stripe_percentage_fee']);
 $config_stripe_flat_fee = floatval($stripe_vars['config_stripe_flat_fee']);
-$config_stripe_client_pays_fees = intval($stripe_vars['config_stripe_client_pays_fees']);
 
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
     echo "<br><h2>Stripe payments not enabled/configured</h2>";
     require_once 'guest_footer.php';
-
+    error_log("Stripe payment error - disabled. Check payments are enabled, Expense account is set, Stripe publishable and secret keys are configured.");
     exit();
 }
 
@@ -56,7 +55,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     if (!$sql || mysqli_num_rows($sql) !== 1) {
         echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
         require_once 'guest_footer.php';
-
+        error_log("Stripe payment error - Invoice with ID $invoice_id is unknown/not eligible to be paid.");
         exit();
     }
 
@@ -83,16 +82,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $row = mysqli_fetch_array($sql_amount_paid);
     $amount_paid = floatval($row['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
-
-    if ($config_stripe_client_pays_fees == 1) {
-        $balance_before_fees = $balance_to_pay;
-        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
-        // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-        // Calculate the fee amount
-        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
-
-    }
 
     //Round balance to pay to 2 decimal places
     $balance_to_pay = round($balance_to_pay, 2);
@@ -143,14 +132,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
                         </tr>
 
-                    <?php }
-                    if ($config_stripe_client_pays_fees == 1) { ?>
-                    
-                        <tr>
-                            <td>Gateway Fees</td>
-                            <td class="text-center">-</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code); ?></td>
-                        </tr>
                     <?php } ?>
 
 
@@ -215,12 +196,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_obj = \Stripe\PaymentIntent::retrieve($pi_id);
 
     if ($pi_obj->client_secret !== $pi_cs) {
+        error_log("Stripe payment error - Payment intent ID/Secret mismatch for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     } elseif ($pi_obj->status !== "succeeded") {
         exit(WORDING_PAYMENT_FAILED);
     } elseif ($pi_obj->amount !== $pi_obj->amount_received) {
         // The invoice wasn't paid in full
         // this should be flagged for manual review as would indicate something weird happening
+        error_log("Stripe payment error - payment amount does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
 
@@ -245,6 +228,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         LIMIT 1"
     );
     if (!$invoice_sql || mysqli_num_rows($invoice_sql) !== 1) {
+        error_log("Stripe payment error - Invoice with ID $invoice_id is unknown/not eligible to be paid. PI $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
 
@@ -277,24 +261,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = $row['amount_paid'];
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    // Check config to see if client pays fees is enabled or if should expense it
-    if ($config_stripe_client_pays_fees == 1) {
-        $balance_before_fees = $balance_to_pay;
-        // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
-        // Calculate the amount to charge the client
-        $balance_to_pay = ($balance_to_pay + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-        // Calculate the fee amount
-        $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
-        
-        // Add as line item to client Invoice
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = 'Gateway Fees', item_description = 'Payment Gateway Fees', item_quantity = 1, item_price = $gateway_fee, item_subtotal = $gateway_fee, item_total = $gateway_fee, item_order = 999, item_invoice_id = $invoice_id");
-        // Update the Amount on the invoice to include the gateway fee
-        $new_invoice_amount = $invoice_amount + $gateway_fee;
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-    }
-
-    // Check to see if Expense Fields are configured and client pays fee is off then create expense
-    if ($config_stripe_client_pays_fees == 0 && $config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
+    // Check to see if Expense Fields are configured to create Stripe payment expense
+    if ($config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
         // Calculate gateway expense fee
         $gateway_fee = round($balance_to_pay * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
 
@@ -307,7 +275,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Sanity check that the amount paid is exactly the invoice outstanding balance
     if (intval($balance_to_pay) !== intval($pi_amount_paid)) {
-        exit("Something went wrong confirming this payment. Please get in touch.");
+        error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
+        exit(WORDING_PAYMENT_FAILED);
     }
 
     // Apply payment
@@ -319,11 +288,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
-    // Add Gateway fees to history if applicable
-    if ($config_stripe_client_pays_fees == 1) {
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Gateway fees of $gateway_fee has been billed', history_invoice_id = $invoice_id");
-    }
-
     // Notify
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Invoice Paid', notification = 'Invoice $invoice_prefix$invoice_number has been paid - $ip - $os - $browser', notification_action = 'invoice.php?invoice_id=$invoice_id', notification_client_id = $pi_client_id");
 
@@ -332,9 +296,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     if (!$pi_livemode) {
         $extended_log_desc = '(DEV MODE)';
     }
-    if ($config_stripe_client_pays_fees == 1) {
-        $extended_log_desc .= ' (Client Pays Fees [' . numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ']])';
-    }
+
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id");
 
     
@@ -369,22 +331,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
             ];
         $mail = addToMailQueue($mysqli, $data);
 
-        // Email Logging
-        if ($mail === true) {
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
-        } else {
-            mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Failed!', history_invoice_id = $invoice_id");
+        // Email logging
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
 
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $contact_email'");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $contact_email regarding $subject. $mail'");
-        }
     }
 
     // Redirect user to invoice
     header('Location: //' . $config_base_url . '/guest_view_invoice.php?invoice_id=' . $pi_invoice_id . '&url_key=' . $invoice_url_key);
 
 } else {
-    echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
+    exit(WORDING_PAYMENT_FAILED);
 }
 
 
