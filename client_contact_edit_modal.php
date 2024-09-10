@@ -276,6 +276,8 @@
                                 </div>
                             </div>
 
+                            <p class="text-muted text-right">Contact ID: <?= $contact_id ?></p>
+
                         </div>
 
                     </div>

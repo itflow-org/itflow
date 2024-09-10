@@ -390,6 +390,8 @@
                                 <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $asset_notes; ?></textarea>
                             </div>
 
+                            <p class="text-muted text-right">Asset ID: <?= $asset_id ?></p>
+
                         </div>
 
 
