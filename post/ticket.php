@@ -1738,8 +1738,8 @@ if (isset($_POST['export_client_tickets_csv'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM tickets 
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+        "SELECT * FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_client_id = $client_id ORDER BY ticket_number ASC"
     );
 
