@@ -321,12 +321,7 @@ if (isset($_GET['share_generate_link'])) {
             ]
         ];
 
-        $mail = addToMailQueue($mysqli, $data);
-
-        if ($mail !== true) {
-            mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $item_email'");
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $item_email regarding $subject. $item_mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-        }
+        addToMailQueue($mysqli, $data);
 
     }
 

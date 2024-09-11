@@ -12,6 +12,14 @@ function populateShareModal(client_id, item_type, item_ref_id) {
     // Show form and generate button
     document.getElementById("div_share_link_form").hidden = false;
     document.getElementById("div_share_link_generate").hidden = false;
+
+    $(document).ready(function() {
+        $('#share_email').select2({
+            tags: true,
+            placeholder: 'Select or type a value',
+            allowClear: true
+        });
+    });
 }
 
 function generateShareLink() {
