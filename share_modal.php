@@ -53,7 +53,7 @@
                                     <option value="">-Select a contact-</option>
                                     <?php
 
-                                    $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' ORDER BY contact_name ASC");
+                                    $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' AND contact_archived_at IS NULL ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
                                         $contact_id_select = intval($row['contact_id']);
                                         $contact_name_select = nullable_htmlentities($row['contact_name']);
@@ -91,3 +91,4 @@
         </div>
     </div>
 </div>
+
