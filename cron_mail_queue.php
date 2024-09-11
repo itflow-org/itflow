@@ -24,11 +24,13 @@ $argv = $_SERVER['argv'];
 
 // Check cron is enabled
 if ($config_enable_cron == 0) {
+    error_log("Mail queue error - Cron is not enabled");
     exit("Cron: is not enabled -- Quitting..");
 }
 
 // Check Cron Key
 if ($argv[1] !== $config_cron_key) {
+    error_log("Mail queue error - Invalid cron key supplied");
     exit("Cron Key invalid  -- Quitting..");
 }
 
@@ -63,8 +65,12 @@ file_put_contents($lock_file_path, "Locked");
 // 2 Failed
 // 3 Sent
 
+/*
+ * ###############################################################################################################
+ *  Initial email send
+ * ###############################################################################################################
+ */
 // Get Mail Queue that has status of Queued and send it to the function sendSingleEmail() located in functions.php
-
 $sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
 
 if (mysqli_num_rows($sql_queue) > 0) {
@@ -80,47 +86,68 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_sent_at = $row['email_sent_at'];
         $email_ics_str = $row['email_cal_str'];
 
-        // Sanitized Input
-        $email_recipient_logging = sanitizeInput($row['email_recipient']);
-        $email_subject_logging = sanitizeInput($row['email_subject']);
+        // First, validate the sender email address
+        if (filter_var($email_from, FILTER_VALIDATE_EMAIL)) {
 
-        // Update the status to sending
-        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
+            // Sanitized Input
+            $email_recipient_logging = sanitizeInput($row['email_recipient']);
+            $email_subject_logging = sanitizeInput($row['email_subject']);
 
-        // Verify contact email is valid
-        if (filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
+            // Update the status to sending
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
 
-            $mail = sendSingleEmail(
-                $config_smtp_host,
-                $config_smtp_username,
-                $config_smtp_password,
-                $config_smtp_encryption,
-                $config_smtp_port,
-                $email_from,
-                $email_from_name,
-                $email_recipient,
-                $email_recipient_name,
-                $email_subject,
-                $email_content,
-                $email_ics_str
-            );
+            // Next, verify recipient email is valid
+            if (filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
 
-            if ($mail !== true) {
-                // Update Message - Failure
-                mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
+                $mail = sendSingleEmail(
+                    $config_smtp_host,
+                    $config_smtp_username,
+                    $config_smtp_password,
+                    $config_smtp_encryption,
+                    $config_smtp_port,
+                    $email_from,
+                    $email_from_name,
+                    $email_recipient,
+                    $email_recipient_name,
+                    $email_subject,
+                    $email_content,
+                    $email_ics_str
+                );
 
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email_recipient_logging'");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email_recipient_logging regarding $email_subject_logging. $mail'");
+                if ($mail !== true) {
+                    // Update Message - Failure
+                    mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
+
+                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron-Mail-Queue', notification = 'Failed to send email #$email_id to $email_recipient_logging'");
+                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail'");
+                } else {
+                    // Update Message - Success
+                    mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
+                }
             } else {
-                // Update Message - Success
-                mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
+                // Recipient email isn't valid, mark as failed and log the error
+                mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id due to invalid recipient address. Email subject was: $email_subject_logging.'");
             }
+
+        } else {
+            error_log("Failed to send email due to invalid sender address (' $email_from ') - check configuration in settings.");
+
+            $email_from_logging = sanitizeInput($row['email_from']);
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.'");
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email #$email_id due to invalid sender address'");
         }
+
     }
 }
 
-//
 
+/*
+ * ###############################################################################################################
+ *  Retries
+ * ###############################################################################################################
+ */
 // Get Mail that failed to send and attempt to send Failed Mail up to 4 times every 30 mins
 $sql_failed_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 2 AND email_attempts < 4 AND email_failed_at < NOW() + INTERVAL 30 MINUTE");
 
@@ -146,7 +173,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         // Update the status to sending before actually sending
         mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
 
-        // Verify contact email is valid
+        // Verify recipient email is valid
         if (filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
 
             $mail = sendSingleEmail(
@@ -167,9 +194,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
             if ($mail !== true) {
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
-
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email_recipient_logging'");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email_recipient_logging regarding $email_subject_logging. $mail'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to re-send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail'");
             } else {
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
@@ -178,5 +203,5 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
     }
 }
 
-// Remove the lock file once mail has finished processing so it doesnt get overun causing possible duplicates
+// Remove the lock file once mail has finished processing
 unlink($lock_file_path);

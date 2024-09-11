@@ -124,17 +124,17 @@ if (isset($_POST['edit_mail_from_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
     validateAdminRole();
 
-    $config_mail_from_email = sanitizeInput($_POST['config_mail_from_email']);
-    $config_mail_from_name = sanitizeInput($_POST['config_mail_from_name']);
+    $config_mail_from_email = sanitizeInput(filter_var($_POST['config_mail_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_mail_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_mail_from_name']));
 
-    $config_invoice_from_email = sanitizeInput($_POST['config_invoice_from_email']);
-    $config_invoice_from_name = sanitizeInput($_POST['config_invoice_from_name']);
+    $config_invoice_from_email = sanitizeInput(filter_var($_POST['config_invoice_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_invoice_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_invoice_from_name']));
 
-    $config_quote_from_email = sanitizeInput($_POST['config_quote_from_email']);
-    $config_quote_from_name = sanitizeInput($_POST['config_quote_from_name']);
+    $config_quote_from_email = sanitizeInput(filter_var($_POST['config_quote_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_quote_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_quote_from_name']));
 
-    $config_ticket_from_email = sanitizeInput($_POST['config_ticket_from_email']);
-    $config_ticket_from_name = sanitizeInput($_POST['config_ticket_from_name']);
+    $config_ticket_from_email = sanitizeInput(filter_var($_POST['config_ticket_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_ticket_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_ticket_from_name']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
 
