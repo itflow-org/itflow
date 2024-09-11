@@ -94,7 +94,6 @@ $config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
 $config_stripe_expense_category = intval($row['config_stripe_expense_category']);
 $config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
 $config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
-$config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
 // AI Provider Details
 $config_ai_enable = intval($row['config_ai_enable']);

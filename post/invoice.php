@@ -931,6 +931,9 @@ if (isset($_GET['delete_payment'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Payment deleted";
+    if ($config_stripe_enable) {
+        $_SESSION['alert_message'] = "Payment deleted - Stripe payments must be manually refunded in Stripe";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

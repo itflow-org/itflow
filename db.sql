@@ -1513,7 +1513,6 @@ CREATE TABLE `settings` (
   `config_ai_url` varchar(250) DEFAULT NULL,
   `config_ai_api_key` varchar(250) DEFAULT NULL,
   `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
-  `config_stripe_client_pays_fees` tinyint(1) NOT NULL DEFAULT 0,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,

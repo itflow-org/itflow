@@ -81,7 +81,6 @@ $config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
 $config_stripe_enable = intval($row['config_stripe_enable']);
 $config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
 $config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
-$config_stripe_client_pays_fees = intval($row['config_stripe_client_pays_fees']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -112,16 +111,6 @@ $amount_paid = floatval($row['amount_paid']);
 
 // Calculate the balance owed
 $balance = $invoice_amount - $amount_paid;
-
-// Calculate Gateway Fee
-if ($config_stripe_client_pays_fees == 1) {
-    $balance_before_fees = $balance;
-    // See here for passing costs on to client https://support.stripe.com/questions/passing-the-stripe-fee-on-to-customers
-    // Calculate the amount to charge the client
-    $balance_to_pay = ($balance + $config_stripe_flat_fee) / (1 - $config_stripe_percentage_fee);
-    // Calculate the fee amount
-    $gateway_fee = round($balance_to_pay - $balance_before_fees, 2);
-}
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
@@ -170,7 +159,7 @@ if ($balance > 0) {
                         <a class="btn btn-default" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-Invoice-$invoice_prefix$invoice_number")); ?>');"><i class="fa fa-fw fa-download mr-2"></i>Download</a>
                         <?php
                         if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
-                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now <?php if($config_stripe_client_pays_fees == 1) { echo "(Gateway Fee: " .  numfmt_format_currency($currency_format, $gateway_fee, $invoice_currency_code) . ")"; } ?></a>
+                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
                         <?php } ?>
                     </div>
                 </div>
