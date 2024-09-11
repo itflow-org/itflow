@@ -1736,7 +1736,13 @@ if (isset($_POST['export_client_tickets_csv'])) {
 
     $client_name = $row['client_name'];
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id ORDER BY ticket_number ASC");
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_client_id = $client_id ORDER BY ticket_number ASC"
+    );
+
     if ($sql->num_rows > 0) {
         $delimiter = ",";
         $filename = $client_name . "-Tickets-" . date('Y-m-d') . ".csv";
@@ -1745,12 +1751,12 @@ if (isset($_POST['export_client_tickets_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Ticket Number', 'Priority', 'Status', 'Subject', 'Date Opened', 'Date Closed');
+        $fields = array('Ticket Number', 'Priority', 'Status', 'Subject', 'Date Opened', 'Date Resolved', 'Date Closed');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
         while ($row = $sql->fetch_assoc()) {
-            $lineData = array($row['ticket_number'], $row['ticket_priority'], $row['ticket_status'], $row['ticket_subject'], $row['ticket_created_at'], $row['ticket_closed_at']);
+            $lineData = array($config_ticket_prefix . $row['ticket_number'], $row['ticket_priority'], $row['ticket_status_name'], $row['ticket_subject'], $row['ticket_created_at'], $row['ticket_resolved_at'], $row['ticket_closed_at']);
             fputcsv($f, $lineData, $delimiter);
         }
 
