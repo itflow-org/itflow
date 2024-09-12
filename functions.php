@@ -109,8 +109,8 @@ function getWebBrowser($user_browser)
         '/firefox/i'    =>  "<i class='fab fa-fw fa-firefox text-secondary'></i> Firefox",
         '/safari/i'     =>  "<i class='fab fa-fw fa-safari text-secondary'></i> Safari",
         '/chrome/i'     =>  "<i class='fab fa-fw fa-chrome text-secondary'></i> Chrome",
-        '/edg/i'       =>   "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
-        '/opera/i'      =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
+        '/edg/i'        =>  "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
+        '/opr/i'        =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
     );
     foreach ($browser_array as $regex => $value) {
         if (preg_match($regex, $user_browser)) {
@@ -124,20 +124,10 @@ function getOS($user_os)
 {
     $os_platform    =   "Unknown OS";
     $os_array       =   array(
-        '/windows nt 11/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 11",
-        '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
-        '/windows nt 6.3/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8.1",
-        '/windows nt 6.2/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8",
-        '/windows nt 6.1/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 7",
-        '/windows nt 6.0/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows Vista",
-        '/windows nt 5.2/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows Server 2003/XP x64",
-        '/windows nt 5.1/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows XP",
-        '/windows xp/i'         =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows XP",
+        '/windows/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
         '/macintosh|mac os x/i' =>  "<i class='fab fa-fw fa-apple text-secondary'></i> MacOS",
         '/linux/i'              =>  "<i class='fab fa-fw fa-linux text-secondary'></i> Linux",
-        '/ubuntu/i'             =>  "<i class='fab fa-fw fa-ubuntu text-secondary'></i> Ubuntu",
         '/iphone/i'             =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPhone",
-        '/ipod/i'               =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPod",
         '/ipad/i'               =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPad",
         '/android/i'            =>  "<i class='fab fa-fw fa-android text-secondary'></i> Android"
     );
