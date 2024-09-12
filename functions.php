@@ -109,7 +109,7 @@ function getWebBrowser($user_browser)
         '/firefox/i'    =>  "<i class='fab fa-fw fa-firefox text-secondary'></i> Firefox",
         '/safari/i'     =>  "<i class='fab fa-fw fa-safari text-secondary'></i> Safari",
         '/chrome/i'     =>  "<i class='fab fa-fw fa-chrome text-secondary'></i> Chrome",
-        '/edge/i'       =>  "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
+        '/edg/i'       =>   "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
         '/opera/i'      =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
     );
     foreach ($browser_array as $regex => $value) {
@@ -124,6 +124,7 @@ function getOS($user_os)
 {
     $os_platform    =   "Unknown OS";
     $os_array       =   array(
+        '/windows nt 11/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 11",
         '/windows nt 10/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 10",
         '/windows nt 6.3/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8.1",
         '/windows nt 6.2/i'     =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows 8",

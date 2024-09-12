@@ -19,6 +19,9 @@ $start_date = date('Y') . "-10-10";
 
 echo "<H1>$start_date</H1>";
 
+echo "<H2>User Agent</H2>";
+echo getUserAgent();
+
 
 ?>
 <br>
