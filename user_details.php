@@ -16,7 +16,7 @@ require_once "inc_all_user.php";
                 <?php if (empty($session_avatar)) { ?>
                     <i class="fas fa-user-circle fa-8x text-secondary"></i>
                 <?php } else { ?>
-                    <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>" class="img-fluid">
+                    <img alt="User avatar" src="<?php echo "uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>" class="img-size-64">
                 <?php } ?>
                 <h4 class="text-secondary mt-2"><?php echo nullable_htmlentities($session_user_role_display); ?></h4>
             </center>
