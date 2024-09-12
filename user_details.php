@@ -45,7 +45,11 @@ require_once "inc_all_user.php";
 
             <div class="form-group">
                 <label>Your Avatar</label>
-                <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+                <?php if ($session_avatar) { ?>
+                    <br><a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>">Avatar is set, click to clear</a>
+                <?php } else { ?>
+                    <input type="file" class="form-control-file" accept="image/*;capture=camera" name="avatar">
+                <?php } ?>
             </div>
 
             <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-block mt-3"><i class="fas fa-check mr-2"></i>Save</button>
