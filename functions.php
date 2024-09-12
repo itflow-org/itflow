@@ -110,7 +110,8 @@ function getWebBrowser($user_browser)
         '/safari/i'     =>  "<i class='fab fa-fw fa-safari text-secondary'></i> Safari",
         '/chrome/i'     =>  "<i class='fab fa-fw fa-chrome text-secondary'></i> Chrome",
         '/edg/i'        =>  "<i class='fab fa-fw fa-edge text-secondary'></i> Edge",
-        '/opr/i'        =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera"
+        '/opr/i'        =>  "<i class='fab fa-fw fa-opera text-secondary'></i> Opera",
+        '/ddg/i'        =>  "<i class='fas fa-fw fa-globe text-secondary'></i> DuckDuckGo"
     );
     foreach ($browser_array as $regex => $value) {
         if (preg_match($regex, $user_browser)) {
@@ -124,9 +125,11 @@ function getOS($user_os)
 {
     $os_platform    =   "Unknown OS";
     $os_array       =   array(
-        '/windows/i'      =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
+        '/windows/i'            =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
         '/macintosh|mac os x/i' =>  "<i class='fab fa-fw fa-apple text-secondary'></i> MacOS",
         '/linux/i'              =>  "<i class='fab fa-fw fa-linux text-secondary'></i> Linux",
+        '/ubuntu/i'             =>  "<i class='fab fa-fw fa-ubuntu text-secondary'></i> Ubuntu",
+        '/fedora/i'             =>  "<i class='fab fa-fw fa-fedora text-secondary'></i> Fedora",
         '/iphone/i'             =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPhone",
         '/ipad/i'               =>  "<i class='fab fa-fw fa-apple text-secondary'></i> iPad",
         '/android/i'            =>  "<i class='fab fa-fw fa-android text-secondary'></i> Android"
