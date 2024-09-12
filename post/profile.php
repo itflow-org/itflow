@@ -49,10 +49,10 @@ if (isset($_POST['edit_your_user_details'])) {
     }
 
     // Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($_FILES['avatar']['tmp_name'] != '') {
+        if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+            $file_tmp_path = $_FILES['avatar']['tmp_name'];
 
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/users/$session_user_id/";
@@ -66,10 +66,9 @@ if (isset($_POST['edit_your_user_details'])) {
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
 
             // Extended Logging
-            $extended_log_description .= ", profile picture updated";
+            $extended_log_description .= ", avatar updated";
 
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
+        } else {
             $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
@@ -88,6 +87,15 @@ if (isset($_POST['edit_your_user_details'])) {
     else{
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
+}
+
+if (isset($_GET['clear_your_user_avatar'])) {
+    validateCSRFToken($_GET['csrf_token']);
+
+    mysqli_query($mysqli,"UPDATE users SET user_avatar = NULL WHERE user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Avatar cleared";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST['edit_your_user_password'])) {
@@ -199,7 +207,7 @@ if (isset($_POST['verify'])) {
 
 }
 
-if(isset($_POST['enable_2fa'])){
+if (isset($_POST['enable_2fa'])){
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
@@ -220,7 +228,7 @@ if(isset($_POST['enable_2fa'])){
 
 }
 
-if(isset($_POST['disable_2fa'])){
+if (isset($_POST['disable_2fa'])){
 
     // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
