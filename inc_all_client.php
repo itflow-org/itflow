@@ -212,18 +212,18 @@ if (isset($_GET['client_id'])) {
 
         // Expiring Items
 
-        // Count Domains Expiring within 30 Days
+        // Count Domains Expiring within 90 Days
         $row = mysqli_fetch_assoc(mysqli_query(
             $mysqli,
             "SELECT COUNT('domain_id') AS num FROM domains
             WHERE domain_client_id = $client_id
             AND domain_expire IS NOT NULL
-            AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
+            AND domain_expire < CURRENT_DATE + INTERVAL 90 DAY
             AND domain_archived_at IS NULL"
         ));
         $num_domains_expiring = intval($row['num']);
 
-        // Count Domains Expired or within 5 days
+        // Count Domains Expired or within 14 days
         $row = mysqli_fetch_assoc(mysqli_query(
             $mysqli,
             "SELECT COUNT('domain_id') AS num FROM domains
@@ -231,22 +231,61 @@ if (isset($_GET['client_id'])) {
             AND domain_expire IS NOT NULL
             AND (
                     domain_expire < CURRENT_DATE
-                    OR domain_expire < CURRENT_DATE + INTERVAL 5 DAY
+                    OR domain_expire < CURRENT_DATE + INTERVAL 14 DAY
                 )
             AND domain_archived_at IS NULL"
         ));
         $num_domains_expired = intval($row['num']);
 
-        // Count Certificates Expiring within 30 Days
+        // Count Certificates Expiring within 90 Days
         $row = mysqli_fetch_assoc(mysqli_query(
             $mysqli,
             "SELECT COUNT('certificate_id') AS num FROM certificates
             WHERE certificate_client_id = $client_id
             AND certificate_expire IS NOT NULL
-            AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
+            AND certificate_expire < CURRENT_DATE + INTERVAL 90 DAY
             AND certificate_archived_at IS NULL"
         ));
-        $num_certs_expiring = intval($row['num']);
+        $num_certificates_expiring = intval($row['num']);
+
+        // Count Certificates Expired or within 14 days
+        $row = mysqli_fetch_assoc(mysqli_query(
+            $mysqli,
+            "SELECT COUNT('certificate_id') AS num FROM certificates
+            WHERE certificate_client_id = $client_id
+            AND certificate_expire IS NOT NULL
+            AND (
+                    certificate_expire < CURRENT_DATE
+                    OR certificate_expire < CURRENT_DATE + INTERVAL 14 DAY
+                )
+            AND certificate_archived_at IS NULL"
+        ));
+        $num_certificates_expired = intval($row['num']);
+
+        // Count Software Expiring within 90 Days
+        $row = mysqli_fetch_assoc(mysqli_query(
+            $mysqli,
+            "SELECT COUNT('software_id') AS num FROM software
+            WHERE software_client_id = $client_id
+            AND software_expire IS NOT NULL
+            AND software_expire < CURRENT_DATE + INTERVAL 90 DAY
+            AND software_archived_at IS NULL"
+        ));
+        $num_software_expiring = intval($row['num']);
+
+        // Count Software Expired or within 14 days
+        $row = mysqli_fetch_assoc(mysqli_query(
+            $mysqli,
+            "SELECT COUNT('software_id') AS num FROM software
+            WHERE software_client_id = $client_id
+            AND software_expire IS NOT NULL
+            AND (
+                    software_expire < CURRENT_DATE
+                    OR software_expire < CURRENT_DATE + INTERVAL 14 DAY
+                )
+            AND software_archived_at IS NULL"
+        ));
+        $num_software_expired = intval($row['num']);
 
     }
 }

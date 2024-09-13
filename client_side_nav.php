@@ -136,7 +136,7 @@
                             Licenses
                             <?php
                             if ($num_software > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_software; ?></span>
+                                <span class="right badge <?php if ($num_software_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_software; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -189,7 +189,7 @@
 
                             <?php
                             if ($num_certificates > 0) { ?>
-                                <span class="right badge <?php if ($num_certs_expiring > 0) { ?> badge-warning text-dark <?php } ?> text-light"><?php echo $num_certificates; ?></span>
+                                <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_certificates; ?></span>
                             <?php } ?>
                         </p>
                     </a>

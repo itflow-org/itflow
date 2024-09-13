@@ -101,6 +101,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $software_notes = nullable_htmlentities($row['software_notes']);
                         $software_created_at = nullable_htmlentities($row['software_created_at']);
 
+                        $software_expire_ago = timeAgo($software_expire);
+                        // Convert the expiry date to a timestamp
+                        $software_expire_timestamp = strtotime($row['software_expire']);
+                        $current_timestamp = time(); // Get current timestamp
+
+                        // Calculate the difference in days
+                        $days_until_expiry = ($software_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
+
+                        // Determine the class based on the number of days until expiry
+                        if ($days_until_expiry <= 0) {
+                            $tr_class = "table-secondary";
+                        } elseif ($days_until_expiry <= 14) {
+                            $tr_class = "table-danger";
+                        } elseif ($days_until_expiry <= 90) {
+                            $tr_class = "table-warning";
+                        } else {
+                            $tr_class = '';
+                        }
+
                         $seat_count = 0;
 
                         // Asset Licenses
@@ -124,7 +143,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 
                         ?>
-                        <tr>
+                        <tr class="<?php echo $tr_class; ?>">
                             <td>
                                 <a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>">
                                     <div class="media">

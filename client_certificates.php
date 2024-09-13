@@ -102,8 +102,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $certificate_expire = nullable_htmlentities($row['certificate_expire']);
                         $certificate_created_at = nullable_htmlentities($row['certificate_created_at']);
 
+                        $certificate_expire_ago = timeAgo($certificate_expire);
+                        // Convert the expiry date to a timestamp
+                        $certificate_expire_timestamp = strtotime($row['certificate_expire']);
+                        $current_timestamp = time(); // Get current timestamp
+
+                        // Calculate the difference in days
+                        $days_until_expiry = ($certificate_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
+
+                        // Determine the class based on the number of days until expiry
+                        if ($days_until_expiry <= 0) {
+                            $tr_class = "table-secondary";
+                        } elseif ($days_until_expiry <= 14) {
+                            $tr_class = "table-danger";
+                        } elseif ($days_until_expiry <= 90) {
+                            $tr_class = "table-warning";
+                        } else {
+                            $tr_class = '';
+                        }
+
                         ?>
-                        <tr>
+                        <tr class="<?php echo $tr_class; ?>">
                             <td class="pr-0">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
@@ -125,7 +144,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <td><?php echo $certificate_issued_by; ?></td>
 
-                            <td><?php echo $certificate_expire; ?></td>
+                            <td>
+                                <div><?php echo $certificate_expire; ?></div>
+                                <div><small><?php echo $certificate_expire_ago; ?></small></div>
+                            </td>
 
                             <td>
                                 <div class="dropdown dropleft text-center">
