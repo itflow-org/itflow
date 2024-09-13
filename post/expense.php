@@ -215,6 +215,44 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['bulk_delete_expenses'])) {
+    validateAdminRole();
+    validateCSRFToken($_POST['csrf_token']);
+
+    $count = 0; // Default 0
+    $expense_ids = $_POST['expense_ids']; // Get array of expense IDs to be deleted
+    $client_id = intval($_POST['client_id']);
+
+    if (!empty($expense_ids)) {
+
+        // Cycle through array and delete each expense
+        foreach ($expense_ids as $expense_id) {
+
+            $expense_id = intval($expense_id);
+
+            $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
+            $row = mysqli_fetch_array($sql);
+            $expense_receipt = sanitizeInput($row['expense_receipt']);
+
+            unlink("uploads/expenses/$expense_receipt");
+
+            mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$session_name deleted a expense (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+
+            $count++;
+        }
+
+        // Logging
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$session_name bulk deleted $count expenses', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Deleted $count expense(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['export_expenses_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);

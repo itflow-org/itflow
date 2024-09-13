@@ -105,6 +105,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditClientModal">
                                         <i class="fas fa-fw fa-user mr-2"></i>Set Client
                                     </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger text-bold"
+                                            type="submit" form="bulkActions" name="bulk_delete_expenses">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </button>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
