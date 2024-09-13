@@ -2,16 +2,86 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Export Expenses to CSV</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Exporting Expenses to CSV</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+
                 <div class="modal-body bg-white">
 
-                    <?php require_once "inc_export_warning.php";
- ?>
+                    <div class="form-group">
+                        <label>Account</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            </div>
+                            <select class="form-control select2" name="account">
+                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+
+                                <?php
+                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                    $account_id = intval($row['account_id']);
+                                    $account_name = nullable_htmlentities($row['account_name']);
+                                ?>
+                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vendor</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                            </div>
+                            <select class="form-control select2" name="vendor">
+                                <option value="" <?php if ($vendor == "") { echo "selected"; } ?>>- All Vendors -</option>
+
+                                <?php
+                                $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                while ($row = mysqli_fetch_array($sql_vendors_filter)) {
+                                    $vendor_id = intval($row['vendor_id']);
+                                    $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                ?>
+                                    <option <?php if ($vendor == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                            </div>
+                            <select class="form-control select2" name="category">
+                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+
+                                <?php
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
+                                while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                    $category_id = intval($row['category_id']);
+                                    $category_name = nullable_htmlentities($row['category_name']);
+                                ?>
+                                    <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label>Date From</label>

@@ -218,12 +218,39 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 if (isset($_POST['export_expenses_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
+    $account = intval($_POST['account']);
+    $vendor = intval($_POST['vendor']);
+    $category = intval($_POST['category']);
+
     if (!empty($date_from) && !empty($date_to)) {
         $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
     }else{
         $date_query = "";
         $file_name_date = date('Y-m-d');
+    }
+
+    // Vendor Filter
+    if ($account) {
+        $account_query = "AND expense_account_id = $account";
+    } else {
+        $account_query = '';
+    }
+
+    // Vendor Filter
+    if ($vendor) {
+        $vendor_query = "AND expense_vendor_id = $vendor";
+    } else {
+        // Default - any
+        $vendor_query = '';
+    }
+
+    // Category Filter
+    if ($category) {
+        $category_query = "AND expense_category_id = $category";
+    } else {
+        // Default - any
+        $category_query = '';
     }
 
     //get records from database
@@ -233,6 +260,9 @@ if (isset($_POST['export_expenses_csv'])) {
       LEFT JOIN accounts ON expense_account_id = account_id
       WHERE expense_vendor_id > 0
       $date_query
+      $account_query
+      $vendor_query
+      $category_query
       ORDER BY expense_date DESC
     ");
 
