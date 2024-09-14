@@ -1354,7 +1354,7 @@ function lookupUserPermission($module) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT 
+        "SELECT
 			urp.user_role_permission_level
 		FROM
 			modules AS m
