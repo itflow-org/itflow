@@ -21,18 +21,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
     if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
         // For a primary / technical contact viewing all tickets
         $ticket_sql = mysqli_query($mysqli,
-            "SELECT * FROM tickets 
-            LEFT JOIN users on ticket_assigned_to = user_id 
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+            "SELECT * FROM tickets
+            LEFT JOIN users on ticket_assigned_to = user_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
             WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id"
         );
 
     } else {
         // For a user viewing their own ticket
         $ticket_sql = mysqli_query($mysqli,
-            "SELECT * FROM tickets 
-            LEFT JOIN users on ticket_assigned_to = user_id 
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id 
+            "SELECT * FROM tickets
+            LEFT JOIN users on ticket_assigned_to = user_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
             WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id"
         );
     }
@@ -238,7 +238,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <script src="../js/pretty_content.js"></script>
 
-    <?php
+        <?php
     } else {
         echo "Ticket ID not found!";
     }

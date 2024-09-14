@@ -121,7 +121,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
+                    <a href="report_domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_domains.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-globe"></i>
                         <p>All Domains</p>
                     </a>

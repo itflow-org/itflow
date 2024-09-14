@@ -22,8 +22,9 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*,
     LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
     WHERE domain_archived_at IS NULL
-    AND (domain_name LIKE '%$q%' OR domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%') 
-    ORDER BY $sort $order LIMIT $record_from, $record_to");
+    AND (domain_name LIKE '%$q%' OR domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -122,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $domain_registrar_name = nullable_htmlentities($row['registrar_name']);
-                            if($domain_registrar_name) {
+                            if ($domain_registrar_name) {
                                 $domain_registrar_name_display = $domain_registrar_name;
                             } else {
                                 $domain_registrar_name_display = "-";
@@ -148,7 +149,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td>
-                                    <a class="text-dark" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">
+                                    <a class="text-dark">
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-globe mr-3"></i>
                                             <div class="media-body">
@@ -203,7 +204,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
-<script src="js/domain_edit_modal.js"></script>
 <script src="js/bulk_actions.js"></script>
 
 <?php require_once "footer.php";

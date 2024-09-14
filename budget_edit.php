@@ -66,9 +66,9 @@ $grandTotal = 0;
             <?php foreach ($categories as $category): ?>
                 <tr>
                     <td><?php echo nullable_htmlentities($category['category_name']); ?></td>
-                    <?php 
+                    <?php
                     $rowTotal = 0;
-                    foreach ($months as $index => $month): 
+                    foreach ($months as $index => $month):
                         $amount = getBudgetAmount($budgets, $category['category_id'], $index + 1);
                         $rowTotal += $amount;
                         $columnTotals[$index] += $amount;
@@ -77,7 +77,7 @@ $grandTotal = 0;
                     <?php endforeach; ?>
                     <td><?php echo $rowTotal; ?></td>
                 </tr>
-            <?php 
+            <?php
             $grandTotal += $rowTotal;
             endforeach; ?>
             </tbody>

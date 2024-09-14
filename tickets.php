@@ -22,6 +22,7 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 
 } else {
 
+    // TODO: Convert this to use the status IDs
     if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
         $status = 'Closed';
         $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
@@ -125,7 +126,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <input type="hidden" name="status" value="<?php echo $status; ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">

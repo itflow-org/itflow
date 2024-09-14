@@ -2,13 +2,6 @@
 
 require_once 'guest_header.php';
 
-function log_to_console($message) {
-    $message = date("H:i:s") . " - $message - ".PHP_EOL;
-    print($message);
-    flush();
-    ob_flush();
-}
-
 // Define wording
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
 

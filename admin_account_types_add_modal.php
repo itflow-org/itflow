@@ -16,10 +16,10 @@
                     <div class="form-group">
                         <label>Account Type</label>
                         <select class="form-control select2" name="type" required> 
-                            <option value="" <?php if ($account_type == NULL) echo "selected"; ?>>- Select -</option>
-                            <option value="1" <?php if ($account_type == 'Assets') echo "selected"; ?>>Assets</option>
-                            <option value="2" <?php if ($account_type == 'Liabilities') echo "selected"; ?>>Liabilities</option>
-                            <option value="3" <?php if ($account_type == 'Equity') echo "selected"; ?>>Equity</option>
+                            <option value="" <?php if ($account_type == NULL) { echo "selected"; } ?>>- Select -</option>
+                            <option value="1" <?php if ($account_type == 'Assets') { echo "selected"; } ?>>Assets</option>
+                            <option value="2" <?php if ($account_type == 'Liabilities') { echo "selected"; } ?>>Liabilities</option>
+                            <option value="3" <?php if ($account_type == 'Equity') { echo "selected"; } ?>>Equity</option>
                         </select>
                     </div>
                     <div class="form-group">

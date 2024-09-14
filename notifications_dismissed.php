@@ -13,8 +13,8 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM notifications 
-    LEFT JOIN users ON notification_dismissed_by = user_id 
+    "SELECT SQL_CALC_FOUND_ROWS * FROM notifications
+    LEFT JOIN users ON notification_dismissed_by = user_id
     LEFT JOIN clients ON notification_client_id = client_id
     WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt'

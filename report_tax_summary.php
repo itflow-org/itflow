@@ -7,15 +7,14 @@ validateAccountantRole();
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $view = isset($_GET['view']) ? $_GET['view'] : 'quarterly';
-$company_currency = getSettingValue($mysqli, 'company_currency');
 
+$currency_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT company_currency FROM companies WHERE company_id = 1"));
+$company_currency = nullable_htmlentities($currency_row['company_currency']);
 
-//GET unique years from expenses, payments and revenues
+// GET unique years from expenses, payments and revenues
 $sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items ORDER BY all_years DESC");
 
-$sql_tax = mysqli_query($mysqli, 
-    "SELECT `tax_name`
-    FROM `taxes`");
+$sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
 ?>
 
@@ -42,7 +41,7 @@ $sql_tax = mysqli_query($mysqli,
 
                 </select>
 
-                        <!-- View Selection Dropdown -->
+                <!-- View Selection Dropdown -->
                 <select onchange="this.form.submit()" class="form-control" name="view">
                     <option value="monthly" <?php if ($view == 'monthly') echo "selected"; ?>>Monthly</option>
                     <option value="quarterly" <?php if ($view == 'quarterly') echo "selected"; ?>>Quarterly</option>

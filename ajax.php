@@ -459,17 +459,6 @@ if (isset($_GET['get_client_contacts'])) {
 }
 
 /*
- * Dynamic TOTP "resolver"
- * When provided with a TOTP secret, returns a 6-digit code
- * // TODO: Check if this can now be removed
- */
-if (isset($_GET['get_totp_token'])) {
-    $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
-
-    echo json_encode($otp);
-}
-
-/*
  * NEW TOTP getter for client login/passwords page
  * When provided with a login ID, checks permissions and returns the 6-digit code
  */
