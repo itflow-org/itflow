@@ -60,32 +60,6 @@
 * Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
 * We are hoping to have a stable 1.0 release by early 2024.
 
-<!-- BUILT WITH -->
-### Built With
-
-* Backend / PHP libs
-  * PHP
-  * MariaDB
-  * PHPMailer
-  * HTML Purifier
-  * PHP Mime Mail Parser
-  * Zap Calendar
-
-* CSS
-  * Bootstrap
-  * AdminLTE
-  * fontawesome
-
-* JS Libraries
-  * chart.js
-  * moments.js
-  * jQuery
-  * pdfmake
-  * Select2
-  * TinyMCE
-  * FullCalendar.io
-
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
