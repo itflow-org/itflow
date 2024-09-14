@@ -18,11 +18,8 @@ header("X-Frame-Options: DENY"); // Legacy
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
-    <!-- 
-    Favicon
-    If Fav Icon exists else use the default one 
-    -->
-    <?php if(file_exists('../uploads/favicon.ico')) { ?>
+    <!-- Favicon: If Fav Icon exists, else use the default one -->
+    <?php if (file_exists('../uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
     <?php } ?>
 
@@ -50,10 +47,10 @@ header("X-Frame-Options: DENY"); // Legacy
                 <li class="nav-item <?php if (basename($_SERVER['PHP_SELF']) == "index.php") {echo "active";} ?>">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
-                    </li>
-                
+                <li class="nav-item">
+                    <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
+                </li>
+
                 <?php if (($session_contact_primary == 1 || $session_contact_is_billing_contact) && $config_module_enable_accounting == 1) { ?>
                     <li class="nav-item">
                         <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "invoices.php") {echo "active";} ?>" href="invoices.php">Invoices</a>

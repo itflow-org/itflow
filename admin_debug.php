@@ -113,8 +113,6 @@ function fetchDatabaseStructureFromServer() {
         }
     }
 
-    //$mysqli->close();
-
     return $tables;
 }
 

@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
-                        "SELECT * FROM logs 
+                        "SELECT * FROM logs
                         WHERE log_user_id = $user_id AND log_type = 'Login'
                         ORDER BY log_id DESC LIMIT 1"
                     );

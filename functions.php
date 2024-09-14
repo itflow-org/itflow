@@ -867,23 +867,6 @@ function roundToNearest15($time)
     return number_format($decimalHours, 2);
 }
 
-// Get the value of a setting from the database
-function getSettingValue($mysqli, $setting_name)
-{
-    //if starts with config_ then get from config table
-    if (substr($setting_name, 0, 7) == "config_") {
-        $sql = mysqli_query($mysqli, "SELECT $setting_name FROM settings");
-        $row = mysqli_fetch_array($sql);
-        return $row[$setting_name];
-    } elseif (substr($setting_name, 0, 7) == "company") {
-        $sql = mysqli_query($mysqli, "SELECT $setting_name FROM companies");
-        $row = mysqli_fetch_array($sql);
-        return $row[$setting_name];
-    } else {
-        return "Cannot Find Setting Name";
-    }
-}
-
 function getMonthlyTax($tax_name, $month, $year, $mysqli)
 {
     // SQL to calculate monthly tax
@@ -932,8 +915,7 @@ function getAccountCurrencyCode($mysqli, $account_id)
 {
     $sql = mysqli_query($mysqli, "SELECT account_currency_code FROM accounts WHERE account_id = $account_id");
     $row = mysqli_fetch_array($sql);
-    $account_currency_code = nullable_htmlentities($row['account_currency_code']);
-    return $account_currency_code;
+    return nullable_htmlentities($row['account_currency_code']);
 }
 
 function calculateAccountBalance($mysqli, $account_id)
@@ -1059,32 +1041,6 @@ function addToMailQueue($mysqli, $data) {
     return true;
 }
 
-function calculateInvoiceBalance($mysqli, $invoice_id)
-{
-    $invoice_id_int = intval($invoice_id);
-    $sql_invoice = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id_int");
-    $row = mysqli_fetch_array($sql_invoice);
-    $invoice_amount = floatval($row['invoice_amount']);
-
-    $sql_payments = mysqli_query(
-        $mysqli,
-        "SELECT SUM(payment_amount) AS total_payments FROM payments
-        WHERE payment_invoice_id = $invoice_id
-        "
-    );
-
-    $row = mysqli_fetch_array($sql_payments);
-    $total_payments = floatval($row['total_payments']);
-
-    $balance = $invoice_amount - $total_payments;
-
-    if ($balance == '') {
-        $balance = '0.00';
-    }
-
-    return $balance;
-}
-
 function createiCalStr($datetime, $title, $description, $location)
 {
     require_once "plugins/zapcal/zapcallib.php";
@@ -1148,21 +1104,6 @@ function createiCalStrCancel($originaliCalStr) {
     return $cal_event->export();
 }
 
-function getTicketStatusColor($ticket_status) {
-
-    global $mysqli;
-
-    $status_id = intval($ticket_status);
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_status_color FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
-
-    if ($row) {
-        return nullable_htmlentities($row['ticket_status_color']);
-    }
-
-    // Default return
-    return "Unknown";
-}
-
 function getTicketStatusName($ticket_status) {
 
     global $mysqli;
@@ -1195,7 +1136,6 @@ function fetchUpdates() {
         $update_message = "New Updates are Available [$latest_version]";
     }
 
-    
 
     $updates = new stdClass();
     $updates->output = $output;
@@ -1203,8 +1143,7 @@ function fetchUpdates() {
     $updates->current_version = $current_version;
     $updates->latest_version = $latest_version;
     $updates->update_message = $update_message;
-    
-    
+
     
     return $updates;
 

@@ -55,11 +55,13 @@
     HAVING 
         balance > 0 AND months_behind >= 2
     ORDER BY
-        months_behind DESC;";
+        months_behind DESC";
+
     $result_client_balance_report = mysqli_query($mysqli, $sql_client_balance_report);
 
-    //get currency format from settings
-    $config_currency_code = getSettingValue($mysqli, "company_currency");
+    $currency_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT company_currency FROM companies WHERE company_id = 1"));
+    $company_currency = nullable_htmlentities($currency_row['company_currency']);
+
 ?>
 
 <div class="card card-dark">
@@ -102,9 +104,9 @@
                                 $behind_amount = floatval($row['behind_amount']);
                                 $months_behind = number_format($row['months_behind']);
                                 
-                                $formatted_balance = numfmt_format_currency($currency_format, $balance, $config_currency_code);
-                                $formatted_recurring_monthly_total = numfmt_format_currency($currency_format, $recurring_monthly_total, $config_currency_code);
-                                $formatted_behind_amount = numfmt_format_currency($currency_format, $behind_amount, $config_currency_code);
+                                $formatted_balance = numfmt_format_currency($currency_format, $balance, $company_currency);
+                                $formatted_recurring_monthly_total = numfmt_format_currency($currency_format, $recurring_monthly_total, $company_currency);
+                                $formatted_behind_amount = numfmt_format_currency($currency_format, $behind_amount, $company_currency);
                                 
                                 echo "<tr>";
                                 echo "<td><a href='client_statement.php?client_id=$client_id'>$client_name</a></td>";

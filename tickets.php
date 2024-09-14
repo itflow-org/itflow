@@ -20,6 +20,8 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
     $sanitizedStatusesString = implode(",", $sanitizedStatuses);
     $ticket_status_snippet = "ticket_status IN ($sanitizedStatusesString)";
 
+    var_dump($status);
+
 } else {
 
     if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
@@ -27,7 +29,7 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
         $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
     } else {
         // Default - Show open tickets
-        $status = 'Open';
+        $status = 2;
         $ticket_status_snippet = "ticket_resolved_at IS NULL";
     }
 }
@@ -125,7 +127,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <input type="hidden" name="status" value="<?php echo $status; ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">

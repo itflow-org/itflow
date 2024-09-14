@@ -12,7 +12,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
-    LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type 
+    LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type
     WHERE (account_name LIKE '%$q%' OR account_type_name LIKE '%$q%')
     AND account_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"

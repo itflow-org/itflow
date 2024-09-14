@@ -345,7 +345,7 @@ function createMailboxFolder($client, $folderName) {
 }
 
 // Function to subscribe to a folder in the mailbox
-function subscribeMailboxFolder($client, $folder) {
+function subscribeMailboxFolder($folder) {
     if ($folder) {
         try {
             // Subscribe to the folder
@@ -378,7 +378,7 @@ $client->connect();
 $folder = createMailboxFolder($client, 'ITFlow');
 
 // Subscribe to the "ITFlow" mailbox folder
-subscribeMailboxFolder($client, $folder);
+subscribeMailboxFolder($folder);
 
 // Possible names for the inbox folder
 $inboxNames = ['Inbox', 'INBOX', 'inbox'];

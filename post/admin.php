@@ -335,7 +335,7 @@ if (isset($_GET['delete_custom_link'])) {
     mysqli_query($mysqli,"DELETE FROM custom_links WHERE custom_link_id = $custom_link_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = '$session_name Deleted custom link', log_description = '$tag_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Delete', log_description = '$session_name deleted a custom link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
     $_SESSION['alert_message'] = "Cusatom Link deleted!";
     $_SESSION['alert_type'] = "error";

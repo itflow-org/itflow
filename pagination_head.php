@@ -11,7 +11,7 @@
 $get_copy = $_GET; // create a copy of the $_GET array
 //unset($get_copy['page']);
 unset($get_copy['sort']);
-unset($get_copy['order']); 
+unset($get_copy['order']);
 
 // Paging
 if (isset($_GET['page'])) {
@@ -107,7 +107,7 @@ if (isset($_GET['archived'])) {
     $archived = intval($_GET['archived']);
 }
 
-if($archived == 1){
+if ($archived == 1){
     $archive_query = "archived_at IS NOT NULL";
 } else {
     $archive_query = "archived_at IS NULL";
