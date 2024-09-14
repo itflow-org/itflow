@@ -20,16 +20,15 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
     $sanitizedStatusesString = implode(",", $sanitizedStatuses);
     $ticket_status_snippet = "ticket_status IN ($sanitizedStatusesString)";
 
-    var_dump($status);
-
 } else {
 
+    // TODO: Convert this to use the status IDs
     if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
         $status = 'Closed';
         $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
     } else {
         // Default - Show open tickets
-        $status = 2;
+        $status = 'Open';
         $ticket_status_snippet = "ticket_resolved_at IS NULL";
     }
 }
