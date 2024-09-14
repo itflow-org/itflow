@@ -890,6 +890,18 @@ CREATE TABLE `logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `modules`
+--
+
+DROP TABLE IF EXISTS `modules`;
+CREATE TABLE IF NOT EXISTS `modules` (
+    `module_id` int(11) NOT NULL AUTO_INCREMENT,
+    `module_name` varchar(200) NOT NULL,
+    `module_description` varchar(200) DEFAULT NULL,
+    PRIMARY KEY (`module_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
 -- Table structure for table `networks`
 --
 
@@ -1959,12 +1971,24 @@ CREATE TABLE `user_roles` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_role_name` varchar(200) NOT NULL,
   `user_role_description` varchar(200) DEFAULT NULL,
+  `user_role_is_admin` int(11) NOT NULL DEFAULT 0,
   `user_role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `user_role_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`user_role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_role_permissions`
+--
+
+DROP TABLE IF EXISTS `user_role_permissions`;
+CREATE TABLE IF NOT EXISTS `user_role_permissions` (
+    `user_role_id` int(11) NOT NULL,
+    `module_id` int(11) NOT NULL,
+    `user_role_permission_level` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
 -- Table structure for table `user_settings`

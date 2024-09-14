@@ -1341,3 +1341,49 @@ zgjRYR/zGN5l+az6RB3+0mJRdZdv/y2aRkBlwTxx2gOrPbQAco4a/IOmkE3EbHe7
 
     return false;
 }
+
+// When provided a module name (e.g. module_support), returns the associated permission level (false=none, 1=read, 2=write, 3=full)
+function lookupUserPermission($module) {
+    global $mysqli, $session_is_admin, $session_user_role;
+
+    if (isset($session_is_admin) && $session_is_admin === true) {
+        return 3;
+    }
+
+    $module = sanitizeInput($module);
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT 
+			urp.user_role_permission_level
+		FROM 
+			modules AS m
+		JOIN 
+			user_role_permissions AS urp
+		ON 
+			m.module_id = urp.module_id
+		WHERE 
+			m.module_name = '$module' AND urp.user_role_id = $session_user_role"
+    );
+
+    $row = mysqli_fetch_array($sql);
+
+    if (isset($row['user_role_permission_level'])) {
+        return intval($row['user_role_permission_level']);
+    }
+
+    // Default return for no module permission
+    return false;
+}
+
+// Ensures a user has access to a module (e.g. module_support) with at least the required permission level provided (defaults to read)
+function enforceUserPermission($module, $check_access_level = 1) {
+    $permitted_access_level = lookupUserPermission($module);
+
+    if (!$permitted_access_level || $permitted_access_level < $check_access_level) {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit(WORDING_ROLECHECK_FAILED);
+    }
+}

@@ -2165,10 +2165,54 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.4.9'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.4.9') {
-    //     // Insert queries here required to update to DB version 1.5.0
+     if (CURRENT_DATABASE_VERSION == '1.4.9') {
+
+         // Add new "is admin" identifier on user roles
+         mysqli_query($mysqli, "ALTER TABLE `user_roles` ADD `user_role_is_admin` INT(11) NOT NULL DEFAULT '0' AFTER `user_role_description`");
+         mysqli_query($mysqli, "UPDATE `user_roles` SET `user_role_is_admin` = '1' WHERE `user_role_id` = 3");
+
+         // Add modules
+         mysqli_query($mysqli, "CREATE TABLE `modules` (
+            `module_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `module_name` VARCHAR(200) NOT NULL,
+            `module_description` VARCHAR(200) NULL,
+            PRIMARY KEY (`module_id`)
+         )");
+
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_client', module_description = 'General client & contact management'");
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_support', module_description = 'Access to ticketing, assets and documentation'");
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_credential', module_description = 'Access to client credentials - usernames, passwords and 2FA codes'");
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_sales', module_description = 'Access to quotes, invoices and products'");
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_financial', module_description = 'Access to payments, accounts, expenses and budgets'");
+         mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_reporting', module_description = 'Access to all reports'");
+
+         // Add table for storing role<->module permissions
+         mysqli_query($mysqli, "CREATE TABLE `user_role_permissions` (
+            `user_role_id` INT(11) NOT NULL,
+            `module_id` INT(11) NOT NULL,
+            `user_role_permission_level` INT(11) NOT NULL
+         )");
+
+         // Add default permissions for accountant role
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 1, user_role_permission_level = 1"); // Read clients
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 2, user_role_permission_level = 1"); // Read support
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 4, user_role_permission_level = 1"); // Read sales
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 5, user_role_permission_level = 2"); // Modify financial
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 6, user_role_permission_level = 1"); // Read reports
+
+         // Add default permissions for tech role
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 1, user_role_permission_level = 2"); // Modify clients
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 2, user_role_permission_level = 2"); // Modify support
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 3, user_role_permission_level = 2"); // Modify credentials
+         mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 4, user_role_permission_level = 2"); // Modify sales
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.0'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.5.0') {
+    //     // Insert queries here required to update to DB version 1.5.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.1'");
     // }
 
 } else {
