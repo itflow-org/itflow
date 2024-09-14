@@ -1356,13 +1356,13 @@ function lookupUserPermission($module) {
         $mysqli,
         "SELECT 
 			urp.user_role_permission_level
-		FROM 
+		FROM
 			modules AS m
-		JOIN 
+		JOIN
 			user_role_permissions AS urp
-		ON 
+		ON
 			m.module_id = urp.module_id
-		WHERE 
+		WHERE
 			m.module_name = '$module' AND urp.user_role_id = $session_user_role"
     );
 

@@ -45,11 +45,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-8">
-                        <div class="float-right">
-                            <!--<button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportRoleModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>-->
-                        </div>
-                    </div>
                 </div>
             </form>
             <hr>
