@@ -154,7 +154,7 @@ if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)
 
 if($config_enable_alert_domain_expire == 1){
 
-    $domainAlertArray = [1,7,14,30,90,120];
+    $domainAlertArray = [1,7,14,30,90];
 
     foreach ($domainAlertArray as $day) {
 
@@ -184,7 +184,7 @@ if($config_enable_alert_domain_expire == 1){
 
 // CERTIFICATES EXPIRING
 
-$certificateAlertArray = [1,7,14,30,90,120];
+$certificateAlertArray = [1,7,14,30,90];
 
 foreach ($certificateAlertArray as $day) {
 
@@ -214,7 +214,7 @@ foreach ($certificateAlertArray as $day) {
 
 // Asset Warranties Expiring
 
-$warranty_alert_array = [1,7,14,30,90,120];
+$warranty_alert_array = [1,7,14,30,90];
 
 foreach ($warranty_alert_array as $day) {
 
