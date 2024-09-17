@@ -235,7 +235,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
 if (isset($_GET['remove_rack_unit'])) {
 
-    validateAdminRole();
+    validateTechRole();
 
     $unit_id = intval($_GET['remove_rack_unit']);
 
