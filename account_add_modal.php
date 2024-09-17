@@ -23,28 +23,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Account Type <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            </div>
-                            <select class="form-control select" name="type" required>
-                            <option value="">- Select -</option>
-                            <?php
-                            $sql_account_types = mysqli_query($mysqli, "SELECT * FROM account_types ORDER BY account_type_name ASC");
-                            while ($row = mysqli_fetch_array($sql_account_types)) {
-                                $account_type_id = intval($row['account_type_id']);
-                                $account_type_name = nullable_htmlentities($row['account_type_name']);
-
-                                echo "<option value='$account_type_id'>$account_type_name</option>";
-                                
-                            }
-                            ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Opening Balance <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">

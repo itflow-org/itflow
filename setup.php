@@ -258,28 +258,10 @@ if (isset($_POST['add_company_settings'])) {
         unlink('uploads/tmp/cronkey.php');
     }
 
-
-
-    // Create Main Account Types
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Asset', account_type_parent = 1, account_type_description = 'Assets are economic resources which are expected to benefit the business in the future.'");
-
-    $account_type_id = mysqli_insert_id($mysqli);
-
     // Create Default Cash Account
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = $account_type_id, account_currency_code = '$currency_code'");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
 
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Liability', account_type_parent = 2, account_type_description = 'Liabilities are obligations of the business entity. They are usually classified as current liabilities (due within one year or less) and long-term liabilities (due after one year).'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Equity', account_type_parent = 3, account_type_description = 'Equity represents the owners stake in the business after liabilities have been deducted.'");
-    //Create Secondary Account Types
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Current Asset', account_type_parent = 1, account_type_description = 'Current assets are expected to be consumed within one year or less.'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Fixed Asset', account_type_parent = 1, account_type_description = 'Fixed assets are expected to benefit the business for more than one year.'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Other Asset', account_type_parent = 1, account_type_description = 'Other assets are assets that do not fit into any of the other asset categories.'");
-
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Current Liability', account_type_parent = 2, account_type_description = 'Current liabilities are expected to be paid within one year or less.'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Long Term Liability', account_type_parent = 2, account_type_description = 'Long term liabilities are expected to be paid after one year.'");
-    mysqli_query($mysqli,"INSERT INTO account_types SET account_type_name = 'Other Liability', account_type_parent = 2, account_type_description = 'Other liabilities are liabilities that do not fit into any of the other liability categories.'");
-
-    //Create Categories
+    // Create Categories
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Travel', category_type = 'Expense', category_color = 'red'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', category_type = 'Expense', category_color = 'green'");
@@ -293,7 +275,7 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Bank Transfer', category_type = 'Payment Method', category_color = 'green'");
 
-    //Create Calendar
+    // Create Calendar
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
 
     // Add default ticket statuses

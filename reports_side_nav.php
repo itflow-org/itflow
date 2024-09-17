@@ -71,18 +71,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="report_balance_sheet.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_balance_sheet.php") { echo "active"; } ?>">
-                            <i class="fas fa-balance-scale nav-icon"></i>
-                            <p>Balance Sheet</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="report_collections.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_collections.php") { echo "active"; } ?>">
-                            <i class="fas fa-search-dollar nav-icon"></i>
-                            <p>Collections</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="report_tickets_unbilled.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_tickets_unbilled.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>Unbilled Tickets</p>

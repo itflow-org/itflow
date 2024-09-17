@@ -16,8 +16,6 @@ require_once "post/admin.php";
 
 require_once "post/account.php";
 
-require_once "post/account_type.php";
-
 require_once "post/api.php";
 
 require_once "post/asset.php";

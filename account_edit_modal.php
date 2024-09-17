@@ -22,27 +22,6 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Account Type <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            </div>
-                            <select class="form-control select" name="type" required>
-                            <?php
-                            $sql_account_types_select = mysqli_query($mysqli, "SELECT * FROM account_types ORDER BY account_type_name ASC");
-                            while ($row = mysqli_fetch_array($sql_account_types_select)) {
-                                $account_type_id_select = intval($row['account_type_id']);
-                                $account_type_name_select = nullable_htmlentities($row['account_type_name']);
-                                ?>
-                                <option value="<?php echo $account_type_id_select; ?>" <?php if($account_type == $account_type_id_select){ echo "selected"; } ?>><?php echo $account_type_name_select; ?></option>
-                            <?php
-                            }
-                            ?>
-                        </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
                         <label>Notes</label>
                         <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"><?php echo $account_notes; ?></textarea>
                     </div>
