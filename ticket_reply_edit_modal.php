@@ -14,6 +14,17 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
+                        <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-secondary active">
+                                <input type="radio" name="ticket_reply_type" value="Internal" <?php if ($ticket_reply_type == 'Internal') { echo "checked"; } ?>>Internal Note
+                            </label>
+                            <label class="btn btn-outline-secondary">
+                                <input type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>Public Comment
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <textarea class="form-control tinymce" name="ticket_reply"><?php echo nullable_htmlentities($ticket_reply); ?></textarea>
                     </div>
 
