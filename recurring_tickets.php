@@ -48,9 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {
-                                                                                        echo stripslashes(nullable_htmlentities($q));
-                                                                                    } ?>" placeholder="Search Recurring Tickets">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Recurring Tickets">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -89,11 +87,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-dark">Client</a></th>
-                            <th><a class="text-dark">Subject</a></th>
-                            <th><a class="text-dark">Priority</a></th>
-                            <th><a class="text-dark">Frequency</a></th>
-                            <th><a class="text-dark">Next Run Date</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_frequency&order=<?php echo $disp; ?>">Frequency</a></th>
+                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_next_run&order=<?php echo $disp; ?>">Next Run Date</a></th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
