@@ -4,10 +4,9 @@
     <a class="brand-link pb-1 mt-1" href="clients.php">
         <p class="h5">
             <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
-             Back | 
-             <strong>
-                <?php if($client_abbreviation) { echo $client_abbreviation; } else { echo shortenClient($client_name); } ?>
-            </strong>
+             <span class="brand-text">
+                 Back | <strong><?php if($client_abbreviation) { echo $client_abbreviation; } else { echo shortenClient($client_name); } ?></strong>
+            </span>
         </p>
     </a>
 

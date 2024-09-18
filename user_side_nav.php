@@ -2,7 +2,12 @@
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
     <a class="brand-link pb-1 mt-1" href="clients.php">    
-        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Go Back</strong></p>
+        <p class="h5">
+            <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> 
+            <span class="brand-text">
+                Back | <strong>Account</strong>
+            </span>
+        </p>
     </a>
 
     <!-- Sidebar -->
@@ -11,9 +16,9 @@
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" role="menu" data-accordion="false">
 
-                <li class="nav-item mt-3">
+                <li class="nav-item">
                     <a href="user_details.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_details.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Details</p>

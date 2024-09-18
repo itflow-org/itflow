@@ -1,14 +1,19 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
     <a class="brand-link pb-1 mt-1" href="clients.php">
-        <p class="h6"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Administration</strong></p>
+        <p class="h6">
+            <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
+            <span class="brand-text">
+                Back | <strong>Administration</strong>
+            </span>
+        </p>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sidebar Menu -->
         <nav>
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
                 <!-- ACCESS Section -->
                 <li class="nav-header">ACCESS</li>
                 <li class="nav-item">

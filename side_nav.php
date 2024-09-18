@@ -1,8 +1,8 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
-    <div class="brand-link">
-        <h3 class="brand-text text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h3>
+    <div class="brand-link brand-text">
+        <h3 class="text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h3>
     </div>
 
     <!-- Sidebar -->

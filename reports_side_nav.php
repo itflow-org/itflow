@@ -1,8 +1,10 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
 
-    <a class="brand-link pb-1 mt-1" href="clients.php">
-        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> Back | <strong>Reports</strong></p>
+    <a class="pb-1 mt-1 brand-link" href="clients.php">
+        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
+            <span class="brand-text ">Back | <strong>Reports</strong>
+        </p>
     </a>
 
     <!-- Sidebar -->
@@ -11,7 +13,7 @@
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
 
                 <?php  if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
                     <li class="nav-header">FINANCIAL</li>
