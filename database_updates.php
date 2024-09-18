@@ -2209,10 +2209,23 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.0'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.5.0') {
-    //     // Insert queries here required to update to DB version 1.5.1
+    if (CURRENT_DATABASE_VERSION == '1.5.0') {
+        
+        mysqli_query($mysqli, "DROP TABLE `account_types`");
+
+        mysqli_query($mysqli, "ALTER TABLE `accounts` ADD `account_description` VARCHAR(250) DEFAULT NULL AFTER `account_name`");
+
+        mysqli_query($mysqli, "ALTER TABLE `user_roles` MODIFY `user_role_is_admin` TINYINT(1) NOT NULL DEFAULT '0'");
+
+        mysqli_query($mysqli, "ALTER TABLE `shared_items` ADD `item_recipient` VARCHAR(250) DEFAULT NULL AFTER `item_note`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.5.1') {
+    //     // Insert queries here required to update to DB version 1.5.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.2'");
     // }
 
 } else {

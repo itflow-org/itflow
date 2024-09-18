@@ -16,25 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `account_types`
---
-
-DROP TABLE IF EXISTS `account_types`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `account_types` (
-  `account_type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `account_type_parent` int(11) NOT NULL DEFAULT 1,
-  `account_type_name` varchar(255) NOT NULL,
-  `account_type_description` text DEFAULT NULL,
-  `account_type_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `account_type_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `account_type_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`account_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `accounts`
 --
 
@@ -44,6 +25,7 @@ DROP TABLE IF EXISTS `accounts`;
 CREATE TABLE `accounts` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
   `account_name` varchar(200) NOT NULL,
+  `account_description` varchar(250) DEFAULT NULL,
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `account_currency_code` varchar(200) NOT NULL,
   `account_notes` text DEFAULT NULL,
@@ -894,12 +876,15 @@ CREATE TABLE `logs` (
 --
 
 DROP TABLE IF EXISTS `modules`;
-CREATE TABLE IF NOT EXISTS `modules` (
-    `module_id` int(11) NOT NULL AUTO_INCREMENT,
-    `module_name` varchar(200) NOT NULL,
-    `module_description` varchar(200) DEFAULT NULL,
-    PRIMARY KEY (`module_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `modules` (
+  `module_id` int(11) NOT NULL AUTO_INCREMENT,
+  `module_name` varchar(200) NOT NULL,
+  `module_description` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`module_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `networks`
@@ -1563,6 +1548,7 @@ CREATE TABLE `shared_items` (
   `item_encrypted_username` varchar(255) DEFAULT NULL,
   `item_encrypted_credential` varchar(255) DEFAULT NULL,
   `item_note` varchar(255) DEFAULT NULL,
+  `item_recipient` varchar(250) DEFAULT NULL,
   `item_views` int(11) NOT NULL,
   `item_view_limit` int(11) DEFAULT NULL,
   `item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1961,6 +1947,20 @@ CREATE TABLE `user_permissions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `user_role_permissions`
+--
+
+DROP TABLE IF EXISTS `user_role_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_role_permissions` (
+  `user_role_id` int(11) NOT NULL,
+  `module_id` int(11) NOT NULL,
+  `user_role_permission_level` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `user_roles`
 --
 
@@ -1971,24 +1971,13 @@ CREATE TABLE `user_roles` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_role_name` varchar(200) NOT NULL,
   `user_role_description` varchar(200) DEFAULT NULL,
-  `user_role_is_admin` int(11) NOT NULL DEFAULT 0,
+  `user_role_is_admin` tinyint(1) NOT NULL DEFAULT 0,
   `user_role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `user_role_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`user_role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `user_role_permissions`
---
-
-DROP TABLE IF EXISTS `user_role_permissions`;
-CREATE TABLE IF NOT EXISTS `user_role_permissions` (
-    `user_role_id` int(11) NOT NULL,
-    `module_id` int(11) NOT NULL,
-    `user_role_permission_level` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
 -- Table structure for table `user_settings`
@@ -2117,4 +2106,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-05 16:21:24
+-- Dump completed on 2024-09-18 16:29:56
