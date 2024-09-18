@@ -456,7 +456,10 @@ CREATE TABLE `custom_links` (
   `custom_link_name` varchar(200) NOT NULL,
   `custom_link_description` text DEFAULT NULL,
   `custom_link_uri` varchar(500) NOT NULL,
+  `custom_link_new_tab` tinyint(1) NOT NULL DEFAULT 0,
   `custom_link_icon` varchar(200) DEFAULT NULL,
+  `custom_link_location` int(11) NOT NULL DEFAULT 1,
+  `custom_link_order` int(11) NOT NULL DEFAULT 0,
   `custom_link_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `custom_link_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `custom_link_archived_at` datetime DEFAULT NULL,
@@ -2106,4 +2109,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-18 16:29:56
+-- Dump completed on 2024-09-18 18:21:54
