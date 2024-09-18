@@ -52,6 +52,9 @@ if ($session_user_role == 3) {
 } else {
     $session_user_role_display = "Accountant";
 }
+if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
+    $session_is_admin = true;
+}
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
 
