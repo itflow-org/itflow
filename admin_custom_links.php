@@ -51,7 +51,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_uri&order=<?php echo $disp; ?>">URI</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_order&order=<?php echo $disp; ?>">Order</a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_uri&order=<?php echo $disp; ?>">URI / <span class="text-secondary">New Tab</span></a></th>
+                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_location&order=<?php echo $disp; ?>">Location</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -63,6 +65,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $custom_link_name = nullable_htmlentities($row['custom_link_name']);
                         $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
                         $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+                        $custom_link_new_tab = intval($row['custom_link_new_tab']);
+                        if ($custom_link_new_tab == 1 ) {
+                            $custom_link_new_tab_display = "<i class='fas fa-fw fa-checkmark'></i>";
+                        } else {
+                            $custom_link_new_tab_display = "";
+                        }
+                        $custom_link_order = intval($row['custom_link_order']);
+                        if ($custom_link_order == 0 ) {
+                            $custom_link_order_display = "-";
+                        } else {
+                            $custom_link_order_display = $custom_link_order;
+                        }
+                        $custom_link_location = intval($row['custom_link_location']);
 
                         ?>
                         <tr>
@@ -72,7 +87,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php echo $custom_link_name;?>
                                 </a>
                             </td>
-                            <td><?php echo $custom_link_uri; ?></td>
+                            <td><?php echo $custom_link_order_display; ?></td>
+                            <td><?php echo "$custom_link_uri $custom_link_new_tab_display"; ?></td>
+                            <td><?php echo $custom_link_location; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
