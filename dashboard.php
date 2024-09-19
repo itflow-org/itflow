@@ -623,7 +623,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-warning" href="domains.php">
+            <a class="small-box bg-warning" href="report_domains.php">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
                     <p>Expiring Domains</p>
