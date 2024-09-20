@@ -40,7 +40,7 @@ $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM USERS
+    "SELECT * FROM users
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
     LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
     WHERE users.user_id = $session_user_id"
