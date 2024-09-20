@@ -192,7 +192,7 @@ $net_terms_array = array (
 
 $records_per_page_array = array ('5','10','15','20','30','50','100');
 
-include_once "settings_localization_array.php";
+include_once "admin_settings_localization_array.php";
 
 
 $category_types_array = array (
