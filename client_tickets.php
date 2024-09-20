@@ -119,7 +119,7 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Contact</a></th>
-                    <?php if ($config_module_enable_accounting) { ?>
+                    <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                         <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
                     <?php } ?>
                     <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
@@ -237,8 +237,8 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                             <a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a>
                         </td>
 
-                        <!-- Ticket Billable (if accounting enabled -->
-                        <?php if ($config_module_enable_accounting) { ?>
+                        <!-- Ticket Billable (if accounting perms & enabled) -->
+                        <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <td class="text-center">
                                 <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                     <?php

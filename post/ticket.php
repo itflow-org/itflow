@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client']);
     $assigned_to = intval($_POST['assigned_to']);
@@ -186,7 +186,7 @@ if (isset($_POST['add_ticket'])) {
 
 if (isset($_POST['edit_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
@@ -269,7 +269,7 @@ if (isset($_POST['edit_ticket'])) {
 
 if (isset($_POST['edit_ticket_priority'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $priority = sanitizeInput($_POST['priority']);
@@ -287,7 +287,7 @@ if (isset($_POST['edit_ticket_priority'])) {
 
 if (isset($_POST['edit_ticket_contact'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
@@ -360,7 +360,7 @@ if (isset($_POST['edit_ticket_contact'])) {
 
 if (isset($_POST['add_ticket_watcher'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $client_id = intval($_POST['client_id']);
@@ -431,7 +431,7 @@ if (isset($_POST['add_ticket_watcher'])) {
 
 if (isset($_POST['edit_ticket_watchers'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $client_id = intval($_POST['client_id']);
@@ -460,7 +460,7 @@ if (isset($_POST['edit_ticket_watchers'])) {
 
 if (isset($_GET['delete_ticket_watcher'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $watcher_id = intval($_GET['delete_ticket_watcher']);
 
@@ -474,7 +474,7 @@ if (isset($_GET['delete_ticket_watcher'])) {
 
 if (isset($_POST['edit_ticket_asset'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $asset_id = intval($_POST['asset']);
@@ -493,7 +493,7 @@ if (isset($_POST['edit_ticket_asset'])) {
 
 if (isset($_POST['edit_ticket_vendor'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $vendor_id = intval($_POST['vendor']);
@@ -512,7 +512,7 @@ if (isset($_POST['edit_ticket_vendor'])) {
 
 if (isset($_POST['edit_ticket_priority'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $priority = sanitizeInput($_POST['priority']);
@@ -530,8 +530,7 @@ if (isset($_POST['edit_ticket_priority'])) {
 
 if (isset($_POST['assign_ticket'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $ticket_id = intval($_POST['ticket_id']);
@@ -630,7 +629,7 @@ if (isset($_POST['assign_ticket'])) {
 
 if (isset($_GET['delete_ticket'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -668,8 +667,7 @@ if (isset($_GET['delete_ticket'])) {
 
 if (isset($_POST['bulk_assign_ticket'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $assign_to = intval($_POST['assign_to']);
@@ -769,8 +767,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
 if (isset($_POST['bulk_edit_ticket_priority'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $priority = sanitizeInput($_POST['bulk_priority']);
@@ -809,8 +806,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
 if (isset($_POST['bulk_merge_tickets'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_count = count($_POST['ticket_ids']); // Get a ticket count
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']); // Parent ticket *number*
@@ -868,8 +864,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
 if (isset($_POST['bulk_resolve_tickets'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $details = mysqli_escape_string($mysqli, $_POST['bulk_details']);
@@ -979,8 +974,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
 if (isset($_POST['bulk_ticket_reply'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $ticket_reply = mysqli_escape_string($mysqli, $_POST['bulk_reply_details']);
@@ -1117,8 +1111,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 // Currenly not UI Frontend for this
 if (isset($_POST['bulk_add_ticket_project'])) {
 
-    // Role check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // POST variables
     $project_id = intval($_POST['project_id']);
@@ -1161,7 +1154,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
 
 if (isset($_POST['add_ticket_reply'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
@@ -1306,7 +1299,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
 if (isset($_POST['edit_ticket_reply'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
@@ -1327,7 +1320,7 @@ if (isset($_POST['edit_ticket_reply'])) {
 
 if (isset($_GET['archive_ticket_reply'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_reply_id = intval($_GET['archive_ticket_reply']);
 
@@ -1344,7 +1337,7 @@ if (isset($_GET['archive_ticket_reply'])) {
 
 if (isset($_POST['merge_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']); // Child ticket ID to be closed
     $merge_into_ticket_number = intval($_POST['merge_into_ticket_number']); // Parent ticket *number*
@@ -1407,7 +1400,7 @@ if (isset($_POST['merge_ticket'])) {
 
 if (isset($_POST['change_client_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $client_id = intval($_POST['new_client_id']);
@@ -1429,7 +1422,7 @@ if (isset($_POST['change_client_ticket'])) {
 
 if (isset($_GET['resolve_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -1521,7 +1514,7 @@ if (isset($_GET['resolve_ticket'])) {
 
 if (isset($_GET['close_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -1612,7 +1605,7 @@ if (isset($_GET['close_ticket'])) {
 
 if (isset($_GET['reopen_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_GET['reopen_ticket']);
 
@@ -1626,6 +1619,9 @@ if (isset($_GET['reopen_ticket'])) {
 }
 
 if (isset($_POST['add_invoice_from_ticket'])) {
+
+    enforceUserPermission('module_support', 2);
+    enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
@@ -1727,7 +1723,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
 if (isset($_POST['export_client_tickets_csv'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
 
@@ -1776,7 +1772,7 @@ if (isset($_POST['export_client_tickets_csv'])) {
 
 if (isset($_POST['add_recurring_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     require_once 'post/recurring_ticket_model.php';
 
@@ -1804,7 +1800,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
 if (isset($_POST['edit_recurring_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     require_once 'post/recurring_ticket_model.php';
 
@@ -1831,7 +1827,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
 if (isset($_GET['delete_recurring_ticket'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $scheduled_ticket_id = intval($_GET['delete_recurring_ticket']);
 
@@ -1855,7 +1851,8 @@ if (isset($_GET['delete_recurring_ticket'])) {
 }
 
 if (isset($_POST['bulk_delete_scheduled_tickets']) || isset($_POST['bulk_delete_recurring_tickets'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -1884,7 +1881,8 @@ if (isset($_POST['bulk_delete_scheduled_tickets']) || isset($_POST['bulk_delete_
 
 if (isset($_POST['set_billable_status'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+    enforceUserPermission('module_sales', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $billable_status = sanitizeInput($_POST['billable_status']);
@@ -1916,7 +1914,7 @@ if (isset($_POST['set_billable_status'])) {
 
 if (isset($_POST['edit_ticket_schedule'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $onsite = intval($_POST['onsite']);
@@ -2094,7 +2092,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
 if (isset($_GET['cancel_ticket_schedule'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_GET['cancel_ticket_schedule']);
 

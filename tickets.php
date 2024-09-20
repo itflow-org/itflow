@@ -154,7 +154,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 
-                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                     <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
@@ -184,6 +185,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                     </a>
                                 </div>
                             </div>
+                            <?php } ?>
 
                         </div>
 
@@ -328,7 +330,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 </a>
                             </th>
                             
-                            <?php if ($config_module_enable_accounting) { ?>
+                            <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <th class="text-center">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">
                                     Billable <?php if ($sort == 'ticket_billable') { echo $order_icon; } ?>
@@ -514,7 +516,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 </td>
 
                                 <!-- Ticket Billable (if accounting enabled -->
-                                <?php if ($config_module_enable_accounting) { ?>
+                                <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
                                         <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                             <?php

@@ -6,10 +6,10 @@
 
 if (isset($_POST['add_client'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+    enforceUserPermission('module_client', 2);
+
     require_once 'post/client_model.php';
-
-
-    validateAdminRole();
 
     $location_phone = preg_replace("/[^0-9]/", '', $_POST['location_phone']);
     $address = sanitizeInput($_POST['address']);
@@ -117,9 +117,9 @@ if (isset($_POST['add_client'])) {
 
 if (isset($_POST['edit_client'])) {
 
-    require_once 'post/client_model.php';
+    enforceUserPermission('module_client', 2);
 
-    validateAdminRole();
+    require_once 'post/client_model.php';
 
     $client_id = intval($_POST['client_id']);
 
@@ -153,7 +153,8 @@ if (isset($_POST['edit_client'])) {
 
 if (isset($_GET['archive_client'])) {
 
-    validateAdminRole();
+    validateCSRFToken($_GET['csrf_token']);
+    enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['archive_client']);
 
@@ -175,6 +176,8 @@ if (isset($_GET['archive_client'])) {
 
 if (isset($_GET['undo_archive_client'])) {
 
+    enforceUserPermission('module_client', 2);
+
     $client_id = intval($_GET['undo_archive_client']);
 
     // Get Client Name
@@ -194,10 +197,8 @@ if (isset($_GET['undo_archive_client'])) {
 
 if (isset($_GET['delete_client'])) {
 
-    validateAdminRole();
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+    enforceUserPermission('module_client', 3);
 
     $client_id = intval($_GET['delete_client']);
 
@@ -337,6 +338,8 @@ if (isset($_GET['delete_client'])) {
 
 if (isset($_POST['export_clients_csv'])) {
 
+    enforceUserPermission('module_client', 1);
+
     //get records from database
     $sql = mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
@@ -377,7 +380,7 @@ if (isset($_POST['export_clients_csv'])) {
 
 if (isset($_POST["import_clients_csv"])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $file_name = $_FILES["file"]["tmp_name"];
     $error = false;
@@ -604,14 +607,21 @@ if (isset($_GET['download_clients_csv_template'])) {
 
 if (isset($_POST['export_client_pdf'])) {
 
-    validateAdminRole();
+    // TODO: Enforce perms based on which individual boxes are ticked
+    enforceUserPermission('module_client', 3);
+    enforceUserPermission('module_support', 1);
+    enforceUserPermission('module_sales', 1);
+    enforceUserPermission('module_financial', 1);
 
     $client_id = intval($_POST['client_id']);
     $export_contacts = intval($_POST['export_contacts']);
     $export_locations = intval($_POST['export_locations']);
     $export_assets = intval($_POST['export_assets']);
     $export_software = intval($_POST['export_software']);
-    $export_logins = intval($_POST['export_logins']);
+    $export_logins = 0;
+    if (lookupUserPermission("module_credential") >= 1) {
+        $export_logins = intval($_POST['export_logins']);
+    }
     $export_networks = intval($_POST['export_networks']);
     $export_certificates = intval($_POST['export_certificates']);
     $export_domains = intval($_POST['export_domains']);

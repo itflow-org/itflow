@@ -361,10 +361,11 @@ if (isset($_GET['ticket_id'])) {
                     </span>
                 </div>
 
-                <div class="card-tools d-print-none">
+                <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                    <div class="card-tools d-print-none">
                     <div class="btn-toolbar">
 
-                        <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id)) { ?>
+                        <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
                             <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                                 <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
                             </a>
@@ -376,7 +377,6 @@ if (isset($_GET['ticket_id'])) {
                                 <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm ml-3">
                                     <i class="fas fa-fw fa-redo mr-2"></i>Reopen
                                 </a>
-                                &nbsp;
                             <?php } ?>
 
                             <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
@@ -421,7 +421,7 @@ if (isset($_GET['ticket_id'])) {
                                     <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
                                         <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
                                     </a>
-                                    <?php if ($session_user_role == 3) { ?>
+                                    <?php if (lookupUserPermission("module_support") == 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
@@ -432,6 +432,7 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
                     </div>
                 </div>
+                <?php } ?>
 
             </div> <!-- Card Header -->
 
@@ -495,11 +496,11 @@ if (isset($_GET['ticket_id'])) {
 
                         // Billable
                         if ($config_module_enable_accounting) { ?>
-                            <?php if($invoice_id) { ?>
+                            <?php if ($invoice_id && lookupUserPermission("module_sales") >= 1) { ?>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <?php echo "$invoice_prefix$invoice_number"; ?>
                                 </div>
-                            <?php } else { ?>
+                            <?php } elseif (lookupUserPermission("module_sales") >= 1) { ?>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
                                     <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
@@ -588,7 +589,7 @@ if (isset($_GET['ticket_id'])) {
                 </div>
 
                 <!-- Only show ticket reply modal if status is not closed -->
-                <?php if (empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
+                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
                     <div class="card card-body d-print-none pb-0">
 
@@ -747,20 +748,20 @@ if (isset($_GET['ticket_id'])) {
                                     <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
                                         <div class="card-tools d-print-none mb-2">
                                             <div class="dropdown dropleft">
-                                                <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>">
-                                                        <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
-                                                    </a>
-                                                    <?php if ($session_user_role == 3) { ?>
+                                                <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                                    <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>">
+                                                            <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                                        </a>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
                                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                         </a>
-                                                    <?php } ?>
-                                                </div>
+                                                    </div>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     <?php } ?>
@@ -870,7 +871,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Tasks Card -->
                 <div class="card card-body">
 
-                    <?php if (empty($ticket_closed_at)) { ?>
+                    <?php if (empty($ticket_closed_at) && lookupUserPermission("module_support") >= 2) { ?>
                         <form action="post.php" method="post" autocomplete="off">
                             <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                             <div class="form-group">
@@ -899,7 +900,7 @@ if (isset($_GET['ticket_id'])) {
                                 <td>
                                     <?php if ($task_completed_at) { ?>
                                         <i class="far fa-fw fa-check-square text-primary"></i>
-                                    <?php } else { ?>
+                                    <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
                                         <a href="post.php?complete_task=<?php echo $task_id; ?>">
                                             <i class="far fa-fw fa-square text-secondary"></i>
                                         </a>
@@ -908,7 +909,7 @@ if (isset($_GET['ticket_id'])) {
                                 <td><?php echo $task_name; ?></td>
                                 <td>
                                     <div class="float-right">
-                                        <?php if (empty($ticket_closed_at)) { ?>
+                                        <?php if (empty($ticket_closed_at) && lookupUserPermission("module_support") >= 2) { ?>
                                             <div class="dropdown dropleft text-center">
                                                 <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
                                                     <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -1127,7 +1128,7 @@ if (isset($_GET['ticket_id'])) {
         </div> <!-- End row -->
 
         <?php
-        if (empty($ticket_closed_at)) {
+        if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
             require_once "ticket_edit_modal.php";
 
             require_once "ticket_assign_modal.php";
@@ -1149,7 +1150,7 @@ if (isset($_GET['ticket_id'])) {
             require_once "ticket_merge_modal.php";
         }
 
-        if ($config_module_enable_accounting) {
+        if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
             require_once "ticket_edit_billable_modal.php";
             require_once "ticket_invoice_add_modal.php";
         }
