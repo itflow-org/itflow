@@ -6,6 +6,9 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_support');
+
 // Status Query
 
 $status = 0;

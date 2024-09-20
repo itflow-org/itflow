@@ -6,7 +6,8 @@ $order = "ASC";
 
 require_once "inc_all_reports.php";
 
-validateTechRole();
+// Perms
+enforceUserPermission('module_support');
 
 //Asset Type from GET
 if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {

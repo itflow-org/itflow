@@ -17,61 +17,66 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>
-                          Clients
-                          <?php if ($num_active_clients) { ?>
-                                  <span class="right badge text-light"><?php echo $num_active_clients; ?></span>
-                          <?php } ?>
-                        </p>
-                    </a>
-                </li>
-                
-                <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
-                    <li class="nav-header mt-3">SUPPORT</li>
+                <?php if (lookupUserPermission("module_client") >= 1) { ?>
                     <li class="nav-item">
-                        <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
+                        <a href="clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-users"></i>
                             <p>
-                                Tickets
-                                <?php if ($num_active_tickets) { ?>
-                                    <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-redo-alt"></i>
-                            <p>
-                                Recurring
-                                <?php if ($num_recurring_tickets) { ?>
-                                    <span class="right badge text-light"><?php echo $num_recurring_tickets; ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="projects.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "projects.php" || basename($_SERVER["PHP_SELF"]) == "project_details.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-project-diagram"></i>
-                            <p>
-                                Projects
-                                <?php if ($num_active_projects) { ?>
-                                    <span class="right badge text-light"><?php echo $num_active_projects; ?></span>
-                                <?php } ?>
+                              Clients
+                              <?php if ($num_active_clients) { ?>
+                                      <span class="right badge text-light"><?php echo $num_active_clients; ?></span>
+                              <?php } ?>
                             </p>
                         </a>
                     </li>
                 <?php } ?>
+
+                <?php if (lookupUserPermission("module_support") >= 1) { ?>
+                    <?php if ($config_module_enable_ticketing == 1) { ?>
+                        <li class="nav-header mt-3">SUPPORT</li>
+                        <li class="nav-item">
+                            <a href="tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets.php" || basename($_SERVER["PHP_SELF"]) == "ticket.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-life-ring"></i>
+                                <p>
+                                    Tickets
+                                    <?php if ($num_active_tickets) { ?>
+                                        <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-redo-alt"></i>
+                                <p>
+                                    Recurring
+                                    <?php if ($num_recurring_tickets) { ?>
+                                        <span class="right badge text-light"><?php echo $num_recurring_tickets; ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="projects.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "projects.php" || basename($_SERVER["PHP_SELF"]) == "project_details.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>
+                                    Projects
+                                    <?php if ($num_active_projects) { ?>
+                                        <span class="right badge text-light"><?php echo $num_active_projects; ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                    <?php } ?>
+                <?php } ?>
+
                 <li class="nav-item">
                     <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>Calendar</p>
                     </a>
                 </li>
-                <?php if ($config_module_enable_accounting == 1) { ?>
+                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_sales") >= 1) { ?>
                     <li class="nav-header mt-3">SALES</li>
                     <li class="nav-item">
                         <a href="quotes.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
@@ -119,7 +124,7 @@
                         </a>
                     </li>
                 <?php } ?>
-                <?php if ($session_user_role == 1 || ($session_user_role == 3 && $config_module_enable_accounting == 1)) { ?>
+                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) { ?>
                     <li class="nav-header mt-3">FINANCE</li>
                     <li class="nav-item">
                         <a href="payments.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
@@ -175,13 +180,16 @@
                         </a>
                     </li>
                 <?php } ?>
-                <li class="nav-item mt-3">
-                    <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
-                        <i class="fas fa-chart-line nav-icon"></i>
-                        <p>Reports</p>
-                        <i class="fas fa-angle-right nav-icon float-right"></i>
-                    </a>
-                </li>
+
+                <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
+                    <li class="nav-item mt-3">
+                        <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <p>Reports</p>
+                            <i class="fas fa-angle-right nav-icon float-right"></i>
+                        </a>
+                    </li>
+                <?php } ?>
                 
                 <?php
                 $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 1 AND custom_link_archived_at IS NULL

@@ -38,20 +38,20 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 $session_user_id = intval($_SESSION['user_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $session_user_id");
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT * FROM users
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+    LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
+    WHERE users.user_id = $session_user_id"
+);
 $row = mysqli_fetch_array($sql);
 $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
 $session_avatar = $row['user_avatar'];
 $session_token = $row['user_token'];
 $session_user_role = intval($row['user_role']);
-if ($session_user_role == 3) {
-    $session_user_role_display = "Administrator";
-} elseif ($session_user_role == 2) {
-    $session_user_role_display = "Technician";
-} else {
-    $session_user_role_display = "Accountant";
-}
+$session_user_role_display = sanitizeInput($row['user_role_name']);
 if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
     $session_is_admin = true;
 }

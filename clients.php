@@ -6,6 +6,9 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_client');
+
 // Leads Query
 
 $leads = 0;

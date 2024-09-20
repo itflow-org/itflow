@@ -6,6 +6,8 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
+// Perms
+enforceUserPermission('module_support');
 
 // Folder
 if (!empty($_GET['folder_id'])) {

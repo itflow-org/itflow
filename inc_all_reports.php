@@ -6,6 +6,9 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
+// Reporting Perms
+enforceUserPermission('module_reporting');
+
 require_once "header.php";
 
 require_once "top_nav.php";

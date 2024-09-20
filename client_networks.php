@@ -6,6 +6,8 @@ $order = "ASC";
 
 require_once "inc_all_client.php";
 
+// Perms
+enforceUserPermission('module_support');
 
 //Rebuild URL
 $url_query_strings_sb = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));

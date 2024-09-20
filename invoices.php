@@ -6,6 +6,9 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_sales');
+
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent'"));
 $sent_count = $row['num'];
 

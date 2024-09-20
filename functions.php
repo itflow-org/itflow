@@ -1322,7 +1322,11 @@ function enforceUserPermission($module, $check_access_level = 1) {
     if (!$permitted_access_level || $permitted_access_level < $check_access_level) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit(WORDING_ROLECHECK_FAILED);
+        $map = [
+            "1" => "read",
+            "2" => "write",
+            "3" => "full"
+        ];
+        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: $map[$check_access_level] access to $module is not permitted for your role.");
     }
 }
