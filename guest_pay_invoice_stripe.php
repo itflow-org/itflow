@@ -307,10 +307,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
     
     $config_base_url = sanitizeInput($config_base_url);
+	
+	// Get Email Template
+	$config_et_client_invoice_paymentstripe = prepareEmailTemplate($row['config_et_client_invoice_paymentstripe']);
+	$config_et_client_invoice_paymentstripe_subj = prepareEmailTemplateTags($row['config_et_client_invoice_paymentstripe_subj']);
 
     if (!empty($config_smtp_host)) {
-        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $subject = "$config_et_client_invoice_paymentstripe_subj";
+		$body = "$config_et_client_invoice_paymentstripe";
 
             $data = [
                 [

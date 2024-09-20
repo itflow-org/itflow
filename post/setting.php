@@ -235,6 +235,78 @@ if (isset($_POST['test_email_imap'])) {
 }
 
 
+// Email templates
+if (isset($_POST['edit_mail_email_template'])) {
+    validateCSRFToken($_POST['csrf_token']);
+    validateAdminRole();
+
+    $fields = [
+        'config_et_client_ticket_new' => 'sanitizeForEmail',
+        'config_et_client_ticket_new_subj' => 'sanitizeInput',
+        'config_et_client_ticket_update' => 'sanitizeForEmail',
+        'config_et_client_ticket_update_subj' => 'sanitizeInput',
+        'config_et_client_ticket_autoclose' => 'sanitizeForEmail',
+        'config_et_client_ticket_autoclose_subj' => 'sanitizeInput',
+        'config_et_client_ticket_updatedpendingclosure' => 'sanitizeForEmail',
+        'config_et_client_ticket_updatedpendingclosure_subj' => 'sanitizeInput',
+        'config_et_client_ticket_closed' => 'sanitizeForEmail',
+        'config_et_client_ticket_closed_subj' => 'sanitizeInput',
+        'config_et_client_app_newaccount' => 'sanitizeForEmail',
+        'config_et_client_app_newaccount_subj' => 'sanitizeInput',
+        'config_et_client_app_passwordreset' => 'sanitizeForEmail',
+        'config_et_client_app_passwordreset_subj' => 'sanitizeInput',
+        'config_et_client_app_passwordresetcomplete' => 'sanitizeForEmail',
+        'config_et_client_app_passwordresetcomplete_subj' => 'sanitizeInput',
+        'config_et_client_calendar_rescheduled' => 'sanitizeForEmail',
+        'config_et_client_calendar_rescheduled_subj' => 'sanitizeInput',
+        'config_et_client_calendar_scheduled' => 'sanitizeForEmail',
+        'config_et_client_calendar_scheduled_subj' => 'sanitizeInput',
+        'config_et_client_invoice_new' => 'sanitizeForEmail',
+        'config_et_client_invoice_new_subj' => 'sanitizeInput',
+        'config_et_client_invoice_newrecurring' => 'sanitizeForEmail',
+        'config_et_client_invoice_newrecurring_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paid' => 'sanitizeForEmail',
+        'config_et_client_invoice_paid_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paymentfull' => 'sanitizeForEmail',
+        'config_et_client_invoice_paymentfull_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paymentmultiple' => 'sanitizeForEmail',
+        'config_et_client_invoice_paymentmultiple_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paymentpartial' => 'sanitizeForEmail',
+        'config_et_client_invoice_paymentpartial_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paymentreminder' => 'sanitizeForEmail',
+        'config_et_client_invoice_paymentreminder_subj' => 'sanitizeInput',
+        'config_et_client_invoice_paymentstripe' => 'sanitizeForEmail',
+        'config_et_client_invoice_paymentstripe_subj' => 'sanitizeInput',
+        'config_et_client_quote_new' => 'sanitizeForEmail',
+        'config_et_client_quote_new_subj' => 'sanitizeInput',
+        'config_et_client_securelink' => 'sanitizeForEmail',
+        'config_et_client_securelink_subj' => 'sanitizeInput',
+        'config_et_watcher_notify' => 'sanitizeForEmail',
+        'config_et_watcher_notify_subj' => 'sanitizeInput',
+    ];
+
+    foreach ($fields as $field => $sanitizeFunction) {
+        ${$field} = $sanitizeFunction($_POST[$field]);
+    }
+
+    $updates = [];
+    foreach ($fields as $field => $_) {
+        $updates[] = "$field = '${$field}'";
+    }
+
+    $updateQuery = "UPDATE settings SET " . implode(', ', $updates) . " WHERE company_id = 1";
+    mysqli_query($mysqli, $updateQuery);
+	
+	//Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Edit', log_description = '$session_name edited email templates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+
+    $_SESSION['alert_message'] = "Email templates edited";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+
 if (isset($_POST['edit_invoice_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);

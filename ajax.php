@@ -300,15 +300,19 @@ if (isset($_GET['share_generate_link'])) {
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
     $config_mail_from_email = sanitizeInput($config_mail_from_email);
+	
+	// Get Email Template
+	$config_et_client_securelink = prepareEmailTemplate($config_et_client_securelink);
+	$config_et_client_securelink_subj = prepareEmailTemplateTags($config_et_client_securelink_subj);
 
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
 
-        $subject = "Time sensitive - $company_name secure link enclosed";
+        $subject = "$config_et_client_securelink_subj";
         if ($item_expires_friendly == "never") {
-            $subject = "$company_name secure link enclosed";
+            $subject = "$config_et_client_securelink_subj";
         }
-        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+		$body = "$config_et_client_securelink";
 
         // Add the intended recipient disclosure
         $body .= "<br><br><em>This email and any attachments are confidential and intended for the specified recipient(s) only. If you are not the intended recipient, please notify the sender and delete this email. Unauthorized use, disclosure, or distribution is prohibited.</em>";

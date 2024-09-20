@@ -136,9 +136,15 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     $data = [];
+	
     if ($config_ticket_client_general_notifications == 1 && $client_id != 0) {
-        $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+		
+		// Get Email Template
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
+			
+        $subject_email = "$config_et_client_ticket_new_subj";
+		$body = "$config_et_client_ticket_new";
 
         $data[] = [
             'from' => $config_ticket_from_email,

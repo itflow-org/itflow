@@ -78,9 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
+			// Get Email Template
+			$config_et_client_app_passwordreset = prepareEmailTemplate($config_et_client_app_passwordreset);
+			$config_et_client_app_passwordreset_subj = prepareEmailTemplateTags($config_et_client_app_passwordreset_subj);
+
             // Send reset email
-            $subject = "Password reset for $company_name Client Portal";
-            $body = "Hello $name,<br><br>Someone (probably you) has requested a new password for your account on $company_name\'s Client Portal. <br><br><b>Please <a href=\'$url\'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn\'t request this change, you can safely ignore this email.</i><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "$config_et_client_app_passwordreset_subj";
+			$body = "$config_et_client_app_passwordreset";
 
             $data = [
                 [
@@ -130,10 +134,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
             mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password', contact_password_reset_token = NULL WHERE contact_id = $contact_id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
-
+			
+			// Get Email Template
+			$config_et_client_app_passwordresetcomplete = prepareEmailTemplate($config_et_client_app_passwordresetcomplete);
+			$config_et_client_app_passwordresetcomplete_subj = prepareEmailTemplateTags($config_et_client_app_passwordresetcomplete_subj);
+			
             // Send confirmation email
-            $subject = "Password reset confirmation for $company_name Client Portal";
-            $body = "Hello $name,<br><br>Your password for your account on $company_name\'s Client Portal was successfully reset. You should be all set! <br><br><b>If you didn\'t reset your password, please get in touch ASAP.</b><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "$config_et_client_app_passwordresetcomplete_subj";
+			$body = "$config_et_client_app_passwordresetcomplete";
 
 
             $data = [

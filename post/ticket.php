@@ -136,12 +136,16 @@ if (isset($_POST['add_ticket'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+		
+		// Get Email Template
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Verify contact email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            $subject = "Ticket created [$ticket_prefix$ticket_number] - $ticket_subject";
-            $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "$config_et_client_ticket_new_subj";
+			$body = "$config_et_client_ticket_new";
 
             // Email Ticket Contact
             // Queue Mail
@@ -236,13 +240,16 @@ if (isset($_POST['edit_ticket'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+		
+		// Get Email Template
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
+        $subject = "$config_et_client_ticket_new_subj";
+		$body = "$config_et_client_ticket_new";
 
         // Only add contact to email queue if email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -327,13 +334,16 @@ if (isset($_POST['edit_ticket_contact'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+		
+		// Get Email Template
+		$config_et_client_ticket_new = prepareEmailTemplate($config_et_client_ticket_new, true);
+		$config_et_client_ticket_new_subj = prepareEmailTemplateTags($config_et_client_ticket_new_subj);
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
+        $subject = "config_et_client_ticket_new_subj";
+		$body = "$config_et_client_ticket_new";
 
         // Only add contact to email queue if email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -399,12 +409,17 @@ if (isset($_POST['add_ticket_watcher'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+		
+		// Get Email Template
+		$config_et_watcher_notify = prepareEmailTemplate($config_et_watcher_notify);
+		$config_et_watcher_notify_subj = prepareEmailTemplateTags($config_et_watcher_notify_subj);
+
 
         // Email content
         $data = []; // Queue array
 
-        $subject = "Ticket Notification - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>You are now a watcher on a ticket regarding \"$ticket_subject\".<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Guest link: https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $subject = "$config_et_watcher_notify_subj";
+		$body = "$config_et_watcher_notify";
 
         // Only add watcher to email queue if email is valid
         if (filter_var($watcher_email, FILTER_VALIDATE_EMAIL)) {
@@ -929,15 +944,19 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 $row = mysqli_fetch_array($sql);
                 $company_name = sanitizeInput($row['company_name']);
                 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+				
+				// Get Email Template
+				$config_et_client_ticket_updatedpendingclosure = prepareEmailTemplate($config_et_client_ticket_updatedpendingclosure);
+				$config_et_client_ticket_updatedpendingclosure_subj = prepareEmailTemplateTags($config_et_client_ticket_updatedpendingclosure_subj);
 
                 // Check email valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
                     $data = [];
 
-                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
+                    $subject = "$config_et_client_ticket_updatedpendingclosure_subj";
+					$body = "$config_et_client_ticket_updatedpendingclosure";
+					
                     // Email Ticket Contact
                     // Queue Mail
 
@@ -1051,14 +1070,18 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $row = mysqli_fetch_array($sql);
             $company_name = sanitizeInput($row['company_name']);
             $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+			
+			// Get Email Template
+			$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
+			$config_et_client_ticket_update_subj = prepareEmailTemplateTags($config_et_client_ticket_update_subj);
 
             // Send e-mail to client if public update & email is set up
             if ($private_note == 0 && !empty($config_smtp_host)) {
 
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-                    $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
+                    $subject = "$config_et_client_ticket_update_subj";
+                    $body = "$config_et_client_ticket_update";
 
                     $data = [];
 
@@ -1233,7 +1256,8 @@ if (isset($_POST['add_ticket_reply'])) {
     $row = mysqli_fetch_array($sql);
     $company_name = sanitizeInput($row['company_name']);
     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-
+	
+	
     // Send e-mail to client if public update & email is set up
     if ($ticket_reply_type == 'Public' && $send_email == 1 && !empty($config_smtp_host)) {
 
@@ -1242,12 +1266,23 @@ if (isset($_POST['add_ticket_reply'])) {
             // Slightly different email subject/text depending on if this update set auto-close
 
             if ($ticket_status == 4) {
-                // Resolved
-                $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";            } else {
+				
+				// Get Email Template AutoClose
+				$config_et_client_ticket_updatedpendingclosure = prepareEmailTemplate($config_et_client_ticket_updatedpendingclosure, true);
+				$config_et_client_ticket_updatedpendingclosure_subj = prepareEmailTemplateTags($config_et_client_ticket_updatedpendingclosure_subj);
+				
+                // Auto-close
+                $subject = "$config_et_client_ticket_updatedpendingclosure_subj";
+				$body = "$config_et_client_ticket_updatedpendingclosure";
+            } else {
+				
+				// Get Email Template Update
+				$config_et_client_ticket_update = prepareEmailTemplate($config_et_client_ticket_update, true);
+				$config_et_client_ticket_update_subj = prepareEmailTemplateTags($config_et_client_ticket_update_subj);
+				
                 // Anything else
-                $subject = "Ticket update - [$ticket_prefix$ticket_number] - $ticket_subject";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been updated.<br><br>--------------------------------<br>$ticket_reply<br>--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                $subject = "$config_et_client_ticket_update_subj";
+                $body = "$config_et_client_ticket_update";
             }
 
             $data = [];
@@ -1563,15 +1598,18 @@ if (isset($_GET['close_ticket'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+		
+		// Get Email Template
+		$config_et_client_ticket_closed = prepareEmailTemplate($config_et_client_ticket_closed);
+		$config_et_client_ticket_closed_subj = prepareEmailTemplateTags($config_et_client_ticket_closed_subj);
 
         // Check email valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
             $data = [];
 
-            $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
-            //$body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-            $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $subject = "$config_et_client_ticket_closed_subj";
+			$body = "$config_et_client_ticket_closed";
 
             // Email Ticket Contact
             // Queue Mail
