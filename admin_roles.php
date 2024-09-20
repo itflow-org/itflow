@@ -21,7 +21,7 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
-    <div class="alert alert-danger"><strong>Roles are not yet active/enforced - do not use.</strong><hr></div>
+    <div class="alert alert-warning"><strong>Roles are still in development. Permissions may not be fully be enforced.</strong><hr></div>
 
     <div class="card card-dark">
         <div class="card-header py-2">

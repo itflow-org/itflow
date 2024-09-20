@@ -23,6 +23,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="admin_roles.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_roles.php") {echo "active";} ?>">
+                        <i class="nav-icon fas fa-user-shield"></i>
+                        <p>Roles</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="admin_api.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_api.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-key"></i>
                         <p>API Keys</p>

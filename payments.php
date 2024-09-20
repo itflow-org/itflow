@@ -6,6 +6,8 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_financial');
 
 // Payment Method Filter
 if (isset($_GET['method']) & !empty($_GET['method'])) {

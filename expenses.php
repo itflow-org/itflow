@@ -6,6 +6,9 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_financial');
+
 // Account Filter
 if (isset($_GET['account']) & !empty($_GET['account'])) {
     $account_query = 'AND (expense_account_id = ' . intval($_GET['account']) . ')';

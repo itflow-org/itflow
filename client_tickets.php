@@ -7,6 +7,9 @@ $order = "DESC";
 
 require_once "inc_all_client.php";
 
+// Perms
+enforceUserPermission('module_support');
+
 if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
     $status = 'Closed';
     $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";

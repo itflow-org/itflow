@@ -5,6 +5,9 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_financial');
+
 // Account Transfer From Filter
 if (isset($_GET['account_from']) & !empty($_GET['account_from'])) {
     $account_from_query = 'AND (expense_account_id = ' . intval($_GET['account_from']) . ')';

@@ -6,6 +6,9 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
+// Perms
+enforceUserPermission('module_client');
+
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
 

@@ -2,6 +2,9 @@
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_financial');
+
 // Fetch categories
 $query = "SELECT category_id, category_name FROM categories WHERE category_type ='Expense' AND category_archived_at IS NULL";
 $result = mysqli_query($mysqli, $query);

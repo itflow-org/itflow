@@ -6,6 +6,9 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_sales');
+
 // Category Filter
 if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';

@@ -1,6 +1,9 @@
 <?php
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_support');
+
 // Initialize the HTML Purifier to prevent XSS
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 

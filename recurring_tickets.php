@@ -6,6 +6,9 @@ $order = "ASC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_support');
+
 // Ticket client access snippet
 $rec_ticket_permission_snippet = '';
 if (!empty($client_access_string)) {

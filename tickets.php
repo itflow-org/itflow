@@ -7,6 +7,9 @@ $order = "DESC";
 
 require_once "inc_all.php";
 
+// Perms
+enforceUserPermission('module_support');
+
 // Ticket status from GET
 if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'])) {
     // Sanitize each element of the status array
