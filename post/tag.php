@@ -42,7 +42,7 @@ if (isset($_GET['delete_tag'])) {
     $tag_id = intval($_GET['delete_tag']);
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
-    mysqli_query($mysqli,"DELETE FROM client_tags WHERE client_tag_tag_id = $tag_id");
+    mysqli_query($mysqli,"DELETE FROM client_tags WHERE tag_id = $tag_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Delete', log_description = '$tag_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
