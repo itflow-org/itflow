@@ -50,7 +50,7 @@ require_once "inc_all_admin.php";
                             <select class="form-control select2" name="config_stripe_account">
                                 <option value="">- Account -</option>
                                 <?php
-                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type WHERE account_type_parent = 1 AND account_archived_at IS NULL ORDER BY account_name ASC");
+                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql_accounts)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']);
