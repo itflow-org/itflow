@@ -98,7 +98,7 @@
                                 </div>
                             </div>
 
-                            <?php if ($config_module_enable_accounting) { ?>
+                            <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <div class="form-group">
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?php echo $ticket_id; ?>">

@@ -5,7 +5,7 @@
                 <a href="#" data-toggle="collapse" data-target="#clientHeader"><h4 class="text-secondary" data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
             </div>
             <div class="col">
-                <?php if ($session_user_role == 3) { ?>
+                <?php if (lookupUserPermission("module_client") >= 2) { ?>
                 <div class="dropdown dropleft text-center">
                     <button class="btn btn-dark btn-sm float-right" type="button" data-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -14,14 +14,16 @@
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exportClientPDFModal">
-                            <i class="fas fa-fw fa-file-pdf mr-2"></i>Export Data
-                        </a>
+                        <?php if (lookupUserPermission("module_client") >= 3) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exportClientPDFModal">
+                                <i class="fas fa-fw fa-file-pdf mr-2"></i>Export Data
+                            </a>
+                        <?php } ?>
 
                         <?php if (empty($client_archived_at)) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive Client
                             </a>
                         <?php } else { ?>
@@ -31,7 +33,7 @@
                             </a>
                         <?php } ?>
 
-                        <?php if ($session_user_role == 3 && $client_archived_at) { ?>
+                        <?php if (lookupUserPermission("module_client") >= 3 && $client_archived_at) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteClientModal<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-trash mr-2"></i>Delete Client
@@ -115,8 +117,8 @@
 
                 </div>
 
-                <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
-                <div class="col-md border-left border-top">
+                <?php if (lookupUserPermission("module_financial") >= 1 && $config_module_enable_accounting == 1) { ?>
+                    <div class="col-md border-left border-top">
                     <h5 class="text-secondary mt-1">Billing</h5>
                     <div class="ml-1 text-secondary">Hourly Rate
                         <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $client_rate, $client_currency_code); ?></span>
@@ -141,8 +143,8 @@
                 </div>
                 <?php } ?>
 
-
-                <div class="col-md border-left border-top">
+                <?php if (lookupUserPermission("module_support") >= 1 && $config_module_enable_ticketing == 1) { ?>
+                    <div class="col-md border-left border-top">
                     <h5 class="text-secondary mt-1">Support</h5>
                     <div class="ml-1 text-secondary">Open Tickets
                         <span class="text-dark float-right"><?php echo $num_active_tickets; ?></span>
@@ -156,6 +158,7 @@
                     <?php echo $client_tags_display; ?>
                     <?php } ?>
                 </div>
+                <?php } ?>
 
             </div>
         </div>
