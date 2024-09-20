@@ -418,66 +418,108 @@ if (isset($_POST["import_clients_csv"])) {
                     $duplicate_detect = 1;
                 }
             }
+
+            $industry = '';
             if (isset($column[1])) {
                 $industry = sanitizeInput($column[1]);
             }
+
+            $referral = '';
             if (isset($column[2])) {
                 $referral = sanitizeInput($column[2]);
             }
+
+            $website = '';
             if (isset($column[3])) {
-                $website = sanitizeInput($column[3]);
+                $website = sanitizeInput(preg_replace("(^https?://)", "", $column[3]));
             }
+
+            $location_name = '';
             if (isset($column[4])) {
                 $location_name = sanitizeInput($column[4]);
             }
+
+            $location_phone = '';
             if (isset($column[5])) {
-                $location_phone = preg_replace("/[^0-9]/", '',$column[5]);
+                $location_phone = preg_replace("/[^0-9]/", '', $column[5]);
             }
+
+            $address = '';
             if (isset($column[6])) {
                 $address = sanitizeInput($column[6]);
             }
+
+            $city = '';
             if (isset($column[7])) {
                 $city = sanitizeInput($column[7]);
             }
+
+            $state = '';
             if (isset($column[8])) {
                 $state = sanitizeInput($column[8]);
             }
+
+            $zip = '';
             if (isset($column[9])) {
                 $zip = sanitizeInput($column[9]);
             }
+
+            $country = '';
             if (isset($column[10])) {
                 $country = sanitizeInput($column[10]);
             }
+
+            $contact_name = '';
             if (isset($column[11])) {
                 $contact_name = sanitizeInput($column[11]);
             }
+
+            $title = '';
             if (isset($column[12])) {
                 $title = sanitizeInput($column[12]);
             }
+
+            $contact_phone = '';
             if (isset($column[13])) {
                 $contact_phone = preg_replace("/[^0-9]/", '',$column[13]);
             }
+
+            $contact_extension = '';
             if (isset($column[14])) {
                 $contact_extension = preg_replace("/[^0-9]/", '',$column[14]);
             }
+
+            $contact_mobile = '';
             if (isset($column[15])) {
                 $contact_mobile = preg_replace("/[^0-9]/", '',$column[15]);
             }
+
+            $contact_email = '';
             if (isset($column[16])) {
                 $contact_email = sanitizeInput($column[16]);
             }
+
+            $hourly_rate = $config_default_hourly_rate;
             if (isset($column[17])) {
                 $hourly_rate = floatval($column[17]);
             }
+
+            $currency_code = sanitizeInput($session_company_currency);
             if (isset($column[18])) {
                 $currency_code = sanitizeInput($column[18]);
             }
+
+            $payment_terms = sanitizeInput($config_default_net_terms);
             if (isset($column[19])) {
                 $payment_terms = intval($column[19]);
             }
+
+            $tax_id_number = '';
             if (isset($column[20])) {
                 $tax_id_number = sanitizeInput($column[20]);
             }
+
+            $abbreviation = '';
             if (isset($column[21])) {
                 $abbreviation = sanitizeInput($column[21]);
             }
