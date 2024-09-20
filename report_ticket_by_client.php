@@ -230,17 +230,17 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $ticket_resolved_count = intval($row['ticket_resolved_count']);
 
                                 // Breakdown tickets for each priority - Low
-                                $sql_low_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS low_ticket_count FROM TICKETS WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Low'");
+                                $sql_low_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS low_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Low'");
                                 $row = mysqli_fetch_array($sql_low_ticket_count);
                                 $low_ticket_count = intval($row['low_ticket_count']);
 
                                 // Breakdown tickets for each priority - Low
-                                $sql_med_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS med_ticket_count FROM TICKETS WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Medium'");
+                                $sql_med_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS med_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Medium'");
                                 $row = mysqli_fetch_array($sql_med_ticket_count);
                                 $med_ticket_count = intval($row['med_ticket_count']);
 
                                 // Breakdown tickets for each priority - Low
-                                $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM TICKETS WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'High'");
+                                $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'High'");
                                 $row = mysqli_fetch_array($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
 
