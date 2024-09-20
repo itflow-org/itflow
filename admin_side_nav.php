@@ -168,7 +168,7 @@
                 </li>
 
                 <!-- SETTINGS Section -->
-                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_mail.php', 'settings_notifications.php', 'settings_defaults.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'settings_integrations.php', 'settings_telemetry.php', 'settings_modules.php']) ? 'menu-open' : ''); ?>">
+                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_settings_company.php', 'admin_settings_localization.php', 'admin_settings_theme.php', 'admin_settings_security.php', 'admin_settings_mail.php', 'admin_settings_notifications.php', 'admin_settings_defaults.php', 'admin_settings_invoice.php', 'admin_settings_quote.php', 'admin_settings_online_payment.php', 'admin_settings_project.php', 'admin_settings_ticket.php', 'admin_settings_ai.php', 'admin_settings_integrations.php', 'admin_settings_telemetry.php', 'admin_settings_modules.php']) ? 'menu-open' : ''); ?>">
                     <a href="#" class="nav-link">
                         <p>
                             SETTINGS
@@ -177,97 +177,97 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="settings_company.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_company.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_company.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_company.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fa fa-briefcase"></i>
                                 <p>Company Details</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_localization.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_localization.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_localization.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_localization.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fa fa-globe"></i>
                                 <p>Localization</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_theme.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_theme.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_theme.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_theme.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fa fa-paint-brush"></i>
                                 <p>Theme</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_security.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_security.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_security.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_security.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-shield-alt"></i>
                                 <p>Security</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_mail.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_mail.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_mail.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_mail.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon far fa-envelope"></i>
                                 <p>Mail</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_notifications.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_notifications.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_notifications.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_notifications.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon far fa-bell"></i>
                                 <p>Notifications</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_defaults.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_defaults.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_defaults.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_defaults.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-cogs"></i>
                                 <p>Defaults</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_invoice.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_invoice.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_invoice.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_invoice.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-file-invoice"></i>
                                 <p>Invoice</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_quote.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_quote.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_quote.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_quote.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-comment-dollar"></i>
                                 <p>Quote</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_online_payment.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_online_payment.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_online_payment.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_online_payment.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon far fa-credit-card"></i>
                                 <p>Online Payment</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_project.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_project.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_project.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_project.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-project-diagram"></i>
                                 <p>Project</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_ticket.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_ticket.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_ticket.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_ticket.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-life-ring"></i>
                                 <p>Ticket</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_ai.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_ai.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_ai.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_ai.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-robot"></i>
                                 <p>AI</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_integrations.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_integrations.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_integrations.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_integrations.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-plug"></i>
                                 <p>Integrations</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_telemetry.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_telemetry.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_telemetry.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_telemetry.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-satellite-dish"></i>
                                 <p>Telemetry</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="settings_modules.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_modules.php' ? 'active' : ''); ?>">
+                            <a href="admin_settings_modules.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_modules.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon fas fa-cube"></i>
                                 <p>Modules</p>
                             </a>
