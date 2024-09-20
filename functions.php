@@ -910,43 +910,6 @@ function getTotalTax($tax_name, $year, $mysqli)
     return $row['total_tax'] ?? 0;
 }
 
-//Get account currency code
-function getAccountCurrencyCode($mysqli, $account_id)
-{
-    $sql = mysqli_query($mysqli, "SELECT account_currency_code FROM accounts WHERE account_id = $account_id");
-    $row = mysqli_fetch_array($sql);
-    return nullable_htmlentities($row['account_currency_code']);
-}
-
-function calculateAccountBalance($mysqli, $account_id)
-{
-    $sql_account = mysqli_query($mysqli, "SELECT * FROM accounts LEFT JOIN account_types ON accounts.account_type = account_types.account_type_id WHERE account_archived_at  IS NULL AND account_id = $account_id ORDER BY account_name ASC; ");
-    $row = mysqli_fetch_array($sql_account);
-    $opening_balance = floatval($row['opening_balance']);
-    $account_id = intval($row['account_id']);
-
-    $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-    $row = mysqli_fetch_array($sql_payments);
-    $total_payments = floatval($row['total_payments']);
-
-    $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-    $row = mysqli_fetch_array($sql_revenues);
-    $total_revenues = floatval($row['total_revenues']);
-
-    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-    $row = mysqli_fetch_array($sql_expenses);
-    $total_expenses = floatval($row['total_expenses']);
-
-    $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-    if ($balance == '') {
-        $balance = '0.00';
-    }
-
-    return $balance;
-}
-
-
 function generateReadablePassword($security_level)
 {
     // Cap security level at 5
