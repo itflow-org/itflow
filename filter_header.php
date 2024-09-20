@@ -42,7 +42,7 @@ if (isset($_GET['order'])) {
 }
 
 // Set the order Icon
-if ($sort) {
+if (isset($sort)) {
     if ($order == "ASC") {
         $order_icon = "<i class='fas fa-fw fa-sort-up'></i>";
     } else {
