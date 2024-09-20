@@ -1,6 +1,6 @@
 <?php
 /*
- * Pagination - Head
+ * Filter - Head
  * Sets the paging/sort for use in limit/order by
  * Sets the default search query from GET to $q
  *
