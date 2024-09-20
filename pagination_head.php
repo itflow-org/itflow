@@ -41,6 +41,15 @@ if (isset($_GET['order'])) {
     }
 }
 
+// Set the order Icon
+if ($sort) {
+    if ($order == "ASC") {
+        $order_icon = "<i class='fas fa-fw fa-sort-up'></i>";
+    } else {
+        $order_icon = "<i class='fas fa-fw fa-sort-down'></i>";
+    }
+}
+
 // Search
 if (isset($_GET['q'])) {
     $q = sanitizeInput($_GET['q']);
