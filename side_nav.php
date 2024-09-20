@@ -49,7 +49,7 @@
                             <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-redo-alt"></i>
                                 <p>
-                                    Recurring
+                                    Recurring Tickets
                                     <?php if ($num_recurring_tickets) { ?>
                                         <span class="right badge text-light"><?php echo $num_recurring_tickets; ?></span>
                                     <?php } ?>
@@ -104,7 +104,7 @@
                         <a href="recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
-                                Recurring
+                                Recurring Invoices
                                 <?php if ($num_recurring_invoices) { ?>
                                     <span class="right badge text-light"><?php echo $num_recurring_invoices; ?></span>
                                 <?php } ?>
@@ -148,7 +148,7 @@
                         <a href="recurring_expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
-                                Recurring
+                                Recurring Expenses
                                 <?php if ($num_recurring_expenses) { ?>
                                     <span class="right badge text-light"><?php echo $num_recurring_expenses; ?></span>
                                 <?php } ?>

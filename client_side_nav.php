@@ -72,7 +72,7 @@
                         <a href="client_recurring_tickets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_recurring_tickets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
-                                Recurring
+                                Recurring Tickets
                                 <?php
                                 if ($num_scheduled_tickets) { ?>
                                     <span class="right badge"><?php echo $num_scheduled_tickets; ?></span>
@@ -275,7 +275,7 @@
                             <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "client_recurring_invoice.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-redo-alt"></i>
                                 <p>
-                                    Recurring
+                                    Recurring Invoices
                                     <?php
                                     if ($num_recurring > 0) { ?>
                                         <span class="right badge"><?php echo $num_recurring; ?></span>
