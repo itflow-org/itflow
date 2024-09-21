@@ -39,6 +39,7 @@ if ($failed_login_count >= 15) {
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Blocked', log_description = '$ip was blocked access to login due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
 
     // Inform user & quit processing page
+    header("HTTP/1.1 429 Too Many Requests");
     exit("<h2>$config_app_name</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
 }
 
