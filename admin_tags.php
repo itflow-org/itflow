@@ -50,8 +50,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_type&order=<?php echo $disp; ?>">Type</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'tag_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tag_type&order=<?php echo $disp; ?>">
+                                Type <?php if ($sort == 'tag_type') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

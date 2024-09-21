@@ -258,55 +258,94 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_name&order=<?php echo $disp; ?>">Name</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'asset_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_type&order=<?php echo $disp; ?>">Type</a></th>
-                            <?php }
-                            if ($_GET['type'] !== 'virtual') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_make&order=<?php echo $disp; ?>">Model</a></th>
-                            <?php }
-                            if ($_GET['type'] !== 'virtual') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_serial&order=<?php echo $disp; ?>">Serial</a></th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_type&order=<?php echo $disp; ?>">
+                                        Type <?php if ($sort == 'asset_type') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
+                            <?php } ?>
+                            <?php if ($_GET['type'] !== 'virtual') { ?>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_make&order=<?php echo $disp; ?>">
+                                        Model <?php if ($sort == 'asset_make') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_serial&order=<?php echo $disp; ?>">
+                                        Serial <?php if ($sort == 'asset_serial') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('OS', $_GET['show_column'])) { ?>
-                            <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
-                                <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_os&order=<?php echo $disp; ?>">OS</a></th>
-                            <?php } ?>
+                                <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other') { ?>
+                                    <th>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_os&order=<?php echo $disp; ?>">
+                                            OS <?php if ($sort == 'asset_os') { echo $order_icon; } ?>
+                                        </a>
+                                    </th>
+                                <?php } ?>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('IP', $_GET['show_column'])) { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">IP</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">
+                                        IP <?php if ($sort == 'interface_ip') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_purchase_date&order=<?php echo $disp; ?>">Purchase Date</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_purchase_date&order=<?php echo $disp; ?>">
+                                        Purchase Date <?php if ($sort == 'asset_purchase_date') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">Install Date</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">
+                                        Install Date <?php if ($sort == 'asset_install_date') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_warranty_expire&order=<?php echo $disp; ?>">Warranty Expire</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_warranty_expire&order=<?php echo $disp; ?>">
+                                        Warranty Expire <?php if ($sort == 'asset_warranty_expire') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Assigned To</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                        Assigned To <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                                    Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { ?>
-                            <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_physical_location&order=<?php echo $disp; ?>">Physical Location</a>
-                            </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_physical_location&order=<?php echo $disp; ?>">
+                                        Physical Location <?php if ($sort == 'asset_physical_location') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
                             <?php } ?>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">Status</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">
+                                    Status <?php if ($sort == 'asset_status') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
+
                         </thead>
                         <tbody>
                         <?php

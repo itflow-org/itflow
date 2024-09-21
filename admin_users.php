@@ -66,12 +66,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Name</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">Email</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">Role</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">Status</a></th>
+                    <th class="text-center">
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                            Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">
+                            Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">
+                            Role <?php if ($sort == 'user_role') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">
+                            Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
+                        </a>
+                    </th>
                     <th class="text-center">MFA</th>
-                    <th>Last Login</th>
+                    <th>
+                        Last Login
+                    </th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>

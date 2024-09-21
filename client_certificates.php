@@ -85,10 +85,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
                         </td>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_domain&order=<?php echo $disp; ?>">Domain</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_issued_by&order=<?php echo $disp; ?>">Issued By</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_expire&order=<?php echo $disp; ?>">Expire</a></th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_domain&order=<?php echo $disp; ?>">
+                                Domain <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_issued_by&order=<?php echo $disp; ?>">
+                                Issued By <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_expire&order=<?php echo $disp; ?>">
+                                Expire <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

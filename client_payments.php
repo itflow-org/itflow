@@ -61,14 +61,46 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_date&order=<?php echo $disp; ?>">Payment Date</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">Invoice Date</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">Invoice</a></th>
-                    <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_amount&order=<?php echo $disp; ?>">Invoice Amount</a></th>
-                    <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">Payment Amount</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method&order=<?php echo $disp; ?>">Method</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_reference&order=<?php echo $disp; ?>">Reference</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a></th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_date&order=<?php echo $disp; ?>">
+                            Payment Date <?php if ($sort == 'payment_date') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_date&order=<?php echo $disp; ?>">
+                            Invoice Date <?php if ($sort == 'invoice_date') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_number&order=<?php echo $disp; ?>">
+                            Invoice <?php if ($sort == 'invoice_number') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th class="text-right">
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_amount&order=<?php echo $disp; ?>">
+                            Invoice Amount <?php if ($sort == 'invoice_amount') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th class="text-right">
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">
+                            Payment Amount <?php if ($sort == 'payment_amount') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method&order=<?php echo $disp; ?>">
+                            Method <?php if ($sort == 'payment_method') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_reference&order=<?php echo $disp; ?>">
+                            Reference <?php if ($sort == 'payment_reference') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                            Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>

@@ -212,18 +212,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </div>
                                     </td>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_name&order=<?php echo $disp; ?>">Name</a>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_name&order=<?php echo $disp; ?>">
+                                            Name <?php if ($sort == 'document_name') { echo $order_icon; } ?>
+                                        </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_created_at&order=<?php echo $disp; ?>">Created</a>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_created_at&order=<?php echo $disp; ?>">
+                                            Created <?php if ($sort == 'document_created_at') { echo $order_icon; } ?>
+                                        </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">Last Update</a>
+                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">
+                                            Last Update <?php if ($sort == 'document_updated_at') { echo $order_icon; } ?>
+                                        </a>
                                     </th>
                                     <th></th>
-                                    <th class="text-center">
-                                        Action
-                                    </th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>

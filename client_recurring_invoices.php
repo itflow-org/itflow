@@ -69,14 +69,46 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_number&order=<?php echo $disp; ?>">Number</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_scope&order=<?php echo $disp; ?>">Scope</a></th>
-                    <th class="text-right"><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_frequency&order=<?php echo $disp; ?>">Frequency</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_last_sent&order=<?php echo $disp; ?>">Last Sent</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_next_date&order=<?php echo $disp; ?>">Next Date</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                    <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_status&order=<?php echo $disp; ?>">Status</a></th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_number&order=<?php echo $disp; ?>">
+                            Number <?php if ($sort == 'recurring_number') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_scope&order=<?php echo $disp; ?>">
+                            Scope <?php if ($sort == 'recurring_scope') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th class="text-right">
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_amount&order=<?php echo $disp; ?>">
+                            Amount <?php if ($sort == 'recurring_amount') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_frequency&order=<?php echo $disp; ?>">
+                            Frequency <?php if ($sort == 'recurring_frequency') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_last_sent&order=<?php echo $disp; ?>">
+                            Last Sent <?php if ($sort == 'recurring_last_sent') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_next_date&order=<?php echo $disp; ?>">
+                            Next Date <?php if ($sort == 'recurring_next_date') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                            Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_status&order=<?php echo $disp; ?>">
+                            Status <?php if ($sort == 'recurring_status') { echo $order_icon; } ?>
+                        </a>
+                    </th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>

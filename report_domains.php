@@ -84,13 +84,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_name&order=<?php echo $disp; ?>">Domain</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=registrar_name&order=<?php echo $disp; ?>">Registrar</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=webhost_name&order=<?php echo $disp; ?>">Web Host</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=dnshost_name&order=<?php echo $disp; ?>">DNS Host</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=mailhost_name&order=<?php echo $disp; ?>">Mail Host</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_expire&order=<?php echo $disp; ?>">Expires</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_name&order=<?php echo $disp; ?>">
+                                    Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=registrar_name&order=<?php echo $disp; ?>">
+                                    Registrar <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=webhost_name&order=<?php echo $disp; ?>">
+                                    Web Host <?php if ($sort == 'webhost_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=dnshost_name&order=<?php echo $disp; ?>">
+                                    DNS Host <?php if ($sort == 'dnshost_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=mailhost_name&order=<?php echo $disp; ?>">
+                                    Mail Host <?php if ($sort == 'mailhost_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_expire&order=<?php echo $disp; ?>">
+                                    Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>

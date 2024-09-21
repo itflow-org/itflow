@@ -52,11 +52,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_description&order=<?php echo $disp; ?>">Description</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_is_admin&order=<?php echo $disp; ?>">Admin</a></th>
-                        <th><a class="text-dark">User count</a></th>
-
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'user_role_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_description&order=<?php echo $disp; ?>">
+                                Description <?php if ($sort == 'user_role_description') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_is_admin&order=<?php echo $disp; ?>">
+                                Admin <?php if ($sort == 'user_role_is_admin') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th class="text-center">
+                            User count
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -76,14 +89,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td class="text-center">
+                            <td>
                                 <a class="text-dark" href="#" data-toggle="modal" data-target="#editRoleModal<?php echo $role_id; ?>">
                                     <div class="text-secondary"><?php echo $role_name; ?></div>
                                 </a>
                             </td>
                             <td><?php echo $role_description; ?></td>
                             <td><?php echo $role_admin ? 'Yes' : 'No' ; ?></td>
-                            <td><?php echo $role_user_count ?></td>
+                            <td class="text-center"><?php echo $role_user_count ?></td>
                             <td>
                                 <?php if ($role_id !== 3) { ?>
                                     <div class="dropdown dropleft text-center">

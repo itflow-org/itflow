@@ -147,12 +147,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_date&order=<?php echo $disp; ?>">Date</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_from&order=<?php echo $disp; ?>">From Account</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_to&order=<?php echo $disp; ?>">To Account</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_method&order=<?php echo $disp; ?>">Method</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_notes&order=<?php echo $disp; ?>">Notes</a></th>
-                        <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_amount&order=<?php echo $disp; ?>">Amount</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_date&order=<?php echo $disp; ?>">
+                                Date <?php if ($sort == 'transfer_date') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_from&order=<?php echo $disp; ?>">
+                                From Account <?php if ($sort == 'transfer_account_from') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_to&order=<?php echo $disp; ?>">
+                                To Account <?php if ($sort == 'transfer_account_to') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_method&order=<?php echo $disp; ?>">
+                                Method <?php if ($sort == 'transfer_method') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_notes&order=<?php echo $disp; ?>">
+                                Notes <?php if ($sort == 'transfer_notes') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th class="text-right">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_amount&order=<?php echo $disp; ?>">
+                                Amount <?php if ($sort == 'transfer_amount') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

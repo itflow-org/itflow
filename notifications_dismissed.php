@@ -70,53 +70,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_timestamp&order=<?php echo $disp; ?>">
-                                Timestamp 
-                                <?php if($sort == "notification_timestamp") { ?>
-                                    <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Timestamp <?php if ($sort == 'notification_timestamp') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_type&order=<?php echo $disp; ?>">
-                                Type
-                                <?php if($sort == "notification_type") { ?> 
-                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Type <?php if ($sort == 'notification_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification&order=<?php echo $disp; ?>">
-                                Notification
-                                <?php if($sort == "notification") { ?>
-                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Notification <?php if ($sort == 'notification') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                Client
-                                <?php if($sort == "client_name") { ?>
-                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_dismissed_at&order=<?php echo $disp; ?>">
-                                Dismissed At
-                                <?php if($sort == "notification_dismissed_at") { ?>
-                                    <i class="fa fa-sort-numeric<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Dismissed At <?php if ($sort == 'notification_dismissed_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
-                                Dismissed By
-                                <?php if($sort == "user_name") { ?>
-                                    <i class="fa fa-sort-alpha<?php if ($disp == 'ASC') { echo "-up"; } else { echo "-down"; }?>"></i>
-                                <?php } ?>
+                                Dismissed By <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                             </a>
                         </th>
-
                     </tr>
                     </thead>
                     <tbody>

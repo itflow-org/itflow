@@ -198,13 +198,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-secondary ml-3" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Name</a></th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_department&order=<?php echo $disp; ?>">Department
+                                <a class="text-secondary ml-3" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_department&order=<?php echo $disp; ?>">
+                                    Department <?php if ($sort == 'contact_department') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>Contact</th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                                    Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>

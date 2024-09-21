@@ -79,11 +79,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">Software</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">Type</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">License Type</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Seats</a></th>
-                        <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">Expire</a></th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">
+                                Software <?php if ($sort == 'software_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">
+                                Type <?php if ($sort == 'software_type') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">
+                                License Type <?php if ($sort == 'software_license_type') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">
+                                Seats <?php if ($sort == 'software_seats') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_expire&order=<?php echo $disp; ?>">
+                                Expire <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

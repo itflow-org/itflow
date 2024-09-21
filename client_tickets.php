@@ -115,20 +115,55 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">Number</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">Subject</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">Contact</a></th>
-                    <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
-                        <th class="text-center"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">Billable</a></th>
-                    <?php } ?>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">Priority</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">Status</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">Assigned</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">Last Response</a></th>
-                    <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">Created</a></th>
-
-                </tr>
+                    <tr>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
+                                Number <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
+                                Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                Contact <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
+                            <th class="text-center">
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">
+                                    Billable <?php if ($sort == 'ticket_billable') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                        <?php } ?>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">
+                                Priority <?php if ($sort == 'ticket_priority') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">
+                                Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">
+                                Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">
+                                Created <?php if ($sort == 'ticket_created_at') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                 <?php

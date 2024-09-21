@@ -149,11 +149,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_name&order=<?php echo $disp; ?>">Name</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'login_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th>Username / ID</th>
                             <th>Password / Key</th>
                             <th>OTP</th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">URI</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">
+                                    URI <?php if ($sort == 'login_uri') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th></th>
                             <th class="text-center">Action</th>
                         </tr>

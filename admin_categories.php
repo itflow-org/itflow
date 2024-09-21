@@ -113,12 +113,12 @@ if (isset($_GET['archived'])) {
         <hr>
         <div class="table-responsive-sm">
             <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) {
-                    echo "d-none";
-                } ?>">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark"
-                                href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Name</a>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'category_name') { echo $order_icon; } ?>
+                            </a>
                         </th>
                         <th>Color</th>
                         <th class="text-center">Action</th>

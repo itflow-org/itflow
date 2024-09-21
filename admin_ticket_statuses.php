@@ -50,9 +50,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_color&order=<?php echo $disp; ?>">Color</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_arctive&order=<?php echo $disp; ?>">Status</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'ticket_status_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_color&order=<?php echo $disp; ?>">
+                                Color <?php if ($sort == 'ticket_status_color') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_active&order=<?php echo $disp; ?>">
+                                Status <?php if ($sort == 'ticket_status_active') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>

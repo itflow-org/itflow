@@ -200,16 +200,48 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_created_at&order=<?php echo $disp; ?>">Timestamp</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">User</a></th>
-                        <?php if(empty($client)) { ?>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_created_at&order=<?php echo $disp; ?>">
+                                Timestamp <?php if ($sort == 'log_created_at') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                User <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php if (empty($client)) { ?>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                         <?php } ?>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_type&order=<?php echo $disp; ?>">Type</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_action&order=<?php echo $disp; ?>">Action</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_description&order=<?php echo $disp; ?>">Description</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_ip&order=<?php echo $disp; ?>">IP Address</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_user_agent&order=<?php echo $disp; ?>">User Agent</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_type&order=<?php echo $disp; ?>">
+                                Type <?php if ($sort == 'log_type') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_action&order=<?php echo $disp; ?>">
+                                Action <?php if ($sort == 'log_action') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_description&order=<?php echo $disp; ?>">
+                                Description <?php if ($sort == 'log_description') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_ip&order=<?php echo $disp; ?>">
+                                IP Address <?php if ($sort == 'log_ip') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_user_agent&order=<?php echo $disp; ?>">
+                                User Agent <?php if ($sort == 'log_user_agent') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>

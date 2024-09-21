@@ -87,16 +87,44 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
-                                    <input class="form-check-input" id="selectAllCheckbox"  type="checkbox" onclick="checkAll(this)">
+                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_name&order=<?php echo $disp; ?>">Name</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_vlan&order=<?php echo $disp; ?>">vLAN</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network&order=<?php echo $disp; ?>">IP / Network</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_gateway&order=<?php echo $disp; ?>">Gateway</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_primary_dns&order=<?php echo $disp; ?>">DNS</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_dhcp_range&order=<?php echo $disp; ?>">DHCP Range</a></th>
-                            <th><a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=location_name&order=<?php echo $disp; ?>">Location</a></th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'network_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_vlan&order=<?php echo $disp; ?>">
+                                    vLAN <?php if ($sort == 'network_vlan') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network&order=<?php echo $disp; ?>">
+                                    IP / Network <?php if ($sort == 'network') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_gateway&order=<?php echo $disp; ?>">
+                                    Gateway <?php if ($sort == 'network_gateway') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_primary_dns&order=<?php echo $disp; ?>">
+                                    DNS <?php if ($sort == 'network_primary_dns') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_dhcp_range&order=<?php echo $disp; ?>">
+                                    DHCP Range <?php if ($sort == 'network_dhcp_range') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                                    Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>

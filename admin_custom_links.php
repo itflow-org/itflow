@@ -50,10 +50,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_order&order=<?php echo $disp; ?>">Order</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_uri&order=<?php echo $disp; ?>">URI / <span class="text-secondary">New Tab</span></a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_location&order=<?php echo $disp; ?>">Location</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'custom_link_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_order&order=<?php echo $disp; ?>">
+                                Order <?php if ($sort == 'custom_link_order') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_uri&order=<?php echo $disp; ?>">
+                                URI / <span class="text-secondary">New Tab</span> <?php if ($sort == 'custom_link_uri') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_location&order=<?php echo $disp; ?>">
+                                Location <?php if ($sort == 'custom_link_location') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
