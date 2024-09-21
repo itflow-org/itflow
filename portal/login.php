@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $password = $_POST['password'];
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("HTTP/1.1 401 Unauthorized");
         $_SESSION['login_message'] = 'Invalid e-mail';
     } else {
         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_archived_at IS NULL LIMIT 1");
@@ -68,11 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
             } else {
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
+                header("HTTP/1.1 401 Unauthorized");
                 $_SESSION['login_message'] = 'Incorrect username or password.';
             }
 
         } else {
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
+            header("HTTP/1.1 401 Unauthorized");
             $_SESSION['login_message'] = 'Incorrect username or password.';
         }
     }
