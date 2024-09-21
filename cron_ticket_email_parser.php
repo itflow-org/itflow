@@ -410,9 +410,12 @@ if ($messages->count() > 0) {
     foreach ($messages as $message) {
         $email_processed = false;
 
+        // Save original message
         mkdirMissing('uploads/tmp/');
         $original_message_file = "processed-eml-" . randomString(200) . ".eml";
-        file_put_contents("uploads/tmp/{$original_message_file}", $message->getRawMessage());
+        $eml_content = json_decode(json_encode($message->getHeader()), true)['raw'];
+        $eml_content .= $message->getRawBody();
+        file_put_contents("uploads/tmp/{$original_message_file}", $eml_content);
 
         $from_address = $message->getFrom();
         $from_name = sanitizeInput($from_address[0]->personal ?? 'Unknown');
