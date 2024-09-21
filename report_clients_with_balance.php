@@ -66,7 +66,7 @@ validateAccountantRole();
                     ?>
 
                     <tr>
-                        <td><a href="client_statement.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <td><a href="client_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></td>
                     </tr>
                     <?php
