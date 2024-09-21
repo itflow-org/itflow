@@ -32,24 +32,27 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 </div>
             <?php } ?>
 
-            <?php if (!empty($git_log)) { ?>
-                <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
-                <a class="btn btn-danger btn-lg" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
+            <?php if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
+                <div class="alert alert-warning">
+                    <strong>Ensure you have a current <a href="https://docs.itflow.org/backups">app & database backup</a> before updating!</strong>
+                </div>
+                <br>
+                <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
+                <br>
+                <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
+                <br>
+                <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                <br>
+                <small class="text-secondary">Branch: <?php echo $repo_branch; ?></small>
+
                 <hr>
 
             <?php } else {
-                if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) { ?>
-                    <div class="alert alert-warning">
-                        <strong>Ensure you have a current <a href="https://docs.itflow.org/backups">app & database backup</a> before updating!</strong>
-                    </div>
-                    <br>
-                    <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
-                    <br>
-                    <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
-                    <br>
-                    <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
-                    <br>
-                    <small class="text-secondary">Branch: <?php echo $repo_branch; ?></small>
+                if (!empty($git_log)) { ?>
+
+                    <a class="btn btn-primary btn-lg my-4" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
+                    <a class="btn btn-danger btn-lg" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
+
                 <?php } else { ?>
                     <p class="text-secondary">Current Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
                     <p class="text-secondary">Current App Version:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
