@@ -733,6 +733,14 @@ function sanitizeInput($input)
 {
     global $mysqli;
 
+    // Detect encoding
+    $encoding = mb_detect_encoding($input, ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'ISO-8859-15'], true);
+
+    // If not UTF-8, convert to UTF8 (primarily Windows-1252 is problematic)
+    if ($encoding !== 'UTF-8') {
+        $input = mb_convert_encoding($input, 'UTF-8', $encoding);
+    }
+
     // Remove HTML and PHP tags
     $input = strip_tags((string) $input);
 
