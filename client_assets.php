@@ -592,17 +592,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <a class="dropdown-item text-info" href="post.php?unarchive_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                                     </a>
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
                                                     <?php } else { ?>
                                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#transferAssetModal<?php echo $asset_id; ?>">
                                                         <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer
                                                     </a>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                                    </a>
-                                                    <?php } ?>
-                                                    <?php if ($config_destructive_deletes_enable) { ?>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-archive mr-2"></i>Delete
                                                     </a>
                                                     <?php } ?>
 

@@ -121,7 +121,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Description <?php if ($sort == 'vendor_description') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <th>Contact</th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_contact_name&order=<?php echo $disp; ?>">
+                                    Contact <?php if ($sort == 'vendor_contact_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_website&order=<?php echo $disp; ?>">
                                     Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
