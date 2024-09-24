@@ -116,8 +116,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_description&order=<?php echo $disp; ?>">
+                                    Description <?php if ($sort == 'vendor_description') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th>Contact</th>
-                            <th>Website</th>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_website&order=<?php echo $disp; ?>">
+                                    Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>
@@ -128,17 +137,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $vendor_id = intval($row['vendor_id']);
                             $vendor_name = nullable_htmlentities($row['vendor_name']);
                             $vendor_description = nullable_htmlentities($row['vendor_description']);
-                            $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
-                            $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-                            if (empty($vendor_contact_name)) {
-                                $vendor_contact_name_display = "-";
+                            if ($vendor_description) {
+                                $vendor_description_display = $vendor_description;
                             } else {
+                                $vendor_description_display = "-";
+                            }
+                            $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
+                            if ($vendor_account_number) {
+                                $vendor_account_number_display = "<div><small class='text-secondary'>Account #: $vendor_account_number</small></div>";
+                            } else {
+                                $vendor_account_number_display = '';
+                            }
+                            $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
+                            if ($vendor_contact_name) {
                                 $vendor_contact_name_display = $vendor_contact_name;
+                            } else {
+                                $vendor_contact_name_display = "-";
                             }
                             $vendor_phone = formatPhoneNumber($row['vendor_phone']);
                             $vendor_extension = nullable_htmlentities($row['vendor_extension']);
                             $vendor_email = nullable_htmlentities($row['vendor_email']);
                             $vendor_website = nullable_htmlentities($row['vendor_website']);
+                            if ($vendor_website) {
+                                 $vendor_website_display = "<a href='https://$vendor_website' target='_blank'>$vendor_website <i class='fa fa-external-link-alt'></i></a><button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button>";
+                            } else {
+                                $vendor_website_display = "-";
+                            }
                             $vendor_hours = nullable_htmlentities($row['vendor_hours']);
                             $vendor_sla = nullable_htmlentities($row['vendor_sla']);
                             $vendor_code = nullable_htmlentities($row['vendor_code']);
@@ -147,12 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
                             $vendor_template_id = intval($row['vendor_template_id']);
 
-                            if (empty($vendor_website)) {
-                                $vendor_website_display = "-";
-                            } else {
-                                $vendor_website_display = "<button class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button><a href='https://$vendor_website' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
-                            }
-
+                            
                             ?>
                             <tr>
                                 <td class="pr-0">
@@ -166,12 +185,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fa fa-fw fa-2x fa-building mr-3"></i>
                                             <div class="media-body">
                                                 <div><?php echo $vendor_name; ?></div>
-                                                <div><small class="text-secondary"><?php echo $vendor_description; ?></small></div>
+                                                <?php echo $vendor_account_number_display; ?>
                                             </div>
                                         </div>
                                     </a>
-
                                 </td>
+                                <td>
+                                    <?php echo $vendor_description_display; ?>
                                 <td>
                                     <?php
                                     if (!empty($vendor_contact_name)) { ?>
