@@ -42,12 +42,12 @@
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
-                <i class="far fa-bell"></i>
-                <span class="badge badge-warning badge-pill navbar-badge position-absolute" style="top: 2px; right: 4px;"><?php echo $num_notifications; ?></span>
+                <i class="fas fa-bell"></i>
+                <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">12</span>
             </a>
             <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
                 <a href="notifications.php" class="dropdown-item dropdown-header">
-                    <i class="fas fa-fw fa-bell mr-2"></i>
+                    <i class="fas fa-bell mr-2"></i>
                     <strong><?php echo $num_notifications; ?></strong>
                     Notifications
                 </a>
@@ -85,7 +85,7 @@
 
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                <i class="far fa-bell"></i>
+                <i class="fas fa-bell"></i>
             </a>
             <div class="dropdown-menu dropdown-menu dropdown-menu-right" style="left: inherit; right: 0px;">
                 <span class="dropdown-item dropdown-header">No Notifications</span>
