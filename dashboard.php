@@ -61,7 +61,7 @@ $sql_years_select = mysqli_query($mysqli, "
             </div>
         <?php } ?>
 
-        <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
+        <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1 || $session_user_role >= 2) { ?>
             <div class="custom-control custom-switch">
                 <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
                 <label class="custom-control-label" for="customSwitch2">Technical</label>
@@ -71,467 +71,239 @@ $sql_years_select = mysqli_query($mysqli, "
 </div>
 
 <?php
-if ($user_config_dashboard_financial_enable == 1) {
+if ($user_config_dashboard_technical_enable == 1) {
+    
+    // fetch client data for the dashboard
+    $sql_recent_client_updates = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_updated_at DESC LIMIT 10");
 
-    // Ensure the user has the appropriate role to view the financial dashboard
-    if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
-        exit('<script type="text/javascript">window.location.href = \'dashboard_technical.php\';</script>');
-    }
+    $expiration_days = 90;
+    // fetch expiry data for the dashboard
+    // Get Domains Expiring
+    $sql_domains_expiring = mysqli_query(
+        $mysqli,
+        "SELECT * FROM domains
+        WHERE domain_expire IS NOT NULL
+            AND domain_archived_at IS NULL
+            AND domain_expire > CURRENT_DATE
+            AND domain_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
+        ORDER BY domain_expire ASC 
+        LIMIT 5"
+    );
 
-    // Fetch financial data for the dashboard
-    // Define variables to avoid errors in logs
-    $largest_income_month = 0;
+    // Get Certificates Expiring
+    $sql_certificates_expiring = mysqli_query(
+        $mysqli,
+        "SELECT * FROM certificates
+        WHERE certificate_expire IS NOT NULL
+            AND certificate_archived_at IS NULL
+            AND certificate_expire > CURRENT_DATE
+            AND certificate_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
+        ORDER BY certificate_expire ASC 
+        LIMIT 5"
+    );
 
-    $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
-    $row = mysqli_fetch_array($sql_total_payments_to_invoices);
-    $total_payments_to_invoices = floatval($row['total_payments_to_invoices']);
+    // Get Licenses Expiring
+    $sql_licenses_expiring = mysqli_query(
+        $mysqli,
+        "SELECT * FROM software
+        WHERE software_expire IS NOT NULL
+            AND software_archived_at IS NULL
+            AND software_expire > CURRENT_DATE
+            AND software_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
+        ORDER BY software_expire ASC
+        LIMIT 5"
+    );
 
-    $sql_total_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0");
-    $row = mysqli_fetch_array($sql_total_revenues);
-    $total_revenues = floatval($row['total_revenues']);
+    // Get Asset Warranties Expiring
+    $sql_asset_warranties_expiring = mysqli_query(
+        $mysqli,
+        "SELECT * FROM assets
+        WHERE asset_warranty_expire IS NOT NULL
+            AND asset_archived_at IS NULL
+            AND asset_warranty_expire > CURRENT_DATE
+            AND asset_warranty_expire < CURRENT_DATE + INTERVAL $expiration_days DAY
+        ORDER BY asset_warranty_expire ASC
+        LIMIT 5"
+    );
 
-    $total_income = $total_payments_to_invoices + $total_revenues;
+    // Get Assets Retiring 7 Year
+    $sql_asset_retire = mysqli_query(
+        $mysqli,
+        "SELECT * FROM assets
+        WHERE asset_install_date IS NOT NULL
+            AND asset_archived_at IS NULL
+            AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE  -- Not yet expired
+            AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL $expiration_days DAY
+        ORDER BY asset_install_date ASC
+        LIMIT 5"
+    );
 
-    $sql_total_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_vendor_id > 0 AND YEAR(expense_date) = $year");
-    $row = mysqli_fetch_array($sql_total_expenses);
-    $total_expenses = floatval($row['total_expenses']);
-
-    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year");
-    $row = mysqli_fetch_array($sql_invoice_totals);
-    $invoice_totals = floatval($row['invoice_totals']);
-
-    $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments");
-    $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
-    $total_payments_to_invoices_all_years = floatval($row['total_payments_to_invoices_all_years']);
-
-    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
-    $row = mysqli_fetch_array($sql_invoice_totals_all_years);
-    $invoice_totals_all_years = floatval($row['invoice_totals_all_years']);
-
-    $receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years;
-
-    $profit = $total_income - $total_expenses;
-
-    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-
-    $sql_latest_invoice_payments = mysqli_query($mysqli, "
-        SELECT * FROM payments
-        JOIN invoices ON payment_invoice_id = invoice_id
-        JOIN clients ON invoice_client_id = client_id
-        ORDER BY payment_id DESC LIMIT 5
-    ");
-
-    $sql_latest_expenses = mysqli_query($mysqli, "
-        SELECT * FROM expenses
-        JOIN vendors ON expense_vendor_id = vendor_id
-        JOIN categories ON expense_category_id = category_id
-        ORDER BY expense_id DESC LIMIT 5
-    ");
-
-    // Get recurring totals
-    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND YEAR(recurring_created_at) <= $year");
-    $row = mysqli_fetch_array($sql_recurring_yearly_total);
-    $recurring_yearly_total = floatval($row['recurring_yearly_total']);
-
-    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND YEAR(recurring_created_at) <= $year");
-    $row = mysqli_fetch_array($sql_recurring_monthly_total);
-    $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
-
-    $sql_recurring_expense_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_yearly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 'year' AND YEAR(recurring_expense_created_at) <= $year");
-    $row = mysqli_fetch_array($sql_recurring_expense_yearly_total);
-    $recurring_expense_yearly_total = floatval($row['recurring_expense_yearly_total']);
-
-    $sql_recurring_expense_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_monthly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 'month' AND YEAR(recurring_expense_created_at) <= $year");
-    $row = mysqli_fetch_array($sql_recurring_expense_monthly_total);
-    $recurring_expense_monthly_total = floatval($row['recurring_expense_monthly_total']) + ($recurring_expense_yearly_total / 12);
-
-    $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year");
-    $row = mysqli_fetch_array($sql_miles_driven);
-    $total_miles = floatval($row['total_miles']);
-
-    if ($config_module_enable_ticketing && $config_module_enable_accounting) {
-        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS unbilled_tickets FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
-        $row = mysqli_fetch_array($sql_unbilled_tickets);
-        $unbilled_tickets = intval($row['unbilled_tickets']);
-    } else {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_id) AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
-        $recurring_invoices_added = intval($row['recurring_invoices_added']);
-    }
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
-    $clients_added = intval($row['clients_added']);
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL"));
-    $vendors_added = intval($row['vendors_added']);
-?>
-<div class="card card-body">
-    <!-- Icon Cards-->
+    if (mysqli_num_rows($sql_recent_client_updates) > 0) { ?>
     <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_income, "$session_company_currency"); ?></h3>
-                    <p>Income</p>
-                    <hr>
-                    <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></small>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-hand-holding-usd"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-danger" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $total_expenses, "$session_company_currency"); ?></h3>
-                    <p>Expenses</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-success" href="report_profit_loss.php">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $profit, "$session_company_currency"); ?></h3>
-                    <p>Profit</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-balance-scale"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-info" href="report_recurring_by_client.php">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?></h3>
-                    <p>Monthly Recurring Income</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-sync-alt"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-pink" href="report_expense_by_vendor.php">
-                <div class="inner">
-                    <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?></h3>
-                    <p>Monthly Recurring Expense</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-clock"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <!-- small box -->
-                <a class="small-box bg-secondary" href="report_tickets_unbilled.php">
-                    <div class="inner">
-                        <h3><?php echo $unbilled_tickets; ?></h3>
-                        <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets == 0) { echo "s"; } ?></p>
-                    </div>
-                    <div class="icon">
-                        <i class="fa fa-ticket-alt"></i>
-                    </div>
-                </a>
-            </div>
-        <?php } else { ?>
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <!-- small box -->
-                <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                    <div class="inner">
-                        <h3><?php echo $recurring_invoices_added; ?></h3>
-                        <p>Recurring Invoices Added</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fa fa-file-invoice"></i>
-                    </div>
-                </a>
-            </div>
-        <?php } ?>
-
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo $clients_added; ?></h3>
-                    <p>New Clients</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-users"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo $vendors_added; ?></h3>
-                    <p>New Vendors</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-building"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                <div class="inner">
-                    <h3><?php echo number_format($total_miles, 2); ?></h3>
-                    <p>Miles Traveled</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-route"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Cash Flow</h3>
-                    <div class="card-tools">
-                        <a href="report_income_summary.php" class="btn btn-tool">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+                    <h5 class="card-title"><i class="fa fa-fw fa-history mr-2"></i>Recent Client Activities <small>(Last 10 updates)</small></h5>
                 </div>
-                <div class="card-body">
-                    <canvas id="cashFlow" width="100%" height="20"></canvas>
-                </div>
-            </div>
-        </div>
+                <div class="card-body p-2">
 
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="expenseByCategoryPieChart" width="100%" height="60"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="expenseByVendorPieChart" width="100%" height="60"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Account Balances</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_array($sql_accounts)) {
-                                $account_id = intval($row['account_id']);
-                                $account_name = nullable_htmlentities($row['account_name']);
-                                $opening_balance = floatval($row['opening_balance']);
-                            ?>
-                                <tr>
-                                    <td><?php echo $account_name; ?></td>
-                                    <?php
-                                    $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                                    $row = mysqli_fetch_array($sql_payments);
-                                    $total_payments = floatval($row['total_payments']);
-
-                                    $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                                    $row = mysqli_fetch_array($sql_revenues);
-                                    $total_revenues = floatval($row['total_revenues']);
-
-                                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                                    $row = mysqli_fetch_array($sql_expenses);
-                                    $total_expenses = floatval($row['total_expenses']);
-
-                                    $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                                    if ($balance == '') {
-                                        $balance = '0.00';
-                                    }
-                                    ?>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Latest Income</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
                     <table class="table table-borderless table-sm">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Invoice</th>
-                                <th class="text-right">Amount</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                            <?php while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
-                                $payment_date = nullable_htmlentities($row['payment_date']);
-                                $payment_amount = floatval($row['payment_amount']);
-                                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-                                $invoice_number = intval($row['invoice_number']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                        <?php
+
+                        while ($row = mysqli_fetch_array($sql_recent_client_updates)) {
+                            $client_updated_at_time_ago = timeAgo($row['client_updated_at']);
+                            //$log_description = nullable_htmlentities($row['log_description']);
+
                             ?>
-                                <tr>
-                                    <td><?php echo $payment_date; ?></td>
-                                    <td><?php echo $client_name; ?></td>
-                                    <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
-                                </tr>
-                            <?php } ?>
+                            <tr>
+                                <td><?php echo $client_updated_at_time_ago; ?></td>
+                                <td><a href="client_overview.php?client_id=<?php echo $row['client_id']; ?>"><?php echo $row['client_name']; ?></a></td>
+                            </tr>
+
+                            <?php
+                        }
+                        ?>
+
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Latest Expenses</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+                <?php if ($session_user_role == 3) { ?>
+                <div class="card-footer">
+                    <a href="admin_logs.php?client=<?php echo $client_id; ?>">See More...</a>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-sm table-borderless">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Vendor</th>
-                                <th>Category</th>
-                                <th class="text-right">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_array($sql_latest_expenses)) {
-                                $expense_date = nullable_htmlentities($row['expense_date']);
-                                $expense_amount = floatval($row['expense_amount']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                $category_name = nullable_htmlentities($row['category_name']);
-                            ?>
-                                <tr>
-                                    <td><?php echo $expense_date; ?></td>
-                                    <td><?php echo $vendor_name; ?></td>
-                                    <td><?php echo $category_name; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-12">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-route mr-2"></i>Trip Flow</h3>
-                    <div class="card-tools">
-                        <a href="trips.php" class="btn btn-tool">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="tripFlow" width="100%" height="20"></canvas>
-                </div>
+                <?php } ?>
             </div>
         </div>
-    </div> <!-- row -->
-</div> <!-- card -->
 
-<?php } ?>
+    <?php 
+    } else {
+        echo "<div class='alert alert-info'>No recent client activities found.</div>";
+    }
+    ?>
 
-<!-- Technical Dashboard -->
+    <div class="col-md-6">
+
+        <div class="card card-dark mb-3">
+            <div class="card-header">
+                <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations <small>(within 90 days)</small></h5>
+            </div>
+            <div class="card-body p-2">
+
+                <?php
+
+                if (mysqli_num_rows($sql_domains_expiring) > 0
+                || mysqli_num_rows($sql_certificates_expiring) > 0
+                || mysqli_num_rows($sql_asset_warranties_expiring) > 0
+                || mysqli_num_rows($sql_asset_retire) > 0
+                || mysqli_num_rows($sql_licenses_expiring) > 0
+                ) { 
+
+                while ($row = mysqli_fetch_array($sql_domains_expiring)) {
+                    $domain_id = intval($row['domain_id']);
+                    $client_id = intval($row['domain_client_id']);
+                    $domain_name = nullable_htmlentities($row['domain_name']);
+                    $domain_expire = nullable_htmlentities($row['domain_expire']);
+                    $domain_expire_human = timeAgo($row['domain_expire']);
+
+                    ?>
+                    <p class="mb-1">
+                        <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
+                        <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+                        <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
+                    </p>
+                    <?php
+                }}
+                ?>
+
+                <?php
+
+                while ($row = mysqli_fetch_array($sql_certificates_expiring)) {
+                    $certificate_id = intval($row['certificate_id']);
+                    $client_id = intval($row['certificate_client_id']);
+                    $certificate_name = nullable_htmlentities($row['certificate_name']);
+                    $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                    $certificate_expire_human = timeAgo($row['certificate_expire']);
+
+                    ?>
+                    <p class="mb-1">
+                        <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
+                        <a href="client_certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
+                        <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
+                    </p>
+                    <?php
+                }
+                ?>
+
+                <?php
+
+                while ($row = mysqli_fetch_array($sql_asset_warranties_expiring)) {
+                    $asset_id = intval($row['asset_id']);
+                    $client_id = intval($row['asset_client_id']);
+                    $asset_name = nullable_htmlentities($row['asset_name']);
+                    $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                    $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
+
+                    ?>
+                    <p class="mb-1">
+                        <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                        <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                        <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
+                    </p>
+
+
+                    <?php
+                }
+                ?>
+
+                <?php
+                if (mysqli_num_rows($sql_asset_retire) > 0) {
+                    echo "<h5 class='mt-3'>Retired Assets</h5>";
+                }
+                while ($row = mysqli_fetch_array($sql_asset_retire)) {
+                    $asset_id = intval($row['asset_id']);
+                    $client_id = intval($row['asset_client_id']);
+                    $asset_name = nullable_htmlentities($row['asset_name']);
+                    $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                    $asset_install_date_human = timeAgo($row['asset_install_date']);
+
+                    ?>
+                    <p class="mb-1">
+                        <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
+                        <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                        <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
+                    </p>
+
+                    <?php
+                }
+                ?>
+
+                <?php
+
+                while ($row = mysqli_fetch_array($sql_licenses_expiring)) {
+                    $software_id = intval($row['software_id']);
+                    $client_id = intval($row['software_client_id']);
+                    $software_name = nullable_htmlentities($row['software_name']);
+                    $software_expire = nullable_htmlentities($row['software_expire']);
+                    $software_expire_human = timeAgo($row['software_expire']);
+
+                    ?>
+                    <p class="mb-1">
+                        <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
+                        <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
+                        <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
+                    </p>
+
+                    <?php
+                }
+                ?>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php
-if ($user_config_dashboard_technical_enable == 1) {
 
     // Fetch technical data for the dashboard
     $sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
@@ -609,18 +381,20 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
-            <a class="small-box bg-danger" href="tickets.php">
-                <div class="inner">
-                    <h3><?php echo $active_tickets; ?></h3>
-                    <p>Active Tickets</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-ticket-alt"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+        <?php if ($config_module_enable_ticketing == 1){ ?>
+            <div class="col-lg-4 col-6">
+                <a class="small-box bg-danger" href="tickets.php">
+                    <div class="inner">
+                        <h3><?php echo $active_tickets; ?></h3>
+                        <p>Active Tickets</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-ticket-alt"></i>
+                    </div>
+                </a>
+            </div>
+            <!-- ./col -->
+        <?php } ?>
 
         <div class="col-lg-4 col-6">
             <a class="small-box bg-warning" href="report_domains.php">
