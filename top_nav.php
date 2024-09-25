@@ -91,7 +91,7 @@
                 <span class="dropdown-item dropdown-header">No Notifications</span>
                 <div class="dropdown-divider"></div>
                 <div class="text-center text-secondary p-3">
-                    <i class='far fa-fw fa-4x fa-bell'></i>
+                    <i class='far fa-4x fa-bell-slash'></i>
                 </div>
                 <div class="dropdown-divider"></div>
                 <a href="notifications_dismissed.php" class="dropdown-item dropdown-footer">See Dismissed
@@ -106,7 +106,7 @@
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link" data-toggle="dropdown">
                 <?php if (empty($session_avatar)) { ?>
-                <i class="fa fa-fw fa-user"></i>
+                <i class="fas fa-user"></i>
                 <?php }else{ ?>
                 <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>"
                     class="user-image img-circle">
