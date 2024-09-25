@@ -42,8 +42,8 @@
         <?php if ($num_notifications > 0) { ?>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
-                <i class="fa fa-bell mr-3"></i>
-                <span class="badge badge-light badge-pill navbar-badge"><?php echo $num_notifications; ?></span>
+                <i class="far fa-bell"></i>
+                <span class="badge badge-warning badge-pill navbar-badge position-absolute" style="top: 2px; right: 4px;"><?php echo $num_notifications; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
                 <a href="notifications.php" class="dropdown-item dropdown-header">
