@@ -43,7 +43,7 @@
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
                 <i class="fas fa-bell"></i>
-                <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">12</span>
+                <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;"><?php echo $num_notifications; ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right">
                 <a href="notifications.php" class="dropdown-item dropdown-header">
@@ -78,7 +78,7 @@
                 <div class="dropdown-divider"></div>
                 <a href="post.php?dismiss_all_notifications"
                     class="dropdown-item dropdown-footer text-secondary text-bold"><i
-                        class="fa fa-fw fa-check-double mr-2"></i>Dismiss all Notifications</a>
+                        class="fas fa-check-double mr-2"></i>Dismiss all Notifications</a>
             </div>
         </li>
         <?php } else { ?>
