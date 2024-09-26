@@ -167,7 +167,6 @@ if ($user_config_dashboard_financial_enable == 1) {
     $vendors_added = intval($row['vendors_added']);
 ?>
 <div class="card card-body">
-    <h1><?php echo "Year: $recurring_expense_yearly_total Month $recurring_expense_monthly_total Total: $recurring_expense_monthly_total"; ?></h1>
     <!-- Icon Cards-->
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12">
