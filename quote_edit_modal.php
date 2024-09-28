@@ -11,7 +11,7 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="quote_id" id="editQuoteID" value="">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body bg-white" <?php if (lookupUserPermission('module_sales') <= 1) { echo 'inert'; } ?>>
 
                     <div class="form-group">
                         <label>Quote Date</label>

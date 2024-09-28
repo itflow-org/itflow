@@ -10,7 +10,7 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body bg-white" <?php if (lookupUserPermission('module_sales') <= 1) { echo 'inert'; } ?>>
 
                     <div class="form-group">
                         <label>Invoice Date <strong class="text-danger">*</strong></label>

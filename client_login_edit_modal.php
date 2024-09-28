@@ -26,7 +26,7 @@
 
                     <hr>
 
-                    <div class="tab-content">
+                    <div class="tab-content" <?php if (lookupUserPermission('module_credential') <= 1) { echo 'inert'; } ?>>
 
                         <div class="tab-pane fade show active" id="pills-details<?php echo $login_id; ?>">
 

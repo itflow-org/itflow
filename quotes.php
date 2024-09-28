@@ -29,7 +29,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-comment-dollar mr-2"></i>Quotes</h3>
             <div class="card-tools">
+            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteModal"><i class="fas fa-plus mr-2"></i>New Quote</button>
+            <?php } ?>
             </div>
         </div>
 
@@ -200,19 +202,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateQuoteEditModal(<?php echo $quote_id ?>)" data-target="#editQuoteModal">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
-                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <?php if (!empty($config_smtp_host)) { ?>
-                                            <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Email
+                                        <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                                <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
-                                            <div class="dropdown-divider"></div>
+                                            <?php if (!empty($config_smtp_host)) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Email
+                                                </a>
+                                            <?php } ?>
+                                            <?php if (lookupUserPermission("module_sales") >= 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
+                                            <?php } ?>
                                         <?php } ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
                                     </div>
                                 </div>
                             </td>

@@ -6,6 +6,8 @@
 
 if (isset($_POST['add_quote'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     require_once 'post/quote_model.php';
 
     $client = intval($_POST['client']);
@@ -34,6 +36,8 @@ if (isset($_POST['add_quote'])) {
 }
 
 if (isset($_POST['add_quote_copy'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
     $client_id = intval($_POST['client']);
@@ -89,6 +93,8 @@ if (isset($_POST['add_quote_copy'])) {
 }
 
 if (isset($_POST['add_quote_to_invoice'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
     $date = sanitizeInput($_POST['date']);
@@ -147,6 +153,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
 if (isset($_POST['add_quote_item'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     $quote_id = intval($_POST['quote_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -196,6 +204,8 @@ if (isset($_POST['add_quote_item'])) {
 
 if (isset($_POST['quote_note'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     $quote_id = intval($_POST['quote_id']);
     $note = sanitizeInput($_POST['note']);
 
@@ -208,6 +218,8 @@ if (isset($_POST['quote_note'])) {
 }
 
 if (isset($_POST['edit_quote'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     require_once 'post/quote_model.php';
 
@@ -235,6 +247,9 @@ if (isset($_POST['edit_quote'])) {
 }
 
 if (isset($_GET['delete_quote'])) {
+
+    enforceUserPermission('module_sales', 3);
+
     $quote_id = intval($_GET['delete_quote']);
 
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
@@ -268,6 +283,9 @@ if (isset($_GET['delete_quote'])) {
 }
 
 if (isset($_GET['delete_quote_item'])) {
+
+    enforceUserPermission('module_sales', 2);
+
     $item_id = intval($_GET['delete_quote_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
@@ -297,6 +315,8 @@ if (isset($_GET['delete_quote_item'])) {
 
 if (isset($_GET['mark_quote_sent'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     $quote_id = intval($_GET['mark_quote_sent']);
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
@@ -313,6 +333,8 @@ if (isset($_GET['mark_quote_sent'])) {
 }
 
 if (isset($_GET['accept_quote'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['accept_quote']);
 
@@ -331,6 +353,8 @@ if (isset($_GET['accept_quote'])) {
 
 if (isset($_GET['decline_quote'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     $quote_id = intval($_GET['decline_quote']);
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
@@ -347,6 +371,8 @@ if (isset($_GET['decline_quote'])) {
 }
 
 if (isset($_GET['email_quote'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_GET['email_quote']);
 
@@ -422,6 +448,9 @@ if (isset($_GET['email_quote'])) {
 }
 
 if(isset($_POST['export_client_quotes_csv'])){
+
+    enforceUserPermission('module_sales');
+
     $client_id = intval($_POST['client_id']);
 
     //get records from database
@@ -464,6 +493,8 @@ if(isset($_POST['export_client_quotes_csv'])){
 
 if (isset($_POST['update_quote_item_order'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     if ($_POST['update_quote_item_order'] == 'up') {
         $item_id = intval($_POST['item_id']);
         $item_quote_id = intval($_POST['item_quote_id']);
@@ -486,7 +517,6 @@ if (isset($_POST['update_quote_item_order'])) {
 
             mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
         }
-
 
 
         mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_quote_id = $item_quote_id AND item_order = $new_item_order");

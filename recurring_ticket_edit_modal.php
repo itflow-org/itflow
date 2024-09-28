@@ -29,7 +29,7 @@
                         </li>
                     </ul>
 
-                    <div class="tab-content">
+                    <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
                         <div class="tab-pane fade show active" id="pills-edit-details">
 

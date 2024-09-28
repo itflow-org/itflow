@@ -117,7 +117,7 @@ if (isset($_GET['quote_id'])) {
             <div class="row">
 
                 <div class="col-8">
-                    <?php if ($quote_status == 'Draft') { ?>
+                    <?php if ($quote_status == 'Draft' && lookupUserPermission("module_sales") >= 2) { ?>
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-paper-plane mr-2"></i>Send
                         </button>
@@ -160,9 +160,11 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateQuoteEditModal(<?php echo $quote_id ?>)" data-target="#editQuoteModal">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
-                                <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
-                            </a>
+                            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                    <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
+                                </a>
+                            <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
@@ -178,10 +180,12 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
-                                <i class="fa fa-fw fa-times mr-2"></i>Delete
-                            </a>
+                            <?php if (lookupUserPermission("module_sales") >= 3) { ?>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?php echo $quote_id; ?>">
+                                    <i class="fa fa-fw fa-times mr-2"></i>Delete
+                                </a>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
@@ -306,7 +310,7 @@ if (isset($_GET['quote_id'])) {
 
                                         <tr>
                                             <td class="d-print-none">
-                                                <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") { ?>
+                                                <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                             <i class="fas fa-ellipsis-v"></i>
@@ -351,7 +355,7 @@ if (isset($_GET['quote_id'])) {
 
                                     ?>
 
-                                    <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined") {
+                                    <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined" || lookupUserPermission("module_sales") <= 1) {
                                                                     echo "hidden";
                                                                 } ?>>
                                         <form action="post.php" method="post" autocomplete="off">
@@ -414,9 +418,11 @@ if (isset($_GET['quote_id'])) {
                         <div class="card-header text-bold">
                             Notes
                             <div class="card-tools d-print-none">
-                                <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                                    <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
                             </div>
                         </div>
                         <div class="card-body">
