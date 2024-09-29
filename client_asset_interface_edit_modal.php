@@ -12,7 +12,7 @@
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="interface_id" value="<?php echo $interface_id; ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body bg-white" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
                     <div class="form-group">
                         <label>Interface Name</label>

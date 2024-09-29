@@ -8,18 +8,7 @@ if (isset($_POST['add_network'])) {
 
     validateTechRole();
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $vlan = intval($_POST['vlan']);
-    $network = sanitizeInput($_POST['network']);
-    $subnet = sanitizeInput($_POST['subnet']);
-    $gateway = sanitizeInput($_POST['gateway']);
-    $primary_dns = sanitizeInput($_POST['primary_dns']);
-    $secondary_dns = sanitizeInput($_POST['secondary_dns']);
-    $dhcp_range = sanitizeInput($_POST['dhcp_range']);
-    $notes = sanitizeInput($_POST['notes']);
-    $location_id = intval($_POST['location']);
+    require_once 'post/login_model.php';
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
 
@@ -39,18 +28,8 @@ if (isset($_POST['edit_network'])) {
     validateTechRole();
 
     $network_id = intval($_POST['network_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $vlan = intval($_POST['vlan']);
-    $network = sanitizeInput($_POST['network']);
-    $subnet = sanitizeInput($_POST['subnet']);
-    $gateway = sanitizeInput($_POST['gateway']);
-    $primary_dns = sanitizeInput($_POST['primary_dns']);
-    $secondary_dns = sanitizeInput($_POST['secondary_dns']);
-    $dhcp_range = sanitizeInput($_POST['dhcp_range']);
-    $notes = sanitizeInput($_POST['notes']);
-    $location_id = intval($_POST['location']);
-    $client_id = intval($_POST['client_id']);
+
+    require_once 'post/login_model.php';
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 

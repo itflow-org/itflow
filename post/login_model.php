@@ -1,4 +1,5 @@
 <?php
+// Model of reusable variables for client credentials/logins - not to be confused with the ITFLow login process
 $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);
 $description = sanitizeInput($_POST['description']);

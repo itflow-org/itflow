@@ -6,10 +6,9 @@
 
 if (isset($_POST['add_login'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_credential', 2);
 
-    require_once 'post/client_logins_model.php';
-
+    require_once 'post/login_model.php';
 
     mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_uri_2 = '$uri_2', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id");
 
@@ -26,10 +25,9 @@ if (isset($_POST['add_login'])) {
 
 if (isset($_POST['edit_login'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_credential', 2);
 
-    require_once 'post/client_logins_model.php';
-
+    require_once 'post/login_model.php';
 
     $login_id = intval($_POST['login_id']);
 
@@ -55,7 +53,7 @@ if (isset($_POST['edit_login'])) {
 
 if(isset($_GET['archive_login'])){
 
-    validateTechRole();
+    enforceUserPermission('module_credential', 2);
 
     $login_id = intval($_GET['archive_login']);
 
@@ -79,6 +77,8 @@ if(isset($_GET['archive_login'])){
 
 if(isset($_GET['unarchive_login'])){
 
+    enforceUserPermission('module_credential', 2);
+
     $login_id = intval($_GET['unarchive_login']);
 
     // Get Name and Client ID for logging and alert message
@@ -99,7 +99,7 @@ if(isset($_GET['unarchive_login'])){
 
 if (isset($_GET['delete_login'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_credential', 3);
 
     $login_id = intval($_GET['delete_login']);
 
@@ -128,7 +128,8 @@ if (isset($_GET['delete_login'])) {
 }
 
 if (isset($_POST['bulk_archive_logins'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_credential', 2);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -166,7 +167,9 @@ if (isset($_POST['bulk_archive_logins'])) {
 }
 
 if (isset($_POST['bulk_unarchive_logins'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_credential', 2);
+
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -205,7 +208,9 @@ if (isset($_POST['bulk_unarchive_logins'])) {
 }
 
 if (isset($_POST['bulk_delete_logins'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_credential', 3);
+
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -250,7 +255,7 @@ if (isset($_POST['bulk_delete_logins'])) {
 
 if (isset($_POST['export_client_logins_csv'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_credential');
 
     $client_id = intval($_POST['client_id']);
 
@@ -301,7 +306,7 @@ if (isset($_POST['export_client_logins_csv'])) {
 
 if (isset($_POST["import_client_logins_csv"])) {
 
-    validateTechRole();
+    enforceUserPermission('module_credential', 2);
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];

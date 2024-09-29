@@ -49,7 +49,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
         <div class="card-tools">
-            <div class="btn-group">
+            <?php if (lookupUserPermission("module_credential") >= 2) { ?>
+                <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
@@ -66,6 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php } ?>
                 </div>
             </div>
+            <?php } ?>
         </div>
     </div>
     <div class="card-body">
@@ -296,23 +298,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
-                                                <?php if ($session_user_role == 3) { ?>
+                                                <?php  if (lookupUserPermission("module_credential") >= 2) { ?>
                                                     <?php if ($login_archived_at) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_login=<?php echo $login_id; ?>">
-                                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
-                                                    </a>
-                                                    <?php if ($config_destructive_deletes_enable) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_login=<?php echo $login_id; ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                    </a>
-                                                    <?php } ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_login=<?php echo $login_id; ?>">
+                                                            <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                                        </a>
+                                                        <?php if (lookupUserPermission("module_credential") >= 3) { ?>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_login=<?php echo $login_id; ?>">
+                                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                        <?php } ?>
+                                                        </a>
                                                     <?php } else { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_login=<?php echo $login_id; ?>">
-                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                                    </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_login=<?php echo $login_id; ?>">
+                                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                        </a>
                                                     <?php } ?>
                                                 <?php } ?>
                                             </div>
