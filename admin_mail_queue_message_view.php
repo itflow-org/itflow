@@ -45,7 +45,7 @@ if ($email_status == 0) {
 
 <ol class="breadcrumb d-print-none">
   <li class="breadcrumb-item">
-    <a href="admin_users.php"><i class="fas fa-fw fa-user-shield mr-2"></i>Admin</a>
+    <a href="admin_user.php"><i class="fas fa-fw fa-user-shield mr-2"></i>Admin</a>
   </li>
   <li class="breadcrumb-item">
     <a href="admin_mail_queue.php"><i class="fas fa-fw fa-mail-bulk mr-2"></i>Mail Queue</a>

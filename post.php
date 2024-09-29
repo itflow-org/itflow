@@ -10,82 +10,60 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
-// Load specific module logic
 
-require_once "post/admin.php";
+// Determine which files we should load
 
-require_once "post/account.php";
+// Parse URL & get the path
+$path = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
 
-require_once "post/api.php";
+// Get the base name (the page name)
+$module = explode(".", basename($path))[0];
 
-require_once "post/asset.php";
+// Strip off any _details bits
+$module = str_ireplace('_details', '', $module);
 
-require_once "post/bulk_mail.php";
+// Dynamically load admin-related module POST logic
+if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_admin) {
+    // As (almost) every admin setting is only changed from 1 page, we can dynamically load the relevant logic inside this single admin check IF statement
+    //  To add a new admin POST request handler, add a file named after the admin page
+    //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page post/admin/admin_ticket_statues.php to handle the changes
 
-require_once "post/category.php";
+    if ($module !== 'admin_update') {
+        require_once "post/admin/$module.php";
+    }
+    // IF statement is temporary
 
-require_once "post/certificate.php";
 
-require_once "post/client.php";
 
-require_once "post/contact.php";
 
-require_once "post/custom_field.php";
+} elseif (str_contains($module, 'xcustom')) {
+    // Dynamically load any custom POST logic
 
-require_once "post/document.php";
+    require_once "post/xcustom/$module.php";
 
-require_once "post/folder.php";
+} else {
 
-require_once "post/domain.php";
+    // Load all module POST logic
+    //  Loads everything in post/user/
+    //  Eventually, it would be nice to only specifically load what we need like we do for admins
 
-require_once "post/event.php";
+    foreach (glob("post/user/*.php") as $user_module) {
+        if (!preg_match('/_model\.php$/', basename($user_module))) {
+            require_once $user_module;
+        }
+    }
 
-require_once "post/expense.php";
+}
 
-require_once "post/file.php";
 
-require_once "post/invoice.php";
+// TODO: Move admin_update into the admin section to be auto-loaded
+//  We can't do this until everyone has the new database fields added in 1.4.9 on Sept 14th 2024
+require_once "post/admin_update.php"; // Load updater
 
-require_once "post/location.php";
 
-require_once "post/login.php";
-
-require_once "post/network.php";
-
-require_once "post/product.php";
-
-require_once "post/profile.php";
-
-require_once "post/project.php";
-
-require_once "post/quote.php";
-
-require_once "post/revenue.php";
-
-require_once "post/service.php";
-
-require_once "post/software.php";
-
-require_once "post/tag.php";
-
-require_once "post/tax.php";
-
-require_once "post/ticket.php";
-
-require_once "post/tasks.php";
-
-require_once "post/transfer.php";
-
-require_once "post/trip.php";
-
-require_once "post/user.php";
-
-require_once "post/vendor.php";
-
-require_once "post/budget.php";
+// TODO: Find a home for these
 
 require_once "post/ai.php";
 
 require_once "post/misc.php";
 
-require_once "post/rack.php";

@@ -345,7 +345,7 @@ $sql_asset_retired = mysqli_query(
                         <div class="card-tools">
                             <form class="form-inline">
                                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                                <select onchange="this.form.submit()" class="form-control form-control-sm" name="expiration_days">          
+                                <select onchange="this.form.submit()" class="form-control form-control-sm" name="expiration_days">
                                     <option value="7" <?php if ($expiration_days == 7) { echo "selected"; } ?>>Within 7 Days</option>
                                     <option value="30" <?php if ($expiration_days == 30) { echo "selected"; } ?>>Within 30 Days</option>
                                     <option value="90" <?php if ($expiration_days == 90) { echo "selected"; } ?>>Within 90 Days</option>
@@ -462,7 +462,7 @@ $sql_asset_retired = mysqli_query(
             || mysqli_num_rows($sql_asset_warranties_expired) > 0
             || mysqli_num_rows($sql_asset_retired) > 0
             || mysqli_num_rows($sql_licenses_expired) > 0
-        ) 
+        )
         { ?>
 
             <div class="col-md-4">
@@ -651,7 +651,7 @@ $sql_asset_retired = mysqli_query(
                     </div>
                     <?php if ($session_user_role == 3) { ?>
                     <div class="card-footer">
-                        <a href="admin_logs.php?client=<?php echo $client_id; ?>">See More...</a>
+                        <a href="admin_audit_log.php?client=<?php echo $client_id; ?>">See More...</a>
                     </div>
                     <?php } ?>
                 </div>
