@@ -1,13 +1,14 @@
 <?php
 require_once "inc_all_admin.php";
- ?>
+?>
 
 <div class="card card-dark mb-3">
     <div class="card-header py-3">
         <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Download Database</h3>
     </div>
     <div class="card-body" style="text-align: center;">
-        <a class="btn btn-primary btn-lg p-3" href="post.php?download_database&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download</a>
+        <div class="alert alert-secondary">If you are unable to back up the entire VM, you'll need to back up the files & database individually. There is no built-in restore. See the <a href="https://docs.itflow.org/backups" target="_blank">docs here</a>.</div>
+        <a class="btn btn-primary btn-lg p-3" href="post.php?download_database&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download database</a>
     </div>
 </div>
 

@@ -215,7 +215,7 @@ function formatPhoneNumber($phoneNumber)
         return $phoneNumber;
     }
 
-    
+
     $phoneNumber = $phoneNumber ? preg_replace('/[^0-9]/', '', $phoneNumber) : "";
 
     if (strlen($phoneNumber) > 10) {
@@ -733,12 +733,14 @@ function sanitizeInput($input)
 {
     global $mysqli;
 
-    // Detect encoding
-    $encoding = mb_detect_encoding($input, ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'ISO-8859-15'], true);
+    if (!empty($input)) {
+        // Detect encoding
+        $encoding = mb_detect_encoding($input, ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'ISO-8859-15'], true);
 
-    // If not UTF-8, convert to UTF8 (primarily Windows-1252 is problematic)
-    if ($encoding !== 'UTF-8') {
-        $input = mb_convert_encoding($input, 'UTF-8', $encoding);
+        // If not UTF-8, convert to UTF8 (primarily Windows-1252 is problematic)
+        if ($encoding !== 'UTF-8') {
+            $input = mb_convert_encoding($input, 'UTF-8', $encoding);
+        }
     }
 
     // Remove HTML and PHP tags
@@ -1115,7 +1117,7 @@ function fetchUpdates() {
     $updates->latest_version = $latest_version;
     $updates->update_message = $update_message;
 
-    
+
     return $updates;
 
 }
@@ -1300,4 +1302,12 @@ function enforceUserPermission($module, $check_access_level = 1) {
         ];
         exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: $map[$check_access_level] access to $module is not permitted for your role.");
     }
+}
+
+function enforceAdminPermission() {
+    global $session_is_admin;
+    if (!isset($session_is_admin) || !$session_is_admin) {
+        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
+    }
+    return true;
 }

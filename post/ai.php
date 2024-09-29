@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for AI Functions
  */
 
+// TODO: Should this be moved to AJAX?
+
 if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');

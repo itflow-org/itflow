@@ -31,10 +31,10 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
             <a href="clients.php">Home</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="admin_users.php">Admin</a>
+            <a href="admin_user.php">Admin</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="admin_document_templates.php">Document Templates</a>
+            <a href="admin_document_template.php">Document Templates</a>
         </li>
         <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_name; ?></li>
     </ol>

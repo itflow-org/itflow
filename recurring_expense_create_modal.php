@@ -182,7 +182,7 @@
                                     ?>
                                 </select>
                                 <div class="input-group-append">
-                                    <a class="btn btn-secondary" href="admin_categories.php?category=Expense" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                                    <a class="btn btn-secondary" href="admin_category.php?category=Expense" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                                 </div>
                             </div>
 

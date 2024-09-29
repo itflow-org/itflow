@@ -7,9 +7,9 @@ require_once "functions.php";
 require_once "check_login.php";
 
 validateAdminRole();
-//if (!isset($session_is_admin) || !$session_is_admin) {
-//    exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
-//}
+
+// TODO: Change this to enforceAdminPermission();
+//  We can't do this until everyone has the new database fields added in 1.4.9 on Sept 14th 2024
 
 require_once "header.php";
 

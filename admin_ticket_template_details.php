@@ -35,10 +35,10 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
             <a href="clients.php">Home</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="admin_users.php">Admin</a>
+            <a href="admin_user.php">Admin</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="admin_ticket_templates.php">Ticket Templates</a>
+            <a href="admin_ticket_template.php">Ticket Templates</a>
         </li>
         <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?php echo $ticket_template_name; ?></li>
     </ol>
@@ -58,12 +58,12 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         </div>
                     </h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal<?php echo $template_id; ?>">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal<?php echo $ticket_template_id; ?>">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
                 </div>
-                <h5><?php echo $ticket_subject; ?></h5>
+                <h5><?php echo $ticket_template_subject; ?></h5>
                 <div class="card-body prettyContent">
                     <?php echo $ticket_template_details; ?>
                 </div>
