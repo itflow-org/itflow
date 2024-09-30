@@ -17,7 +17,7 @@ if (isset($_GET['leads'])) {
     $leads = intval($_GET['leads']);
 }
 
-if($leads == 1){
+if ($leads == 1){
     $leads_query = 1;
 } else {
     $leads_query = 0;
@@ -35,7 +35,7 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     // Convert the sanitized tags into a comma-separated string
     $sanitizedTagsString = implode(",", $sanitizedTags);
     $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
-} else{ 
+} else {
     $tag_query = '';    
 }
 
