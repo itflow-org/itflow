@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_project'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $project_name = sanitizeInput($_POST['name']);
     $project_description = sanitizeInput($_POST['description']);
@@ -78,7 +78,7 @@ if (isset($_POST['add_project'])) {
 
 if (isset($_POST['edit_project'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $project_id = intval($_POST['project_id']);
     $project_name = sanitizeInput($_POST['name']);
@@ -99,7 +99,7 @@ if (isset($_POST['edit_project'])) {
 
 if (isset($_GET['close_project'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $project_id = intval($_GET['close_project']);
 
@@ -119,9 +119,52 @@ if (isset($_GET['close_project'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['archive_project'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $project_id = intval($_GET['archive_project']);
+
+    // Get Client Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    $row = mysqli_fetch_array($sql);
+    $project_name = sanitizeInput($row['project_name']);
+
+    mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NOW() WHERE project_id = $project_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Archive', log_description = '$session_name archived project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Project $project_name archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['unarchive_project'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $project_id = intval($_GET['unarchive_project']);
+
+    // Get Client Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    $row = mysqli_fetch_array($sql);
+    $project_name = sanitizeInput($row['project_name']);
+
+    mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NULL WHERE project_id = $project_id");
+
+    //Logging
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Undo Archive', log_description = '$session_name unarchived project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_id");
+
+    $_SESSION['alert_message'] = "Project $project_name unarchived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['delete_project'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 3);
 
     $project_id = intval($_GET['delete_project']);
 
@@ -134,7 +177,7 @@ if (isset($_GET['delete_project'])) {
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Projects', log_action = 'Delete', log_description = '$session_name deleted project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Delete', log_description = '$session_name deleted project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "You Deleted Project <strong>$project_name</strong>";
@@ -144,7 +187,7 @@ if (isset($_GET['delete_project'])) {
 
 if (isset($_POST['add_project_ticket'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
     $project_id = intval($_POST['project_id']);
 
     // Get Project Name

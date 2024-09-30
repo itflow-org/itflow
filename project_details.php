@@ -29,9 +29,10 @@ if (isset($_GET['project_id'])) {
     $project_name = nullable_htmlentities($row['project_name']);
     $project_description = nullable_htmlentities($row['project_description']);
     $project_due = nullable_htmlentities($row['project_due']);
-    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
     $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
     $project_updated_at = nullable_htmlentities($row['project_updated_at']);
+    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
+    $project_archived_at = nullable_htmlentities($row['project_archived_at']);
 
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
@@ -70,8 +71,9 @@ if (isset($_GET['project_id'])) {
     $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
 
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
-    
-    if($ticket_count) {
+
+    $tickets_closed_percent = 100; //Default
+    if ($ticket_count) {
         $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
     }
 
@@ -177,11 +179,11 @@ if (isset($_GET['project_id'])) {
         
         <div class="col-sm-3">
             <div class="btn-group float-right d-print-none">
-                <?php if($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
+                <?php if ($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
                 <a class="btn btn-primary btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
                     <i class="fas fa-fw fa-check mr-2"></i>Close
                 </a>
-                <?php } else { ?>
+                <?php } if (empty($project_completed_at)) { ?>
                 <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
                     <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket
                 </button>
@@ -195,14 +197,13 @@ if (isset($_GET['project_id'])) {
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                         </a>
-                        <div class="dropdown-divider"></div>
                         <?php } ?>
-                        <?php if ($session_user_role == 3) { ?>
+                        <?php if (!empty($project_completed_at) && empty($project_archived_at) && lookupUserPermission("module_support" >= 2)) { ?>
                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project=<?php echo $project_id; ?>">
                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                             </a>
                         <?php } ?>
-                        <?php if ($session_user_role == 3) { ?>
+                        <?php if (!empty($project_archived_at) && lookupUserPermission("module_support" >= 3)) { ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
