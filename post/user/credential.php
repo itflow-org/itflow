@@ -8,7 +8,7 @@ if (isset($_POST['add_login'])) {
 
     enforceUserPermission('module_credential', 2);
 
-    require_once 'post/login_model.php';
+    require_once 'post/user/credential_model.php';
 
     mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_uri_2 = '$uri_2', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id, login_client_id = $client_id");
 
@@ -27,7 +27,7 @@ if (isset($_POST['edit_login'])) {
 
     enforceUserPermission('module_credential', 2);
 
-    require_once 'post/login_model.php';
+    require_once 'post/user/credential_model.php';
 
     $login_id = intval($_POST['login_id']);
 
