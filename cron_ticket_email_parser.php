@@ -477,7 +477,7 @@ if ($messages->count() > 0) {
                     }
                 } elseif ($config_ticket_email_parse_unknown_senders)  {
                     // Parse even if the sender is unknown
-		    $bad_from_pattern = "/daemon|postmaster|reply|root|admin/i";
+		    $bad_from_pattern = "/daemon|postmaster/i";
                     if (!(preg_match($bad_from_pattern, $from_email))) {
                         if (addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
                             $email_processed = true;
