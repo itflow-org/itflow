@@ -87,7 +87,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $message = nl2br($message); // Convert newlines to <br>
     
     // Wrap the message in a div with controlled line height
-    $message = "<i>Email from: $contact_email at $date:-</i> <br><br><div style='line-height:1.5;'>$message</div>";
+    $message = "<i>Email from: <b>$contact_name</b> &lt;$contact_email&gt; at $date:-</i> <br><br><div style='line-height:1.5;'>$message</div>";
 
     $ticket_prefix_esc = mysqli_real_escape_string($mysqli, $config_ticket_prefix);
     $subject_esc = mysqli_real_escape_string($mysqli, $subject);
@@ -136,10 +136,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     $data = [];
-    if ($config_ticket_client_general_notifications == 1 && $client_id != 0) {
+    if ($config_ticket_client_general_notifications == 1) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
         $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
         $data[] = [
             'from' => $config_ticket_from_email,
             'from_name' => $config_ticket_from_name,
@@ -151,12 +150,15 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     if ($config_ticket_new_ticket_notification_email) {
-        $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
-        $client_row = mysqli_fetch_array($client_sql);
-        $client_name = sanitizeInput($client_row['client_name']);
-
+        if ($client_id == 0){
+		$client_name = "Guest";
+	} else {
+		$client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
+        	$client_row = mysqli_fetch_array($client_sql);
+        	$client_name = sanitizeInput($client_row['client_name']);
+	}
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
-        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$details";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$message";
 
         $data[] = [
             'from' => $config_ticket_from_email,
@@ -475,9 +477,11 @@ if ($messages->count() > 0) {
                     }
                 } elseif ($config_ticket_email_parse_unknown_senders)  {
                     // Parse even if the sender is unknown
-
-                    if (addTicket(0, 'Guest', $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
-                        $email_processed = true;
+		    $bad_from_pattern = "/daemon|postmaster/i";
+                    if (!(preg_match($bad_from_pattern, $from_email))) {
+                        if (addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $message->getAttachments(), $original_message_file)) {
+                            $email_processed = true;
+                        }
                     }
                 }
             }
