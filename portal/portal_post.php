@@ -223,7 +223,6 @@ if (isset($_GET['resolve_ticket'])) {
 
         // Custom action/notif handler
         customAction('ticket_resolve', $ticket_id);
-        exit;
 
         header("Location: ticket.php?id=" . $ticket_id);
 
