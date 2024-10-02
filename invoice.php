@@ -159,7 +159,7 @@ if (isset($_GET['invoice_id'])) {
             <div class="row">
 
                 <div class="col-8">
-                    <?php if ($invoice_status == 'Draft') { ?>
+                    <?php if ($invoice_status == 'Draft' && $invoice_amount != 0) { ?>
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                         </button>
@@ -176,7 +176,7 @@ if (isset($_GET['invoice_id'])) {
                         </div>
                     <?php } ?>
 
-                    <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft') { ?>
+                    <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
                         <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
                             <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                         </a>
