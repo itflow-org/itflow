@@ -37,7 +37,7 @@ if (isset($_POST['add_ticket'])) {
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id");
-    $id = mysqli_insert_id($mysqli);
+    $ticket_id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email
     if ($config_ticket_new_ticket_notification_email) {
@@ -46,7 +46,7 @@ if (isset($_POST['add_ticket'])) {
         $details = removeEmoji($details);
 
         $email_subject = "ITFlow - New Ticket - $client_name: $subject";
-        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$id <br><br><b>$subject</b><br>$details";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/ticket.php?ticket_id=$ticket_id <br><br><b>$subject</b><br>$details";
 
         // Queue Mail
         $data = [
@@ -62,10 +62,13 @@ if (isset($_POST['add_ticket'])) {
         addToMailQueue($mysqli, $data);
         }
 
+    // Custom action/notif handler
+    customAction('ticket_create', $ticket_id);
+
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id");
 
-    header("Location: ticket.php?id=" . $id);
+    header("Location: ticket.php?id=" . $ticket_id);
 
 }
 
@@ -162,6 +165,9 @@ if (isset($_POST['add_ticket_comment'])) {
             }
         }
 
+        // Custom action/notif handler
+        customAction('ticket_reply_client', $ticket_id);
+
         // Redirect back to original page
         header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -186,6 +192,9 @@ if (isset($_POST['add_ticket_feedback'])) {
         if ($feedback == "Bad") {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Feedback', notification = '$session_contact_name rated ticket ID $ticket_id as bad', notification_client_id = $session_client_id");
         }
+
+        // Custom action/notif handler
+        customAction('ticket_feedback', $ticket_id);
 
         // Redirect
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -212,7 +221,11 @@ if (isset($_GET['resolve_ticket'])) {
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = '$ticket_id resolved by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
+        // Custom action/notif handler
+        customAction('ticket_resolve', $ticket_id);
+
         header("Location: ticket.php?id=" . $ticket_id);
+
     } else {
         // The client does not have access to this ticket - send them home
         header("Location: index.php");
@@ -235,7 +248,11 @@ if (isset($_GET['reopen_ticket'])) {
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Replied', log_description = '$ticket_id reopened by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
+        // Custom action/notif handler
+        customAction('ticket_update', $ticket_id);
+
         header("Location: ticket.php?id=" . $ticket_id);
+
     } else {
         // The client does not have access to this ticket - send them home
         header("Location: index.php");
@@ -257,6 +274,9 @@ if (isset($_GET['close_ticket'])) {
 
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+
+        // Custom action/notif handler
+        customAction('ticket_close', $ticket_id);
 
         header("Location: ticket.php?id=" . $ticket_id);
     } else {
@@ -303,6 +323,8 @@ if (isset($_POST['edit_contact'])) {
 
     $_SESSION['alert_message'] = "Contact updated";
     header('Location: contacts.php');
+
+    customAction('contact_update', $ticket_id);
 }
 
 if (isset($_POST['add_contact'])) {
@@ -316,6 +338,8 @@ if (isset($_POST['add_contact'])) {
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Client $session_contact_name created contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
+
+    customAction('contact_create', $ticket_id);
 
     $_SESSION['alert_message'] = "Contact created";
     header('Location: contacts.php');

@@ -10,7 +10,6 @@ if (isset($_POST['add_contact'])) {
 
     require_once 'post/user/contact_model.php';
 
-
     // Set password
     if (!empty($_POST['contact_password'])) {
         $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
@@ -57,6 +56,8 @@ if (isset($_POST['add_contact'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+    customAction('contact_create', $contact_id);
 
     $_SESSION['alert_message'] = "Contact <strong>$name</strong> created";
 
@@ -172,6 +173,8 @@ if (isset($_POST['edit_contact'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+    customAction('contact_update', $contact_id);
 
     $_SESSION['alert_message'] = "Contact <strong>$name</strong> updated";
 
@@ -312,6 +315,8 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
             //Logging
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name updated $contact_name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+
+            customAction('contact_update', $contact_id);
 
         } // End Assign Location Loop
 

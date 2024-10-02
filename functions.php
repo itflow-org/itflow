@@ -1304,10 +1304,18 @@ function enforceUserPermission($module, $check_access_level = 1) {
     }
 }
 
+// TODO: Probably remove this
 function enforceAdminPermission() {
     global $session_is_admin;
     if (!isset($session_is_admin) || !$session_is_admin) {
         exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
     }
     return true;
+}
+
+function customAction($trigger, $entity) {
+    chdir(dirname(__FILE__));
+    if (file_exists(__DIR__ . "/xcustom/xcustom_action_handler.php")) {
+        include_once __DIR__ . "/xcustom/xcustom_action_handler.php";
+    }
 }

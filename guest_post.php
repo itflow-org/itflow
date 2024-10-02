@@ -23,6 +23,8 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
 
+        customAction('quote_accept', $quote_id);
+
         $_SESSION['alert_message'] = "Quote Accepted";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -44,6 +46,8 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
+
+        customAction('quote_decline', $quote_id);
 
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "Quote Declined";
@@ -73,6 +77,8 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Replied', log_description = '$ticket_id reopened by client (guest)', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
 
+        customAction('ticket_update', $ticket_id);
+
         $_SESSION['alert_message'] = "Ticket reopened";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -99,6 +105,8 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 
         //Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Replied', log_description = '$ticket_id closed by client (guest)', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+
+        customAction('ticket_close', $ticket_id);
 
         $_SESSION['alert_message'] = "Ticket closed";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -129,6 +137,8 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
 
         $_SESSION['alert_message'] = "Feedback recorded - thank you";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+        customAction('ticket_feedback', $ticket_id);
 
     } else {
         echo "Invalid!!";

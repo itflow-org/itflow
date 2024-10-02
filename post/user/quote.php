@@ -29,6 +29,8 @@ if (isset($_POST['add_quote'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = '$quote_prefix$quote_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    customAction('quote_create', $quote_id);
+
     $_SESSION['alert_message'] = "Quote added";
 
     header("Location: quote.php?quote_id=$quote_id");
@@ -85,6 +87,8 @@ if (isset($_POST['add_quote_copy'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+
+    customAction('quote_create', $new_quote_id);
 
     $_SESSION['alert_message'] = "Quote copied";
 
@@ -144,6 +148,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Quote copied to Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    customAction('invoice_create', $new_invoice_id);
 
     $_SESSION['alert_message'] = "Quote copied to Invoice";
 
@@ -345,6 +351,8 @@ if (isset($_GET['accept_quote'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Accepted Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    customAction('quote_accept', $quote_id);
+
     $_SESSION['alert_message'] = "Quote accepted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -360,6 +368,8 @@ if (isset($_GET['decline_quote'])) {
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Quote declined!', history_quote_id = $quote_id");
+
+    customAction('quote_decline', $quote_id);
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Declined Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
