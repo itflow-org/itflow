@@ -6,17 +6,9 @@
 
 if (isset($_POST['add_certificate'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $domain = sanitizeInput($_POST['domain']);
-    $issued_by = sanitizeInput($_POST['issued_by']);
-    $expire = sanitizeInput($_POST['expire']);
-    $public_key = sanitizeInput($_POST['public_key']);
-    $notes = sanitizeInput($_POST['notes']);
-    $domain_id = intval($_POST['domain_id']);
+    require_once 'post/user/certificate_model.php';
 
     // Parse public key data for a manually provided public key
     if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -49,18 +41,10 @@ if (isset($_POST['add_certificate'])) {
 
 if (isset($_POST['edit_certificate'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
+    require_once 'post/user/certificate_model.php';
     $certificate_id = intval($_POST['certificate_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $domain = sanitizeInput($_POST['domain']);
-    $issued_by = sanitizeInput($_POST['issued_by']);
-    $expire = sanitizeInput($_POST['expire']);
-    $public_key = sanitizeInput($_POST['public_key']);
-    $notes = sanitizeInput($_POST['notes']);
-    $domain_id = intval($_POST['domain_id']);
-    $client_id = intval($_POST['client_id']);
 
     // Parse public key data for a manually provided public key
     if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -91,7 +75,7 @@ if (isset($_POST['edit_certificate'])) {
 
 if (isset($_GET['archive_certificate'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $certificate_id = intval($_GET['archive_certificate']);
 
@@ -115,7 +99,7 @@ if (isset($_GET['archive_certificate'])) {
 
 if (isset($_GET['delete_certificate'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $certificate_id = intval($_GET['delete_certificate']);
 
@@ -138,7 +122,7 @@ if (isset($_GET['delete_certificate'])) {
 }
 
 if (isset($_POST['bulk_delete_certificates'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -169,7 +153,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
 if (isset($_POST['export_client_certificates_csv'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $client_id = intval($_POST['client_id']);
 
