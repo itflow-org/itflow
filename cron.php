@@ -152,7 +152,7 @@ if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)
 
 // DOMAINS EXPIRING
 
-if($config_enable_alert_domain_expire == 1){
+if ($config_enable_alert_domain_expire == 1) {
 
     $domainAlertArray = [1,7,14,30,90];
 
@@ -247,7 +247,7 @@ $sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM ti
 
 $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
-if($tickets_pending_assignment > 0){
+if ($tickets_pending_assignment > 0) {
 
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Pending Tickets', notification = 'There are $tickets_pending_assignment new tickets pending assignment', notification_action = 'tickets.php?status=New'");
 
@@ -294,6 +294,8 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 
         // Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'System created recurring scheduled $frequency ticket - $subject', log_client_id = $client_id, log_user_id = $created_id");
+
+        customAction('ticket_create', $id);
 
         // Notifications
 
@@ -414,6 +416,8 @@ while ($row = mysqli_fetch_array($sql_resolved_tickets_to_close)) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_prefix$ticket_number auto closed', log_entity_id = $ticket_id");
+
+    customAction('ticket_close', $ticket_id);
 
     //TODO: Add client notifs if $config_ticket_client_general_notifications is on
 }
@@ -568,6 +572,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id");
 
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Recurring Sent', notification = 'Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent', notification_action = 'invoice.php?invoice_id=$new_invoice_id', notification_client_id = $client_id, notification_entity_id = $new_invoice_id");
+
+    customAction('invoice_create', $new_invoice_id);
 
     //Update recurring dates
 

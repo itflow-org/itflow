@@ -31,6 +31,8 @@ if (isset($_POST['add_invoice'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$config_invoice_prefix$invoice_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
+    customAction('invoice_create', $invoice_id);
+
     $_SESSION['alert_message'] = "Invoice added";
 
     header("Location: invoice.php?invoice_id=$invoice_id");
@@ -116,6 +118,8 @@ if (isset($_POST['add_invoice_copy'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = 'Copied Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    customAction('invoice_create', $new_invoice_id);
 
     $_SESSION['alert_message'] = "Invoice copied";
 
@@ -748,6 +752,8 @@ if (isset($_POST['add_payment'])) {
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = '$payment_amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
 
+        customAction('invoice_pay', $invoice_id);
+
         if ($email_receipt == 1) {
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Payment', log_action = 'Email', log_description = 'Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $payment_id");
         }
@@ -834,9 +840,9 @@ if (isset($_POST['add_bulk_payment'])) {
         mysqli_query($mysqli, $add_history_query);
 
         // Add to Email Body Invoice Portion
-
         $email_body_invoices .= "<br>Invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a> - Outstanding Amount: " . numfmt_format_currency($currency_format, $invoice_balance, $currency_code) . " - Payment Applied: " . numfmt_format_currency($currency_format, $payment_amount, $currency_code) . " - New Balance: " . numfmt_format_currency($currency_format, $remaining_invoice_balance, $currency_code);
 
+        customAction('invoice_pay', $invoice_id);
 
     } // End Invoice Loop
 
@@ -1208,6 +1214,8 @@ if (isset($_GET['force_recurring'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Create', log_description = '$session_name forced recurring invoice into an invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_invoice_id");
+
+    customAction('invoice_create', $new_invoice_id);
 
     $_SESSION['alert_message'] = "Recurring Invoice Forced";
 
