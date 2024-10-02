@@ -34,7 +34,13 @@ if ( $argv[1] !== $config_cron_key ) {
  * ###############################################################################################################
  */
 
-$sql_certificates = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_archived_at IS NULL");
+$sql_certificates = mysqli_query(
+    $mysqli,
+    "SELECT * FROM certificates
+        LEFT JOIN clients ON certificates.certificate_client_id = clients.client_id
+        WHERE certificate_archived_at IS NULL
+        AND client_archived_at IS NULL"
+);
 
 while ($row = mysqli_fetch_array($sql_certificates)) {
     $certificate_id = intval($row['certificate_id']);
@@ -46,17 +52,18 @@ while ($row = mysqli_fetch_array($sql_certificates)) {
     $issued_by = sanitizeInput($certificate['issued_by']);
     $public_key = sanitizeInput($certificate['public_key']);
 
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
+    if (!empty($expire)) {
+
+        echo "\n$domain\n";
+        echo "$issued_by\n";
+        echo "$expire\n";
+        echo "$public_key\n\n";
+
         $expire = "'" . $expire . "'";
+        mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
+
+    } else {
+        error_log("Certificate Cron Error - Error updating $domain");
     }
-
-    echo "\n$domain\n";
-    echo "$issued_by\n";
-    echo "$expire\n";
-    echo "$public_key\n\n";
-
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
 
 }
