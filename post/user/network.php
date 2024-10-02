@@ -8,7 +8,7 @@ if (isset($_POST['add_network'])) {
 
     validateTechRole();
 
-    require_once 'post/user/login_model.php';
+    require_once 'post/user/network_model.php';
 
     mysqli_query($mysqli,"INSERT INTO networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id, network_client_id = $client_id");
 
@@ -29,7 +29,7 @@ if (isset($_POST['edit_network'])) {
 
     $network_id = intval($_POST['network_id']);
 
-    require_once 'post/user/login_model.php';
+    require_once 'post/user/network_model.php';
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
