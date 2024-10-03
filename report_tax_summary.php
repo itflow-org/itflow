@@ -2,7 +2,7 @@
 
 require_once "inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
