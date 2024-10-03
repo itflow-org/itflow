@@ -5,6 +5,7 @@
  */
 
 if (isset($_POST['add_account'])) {
+    enforceUserPermission('module_financial', 2);
     validateCSRFToken($_POST['csrf_token']);
 
     $name = sanitizeInput($_POST['name']);
@@ -24,6 +25,7 @@ if (isset($_POST['add_account'])) {
 }
 
 if (isset($_POST['edit_account'])) {
+    enforceUserPermission('module_financial', 2);
     validateCSRFToken($_POST['csrf_token']);
 
     $account_id = intval($_POST['account_id']);
@@ -42,6 +44,8 @@ if (isset($_POST['edit_account'])) {
 }
 
 if (isset($_GET['archive_account'])) {
+    enforceUserPermission('module_financial', 2);
+
     validateCSRFToken($_GET['csrf_token']);
     $account_id = intval($_GET['archive_account']);
 
@@ -58,6 +62,8 @@ if (isset($_GET['archive_account'])) {
 
 // Not used anywhere?
 if (isset($_GET['delete_account'])) {
+    enforceUserPermission('module_financial', 3);
+
     $account_id = intval($_GET['delete_account']);
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
