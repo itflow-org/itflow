@@ -1,6 +1,4 @@
 <?php
-// Check if ticket_id and invoice_id are set in the URL
-$addToExistingInvoice = isset($_GET['ticket_id']) && isset($_GET['invoice_id']);
 $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
 
 ?>
@@ -17,45 +15,27 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                 <div class="modal-body bg-white">
-                    <?php
-                        if (mysqli_num_rows($sql_invoices) > 0) {
-                        ?>
-                    
+                    <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
+
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <?php if (!$addToExistingInvoice): ?>
-                                <a class="nav-link active" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
-                            <?php else: ?>
-                                <a class="nav-link" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
-                            <?php endif; ?>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
                         </li>
                         <li class="nav-item">
-                            <?php if ($addToExistingInvoice): ?>
-                                <a class="nav-link active" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
-                            <?php else: ?>
-                                <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
-                            <?php endif; ?>
+                            <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
                         </li>
-                        <?php
-                        } else {
-                            ?>
+                        <?php } else { ?>
                             <div class="alert alert-warning" role="alert">
                                 <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>No draft invoices found. Please create a new invoice first.
                             </div>
-                            <?php
-                        }
-                        ?>
+                        <?php } ?>
                     </ul>
 
                     <hr>
 
                     <div class="tab-content">
 
-                        <?php if (!$addToExistingInvoice): ?>
                             <div class="tab-pane fade show active" id="pills-create-invoice">
-                        <?php else: ?>
-                            <div class="tab-pane fade" id="pills-create-invoice">
-                        <?php endif; ?>
 
                             <div class="form-group">
                                 <label>Invoice Date <strong class="text-danger">*</strong></label>
@@ -109,12 +89,9 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
 
                         <?php
                         
-                        if (mysqli_num_rows($sql_invoices) > 0) {
-                            if ($addToExistingInvoice): ?>
+                        if (mysqli_num_rows($sql_invoices) > 0) { ?>
+
                             <div class="tab-pane fade show active" id="pills-add-to-invoice">
-                        <?php else: ?>
-                            <div class="tab-pane fade" id="pills-add-to-invoice">
-                            <?php endif;?>
                             <div class="form-group">
                                 <label>Invoice</label>
                                 <div class="input-group">
@@ -134,27 +111,20 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                                             $invoice_date = nullable_htmlentities($row['invoice_date']);
                                             $invoice_due = nullable_htmlentities($row['invoice_due']);
                                             $invoice_amount = floatval($row['invoice_amount']);
-
-
-                                            if ($invoice_status == "Draft") {
-
                                             ?>
-                                            <option value="<?php echo $invoice_id; ?>" <?php if ($invoice_id == $_GET['invoice_id']) { 
-                                                echo "selected";
-                                                }?>><?php echo "$invoice_prefix$invoice_number $invoice_scope"; ?></option>
-                                            <?php
-                                            }
-                                        }
-                                        ?>
+                                            <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number | $invoice_scope"; ?></option>
+                                        <?php } ?>
+
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <?php
-                        }
-                        ?>
+
+                        <?php } ?>
                     </div>
+
                     <hr>
+
                     <div class="form-group">
                         <label>Item <strong class="text-danger">*</strong></label>
                         <div class="input-group">
@@ -222,10 +192,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                                     $tax_percent = floatval($row['tax_percent']);
                                     ?>
                                     <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
-
-                                    <?php
-                                }
-                                ?>
+                                <?php } ?>
                             </select>
 
                         </div>
