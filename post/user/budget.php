@@ -5,6 +5,11 @@
  */
 
 if (isset($_POST['save_budget'])) {
+
+    enforceUserPermission('module_financial', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
     $budgets = $_POST['budget'];
     $year = intval($_POST['year']);
 
@@ -37,6 +42,11 @@ if (isset($_POST['save_budget'])) {
 }
 
 if (isset($_POST['delete_budget'])) {
+
+    enforceUserPermission('module_financial', 3);
+
+    validateCSRFToken($_POST['csrf_token']);
+
     $year = intval($_POST['year']);
 
     mysqli_query($mysqli,"DELETE FROM budget WHERE budget_year = $year");
