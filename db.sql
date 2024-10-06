@@ -1477,6 +1477,7 @@ CREATE TABLE `settings` (
   `config_invoice_from_email` varchar(200) DEFAULT NULL,
   `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
   `config_recurring_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_next_number` int(11) NOT NULL,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
