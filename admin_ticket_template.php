@@ -74,7 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editTicketTemplateModal<?php echo $ticket_template_id; ?>">
+                            <a class="text-dark">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
                                     <div class="media-body">
@@ -95,18 +95,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <?php if($session_user_role == 3) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?php echo $ticket_template_id; ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    <?php } ?>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?php echo $ticket_template_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
                                 </div>
                             </div>
                         </td>
                     </tr>
 
-                    <?php } ?>
+                <?php } ?>
 
                 </tbody>
             </table>
@@ -118,6 +115,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "admin_ticket_template_add_modal.php";
-
 require_once "footer.php";
 

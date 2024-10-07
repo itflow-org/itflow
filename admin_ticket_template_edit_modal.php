@@ -1,4 +1,5 @@
 <div class="modal" id="editTicketTemplateModal" tabindex="-1">
+
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
