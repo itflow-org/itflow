@@ -57,6 +57,16 @@ require_once "inc_all_admin.php";
                     <small class="text-secondary">We recommend updating the invoice footer to include policies on your late charges. This will be applied every 30 days after the invoice Due Date.</small>
                 </div>
 
+                <div class="form-group">
+                    <label>Email address to notify when invoices are paid online <small class="text-secondary">(Ideally a distribution list/shared mailbox)</small></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        </div>
+                        <input type="email" class="form-control" name="config_invoice_paid_notification_email" placeholder="Address to notify for paid invoices, leave bank for none" value="<?php echo nullable_htmlentities($config_invoice_paid_notification_email); ?>">
+                    </div>
+                </div>
+
                 <hr>
 
                 <h4>Recurring Invoice</h4>
