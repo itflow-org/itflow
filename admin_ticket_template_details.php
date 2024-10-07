@@ -58,7 +58,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         </div>
                     </h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal<?php echo $ticket_template_id; ?>">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
