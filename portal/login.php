@@ -68,13 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");
 
             } else {
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email (incorrect password for contact ID $row[contact_id])', log_ip = '$ip', log_user_agent = '$user_agent'");
                 header("HTTP/1.1 401 Unauthorized");
                 $_SESSION['login_message'] = 'Incorrect username or password.';
             }
 
         } else {
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email (invalid email/not allowed local auth)', log_ip = '$ip', log_user_agent = '$user_agent'");
             header("HTTP/1.1 401 Unauthorized");
             $_SESSION['login_message'] = 'Incorrect username or password.';
         }
