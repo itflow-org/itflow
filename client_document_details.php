@@ -84,7 +84,7 @@ $document_client_visible = intval($row['document_client_visible']);
                     <tbody>
                         <?php
                         $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
-                            LEFT JOIN users ON document_created_by = user_id
+                            LEFT JOIN users ON document_updated_by = user_id
                             WHERE document_parent = $document_parent
                             ORDER BY document_created_at ASC"
                         );
@@ -101,6 +101,9 @@ $document_client_visible = intval($row['document_client_visible']);
                                 $revision_document_description_display = "-";
                             }
                             $revision_document_author = nullable_htmlentities($row['user_name']);
+                            if (empty($revision_document_author)) {
+                                $revision_document_author = $document_created_by_name;
+                            }
                             $revision_document_created_date = date('Y-m-d', strtotime($row['document_created_at']));
 
                         ?>
