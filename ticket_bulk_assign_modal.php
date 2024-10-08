@@ -18,7 +18,7 @@
                         <select class="form-control select2" name="assign_to">
                             <option value="0">Not Assigned</option>
                             <?php
-                            $sql_users_select = mysqli_query($mysqli, "SELECT * FROM users 
+                            $sql_users_select = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users 
                                 LEFT JOIN user_settings on users.user_id = user_settings.user_id
                                 WHERE user_role > 1
                                 AND user_status = 1

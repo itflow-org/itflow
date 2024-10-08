@@ -177,7 +177,7 @@ $document_client_visible = intval($row['document_client_visible']);
                 </button>
             </h6>
             <?php
-            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts, contact_documents
+            $sql_contacts = mysqli_query($mysqli, "SELECT contacts.contact_id, contact_name FROM contacts, contact_documents
                 WHERE contacts.contact_id = contact_documents.contact_id 
                 AND contact_documents.document_id = $document_id
                 ORDER BY contact_name ASC"
@@ -208,7 +208,7 @@ $document_client_visible = intval($row['document_client_visible']);
                 </button>
             </h6>
             <?php
-            $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_documents
+            $sql_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name FROM assets, asset_documents
                 WHERE assets.asset_id = asset_documents.asset_id
                 AND asset_documents.document_id = $document_id
                 ORDER BY asset_name ASC"
@@ -239,7 +239,7 @@ $document_client_visible = intval($row['document_client_visible']);
                 </button>
             </h6>
             <?php
-            $sql_software = mysqli_query($mysqli, "SELECT * FROM software, software_documents
+            $sql_software = mysqli_query($mysqli, "SELECT software.software_id, software_name FROM software, software_documents
                 WHERE software.software_id = software_documents.software_id 
                 AND software_documents.document_id = $document_id
                 ORDER BY software_name ASC"
@@ -270,7 +270,7 @@ $document_client_visible = intval($row['document_client_visible']);
                 </button>
             </h6>
             <?php
-            $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors, vendor_documents
+            $sql_vendors = mysqli_query($mysqli, "SELECT vendors.vendor_id, vendor_name FROM vendors, vendor_documents
                 WHERE vendors.vendor_id = vendor_documents.vendor_id 
                 AND vendor_documents.document_id = $document_id
                 ORDER BY vendor_name ASC"

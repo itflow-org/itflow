@@ -159,7 +159,7 @@ if (isset($_GET['archive_client'])) {
     $client_id = intval($_GET['archive_client']);
 
     // Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
+    $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
     $client_name = sanitizeInput($row['client_name']);
 

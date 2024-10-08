@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_contact'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     require_once 'post/user/contact_model.php';
 
@@ -67,7 +67,7 @@ if (isset($_POST['add_contact'])) {
 
 if (isset($_POST['edit_contact'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     require_once 'post/user/contact_model.php';
 
@@ -184,7 +184,7 @@ if (isset($_POST['edit_contact'])) {
 
 if (isset($_POST['bulk_assign_contact_location'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $location_id = intval($_POST['bulk_location_id']);
 
@@ -223,7 +223,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
 if (isset($_POST['bulk_edit_contact_phone'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
@@ -257,7 +257,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
 if (isset($_POST['bulk_edit_contact_department'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $department = sanitizeInput($_POST['bulk_department']);
 
@@ -291,7 +291,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
 if (isset($_POST['bulk_edit_contact_role'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $contact_important = intval($_POST['bulk_contact_important']);
     $contact_billing = intval($_POST['bulk_contact_billing']);
@@ -329,7 +329,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
 if (isset($_POST['bulk_assign_contact_tags'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     // Get Selected Contacts Count
     $count = count($_POST['contact_ids']);
@@ -373,7 +373,9 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 }
 
 if (isset($_POST['bulk_archive_contacts'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_client', 2);
+
     //validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -416,7 +418,8 @@ if (isset($_POST['bulk_archive_contacts'])) {
 }
 
 if (isset($_POST['bulk_unarchive_contacts'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_client', 2);
     //validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -455,7 +458,8 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
 }
 
 if (isset($_POST['bulk_delete_contacts'])) {
-    validateAdminRole();
+
+    enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -500,7 +504,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
 if (isset($_GET['anonymize_contact'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_client', 3);
 
     $contact_id = intval($_GET['anonymize_contact']);
 
@@ -595,7 +599,7 @@ if (isset($_GET['anonymize_contact'])) {
 
 if (isset($_GET['archive_contact'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $contact_id = intval($_GET['archive_contact']);
 
@@ -641,7 +645,7 @@ if (isset($_GET['unarchive_contact'])) {
 }
 if (isset($_GET['delete_contact'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_client', 3);
 
     $contact_id = intval($_GET['delete_contact']);
 
@@ -671,10 +675,13 @@ if (isset($_GET['delete_contact'])) {
 }
 
 if (isset($_POST['export_client_contacts_csv'])) {
+
+    enforceUserPermission('module_client');
+
     $client_id = intval($_POST['client_id']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
@@ -721,7 +728,7 @@ if (isset($_POST['export_client_contacts_csv'])) {
 
 if (isset($_POST["import_client_contacts_csv"])) {
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];

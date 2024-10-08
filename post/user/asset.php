@@ -10,48 +10,7 @@ if (isset($_POST['add_asset'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $make = sanitizeInput($_POST['make']);
-    $model = sanitizeInput($_POST['model']);
-    $serial = sanitizeInput($_POST['serial']);
-    $os = sanitizeInput($_POST['os']);
-    $ip = sanitizeInput($_POST['ip']);
-    if($_POST['dhcp'] == 1){
-        $ip = 'DHCP';
-    }
-    $ipv6 = sanitizeInput($_POST['ipv6']);
-    $nat_ip = sanitizeInput($_POST['nat_ip']);
-    $mac = sanitizeInput($_POST['mac']);
-    $uri = sanitizeInput($_POST['uri']);
-    $uri_2 = sanitizeInput($_POST['uri_2']);
-    $status = sanitizeInput($_POST['status']);
-    $location = intval($_POST['location']);
-    $physical_location = sanitizeInput($_POST['physical_location']);
-    $vendor = intval($_POST['vendor']);
-    $contact = intval($_POST['contact']);
-    $network = intval($_POST['network']);
-    $purchase_date = sanitizeInput($_POST['purchase_date']);
-    if (empty($purchase_date)) {
-        $purchase_date = "NULL";
-    } else {
-        $purchase_date = "'" . $purchase_date . "'";
-    }
-    $warranty_expire = sanitizeInput($_POST['warranty_expire']);
-    if (empty($warranty_expire)) {
-        $warranty_expire = "NULL";
-    } else {
-        $warranty_expire = "'" . $warranty_expire . "'";
-    }
-    $install_date = sanitizeInput($_POST['install_date']);
-    if (empty($install_date)) {
-        $install_date = "NULL";
-    } else {
-        $install_date = "'" . $install_date . "'";
-    }
-    $notes = sanitizeInput($_POST['notes']);
+    require_once 'asset_model.php';
 
     $alert_extended = "";
 
@@ -111,49 +70,8 @@ if (isset($_POST['edit_asset'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
+    require_once 'asset_model.php';
     $asset_id = intval($_POST['asset_id']);
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $make = sanitizeInput($_POST['make']);
-    $model = sanitizeInput($_POST['model']);
-    $serial = sanitizeInput($_POST['serial']);
-    $os = sanitizeInput($_POST['os']);
-    $ip = sanitizeInput($_POST['ip']);
-    if($_POST['dhcp'] == 1){
-        $ip = 'DHCP';
-    }
-    $ipv6 = sanitizeInput($_POST['ipv6']);
-    $nat_ip = sanitizeInput($_POST['nat_ip']);
-    $mac = sanitizeInput($_POST['mac']);
-    $uri = sanitizeInput($_POST['uri']);
-    $uri_2 = sanitizeInput($_POST['uri_2']);
-    $status = sanitizeInput($_POST['status']);
-    $location = intval($_POST['location']);
-    $physical_location = sanitizeInput($_POST['physical_location']);
-    $vendor = intval($_POST['vendor']);
-    $contact = intval($_POST['contact']);
-    $network = intval($_POST['network']);
-    $purchase_date = sanitizeInput($_POST['purchase_date']);
-    if (empty($purchase_date)) {
-        $purchase_date = "NULL";
-    } else {
-        $purchase_date = "'" . $purchase_date . "'";
-    }
-    $warranty_expire = sanitizeInput($_POST['warranty_expire']);
-    if (empty($warranty_expire)) {
-        $warranty_expire = "NULL";
-    } else {
-        $warranty_expire = "'" . $warranty_expire . "'";
-    }
-    $install_date = sanitizeInput($_POST['install_date']);
-    if (empty($install_date)) {
-        $install_date = "NULL";
-    } else {
-        $install_date = "'" . $install_date . "'";
-    }
-    $notes = sanitizeInput($_POST['notes']);
 
     // Get Existing Photo
     $sql = mysqli_query($mysqli,"SELECT asset_photo FROM assets WHERE asset_id = $asset_id");
@@ -734,24 +652,16 @@ if (isset($_POST['add_asset_interface'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
+    // Interface info
+    $interface_id = intval($_POST['interface_id']);
     $asset_id = intval($_POST['asset_id']);
+    require_once 'asset_interface_model.php';
 
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_array($sql);
     $asset_name = sanitizeInput($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
-
-    $name = sanitizeInput($_POST['name']);
-    $mac = sanitizeInput($_POST['mac']);
-    $ip = sanitizeInput($_POST['ip']);
-    if($_POST['dhcp'] == 1){
-        $ip = 'DHCP';
-    }
-    $ipv6 = sanitizeInput($_POST['ipv6']);
-    $port = sanitizeInput($_POST['port']);
-    $network = intval($_POST['network']);
-    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_asset_id = $asset_id");
 
@@ -772,7 +682,9 @@ if (isset($_POST['edit_asset_interface'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
+    // Interface info
     $interface_id = intval($_POST['interface_id']);
+    require_once 'asset_interface_model.php';
 
     // Get Asset Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id, asset_id FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id WHERE interface_id = $interface_id");
@@ -780,17 +692,6 @@ if (isset($_POST['edit_asset_interface'])) {
     $asset_id = intval($row['asset_id']);
     $asset_name = sanitizeInput($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
-
-    $name = sanitizeInput($_POST['name']);
-    $mac = sanitizeInput($_POST['mac']);
-    $ip = sanitizeInput($_POST['ip']);
-    if($_POST['dhcp'] == 1){
-        $ip = 'DHCP';
-    }
-    $ipv6 = sanitizeInput($_POST['ipv6']);
-    $port = sanitizeInput($_POST['port']);
-    $network = intval($_POST['network']);
-    $notes = sanitizeInput($_POST['notes']);
 
     mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network WHERE interface_id = $interface_id");
 

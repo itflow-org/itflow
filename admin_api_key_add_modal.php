@@ -60,7 +60,7 @@ $decryptPW = randomString(160);
                                     <select class="form-control select2" name="client" required>
                                         <option value="0"> ALL CLIENTS </option>
                                         <?php
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $client_id = intval($row['client_id']);
                                             $client_name = nullable_htmlentities($row['client_name']); ?>
