@@ -230,12 +230,12 @@ require_once "inc_all_admin.php";
                             while ($row = mysqli_fetch_array($sql)) {
                                 $phone_mask = intval($row['config_phone_mask']);
                             } ?>
-                            <option <?php if ($phone_mask == 1) {
-                                        echo "selected";
-                                    }?> value=1>Enable</option>
-                            <option <?php if ($phone_mask == 0) {
-                                        echo "selected";
-                                    }?> value=0>Disabled</option>
+                            <option <?php if ($phone_mask == 1) { echo "selected"; }?> value=1>
+                                Enable - e.g. (412) 888-9999
+                            </option>
+                            <option <?php if ($phone_mask == 0) { echo "selected"; }?> value=0>
+                                Disabled - e.g. 4128889999
+                            </option>
                     </select>
                 </div>
             </div>
