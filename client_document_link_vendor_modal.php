@@ -28,7 +28,7 @@
                                     $exclude_condition = "";  // No condition if there are no displayed vendors
                                 }
 
-                                $sql_vendors_select = mysqli_query($mysqli, "SELECT * FROM vendors 
+                                $sql_vendors_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors 
                                     WHERE vendor_client_id = $client_id 
                                     AND vendor_archived_at IS NULL
                                     $exclude_condition

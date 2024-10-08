@@ -6,18 +6,11 @@
 
 if (isset($_POST['add_domain'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-    $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
-    $description = sanitizeInput($_POST['description']);
-    $registrar = intval($_POST['registrar']);
-    $dnshost = intval($_POST['dnshost']);
-    $webhost = intval($_POST['webhost']);
-    $mailhost = intval($_POST['mailhost']);
+    require_once 'domain_model.php';
     $extended_log_description = '';
-    $expire = sanitizeInput($_POST['expire']);
-    $notes = sanitizeInput($_POST['notes']);
+    $client_id = intval($_POST['client_id']);
 
     // Set/check/lookup expiry date
     if (strtotime($expire)) {
@@ -68,17 +61,11 @@ if (isset($_POST['add_domain'])) {
 
 if (isset($_POST['edit_domain'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
+    require_once 'domain_model.php';
     $domain_id = intval($_POST['domain_id']);
-    $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
-    $description = sanitizeInput($_POST['description']);
-    $registrar = intval($_POST['registrar']);
-    $dnshost = intval($_POST['dnshost']);
-    $webhost = intval($_POST['webhost']);
-    $mailhost = intval($_POST['mailhost']);
-    $expire = sanitizeInput($_POST['expire']);
-    $notes = sanitizeInput($_POST['notes']);
+
 
 //    if (empty($expire) || (new DateTime($expire)) < (new DateTime())) {
 //        // Update domain expiry date
@@ -120,6 +107,9 @@ if (isset($_POST['edit_domain'])) {
 }
 
 if (isset($_GET['archive_domain'])) {
+
+    enforceUserPermission('module_support', 2);
+
     $domain_id = intval($_GET['archive_domain']);
 
     //Get domain Name
@@ -141,6 +131,8 @@ if (isset($_GET['archive_domain'])) {
 
 if(isset($_GET['unarchive_domain'])){
 
+    enforceUserPermission('module_support', 2);
+
     $domain_id = intval($_GET['unarchive_domain']);
 
     // Get Name and Client ID for logging and alert message
@@ -161,7 +153,7 @@ if(isset($_GET['unarchive_domain'])){
 
 if (isset($_GET['delete_domain'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $domain_id = intval($_GET['delete_domain']);
 
@@ -184,7 +176,7 @@ if (isset($_GET['delete_domain'])) {
 }
 
 if (isset($_POST['bulk_archive_domains'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -222,7 +214,7 @@ if (isset($_POST['bulk_archive_domains'])) {
 }
 
 if (isset($_POST['bulk_unarchive_domains'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -261,7 +253,7 @@ if (isset($_POST['bulk_unarchive_domains'])) {
 }
 
 if (isset($_POST['bulk_delete_domains'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -292,12 +284,12 @@ if (isset($_POST['bulk_delete_domains'])) {
 
 if (isset($_POST['export_client_domains_csv'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $client_id = intval($_POST['client_id']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];

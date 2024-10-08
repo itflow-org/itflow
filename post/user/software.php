@@ -7,6 +7,8 @@
 
 if (isset($_POST['add_software_from_template'])) {
 
+    enforceUserPermission('module_support', 2);
+
     // GET POST Data
     $client_id = intval($_POST['client_id']);
     $software_template_id = intval($_POST['software_template_id']);
@@ -37,7 +39,7 @@ if (isset($_POST['add_software_from_template'])) {
 
 if (isset($_POST['add_software'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
@@ -95,7 +97,7 @@ if (isset($_POST['add_software'])) {
 
 if (isset($_POST['edit_software'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $software_id = intval($_POST['software_id']);
     $client_id = intval($_POST['client_id']);
@@ -153,7 +155,7 @@ if (isset($_POST['edit_software'])) {
 
 if (isset($_GET['archive_software'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $software_id = intval($_GET['archive_software']);
 
@@ -181,7 +183,7 @@ if (isset($_GET['archive_software'])) {
 
 if (isset($_GET['delete_software'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $software_id = intval($_GET['delete_software']);
 
@@ -209,12 +211,12 @@ if (isset($_GET['delete_software'])) {
 
 if (isset($_POST['export_client_software_csv'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $client_id = intval($_POST['client_id']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];

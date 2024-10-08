@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_service'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $service_name = sanitizeInput($_POST['name']);
@@ -108,7 +108,7 @@ if (isset($_POST['add_service'])) {
 
 if (isset($_POST['edit_service'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $service_id = intval($_POST['service_id']);
@@ -212,7 +212,8 @@ if (isset($_POST['edit_service'])) {
 
 if (isset($_GET['delete_service'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
+    validateCSRFToken($_GET['csrf_token']);
 
     $service_id = intval($_GET['delete_service']);
 

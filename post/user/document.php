@@ -6,16 +6,9 @@
 
 if (isset($_POST['add_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
-    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
-    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
-
-    $folder = intval($_POST['folder']);
+    require_once 'document_model.php';
 
     // Document add query
     $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
@@ -36,7 +29,7 @@ if (isset($_POST['add_document'])) {
 if (isset($_POST['add_document_from_template'])) {
 
     // ROLE Check
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     // GET POST Data
     $client_id = intval($_POST['client_id']);
@@ -73,18 +66,12 @@ if (isset($_POST['add_document_from_template'])) {
 
 if (isset($_POST['edit_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
+    require_once 'document_model.php';
     $document_id = intval($_POST['document_id']);
     $document_created_by = intval($_POST['created_by']);
     $document_parent = intval($_POST['document_parent']);
-    $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
-    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
-    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
-    $folder = intval($_POST['folder']);
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $document_created_by, document_updated_by = $session_user_id, document_client_id = $client_id");
@@ -127,7 +114,7 @@ if (isset($_POST['edit_document'])) {
 
 if (isset($_POST['move_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
     $client_id = intval($_POST['client_id']);
@@ -148,7 +135,7 @@ if (isset($_POST['move_document'])) {
 
 if (isset($_POST['rename_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
     $client_id = intval($_POST['client_id']);
@@ -169,7 +156,7 @@ if (isset($_POST['rename_document'])) {
 
 if (isset($_POST['bulk_move_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['bulk_folder_id']);
 
@@ -207,7 +194,7 @@ if (isset($_POST['bulk_move_document'])) {
 
 if (isset($_POST['link_file_to_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
@@ -227,7 +214,8 @@ if (isset($_POST['link_file_to_document'])) {
 
 if (isset($_GET['unlink_file_from_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+
     $file_id = intval($_GET['file_id']);
     $document_id = intval($_GET['document_id']);
 
@@ -244,7 +232,7 @@ if (isset($_GET['unlink_file_from_document'])) {
 
 if (isset($_POST['link_vendor_to_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
@@ -264,7 +252,8 @@ if (isset($_POST['link_vendor_to_document'])) {
 
 if (isset($_GET['unlink_vendor_from_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+
     $vendor_id = intval($_GET['vendor_id']);
     $document_id = intval($_GET['document_id']);
 
@@ -281,7 +270,7 @@ if (isset($_GET['unlink_vendor_from_document'])) {
 
 if (isset($_POST['link_contact_to_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
@@ -301,7 +290,8 @@ if (isset($_POST['link_contact_to_document'])) {
 
 if (isset($_GET['unlink_contact_from_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+
     $contact_id = intval($_GET['contact_id']);
     $document_id = intval($_GET['document_id']);
 
@@ -318,7 +308,7 @@ if (isset($_GET['unlink_contact_from_document'])) {
 
 if (isset($_POST['link_asset_to_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
@@ -338,7 +328,8 @@ if (isset($_POST['link_asset_to_document'])) {
 
 if (isset($_GET['unlink_asset_from_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+
     $asset_id = intval($_GET['asset_id']);
     $document_id = intval($_GET['document_id']);
 
@@ -355,7 +346,7 @@ if (isset($_GET['unlink_asset_from_document'])) {
 
 if (isset($_POST['link_software_to_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
@@ -375,7 +366,8 @@ if (isset($_POST['link_software_to_document'])) {
 
 if (isset($_GET['unlink_software_from_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+
     $software_id = intval($_GET['software_id']);
     $document_id = intval($_GET['document_id']);
 
@@ -392,7 +384,7 @@ if (isset($_GET['unlink_software_from_document'])) {
 
 if (isset($_POST['edit_document_template'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
     $name = sanitizeInput($_POST['name']);
@@ -415,7 +407,8 @@ if (isset($_POST['edit_document_template'])) {
 }
 
 if (isset($_POST['document_visible'])) {
-    validateTechRole();
+
+    enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
     $document_visible = intval($_POST['document_visible']);
@@ -433,7 +426,7 @@ if (isset($_POST['document_visible'])) {
 
 if (isset($_GET['archive_document'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $document_id = intval($_GET['archive_document']);
 
@@ -476,7 +469,7 @@ if (isset($_GET['archive_document'])) {
 
 if (isset($_GET['delete_document_version'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $document_id = intval($_GET['delete_document_version']);
 
@@ -518,7 +511,7 @@ if (isset($_GET['delete_document_version'])) {
 
 if (isset($_GET['delete_document'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $document_id = intval($_GET['delete_document']);
 

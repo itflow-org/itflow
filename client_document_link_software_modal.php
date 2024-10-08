@@ -28,7 +28,7 @@
                                     $exclude_condition = "";  // No condition if there are no displayed vendors
                                 }
 
-                                $sql_software_select = mysqli_query($mysqli, "SELECT * FROM software
+                                $sql_software_select = mysqli_query($mysqli, "SELECT software_id, software_name FROM software
                                     WHERE software_client_id = $client_id 
                                     AND software_archived_at IS NULL
                                     $exclude_condition

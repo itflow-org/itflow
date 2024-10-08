@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_network'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     require_once 'post/user/network_model.php';
 
@@ -25,10 +25,9 @@ if (isset($_POST['add_network'])) {
 
 if (isset($_POST['edit_network'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $network_id = intval($_POST['network_id']);
-
     require_once 'post/user/network_model.php';
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
@@ -44,7 +43,7 @@ if (isset($_POST['edit_network'])) {
 
 if (isset($_GET['archive_network'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $network_id = intval($_GET['archive_network']);
 
@@ -67,7 +66,7 @@ if (isset($_GET['archive_network'])) {
 }
 
 if (isset($_GET['delete_network'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $network_id = intval($_GET['delete_network']);
 
@@ -90,7 +89,7 @@ if (isset($_GET['delete_network'])) {
 }
 
 if (isset($_POST['bulk_delete_networks'])) {
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $count = 0; // Default 0
@@ -121,12 +120,12 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 if (isset($_POST['export_client_networks_csv'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients WHERE client_id = $client_id");
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
 
     $client_name = $row['client_name'];
