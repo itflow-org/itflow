@@ -28,7 +28,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Services</h3>
             <div class="card-tools">
-                <?php if (lookupUserPermission("module_services") >= 2) { ?>
+                <?php if (lookupUserPermission("module_support") >= 2) { ?>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i class="fas fa-plus mr-2"></i>New Service</button>
                 <?php } ?>
             </div>
@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <?php if (lookupUserPermission("module_credential") >= 3) { ?>
+                                        <?php if (lookupUserPermission("module_support") >= 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?php echo $service_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
