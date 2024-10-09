@@ -69,13 +69,20 @@ if ($row['item_active'] !== "1" || ($row['item_view_limit'] > 0 && $row['item_vi
 $item_type = nullable_htmlentities($row['item_type']);
 $item_related_id = intval($row['item_related_id']);
 $item_encrypted_credential = nullable_htmlentities($row['item_encrypted_credential']);
-$item_recipient = nullable_htmlentities($row['item_recipient']);
 $item_note = nullable_htmlentities($row['item_note']);
+$item_recipient = nullable_htmlentities($row['item_recipient']);
 $item_views = intval($row['item_views']);
 $item_view_limit = intval($row['item_view_limit']);
 $item_created = nullable_htmlentities($row['item_created_at']);
 $item_expire = date('Y-m-d h:i A', strtotime($row['item_expire_at']));
 $client_id = intval($row['item_client_id']);
+
+// Create in-app notification
+$item_type_sql_escaped = sanitizeInput($row['item_type']);
+$item_recipient_sql_escaped = sanitizeInput($row['item_recipient']);
+
+mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Share Viewed', notification = '$item_type_sql_escaped has been viewed by $item_recipient_sql_escaped', notification_action = 'client_overview.php?client_id=$client_id', notification_client_id = $client_id, notification_entity_id = $item_id");
+
 ?>
 
 <?php
