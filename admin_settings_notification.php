@@ -155,6 +155,17 @@ require_once "inc_all_admin.php";
                             </td>
                             <td></td>
                         </tr>
+                        <tr>
+                            <th>
+                                <div><i class="fas fa-fw fa-download mr-2"></i>ITFlow Updates</div>
+                                <small class="text-secondary">(Notify when ITFlow has an update)</small>
+                            </th>
+                            <td></td>
+                            <td></td>
+                            <td>
+                            </td>
+                            <td></td>
+                        </tr>
                     </tbody>
                 </table>
 
