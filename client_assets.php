@@ -213,7 +213,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount"></span>)
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
