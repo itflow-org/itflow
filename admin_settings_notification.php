@@ -52,7 +52,7 @@ require_once "inc_all_admin.php";
                             <th>
                                 <div><i class="fas fa-fw fa-globe mr-2"></i>Domain Expiration Notice</div>
                                 <small class="text-muted">
-                                    (This setting triggers a notification when a domain is approaching its expiration date, specifically at 1, 7, 14, 30, 90, and 120 days prior to expiry.)
+                                    (This setting triggers a notification when a domain is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
                                 </small>
                             </th>
                             <td>
@@ -60,6 +60,32 @@ require_once "inc_all_admin.php";
                                   <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" id="customCheck1" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1">
                                   <label class="custom-control-label" for="customCheck1"></label>      
                                 </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div><i class="fas fa-fw fa-lock mr-2"></i>Certificate Expiration Notice</div>
+                                <small class="text-muted">
+                                    (This setting triggers a notification when a certificate is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
+                                </small>
+                            </th>
+                            <td>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div><i class="fas fa-fw fa-desktop mr-2"></i>Asset Warranty Expiration Notice</div>
+                                <small class="text-muted">
+                                    (This setting triggers a notification when an asset is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
+                                </small>
+                            </th>
+                            <td>
                             </td>
                             <td></td>
                             <td></td>
@@ -115,6 +141,17 @@ require_once "inc_all_admin.php";
                                     <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="ticketNotificationSwitch">
                                     <label class="custom-control-label" for="ticketNotificationSwitch"></label>
                                 </div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div><i class="fas fa-fw fa-link mr-2"></i>Shared Item View</div>
+                                <small class="text-secondary">(Notify when Shared items are viewed)</small>
+                            </th>
+                            <td></td>
+                            <td></td>
+                            <td>
                             </td>
                             <td></td>
                         </tr>
