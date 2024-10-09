@@ -227,6 +227,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
                                             <i class="fas fa-fw fa-info mr-2"></i>Set Status
                                         </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
+                                            <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
+                                        </a>
                                         <?php if ($archived) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-info"
@@ -631,6 +635,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php require_once "client_asset_bulk_assign_location_modal.php"; ?>
                 <?php require_once "client_asset_bulk_assign_contact_modal.php"; ?>
                 <?php require_once "client_asset_bulk_edit_status_modal.php"; ?>
+                <?php require_once "client_asset_bulk_add_ticket_modal.php"; ?>
             </form>
             <?php require_once "pagination.php"; ?>
         </div>
