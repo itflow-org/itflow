@@ -49,6 +49,9 @@ require_once "inc_all_admin.php";
                     </thead>
                     <tbody>
                         <tr>
+                            <th colspan=5>Expirations</th>
+                        </tr>
+                        <tr>
                             <th>
                                 <div><i class="fas fa-fw fa-globe mr-2"></i>Domain Expiration Notice</div>
                                 <small class="text-muted">
@@ -92,6 +95,9 @@ require_once "inc_all_admin.php";
                             <td></td>
                         </tr>
                         <tr>
+                            <th colspan=5>Billing</th>
+                        </tr>
+                        <tr>
                             <th>
                                 <div><i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice Reminders</div>
                                 <small class="text-muted">
@@ -128,6 +134,9 @@ require_once "inc_all_admin.php";
                                 </div>
                             </td>
                             <td></td>
+                        </tr>
+                        <tr>
+                            <th colspan=5>Operational</th>
                         </tr>
                         <tr>
                             <th>
