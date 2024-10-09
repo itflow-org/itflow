@@ -323,6 +323,7 @@ $num_of_files = mysqli_num_rows($sql);
                                 $item_type = nullable_htmlentities($row['item_type']);
                                 $item_related_id = intval($row['item_related_id']);
                                 $item_note = nullable_htmlentities($row['item_note']);
+                                $item_recipient = nullable_htmlentities($row['item_recipient']);
                                 $item_views = nullable_htmlentities($row['item_views']);
                                 $item_view_limit = nullable_htmlentities($row['item_view_limit']);
                                 $item_created_at = nullable_htmlentities($row['item_created_at']);
@@ -353,10 +354,14 @@ $num_of_files = mysqli_num_rows($sql);
                                     </td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td>
-                                        <?php if($item_id) { ?>
-                                        <div title="Expires <?php echo $item_expire_at_human; ?>">
-                                            <i class="fas fa-fw fa-link"></i> Shared
-                                        </div>
+                                        <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
+                                            <div class="media" title="Expires <?php echo $item_expire_at_human; ?>">
+                                                <i class="fas fa-link mr-2 mt-1"></i>
+                                                <div class="media-body">Shared
+                                                    <br>
+                                                    <small class="text-secondary"><?php echo $item_recipient; ?></small>
+                                                </div>
+                                            </div>
                                         <?php } ?>
                                     </td>
                                     <td>
