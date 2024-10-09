@@ -284,6 +284,7 @@ $sql_asset_retired = mysqli_query(
                                 $item_type = nullable_htmlentities($row['item_type']);
                                 $item_related_id = intval($row['item_related_id']);
                                 $item_note = nullable_htmlentities($row['item_note']);
+                                $item_recipient = nullable_htmlentities($row['item_recipient']); 
                                 $item_views = nullable_htmlentities($row['item_views']);
                                 $item_view_limit = nullable_htmlentities($row['item_view_limit']);
                                 $item_created_at = nullable_htmlentities($row['item_created_at']);
@@ -308,8 +309,13 @@ $sql_asset_retired = mysqli_query(
                                 }
                                 ?>
                                 <tr>
-                                    <td title="<?php echo $item_type; ?>"><i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?></td>
-                                    <td>Views: <?php echo "$item_views / $item_view_limit" ?></td>
+                                    <td title="<?php echo $item_type; ?>">
+                                        <i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?>
+                                    </td>
+                                    <td>
+                                        <div>Views: <?php echo "$item_views / $item_view_limit" ?></div>
+                                        <div class="text-secondary"><?php echo $item_recipient; ?></div>
+                                    </td>
                                     <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>
                                     <td title="Deactivate Link">
                                         <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
