@@ -94,6 +94,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $custom_link_order_display = $custom_link_order;
                         }
                         $custom_link_location = intval($row['custom_link_location']);
+                        if ($custom_link_location == 1) { 
+                            $custom_link_location_display = "Main Side Nav";
+                        } else {
+                            $custom_link_location_display = "Top Nav";
+                        }
 
                         ?>
                         <tr>
@@ -105,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td><?php echo $custom_link_order_display; ?></td>
                             <td><?php echo "$custom_link_uri $custom_link_new_tab_display"; ?></td>
-                            <td><?php echo $custom_link_location; ?></td>
+                            <td><?php echo $custom_link_location_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
