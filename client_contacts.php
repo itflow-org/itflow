@@ -357,16 +357,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <div class="<?php if(!empty($contact_important)) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
                                                 <?php echo $contact_title_display; ?>
                                                 <div><?php echo $contact_primary_display; ?></div>
-                                                    
+                                                <?php
+                                                if (!empty($contact_tags_display)) { ?>
+                                                    <div class="mt-1">
+                                                        <?php echo $contact_tags_display; ?>
+                                                    </div>
+                                                <?php } ?>   
                                             </div>
                                         </div>
                                     </a>
-                                    <?php
-                                    if (!empty($contact_tags_display)) { ?>
-                                        <div class="mt-1">
-                                            <?php echo $contact_tags_display; ?>
-                                        </div>
-                                    <?php } ?>
+                                    
                                 </td>
                                 <td><?php echo $contact_department_display; ?></td>
                                 <td><?php echo $contact_info_display; ?></td>
