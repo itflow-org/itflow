@@ -1242,9 +1242,10 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
             $subject_asset_prepended = "$asset_name - $subject";
 
-            //Get the next Ticket Number and add 1 for the new ticket number
-            $ticket_number = $config_ticket_next_number;
-            $new_config_ticket_next_number = $config_ticket_next_number + 1;
+             // Get the next Ticket Number and update the config
+            $sql_ticket_number = mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1");
+            $ticket_number_row = mysqli_fetch_array($sql_ticket_number);
+            $ticket_number = intval($ticket_number_row['config_ticket_next_number']);
 
             // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
             $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
@@ -1255,11 +1256,17 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             //Generate a unique URL key for clients to access
             $url_key = randomString(156);
 
+            // Increment the config ticket next number
+            $new_config_ticket_next_number = $ticket_number + 1;
+
             mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
             mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject_asset_prepended', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
 
             $ticket_id = mysqli_insert_id($mysqli);
+
+            // Update the next ticket number in the database
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
             // Add Tasks
             if (!empty($_POST['tasks'])) {
