@@ -15,13 +15,22 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
     $quote_id = intval($_GET['accept_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
+
+        $row = mysqli_fetch_array($sql);
+        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_number = intval($row['quote_number']);
+        $client_name = sanitizeInput($row['client_name']);
+        $client_id = intval($row['client_id']);
 
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
 
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
+
+        // Notification
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Accepted', notification = 'Quote $quote_prefix$quote_number has been accepted by $client_name', notification_action = 'quote.php?quote_id=$quote_id', notification_client_id = $client_id, notification_entity_id = $quote_id");
 
         customAction('quote_accept', $quote_id);
 
@@ -39,13 +48,22 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
     $quote_id = intval($_GET['decline_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+    $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
+
+        $row = mysqli_fetch_array($sql);
+        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_number = intval($row['quote_number']);
+        $client_name = sanitizeInput($row['client_name']);
+        $client_id = intval($row['client_id']);
 
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
+
+        // Notification
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Declined', notification = 'Quote $quote_prefix$quote_number has been declined by $client_name', notification_action = 'quote.php?quote_id=$quote_id', notification_client_id = $client_id, notification_entity_id = $quote_id");
 
         customAction('quote_decline', $quote_id);
 

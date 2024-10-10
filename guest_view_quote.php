@@ -115,7 +115,14 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                     <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
                 </div>
                 <div class="col-sm-10">
-                    <h3 class="text-right"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
+                    <?php if ($quote_status == "Accepted" || $quote_status == "Declined") { ?>
+                    <div class="ribbon-wrapper">
+                        <div class="ribbon bg-success <?php if ($quote_status == 'Declined') { echo 'bg-danger'; } ?>">
+                            <?php echo $quote_status; ?>
+                        </div>
+                    </div>
+                    <?php } ?> 
+                    <h3 class="text-right mt-5"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
                 </div>
             </div>
 
