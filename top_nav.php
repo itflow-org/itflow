@@ -4,8 +4,7 @@
     <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" data-enable-remember="TRUE" href="#"><i
-                    class="fas fa-bars"></i></a>
+            <a class="nav-link" data-widget="pushmenu" data-enable-remember="TRUE" href="#"><i class="fas fa-bars"></i></a>
         </li>
     </ul>
 
@@ -29,6 +28,34 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
+        <!--Custom Nav Link -->
+        <?php
+        $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 2 AND custom_link_archived_at IS NULL
+            ORDER BY custom_link_order DESC, custom_link_name ASC"
+        );
+
+        while ($row = mysqli_fetch_array($sql_custom_links)) {
+            $custom_link_name = nullable_htmlentities($row['custom_link_name']);
+            $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+            $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+            $custom_link_new_tab = intval($row['custom_link_new_tab']);
+            if ($custom_link_new_tab == 1) {
+                $target = "target='_blank' rel='noopener noreferrer'";
+            } else {
+                $target = "";
+            }
+
+            ?>
+
+        <li class="nav-item" title="<?php echo $custom_link_name; ?>">
+            <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link">
+                <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
+            </a>
+        </li>
+
+        <?php } ?>
+        <!-- End Custom Nav Links -->
+
         <!-- New Notifications Dropdown -->
         <?php
         $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications 
@@ -40,7 +67,7 @@
         ?>
 
         <?php if ($num_notifications > 0) { ?>
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown" title="Notifications">
             <a class="nav-link" data-toggle="dropdown" href="#">
                 <i class="fas fa-bell"></i>
                 <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;"><?php echo $num_notifications; ?></span>

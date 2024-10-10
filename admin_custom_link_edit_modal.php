@@ -64,6 +64,7 @@
                             </div>
                             <select class="form-control select2" name="location" required>
                                 <option value="1" <?php if ($custom_link_location == 1) { echo "selected"; } ?> >Main Side Nav</option>
+                                <option value="2" <?php if ($custom_link_location == 2) { echo "selected"; } ?> >Top Nav (Icon Required)</option>
                             </select>
                         </div>
                     </div>

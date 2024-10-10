@@ -66,6 +66,7 @@
                             </div>
                             <select class="form-control select2" name="location" required>
                                 <option value="1">Main Side Nav</option>
+                                <option value="2">Top Nav (Icon Required)</option>
                             </select>
                         </div>
                     </div>

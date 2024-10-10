@@ -193,7 +193,7 @@
                 
                 <?php
                 $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 1 AND custom_link_archived_at IS NULL
-                    ORDER BY custom_link_order DESC, custom_link_name DESC"
+                    ORDER BY custom_link_order DESC, custom_link_name ASC"
                 );
 
                 while ($row = mysqli_fetch_array($sql_custom_links)) {
