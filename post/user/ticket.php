@@ -16,6 +16,7 @@ if (isset($_POST['add_ticket'])) {
         $ticket_status = 2;
     }
     $contact = intval($_POST['contact']);
+    $category_id = intval($_POST['category']);
     $subject = sanitizeInput($_POST['subject']);
     $priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
@@ -72,7 +73,7 @@ if (isset($_POST['add_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -1205,6 +1206,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
     }
     $subject = sanitizeInput($_POST['bulk_subject']);
     $priority = sanitizeInput($_POST['bulk_priority']);
+    $category_id = intval($_POST['bulk_category']);
     $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
     $project_id = intval($_POST['bulk_project']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
@@ -1261,7 +1263,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
             mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject_asset_prepended', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject_asset_prepended', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
 
             $ticket_id = mysqli_insert_id($mysqli);
 
