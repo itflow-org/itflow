@@ -53,7 +53,7 @@ if (isset($_GET['delete_custom_link'])) {
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Link', log_action = 'Delete', log_description = '$session_name deleted a custom link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Cusatom Link deleted!";
+    $_SESSION['alert_message'] = "Custom Link deleted!";
     $_SESSION['alert_type'] = "error";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
