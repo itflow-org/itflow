@@ -18,7 +18,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="bulk_subject" placeholder="Asset Name will be prepended to Subject" required>
+                        <input type="text" class="form-control" name="bulk_subject" placeholder="Asset Name will be prepended to Subject">
                     </div>
                 </div>
 
@@ -46,7 +46,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                 </div>
-                                <select class="form-control select2" name="bulk_priority" required>
+                                <select class="form-control select2" name="bulk_priority">
                                     <option>Low</option>
                                     <option>Medium</option>
                                     <option>High</option>
