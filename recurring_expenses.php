@@ -157,6 +157,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $recurring_expense_last_sent_display = $recurring_expense_last_sent;
                         }
                         $recurring_expense_next_date = nullable_htmlentities($row['recurring_expense_next_date']);
+                        $recurring_expense_next_month = date('n', strtotime($row['recurring_expense_next_date']));
                         $recurring_expense_status = intval($row['recurring_expense_status']);
                         $recurring_expense_description = nullable_htmlentities($row['recurring_expense_description']);
                         $recurring_expense_amount = floatval($row['recurring_expense_amount']);

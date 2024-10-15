@@ -38,6 +38,7 @@ $sql_recent_logins = mysqli_query(
     $mysqli,
     "SELECT * FROM logins
      WHERE login_client_id = $client_id
+     AND login_archived_at IS NULL
      ORDER BY login_updated_at ASC
      LIMIT 5"
 );
@@ -63,6 +64,7 @@ $sql_stale_tickets = mysqli_query(
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
         AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
+        AND ticket_resolved_At IS NULL
         AND ticket_closed_at IS NULL
     ORDER BY ticket_updated_at ASC 
     LIMIT 5"

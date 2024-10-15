@@ -34,18 +34,18 @@
                                 </div>
                                 <select class="form-control select2" name="month" required>
                                     <option value="">- Select a Month -</option>
-                                    <option value="1" <?php if($recurring_expense_month == 1) { echo "selected"; } ?>>01 - January</option>
-                                    <option value="2" <?php if($recurring_expense_month == 2) { echo "selected"; } ?>>02 - February</option>
-                                    <option value="3" <?php if($recurring_expense_month == 3) { echo "selected"; } ?>>03 - March</option>
-                                    <option value="4" <?php if($recurring_expense_month == 4) { echo "selected"; } ?>>04 - April</option>
-                                    <option value="5" <?php if($recurring_expense_month == 5) { echo "selected"; } ?>>05 - May</option>
-                                    <option value="6" <?php if($recurring_expense_month == 6) { echo "selected"; } ?>>06 - June</option>
-                                    <option value="7" <?php if($recurring_expense_month == 7) { echo "selected"; } ?>>07 - July</option>
-                                    <option value="8" <?php if($recurring_expense_month == 8) { echo "selected"; } ?>>08 - August</option>
-                                    <option value="9" <?php if($recurring_expense_month == 9) { echo "selected"; } ?>>09 - September</option>
-                                    <option value="10" <?php if($recurring_expense_month == 10) { echo "selected"; } ?>>10 - October</option>
-                                    <option value="11" <?php if($recurring_expense_month == 11) { echo "selected"; } ?>>11 - November</option>
-                                    <option value="12" <?php if($recurring_expense_month == 12) { echo "selected"; } ?>>12 - December</option>
+                                    <option value="1" <?php if($recurring_expense_next_month == 1) { echo "selected"; } ?>>01 - January</option>
+                                    <option value="2" <?php if($recurring_expense_next_month == 2) { echo "selected"; } ?>>02 - February</option>
+                                    <option value="3" <?php if($recurring_expense_next_month == 3) { echo "selected"; } ?>>03 - March</option>
+                                    <option value="4" <?php if($recurring_expense_next_month == 4) { echo "selected"; } ?>>04 - April</option>
+                                    <option value="5" <?php if($recurring_expense_next_month == 5) { echo "selected"; } ?>>05 - May</option>
+                                    <option value="6" <?php if($recurring_expense_next_month == 6) { echo "selected"; } ?>>06 - June</option>
+                                    <option value="7" <?php if($recurring_expense_next_month == 7) { echo "selected"; } ?>>07 - July</option>
+                                    <option value="8" <?php if($recurring_expense_next_month == 8) { echo "selected"; } ?>>08 - August</option>
+                                    <option value="9" <?php if($recurring_expense_next_month == 9) { echo "selected"; } ?>>09 - September</option>
+                                    <option value="10" <?php if($recurring_expense_next_month == 10) { echo "selected"; } ?>>10 - October</option>
+                                    <option value="11" <?php if($recurring_expense_next_month == 11) { echo "selected"; } ?>>11 - November</option>
+                                    <option value="12" <?php if($recurring_expense_next_month == 12) { echo "selected"; } ?>>12 - December</option>
                                 </select>
                             </div>
                         </div>
