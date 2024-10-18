@@ -30,7 +30,7 @@
                         </li>
                         <?php } ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-client-more<?php echo $client_id; ?>">More</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
                         </li>
                     </ul>
 
@@ -41,13 +41,28 @@
                         <div class="tab-pane fade show active" id="pills-client-details<?php echo $client_id; ?>">
 
                             <div class="form-group">
-                                <label>Name <strong class="text-danger">*</strong></label>
+                                <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="name" placeholder="Name or Company"
                                         value="<?php echo $client_name; ?>" required>
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" name="lead" value="1" <?php if($client_is_leads == 1){ echo "checked"; } ?>>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Shortened Name</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="abbreviation" placeholder="Shortned name for client - Max chars 6" value="<?php echo $client_abbreviation; ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                                 </div>
                             </div>
 
@@ -101,13 +116,23 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Is Lead <strong class="text-danger">*</strong></label>
+                                <label>Tags</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <input type="checkbox" name="lead" value="1"<?php if ($client_is_lead == 1) {
-                                            echo "checked";
-                                        } ?>>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                        <?php
+
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                            $tag_id_select = intval($row['tag_id']);
+                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                            ?>
+                                            <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                        <?php } ?>
+
+                                    </select>
                                 </div>
                             </div>
 
@@ -182,42 +207,11 @@
 
                         <?php } ?>
 
-                        <div class="tab-pane fade" id="pills-client-more<?php echo $client_id; ?>">
+                        <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">
 
                             <div class="form-group">
-                                <label>Abbreviation</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="abbreviation" placeholder="Abbreviated name for client" value="<?php echo $client_abbreviation; ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <textarea class="form-control" rows="8" placeholder="Enter some notes"
+                                <textarea class="form-control" rows="10" placeholder="Enter some notes"
                                     name="notes"><?php echo $client_notes; ?></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tags</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                                        <?php
-
-                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_tags_select)) {
-                                            $tag_id_select = intval($row['tag_id']);
-                                            $tag_name_select = nullable_htmlentities($row['tag_name']);
-                                            ?>
-                                            <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
-                                        <?php } ?>
-
-                                    </select>
-                                </div>
                             </div>
 
                         </div>
