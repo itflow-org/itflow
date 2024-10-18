@@ -55,11 +55,12 @@ if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_ad
 
 }
 
+// Logout is the same for user and admin
+require_once "post/logout.php";
 
 // TODO: Move admin_update into the admin section to be auto-loaded
 //  We can't do this until everyone has the new database fields added in 1.4.9 on Sept 14th 2024
 require_once "post/admin_update.php"; // Load updater
-
 
 // TODO: Find a home for these
 
