@@ -23,16 +23,6 @@ if (isset($_POST['add_ticket_template'])) {
         mysqli_query($mysqli, "INSERT INTO project_template_ticket_templates SET project_template_id = $project_template_id, ticket_template_id = $ticket_template_id");
     }
 
-    // Add Tasks to ticket template
-    if (!empty($_POST['tasks'])) {
-        foreach($_POST['tasks'] as $task) {
-            $task_template_name = sanitizeInput($task);
-            if (!empty($task_template_name)) {
-                mysqli_query($mysqli,"INSERT INTO task_templates SET task_template_name = '$task_template_name', task_template_ticket_template_id = $ticket_template_id");
-            }
-        }
-    }
-
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Template', log_action = 'Create', log_description = '$session_name created ticket template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_template_id");
 
