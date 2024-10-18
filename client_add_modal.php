@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Create <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Creating New <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
