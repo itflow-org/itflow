@@ -20,19 +20,7 @@
                                 <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-assets"><i class="fa fa-fw fa-desktop mr-2"></i>Asset</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-locations"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Location</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-vendors"><i class="fa fa-fw fa-building mr-2"></i>Vendor</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-project"><i class="fa fa-fw fa-project-diagram mr-2"></i>Project</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
                             </li>
                         </ul>
 
@@ -72,7 +60,7 @@
                             <?php if (empty($_GET['client_id'])) { ?>
 
                                 <div class="form-group">
-                                    <label>Client <strong class="text-danger">*</strong></label>
+                                    <label>Client <strong class="text-danger">*</strong> / <span class="text-secondary">Use Primary Contact</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -89,13 +77,11 @@
 
                                             <?php } ?>
                                         </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="primaryContactCheckbox" name="use_primary_contact" value="1">
-                                        <label for="primaryContactCheckbox" class="custom-control-label">Use Primary Contact</label>
+                                        <div class="input-group-append">
+                                            <div class="input-group-text">
+                                                <input type="checkbox" name="use_primary_contact" value="1">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -249,7 +235,7 @@
 
                             </div>
 
-                            <div class="tab-pane fade" id="pills-assets">
+                            <div class="tab-pane fade" id="pills-assignment">
 
                                 <div class="form-group">
                                     <label>Asset</label>
@@ -274,10 +260,6 @@
                                     </div>
                                 </div>
 
-                            </div>
-
-                            <div class="tab-pane fade" id="pills-locations">
-
                                 <div class="form-group">
                                     <label>Location</label>
                                     <div class="input-group">
@@ -300,60 +282,48 @@
                                     </div>
                                 </div>
 
-                            </div>
+                                <div class="row">
+                                
+                                    <div class="col">
 
-                            <div class="tab-pane fade" id="pills-vendors">
+                                        <div class="form-group">
+                                            <label>Vendor</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                                </div>
+                                                <select class="form-control select2" name="vendor">
+                                                    <option value="0">- None -</option>
+                                                    <?php
 
-                                <div class="form-group">
-                                    <label>Vendor</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                                    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                                    while ($row = mysqli_fetch_array($sql_vendors)) {
+                                                        $vendor_id_select = intval($row['vendor_id']);
+                                                        $vendor_name_select = nullable_htmlentities($row['vendor_name']); ?>
+                                                        <option value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <select class="form-control select2" name="vendor">
-                                            <option value="0">- None -</option>
-                                            <?php
 
-                                            $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                                            while ($row = mysqli_fetch_array($sql_vendors)) {
-                                                $vendor_id_select = intval($row['vendor_id']);
-                                                $vendor_name_select = nullable_htmlentities($row['vendor_name']); ?>
-                                                <option value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-
-                                            <?php } ?>
-                                        </select>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label>Vendor Ticket Number</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    <div class="col">
+
+                                        <div class="form-group">
+                                            <label>Vendor Ticket Number</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                                </div>
+                                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
+                                            </div>
                                         </div>
-                                        <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
+                                    
                                     </div>
+
                                 </div>
-
-                            </div>
-
-                            <div class="tab-pane fade" id="pills-tasks">
-
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
-                                        </div>
-                                        <input type="text" class="form-control" name="tasks[]" placeholder="Enter Task Name">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-primary"><i class="fas fa-fw fa-check mr-2"></i>Add</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <div class="tab-pane fade" id="pills-project">
 
                                 <div class="form-group">
                                     <label>Project</label>

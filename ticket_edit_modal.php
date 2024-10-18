@@ -23,16 +23,7 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-contacts<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-assets<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Asset</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-locations<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-vendors<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-building mr-2"></i>Vendor</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-project<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-project-diagram mr-2"></i>Project</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-assignment<?php echo $ticket_id; ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
                         </li>
                     </ul>
 
@@ -163,7 +154,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-assets<?php echo $ticket_id; ?>">
+                        <div class="tab-pane fade" id="pills-assignment<?php echo $ticket_id; ?>">
 
                             <div class="form-group">
                                 <label>Asset</label>
@@ -190,10 +181,6 @@
                                 </div>
                             </div>
 
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-locations<?php echo $ticket_id; ?>">
-
                             <div class="form-group">
                                 <label>Location</label>
                                 <div class="input-group">
@@ -218,69 +205,74 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label>Vendor</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                            </div>
+                                            <select class="form-control select2" name="vendor">
+                                                <option value="0">- None -</option>
+                                                <?php
+
+                                                $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                                while ($row = mysqli_fetch_array($sql_vendors)) {
+                                                    $vendor_id_select = intval($row['vendor_id']);
+                                                    $vendor_name_select = nullable_htmlentities($row['vendor_name']);
+                                                    ?>
+                                                    <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col">
+
+                                    <div class="form-group">
+                                        <label>Vendor Ticket Number</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?php echo $ticket_vendor_ticket_number; ?>">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        <div class="tab-pane fade" id="pills-vendors<?php echo $ticket_id; ?>">
 
-                            <div class="form-group">
-                                <label>Vendor</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="vendor">
-                                        <option value="0">- None -</option>
-                                        <?php
-
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_vendors)) {
-                                            $vendor_id_select = intval($row['vendor_id']);
-                                            $vendor_name_select = nullable_htmlentities($row['vendor_name']);
-                                            ?>
-                                            <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
+                        <div class="form-group">
+                            <label>Project</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                                 </div>
+                                <select class="form-control select2" name="project">
+                                    <option value="0">- None -</option>
+                                    <?php
+
+                                    $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_projects)) {
+                                        $project_id_select = intval($row['project_id']);
+                                        $project_name_select = nullable_htmlentities($row['project_name']); ?>
+                                        <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+
+                                    <?php } ?>
+                                </select>
                             </div>
-
-                            <div class="form-group">
-                                <label>Vendor Ticket Number</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?php echo $ticket_vendor_ticket_number; ?>">
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-project<?php echo $ticket_id; ?>">
-
-                            <div class="form-group">
-                                <label>Project</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="project">
-                                        <option value="0">- None -</option>
-                                        <?php
-
-                                        $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_projects)) {
-                                            $project_id_select = intval($row['project_id']);
-                                            $project_name_select = nullable_htmlentities($row['project_name']); ?>
-                                            <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
                         </div>
 
                     </div>

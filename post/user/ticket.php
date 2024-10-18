@@ -77,17 +77,6 @@ if (isset($_POST['add_ticket'])) {
 
     $ticket_id = mysqli_insert_id($mysqli);
 
-    // Add Tasks
-    if (!empty($_POST['tasks'])) {
-        foreach ($_POST['tasks'] as $task) {
-            $task_name = sanitizeInput($task);
-            // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
-            if (!empty($task_name)) {
-                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
-            }
-        }
-    }
-
     // Add Tasks from Template if Template was selected
     if($ticket_template_id) {
         if (mysqli_num_rows($sql_task_templates) > 0) {
