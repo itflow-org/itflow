@@ -3,9 +3,6 @@
  * CRON - Email Parser
  * Based on Libraries php-mime-mail-parser and PHP Extensions PHP IMAP and PHP MAilparse
  * Process emails and create/update tickets
- * To Do:
- *  -- Show Mail from header in HTML Emails currently only work in text based emails
- *  -- When replying via email do not show original reply in Ticket Reply Body
  */
 
 // Set working directory to the directory this cron script lives at.
@@ -108,7 +105,6 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $message = "<i>Email from: <b>$contact_name</b> &lt;$contact_email&gt; at $date:-</i> <br><br><div style='line-height:1.5;'>$message</div>";
 
     $ticket_prefix_esc = mysqli_real_escape_string($mysqli, $config_ticket_prefix);
-    $subject_esc = mysqli_real_escape_string($mysqli, $subject);
     $message_esc = mysqli_real_escape_string($mysqli, $message);
     $contact_email_esc = mysqli_real_escape_string($mysqli, $contact_email);
     $client_id_esc = intval($client_id);
@@ -116,7 +112,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject_esc', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id_esc");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id_esc");
     $id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject_esc) ($id)', log_client_id = $client_id_esc");
@@ -160,7 +156,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             'from_name' => $config_ticket_from_name,
             'recipient' => $contact_email,
             'recipient_name' => $contact_name,
-            'subject' => mysqli_real_escape_string($mysqli, $subject_email),
+            'subject' => $subject_email,
             'body' => mysqli_real_escape_string($mysqli, $body)
         ];
     }
@@ -181,7 +177,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             'from_name' => $config_ticket_from_name,
             'recipient' => $config_ticket_new_ticket_notification_email,
             'recipient_name' => $config_ticket_from_name,
-            'subject' => mysqli_real_escape_string($mysqli, $email_subject),
+            'subject' => $email_subject,
             'body' => mysqli_real_escape_string($mysqli, $email_body)
         ];
     }
@@ -245,7 +241,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                     'from_name' => $config_ticket_from_name,
                     'recipient' => $from_email,
                     'recipient_name' => $from_email,
-                    'subject' => mysqli_real_escape_string($mysqli, $email_subject),
+                    'subject' => $email_subject,
                     'body' => mysqli_real_escape_string($mysqli, $email_body)
                 ]
             ];
