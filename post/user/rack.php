@@ -183,11 +183,16 @@ if (isset($_POST['add_rack_unit'])) {
     $unit_end = intval($_POST['unit_end']);
     $asset = intval($_POST['asset']);
 
+    // **New Validation Check**
+    if ($unit_start > $unit_end) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Unit Start number cannot be higher than Unit End number.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
     // Check if the unit range is already occupied
-    $check_sql = mysqli_query($mysqli, "SELECT * FROM rack_units WHERE unit_rack_id = $rack_id AND 
-        ((unit_start_number <= $unit_start AND unit_end_number >= $unit_start) OR 
-        (unit_start_number <= $unit_end AND unit_end_number >= $unit_end) OR 
-        ($unit_start <= unit_start_number AND $unit_end >= unit_start_number))");
+    $check_sql = mysqli_query($mysqli, "SELECT * FROM rack_units WHERE unit_rack_id = $rack_id AND unit_start_number <= $unit_end AND unit_end_number >= $unit_start");
 
     if (mysqli_num_rows($check_sql) > 0) {
         // If there is an overlap, return an error message
@@ -197,15 +202,15 @@ if (isset($_POST['add_rack_unit'])) {
         exit();
     }
 
-    // If no overlap, proceed with the insertion
+    // If no overlap and validation passes, proceed with the insertion
     mysqli_query($mysqli, "INSERT INTO rack_units SET unit_device = '$name', unit_asset_id = $asset, unit_start_number = $unit_start, unit_end_number = $unit_end, unit_rack_id = $rack_id");
 
     $unit_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Rack Unit', log_action = 'Create', log_description = '$session_name added a unit the rack', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Rack Unit', log_action = 'Create', log_description = '$session_name added units $unit_start to $unit_end to the rack', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $rack_id");
 
-    $_SESSION['alert_message'] = "Device Added to Unit $unit_start - $unit_end to rack";
+    $_SESSION['alert_message'] = "Device added to units $unit_start - $unit_end in rack.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
