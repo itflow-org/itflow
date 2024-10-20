@@ -76,18 +76,14 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
                     <i class="fas fa-plus mr-2"></i>New Ticket
                 </button>
+                <?php if ($num_rows[0] > 0) { ?>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketFromTemplateModal">
-                        <i class="fa fa-fw fa-plus mr-2"></i>From Template
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
                     </a>
-                    <?php if ($num_rows[0] > 0) { ?>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
-                    <?php } ?>
                 </div>
+                <?php } ?>
             </div>
         </div>
     </div>
@@ -345,7 +341,6 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
 <?php
 require_once "ticket_add_modal.php";
-require_once "ticket_add_from_template_modal.php";
 
 require_once "client_ticket_export_modal.php";
 

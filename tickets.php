@@ -118,12 +118,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
                         <i class="fas fa-plus mr-2"></i>New Ticket
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketFromTemplateModal">
-                            <i class="fa fa-fw fa-plus mr-2"></i>From Template
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -594,7 +588,5 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
 <?php
 require_once "ticket_add_modal.php";
-
-require_once "ticket_add_from_template_modal.php";
 
 require_once "footer.php";

@@ -28,23 +28,6 @@ if (isset($_POST['add_ticket'])) {
     $use_primary_contact = intval($_POST['use_primary_contact']);
     $ticket_template_id = intval($_POST['ticket_template_id']);
 
-    // Check to see if adding a ticket by template
-    if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
-        $row = mysqli_fetch_array($sql);
-
-        // Override Template Subject
-        if(empty($subject)) {
-            $subject = sanitizeInput($row['ticket_template_subject']);
-        }
-        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
-
-        // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-
-    }
-
-
     // Add the primary contact as the ticket contact if "Use primary contact" is checked
     if ($use_primary_contact == 1) {
         $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
@@ -79,6 +62,9 @@ if (isset($_POST['add_ticket'])) {
 
     // Add Tasks from Template if Template was selected
     if($ticket_template_id) {
+        // Get Associated Tasks from the ticket template
+        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+
         if (mysqli_num_rows($sql_task_templates) > 0) {
             while ($row = mysqli_fetch_array($sql_task_templates)) {
                 $task_order = intval($row['task_template_order']);

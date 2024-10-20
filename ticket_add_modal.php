@@ -63,18 +63,43 @@
                             <?php } ?>
 
                             <div class="form-group">
+                                <label>Template</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                                    </div>
+                                    <select class="form-control select2" id="ticket_template_select" name="ticket_template_id" required>
+                                        <option value="0">- Choose a Template -</option>
+                                        <?php
+                                        $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_archived_at IS NULL ORDER BY ticket_template_name ASC");
+                                        while ($row = mysqli_fetch_array($sql_ticket_templates)) {
+                                            $ticket_template_id_select = intval($row['ticket_template_id']);
+                                            $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
+                                            $ticket_template_details_select = nullable_htmlentities($row['ticket_template_details']);
+                                        ?>
+                                            <option value="<?php echo $ticket_template_id_select; ?>"
+                                                    data-subject="<?php echo $ticket_template_name_select; ?>"
+                                                    data-details="<?php echo $ticket_template_details_select; ?>">
+                                                <?php echo $ticket_template_name_select; ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Subject <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                                    <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" required>
                                 </div>
                             </div>
 
                             <?php if($config_ai_enable) { ?>
                             <div class="form-group">
-                                <textarea class="form-control tinymceai" id="textInput" name="details"></textarea>
+                                <textarea class="form-control tinymceai" id="detailsInput" name="details"></textarea>
                             </div>
 
                             <div class="mb-3">
@@ -83,7 +108,7 @@
                             </div>
                             <?php } else { ?>
                             <div class="form-group">
-                                <textarea class="form-control tinymce" rows="5" name="details"></textarea>
+                                <textarea class="form-control tinymce" id="detailsInput" rows="5" name="details"></textarea>
                             </div>
                             <?php } ?>
 
@@ -361,3 +386,32 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var templateSelect = $('#ticket_template_select');
+    var subjectInput = document.getElementById('subjectInput');
+    var detailsInput = document.getElementById('detailsInput');
+
+    templateSelect.on('select2:select', function(e) {
+        var selectedOption = e.params.data.element;
+        var templateSubject = selectedOption.getAttribute('data-subject');
+        var templateDetails = selectedOption.getAttribute('data-details');
+
+        // Update Subject
+        subjectInput.value = templateSubject || '';
+
+        // Update Details
+        if (typeof tinymce !== 'undefined') {
+            var editor = tinymce.get('detailsInput');
+            if (editor) {
+                editor.setContent(templateDetails || '');
+            } else {
+                detailsInput.value = templateDetails || '';
+            }
+        } else {
+            detailsInput.value = templateDetails || '';
+        }
+    });
+});
+</script>
