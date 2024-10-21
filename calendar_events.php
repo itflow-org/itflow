@@ -8,7 +8,6 @@ if (isset($_GET['calendar_id'])) {
 }
 
 ?>
-<link href='plugins/fullcalendar/dist/index.global.js' rel='stylesheet' />
 
 <!-- So that when hovering over a created event it turns into a hand instead of cursor -->
 <style>
@@ -98,7 +97,7 @@ while ($row = mysqli_fetch_array($sql)) {
 <?php require_once "footer.php";
 ?>
 
-<script src='plugins/fullcalendar-6.1.10/dist/index.global.js'></script>
+<script src='plugins/fullcalendar/dist/index.global.js'></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
