@@ -9,7 +9,7 @@ if (isset($_GET['calendar_id'])) {
 
 ?>
 
-<link href='plugins/fullcalendar-6.1.10/dist/index.global.js' rel='stylesheet' />
+<link href='plugins/fullcalendar/dist/index.global.js' rel='stylesheet' />
 
 <!-- So that when hovering over a created event it turns into a hand instead of cursor -->
 <style>
