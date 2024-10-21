@@ -658,7 +658,6 @@ if (isset($_GET['contact_id'])) {
 <?php
 
 require_once "ticket_add_modal.php";
-require_once "ticket_add_from_template_modal.php";
 
 require_once "footer.php";
 
