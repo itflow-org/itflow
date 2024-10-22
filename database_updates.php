@@ -2247,10 +2247,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.5.5') {
-    //     // Insert queries here required to update to DB version 1.5.6
+    if (CURRENT_DATABASE_VERSION == '1.5.5') {
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_user_id` INT(11) NOT NULL DEFAULT 0 AFTER `contact_vendor_id`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.5.6') {
+    //     // Insert queries here required to update to DB version 1.5.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.7'");
     // }
 
 } else {
