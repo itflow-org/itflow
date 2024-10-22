@@ -2237,10 +2237,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.3'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.5.3') {
-    //     // Insert queries here required to update to DB version 1.5.4
+    if (CURRENT_DATABASE_VERSION == '1.5.3') {
+        mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_type` TINYINT(1) NOT NULL DEFAULT 1 AFTER `user_password`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.5.4') {
+    //     // Insert queries here required to update to DB version 1.5.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.5'");
     // }
 
 } else {
