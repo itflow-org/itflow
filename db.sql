@@ -1975,6 +1975,7 @@ CREATE TABLE `user_roles` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_role_name` varchar(200) NOT NULL,
   `user_role_description` varchar(200) DEFAULT NULL,
+  `user_role_type` tinyint(1) NOT NULL DEFAULT 1,
   `user_role_is_admin` tinyint(1) NOT NULL DEFAULT 0,
   `user_role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -2014,6 +2015,7 @@ CREATE TABLE `users` (
   `user_name` varchar(200) NOT NULL,
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
+  `user_type` tinyint(1) NOT NULL DEFAULT 1,
   `user_status` tinyint(1) NOT NULL DEFAULT 1,
   `user_token` varchar(200) DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
@@ -2110,4 +2112,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-18 18:21:54
+-- Dump completed on 2024-10-22 14:08:06
