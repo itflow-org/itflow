@@ -38,13 +38,36 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 $session_user_id = intval($_SESSION['user_id']);
 
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT * FROM users
-    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
-    LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
-    WHERE users.user_id = $session_user_id"
-);
+//REMOVE After everyone has updated
+$column_check_query = "
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'users' 
+      AND COLUMN_NAME = 'user_type'
+";
+
+$result = mysqli_query($mysqli, $column_check_query);
+$column_exists = mysqli_fetch_row($result)[0] > 0;
+
+if ($column_exists) {
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM users
+        LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+        LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
+        WHERE user_type = 1 
+        AND users.user_id = $session_user_id"
+    );
+} else {
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM users
+        LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+        LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
+        WHERE users.user_id = $session_user_id"
+    );
+}
+
 $row = mysqli_fetch_array($sql);
 $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
