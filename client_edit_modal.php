@@ -50,7 +50,7 @@
                                         value="<?php echo $client_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="lead" value="1" <?php if($client_is_leads == 1){ echo "checked"; } ?>>
+                                            <input type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
                                         </div>
                                     </div>
                                 </div>
