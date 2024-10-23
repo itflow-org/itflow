@@ -71,12 +71,19 @@ if (!empty($_GET['sort'])) {
 // Date Handling
 if (empty($_GET['canned_date'])) {
     //Prevents lots of undefined variable errors.
-    // $dtf and $dtt will be set by the below else to 0000-00-00 / 9999-00-00
+    // $dtf and $dtt will be set by the below else to 0000-00-00 / end of the month
     $_GET['canned_date'] = 'custom';
 }
 
 // Date Filter
-if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
+$row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
+if (intval($row['user_config_calendar_first_day']) == 1){
+	$user_config_calendar_first_day = "monday";
+} else {
+	$user_config_calendar_first_day = "sunday";
+}
+
+if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf']) || !empty($_GET['dtt'])) {
     $dtf = sanitizeInput($_GET['dtf']);
     $dtt = sanitizeInput($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
@@ -86,26 +93,26 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtf = date('Y-m-d', strtotime("yesterday"));
     $dtt = date('Y-m-d', strtotime("yesterday"));
 } elseif ($_GET['canned_date'] == "thisweek") {
-    $dtf = date('Y-m-d', strtotime("monday this week"));
-    $dtt = date('Y-m-d');
+    $dtf = date('Y-m-d', strtotime("last $user_config_calendar_first_day"));
+    $dtt = date('Y-m-d', strtotime("last $user_config_calendar_first_day + 6 days"));
 } elseif ($_GET['canned_date'] == "lastweek") {
-    $dtf = date('Y-m-d', strtotime("monday last week"));
-    $dtt = date('Y-m-d', strtotime("sunday last week"));
+    $dtf = date('Y-m-d', strtotime("last $user_config_calendar_first_day -7 days"));
+    $dtt = date('Y-m-d', strtotime("last $user_config_calendar_first_day - 1 days"));
 } elseif ($_GET['canned_date'] == "thismonth") {
     $dtf = date('Y-m-01');
-    $dtt = date('Y-m-d');
+    $dtt = date('Y-m-d', strtotime("last day of this month"));
 } elseif ($_GET['canned_date'] == "lastmonth") {
     $dtf = date('Y-m-d', strtotime("first day of last month"));
     $dtt = date('Y-m-d', strtotime("last day of last month"));
 } elseif ($_GET['canned_date'] == "thisyear") {
     $dtf = date('Y-01-01');
-    $dtt = date('Y-m-d');
+    $dtt = date('Y-m-d', strtotime("last day of december this year"));
 } elseif ($_GET['canned_date'] == "lastyear") {
     $dtf = date('Y-m-d', strtotime("first day of january last year"));
     $dtt = date('Y-m-d', strtotime("last day of december last year"));
 } else {
     $dtf = "NULL";
-    $dtt = date('Y-m-d');
+    $dtt = date('Y-m-d', strtotime("last day of this month"));
 }
 
 // Archived
