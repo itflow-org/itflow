@@ -405,11 +405,17 @@ if (isset($_POST['bulk_archive_contacts'])) {
             $contact_id = intval($contact_id);
 
             // Get Contact Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_primary FROM contacts WHERE contact_id = $contact_id");
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_primary, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_array($sql);
             $contact_name = sanitizeInput($row['contact_name']);
             $contact_primary = intval($row['contact_primary']);
             $client_id = intval($row['contact_client_id']);
+            $contact_user_id = intval($row['contact_user_id']);
+
+            // Archive Contact User
+            if ($contact_user_id > 0) {
+                mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
+            }
 
 
             if($contact_primary == 0) {
@@ -449,10 +455,16 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
             $contact_id = intval($contact_id);
 
             // Get Contact Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_array($sql);
             $contact_name = sanitizeInput($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
+            $contact_user_id = intval($row['contact_user_id']);
+
+            // unArchive Contact User
+            if ($contact_user_id > 0) {
+                mysqli_query($mysqli,"UPDATE users SET user_archived_at = NULL WHERE user_id = $contact_user_id");
+            }
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
@@ -489,10 +501,16 @@ if (isset($_POST['bulk_delete_contacts'])) {
             $contact_id = intval($contact_id);
 
             // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_array($sql);
             $contact_name = sanitizeInput($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
+            $contact_user_id = intval($row['contact_user_id']);
+
+            // Delete Contact User
+            if ($contact_user_id > 0) {
+                mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $contact_user_id");
+            }
 
             mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
 
@@ -620,13 +638,19 @@ if (isset($_GET['archive_contact'])) {
     $contact_id = intval($_GET['archive_contact']);
 
     // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql);
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
+    $contact_user_id = intval($row['contact_user_id']);
+
+    // Archive Contact User
+    if ($contact_user_id > 0) {
+        mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
+    }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_auth_method = '', contact_password_hash = '', contact_archived_at = NOW() WHERE contact_id = $contact_id");
-
+    
     //logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
 
@@ -644,10 +668,16 @@ if (isset($_GET['unarchive_contact'])) {
     $contact_id = intval($_GET['unarchive_contact']);
 
     // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql);
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
+    $contact_user_id = intval($row['contact_user_id']);
+
+    // unArchive Contact User
+    if ($contact_user_id > 0) {
+        mysqli_query($mysqli,"UPDATE users SET user_archived_at = NULL WHERE user_id = $contact_user_id");
+    }
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
@@ -670,6 +700,12 @@ if (isset($_GET['delete_contact'])) {
     $row = mysqli_fetch_array($sql);
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
+    $contact_user_id = intval($row['contact_user_id']);
+
+    // Delete User
+    if ($contact_user_id > 0) {
+        mysqli_query($mysqli,"DELETE FROM users WHERE user_id = $contact_user_id");
+    }
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
