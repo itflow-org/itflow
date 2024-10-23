@@ -69,8 +69,9 @@ if (isset($_POST['add_ticket'])) {
             while ($row = mysqli_fetch_array($sql_task_templates)) {
                 $task_order = intval($row['task_template_order']);
                 $task_name = sanitizeInput($row['task_template_name']);
+                $task_completion_estimate = intval($row['task_template_completion_estimate']);
 
-                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
+                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate, task_ticket_id = $ticket_id");
             }
         }
     }
