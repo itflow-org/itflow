@@ -894,6 +894,7 @@ if (isset($_GET['ticket_id'])) {
                             $task_name = nullable_htmlentities($row['task_name']);
                             $task_order = intval($row['task_order']);
                             //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
+                            $task_completion_estimate = intval($row['task_completion_estimate']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                             ?>
                             <tr>
@@ -906,7 +907,7 @@ if (isset($_GET['ticket_id'])) {
                                         </a>
                                     <?php } ?>
                                 </td>
-                                <td><?php echo $task_name; ?></td>
+                                <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
                                 <td>
                                     <div class="float-right">
                                         <?php if (empty($ticket_closed_at) && lookupUserPermission("module_support") >= 2) { ?>

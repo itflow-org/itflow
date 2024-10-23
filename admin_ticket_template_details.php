@@ -85,9 +85,9 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="task_name" placeholder="Task name">
+                                <input type="text" class="form-control" name="task_name" placeholder="Create a task" required>
                                 <div class="input-group-append">
-                                    <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check mr-2"></i>Create</button>
+                                    <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -98,18 +98,29 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                             $task_id = intval($row['task_template_id']);
                             $task_name = nullable_htmlentities($row['task_template_name']);
                             $task_order = intval($row['task_template_order']);
+                            $task_completion_estimate = intval($row['task_template_completion_estimate']);
                             $task_description = nullable_htmlentities($row['task_template_description']);
                             ?>
                             <tr>
                                 <td><i class="far fa-fw fa-square text-secondary"></i></td>
-                                <td><?php echo $task_name; ?></td>
+                                <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
                                 <td class="text-right">
-                                    <button type="button" class="btn btn-link btn-sm text-secondary" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
-                                        <i class="fa fa-fw fa-pencil-alt"></i>
-                                    </button>
-                                    <a href="post.php?delete_task_template=<?php echo $task_id; ?>" class="btn btn-link btn-sm text-danger">
-                                        <i class="fa fa-fw fa-trash-alt"></i>
-                                    </a>
+                                    <div class="float-right">
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-fw fa-ellipsis-v"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             <?php
