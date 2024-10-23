@@ -300,10 +300,10 @@ if (isset($_POST['edit_profile'])) {
     $new_password = $_POST['new_password'];
     if (!empty($new_password)) {
         $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-        mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $session_user_id");
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, log_user_id = $session_user_id");
     }
     header('Location: index.php');
 }
@@ -316,7 +316,7 @@ if (isset($_POST['edit_contact'])) {
     $contact_billing = intval($_POST['contact_billing']);
     $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
 
-    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$contact_auth_method' WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
+    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client $session_contact_name modified contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, log_entity_id = $contact_id");
@@ -334,7 +334,7 @@ if (isset($_POST['add_contact'])) {
     $contact_billing = intval($_POST['contact_billing']);
     $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
 
-    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$contact_auth_method', contact_client_id = $session_client_id");
+    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id");
 
     // Logging
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Client $session_contact_name created contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
