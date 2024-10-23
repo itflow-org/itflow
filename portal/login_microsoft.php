@@ -99,16 +99,17 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
             $upn = mysqli_real_escape_string($mysqli, $msgraph_response["userPrincipalName"]);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$upn' LIMIT 1");
+            $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$upn' AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
             $row = mysqli_fetch_array($sql);
-            if ($row['contact_auth_method'] == 'azure') {
+            if ($row['user_auth_method'] == 'azure') {
 
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $row['contact_client_id'];
+                $_SESSION['user_id'] = $row['user_id'];
                 $_SESSION['contact_id'] = $row['contact_id'];
                 $_SESSION['login_method'] = "azure";
 
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id], log_user_id = $row[user_id]");
 
                 header("Location: index.php");
 

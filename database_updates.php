@@ -2252,10 +2252,42 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.5.6') {
-    //     // Insert queries here required to update to DB version 1.5.7
+    if (CURRENT_DATABASE_VERSION == '1.5.6') {
+        mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_auth_method` VARCHAR(200) NOT NULL DEFAULT 'local' AFTER `user_password`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.7'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.5.7') {
+        // Create Users for contacts that have logins enabled and that are not archived
+        $contacts_sql = mysqli_query($mysqli, "SELECT * FROM `contacts` WHERE contact_archived_at IS NULL AND (contact_auth_method = 'local' OR contact_auth_method = 'azure')");
+        while($row = mysqli_fetch_array($contacts_sql)) {
+            $contact_id = intval($row['contact_id']);
+            $contact_name = mysqli_real_escape_string($mysqli, $row['contact_name']);
+            $contact_email = mysqli_real_escape_string($mysqli, $row['contact_email']);
+            $contact_password_hash = mysqli_real_escape_string($mysqli, $row['contact_password_hash']);
+            $contact_auth_method = mysqli_real_escape_string($mysqli, $row['contact_auth_method']);
+
+            mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$contact_password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
+
+            $user_id = mysqli_insert_id($mysqli);
+
+            mysqli_query($mysqli, "UPDATE `contacts` SET `contact_user_id` = $user_id WHERE contact_id = $contact_id");
+        }
+
+        // Drop Login Related fields from contacts tables as everyone who has a login has been moved over
+        mysqli_query($mysqli, "ALTER TABLE `contacts` DROP `contact_auth_method`, DROP `contact_password_hash`, DROP `contact_password_reset_token`, DROP `contact_token_expire`");
+
+        // Add Password Reset Tokens to users tables
+        mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_password_reset_token` VARCHAR(200) NULL DEFAULT NULL AFTER `user_token`");
+        mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_password_reset_token_expire` DATETIME NULL DEFAULT NULL AFTER `user_password_reset_token`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.5.8') {
+    //     // Insert queries here required to update to DB version 1.5.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.9'");
     // }
 
 } else {

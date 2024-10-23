@@ -65,17 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         $email = sanitizeInput($_POST['email']);
 
-        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_client_id FROM contacts WHERE contact_email = '$email' AND contact_auth_method = 'local' AND contact_archived_at IS NULL LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, user_email, contact_client_id, user_id FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_auth_method = 'local' AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
 
-        if ($row['contact_email'] == $email) {
+        if ($row['user_email'] == $email) {
             $id = intval($row['contact_id']);
+            $user_id = intval($row['user_id']);
             $name = sanitizeInput($row['contact_name']);
             $client = intval($row['contact_client_id']);
 
             $token = randomString(156);
             $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
-            mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = '$token' WHERE contact_id = $id LIMIT 1");
+            mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = '$token' WHERE user_id = $user_id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
             // Send reset email
@@ -118,18 +119,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $client = intval($_POST['client']);
 
         // Query user
-        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client AND contact_auth_method = 'local' AND contact_archived_at IS NULL LIMIT 1");
-        $contact_row = mysqli_fetch_array($sql);
-        $contact_id = intval($contact_row['contact_id']);
-        $name = sanitizeInput($contact_row['contact_name']);
+        $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_password_reset_token = '$token' AND contact_client_id = $client AND user_auth_method = 'local' AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1");
+        $user_row = mysqli_fetch_array($sql);
+        $contact_id = intval($user_row['contact_id']);
+        $user_id = intval($user_row['user_id']);
+        $name = sanitizeInput($user_row['contact_name']);
 
         // Ensure the token is correct
-        if (sha1($contact_row['contact_password_reset_token']) == sha1($token)) {
+        if (sha1($user_row['user_password_reset_token']) == sha1($token)) {
 
             // Set password, invalidate token, logging
             $password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-            mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password', contact_password_reset_token = NULL WHERE contact_id = $contact_id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
+            mysqli_query($mysqli, "UPDATE users SET user_password = '$password', user_password_reset_token = NULL WHERE user_id = $user_id LIMIT 1");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact User', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, log_user_id = $user_id");
 
             // Send confirmation email
             $subject = "Password reset confirmation for $company_name Client Portal";
@@ -217,11 +219,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     $email = sanitizeInput($_GET['email']);
                     $client = intval($_GET['client']);
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_password_reset_token = '$token' AND contact_client_id = $client LIMIT 1");
-                    $contact_row = mysqli_fetch_array($sql);
+                    $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_password_reset_token = '$token' AND contact_client_id = $client LIMIT 1");
+                    $user_row = mysqli_fetch_array($sql);
 
                     // Sanity check
-                    if (sha1($contact_row['contact_password_reset_token']) == sha1($token)) { ?>
+                    if (sha1($user_row['user_password_reset_token']) == sha1($token)) { ?>
 
                         <div class="input-group mb-3">
                             <input type="password" class="form-control" placeholder="New Password" name="new_password" required minlength="8">

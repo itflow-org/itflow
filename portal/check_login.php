@@ -31,6 +31,7 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 // Get info from session
 $session_client_id = intval($_SESSION['client_id']);
 $session_contact_id = intval($_SESSION['contact_id']);
+$session_contact_user_id = intval($_SESSION['contact_user_id']);
 
 
 // Get company info from database

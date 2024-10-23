@@ -35,8 +35,9 @@ if (isset($_GET['location']) & !empty($_GET['location'])) {
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*, GROUP_CONCAT(tags.tag_name) FROM contacts
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*, users.*, GROUP_CONCAT(tags.tag_name) FROM contacts
     LEFT JOIN locations ON location_id = contact_location_id
+    LEFT JOIN users ON user_id = contact_user_id
     LEFT JOIN contact_tags ON contact_tags.contact_id = contacts.contact_id
     LEFT JOIN tags ON tags.tag_id = contact_tags.tag_id
     WHERE contact_$archive_query
@@ -290,7 +291,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $location_name_display = $location_name;
                             }
-                            $auth_method = nullable_htmlentities($row['contact_auth_method']);
+                            $auth_method = nullable_htmlentities($row['user_auth_method']);
+                            $contact_user_id = intval($row['contact_user_id']);
 
                             // Related Assets Query
                             $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");

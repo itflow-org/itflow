@@ -10,15 +10,24 @@ if (isset($_POST['add_contact'])) {
 
     require_once 'post/user/contact_model.php';
 
-    // Set password
-    if (!empty($_POST['contact_password'])) {
-        $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
-    } else {
-        // Set a random password
-        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+    // Create User Account
+    $user_id = 0;
+    if ($name && $email && $auth_method) {
+
+        // Set password
+        if (!empty($_POST['contact_password'])) {
+            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        } else {
+            // Set a random password
+            $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+        }
+
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password_hash', user_auth_method = '$auth_method', user_type = 2");
+
+        $user_id = mysqli_insert_id($mysqli);
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_password_hash = '$password_hash', contact_department = '$department', contact_location_id = $location_id, contact_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $user_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -74,16 +83,17 @@ if (isset($_POST['edit_contact'])) {
     $contact_id = intval($_POST['contact_id']);
     $send_email = intval($_POST['send_email']);
 
-    // Get Exisiting Contact Photo
-    $sql = mysqli_query($mysqli,"SELECT contact_photo FROM contacts WHERE contact_id = $contact_id");
+    // Get Exisiting Contact Photo and contact_user_id
+    $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql);
     $existing_file_name = sanitizeInput($row['contact_photo']);
+    $contact_user_id = intval($row['contact_user_id']);
 
     if (!file_exists("uploads/clients/$client_id")) {
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_auth_method = '$auth_method', contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
 
     // Upload Photo
     if ($_FILES['file']['tmp_name']) {
@@ -119,55 +129,61 @@ if (isset($_POST['edit_contact'])) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
     }
 
-    // Set password
-    if (!empty($_POST['contact_password'])) {
-        $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
-        mysqli_query($mysqli, "UPDATE contacts SET contact_password_hash = '$password_hash' WHERE contact_id = $contact_id AND contact_client_id = $client_id");
-    }
+    if ($contact_user_id > 0) {
 
-    // Send contact a welcome e-mail, if specified
-    if ($send_email && !empty($auth_method) && !empty($config_smtp_host)) {
+        mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
 
-        // Sanitize Config vars from get_settings.php
-        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-        $config_mail_from_email = sanitizeInput($config_mail_from_email);
-        $config_mail_from_name = sanitizeInput($config_mail_from_name);
-        $config_base_url = sanitizeInput($config_base_url);
-
-        // Get Company Phone Number
-        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_array($sql);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-
-        // Authentication info (azure, reset password, or tech-provided temporary password)
-
-        if ($auth_method == 'azure') {
-            $password_info = "Login with your Microsoft (Azure AD) account.";
-        } elseif (empty($_POST['contact_password'])) {
-            $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
-        } else {
-            $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
+        // Set password
+        if ($_POST['contact_password']) {
+            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+            mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $contact_user_id");
         }
 
-        $subject = "Your new $company_name portal account";
-        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        // Send contact a welcome e-mail, if specified
+        if ($send_email && $auth_method && $config_smtp_host) {
 
-        // Queue Mail
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $email,
-                'recipient_name' => $name,
-                'subject' => $subject,
-                'body' => $body,
-            ]
-        ];
-        addToMailQueue($mysqli, $data);
-        // Get Email ID for reference
-        $email_id = mysqli_insert_id($mysqli);
+            // Sanitize Config vars from get_settings.php
+            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+            $config_mail_from_email = sanitizeInput($config_mail_from_email);
+            $config_mail_from_name = sanitizeInput($config_mail_from_name);
+            $config_base_url = sanitizeInput($config_base_url);
+
+            // Get Company Phone Number
+            $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+            $row = mysqli_fetch_array($sql);
+            $company_name = sanitizeInput($row['company_name']);
+            $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+            // Authentication info (azure, reset password, or tech-provided temporary password)
+
+            if ($auth_method == 'azure') {
+                $password_info = "Login with your Microsoft (Azure AD) account.";
+            } elseif (empty($_POST['contact_password'])) {
+                $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
+            } else {
+                $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
+            }
+
+            $subject = "Your new $company_name portal account";
+            $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+            // Queue Mail
+            $data = [
+                [
+                    'from' => $config_mail_from_email,
+                    'from_name' => $config_mail_from_name,
+                    'recipient' => $email,
+                    'recipient_name' => $name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ]
+            ];
+            addToMailQueue($mysqli, $data);
+            // Get Email ID for reference
+            $email_id = mysqli_insert_id($mysqli);
+
+        }
 
     }
 

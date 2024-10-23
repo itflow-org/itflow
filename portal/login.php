@@ -53,22 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         header("HTTP/1.1 401 Unauthorized");
         $_SESSION['login_message'] = 'Invalid e-mail';
     } else {
-        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_archived_at IS NULL LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
         $row = mysqli_fetch_array($sql);
-        if ($row['contact_auth_method'] == 'local') {
-            if (password_verify($password, $row['contact_password_hash'])) {
+        if ($row['user_auth_method'] == 'local') {
+            if (password_verify($password, $row['user_password'])) {
 
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = intval($row['contact_client_id']);
+                $_SESSION['user_id'] = intval($row['user_id']);
                 $_SESSION['contact_id'] = intval($row['contact_id']);
                 $_SESSION['login_method'] = "local";
 
                 header("Location: index.php");
 
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id]");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $row[contact_email] successfully logged in locally', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id], log_user_id = $row[user_id]");
 
             } else {
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email (incorrect password for contact ID $row[contact_id])', log_ip = '$ip', log_user_agent = '$user_agent'");
+                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Failed', log_description = 'Failed client portal login attempt using $email (incorrect password for contact ID $row[contact_id])', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id], log_user_id = $row[user_id]");
                 header("HTTP/1.1 401 Unauthorized");
                 $_SESSION['login_message'] = 'Incorrect username or password.';
             }

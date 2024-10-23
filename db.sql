@@ -406,10 +406,6 @@ CREATE TABLE `contacts` (
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_pin` varchar(255) DEFAULT NULL,
   `contact_notes` text DEFAULT NULL,
-  `contact_auth_method` varchar(200) DEFAULT NULL,
-  `contact_password_hash` varchar(200) DEFAULT NULL,
-  `contact_password_reset_token` varchar(200) DEFAULT NULL,
-  `contact_token_expire` datetime DEFAULT NULL,
   `contact_primary` tinyint(1) NOT NULL DEFAULT 0,
   `contact_important` tinyint(1) NOT NULL DEFAULT 0,
   `contact_billing` tinyint(1) DEFAULT 0,
@@ -2016,9 +2012,12 @@ CREATE TABLE `users` (
   `user_name` varchar(200) NOT NULL,
   `user_email` varchar(200) NOT NULL,
   `user_password` varchar(200) NOT NULL,
+  `user_auth_method` varchar(200) NOT NULL DEFAULT 'local',
   `user_type` tinyint(1) NOT NULL DEFAULT 1,
   `user_status` tinyint(1) NOT NULL DEFAULT 1,
   `user_token` varchar(200) DEFAULT NULL,
+  `user_password_reset_token` varchar(200) DEFAULT NULL,
+  `user_password_reset_token_expire` datetime DEFAULT NULL,
   `user_avatar` varchar(200) DEFAULT NULL,
   `user_specific_encryption_ciphertext` varchar(200) DEFAULT NULL,
   `user_php_session` varchar(255) DEFAULT NULL,
@@ -2113,4 +2112,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-22 16:33:28
+-- Dump completed on 2024-10-22 23:52:12

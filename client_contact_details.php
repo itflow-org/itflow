@@ -8,6 +8,7 @@ if (isset($_GET['contact_id'])) {
 
     $sql = mysqli_query($mysqli, "SELECT * FROM contacts 
         LEFT JOIN locations ON location_id = contact_location_id
+        LEFT JOIN users ON user_id = contact_user_id
         WHERE contact_id = $contact_id
     ");
 
@@ -30,7 +31,7 @@ if (isset($_GET['contact_id'])) {
     $contact_created_at = nullable_htmlentities($row['contact_created_at']);
     $contact_location_id = intval($row['contact_location_id']);
     $location_name = nullable_htmlentities($row['location_name']);
-    $auth_method = nullable_htmlentities($row['contact_auth_method']);
+    $auth_method = nullable_htmlentities($row['user_auth_method']);
     $contact_client_id = intval($row['contact_client_id']);
 
     // Check to see if Contact belongs to client
