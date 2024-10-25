@@ -159,7 +159,7 @@ if (isset($_GET['invoice_id'])) {
             <div class="row">
 
                 <div class="col-8">
-                    <?php if ($invoice_status == 'Draft' && $invoice_amount != 0) { ?>
+                    <?php if ($invoice_status == 'Draft') { ?>
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                         </button>
@@ -181,6 +181,13 @@ if (isset($_GET['invoice_id'])) {
                             <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                         </a>
                     <?php } ?>
+                    
+                    <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
+                        <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?php echo $invoice_id; ?>">
+                            Mark Non-Billable
+                        </a>
+                    <?php } ?>
+                
                 </div>
 
                 <div class="col-4">
@@ -238,7 +245,7 @@ if (isset($_GET['invoice_id'])) {
                 <div class="col-sm-10">
                     <div class="ribbon-wrapper">
                         <div class="ribbon bg-<?php echo $invoice_badge_color; ?>">
-                            <?php echo $invoice_status; ?>
+                            <?php echo "$invoice_status"; ?>
                         </div>
                     </div>
                     <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>

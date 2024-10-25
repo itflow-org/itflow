@@ -374,6 +374,22 @@ if (isset($_GET['mark_invoice_sent'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+if (isset($_GET['mark_invoice_non-billable'])) {
+
+    $invoice_id = intval($_GET['mark_invoice_non-billable']);
+
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Non-Billable' WHERE invoice_id = $invoice_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Non-Billable', history_description = 'INVOICE marked Non-Billable', history_invoice_id = $invoice_id");
+
+    //Logging
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Invoice', log_action = 'Update', log_description = '$invoice_id marked Non-Billable', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    $_SESSION['alert_message'] = "Invoice marked Non-Billable";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
 
 if (isset($_GET['cancel_invoice'])) {
 

@@ -438,6 +438,7 @@ if ($config_send_invoice_reminders == 1) {
             WHERE invoice_status != 'Draft'
             AND invoice_status != 'Paid'
             AND invoice_status != 'Cancelled'
+            AND invoice_status != 'Non-Billable'
             AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
             ORDER BY invoice_number DESC"
         );
