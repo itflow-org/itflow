@@ -118,7 +118,7 @@ mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_views = item_view_lim
 mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
 
 // Invalidate any password reset links
-mysqli_query($mysqli, "UPDATE contacts SET contact_password_reset_token = NULL WHERE contact_archived_at IS NULL");
+mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL WHERE user_archived_at IS NULL");
 
 // Clean-up old dismissed notifications
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");
