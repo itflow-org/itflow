@@ -4,6 +4,9 @@
  * Process emails and create/update tickets using PHP's native IMAP functions with UIDs
  */
 
+// Start the timer
+$script_start_time = microtime(true); // unComment when Debugging Execution time
+
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
@@ -499,6 +502,16 @@ imap_expunge($imap);
 
 // Close the IMAP connection
 imap_close($imap);
+
+// Calculate the total execution time -uncomment the code below to get exec time
+$script_end_time = microtime(true);
+$execution_time = $script_end_time - $script_start_time;
+$execution_time_formatted = number_format($execution_time, 2);
+
+// Insert a log entry into the logs table
+$processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocessed_count email(s)";
+mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Execution', log_description = 'Cron Email Parser executed in $execution_time_formatted seconds. $processed_info'");
+// END Calculate execution time
 
 // Remove the lock file
 unlink($lock_file_path);
