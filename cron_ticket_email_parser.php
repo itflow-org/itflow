@@ -105,7 +105,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id_esc");
     $id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject_esc) ($id)', log_client_id = $client_id_esc");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject) ($id)', log_client_id = $client_id_esc");
 
     mkdirMissing('uploads/tickets/');
     $att_dir = "uploads/tickets/" . $id . "/";
