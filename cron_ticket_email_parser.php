@@ -372,6 +372,10 @@ createMailboxFolder($imap, $mailbox, 'ITFlow');
 // Search for unseen messages and get UIDs
 $emails = imap_search($imap, 'UNSEEN', SE_UID);
 
+// Set Processed and Unprocessed Email count to 0
+$processed_count = 0;
+$unprocessed_count = 0;
+
 if ($emails !== false) {
     foreach ($emails as $email_uid) {
         $email_processed = false;
@@ -483,11 +487,15 @@ if ($emails !== false) {
             imap_setflag_full($imap, $email_uid, "\\Seen", ST_UID);
             // Move the message to the 'ITFlow' folder
             imap_mail_move($imap, $email_uid, 'ITFlow', CP_UID);
+            // Get a Processed Email Count
+            $processed_count++;
         } else {
             // Flag the message for manual review without marking it as read
             imap_setflag_full($imap, $email_uid, "\\Flagged", ST_UID);
             // Clear the Seen flag to ensure the email remains unread
             imap_clearflag_full($imap, $email_uid, "\\Seen", ST_UID);
+            // Get an Unprocessed email count
+            $unprocessed_count++;
         }
 
         // Delete the temporary message file
