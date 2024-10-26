@@ -64,7 +64,15 @@ file_put_contents($lock_file_path, "Locked");
 
 // PHP Mail Parser
 use PhpMimeMailParser\Parser;
-require_once "plugins/php-mime-mail-parser/autoload.php";
+require_once "plugins/php-mime-mail-parser/Contracts/CharsetManager.php";
+require_once "plugins/php-mime-mail-parser/Contracts/Middleware.php";
+require_once "plugins/php-mime-mail-parser/Attachment.php";
+require_once "plugins/php-mime-mail-parser/Charset.php";
+require_once "plugins/php-mime-mail-parser/Exception.php";
+require_once "plugins/php-mime-mail-parser/Middleware.php";
+require_once "plugins/php-mime-mail-parser/MiddlewareStack.php";
+require_once "plugins/php-mime-mail-parser/MimePart.php";
+require_once "plugins/php-mime-mail-parser/Parser.php";
 
 // Allowed attachment extensions
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
@@ -231,5 +239,4 @@ imap_close($imap);
 
 // Remove the lock file
 unlink($lock_file_path);
-
 ?>
