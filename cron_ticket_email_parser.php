@@ -478,17 +478,14 @@ if ($emails !== false) {
 
         if ($email_processed) {
             // Mark the message as seen
-            imap_setflag_full($imap, $email_number, "\\Seen");
+            imap_setflag_full($imap, $email_number, "\\Seen", ST_UID);
             // Move the message to the 'ITFlow' folder
             imap_mail_move($imap, $email_number, 'ITFlow');
         } else {
-            // Flag the message for manual review
-            
-            // 2024-10-26 - JQ - Sets the Flag but keeps the message unread
-            imap_store($imap, $email_number, "+FLAGS", "\\Flagged", ST_UID);
-            
-            // 2024-10-26 - JQ - Commented this function as it also marks the email as read.
-            //imap_setflag_full($imap, $email_number, "\\Flagged");
+             // Flag the message for manual review without marking it as read
+            imap_setflag_full($imap, $email_number, "\\Flagged", ST_UID);
+            // Clear the Seen flag to ensure the email remains unread
+            imap_clearflag_full($imap, $email_number, "\\Seen", ST_UID);
         }
 
         // Delete the temporary message file
