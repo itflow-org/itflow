@@ -184,10 +184,6 @@ if (isset($_GET['contact_id'])) {
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
                         <i class="fa fa-fw fa-plus mr-2"></i>New Ticket
                     </a>
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketFromTemplateModal">
-                        <i class="fa fa-fw fa-plus mr-2"></i>From Template
-                    </a>
-                    <div class="dropdown-divider"></div>
                 </div>
             </div>
 
