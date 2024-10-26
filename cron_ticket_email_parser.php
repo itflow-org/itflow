@@ -483,7 +483,12 @@ if ($emails !== false) {
             imap_mail_move($imap, $email_number, 'ITFlow');
         } else {
             // Flag the message for manual review
-            imap_setflag_full($imap, $email_number, "\\Flagged");
+            
+            // 2024-10-26 - JQ - Sets the Flag but keeps the message unread
+            imap_store($imap, $email_number, "+FLAGS", "\\Flagged", ST_UID);
+            
+            // 2024-10-26 - JQ - Commented this function as it also marks the email as read.
+            //imap_setflag_full($imap, $email_number, "\\Flagged");
         }
 
         // Delete the temporary message file
