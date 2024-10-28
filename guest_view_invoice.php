@@ -216,7 +216,7 @@ if ($balance > 0) {
                         </tr>
                         <tr class="text-bold">
                             <td>Due</td>
-                            <td class="text-right"><div class="<?php echo $invoice_color; ?>"><?php echo $invoice_due; ?></div></td>
+                            <td class="text-right"><?php echo $invoice_due; ?></td>
                         </tr>
                     </table>
                 </div>
