@@ -119,10 +119,6 @@ if (isset($_POST['login'])) {
         $user_role = intval($row['user_role']);
         $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
         $user_extension_key = $row['user_extension_key'];
-        if($force_mfa == 1 && $token == NULL) {
-            $config_start_page = "user_security.php";
-            $_SESSION['alert_message'] = "Please set up MFA.";
-        }
 
         $mfa_is_complete = false; // Default to requiring MFA
         $extended_log = ''; // Default value
@@ -202,8 +198,14 @@ if (isset($_POST['login'])) {
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;
 
+            // Forcing MFA
+            if ($force_mfa == 1 && $token == NULL) {
+                $secretMFA = key32gen();
+                $config_start_page = "post.php?enable_2fa_force&token=$secretMFA&csrf_token=$_SESSION[csrf_token]";
+            }
+
             // Setup encryption session key
-            if (isset($user_encryption_ciphertext) && $user_role > 1) {
+            if (isset($user_encryption_ciphertext)) {
                 $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
                 generateUserSessionKey($site_encryption_master_key);
 
