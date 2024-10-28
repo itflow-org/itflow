@@ -207,12 +207,23 @@ if (isset($_POST['verify'])) {
 
 }
 
-if (isset($_POST['enable_2fa'])){
+if (isset($_POST['enable_2fa']) || isset($_GET['enable_2fa_force'])) {
 
     // CSRF Check
-    validateCSRFToken($_POST['csrf_token']);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        validateCSRFToken($_POST['csrf_token']);
 
-    $token = sanitizeInput($_POST['token']);
+        $extended_log_description = "";
+        $token = sanitizeInput($_POST['token']);
+    } else {
+        // If this is a GET request then we forced MFA as part of login
+        validateCSRFToken($_GET['csrf_token']);
+
+        $extended_log_description = "(forced)";
+        $token = sanitizeInput($_GET['token']);
+    }
+
+
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
@@ -220,11 +231,11 @@ if (isset($_POST['enable_2fa'])){
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name enabled 2FA on their account', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'User Settings', log_action = 'Modify', log_description = '$session_name enabled 2FA on their account $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
 
-    $_SESSION['alert_message'] = "Two-factor authentication enabled";
+    $_SESSION['alert_message'] = "Two-factor authentication enabled $extended_log_description";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    header("Location: user_security.php");
 
 }
 
