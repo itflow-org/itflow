@@ -89,6 +89,53 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
 
         </div>
+
+        <!-- Breadcrumbs -->
+        <?php
+        // Build the full folder path
+        $folder_id = $get_folder_id;
+        $folder_path = array();
+
+        while ($folder_id > 0) {
+            $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
+            if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
+                $folder_name = nullable_htmlentities($row_folder['folder_name']);
+                $parent_folder = intval($row_folder['parent_folder']);
+
+                // Prepend the folder to the beginning of the array
+                array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
+
+                // Move up to the parent folder
+                $folder_id = $parent_folder;
+            } else {
+                // If the folder is not found, break the loop
+                break;
+            }
+        }
+        ?>
+
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="?client_id=<?php echo $client_id; ?>&folder_id=0">
+                        <i class="fas fa-fw fa-folder mr-2"></i>Root
+                    </a>
+                </li>
+                <?php
+                // Output breadcrumb items for each folder in the path
+                foreach ($folder_path as $folder) {
+                    ?>
+                    <li class="breadcrumb-item">
+                        <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder['folder_id']; ?>">
+                            <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder['folder_name']; ?>
+                        </a>
+                    </li>
+                    <?php
+                }
+                ?>
+            </ol>
+        </nav>
+        
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3 border-right mb-3">
@@ -98,73 +145,133 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <li class="nav-item">
                             <div class="row">
                                 <div class="col-10">
-                                    
                                     <?php
                                     // Get a count of documents that have no folder
                                     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = 0 AND document_client_id = $client_id AND document_archived_at IS NULL"));
                                     $num_documents = intval($row['num']);
                                     ?>
-                                    <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/ <?php if ($num_documents > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?></a>
+                                    <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">
+                                        / <?php if ($num_documents > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
+                                    </a>
                                 </div>
                                 <div class="col-2">
                                 </div>
                             </div>
                         </li>
                         <?php
-                        $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
-                        while ($row = mysqli_fetch_array($sql_folders)) {
-                            $folder_id = intval($row['folder_id']);
-                            $folder_name = nullable_htmlentities($row['folder_name']);
+                        // Function to check if a folder is an ancestor of the current folder
+                        function is_ancestor_folder($folder_id, $current_folder_id, $client_id) {
+                            global $mysqli;
 
-                            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id AND document_archived_at IS NULL"));
-                            $num_documents = intval($row['num']);
+                            // Base case: if current_folder_id is 0 or equal to folder_id
+                            if ($current_folder_id == 0) {
+                                return false;
+                            }
+                            if ($current_folder_id == $folder_id) {
+                                return true;
+                            }
 
-                            ?>
+                            // Get the parent folder of the current folder
+                            $result = mysqli_query($mysqli, "SELECT parent_folder FROM folders WHERE folder_id = $current_folder_id AND folder_client_id = $client_id");
+                            if ($row = mysqli_fetch_assoc($result)) {
+                                $parent_folder_id = intval($row['parent_folder']);
+                                // Recursive call to check the parent folder
+                                return is_ancestor_folder($folder_id, $parent_folder_id, $client_id);
+                            } else {
+                                // Folder not found
+                                return false;
+                            }
+                        }
 
-                            <li class="nav-item">
-                                <div class="row">
-                                    <div class="col-10">
-                                        <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>">
-                                            <?php
-                                            if ($get_folder_id == $folder_id) { ?>
-                                                <i class="fas fa-fw fa-folder-open"></i>
-                                            <?php } else { ?>
-                                                <i class="fas fa-fw fa-folder"></i>
-                                            <?php } ?>
+                        // Recursive function to display folders and subfolders
+                        function display_folders($parent_folder_id, $client_id, $indent = 0) {
+                            global $mysqli, $get_folder_id, $session_user_role;
 
-                                            <?php echo $folder_name; ?> <?php if ($num_documents > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>"; } ?>
+                            $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                            while ($row = mysqli_fetch_array($sql_folders)) {
+                                $folder_id = intval($row['folder_id']);
+                                $folder_name = nullable_htmlentities($row['folder_name']);
+
+                                // Get the number of documents in the folder
+                                $row2 = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_folder_id = $folder_id AND document_archived_at IS NULL"));
+                                $num_documents = intval($row2['num']);
+
+                                // Get the number of subfolders
+                                $subfolder_result = mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM folders WHERE parent_folder = $folder_id AND folder_client_id = $client_id");
+                                $subfolder_count = intval(mysqli_fetch_assoc($subfolder_result)['count']);
+
+                                echo '<li class="nav-item">';
+                                echo '<div class="row">';
+                                echo '<div class="col-10">';
+                                echo '<a class="nav-link ';
+                                if ($get_folder_id == $folder_id) { echo "active"; }
+                                echo '" href="?client_id=' . $client_id . '&folder_id=' . $folder_id . '">';
+
+                                // Indentation for subfolders
+                                echo str_repeat('&nbsp;', $indent * 4);
+
+                                // Determine if the folder is open
+                                if ($get_folder_id == $folder_id || is_ancestor_folder($folder_id, $get_folder_id, $client_id)) {
+                                    echo '<i class="fas fa-fw fa-folder-open"></i>';
+                                } else {
+                                    echo '<i class="fas fa-fw fa-folder"></i>';
+                                }
+
+                                echo ' ' . $folder_name;
+
+                                if ($num_documents > 0) {
+                                    echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_documents</span>";
+                                }
+
+                                echo '</a>';
+                                echo '</div>';
+                                echo '<div class="col-2">';
+                                ?>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                         </a>
-                                    </div>
-                                    <div class="col-2">
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm" type="button" data-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Rename
-                                                </a>
-                                                <?php if ($session_user_role == 3 && $num_documents == 0) { ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                    </a>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createSubFolderModal<?php echo $folder_id; ?>">
+                                            <i class="fas fa-fw fa-folder-plus mr-2"></i>Create Sub-Folder
+                                        </a>
+                                        <?php
+                                        // Only show delete option if user is admin, folder has no documents, and no subfolders
+                                        if ($session_user_role == 3 && $num_documents == 0 && $subfolder_count == 0) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
                                     </div>
                                 </div>
-                            </li>
+                                <?php
+                                echo '</div>';
+                                echo '</div>';
 
-                            <?php
-                            require "folder_rename_modal.php";
+                                // Include the rename and create subfolder modals
+                                require "folder_rename_modal.php";
+                                require "folder_sub_create_modal.php";
 
+                                if ($subfolder_count > 0) {
+                                    // Display subfolders
+                                    echo '<ul class="nav nav-pills flex-column bg-light">';
+                                    display_folders($folder_id, $client_id, $indent + 1);
+                                    echo '</ul>';
+                                }
 
+                                echo '</li>';
+                            }
                         }
+
+                        // Start displaying folders from the root (parent_folder = 0)
+                        display_folders(0, $client_id);
                         ?>
                     </ul>
-                    <?php require_once "folder_create_modal.php";
- ?>
+                    <?php require_once "folder_create_modal.php"; ?>
                 </div>
 
                 <div class="col-md-9">

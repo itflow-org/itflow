@@ -46,12 +46,45 @@ $document_client_visible = intval($row['document_client_visible']);
     <li class="breadcrumb-item">
         <a href="client_documents.php?client_id=<?php echo $client_id; ?>">Documents</a>
     </li>
-    <?php if ($document_folder_id > 0) { ?>
-    <li class="breadcrumb-item">
-        <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $document_folder_id; ?>"><i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder_name; ?></a>
+    <?php
+    // Build the full folder path
+    $folder_id = $document_folder_id;
+    $folder_path = array();
+
+    while ($folder_id > 0) {
+        $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
+        if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
+            $folder_name = nullable_htmlentities($row_folder['folder_name']);
+            $parent_folder = intval($row_folder['parent_folder']);
+
+            // Prepend the folder to the beginning of the array
+            array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
+
+            // Move up to the parent folder
+            $folder_id = $parent_folder;
+        } else {
+            // If the folder is not found, break the loop
+            break;
+        }
+    }
+
+    // Output breadcrumb items for each folder in the path
+    foreach ($folder_path as $folder) {
+        ?>
+        <li class="breadcrumb-item">
+            <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder['folder_id']; ?>">
+                <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder['folder_name']; ?>
+            </a>
+        </li>
+        <?php
+    }
+    ?>
+    <li class="breadcrumb-item active">
+        <i class="fas fa-file"></i> <?php echo $document_name; ?> 
+        <?php if (!empty($document_archived_at)) { 
+            echo "<span class='text-danger ml-2'>(ARCHIVED on $document_archived_at)</span>"; 
+        } ?>
     </li>
-    <?php } ?>
-    <li class="breadcrumb-item active"><i class="fas fa-file"></i> <?php echo $document_name; ?> <?php if(!empty($document_archived_at)){ echo "<span class='text-danger ml-2'>(ARCHIVED on $document_archived_at)</span>"; } ?></li>
 </ol>
 
 <div class="row">

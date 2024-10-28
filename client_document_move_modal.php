@@ -21,14 +21,33 @@
                             <select class="form-control select2" name="folder">
                                 <option value="0">/</option>
                                 <?php
-                                $sql_folders_select = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
-                                while ($row = mysqli_fetch_array($sql_folders_select)) {
-                                    $folder_id_select = intval($row['folder_id']);
-                                    $folder_name_select = nullable_htmlentities($row['folder_name']);
-                                    ?>
-                                    <option <?php if ($folder_id_select == $document_folder_id) echo "selected"; ?> value="<?php echo $folder_id_select ?>"><?php echo $folder_name_select; ?></option>
-                                    <?php
+                                // Recursive function to display folder options
+                                function display_folder_move_options($parent_folder_id, $client_id, $indent = 0) {
+                                    global $mysqli, $document_folder_id;
+
+                                    $sql_folders_select = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_folders_select)) {
+                                        $folder_id_select = intval($row['folder_id']);
+                                        $folder_name_select = nullable_htmlentities($row['folder_name']);
+
+                                        // Indentation for subfolders
+                                        $indentation = str_repeat('&nbsp;', $indent * 4);
+
+                                        // Check if this folder is selected
+                                        $selected = '';
+                                        if ($folder_id_select == $document_folder_id) {
+                                            $selected = 'selected';
+                                        }
+
+                                        echo "<option value=\"$folder_id_select\" $selected>$indentation$folder_name_select</option>";
+
+                                        // Recursively display subfolders
+                                        display_folder_move_options($folder_id_select, $client_id, $indent + 1);
+                                    }
                                 }
+
+                                // Start displaying folder options from the root (parent_folder = 0)
+                                display_folder_move_options(0, $client_id);
                                 ?>
                             </select>
                         </div>
