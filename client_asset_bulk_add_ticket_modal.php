@@ -136,7 +136,7 @@
                 </div>
                 <?php } ?>
 
-            </div>         
+            </div>
 
             <div class="modal-footer bg-white">
                 <button type="submit" name="bulk_add_asset_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>

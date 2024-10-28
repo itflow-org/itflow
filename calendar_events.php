@@ -29,7 +29,7 @@ if (isset($_GET['calendar_id'])) {
             <div class="card-body">
                 
                 <form>
-                    <?php 
+                    <?php
                     $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
                     while ($row = mysqli_fetch_array($sql)) {
                         $calendar_id = intval($row['calendar_id']);
@@ -40,9 +40,9 @@ if (isset($_GET['calendar_id'])) {
                         <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
                         <button type="button" class="btn btn-link btn-sm float-right" data-toggle="modal" data-target="#editCalendarModal<?php echo $calendar_id; ?>"><i class="fas fa-fw fa-pencil-alt text-secondary"></i></button>
                     </div>
-                    <?php 
-                    require "calendar_edit_modal.php";
-                    } 
+                    <?php
+                        require "calendar_edit_modal.php";
+                    }
                     ?>
                 </form>
             </div>
