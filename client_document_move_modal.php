@@ -21,33 +21,65 @@
                             <select class="form-control select2" name="folder">
                                 <option value="0">/</option>
                                 <?php
-                                // Recursive function to display folder options
-                                function display_folder_move_options($parent_folder_id, $client_id, $indent = 0) {
-                                    global $mysqli, $document_folder_id;
+                                // Fetch all folders for the client
+                                $sql_all_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                                $folders = array();
 
-                                    $sql_folders_select = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
-                                    while ($row = mysqli_fetch_array($sql_folders_select)) {
-                                        $folder_id_select = intval($row['folder_id']);
-                                        $folder_name_select = nullable_htmlentities($row['folder_name']);
+                                // Build an associative array of folders indexed by folder_id
+                                while ($row = mysqli_fetch_assoc($sql_all_folders)) {
+                                    $folders[$row['folder_id']] = array(
+                                        'folder_id' => intval($row['folder_id']),
+                                        'folder_name' => nullable_htmlentities($row['folder_name']),
+                                        'parent_folder' => intval($row['parent_folder']),
+                                        'children' => array()
+                                    );
+                                }
 
-                                        // Indentation for subfolders
-                                        $indentation = str_repeat('&nbsp;', $indent * 4);
+                                // Build the folder hierarchy
+                                foreach ($folders as $id => &$folder) {
+                                    if ($folder['parent_folder'] != 0 && isset($folders[$folder['parent_folder']])) {
+                                        $folders[$folder['parent_folder']]['children'][] = &$folder;
+                                    }
+                                }
+                                unset($folder); // Break the reference
 
-                                        // Check if this folder is selected
-                                        $selected = '';
-                                        if ($folder_id_select == $document_folder_id) {
-                                            $selected = 'selected';
-                                        }
-
-                                        echo "<option value=\"$folder_id_select\" $selected>$indentation$folder_name_select</option>";
-
-                                        // Recursively display subfolders
-                                        display_folder_move_options($folder_id_select, $client_id, $indent + 1);
+                                // Prepare a list of root folders
+                                $root_folders = array();
+                                foreach ($folders as $id => $folder) {
+                                    if ($folder['parent_folder'] == 0) {
+                                        $root_folders[] = $folder;
                                     }
                                 }
 
-                                // Start displaying folder options from the root (parent_folder = 0)
-                                display_folder_move_options(0, $client_id);
+                                // Display the folder options iteratively
+                                $stack = array();
+                                foreach (array_reverse($root_folders) as $folder) {
+                                    $stack[] = array('folder' => $folder, 'level' => 0);
+                                }
+
+                                while (!empty($stack)) {
+                                    $node = array_pop($stack);
+                                    $folder = $node['folder'];
+                                    $level = $node['level'];
+
+                                    // Indentation for subfolders
+                                    $indentation = str_repeat('&nbsp;', $level * 4);
+
+                                    // Check if this folder is selected
+                                    $selected = '';
+                                    if ($folder['folder_id'] == $document_folder_id) {
+                                        $selected = 'selected';
+                                    }
+
+                                    echo "<option value=\"{$folder['folder_id']}\" $selected>$indentation{$folder['folder_name']}</option>";
+
+                                    // Add children to the stack
+                                    if (!empty($folder['children'])) {
+                                        foreach (array_reverse($folder['children']) as $child_folder) {
+                                            $stack[] = array('folder' => $child_folder, 'level' => $level + 1);
+                                        }
+                                    }
+                                }
                                 ?>
                             </select>
                         </div>
