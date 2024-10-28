@@ -55,7 +55,7 @@
                             </div>
                             <input type="text" class="form-control" name="description" value="<?php echo $ticket_template_description; ?>" placeholder="Short description">
                         </div>
-                    </div> 
+                    </div>
             
                 </div>
                 <div class="modal-footer bg-white">
