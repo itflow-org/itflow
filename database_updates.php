@@ -2315,11 +2315,25 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.0'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '1.6.0') {
+        
+        mysqli_query($mysqli, "CREATE TABLE `asset_history` (
+            `asset_history_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `asset_history_status` VARCHAR(200) NOT NULL,
+            `asset_history_description` VARCHAR(255) NOT NULL,
+            `asset_history_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `asset_history_asset_id` INT(11) NOT NULL,
+            PRIMARY KEY (`asset_history_id`)
+        )");
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.0') {
-    //     // Insert queries here required to update to DB version 1.6.1
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.1'");
+    }
+
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.1') {
+    //     // Insert queries here required to update to DB version 1.6.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.2'");
     // }
 
 } else {

@@ -101,6 +101,23 @@ CREATE TABLE `asset_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_history`
+--
+
+DROP TABLE IF EXISTS `asset_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_history` (
+  `asset_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `asset_history_status` varchar(200) NOT NULL,
+  `asset_history_description` varchar(255) NOT NULL,
+  `asset_history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `asset_history_asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`asset_history_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_interfaces`
 --
 
@@ -2115,4 +2132,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-29 15:40:54
+-- Dump completed on 2024-10-29 18:15:37
