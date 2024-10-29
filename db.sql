@@ -826,11 +826,11 @@ DROP TABLE IF EXISTS `logins`;
 CREATE TABLE `logins` (
   `login_id` int(11) NOT NULL AUTO_INCREMENT,
   `login_name` varchar(200) NOT NULL,
-  `login_description` varchar(255) DEFAULT NULL,
+  `login_description` varchar(500) DEFAULT NULL,
   `login_category` varchar(200) DEFAULT NULL,
   `login_uri` varchar(500) DEFAULT NULL,
   `login_uri_2` varchar(500) DEFAULT NULL,
-  `login_username` varchar(200) DEFAULT NULL,
+  `login_username` varchar(500) DEFAULT NULL,
   `login_password` varbinary(200) DEFAULT NULL,
   `login_otp_secret` varchar(200) DEFAULT NULL,
   `login_note` text DEFAULT NULL,
@@ -840,6 +840,7 @@ CREATE TABLE `logins` (
   `login_archived_at` datetime DEFAULT NULL,
   `login_accessed_at` datetime DEFAULT NULL,
   `login_password_changed_at` datetime DEFAULT current_timestamp(),
+  `login_folder_id` int(11) NOT NULL DEFAULT 0,
   `login_contact_id` int(11) NOT NULL DEFAULT 0,
   `login_vendor_id` int(11) NOT NULL DEFAULT 0,
   `login_asset_id` int(11) NOT NULL DEFAULT 0,
@@ -860,7 +861,7 @@ CREATE TABLE `logs` (
   `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `log_type` varchar(200) NOT NULL,
   `log_action` varchar(255) NOT NULL,
-  `log_description` varchar(255) NOT NULL,
+  `log_description` varchar(1000) NOT NULL,
   `log_ip` varchar(200) DEFAULT NULL,
   `log_user_agent` varchar(250) DEFAULT NULL,
   `log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -925,7 +926,7 @@ DROP TABLE IF EXISTS `notifications`;
 CREATE TABLE `notifications` (
   `notification_id` int(11) NOT NULL AUTO_INCREMENT,
   `notification_type` varchar(200) NOT NULL,
-  `notification` varchar(255) NOT NULL,
+  `notification` varchar(1000) NOT NULL,
   `notification_action` varchar(250) DEFAULT NULL,
   `notification_timestamp` datetime NOT NULL DEFAULT current_timestamp(),
   `notification_dismissed_at` datetime DEFAULT NULL,
@@ -1300,7 +1301,7 @@ DROP TABLE IF EXISTS `scheduled_tickets`;
 CREATE TABLE `scheduled_tickets` (
   `scheduled_ticket_id` int(11) NOT NULL AUTO_INCREMENT,
   `scheduled_ticket_category` varchar(200) DEFAULT NULL,
-  `scheduled_ticket_subject` varchar(200) NOT NULL,
+  `scheduled_ticket_subject` varchar(500) NOT NULL,
   `scheduled_ticket_details` longtext NOT NULL,
   `scheduled_ticket_priority` varchar(200) DEFAULT NULL,
   `scheduled_ticket_frequency` varchar(10) NOT NULL,
@@ -1806,7 +1807,7 @@ CREATE TABLE `ticket_templates` (
   `ticket_template_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_template_name` varchar(200) NOT NULL,
   `ticket_template_description` text DEFAULT NULL,
-  `ticket_template_subject` varchar(200) DEFAULT NULL,
+  `ticket_template_subject` varchar(500) DEFAULT NULL,
   `ticket_template_details` longtext DEFAULT NULL,
   `ticket_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1860,10 +1861,10 @@ CREATE TABLE `tickets` (
   `ticket_number` int(11) NOT NULL,
   `ticket_source` varchar(255) DEFAULT NULL COMMENT 'Where the Ticket Came from\r\nEmail, Client Portal, In-App, Project Template',
   `ticket_category` varchar(200) DEFAULT NULL,
-  `ticket_subject` varchar(200) NOT NULL,
+  `ticket_subject` varchar(500) NOT NULL,
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
-  `ticket_status` varchar(200) NOT NULL,
+  `ticket_status` int(11) NOT NULL,
   `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_schedule` datetime DEFAULT NULL,
   `ticket_onsite` tinyint(1) NOT NULL DEFAULT 0,
@@ -2114,4 +2115,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-23 13:27:47
+-- Dump completed on 2024-10-29 15:40:54

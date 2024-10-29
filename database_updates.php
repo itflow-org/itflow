@@ -2292,10 +2292,34 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.5.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.5.9') {
-    //     // Insert queries here required to update to DB version 1.6.0
+    if (CURRENT_DATABASE_VERSION == '1.5.9') {
+        mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_folder_id` INT(11) NOT NULL DEFAULT 0 AFTER `login_password_changed_at`");
+
+        mysqli_query($mysqli, "ALTER TABLE `logins` MODIFY `login_username` VARCHAR(500) DEFAULT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `logins` MODIFY `login_description` VARCHAR(500) DEFAULT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `tickets` MODIFY `ticket_subject` VARCHAR(500) NOT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `tickets` MODIFY `ticket_status` INT(11) NOT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `ticket_templates` MODIFY `ticket_template_subject` VARCHAR(500) DEFAULT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `scheduled_tickets` MODIFY `scheduled_ticket_subject` VARCHAR(500) NOT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `logs` MODIFY `log_description` VARCHAR(1000) NOT NULL");
+
+        mysqli_query($mysqli, "ALTER TABLE `notifications` MODIFY `notification` VARCHAR(1000) NOT NULL");
+
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.0'");
+    }
+
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.0') {
+    //     // Insert queries here required to update to DB version 1.6.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.1'");
     // }
 
 } else {
