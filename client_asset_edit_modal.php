@@ -397,7 +397,7 @@
 
                         <div class="tab-pane fade" id="pills-history<?php echo $asset_id; ?>">
 
-                            <?php $sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history WHERE asset_history_asset_id = $asset_id");  ?>
+                            <?php $sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history WHERE asset_history_asset_id = $asset_id ORDER BY asset_history_id DESC LIMIT 10");  ?>
 
                             <div class="form-group">
                                 <label>Asset History</label>
@@ -408,7 +408,7 @@
                                     while ($row = mysqli_fetch_array($sql_asset_history)) {
                                         $asset_history_description = nullable_htmlentities(($row['asset_history_description']));
                                         $asset_history_created_at = nullable_htmlentities(($row['asset_history_created_at']));
-                                        echo "<li>$asset_hisory_created_at - $asset_history_description</li>";
+                                        echo "<li><small class='text-secondary'>$asset_history_created_at</small><br>$asset_history_description</li>";
                                     }
                                     ?>
                                 </ul>

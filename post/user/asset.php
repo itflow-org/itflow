@@ -55,6 +55,9 @@ if (isset($_POST['add_asset'])) {
 
     }
 
+    // Add to History
+    mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name created $name', asset_history_asset_id = $asset_id");
+
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Create', log_description = '$session_name created asset $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
 
@@ -234,7 +237,10 @@ if (isset($_GET['delete_asset'])) {
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
     // Delete Interfaces
-    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id"); 
+    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
+
+    // Delete History
+    mysqli_query($mysqli,"DELETE FROM asset_history WHERE asset_history_asset_id = $asset_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Delete', log_description = '$session_name deleted asset $asset_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $asset_id");
