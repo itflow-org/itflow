@@ -348,17 +348,29 @@ function createMailboxFolder($imap, $mailbox, $folderName) {
 // Initialize IMAP connection
 $validate_cert = true; // or false based on your configuration
 
-$imap_encryption = $config_imap_encryption; // e.g., 'ssl' or 'tls'
+$imap_encryption = $config_imap_encryption; // e.g., 'ssl', 'tls', or '' (empty string) for none
 
-$mailbox = '{' . $config_imap_host . ':' . $config_imap_port . '/' . $imap_encryption;
+// Start building the mailbox string
+$mailbox = '{' . $config_imap_host . ':' . $config_imap_port;
+
+// Only add the encryption part if $imap_encryption is not empty
+if (!empty($imap_encryption)) {
+    $mailbox .= '/' . $imap_encryption;
+}
+
+// Add the certificate validation part
 if ($validate_cert) {
     $mailbox .= '/validate-cert';
 } else {
     $mailbox .= '/novalidate-cert';
 }
+
 $mailbox .= '}';
+
+// Append 'INBOX' to specify the mailbox folder
 $inbox_mailbox = $mailbox . 'INBOX';
 
+// Open the IMAP connection
 $imap = imap_open($inbox_mailbox, $config_imap_username, $config_imap_password);
 
 if ($imap === false) {
