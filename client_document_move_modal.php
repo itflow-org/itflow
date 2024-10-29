@@ -22,7 +22,7 @@
                                 <option value="0">/</option>
                                 <?php
                                 // Fetch all folders for the client
-                                $sql_all_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                                $sql_all_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_location = 0 AND folder_client_id = $client_id ORDER BY folder_name ASC");
                                 $folders = array();
 
                                 // Build an associative array of folders indexed by folder_id

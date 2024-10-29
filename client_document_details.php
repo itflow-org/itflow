@@ -70,10 +70,12 @@ $document_client_visible = intval($row['document_client_visible']);
 
     // Output breadcrumb items for each folder in the path
     foreach ($folder_path as $folder) {
+        $bread_crumb_folder_id = $folder['folder_id']; // Sanitized before put in array
+        $bread_crumb_folder_name = $folder['folder_name']; // Sanitized before put in array
         ?>
         <li class="breadcrumb-item">
-            <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder['folder_id']; ?>">
-                <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder['folder_name']; ?>
+            <a href="client_documents.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $bread_crumb_folder_id; ?>">
+                <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $bread_crumb_folder_name; ?>
             </a>
         </li>
         <?php

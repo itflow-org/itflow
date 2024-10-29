@@ -124,10 +124,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php
                 // Output breadcrumb items for each folder in the path
                 foreach ($folder_path as $folder) {
+                    $bread_crumb_folder_id = $folder['folder_id']; // Already Sanitized before it was pushed into array
+                    $bread_crumb_folder_name = $folder['folder_name']; // Already Sanitized before it was pushed into array
+
                     ?>
                     <li class="breadcrumb-item">
-                        <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder['folder_id']; ?>">
-                            <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $folder['folder_name']; ?>
+                        <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $bread_crumb_folder_id; ?>">
+                            <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $bread_crumb_folder_name; ?>
                         </a>
                     </li>
                     <?php
@@ -187,7 +190,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         function display_folders($parent_folder_id, $client_id, $indent = 0) {
                             global $mysqli, $get_folder_id, $session_user_role;
 
-                            $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                            $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 0 AND folder_client_id = $client_id ORDER BY folder_name ASC");
                             while ($row = mysqli_fetch_array($sql_folders)) {
                                 $folder_id = intval($row['folder_id']);
                                 $folder_name = nullable_htmlentities($row['folder_name']);
@@ -235,9 +238,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createSubFolderModal<?php echo $folder_id; ?>">
-                                            <i class="fas fa-fw fa-folder-plus mr-2"></i>Create Sub-Folder
-                                        </a>
                                         <?php
                                         // Only show delete option if user is admin, folder has no documents, and no subfolders
                                         if ($session_user_role == 3 && $num_documents == 0 && $subfolder_count == 0) { ?>
@@ -254,7 +254,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 // Include the rename and create subfolder modals
                                 require "folder_rename_modal.php";
-                                require "folder_sub_create_modal.php";
 
                                 if ($subfolder_count > 0) {
                                     // Display subfolders

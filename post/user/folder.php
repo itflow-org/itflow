@@ -11,27 +11,6 @@ if (isset($_POST['create_folder'])) {
     $client_id = intval($_POST['client_id']);
     $folder_location = intval($_POST['folder_location']);
     $folder_name = sanitizeInput($_POST['folder_name']);
-
-    // Document folder add query
-    $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', folder_location = $folder_location, folder_client_id = $client_id");
-    $folder_id = mysqli_insert_id($mysqli);
-
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = '$session_name created folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id");
-
-    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if (isset($_POST['create_sub_folder'])) {
-
-    validateTechRole();
-
-    $client_id = intval($_POST['client_id']);
-    $folder_location = intval($_POST['folder_location']);
-    $folder_name = sanitizeInput($_POST['folder_name']);
     $parent_folder = intval($_POST['parent_folder']);
 
     // Document folder add query
@@ -39,7 +18,7 @@ if (isset($_POST['create_sub_folder'])) {
     $folder_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = '$session_name created sub folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id");
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = '$session_name created folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id");
 
     $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
 

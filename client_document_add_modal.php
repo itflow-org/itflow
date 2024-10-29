@@ -43,7 +43,7 @@
                                 function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
                                     global $mysqli;
 
-                                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 0 AND folder_client_id = $client_id ORDER BY folder_name ASC");
                                     while ($row = mysqli_fetch_array($sql_folders)) {
                                         $folder_id = intval($row['folder_id']);
                                         $folder_name = nullable_htmlentities($row['folder_name']);

@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-folder-plus mr-2"></i>New Folder</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-folder-plus mr-2"></i>Creating folder in <strong><?php if($get_folder_id > 0) { echo $folder['folder_name']; } else { echo "/"; } ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -10,6 +10,7 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <input type="hidden" name="folder_location" value="<?php echo $folder_location; ?>">
+                <input type="hidden" name="parent_folder" value="<?php echo $get_folder_id; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
