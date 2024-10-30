@@ -54,7 +54,7 @@ $sql = mysqli_query(
     WHERE l.login_client_id = $client_id
     $tag_query
     AND l.login_$archive_query
-    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%')
+    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%')
     $location_query
     ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
@@ -257,7 +257,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 }
 
                                 $login_tag_id_array[] = $login_tag_id;
-                                $login_tag_name_display_array[] = "<a href='client_logins.php?client_id=$client_id&q=$login_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
+                                $login_tag_name_display_array[] = "<a href='client_logins.php?client_id=$client_id&tags[]=$login_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
                             }
                             $login_tags_display = implode('', $login_tag_name_display_array);
 

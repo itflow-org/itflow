@@ -225,7 +225,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $location_tag_id_array[] = $location_tag_id;
-                            $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&q=$location_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
+                            $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&tags[]=$location_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
                         }
                         $location_tags_display = implode('', $location_tag_name_display_array);
 
