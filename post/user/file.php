@@ -31,6 +31,10 @@ if (isset($_POST['upload_files'])) {
             $extarr = explode('.', $_FILES['file']['name'][$i]);
             $file_extension = sanitizeInput(strtolower(end($extarr)));
 
+            // Extract the file mime type and size
+            $file_mime_type = sanitizeInput($single_file['type']);
+            $file_size = intval($single_file['size']);
+
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $file_reference_name;
@@ -40,7 +44,7 @@ if (isset($_POST['upload_files'])) {
             // Extract .ext from reference file name to be used to store SHA256 hash
             $file_hash = strstr($file_reference_name, '.', true) ?: $file_reference_name;
 
-            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_description = '$description', file_ext = '$file_extension', file_hash = '$file_hash', file_folder_id = $folder_id, file_client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_description = '$description', file_ext = '$file_extension', file_hash = '$file_hash', file_mime_type = '$file_mime_type', file_size = $file_size, file_created_by = $session_user_id, file_folder_id = $folder_id, file_client_id = $client_id");
 
             //Logging
             $file_id = intval(mysqli_insert_id($mysqli));

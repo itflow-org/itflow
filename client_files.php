@@ -43,8 +43,8 @@ if ($get_folder_id == 0 && isset($_GET["q"])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT SQL_CALC_FOUND_ROWS * FROM files
+        LEFT JOIN users ON file_created_by = user_id
         WHERE file_client_id = $client_id
-        
         AND file_archived_at IS NULL
         AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%' OR file_description LIKE '%$q%')
         $query_images
@@ -54,6 +54,7 @@ if ($get_folder_id == 0 && isset($_GET["q"])) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT SQL_CALC_FOUND_ROWS * FROM files
+        LEFT JOIN users ON file_created_by = user_id
         WHERE file_client_id = $client_id
         AND file_folder_id = $folder_id
         AND file_archived_at IS NULL
@@ -314,6 +315,10 @@ while ($folder_id > 0) {
                         $file_name = nullable_htmlentities($row['file_name']);
                         $file_reference_name = nullable_htmlentities($row['file_reference_name']);
                         $file_ext = nullable_htmlentities($row['file_ext']);
+                        $file_size = intval($row['file_size']);
+                        $file_size_KB = number_format($file_size / 1024);
+                        $file_mime_type = nullable_htmlentities($row['file_mime_type']);
+                        $file_uploaded_by = nullable_htmlentities($row['user_name']);
 
                         ?>
 
@@ -364,6 +369,16 @@ while ($folder_id > 0) {
                                     </a>
                                 </th>
                                 <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_mime_type&order=<?php echo $disp; ?>">
+                                        Type <?php if ($sort == 'file_mime_type') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_size&order=<?php echo $disp; ?>">
+                                        Size <?php if ($sort == 'file_size') { echo $order_icon; } ?>
+                                    </a>
+                                </th>
+                                <th>
                                     <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=file_created_at&order=<?php echo $disp; ?>">
                                         Uploaded <?php if ($sort == 'file_created_at') { echo $order_icon; } ?>
                                     </a>
@@ -405,6 +420,10 @@ while ($folder_id > 0) {
                                 } else {
                                     $file_icon = "file";
                                 }
+                                $file_size = intval($row['file_size']);
+                                $file_size_KB = number_format($file_size / 1024);
+                                $file_mime_type = nullable_htmlentities($row['file_mime_type']);
+                                $file_uploaded_by = nullable_htmlentities($row['user_name']);
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
                                 $file_folder_id = intval($row['file_folder_id']);
                                 
@@ -456,7 +475,12 @@ while ($folder_id > 0) {
                                             </div>
                                         </a>
                                     </td>
-                                    <td><?php echo $file_created_at; ?></td>
+                                    <td><?php echo $file_mime_type; ?></td>
+                                    <td><?php echo $file_size_KB; ?> KB</td>
+                                    <td>
+                                        <?php echo $file_created_at; ?>
+                                        <div class="text-secondary mt-1"><?php echo $file_uploaded_by; ?></div>        
+                                    </td>
                                     <td>
                                         <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
                                             <div class="media" title="Expires <?php echo $item_expire_at_human; ?>">

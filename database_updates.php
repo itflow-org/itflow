@@ -2353,11 +2353,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.2'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '1.6.2') {
+    
+        mysqli_query($mysqli, "ALTER TABLE `files` MODIFY `file_description` VARCHAR(250) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `files` MODIFY `file_ext` VARCHAR(10) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_created_by` INT(11) NOT NULL DEFAULT 0 AFTER `file_accessed_at`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_size` BIGINT UNSIGNED NOT NULL DEFAULT 0 AFTER `file_ext`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_mime_type` VARCHAR(100) DEFAULT NULL AFTER `file_hash`");
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.2') {
-    //     // Insert queries here required to update to DB version 1.6.3
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.3'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.3') {
+    //     // Insert queries here required to update to DB version 1.6.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.4'");
     // }
 
 } else {
