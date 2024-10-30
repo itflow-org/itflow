@@ -99,61 +99,117 @@ $num_of_files = mysqli_num_rows($sql);
                         <a class="nav-link <?php if ($get_folder_id == 0) { echo "active"; } ?>" href="?client_id=<?php echo $client_id; ?>&folder_id=0">/</a>
                     </li>
                     <?php
-                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
-                    while ($row = mysqli_fetch_array($sql_folders)) {
-                        $folder_id = intval($row['folder_id']);
-                        $folder_name = nullable_htmlentities($row['folder_name']);
+                    // Function to check if a folder is an ancestor of the current folder
+                    function is_ancestor_folder($folder_id, $current_folder_id, $client_id) {
+                        global $mysqli;
 
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_archived_at IS NULL AND file_folder_id = $folder_id"));
-                        $num_files = intval($row['num']);
+                        // Base case: if current_folder_id is 0 or equal to folder_id
+                        if ($current_folder_id == 0) {
+                            return false;
+                        }
+                        if ($current_folder_id == $folder_id) {
+                            return true;
+                        }
 
-                        ?>
+                        // Get the parent folder of the current folder
+                        $result = mysqli_query($mysqli, "SELECT parent_folder FROM folders WHERE folder_id = $current_folder_id AND folder_client_id = $client_id");
+                        if ($row = mysqli_fetch_assoc($result)) {
+                            $parent_folder_id = intval($row['parent_folder']);
+                            // Recursive call to check the parent folder
+                            return is_ancestor_folder($folder_id, $parent_folder_id, $client_id);
+                        } else {
+                            // Folder not found
+                            return false;
+                        }
+                    }
 
-                        <li class="nav-item">
-                            <div class="row">
-                                <div class="col-10">
-                                    <a class="nav-link <?php if ($get_folder_id == $folder_id) { echo "active"; } ?> " href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>&view=<?php echo $view; ?>">
-                                        <?php
-                                        if ($get_folder_id == $folder_id) { ?>
-                                            <i class="fas fa-fw fa-folder-open"></i>
-                                        <?php } else { ?>
-                                            <i class="fas fa-fw fa-folder"></i>
-                                        <?php } ?>
+                    // Recursive function to display folders and subfolders
+                    function display_folders($parent_folder_id, $client_id, $indent = 0) {
+                        global $mysqli, $get_folder_id, $session_user_role;
 
-                                        <?php echo $folder_name; ?> <?php if ($num_files > 0) { echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_files</span>"; } ?>
+                        $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 1 AND folder_client_id = $client_id ORDER BY folder_name ASC");
+                        while ($row = mysqli_fetch_array($sql_folders)) {
+                            $folder_id = intval($row['folder_id']);
+                            $folder_name = nullable_htmlentities($row['folder_name']);
+
+                            // Get the number of files in the folder
+                            $row2 = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_folder_id = $folder_id AND file_archived_at IS NULL"));
+                            $num_files = intval($row2['num']);
+
+                            // Get the number of subfolders
+                            $subfolder_result = mysqli_query($mysqli, "SELECT COUNT(*) AS count FROM folders WHERE parent_folder = $folder_id AND folder_client_id = $client_id");
+                            $subfolder_count = intval(mysqli_fetch_assoc($subfolder_result)['count']);
+
+                            echo '<li class="nav-item">';
+                            echo '<div class="row">';
+                            echo '<div class="col-10">';
+                            echo '<a class="nav-link ';
+                            if ($get_folder_id == $folder_id) { echo "active"; }
+                            echo '" href="?client_id=' . $client_id . '&folder_id=' . $folder_id . '">';
+
+                            // Indentation for subfolders
+                            echo str_repeat('&nbsp;', $indent * 4);
+
+                            // Determine if the folder is open
+                            if ($get_folder_id == $folder_id || is_ancestor_folder($folder_id, $get_folder_id, $client_id)) {
+                                echo '<i class="fas fa-fw fa-folder-open"></i>';
+                            } else {
+                                echo '<i class="fas fa-fw fa-folder"></i>';
+                            }
+
+                            echo ' ' . $folder_name;
+
+                            if ($num_files > 0) {
+                                echo "<span class='badge badge-pill badge-dark float-right mt-1'>$num_files</span>";
+                            }
+
+                            echo '</a>';
+                            echo '</div>';
+                            echo '<div class="col-2">';
+                            ?>
+                            <div class="dropdown">
+                                <button class="btn btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
+                                        <i class="fas fa-fw fa-edit mr-2"></i>Rename
                                     </a>
-                                </div>
-                                <div class="col-2">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFolderModal<?php echo $folder_id; ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Rename
-                                            </a>
-                                            <?php if ($session_user_role == 3 && $num_files == 0) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                </a>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
+                                    <?php
+                                    // Only show delete option if user is admin, folder has no files, and no subfolders
+                                    if ($session_user_role == 3 && $num_files == 0 && $subfolder_count == 0) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_folder=<?php echo $folder_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
+                                    <?php } ?>
                                 </div>
                             </div>
-                        </li>
+                            <?php
+                            echo '</div>';
+                            echo '</div>';
 
-                        <?php
-                        require "folder_rename_modal.php";
+                            // Include the rename and create subfolder modals
+                            require "folder_rename_modal.php";
 
+                            if ($subfolder_count > 0) {
+                                // Display subfolders
+                                echo '<ul class="nav nav-pills flex-column bg-light">';
+                                display_folders($folder_id, $client_id, $indent + 1);
+                                echo '</ul>';
+                            }
 
+                            echo '</li>';
+                        }
                     }
+
+                    // Start displaying folders from the root (parent_folder = 0)
+                    display_folders(0, $client_id);
                     ?>
                 </ul>
-                <?php require_once "folder_create_modal.php";
- ?>
+                <?php require_once "folder_create_modal.php"; ?>
             </div>
+
 
             <div class="col-md-9">
 
@@ -164,7 +220,7 @@ $num_of_files = mysqli_num_rows($sql);
                     <div class="row">
                         <div class="col-md-4">
                             <div class="input-group mb-3 mb-md-0">
-                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Files">
+                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search for files in <?php if($get_folder_id == 0) { echo "all folders"; } else { echo "current folder"; } ?>">
                                 <div class="input-group-append">
                                     <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                                 </div>
@@ -303,6 +359,7 @@ $num_of_files = mysqli_num_rows($sql);
                                     $file_icon = "file";
                                 }
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                $file_folder_id = intval($row['file_folder_id']);
                                 
                                 // Check if shared
                                 $sql_shared = mysqli_query(

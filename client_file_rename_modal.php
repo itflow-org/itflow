@@ -13,14 +13,17 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <label>Name <strong class="text-danger">*</strong></label>
+                        <label>File Name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                             </div>
                             <input type="text" class="form-control" name="file_name" placeholder="File Name" value="<?php echo $file_name; ?>" required>
                         </div>
-                        <label>Description <strong class="text-danger">*</strong></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
