@@ -114,32 +114,42 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         }
         ?>
 
-        <nav>
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item">
-                    <a href="?client_id=<?php echo $client_id; ?>&folder_id=0">
-                        <i class="fas fa-fw fa-folder mr-2"></i>Root
-                    </a>
-                </li>
-                <?php
-                // Output breadcrumb items for each folder in the path
-                foreach ($folder_path as $folder) {
-                    $bread_crumb_folder_id = $folder['folder_id']; // Already Sanitized before it was pushed into array
-                    $bread_crumb_folder_name = $folder['folder_name']; // Already Sanitized before it was pushed into array
-
-                    ?>
-                    <li class="breadcrumb-item">
-                        <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $bread_crumb_folder_id; ?>">
-                            <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $bread_crumb_folder_name; ?>
-                        </a>
-                    </li>
-                    <?php
-                }
-                ?>
-            </ol>
-        </nav>
+        
         
         <div class="card-body">
+            <form autocomplete="off">
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group mb-3 mb-md-0">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search documents in <?php if($get_folder_id == 0) { echo "all folders"; } else { echo "current folder"; } ?>">
+                            <div class="input-group-append">
+                                <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="btn-group float-right">
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveDocumentModal">
+                                        <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <hr>
+
+
             <div class="row">
                 <div class="col-md-3 border-right mb-3">
                     <h4>Folders</h4>
@@ -274,36 +284,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
 
                 <div class="col-md-9">
-                    <form autocomplete="off">
-                        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                        <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="input-group mb-3 mb-md-0">
-                                    <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Documents">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="btn-group float-right">
-                                    <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveDocumentModal">
-                                                <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    <hr>
+
+                    <nav>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="?client_id=<?php echo $client_id; ?>&folder_id=0">
+                                    <i class="fas fa-fw fa-folder mr-2"></i>Root
+                                </a>
+                            </li>
+                            <?php
+                            // Output breadcrumb items for each folder in the path
+                            foreach ($folder_path as $folder) {
+                                $bread_crumb_folder_id = $folder['folder_id']; // Already Sanitized before it was pushed into array
+                                $bread_crumb_folder_name = $folder['folder_name']; // Already Sanitized before it was pushed into array
+
+                                ?>
+                                <li class="breadcrumb-item">
+                                    <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $bread_crumb_folder_id; ?>">
+                                        <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $bread_crumb_folder_name; ?>
+                                    </a>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                        </ol>
+                    </nav>
     
                     <form id="bulkActions" action="post.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
