@@ -2293,13 +2293,30 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.5.9') {
-        mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_folder_id` INT(11) NOT NULL DEFAULT 0 AFTER `login_password_changed_at`");
+
+        // Check if the column already exists
+        $result = mysqli_query($mysqli, "SHOW COLUMNS FROM `logins` LIKE 'login_folder_id'");
+        if (mysqli_num_rows($result) == 0) {
+            mysqli_query($mysqli, "ALTER TABLE `logins` ADD `login_folder_id` INT(11) NOT NULL DEFAULT 0 AFTER `login_password_changed_at`");
+        } else {
+            // The column already exists
+            echo "Column 'login_folder_id' already exists in the 'logins' table.";
+        }
 
         mysqli_query($mysqli, "ALTER TABLE `logins` MODIFY `login_username` VARCHAR(500) DEFAULT NULL");
 
         mysqli_query($mysqli, "ALTER TABLE `logins` MODIFY `login_description` VARCHAR(500) DEFAULT NULL");
 
         mysqli_query($mysqli, "ALTER TABLE `tickets` MODIFY `ticket_subject` VARCHAR(500) NOT NULL");
+
+        // Fix some some staggering ticket statuses that were still using a string and not a number
+        // forum.itflow.org/d/1248-bug-unable-to-update-database
+        // Update existing tickets to use new values
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 1 WHERE ticket_status = 'New'"); // New
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_status = 'Open'"); // Open
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 3 WHERE ticket_status = 'On Hold'"); // On Hold
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4 WHERE ticket_status = 'Auto Close'"); // Auto Close
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5 WHERE ticket_status = 'Closed'"); // Closed
 
         mysqli_query($mysqli, "ALTER TABLE `tickets` MODIFY `ticket_status` INT(11) NOT NULL");
 
