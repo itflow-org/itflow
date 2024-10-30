@@ -302,7 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                             <div class="media-body">
-                                                <div><?php echo $login_name; ?> -- <?php echo $login_id ?></div>
+                                                <div><?php echo $login_name; ?></div>
                                                 <div><small class="text-secondary"><?php echo $login_description; ?></small></div>
                                                 <?php
                                                 if (!empty($login_tags_display)) { ?>
