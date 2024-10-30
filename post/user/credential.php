@@ -14,6 +14,14 @@ if (isset($_POST['add_login'])) {
 
     $login_id = mysqli_insert_id($mysqli);
 
+     // Add Tags
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO login_tags SET login_id = $login_id, tag_id = $tag");
+        }
+    }
+
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Create', log_description = '$session_name created login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
 
@@ -41,6 +49,16 @@ if (isset($_POST['edit_login'])) {
 
     // Update the login entry with the new details
     mysqli_query($mysqli,"UPDATE logins SET login_name = '$name', login_description = '$description', login_uri = '$uri', login_uri_2 = '$uri_2', login_username = '$username', login_password = '$password', login_otp_secret = '$otp_secret', login_note = '$note', login_important = $important, login_contact_id = $contact_id, login_vendor_id = $vendor_id, login_asset_id = $asset_id, login_software_id = $software_id WHERE login_id = $login_id");
+
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM login_tags WHERE login_id = $login_id");
+
+    // Add new tags
+    foreach($_POST['tags'] as $tag) {
+        $tag = intval($tag);
+        mysqli_query($mysqli, "INSERT INTO login_tags SET login_id = $login_id, tag_id = $tag");
+    }
 
     // Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Modify', log_description = '$session_name modified login $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");

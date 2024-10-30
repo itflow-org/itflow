@@ -32,6 +32,7 @@
                 <option value="1">Client Tag</option>
                 <option value="2">Location Tag</option>
                 <option value="3">Contact Tag</option>
+                <option value="4">Credential Tag</option>
               </select>
             </div>
           </div>

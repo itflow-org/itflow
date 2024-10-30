@@ -12,6 +12,21 @@ enforceUserPermission('module_credential');
 // Log when users load the Credentials/Logins page
 mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'View', log_description = '$session_name viewed the Credentials page for client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the status array
+    $sanitizedTags = array();
+    foreach ($_GET['tags'] as $tag) {
+        // Escape each status to prevent SQL injection
+        $sanitizedTags[] = "'" . intval($tag) . "'";
+    }
+
+    // Convert the sanitized tags into a comma-separated string
+    $sanitizedTagsString = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+} else {
+    $tag_query = '';
+}
 
 // Location Filter
 if (isset($_GET['location']) & !empty($_GET['location'])) {
@@ -31,10 +46,13 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * 
+    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.* 
     FROM logins l
+    LEFT JOIN login_tags ON login_tags.login_id = l.login_id
+    LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
     $location_query_innerjoin
     WHERE l.login_client_id = $client_id
+    $tag_query
     AND l.login_$archive_query
     AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%')
     $location_query
@@ -104,7 +122,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4");
+                            while ($row = mysqli_fetch_array($sql_tags)) {
+                                $tag_id = intval($row['tag_id']);
+                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="btn-group float-right">
                         <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
@@ -172,7 +206,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $login_id = intval($row['login_id']);
+                            $login_id = intval($row['l_login_id']);
                             $login_name = nullable_htmlentities($row['login_name']);
                             $login_description = nullable_htmlentities($row['login_description']);
                             $login_uri = nullable_htmlentities($row['login_uri']);
@@ -204,6 +238,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_vendor_id = intval($row['login_vendor_id']);
                             $login_asset_id = intval($row['login_asset_id']);
                             $login_software_id = intval($row['login_software_id']);
+
+                            // Tags
+                            $login_tag_name_display_array = array();
+                            $login_tag_id_array = array();
+                            $sql_login_tags = mysqli_query($mysqli, "SELECT * FROM login_tags LEFT JOIN tags ON login_tags.tag_id = tags.tag_id WHERE login_id = $login_id ORDER BY tag_name ASC");
+                            while ($row = mysqli_fetch_array($sql_login_tags)) {
+
+                                $login_tag_id = intval($row['tag_id']);
+                                $login_tag_name = nullable_htmlentities($row['tag_name']);
+                                $login_tag_color = nullable_htmlentities($row['tag_color']);
+                                if (empty($login_tag_color)) {
+                                    $login_tag_color = "dark";
+                                }
+                                $login_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                if (empty($login_tag_icon)) {
+                                    $login_tag_icon = "tag";
+                                }
+
+                                $login_tag_id_array[] = $login_tag_id;
+                                $login_tag_name_display_array[] = "<a href='client_logins.php?client_id=$client_id&q=$login_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
+                            }
+                            $login_tags_display = implode('', $login_tag_name_display_array);
 
                             // Check if shared
                             $sql_shared = mysqli_query(
@@ -246,8 +302,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                             <div class="media-body">
-                                                <div><?php echo $login_name; ?></div>
+                                                <div><?php echo $login_name; ?> -- <?php echo $login_id ?></div>
                                                 <div><small class="text-secondary"><?php echo $login_description; ?></small></div>
+                                                <?php
+                                                if (!empty($login_tags_display)) { ?>
+                                                    <div class="mt-1">
+                                                        <?php echo $login_tags_display; ?>
+                                                    </div>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </a>
