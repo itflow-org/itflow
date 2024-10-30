@@ -67,6 +67,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $num_of_files = mysqli_num_rows($sql);
 
+// Breadcrumbs
+// Build the full folder path
+$folder_id = $get_folder_id;
+$folder_path = array();
+
+while ($folder_id > 0) {
+    $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
+    if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
+        $folder_name = nullable_htmlentities($row_folder['folder_name']);
+        $parent_folder = intval($row_folder['parent_folder']);
+
+        // Prepend the folder to the beginning of the array
+        array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
+
+        // Move up to the parent folder
+        $folder_id = $parent_folder;
+    } else {
+        // If the folder is not found, break the loop
+        break;
+    }
+}
+
 ?>
 
 <div class="card card-dark">
@@ -218,7 +240,7 @@ $num_of_files = mysqli_num_rows($sql);
                     <input type="hidden" name="view" value="<?php echo $view; ?>">
                     <input type="hidden" name="folder_id" value="<?php echo $get_folder_id; ?>">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="input-group mb-3 mb-md-0">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search for files in <?php if($get_folder_id == 0) { echo "all folders"; } else { echo "current folder"; } ?>">
                                 <div class="input-group-append">
@@ -226,7 +248,7 @@ $num_of_files = mysqli_num_rows($sql);
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-7">
                             <div class="btn-group float-right">
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=0" class="btn <?php if($view == 0){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-list-ul"></i></a>
                                 <a href="?<?php echo $url_query_strings_sort; ?>&view=1" class="btn <?php if($view == 1){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>"><i class="fas fa-th-large"></i></a>
@@ -246,6 +268,31 @@ $num_of_files = mysqli_num_rows($sql);
                         </div>
                     </div>
                 </form>
+
+                <nav class="mt-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="?client_id=<?php echo $client_id; ?>&folder_id=0">
+                                <i class="fas fa-fw fa-folder mr-2"></i>Root
+                            </a>
+                        </li>
+                        <?php
+                        // Output breadcrumb items for each folder in the path
+                        foreach ($folder_path as $folder) {
+                            $bread_crumb_folder_id = $folder['folder_id']; // Already Sanitized before it was pushed into array
+                            $bread_crumb_folder_name = $folder['folder_name']; // Already Sanitized before it was pushed into array
+
+                            ?>
+                            <li class="breadcrumb-item">
+                                <a href="?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $bread_crumb_folder_id; ?>">
+                                    <i class="fas fa-fw fa-folder-open mr-2"></i><?php echo $bread_crumb_folder_name; ?>
+                                </a>
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ol>
+                </nav>
 
                 <hr>
 
@@ -396,9 +443,9 @@ $num_of_files = mysqli_num_rows($sql);
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" class="text-secondary">
+                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank">
                                             <div class="media">
-                                                <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> mr-3"></i>
+                                                <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> text-dark mr-3"></i>
                                                 <div class="media-body">
                                                     <p>
                                                         <?php echo basename($file_name); ?>

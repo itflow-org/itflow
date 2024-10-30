@@ -63,7 +63,31 @@ if ($get_folder_id == 0 && $_GET["q"]) {
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+// Breadcrumbs
+// Build the full folder path
+$folder_id = $get_folder_id;
+$folder_path = array();
+
+while ($folder_id > 0) {
+    $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
+    if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
+        $folder_name = nullable_htmlentities($row_folder['folder_name']);
+        $parent_folder = intval($row_folder['parent_folder']);
+
+        // Prepend the folder to the beginning of the array
+        array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
+
+        // Move up to the parent folder
+        $folder_id = $parent_folder;
+    } else {
+        // If the folder is not found, break the loop
+        break;
+    }
+}
+
 ?>
+
+
 
     <div class="card card-dark">
         <div class="card-header py-2">
@@ -89,30 +113,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
 
         </div>
-
-        <!-- Breadcrumbs -->
-        <?php
-        // Build the full folder path
-        $folder_id = $get_folder_id;
-        $folder_path = array();
-
-        while ($folder_id > 0) {
-            $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
-            if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
-                $folder_name = nullable_htmlentities($row_folder['folder_name']);
-                $parent_folder = intval($row_folder['parent_folder']);
-
-                // Prepend the folder to the beginning of the array
-                array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
-
-                // Move up to the parent folder
-                $folder_id = $parent_folder;
-            } else {
-                // If the folder is not found, break the loop
-                break;
-            }
-        }
-        ?>
 
         
         
