@@ -74,12 +74,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal">
-                        <i class="fas fa-plus mr-2"></i>Create
+                        <i class="fas fa-plus mr-2"></i>New Document
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
-                            <i class="fa fa-fw fa-folder-plus mr-2"></i>Folder
+                            <i class="fa fa-fw fa-folder-plus mr-2"></i>New Folder
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentFromTemplateModal">From Template</a>

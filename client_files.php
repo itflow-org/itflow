@@ -77,12 +77,12 @@ $num_of_files = mysqli_num_rows($sql);
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFilesModal">
-                    <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload
+                    <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload File
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
-                        <i class="fa fa-fw fa-folder-plus mr-2"></i>Create Folder
+                        <i class="fa fa-fw fa-folder-plus mr-2"></i>New Folder
                     </a>
                 </div>
             </div>
