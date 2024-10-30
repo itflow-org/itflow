@@ -160,6 +160,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                    <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                </a>
+                                    <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"
                                     type="submit" form="bulkActions" name="bulk_archive_logins">
                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
@@ -399,6 +403,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
+            <?php require_once "client_login_bulk_assign_tags_modal.php"; ?>
         </form>
         <?php require_once "pagination.php";
         ?>

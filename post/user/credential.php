@@ -145,6 +145,51 @@ if (isset($_GET['delete_login'])) {
 
 }
 
+if (isset($_POST['bulk_assign_login_tags'])) {
+
+    enforceUserPermission('module_credential', 2);
+
+    // Get Selected Credential Count
+    $count = count($_POST['login_ids']);
+
+    // Assign tags to Selected Credentials
+    if (!empty($_POST['login_ids'])) {
+        foreach($_POST['login_ids'] as $login_id) {
+            $login_id = intval($login_id);
+
+            // Get Contact Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+            $row = mysqli_fetch_array($sql);
+            $login_name = sanitizeInput($row['login_name']);
+            $client_id = intval($row['login_client_id']);
+
+            if($_POST['bulk_remove_tags']) {
+                // Delete tags if chosed to do so
+                mysqli_query($mysqli, "DELETE FROM login_tags WHERE login_id = $login_id");
+            }
+
+            // Add new tags
+            foreach($_POST['bulk_tags'] as $tag) {
+                $tag = intval($tag);
+
+                $sql = mysqli_query($mysqli,"SELECT * FROM login_tags WHERE login_id = $login_id AND tag_id = $tag");
+                if (mysqli_num_rows($sql) == 0) {
+                    mysqli_query($mysqli, "INSERT INTO login_tags SET login_id = $login_id, tag_id = $tag");
+                }
+            }
+
+            //Logging
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'Modify', log_description = '$session_name added tags to $login_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+
+        } // End Assign Location Loop
+
+        $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> credentials";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_archive_logins'])) {
 
     enforceUserPermission('module_credential', 2);
