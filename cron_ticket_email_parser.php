@@ -470,10 +470,9 @@ if ($emails !== false) {
                     $client_id = intval($row['domain_client_id']);
 
                     // Create a new contact
-                    $password = password_hash(randomString(), PASSWORD_DEFAULT);
                     $contact_name = $from_name;
                     $contact_email = $from_email;
-                    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '".mysqli_real_escape_string($mysqli, $contact_name)."', contact_email = '".mysqli_real_escape_string($mysqli, $contact_email)."', contact_notes = 'Added automatically via email parsing.', contact_password_hash = '$password', contact_client_id = $client_id");
+                    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '".mysqli_real_escape_string($mysqli, $contact_name)."', contact_email = '".mysqli_real_escape_string($mysqli, $contact_email)."', contact_notes = 'Added automatically via email parsing.', contact_client_id = $client_id");
                     $contact_id = mysqli_insert_id($mysqli);
 
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact ".mysqli_real_escape_string($mysqli, $contact_name)."', log_client_id = $client_id");
