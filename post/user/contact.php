@@ -543,7 +543,7 @@ if (isset($_GET['anonymize_contact'])) {
     $contact_id = intval($_GET['anonymize_contact']);
 
     // Get contact & client info
-    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql);
 
     $contact_name = sanitizeInput($row['contact_name']);
@@ -553,6 +553,7 @@ if (isset($_GET['anonymize_contact'])) {
     $info_to_redact = array($contact_name, $contact_first_name, $contact_email, $contact_phone);
 
     $client_id = intval($row['contact_client_id']);
+    $contact_user_id = intval($row['contact_user_id']);
 
     // Redact name with asterisks
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '*****' WHERE contact_id = $contact_id");
@@ -568,12 +569,18 @@ if (isset($_GET['anonymize_contact'])) {
     mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '' WHERE contact_id = $contact_id");
     mysqli_query($mysqli,"UPDATE contacts SET contact_pin = '' WHERE contact_id = $contact_id");
     mysqli_query($mysqli,"UPDATE contacts SET contact_notes = '' WHERE contact_id = $contact_id");
-    mysqli_query($mysqli,"UPDATE contacts SET contact_auth_method = '' WHERE contact_id = $contact_id");
-    mysqli_query($mysqli,"UPDATE contacts SET contact_password_hash = '' WHERE contact_id = $contact_id");
     mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = '0' WHERE contact_id = $contact_id");
 
     // Remove Billing, Technical, Important Roles
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0 WHERE contact_id = $contact_id");
+
+    // Archive Contact User
+    if ($contact_user_id > 0) {
+        $unix_timestamp = time();
+
+        mysqli_query($mysqli,"UPDATE users SET user_name = 'Archived - $unix_timestamp', user_email = 'Archived - $unix_timestamp', user_archived_at = NOW() WHERE user_id = $contact_user_id");
+    }
+
 
     // Redact audit logs
     $log_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_client_id =  $client_id");
