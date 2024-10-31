@@ -51,12 +51,12 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-//Get Total tickets open
+// Get Total tickets open
 $sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NULL");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
-//Get Total tickets closed
+// Get Total tickets closed
 $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
@@ -67,8 +67,8 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i><?php if (isset($_GET['unbilled'])) { echo "Unbilled "; } ?> Tickets
             <small class="ml-3">
-                <a href="?client_id=<?php echo $client_id?>&status=Open" class="text-white"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                <a href="?client_id=<?php echo $client_id?>&status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                <a href="?client_id=<?php echo $client_id?>&status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                <a href="?client_id=<?php echo $client_id?>&status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
             </small>
         </h3>
         <div class="card-tools">

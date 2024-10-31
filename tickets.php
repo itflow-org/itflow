@@ -29,10 +29,6 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
     if (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
         $status = 'Closed';
         $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
-    } elseif ( isset($_GET['status']) && ($_GET['status']) == 'Resolved') {
-        // Default - Show open tickets
-        $status = 'Resolved';
-        $ticket_status_snippet = "ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL";
     } else {
         // Default - Show open tickets
         $status = 'Open';
@@ -93,11 +89,6 @@ $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS to
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
-//Get Total tickets Resolved
-$sql_total_tickets_resolved = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_resolved FROM tickets WHERE ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL $ticket_permission_snippet");
-$row = mysqli_fetch_array($sql_total_tickets_resolved);
-$total_tickets_resolved = intval($row['total_tickets_resolved']);
-
 //Get Unassigned tickets
 $sql_total_tickets_unassigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_unassigned FROM tickets WHERE ticket_assigned_to = '0' AND ticket_resolved_at IS NULL $ticket_permission_snippet");
 $row = mysqli_fetch_array($sql_total_tickets_unassigned);
@@ -118,9 +109,8 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
                 <small class="ml-3">
-                    <a href="?status=Open" class="text-white"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?status=Resolved" class="text-white"><strong><?php echo $total_tickets_resolved; ?></strong> Resolved</a> |
-                    <a href="?status=Closed" class="text-white"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
             <div class='card-tools'>
@@ -151,8 +141,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="?status=Resolved&assigned=<?php echo $session_user_id ?>">Resolved tickets</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
                                 </div>
