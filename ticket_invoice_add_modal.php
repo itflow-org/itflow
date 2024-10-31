@@ -138,9 +138,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                     <div class="form-group">
                         <label>Item Description</label>
                         <div class="input-group">
-                            <textarea class="form-control" rows="5" name="item_description">
-                                <?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?>
-                            </textarea>
+                            <textarea class="form-control" rows="5" name="item_description"><?php echo "# $contact_name - $asset_name - $ticket_date\nTicket $ticket_prefix$ticket_number\n$ticket_subject\nTT: $ticket_total_reply_time"; ?></textarea>
                         </div>
                     </div>
 
