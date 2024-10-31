@@ -529,7 +529,9 @@ $execution_time_formatted = number_format($execution_time, 2);
 
 // Insert a log entry into the logs table
 $processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocessed_count email(s)";
-mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Execution', log_description = 'Cron Email Parser executed in $execution_time_formatted seconds. $processed_info'");
+// Remove Comment below for Troubleshooting
+// mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Execution', log_description = 'Cron Email Parser executed in $execution_time_formatted seconds. $processed_info'");
+
 // END Calculate execution time
 
 // Remove the lock file
