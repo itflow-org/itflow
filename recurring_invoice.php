@@ -90,12 +90,18 @@ if (isset($_GET['recurring_id'])) {
     ?>
 
     <ol class="breadcrumb d-print-none">
+        <?php if (isset($_GET['client_id'])) { ?>
+        <li class="breadcrumb-item">
+            <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>">Recurring Invoices</a>
+        </li>
+        <?php } else { ?>
         <li class="breadcrumb-item">
             <a href="recurring_invoices.php">Recurring Invoices</a>
         </li>
-        <li class="breadcrumb-item">
-            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"> <?php echo $client_name; ?></a>
-        </li>
+        <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$recurring_prefix$recurring_number"; ?></li>
     </ol>
 
