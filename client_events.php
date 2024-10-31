@@ -131,7 +131,7 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_start = json_encode($row['invoice_date']);
 
 
-                    echo "{ id: $event_id, title: $event_title, start: $event_start, display: 'list-item', color: 'blue', url: 'invoice.php?invoice_id=$event_id' },";
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, display: 'list-item', color: 'blue', url: 'invoice.php?client_id=$client_id&invoice_id=$event_id' },";
                 }
 
                 //Quotes Created
@@ -141,7 +141,7 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
                     $event_start = json_encode($row['quote_date']);
 
-                    echo "{ id: $event_id, title: $event_title, start: $event_start, display: 'list-item', color: 'purple', url: 'quote.php?quote_id=$event_id' },";
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, display: 'list-item', color: 'purple', url: 'quote.php?client_id=$client_id&quote_id=$event_id' },";
                 }
 
                 //Tickets Created
@@ -175,7 +175,7 @@ while ($row = mysqli_fetch_array($sql)) {
                         $event_color = "black";
                     }
 
-                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?client_id=$client_id&ticket_id=$event_id' },";
                 }
 
                 // Recurring Tickets
@@ -233,7 +233,7 @@ while ($row = mysqli_fetch_array($sql)) {
                     $event_start = json_encode($row['ticket_schedule']);
 
 
-                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id' },";
+                    echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?client_id=$client_id&ticket_id=$event_id' },";
                 }
                 ?>
             ],

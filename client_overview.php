@@ -607,7 +607,7 @@ $sql_asset_retired = mysqli_query(
 
                                 ?>
                                 <tr>
-                                    <td><a href="ticket.php?ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                                    <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
                                     <td><?php echo $ticket_created_at_human; ?> <small class="text-muted"><?php echo $ticket_created_at; ?></small></td>
                                 </tr>
