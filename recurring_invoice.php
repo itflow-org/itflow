@@ -1,6 +1,11 @@
 <?php
-require_once "inc_all.php";
 
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "inc_all_client.php";
+} else { 
+    require_once "inc_all.php";
+}
 
 if (isset($_GET['recurring_id'])) {
 
