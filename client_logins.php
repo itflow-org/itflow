@@ -56,6 +56,7 @@ $sql = mysqli_query(
     AND l.login_$archive_query
     AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%')
     $location_query
+    GROUP BY l.login_id
     ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
