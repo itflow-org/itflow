@@ -93,7 +93,33 @@ if (isset($_POST['edit_contact'])) {
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id WHERE contact_id = $contact_id");
+    // Update Existing User
+    if ($contact_user_id > 0) {
+        mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
+
+        // Set password
+        if ($_POST['contact_password']) {
+            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+            mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $contact_user_id");
+        }
+    // Create New User
+    } elseif ($contact_user_id == 0 && $name && $email && $auth_method) {
+        
+        // Set password
+        if ($_POST['contact_password']) {
+            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        } else {
+            // Set a random password
+            $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+        }
+
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password_hash', user_auth_method = '$auth_method', user_type = 2");
+
+        $contact_user_id = mysqli_insert_id($mysqli);
+
+    }
+
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
 
     // Upload Photo
     if ($_FILES['file']['tmp_name']) {
@@ -127,34 +153,6 @@ if (isset($_POST['edit_contact'])) {
     if ($contact_primary == 1) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
         mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 1, contact_important = 1 WHERE contact_id = $contact_id");
-    }
-
-    if ($contact_user_id > 0) {
-        // Update Existing User
-        mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
-
-        // Set password
-        if ($_POST['contact_password']) {
-            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
-            mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $contact_user_id");
-        }
-
-    } elseif ($contact_user_id == 0 && $name && $email && $auth_method) {
-        // Create New User
-        // Set password
-        if ($_POST['contact_password']) {
-            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
-        } else {
-            // Set a random password
-            $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
-        }
-
-        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password_hash', user_auth_method = '$auth_method', user_type = 2");
-
-        $contact_user_id = mysqli_insert_id($mysqli);
-
-        // Set newly created user_id for the contact
-        mysqli_query($mysqli, "UPDATE contacts SET contact_user_id = '$contact_user_id' WHERE contact_id = $contact_id");
     }
 
     // Send contact a welcome e-mail, if specified
