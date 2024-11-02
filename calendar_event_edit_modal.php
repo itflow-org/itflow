@@ -72,7 +72,7 @@
                                     <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
                                 </div>
                             </div>
-                                
+
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -88,7 +88,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="repeat">
+                                    <select class="form-control select2" name="repeat" disabled>
                                         <option <?php if (empty($event_repeat)) { echo "selected"; } ?> value="">Never</option>
                                         <option <?php if ($event_repeat == "Day") { echo "selected"; } ?>>Day</option>
                                         <option <?php if ($event_repeat == "Week") { echo "selected"; } ?>>Week</option>
@@ -96,7 +96,7 @@
                                         <option <?php if ($event_repeat == "Year") { echo "selected"; } ?>>Year</option>
                                     </select>
                                 </div>
-                            </div>  
+                            </div>
 
                         </div>
 
@@ -115,7 +115,7 @@
                                 <label>Description</label>
                                 <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
                             </div>
-                            
+
 
                         </div>
 
