@@ -70,7 +70,7 @@
                                     <input type="datetime-local" class="form-control" id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -86,7 +86,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="repeat">
+                                    <select class="form-control select2" name="repeat" disabled>
                                         <option value="">Never</option>
                                         <option>Day</option>
                                         <option>Week</option>
