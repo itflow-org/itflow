@@ -3,7 +3,7 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "inc_all_client.php";
-} else { 
+} else {
     require_once "inc_all.php";
 }
 
@@ -876,6 +876,14 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
 
                     </div>
+                <?php } else { ?>
+                <div class="card card-body mb-3">
+                    <h5 class="text-secondary">Contact</h5>
+                    <div>
+                        <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><i>No One</i>
+                        </a>
+                    </div>
+                </div>
                 <?php } ?>
                 <!-- End contact card -->
 
