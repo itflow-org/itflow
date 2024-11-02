@@ -130,7 +130,7 @@ if (isset($_POST['edit_contact'])) {
     }
 
     if ($contact_user_id > 0) {
-
+        // Update Existing User
         mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
 
         // Set password
@@ -139,51 +139,67 @@ if (isset($_POST['edit_contact'])) {
             mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $contact_user_id");
         }
 
-        // Send contact a welcome e-mail, if specified
-        if ($send_email && $auth_method && $config_smtp_host) {
-
-            // Sanitize Config vars from get_settings.php
-            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-            $config_mail_from_email = sanitizeInput($config_mail_from_email);
-            $config_mail_from_name = sanitizeInput($config_mail_from_name);
-            $config_base_url = sanitizeInput($config_base_url);
-
-            // Get Company Phone Number
-            $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
-            $row = mysqli_fetch_array($sql);
-            $company_name = sanitizeInput($row['company_name']);
-            $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-
-            // Authentication info (azure, reset password, or tech-provided temporary password)
-
-            if ($auth_method == 'azure') {
-                $password_info = "Login with your Microsoft (Azure AD) account.";
-            } elseif (empty($_POST['contact_password'])) {
-                $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
-            } else {
-                $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
-            }
-
-            $subject = "Your new $company_name portal account";
-            $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-            // Queue Mail
-            $data = [
-                [
-                    'from' => $config_mail_from_email,
-                    'from_name' => $config_mail_from_name,
-                    'recipient' => $email,
-                    'recipient_name' => $name,
-                    'subject' => $subject,
-                    'body' => $body,
-                ]
-            ];
-            addToMailQueue($mysqli, $data);
-            // Get Email ID for reference
-            $email_id = mysqli_insert_id($mysqli);
-
+    } elseif ($contact_user_id == 0 && $name && $email && $auth_method) {
+        // Create New User
+        // Set password
+        if ($_POST['contact_password']) {
+            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        } else {
+            // Set a random password
+            $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
         }
+
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password_hash', user_auth_method = '$auth_method', user_type = 2");
+
+        $contact_user_id = mysqli_insert_id($mysqli);
+
+        // Set newly created user_id for the contact
+        mysqli_query($mysqli, "UPDATE contacts SET contact_user_id = '$contact_user_id' WHERE contact_id = $contact_id");
+    }
+
+    // Send contact a welcome e-mail, if specified
+    if ($send_email && $auth_method && $config_smtp_host && $contact_user_id) {
+
+        // Sanitize Config vars from get_settings.php
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+        $config_mail_from_email = sanitizeInput($config_mail_from_email);
+        $config_mail_from_name = sanitizeInput($config_mail_from_name);
+        $config_base_url = sanitizeInput($config_base_url);
+
+        // Get Company Phone Number
+        $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql);
+        $company_name = sanitizeInput($row['company_name']);
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        // Authentication info (azure, reset password, or tech-provided temporary password)
+
+        if ($auth_method == 'azure') {
+            $password_info = "Login with your Microsoft (Azure AD) account.";
+        } elseif (empty($_POST['contact_password'])) {
+            $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
+        } else {
+            $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
+        }
+
+        $subject = "Your new $company_name portal account";
+        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+        // Queue Mail
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $email,
+                'recipient_name' => $name,
+                'subject' => $subject,
+                'body' => $body,
+            ]
+        ];
+        addToMailQueue($mysqli, $data);
+        // Get Email ID for reference
+        $email_id = mysqli_insert_id($mysqli);
 
     }
 
