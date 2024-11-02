@@ -97,7 +97,7 @@ mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Share 
 <div class="card mt-2">
     <div class="card-header bg-dark">
         <div class="card-title">
-            <h5><small>Secure Message intended for:</small><br><strong><?php echo $item_recipient ?></strong></h5>
+            <h5><small>Secure Message</small><br><strong><?php echo $item_recipient ?></strong></h5>
         </div>
 
         <div class="card-tools">
