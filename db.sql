@@ -1794,6 +1794,23 @@ CREATE TABLE `ticket_attachments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ticket_history`
+--
+
+DROP TABLE IF EXISTS `ticket_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ticket_history` (
+  `ticket_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ticket_history_status` varchar(200) NOT NULL,
+  `ticket_history_description` varchar(255) NOT NULL,
+  `ticket_history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ticket_history_ticket_id` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_history_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ticket_replies`
 --
 
@@ -2149,4 +2166,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-30 18:39:35
+-- Dump completed on 2024-11-04 12:20:25
