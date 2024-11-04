@@ -869,7 +869,6 @@ if ($outstanding_invoices_count > 0) { ?>
                     <th class="text-center">Invoice</th>
                     <th>Date</th>
                     <th>Due</th>
-                    <th></th>
                     <th class="text-right">Amount</th>
                 </tr>
                 </thead>
