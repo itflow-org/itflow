@@ -1,13 +1,22 @@
 <?php
 
-// Set Timezone to the companies timezone
-// 2024-02-08 JQ - The option to set the timezone in PHP was disabled to prevent inconsistencies with MariaDB/MySQL, which utilize the system's timezone, It is now consdered best practice to set the timezone on system itself
-//date_default_timezone_set($session_timezone);
+// Check if timezone and offset are set in session
+if (!isset($_SESSION['session_timezone']) || !isset($_SESSION['session_utc_offset'])) {
+    $result = mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1");
+    $row = mysqli_fetch_array($result);
+    $_SESSION['session_timezone'] = $row['config_timezone'];
 
-// 2024-03-21 JQ - Re-Enabled Timezone setting as new PHP update does not respect System Time but defaulted to UTC
+    // Set PHP timezone
+    date_default_timezone_set($_SESSION['session_timezone']);
 
-$sql_timezone = mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1");
-$row_timezone = mysqli_fetch_array($sql_timezone);
-$session_timezone = $row_timezone['config_timezone'];
+    // Calculate UTC offset and store it in session
+    $session_datetime = new DateTime('now', new DateTimeZone($_SESSION['session_timezone']));
+    $_SESSION['session_utc_offset'] = $session_datetime->format('P');
+}
 
+// Use the stored timezone and offset
+$session_timezone = $_SESSION['session_timezone'];
 date_default_timezone_set($session_timezone);
+
+// Set MySQL session time zone
+mysqli_query($mysqli, "SET time_zone = '{$_SESSION['session_utc_offset']}'");
