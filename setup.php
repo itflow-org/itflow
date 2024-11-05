@@ -443,7 +443,7 @@ if (isset($_POST['add_telemetry'])) {
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
                         <a href="?checks" class="nav-link <?php if (isset($_GET['checks'])) { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-checkmark"></i>
+                            <i class="nav-icon fas fa-check"></i>
                             <p>Checks</p>
                         </a>
                     </li>
@@ -683,12 +683,12 @@ if (isset($_POST['add_telemetry'])) {
                     ];
                     ?>
 
-                    <div class="card mb-3">
+                    <div class="card card-dark mb-3">
                         <div class="card-header">
-                            <h6 class="mt-1"><i class="fas fa-fw fa-checkmark mr-2"></i>Setup Checks</h6>
+                            <h3 class="card-title"><i class="fas fa-fw fa-check mr-2"></i>Setup Checks</h3>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
+                            <table class="table table-sm table-bordered">
                                 <tbody>
                                     <!-- PHP Extensions Section -->
                                     <tr class="bg-light">
@@ -799,15 +799,14 @@ if (isset($_POST['add_telemetry'])) {
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            
                             <hr>
 
                             <a href="?database" class="btn btn-primary text-bold">Next (Database)<i class="fa fa-fw fa-arrow-circle-right ml-2"></i></a>
                         </div>
                     </div>
 
-                <?php } ?>
-
-                <?php if (isset($_GET['database'])) { ?>
+                <?php } elseif (isset($_GET['database'])) { ?>
 
                     <div class="card card-dark">
                         <div class="card-header">
