@@ -1319,3 +1319,15 @@ function customAction($trigger, $entity) {
         include_once __DIR__ . "/xcustom/xcustom_action_handler.php";
     }
 }
+
+function appNotify($notification_type, $notification_details, $notification_action, $notification_client_id, $entity_id) {
+    global $mysqli;
+
+    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
+    
+    while ($row = mysqli_fetch_array($sql)) {
+        $user_id = intval($row['user_id']);
+
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = '$notification_type', notification = '$notification_details', notification_action = '$notification_action', notification_client_id = $notification_client_id, notification_entity_id = $entity_id, notification_user_id = $user_id");
+    }
+}
