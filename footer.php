@@ -1,13 +1,17 @@
-<?php require_once "inc_confirm_modal.php";
- ?>
+<?php
+require_once "inc_confirm_modal.php";
+?>
+
+<?php
+if (str_contains(basename($_SERVER["PHP_SELF"]), "admin_")) { ?>
+    <p class="text-right font-weight-light">ITFlow /versioning coming soon/ &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
+    <br>
+<?php } ?>
 
 </div><!-- /.container-fluid -->
-</div>
-<!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
-</div>
-<!-- ./wrapper -->
+</div> <!-- /.content -->
+</div> <!-- /.content-wrapper -->
+</div> <!-- ./wrapper -->
 
 <!-- REQUIRED SCRIPTS -->
 
