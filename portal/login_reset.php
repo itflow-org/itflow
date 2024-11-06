@@ -7,12 +7,7 @@
 header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
 
 require_once '../config.php';
-
-// Set Timezone
-require_once "../inc_set_timezone.php";
-
 require_once '../functions.php';
-
 require_once '../get_settings.php';
 
 
@@ -36,6 +31,9 @@ if (!isset($_SESSION)) {
     }
     session_start();
 }
+
+// Set Timezone after session
+require_once "../inc_set_timezone.php";
 
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);

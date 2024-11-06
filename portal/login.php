@@ -8,9 +8,6 @@ header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.g
 
 require_once '../config.php';
 
-// Set Timezone
-require_once "../inc_set_timezone.php";
-
 require_once '../functions.php';
 
 require_once '../get_settings.php';
@@ -24,6 +21,9 @@ if (!isset($_SESSION)) {
     }
     session_start();
 }
+
+// Set Timezone after session_start
+require_once "../inc_set_timezone.php";
 
 // Check to see if client portal is enabled
 if($config_client_portal_enable == 0) {

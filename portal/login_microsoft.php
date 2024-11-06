@@ -5,12 +5,7 @@
  */
 
 require_once '../config.php';
-
-// Set Timezone
-require_once "../inc_set_timezone.php";
-
 require_once '../functions.php';
-
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
@@ -21,6 +16,9 @@ if (!isset($_SESSION)) {
     }
     session_start();
 }
+
+// Set Timezone after session starts
+require_once "../inc_set_timezone.php";
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_array($sql_settings);
