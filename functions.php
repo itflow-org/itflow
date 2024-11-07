@@ -1320,14 +1320,20 @@ function customAction($trigger, $entity) {
     }
 }
 
-function appNotify($notification_type, $notification_details, $notification_action, $notification_client_id, $entity_id) {
+function appNotify($type, $details, $action = null, $client_id = 0, $entity_id = 0) {
     global $mysqli;
 
-    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL");
+    if (is_null($action)) {
+        $action = "NULL"; // Without quotes for SQL NULL
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT user_id FROM users 
+        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
+    ");
     
     while ($row = mysqli_fetch_array($sql)) {
         $user_id = intval($row['user_id']);
 
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = '$notification_type', notification = '$notification_details', notification_action = '$notification_action', notification_client_id = $notification_client_id, notification_entity_id = $entity_id, notification_user_id = $user_id");
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = '$type', notification = '$details', notification_action = '$action', notification_client_id = $client_id, notification_entity_id = $entity_id, notification_user_id = $user_id");
     }
 }
