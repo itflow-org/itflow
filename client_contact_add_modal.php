@@ -198,6 +198,7 @@
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox" name="contact_important" value="1">
                                             <label class="custom-control-label" for="contactImportantCheckbox">Important</label>
+                                            <p class="text-secondary"><small>Pin Top</small></p>
                                         </div>
                                     </div>
                                 </div>
@@ -206,6 +207,7 @@
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox" name="contact_billing" value="1">
                                             <label class="custom-control-label" for="contactBillingCheckbox">Billing</label>
+                                            <p class="text-secondary"><small>Receives Invoices</small></p>
                                         </div>
                                     </div>
                                 </div>
@@ -214,6 +216,7 @@
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox" name="contact_technical" value="1">
                                             <label class="custom-control-label" for="contactTechnicalCheckbox">Technical</label>
+                                            <p class="text-secondary"><small>Access </small></p>
                                         </div>
                                     </div>
                                 </div>
