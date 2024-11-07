@@ -118,7 +118,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
                     // Update Message - Failure
                     mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
 
-                    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Cron-Mail-Queue', notification = 'Failed to send email #$email_id to $email_recipient_logging'");
+                    appNotify("Cron-Mail-Queue", "Failed to send email #$email_id to $email_recipient_logging");
+
                     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail'");
                 } else {
                     // Update Message - Success
@@ -136,7 +137,9 @@ if (mysqli_num_rows($sql_queue) > 0) {
             $email_from_logging = sanitizeInput($row['email_from']);
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.'");
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email #$email_id due to invalid sender address'");
+            
+            appNotify("Mail", "Failed to send email #$email_id due to invalid sender address");
+
         }
 
     }

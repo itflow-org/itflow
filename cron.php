@@ -147,7 +147,6 @@ if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)
     
     appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "settings_modules.php");
 
-    mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Settings', notification = 'White-labelling was disabled due to expired/invalid key', notification_action = 'settings_modules.php'");
 }
 
 
