@@ -1,10 +1,11 @@
 <?php
 
 require_once "config.php";
-require_once "inc_set_timezone.php";
 require_once "functions.php";
 
 session_start();
+
+require_once "inc_set_timezone.php"; // Must be included after session_start to work
 
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
     $quote_id = intval($_GET['accept_quote']);
@@ -23,7 +24,8 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
         // Notification
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Accepted', notification = 'Quote $quote_prefix$quote_number has been accepted by $client_name', notification_action = 'quote.php?quote_id=$quote_id', notification_client_id = $client_id, notification_entity_id = $quote_id");
+        appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "quote.php?quote_id=$quote_id", $client_id);
+
 
         customAction('quote_accept', $quote_id);
         $_SESSION['alert_message'] = "Quote Accepted";
@@ -50,7 +52,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
         // Notification
-        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Quote Declined', notification = 'Quote $quote_prefix$quote_number has been declined by $client_name', notification_action = 'quote.php?quote_id=$quote_id', notification_client_id = $client_id, notification_entity_id = $quote_id");
+        appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "quote.php?quote_id=$quote_id", $client_id);
 
         customAction('quote_decline', $quote_id);
         $_SESSION['alert_type'] = "danger";
@@ -116,7 +118,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_feedback = '$feedback' WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
         // Notify on bad feedback
         if ($feedback == "Bad") {
-            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Feedback', notification = 'Guest rated ticket ID $ticket_id as bad'");
+            appNotify("Feedback", "Guest rated ticket ID $ticket_id as bad");
         }
 
         $_SESSION['alert_message'] = "Feedback recorded - thank you";

@@ -1,14 +1,12 @@
 <?php
 
 require_once "config.php";
+require_once "functions.php";
+
+session_start();
 
 // Set Timezone
 require_once "inc_set_timezone.php";
-
-require_once "functions.php";
-
-
-session_start();
 
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
