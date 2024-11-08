@@ -63,10 +63,8 @@ if (isset($_POST['add_contact'])) {
         }
     }
 
-    //Logging
+    // Logging
     logAction("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
-    
-    //mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = '$session_name created contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
 
     customAction('contact_create', $contact_id);
 
@@ -204,7 +202,7 @@ if (isset($_POST['edit_contact'])) {
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+    logAction("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
 
     customAction('contact_update', $contact_id);
 
@@ -226,11 +224,12 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     $location_name = sanitizeInput($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
-    // Get Selected Contacts Count
-    $contact_count = count($_POST['contact_ids']);
-
     // Assign Location to Selected Contacts
-    if (!empty($_POST['contact_ids'])) {
+    if ($_POST['contact_ids']) {
+        
+        // Get Selected Contacts Count
+        $contact_count = count($_POST['contact_ids']);
+        
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
@@ -241,10 +240,13 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name assigned $contact_name to Location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            // Logging
+            logAction("Contact", "Edit", "$session_name assigned $contaxt_name to location $location_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
+
+        // Bulk Log
+        logAction("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
         $_SESSION['alert_message'] = "You assigned <b>$contact_count</b> contacts to location <b>$location_name</b>";
     }
@@ -259,11 +261,12 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
     $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
-    // Get Selected Contacts Count
-    $contact_count = count($_POST['contact_ids']);
-
     // Assign Location to Selected Contacts
-    if (!empty($_POST['contact_ids'])) {
+    if ($_POST['contact_ids']) {
+
+        // Get Selected Contacts Count
+        $contact_count = count($_POST['contact_ids']);
+
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
@@ -275,10 +278,12 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_phone = '$phone' WHERE contact_id = $contact_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name set Phone Number to $phone for $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            // Logging
+            logAction("Contact", "Edit", "$session_name set Phone Number to $phone for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
+        // Bulk Log
+            logAction("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
         $_SESSION['alert_message'] = "You set Phone Number <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts";
     }
@@ -293,11 +298,12 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
     $department = sanitizeInput($_POST['bulk_department']);
 
-    // Get Selected Contacts Count
-    $contact_count = count($_POST['contact_ids']);
-
     // Assign Location to Selected Contacts
-    if (!empty($_POST['contact_ids'])) {
+    if ($_POST['contact_ids']) {
+
+        // Get Selected Contacts Count
+        $contact_count = count($_POST['contact_ids']);
+
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
@@ -310,11 +316,14 @@ if (isset($_POST['bulk_edit_contact_department'])) {
             mysqli_query($mysqli,"UPDATE contacts SET contact_department = '$department' WHERE contact_id = $contact_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name set Department to $department for $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            logAction("Contact", "Edit", "$session_name set Department to $department for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        $_SESSION['alert_message'] = "You set the Department to <b>$department</b> for <b>$contact_count</b> contacts";
+        // Bulk Log
+        logAction("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
+
+        $_SESSION['alert_message'] = "You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -329,11 +338,12 @@ if (isset($_POST['bulk_edit_contact_role'])) {
     $contact_billing = intval($_POST['bulk_contact_billing']);
     $contact_technical = intval($_POST['bulk_contact_technical']);
 
-    // Get Selected Contacts Count
-    $contact_count = count($_POST['contact_ids']);
-
     // Assign Location to Selected Contacts
-    if (!empty($_POST['contact_ids'])) {
+    if ($_POST['contact_ids']) {
+
+        // Get Selected Contacts Count
+        $contact_count = count($_POST['contact_ids']);
+
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
@@ -346,13 +356,16 @@ if (isset($_POST['bulk_edit_contact_role'])) {
             mysqli_query($mysqli,"UPDATE contacts SET contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name updated $contact_name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            logAction("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
 
             customAction('contact_update', $contact_id);
 
         } // End Assign Location Loop
 
-        $_SESSION['alert_message'] = "You updated roles for <b>$contact_count</b> contacts";
+         // Bulk Log
+        logAction("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
+
+        $_SESSION['alert_message'] = "You updated contact roles for <b>$contact_count</b> contacts";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -363,11 +376,12 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
     enforceUserPermission('module_client', 2);
 
-    // Get Selected Contacts Count
-    $count = count($_POST['contact_ids']);
-
     // Assign Location to Selected Contacts
-    if (!empty($_POST['contact_ids'])) {
+    if ($_POST['contact_ids']) {
+
+        // Get Selected Contacts Count
+        $count = count($_POST['contact_ids']);
+
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
@@ -393,11 +407,14 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
             }
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name added tags to $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            logAction("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        $_SESSION['alert_message'] = "Assigned tags for <b>$count</b> contacts";
+        // Bulk Log
+        logAction("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
+
+        $_SESSION['alert_message'] = "You assigned tags for <strong>$count</strong> contacts";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -410,10 +427,9 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
     //validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $contact_ids = $_POST['contact_ids']; // Get array of contact IDs to be deleted
+    if ($_POST['contact_ids']) {
 
-    if (!empty($contact_ids)) {
+        $count = 0; // Default 0
 
         // Cycle through array and archive each contact
         foreach ($contact_ids as $contact_id) {
@@ -438,14 +454,15 @@ if (isset($_POST['bulk_archive_contacts'])) {
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
                 // Individual Contact logging
-                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+                logAction("Contact", "Archive", "$session_name archived $contact_name", $client_id, $contact_id);
+                
                 $count++;
             }
 
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived $count contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Archived $count contact(s)";
@@ -460,10 +477,10 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
     enforceUserPermission('module_client', 2);
     //validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $contact_ids = $_POST['contact_ids']; // Get array of contact IDs
+    if ($_POST['contact_ids']) {
 
-    if (!empty($contact_ids)) {
+        // Get Selected Contacts Count
+        $count = count($_POST['contact_ids']);
 
         // Cycle through array and unarchive each contact
         foreach ($contact_ids as $contact_id) {
@@ -485,16 +502,14 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
             // Individual Contact logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            logAction("Contact", "Unarchive", "$session_name unarchived $contact_name", $client_id, $contact_id);
 
-
-            $count++;
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Unarchive', log_description = '$session_name Unarchived $count contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Contact", "Bulk Unarchive", "$session_name Unarchived $count contacts", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived $count contact(s)";
+        $_SESSION['alert_message'] = "You unarchived <strong>$count</strong> contact(s)";
 
     }
 
@@ -506,10 +521,10 @@ if (isset($_POST['bulk_delete_contacts'])) {
     enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $contact_ids = $_POST['contact_ids']; // Get array of IDs to be deleted
+    if ($_POST['contact_ids']) {
 
-    if (!empty($contact_ids)) {
+        // Get Selected Contacts Count
+        $count = count($_POST['contact_ids']);
 
         // Cycle through array and delete each record
         foreach ($contact_ids as $contact_id) {
@@ -537,15 +552,15 @@ if (isset($_POST['bulk_delete_contacts'])) {
             mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
             mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
 
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+            // Individual Logging
+            logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
-            $count++;
         }
 
-        // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name bulk deleted $count contacts', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        // Bulk Logging
+         logAction("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        $_SESSION['alert_message'] = "Deleted $count contact(s)";
+        $_SESSION['alert_message'] = "You deleted <strong>$count</strong> contact(s)";
 
     }
 
@@ -646,7 +661,7 @@ if (isset($_GET['anonymize_contact'])) {
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Anonymize', log_description = '$session_name anonymized contact', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+    logAction("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact $contact_name anonymized & archived";
@@ -674,11 +689,12 @@ if (isset($_GET['archive_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
     
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Archive', log_description = '$session_name archived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+    // Logging
+    logAction("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
+
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> archived";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -704,10 +720,10 @@ if (isset($_GET['unarchive_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Unarchive', log_description = '$session_name unarchived contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+    // logging
+    logAction("Contact", "Unarchive", "$session_name unarchived contact $contact_name", $client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> Unarchived";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been Unarchived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -740,10 +756,10 @@ if (isset($_GET['delete_contact'])) {
     mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Delete', log_description = '$session_name deleted contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $contact_id");
+    logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> deleted.";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been deleted.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -795,7 +811,7 @@ if (isset($_POST['export_client_contacts_csv'])) {
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Export', log_description = '$session_name exported $num_rows contact(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
 
     exit;
 
@@ -884,7 +900,7 @@ if (isset($_POST["import_client_contacts_csv"])) {
         fclose($file);
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Contact', log_action = 'Import', log_description = '$session_name imported $row_count contact(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Contact(s) added, $duplicate_count duplicate(s) detected";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
