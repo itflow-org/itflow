@@ -15,10 +15,10 @@ if (isset($_POST['add_account'])) {
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = $opening_balance, account_currency_code = '$currency_code', account_notes = '$notes'");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Account", "Create", "$session_name created account $name");
 
-    $_SESSION['alert_message'] = "Account added";
+    $_SESSION['alert_message'] = "Account <strong>$name</strong> created ";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -34,10 +34,10 @@ if (isset($_POST['edit_account'])) {
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes' WHERE account_id = $account_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Account", "Edit", "$session_name edited account $name");
 
-    $_SESSION['alert_message'] = "Account modified";
+    $_SESSION['alert_message'] = "Account <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -49,12 +49,17 @@ if (isset($_GET['archive_account'])) {
     validateCSRFToken($_GET['csrf_token']);
     $account_id = intval($_GET['archive_account']);
 
+    // Get Account Name for logging
+    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_id");
+    $row = mysqli_fetch_array($sql);
+    $account_name = sanitizeInput($row['account_name']);
+
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Archive', log_description = '$account_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+    // Logging
+    logAction("Account", "Archive", "$session_name archived account $account_name");
 
-    $_SESSION['alert_message'] = "Account Archived";
+    $_SESSION['alert_message'] = "Account <strong>$account_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -66,14 +71,18 @@ if (isset($_GET['delete_account'])) {
 
     $account_id = intval($_GET['delete_account']);
 
+    // Get Account Name for logging
+    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_id");
+    $row = mysqli_fetch_array($sql);
+    $account_name = sanitizeInput($row['account_name']);
+
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Account', log_action = 'Delete', log_description = '$account_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Account", "Delete", "$session_name deleted account $account_name");
 
-    $_SESSION['alert_message'] = "Account deleted";
+    $_SESSION['alert_message'] = "Account <strong>$account_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
-
