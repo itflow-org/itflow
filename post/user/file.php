@@ -163,6 +163,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
     // Delete file loop
     if ($_POST['file_ids']) {
+        
         foreach($_POST['file_ids'] as $file_id) {
 
             $file_id = intval($file_id);
@@ -180,13 +181,13 @@ if (isset($_POST['bulk_delete_files'])) {
             // Log each invidual file deletion
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id");
         }
+
+        // Log the bulk delete action
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Bulk Delete', log_description = '$session_name deleted $file_count files', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "You deleted <strong>$file_count</strong> files";
     }
-
-    // Log the bulk delete action
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Bulk Delete', log_description = '$session_name deleted $file_count files', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id");
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "You deleted <strong>$file_count</strong> files";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -205,11 +206,12 @@ if (isset($_POST['bulk_move_files'])) {
     $folder_name = sanitizeInput($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
-    // Get Selected file Count
-    $file_count = count($_POST['file_ids']);
-
-    // Move Documents to Folder Loop
-    if (!empty($_POST['file_ids'])) {
+    // Check array for data
+    if ($_POST['file_ids']) {
+        // Get Selected file Count
+        $file_count = count($_POST['file_ids']);
+        
+        // Move Documents to Folder Loop
         foreach($_POST['file_ids'] as $file_id) {
             $file_id = intval($file_id);
             // Get file name for logging
@@ -223,9 +225,12 @@ if (isset($_POST['bulk_move_files'])) {
             //Logging
             mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Move', log_description = '$session_name moved file $file_name to folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
         }
-    }
 
-    $_SESSION['alert_message'] = "You moved <b>$file_count</b> files to the folder <b>$folder_name</b>";
+        //Logging
+        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Bulk Move', log_description = '$session_name moved $file_count files to folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $file_id");
+
+        $_SESSION['alert_message'] = "You moved <strong>$file_count</strong> files to the folder <b>$folder_name</b>";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -254,7 +259,7 @@ if (isset($_POST['link_asset_to_file'])) {
 if (isset($_GET['unlink_asset_from_file'])) {
 
     enforceUserPermission('module_support', 2);
-    
+
     $asset_id = intval($_GET['asset_id']);
     $file_id = intval($_GET['file_id']);
 
