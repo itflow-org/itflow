@@ -1337,3 +1337,9 @@ function appNotify($type, $details, $action = null, $client_id = 0, $entity_id =
         mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = '$type', notification = '$details', notification_action = '$action', notification_client_id = $client_id, notification_entity_id = $entity_id, notification_user_id = $user_id");
     }
 }
+
+function logAction($type, $action, $description, $client_id = 0, $entity_id = 0) {
+    global $mysqli, $session_user_agent, $session_ip, $session_user_id;
+
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = '$type', log_action = '$action', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $entity_id");
+}
