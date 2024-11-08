@@ -262,6 +262,11 @@ while ($folder_id > 0) {
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveFilesModal">
                                             <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                         </a>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item text-danger text-bold"
+                                                type="submit" form="bulkActions" name="bulk_delete_files">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </button>
                                     </div>
                                 </div>
 

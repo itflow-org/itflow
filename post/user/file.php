@@ -5,6 +5,9 @@
  */
 
 if (isset($_POST['upload_files'])) {
+    
+    enforceUserPermission('module_support', 2);    
+
     $client_id = intval($_POST['client_id']);
     $folder_id = intval($_POST['folder_id']);
     $description = sanitizeInput($_POST['description']);
@@ -59,7 +62,7 @@ if (isset($_POST['upload_files'])) {
 
 if (isset($_POST['rename_file'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $file_id = intval($_POST['file_id']);
     $client_id = intval($_POST['client_id']);
@@ -80,7 +83,7 @@ if (isset($_POST['rename_file'])) {
 
 if (isset($_POST['move_file'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $file_id = intval($_POST['file_id']);
     $client_id = intval($_POST['client_id']);
@@ -101,7 +104,7 @@ if (isset($_POST['move_file'])) {
 
 if (isset($_GET['archive_file'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $file_id = intval($_GET['archive_file']);
 
@@ -125,7 +128,7 @@ if (isset($_GET['archive_file'])) {
 
 if (isset($_POST['delete_file'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
     $file_id = intval($_POST['file_id']);
@@ -150,9 +153,49 @@ if (isset($_POST['delete_file'])) {
 
 }
 
+if (isset($_POST['bulk_delete_files'])) {
+
+    enforceUserPermission('module_support', 3);
+    validateCSRFToken($_POST['csrf_token']);
+
+    // Get selected file Count
+    $file_count = count($_POST['file_ids']);
+
+    // Delete file loop
+    if ($_POST['file_ids']) {
+        foreach($_POST['file_ids'] as $file_id) {
+
+            $file_id = intval($file_id);
+
+            $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
+            $row = mysqli_fetch_array($sql_file);
+            $client_id = intval($row['file_client_id']);
+            $file_name = sanitizeInput($row['file_name']);
+            $file_reference_name = sanitizeInput($row['file_reference_name']);
+
+            unlink("uploads/clients/$client_id/$file_reference_name");
+
+            mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
+
+            // Log each invidual file deletion
+            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Delete', log_description = '$file_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id");
+        }
+    }
+
+    // Log the bulk delete action
+    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'File', log_action = 'Bulk Delete', log_description = '$session_name deleted $file_count files', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = '$client_id', log_user_id = $session_user_id");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "You deleted <strong>$file_count</strong> files";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_move_files'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_POST['csrf_token']);
 
     $folder_id = intval($_POST['bulk_folder_id']);
 
@@ -190,7 +233,7 @@ if (isset($_POST['bulk_move_files'])) {
 
 if (isset($_POST['link_asset_to_file'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $file_id = intval($_POST['file_id']);
@@ -210,7 +253,8 @@ if (isset($_POST['link_asset_to_file'])) {
 
 if (isset($_GET['unlink_asset_from_file'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
+    
     $asset_id = intval($_GET['asset_id']);
     $file_id = intval($_GET['file_id']);
 
