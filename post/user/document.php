@@ -18,7 +18,7 @@ if (isset($_POST['add_document'])) {
     mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Created $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
     $_SESSION['alert_message'] = "Document <strong>$name</strong> created";
 
@@ -56,7 +56,7 @@ if (isset($_POST['add_document_from_template'])) {
     mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = 'Document $document_name created from template $document_template_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+    logAction("Document", "Create", "$session_name created document $name from template $document_template_name", $client_id, $document_id);
 
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> created from template";
 
@@ -104,10 +104,9 @@ if (isset($_POST['edit_document'])) {
     mysqli_query($mysqli,"UPDATE service_documents SET document_id = $new_document_id WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Edit', log_description = '$session_name Edited document $name previous version was kept', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $new_document_id");
+    logAction("Document", "Edit", "$session_name edited document $name, previous version kept", $client_id, $new_document_id);
 
-
-    $_SESSION['alert_message'] = "Document <strong>$name</strong> updated, previous version kept";
+    $_SESSION['alert_message'] = "Document <strong>$name</strong> edited, previous version kept";
 
     header("Location: client_document_details.php?client_id=$client_id&document_id=$new_document_id");
 }
@@ -117,17 +116,26 @@ if (isset($_POST['move_document'])) {
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
-    $client_id = intval($_POST['client_id']);
-    $folder = intval($_POST['folder']);
+    $folder_id = intval($_POST['folder']);
 
+    // Get Document Name Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Folder Name for logging
+    $sql_folder = mysqli_query($mysqli,"SELECT folder_name FROM folders WHERE folder_id = $folder_id");
+    $row = mysqli_fetch_array($sql_folder);
+    $folder_name = sanitizeInput($row['folder_name']);
+    
     // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder WHERE document_id = $document_id");
+    mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name moved document', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+    logAction("Document", "Move", "$session_name moved document $document_name to folder $folder_name", $client_id, $document_id);
 
-
-    $_SESSION['alert_message'] = "Document moved";
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> moved to folder <strong>$folder_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -141,11 +149,16 @@ if (isset($_POST['rename_document'])) {
     $client_id = intval($_POST['client_id']);
     $name = sanitizeInput($_POST['name']);
 
+    // Get Document Name before renaming for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $old_document_name = sanitizeInput($row['document_name']);
+
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name' WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Rename', log_description = '$session_name renamed document to $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+    logAction("Document", "Edit", "$session_name renamed document $old_document_name to $name", $client_id, $document_id);
 
 
     $_SESSION['alert_message'] = "You renamed Document to <strong>$name</strong>";
@@ -166,11 +179,12 @@ if (isset($_POST['bulk_move_document'])) {
     $folder_name = sanitizeInput($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
-    // Get Selected Document Count
-    $document_count = count($_POST['document_ids']);
-
     // Move Documents to Folder Loop
-    if (!empty($_POST['document_ids'])) {
+    if ($_POST['document_ids']) {
+
+        // Get Selected Count
+        $count = count($_POST['document_ids']);
+
         foreach($_POST['document_ids'] as $document_id) {
             $document_id = intval($document_id);
             // Get document name for logging
@@ -182,11 +196,13 @@ if (isset($_POST['bulk_move_document'])) {
             mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id WHERE document_id = $document_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Move', log_description = '$session_name moved document $document_name to folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+            logAction("Document", "Move", "$session_name moved document $document_name to folder $folder_name", $client_id, $document_id);
         }
+
+        logAction("Document", "Bulk Move", "$session_name moved $count document(s) to folder $folder_name", $client_id);
     }
 
-    $_SESSION['alert_message'] = "You moved <b>$document_count</b> documents to the folder <b>$folder_name</b>";
+    $_SESSION['alert_message'] = "You moved <strong>$count</strong> document(s) to the folder <strong>$folder_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -196,17 +212,27 @@ if (isset($_POST['link_file_to_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
     $file_id = intval($_POST['file_id']);
+
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get File Name for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO document_files SET file_id = $file_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document File link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Link", "$session_name linked file $file_name to document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "File linked with Document";
+    $_SESSION['alert_message'] = "File <strong>$file_name</strong> linked with Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -219,12 +245,24 @@ if (isset($_GET['unlink_file_from_document'])) {
     $file_id = intval($_GET['file_id']);
     $document_id = intval($_GET['document_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get File Name for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+
     mysqli_query($mysqli,"DELETE FROM document_files WHERE file_id = $file_id AND document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document File link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Document", "Unlink", "$session_name unlinked file $file_name from document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "File has been unlinked";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "File <strong>$file_name</strong> unlinked from Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -234,17 +272,27 @@ if (isset($_POST['link_vendor_to_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
     $vendor_id = intval($_POST['vendor_id']);
+
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Vendor Name for logging
+    $sql_vendor = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $vendor_id");
+    $row = mysqli_fetch_array($sql_vendor);
+    $vendor_name = sanitizeInput($row['vendor_name']);
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO vendor_documents SET vendor_id = $vendor_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Vendor link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Link", "$session_name linked vendor $vendor_name to document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Vendor linked with Document";
+    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> linked with Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -257,12 +305,24 @@ if (isset($_GET['unlink_vendor_from_document'])) {
     $vendor_id = intval($_GET['vendor_id']);
     $document_id = intval($_GET['document_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Vendor Name for logging
+    $sql_vendor = mysqli_query($mysqli,"SELECT vendor_name FROM vendors WHERE vendor_id = $vendor_id");
+    $row = mysqli_fetch_array($sql_vendor);
+    $vendor_name = sanitizeInput($row['vendor_name']);
+
     mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id AND document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Vendor link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Document", "Unlink", "$session_name unlinked vendor $vendor_name from document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Vendor has been unlinked";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> unlinked from Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -276,13 +336,24 @@ if (isset($_POST['link_contact_to_document'])) {
     $document_id = intval($_POST['document_id']);
     $contact_id = intval($_POST['contact_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Contact link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Link", "$session_name linked contact $contact_name to document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Contact linked with Document";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -295,12 +366,24 @@ if (isset($_GET['unlink_contact_from_document'])) {
     $contact_id = intval($_GET['contact_id']);
     $document_id = intval($_GET['document_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
     mysqli_query($mysqli,"DELETE FROM contact_documents WHERE contact_id = $contact_id AND document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Contact link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Document", "Unlink", "$session_name unlinked contact $contact_name from document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Contact has been unlinked";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -310,17 +393,27 @@ if (isset($_POST['link_asset_to_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
     $asset_id = intval($_POST['asset_id']);
+
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Asset link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Link", "$session_name linked asset $asset_name to document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Asset linked with Document";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -333,12 +426,24 @@ if (isset($_GET['unlink_asset_from_document'])) {
     $asset_id = intval($_GET['asset_id']);
     $document_id = intval($_GET['document_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
     mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id AND document_id = $document_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Asset link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Document", "Unlink", "$session_name unlinked asset $asset_name from document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Asset has been unlinked";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -348,17 +453,27 @@ if (isset($_POST['link_software_to_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
     $document_id = intval($_POST['document_id']);
     $software_id = intval($_POST['software_id']);
+
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Software Name for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO software_documents SET software_id = $software_id, document_id = $document_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Link', log_description = 'Created Document Software link', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Document", "Link", "$session_name linked software $software_name to document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Contact linked with Document";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> linked with Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -371,12 +486,24 @@ if (isset($_GET['unlink_software_from_document'])) {
     $software_id = intval($_GET['software_id']);
     $document_id = intval($_GET['document_id']);
 
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
+    // Get Software Name for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+
     mysqli_query($mysqli,"DELETE FROM software_documents WHERE software_id = $software_id AND document_id = $document_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'unLink', log_description = 'Document Software link removed', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Document", "Unlink", "$session_name unlinked software $software_name from document $document_name", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Software has been unlinked";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -396,29 +523,40 @@ if (isset($_POST['edit_document_template'])) {
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_updated_by = $session_user_id WHERE document_id = $document_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Template', log_action = 'Modify', log_description = '$session_name modified document template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $document_id");
+    // Logging
+    logAction("Document Template", "Edit", "$session_name edited document template $name", 0, $document_id);
 
-
-    $_SESSION['alert_message'] = "Document Template <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Document Template <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
-if (isset($_POST['document_visible'])) {
+if (isset($_POST['toggle_document_visibility'])) {
 
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
     $document_visible = intval($_POST['document_visible']);
 
+    if ($document_visible == 0) {
+        $visable_wording = "Invisable";
+    } else {
+        $visable_wording = "Visable";
+    }
+
+    // Get Document Name and Client ID for logging
+    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql_document);
+    $document_name = sanitizeInput($row['document_name']);
+    $client_id = intval($row['document_client_id']);
+
     mysqli_query($mysqli,"UPDATE documents SET document_client_visible = $document_visible WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$session_name modified document visibility', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $document_id");
+    logAction("Document", "Edit", "$session_name changed document $document_name visibilty to $visable_wording in the client portal", $client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Document visibility updated";
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> changed to <strong>$visable_wording</strong> in the client portal";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -457,8 +595,8 @@ if (isset($_GET['archive_document'])) {
     // Service Associations
     mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Archive', log_description = '$session_name archived document $document_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $document_id");
+    // Logging
+    logAction("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> archived";
@@ -473,11 +611,12 @@ if (isset($_GET['delete_document_version'])) {
 
     $document_id = intval($_GET['delete_document_version']);
 
-     // Get Document Parent ID
-    $sql = mysqli_query($mysqli,"SELECT document_parent, document_client_id FROM documents WHERE document_id = $document_id");
+    // Get Document Parent ID
+    $sql = mysqli_query($mysqli,"SELECT document_name, document_parent, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['document_client_id']);
     $document_parent = intval($row['document_parent']);
+    $document_name = sanitizeInput($row['document_name']);
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
@@ -501,9 +640,10 @@ if (isset($_GET['delete_document_version'])) {
     mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document Version', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Document Version", "Delete", "$session_name deleted document version $document_name", $client_id);
 
-    $_SESSION['alert_message'] = "Document version deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Document $document_name version deleted";
 
     header("Location: client_document_details.php?client_id=$client_id&document_id=$document_parent");
 
@@ -514,6 +654,12 @@ if (isset($_GET['delete_document'])) {
     enforceUserPermission('module_support', 3);
 
     $document_id = intval($_GET['delete_document']);
+
+    // Get Document Name and Client ID for logging
+    $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['document_client_id']);
+    $document_name = sanitizeInput($row['document_name']);
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
@@ -540,9 +686,9 @@ if (isset($_GET['delete_document'])) {
     mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = '$document_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
 
-    $_SESSION['alert_message'] = "Document and versions deleted";
+    $_SESSION['alert_message'] = "Document $document_name and all versions";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -555,17 +701,18 @@ if (isset($_POST['bulk_delete_documents'])) {
 
     
     if ($_POST['document_ids']) {     
-        
+
         // Get selected document count
-        $document_count = count($_POST['document_ids']);
+        $count = count($_POST['document_ids']);
         
         // Delete document loop
         foreach($_POST['document_ids'] as $document_id) {
             $document_id = intval($document_id);
             // Get document name for logging
-            $sql = mysqli_query($mysqli,"SELECT document_name FROM documents WHERE document_id = $document_id");
+            $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
             $row = mysqli_fetch_array($sql);
             $document_name = sanitizeInput($row['document_name']);
+            $client_id = intval($row['document_client_id']);
 
             mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
@@ -592,15 +739,16 @@ if (isset($_POST['bulk_delete_documents'])) {
             mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
             //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Delete', log_description = 'Deleted $document_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");            
+            logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);  
 
         }
 
         //Logging
         mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Bulk Delete', log_description = '$session_name deleted $document_count documents', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        logAction("Document", "Bulk Delete", "$session_name deleted $count document(s) and all versions", $client_id);
 
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "You deleted <strong>$document_count</strong> Documents and associated document versions";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> Documents and associated document versions";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
