@@ -161,7 +161,7 @@ if (isset($_POST['rename_document'])) {
     logAction("Document", "Edit", "$session_name renamed document $old_document_name to $name", $client_id, $document_id);
 
 
-    $_SESSION['alert_message'] = "You renamed Document to <strong>$name</strong>";
+    $_SESSION['alert_message'] = "You renamed Document from <strong>$old_document_name</strong> to <strong>$name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
