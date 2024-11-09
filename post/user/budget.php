@@ -31,8 +31,8 @@ if (isset($_POST['save_budget'])) {
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Budget', log_action = 'Edit', log_description = '$session_name updated the budget for $year', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Budget", "Edit", "$session_name edited the budget for $year");
 
     $_SESSION['alert_message'] = "Budget Updated for $year";
 
@@ -51,8 +51,8 @@ if (isset($_POST['delete_budget'])) {
 
     mysqli_query($mysqli,"DELETE FROM budget WHERE budget_year = $year");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Budget', log_action = 'Delete', log_description = '$session_name deleted the budget for $year', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Budget", "Delete", "$session_name deleted the budget for $year");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Budget deleted for $year";
