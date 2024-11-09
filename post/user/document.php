@@ -745,7 +745,6 @@ if (isset($_POST['bulk_delete_documents'])) {
         }
 
         //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Document', log_action = 'Bulk Delete', log_description = '$session_name deleted $document_count documents', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
         logAction("Document", "Bulk Delete", "$session_name deleted $count document(s) and all versions", $client_id);
 
         $_SESSION['alert_type'] = "error";
