@@ -9,6 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="important" value="0">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">

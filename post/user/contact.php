@@ -32,7 +32,7 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     // Add Tags
-    if (isset($_POST['tags'])) {
+    if ($_POST['tags']) {
         foreach($_POST['tags'] as $tag) {
             $tag = intval($tag);
             mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
