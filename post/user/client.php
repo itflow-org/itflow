@@ -85,7 +85,7 @@ if (isset($_POST['add_client'])) {
         mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0,  domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
 
         //Extended Logging
-        $extended_log_description .= ", domain added";
+        $extended_log_description .= ", domain $website added";
 
         // Get inserted ID (for linking certificate, if exists)
         $domain_id = mysqli_insert_id($mysqli);
@@ -100,7 +100,7 @@ if (isset($_POST['add_client'])) {
             mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
 
             //Extended Logging
-            $extended_log_description .= ", SSL certificate added";
+            $extended_log_description .= ", SSL certificate $website added";
         }
 
     }
