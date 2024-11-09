@@ -688,7 +688,8 @@ if (isset($_GET['delete_document'])) {
     //Logging
     logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
 
-    $_SESSION['alert_message'] = "Document $document_name and all versions";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> deleted and all versions";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
