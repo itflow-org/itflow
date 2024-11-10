@@ -51,7 +51,7 @@ if (isset($_POST['add_domain'])) {
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Create', log_description = '$session_name created domain $name$extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+    logAction("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
 
     $_SESSION['alert_message'] = "Domain <strong>$name</strong> created";
 
@@ -97,10 +97,10 @@ if (isset($_POST['edit_domain'])) {
 
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Modify', log_description = '$session_name modified domain $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+    // Logging
+    logAction("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
 
-    $_SESSION['alert_message'] = "Domain <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Domain <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -120,8 +120,8 @@ if (isset($_GET['archive_domain'])) {
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Archive', log_description = '$session_name archived domain $domain_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Domain <strong>$domain_name archived";
@@ -143,8 +143,8 @@ if(isset($_GET['unarchive_domain'])){
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'domain', log_action = 'Unarchive', log_description = '$session_name restored domain $domain_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+    // Logging
+    logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
 
     $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> restored";
 
@@ -165,8 +165,8 @@ if (isset($_GET['delete_domain'])) {
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name deleted domain $domain_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+    // Logging
+    logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> deleted";
@@ -179,10 +179,10 @@ if (isset($_POST['bulk_archive_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $domain_ids = $_POST['domain_ids']; // Get array of IDs to be deleted
+    if ($_POST['domain_ids']) {
 
-    if (!empty($domain_ids)) {
+        // Get Selected Count
+        $count = count($_POST['domain_ids']);
 
         // Cycle through array and archive each record
         foreach ($domain_ids as $domain_id) {
@@ -198,15 +198,14 @@ if (isset($_POST['bulk_archive_domains'])) {
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
             // Individual Contact logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Archive', log_description = '$session_name archived domain $domain_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
-            $count++;
+            logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Archive', log_description = '$session_name archived $count domains', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
 
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived $count domain(s)";
+        $_SESSION['alert_message'] = "Archived <strong>$count</strong> domain(s)";
 
     }
 
@@ -217,10 +216,10 @@ if (isset($_POST['bulk_unarchive_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $domain_ids = $_POST['domain_ids']; // Get array of IDs
+    if ($_POST['domain_ids']) {
 
-    if (!empty($domain_ids)) {
+        // Get Selected Count
+        $count = count($_POST['domain_ids']);
 
         // Cycle through array and unarchive
         foreach ($domain_ids as $domain_id) {
@@ -236,16 +235,14 @@ if (isset($_POST['bulk_unarchive_domains'])) {
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
             // Individual logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Unarchive', log_description = '$session_name Unarchived domain $domains_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
+            logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
 
-
-            $count++;
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Unarchive', log_description = '$session_name Unarchived $count domains', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Domain", "Bulk Unarchive", "$session_name unarchived $count domain(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived $count domain(s)";
+        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> domain(s)";
 
     }
 
@@ -256,26 +253,33 @@ if (isset($_POST['bulk_delete_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $domain_ids = $_POST['domain_ids']; // Get array of domain IDs to be deleted
-    $client_id = intval($_POST['client_id']);
+    if ($_POST['domain_ids']) {
 
-    if (!empty($domain_ids)) {
+        // Get Selected Count
+        $count = count($_POST['domain_ids']);
 
         // Cycle through array and delete each domain
         foreach ($domain_ids as $domain_id) {
 
             $domain_id = intval($domain_id);
-            mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name deleted a domain (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $domain_id");
 
-            $count++;
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
+            $row = mysqli_fetch_array($sql);
+            $domain_name = sanitizeInput($row['domain_name']);
+            $client_id = intval($row['domain_client_id']);
+
+            mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
+            
+            // Logging
+            logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Domain', log_action = 'Delete', log_description = '$session_name bulk deleted $count domains', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Deleted $count domain(s)";
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> domain(s)";
 
     }
 
@@ -327,7 +331,7 @@ if (isset($_POST['export_client_domains_csv'])) {
     }
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Domain', log_action = 'Export', log_description = '$session_name exported $num_rows domain(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
 
     exit;
 
