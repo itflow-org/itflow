@@ -33,7 +33,7 @@ if (isset($_POST['add_expense'])) {
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Create', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Expense", "Create", "$session_name created expense $description", $client, $expense_id);
 
     $_SESSION['alert_message'] = "Expense added" . $extended_alert_description;
 
@@ -78,10 +78,10 @@ if (isset($_POST['edit_expense'])) {
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");
 
-    $_SESSION['alert_message'] = "Expense modified" . $extended_alert_description;
+    // Logging
+    logAction("Expense", "Edit", "$session_name edited expense $description", $client, $expense_id);
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Modify', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $_SESSION['alert_message'] = "Expense modified" . $extended_alert_description;
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -93,13 +93,15 @@ if (isset($_GET['delete_expense'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
     $row = mysqli_fetch_array($sql);
     $expense_receipt = sanitizeInput($row['expense_receipt']);
+    $expense_description = sanitizeInput($row['expense_description']);
+    $client_id = intval($row['expense_client_id']);
 
     unlink("uploads/expenses/$expense_receipt");
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$expense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
 
     $_SESSION['alert_message'] = "Expense deleted";
 
@@ -116,11 +118,12 @@ if (isset($_POST['bulk_edit_expense_category'])) {
     $row = mysqli_fetch_array($sql);
     $category_name = sanitizeInput($row['category_name']);
 
-    // Get Selected Contacts Count
-    $expense_count = count($_POST['expense_ids']);
-
     // Assign category to Selected Expenses
-    if (!empty($_POST['expense_ids'])) {
+    if ($_POST['expense_ids']) {
+
+        // Get Selected Count
+        $count = count($_POST['expense_ids']);
+
         foreach($_POST['expense_ids'] as $expense_id) {
             $expense_id = intval($expense_id);
 
@@ -132,12 +135,15 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to expense category $category_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+            // Logging
+            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to category $category_name", $client_id, $expense_id);
 
-        } // End Assign Location Loop
+        } // End Assign Loop
 
-        $_SESSION['alert_message'] = "You assigned expense category <b>$category_name</b> to <b>$expense_count</b> expenses";
+        // Logging
+        logAction("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
+
+        $_SESSION['alert_message'] = "You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -152,11 +158,12 @@ if (isset($_POST['bulk_edit_expense_account'])) {
     $row = mysqli_fetch_array($sql);
     $account_name = sanitizeInput($row['account_name']);
 
-    // Get Selected Contacts Count
-    $expense_count = count($_POST['expense_ids']);
+    // Assign account to Selected Expenses
+    if ($_POST['expense_ids']) {
 
-    // Assign category to Selected Expenses
-    if (!empty($_POST['expense_ids'])) {
+        // Get Selected Contacts Count
+        $count = count($_POST['expense_ids']);
+
         foreach($_POST['expense_ids'] as $expense_id) {
             $expense_id = intval($expense_id);
 
@@ -168,12 +175,15 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to account $account_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+            // Logging
+            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
 
-        } // End Assign Location Loop
+        } // End Assign Loop
 
-        $_SESSION['alert_message'] = "You assigned account <b>$account_name</b> to <b>$expense_count</b> expenses";
+        // Logging
+        logAction("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
+
+        $_SESSION['alert_message'] = "You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -188,11 +198,12 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     $row = mysqli_fetch_array($sql);
     $client_name = sanitizeInput($row['client_name']);
 
-    // Get Selected Contacts Count
-    $expense_count = count($_POST['expense_ids']);
+    // Assign Client to Selected Expenses
+    if ($_POST['expense_ids']) {
 
-    // Assign category to Selected Expenses
-    if (!empty($_POST['expense_ids'])) {
+        // Get Selected Count
+        $count = count($_POST['expense_ids']);
+
         foreach($_POST['expense_ids'] as $expense_id) {
             $expense_id = intval($expense_id);
 
@@ -203,10 +214,10 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Edit', log_description = '$session_name assigned $expense_description to client $client_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+            // Logging
+            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to client $client_name", $client_id, $expense_id);
 
-        } // End Assign Location Loop
+        } // End Assign Loop
 
         $_SESSION['alert_message'] = "You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses";
     }
@@ -218,11 +229,10 @@ if (isset($_POST['bulk_delete_expenses'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $expense_ids = $_POST['expense_ids']; // Get array of expense IDs to be deleted
-    $client_id = intval($_POST['client_id']);
+    if ($_POST['expense_ids']) {
 
-    if (!empty($expense_ids)) {
+        // Get Selected Count
+        $count = count($_POST['expense_ids']);
 
         // Cycle through array and delete each expense
         foreach ($expense_ids as $expense_id) {
@@ -231,21 +241,24 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
             $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
             $row = mysqli_fetch_array($sql);
+            $expense_description = sanitizeInput($row['expense_description']);
             $expense_receipt = sanitizeInput($row['expense_receipt']);
+            $client_id = intval($row['expense_client_id']);
 
             unlink("uploads/expenses/$expense_receipt");
 
             mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$session_name deleted a expense (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $expense_id");
+            
+            // Logging
+            logAction("Expense", "Delete", "$session_name deleted expense $expense_descrition", $client_id);
 
-            $count++;
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Expense', log_action = 'Delete', log_description = '$session_name bulk deleted $count expenses', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
 
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted $count expense(s)";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> expense(s)";
 
     }
 
@@ -303,7 +316,8 @@ if (isset($_POST['export_expenses_csv'])) {
       ORDER BY expense_date DESC
     ");
 
-    if (mysqli_num_rows($sql) > 0) {
+    $num_rows = mysqli_num_rows($sql);
+    if ($num_rows > 0) {
         $delimiter = ",";
         $filename = "$session_company_name-Expenses-$file_name_date.csv";
 
@@ -331,8 +345,8 @@ if (isset($_POST['export_expenses_csv'])) {
         fpassthru($f);
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Expense', log_action = 'Export', log_description = '$session_name exported expenses to CSV File', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+    // Logging
+    logAction("Expense", "Export", "$session_name exported $num_rows expense(s) to CSV file");
 
     exit;
 }
@@ -356,10 +370,10 @@ if (isset($_POST['create_recurring_expense'])) {
 
     $recurring_expense_id = mysqli_insert_id($mysqli);
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Create', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Recurring Expense", "Create", "$session_name created recurring expense $description", $client_id, $recurring_expense_id);
 
-    $_SESSION['alert_message'] = "Recurring Expense added";
+    $_SESSION['alert_message'] = "Recurring Expense created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -386,7 +400,7 @@ if (isset($_POST['edit_recurring_expense'])) {
     $recurring_expense_id = mysqli_insert_id($mysqli);
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Edit', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Recurring Expense", "Edit", "$session_name edited recurring expense $description", $client_id, $recurring_expense_id);
 
     $_SESSION['alert_message'] = "Recurring Expense edited";
 
@@ -397,10 +411,16 @@ if (isset($_POST['edit_recurring_expense'])) {
 if (isset($_GET['delete_recurring_expense'])) {
     $recurring_expense_id = intval($_GET['delete_recurring_expense']);
 
+    // Get Recurring Expense Details for Logging
+    $sql = mysqli_query($mysqli,"SELECT recurring_expense_description, recurring_expense_client_id FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    $client_id = intval($row['recurring_expense_client_id']);
+
     mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Recurring Expense', log_action = 'Delete', log_description = '$recurring_expense_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Recurring Expense", "Delete", "$session_name deleted recurring expense $recurring_expense_description", $client_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Recurring Expense deleted";

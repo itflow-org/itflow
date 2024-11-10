@@ -103,7 +103,7 @@ function getIP()
 
 function getWebBrowser($user_browser)
 {
-    $browser        =   "Unknown Browser";
+    $browser        =   "-";
     $browser_array  =   array(
         '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
         '/firefox/i'    =>  "<i class='fab fa-fw fa-firefox text-secondary'></i> Firefox",
@@ -123,7 +123,7 @@ function getWebBrowser($user_browser)
 
 function getOS($user_os)
 {
-    $os_platform    =   "Unknown OS";
+    $os_platform    =   "-";
     $os_array       =   array(
         '/windows/i'            =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
         '/macintosh|mac os x/i' =>  "<i class='fab fa-fw fa-apple text-secondary'></i> MacOS",
