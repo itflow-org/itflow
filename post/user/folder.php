@@ -6,7 +6,7 @@
 
 if (isset($_POST['create_folder'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
     $folder_location = intval($_POST['folder_location']);
@@ -18,7 +18,7 @@ if (isset($_POST['create_folder'])) {
     $folder_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Create', log_description = '$session_name created folder $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id");
+    logAction("Folder", "Create", "$session_name created folder $folder_name", $client_id, $folder_id);
 
     $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
 
@@ -28,19 +28,24 @@ if (isset($_POST['create_folder'])) {
 
 if (isset($_POST['rename_folder'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['folder_id']);
-    $client_id = intval($_POST['client_id']);
     $folder_name = sanitizeInput($_POST['folder_name']);
+
+    // Get old Folder Name Client ID for Logging
+    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
+    $row = mysqli_fetch_array($sql);
+    $old_folder_name = sanitizeInput($row['folder_name']);
+    $client_id = intval($row['folder_client_id']);
 
     // Folder edit query
     mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Modify', log_description = '$session_name renamed folder to $folder_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $folder_id");
+    logAction("Folder", "Rename", "$session_name renamed folder $old_folder_name to $folder_name", $client_id, $folder_id);
 
-    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> renamed";
+    $_SESSION['alert_message'] = "Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -48,9 +53,15 @@ if (isset($_POST['rename_folder'])) {
 
 if (isset($_GET['delete_folder'])) {
 
-    validateAdminRole();
+    enforceUserPermission('module_support', 3);
 
     $folder_id = intval($_GET['delete_folder']);
+
+    // Get Folder Name Client ID for Logging
+    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
+    $row = mysqli_fetch_array($sql);
+    $folder_name = sanitizeInput($row['folder_name']);
+    $client_id = intval($row['folder_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM folders WHERE folder_id = $folder_id");
 
@@ -63,9 +74,9 @@ if (isset($_GET['delete_folder'])) {
     }
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Folder', log_action = 'Delete', log_description = '$folder_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Folder", "Delete", "$session_name deleted folder $folder_name", $client_id);
 
-    $_SESSION['alert_message'] = "Folder deleted";
+    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
