@@ -551,7 +551,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    $_SESSION['alert_message'] = "Item added";
+    $_SESSION['alert_message'] = "Item <strong>$name</strong> added to invoice";
 
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -660,6 +660,7 @@ if (isset($_GET['delete_invoice_item'])) {
     $row = mysqli_fetch_array($sql);
     $invoice_prefix = sanitizeInput($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
+    $client_id = intval($row['invoice_client_id']);
 
     $new_invoice_amount = floatval($row['invoice_amount']) - $item_total;
 
@@ -671,7 +672,7 @@ if (isset($_GET['delete_invoice_item'])) {
     logAction("Invoice Item", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed";
+    $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed from invoice";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
