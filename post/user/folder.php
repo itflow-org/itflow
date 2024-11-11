@@ -76,6 +76,7 @@ if (isset($_GET['delete_folder'])) {
     //Logging
     logAction("Folder", "Delete", "$session_name deleted folder $folder_name", $client_id);
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
