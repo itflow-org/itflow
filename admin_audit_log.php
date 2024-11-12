@@ -269,7 +269,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
-                            $client_name_display = "<a href='client_logs.php?client_id=$client_id&tab=logs'>$client_name</a>";
+                            $client_name_display = "<a href='client_overview.php?client_id=$client_id'>$client_name</a>";
                         }
                         $log_entity_id = intval($row['log_entity_id']);
 
