@@ -669,7 +669,7 @@ if (isset($_GET['delete_invoice_item'])) {
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
 
     // Logging
-    logAction("Invoice Item", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id);
+    logAction("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed from invoice";
