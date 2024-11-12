@@ -69,7 +69,7 @@ if (isset($_POST['add_project'])) {
     } // End If Project Template
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Create', log_description = '$session_name created project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+    logAction("Project", "Create", "$session_name created project $project_name", $client_id, $project_id);
 
     $_SESSION['alert_message'] = "You created Project <strong>$project_name</strong>";
 
@@ -90,9 +90,9 @@ if (isset($_POST['edit_project'])) {
     mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager WHERE project_id = $project_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Edit', log_description = '$session_name edited project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+    logAction("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "You edited Project <strong>$project_name</strong>";
+    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -103,18 +103,18 @@ if (isset($_GET['close_project'])) {
 
     $project_id = intval($_GET['close_project']);
 
-    // Get Project Name and client id for logging
-    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_name, project_client_id FROM projects WHERE project_id = $project_id");
     $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['project_client_id']);
     $project_name = sanitizeInput($row['project_name']);
+    $client_id = intval($row['project_client_id']);
 
     mysqli_query($mysqli, "UPDATE projects SET project_completed_at = NOW() WHERE project_id = $project_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Close', log_description = '$session_name closed project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+    logAction("Project", "Close", "$session_name closed project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "You closed Project <strong>$project_name</strong>";
+    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> closed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -125,18 +125,19 @@ if (isset($_GET['archive_project'])) {
 
     $project_id = intval($_GET['archive_project']);
 
-    // Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_name, project_client_id FROM projects WHERE project_id = $project_id");
     $row = mysqli_fetch_array($sql);
     $project_name = sanitizeInput($row['project_name']);
+    $client_id = intval($row['project_client_id']);
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NOW() WHERE project_id = $project_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Archive', log_description = '$session_name archived project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_id");
+    // Logging
+    logAction("Project", "Archive", "$session_name archived project $project_name", $client_id, $project_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Project $project_name archived";
+    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -147,17 +148,18 @@ if (isset($_GET['unarchive_project'])) {
 
     $project_id = intval($_GET['unarchive_project']);
 
-    // Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_name, project_client_id FROM projects WHERE project_id = $project_id");
     $row = mysqli_fetch_array($sql);
     $project_name = sanitizeInput($row['project_name']);
+    $client_id = sanitizeInput($row['project_client_id']);
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NULL WHERE project_id = $project_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Undo Archive', log_description = '$session_name unarchived project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $project_id");
+    // Logging
+    logAction("Project", "Unarchive", "$session_name unarchived project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "Project $project_name unarchived";
+    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> unarchived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -168,19 +170,19 @@ if (isset($_GET['delete_project'])) {
 
     $project_id = intval($_GET['delete_project']);
 
-    // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_name, project_client_id FROM projects WHERE project_id = $project_id");
     $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['project_client_id']);
     $project_name = sanitizeInput($row['project_name']);
+    $client_id = intval($row['project_client_id']);
 
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Delete', log_description = '$session_name deleted project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+    logAction("Project", "Delete", "$session_name deleted project $project_name", $client_id, $project_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "You Deleted Project <strong>$project_name</strong>";
+    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> Deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -190,31 +192,40 @@ if (isset($_POST['add_project_ticket'])) {
     enforceUserPermission('module_support', 2);
     $project_id = intval($_POST['project_id']);
 
-    // Get Project Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id");
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_client_id, project_name FROM projects WHERE project_id = $project_id");
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['project_client_id']);
     $project_name = sanitizeInput($row['project_name']);
     
     // Add Tickets
-    if (!empty($_POST['tickets'])) {
+    if ($_POST['tickets']) {
+
+        // Get Selected Count
+        $count = count($_POST['tickets']);
+
         foreach ($_POST['tickets'] as $ticket) {
             $ticket_id = intval($ticket);
         
             // Get Ticket Info
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id");
+            $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_array($sql);
+            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+            $ticket_number = intval($row['ticket_number']);
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
             // Logging
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Project', log_action = 'Edit', log_description = '$session_name added a ticket $ticket_subject to project $project_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $project_id");
+            logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
         }
-    }
 
-    $_SESSION['alert_message'] = "You added Tickets to <strong>$project_name</strong>";
+        // Bulk Logging
+        logAction("Project", "Bulk Edit", "$session_name added $count ticket(s) to project $project_name", $client_id, $project_id);
+
+        $_SESSION['alert_message'] = "<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
