@@ -6,7 +6,7 @@
 
 if(isset($_POST['add_location'])){
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     require_once 'post/user/location_model.php';
 
@@ -54,8 +54,8 @@ if(isset($_POST['add_location'])){
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Create', log_description = '$session_name created location $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    // Logging
+    logAction("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
     $_SESSION['alert_message'] .= "Location <strong>$name</strong> created.";
 
@@ -65,7 +65,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     require_once 'post/user/location_model.php';
 
@@ -125,8 +125,8 @@ if(isset($_POST['edit_location'])){
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name modified location $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    // Logging
+    logAction("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
     $_SESSION['alert_message'] .= "Location <strong>$name</strong> updated";
 
@@ -136,7 +136,7 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['archive_location'])){
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $location_id = intval($_GET['archive_location']);
 
@@ -148,8 +148,8 @@ if(isset($_GET['archive_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    // Logging
+    logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> archived";
@@ -160,7 +160,7 @@ if(isset($_GET['archive_location'])){
 
 if(isset($_GET['unarchive_location'])){
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $location_id = intval($_GET['unarchive_location']);
 
@@ -172,8 +172,8 @@ if(isset($_GET['unarchive_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Unarchive', log_description = '$session_name restored location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    // Logging
+    logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
 
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> restored";
 
@@ -182,7 +182,7 @@ if(isset($_GET['unarchive_location'])){
 
 if(isset($_GET['delete_location'])){
 
-    validateAdminRole();
+    enforceUserPermission('module_client', 3);
 
     $location_id = intval($_GET['delete_location']);
 
@@ -198,8 +198,9 @@ if(isset($_GET['delete_location'])){
     // Delete existing tags
     mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+    // Logging
+    logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
+
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> deleted";
@@ -210,13 +211,14 @@ if(isset($_GET['delete_location'])){
 
 if (isset($_POST['bulk_assign_location_tags'])) {
 
-    validateTechRole();
-
-    // Get Selected Count
-    $count = count($_POST['location_ids']);
+    enforceUserPermission('module_client', 2);
 
     // Assign Tags to Selected
-    if (!empty($_POST['location_ids'])) {
+    if ($_POST['location_ids']) {
+
+        // Get Selected Count
+        $count = count($_POST['location_ids']);
+
         foreach($_POST['location_ids'] as $location_id) {
             $location_id = intval($location_id);
 
@@ -241,12 +243,15 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 }
             }
 
-            //Logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Modify', log_description = '$session_name added tags to $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+            // Logging
+            logAction("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
 
         } // End Assign Location Loop
 
-        $_SESSION['alert_message'] = "Assigned tags for <b>$count</b> locations";
+        // Logging
+        logAction("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
+
+        $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> locations";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -254,16 +259,15 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 }
 
 if (isset($_POST['bulk_archive_locations'])) {
-    validateAdminRole();
+    enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $location_ids = $_POST['location_ids']; // Get array of IDs to be deleted
+    if ($_POST['location_ids']) {
 
-    if (!empty($location_ids)) {
+        $count = 0; // Default 0
 
         // Cycle through array and archive each contact
-        foreach ($location_ids as $location_id) {
+        foreach ($_POST['location_ids'] as $location_id) {
 
             $location_id = intval($location_id);
 
@@ -274,22 +278,22 @@ if (isset($_POST['bulk_archive_locations'])) {
             $location_primary = intval($row['location_primary']);
             $client_id = intval($row['location_client_id']);
 
-
             if($location_primary == 0) {
                 mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
                 // Individual Contact logging
-                mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+                logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
+                
                 $count++;
             }
 
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Archive', log_description = '$session_name archived $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Location", "Bulk Archive", "$session_name archived $count location(s)");
 
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived $count location(s)";
+        $_SESSION['alert_message'] = "Archived <strong>$count</strong> location(s)";
 
     }
 
@@ -297,16 +301,16 @@ if (isset($_POST['bulk_archive_locations'])) {
 }
 
 if (isset($_POST['bulk_unarchive_locations'])) {
-    validateAdminRole();
+    enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $location_ids = $_POST['location_ids']; // Get array of IDs
+    if ($_POST['location_ids']) {
 
-    if (!empty($location_ids)) {
+        // Get Selected Count
+        $count = count($_POST['location_ids']);
 
         // Cycle through array and unarchive
-        foreach ($location_ids as $location_id) {
+        foreach ($_POST['location_ids'] as $location_id) {
 
             $location_id = intval($location_id);
 
@@ -319,16 +323,14 @@ if (isset($_POST['bulk_unarchive_locations'])) {
             mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
             // Individual logging
-            mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Unarchive', log_description = '$session_name Unarchived location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+            logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
 
-
-            $count++;
         }
 
         // Bulk Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Unarchive', log_description = '$session_name Unarchived $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Location", "Bulk Unarchive", "$session_name unarchived $count location(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived $count location(s)";
+        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> location(s)";
 
     }
 
@@ -336,16 +338,16 @@ if (isset($_POST['bulk_unarchive_locations'])) {
 }
 
 if (isset($_POST['bulk_delete_locations'])) {
-    validateAdminRole();
+    enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $location_ids = $_POST['location_ids']; // Get array of IDs to be deleted
+    if ($_POST['location_ids']) {
 
-    if (!empty($location_ids)) {
+        // Get Selected Count
+        $count = count($_POST['location_ids']);
 
         // Cycle through array and delete each record
-        foreach ($location_ids as $location_id) {
+        foreach ($_POST['location_ids'] as $location_id) {
 
             $location_id = intval($location_id);
 
@@ -355,17 +357,18 @@ if (isset($_POST['bulk_delete_locations'])) {
             $location_name = sanitizeInput($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
-
             mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name deleted location $location_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $location_id");
+            
+            // Logging
+            logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
-            $count++;
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Location', log_action = 'Delete', log_description = '$session_name bulk deleted $count locations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+        logAction("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Deleted $count location(s)";
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> location(s)";
 
     }
 
@@ -414,8 +417,8 @@ if(isset($_POST['export_client_locations_csv'])){
         fpassthru($f);
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Export', log_description = '$session_name exported $num_rows location(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
 
     exit;
 
@@ -423,7 +426,7 @@ if(isset($_POST['export_client_locations_csv'])){
 
 if(isset($_POST["import_client_locations_csv"])){
 
-    validateTechRole();
+    enforceUserPermission('module_client', 2);
 
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
@@ -498,8 +501,8 @@ if(isset($_POST["import_client_locations_csv"])){
         }
         fclose($file);
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Location', log_action = 'Import', log_description = '$session_name imported $row_count location(s) via CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent' log_client_id = $client_id, log_user_id = $session_user_id");
+        // Logging
+        logAction("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
