@@ -875,7 +875,7 @@ if (isset($_POST['add_payment'])) {
 
         customAction('invoice_pay', $invoice_id);
 
-        $_SESSION['alert_message'] .= "Payment amount <strong>$payment_amount</strong> added";
+        $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added";
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
@@ -1005,7 +1005,7 @@ if (isset($_POST['add_bulk_payment'])) {
     } // End Email
 
     // Logging
-    logAction("Invoice", "Payment", "Bulk Payment amount of $bulk_payment_amount_static applied to multiple invoices", $client_id);
+    logAction("Invoice", "Payment", "Bulk Payment amount of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
 
     $_SESSION['alert_message'] .= "Bulk Payment added";
 
