@@ -185,7 +185,7 @@ if (isset($_POST['bulk_archive_domains'])) {
         $count = count($_POST['domain_ids']);
 
         // Cycle through array and archive each record
-        foreach ($domain_ids as $domain_id) {
+        foreach ($_POST['domain_ids'] as $domain_id) {
 
             $domain_id = intval($domain_id);
 
@@ -222,7 +222,7 @@ if (isset($_POST['bulk_unarchive_domains'])) {
         $count = count($_POST['domain_ids']);
 
         // Cycle through array and unarchive
-        foreach ($domain_ids as $domain_id) {
+        foreach ($_POST['domain_ids'] as $domain_id) {
 
             $domain_id = intval($domain_id);
 
@@ -259,7 +259,7 @@ if (isset($_POST['bulk_delete_domains'])) {
         $count = count($_POST['domain_ids']);
 
         // Cycle through array and delete each domain
-        foreach ($domain_ids as $domain_id) {
+        foreach ($_POST['domain_ids'] as $domain_id) {
 
             $domain_id = intval($domain_id);
 

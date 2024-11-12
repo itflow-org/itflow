@@ -235,7 +235,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
         $count = count($_POST['expense_ids']);
 
         // Cycle through array and delete each expense
-        foreach ($expense_ids as $expense_id) {
+        foreach ($_POST['expense_ids'] as $expense_id) {
 
             $expense_id = intval($expense_id);
 

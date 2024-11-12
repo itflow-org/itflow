@@ -399,7 +399,7 @@ if (isset($_POST['bulk_archive_assets'])) {
         // Get Count
         $count = count($_POST['asset_ids']);
 
-        foreach ($asset_ids as $asset_id) {
+        foreach ($_POST['asset_ids'] as $asset_id) {
 
             $asset_id = intval($asset_id);
 
@@ -438,7 +438,7 @@ if (isset($_POST['bulk_unarchive_assets'])) {
         // Get Count
         $count = count($_POST['asset_ids']);
 
-        foreach ($asset_ids as $asset_id) {
+        foreach ($_POST['asset_ids'] as $asset_id) {
 
             $asset_id = intval($asset_id);
 

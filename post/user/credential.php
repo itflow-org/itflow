@@ -210,7 +210,7 @@ if (isset($_POST['bulk_archive_logins'])) {
         $count = count($_POST['login_ids']);
 
         // Cycle through array and archive each record
-        foreach ($login_ids as $login_id) {
+        foreach ($_POST['login_ids'] as $login_id) {
 
             $login_id = intval($login_id);
 
@@ -249,7 +249,7 @@ if (isset($_POST['bulk_unarchive_logins'])) {
         $count = count($_POST['login_ids']);
 
         // Cycle through array and unarchive
-        foreach ($login_ids as $login_id) {
+        foreach ($_POST['login_ids'] as $login_id) {
 
             $login_id = intval($login_id);
 
@@ -288,7 +288,7 @@ if (isset($_POST['bulk_delete_logins'])) {
         $count = count($_POST['login_ids']);
 
         // Cycle through array and delete each record
-        foreach ($login_ids as $login_id) {
+        foreach ($_POST['login_ids'] as $login_id) {
 
             $login_id = intval($login_id);
 

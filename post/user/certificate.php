@@ -131,7 +131,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
         $count = count($_POST['certificate_ids']);
 
         // Cycle through array and delete each certificate
-        foreach ($certificate_ids as $certificate_id) {
+        foreach ($_POST['certificate_ids'] as $certificate_id) {
 
             $certificate_id = intval($certificate_id);
 

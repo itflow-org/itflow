@@ -432,7 +432,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
         $count = 0; // Default 0
 
         // Cycle through array and archive each contact
-        foreach ($contact_ids as $contact_id) {
+        foreach ($_POST['contact_ids'] as $contact_id) {
 
             $contact_id = intval($contact_id);
 
@@ -483,7 +483,7 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
         $count = count($_POST['contact_ids']);
 
         // Cycle through array and unarchive each contact
-        foreach ($contact_ids as $contact_id) {
+        foreach ($_POST['contact_ids'] as $contact_id) {
 
             $contact_id = intval($contact_id);
 
@@ -527,7 +527,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
         $count = count($_POST['contact_ids']);
 
         // Cycle through array and delete each record
-        foreach ($contact_ids as $contact_id) {
+        foreach ($_POST['contact_ids'] as $contact_id) {
 
             $contact_id = intval($contact_id);
 
