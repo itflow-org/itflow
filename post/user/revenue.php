@@ -6,6 +6,8 @@
 
 if (isset($_POST['add_revenue'])) {
 
+    enforceUserPermission('module_sales', 2);
+
     $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
     $currency_code = sanitizeInput($_POST['currency_code']);
@@ -17,16 +19,20 @@ if (isset($_POST['add_revenue'])) {
 
     mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $revenue_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Revenue added!";
+    // Logging
+    logAction("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
+
+    $_SESSION['alert_message'] = "Revenue added";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 if (isset($_POST['edit_revenue'])) {
+
+    enforceUserPermission('module_sales', 2);
 
     $revenue_id = intval($_POST['revenue_id']);
     $date = sanitizeInput($_POST['date']);
@@ -40,26 +46,34 @@ if (isset($_POST['edit_revenue'])) {
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Modify', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
 
-    $_SESSION['alert_message'] = "Revenue modified!";
+    $_SESSION['alert_message'] = "Revenue edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 if (isset($_GET['delete_revenue'])) {
+
+    enforceUserPermission('module_sales', 3);
+
     $revenue_id = intval($_GET['delete_revenue']);
+
+    // Get Revenue Details
+    $sql = mysqli_query($mysqli,"SELECT revenue_description FROM revenues WHERE revenue_id = $revenue_id");
+    $row = mysqli_fetch_array($sql);
+    $revenue_description = sanitizeInput($row['revenue_description']);
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Revenue', log_action = 'Delete', log_description = '$revenue_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
 
-    $_SESSION['alert_message'] = "Revenue deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Revenue removed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
-
