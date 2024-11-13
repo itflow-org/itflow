@@ -298,18 +298,36 @@ if (isset($_POST['edit_ticket_contact'])) {
     $ticket_number = sanitizeInput($_POST['ticket_number']);
     $notify = intval($_POST['contact_notify']);
 
+    // Get Original contact, and ticket details
+    $sql = mysqli_query($mysqli, "SELECT 
+        contact_name, contact_email, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id
+        FROM tickets
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_id = $ticket_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $original_contact_name = sanitizeInput($row['contact_name']);
+    $original_contact_email = sanitizeInput($row['contact_email']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_status = sanitizeInput($row['ticket_status_name']);
+    $client_id = intval($row['ticket_client_id']);
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id");
 
     // Notify new contact if selected
     if ($notify && !empty($config_smtp_host)) {
 
-        // Get contact/ticket details
-        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+        // Get New contact/ticket details
+        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id
+            FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id 
             LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
             WHERE ticket_id = $ticket_id 
-            AND ticket_closed_at IS NULL");
+            AND ticket_closed_at IS NULL"
+        );
         $row = mysqli_fetch_array($sql);
 
         $contact_name = sanitizeInput($row['contact_name']);
@@ -331,6 +349,9 @@ if (isset($_POST['edit_ticket_contact'])) {
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
 
         // Email content
         $data = []; // Queue array
@@ -357,10 +378,13 @@ if (isset($_POST['edit_ticket_contact'])) {
     // Custom action/notif handler
     customAction('ticket_update', $ticket_id);
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name changed contact for ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    // Update Ticket History
+    mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status', ticket_history_description = '$session_name changed the contact from $original_contact_name to $contact_name', ticket_history_ticket_id = $ticket_id");
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> contact updated";
+    // Logging
+    logAction("Ticket", "Edit", "$session_name changed the contact from $original_contact_name to $contact_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+
+    $_SESSION['alert_message'] = "Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -428,8 +452,8 @@ if (isset($_POST['add_ticket_watcher'])) {
         addToMailQueue($mysqli, $data);
     }
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Edit', log_description = '$session_name added watcher $watcher_email to ticket $ticket_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    // Logging
+    logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
     $_SESSION['alert_message'] = "You added $watcher_email as a watcher to Ticket <strong>$ticket_number</strong>";
 
