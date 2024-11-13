@@ -118,7 +118,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_feedback = '$feedback' WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
         // Notify on bad feedback
         if ($feedback == "Bad") {
-            appNotify("Feedback", "Guest rated ticket ID $ticket_id as bad");
+            appNotify("Feedback", "Guest rated ticket ID $ticket_id as bad", "ticket.php?ticket_id=$ticket_id");
         }
 
         $_SESSION['alert_message'] = "Feedback recorded - thank you";
