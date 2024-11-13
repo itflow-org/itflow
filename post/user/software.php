@@ -15,9 +15,7 @@ if (isset($_POST['add_software_from_template'])) {
 
     // GET Software Info
     $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_id = $software_template_id");
-
     $row = mysqli_fetch_array($sql_software);
-
     $name = sanitizeInput($row['software_name']);
     $version = sanitizeInput($row['software_version']);
     $description = sanitizeInput($row['software_description']);
@@ -28,10 +26,12 @@ if (isset($_POST['add_software_from_template'])) {
     // Software add query
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id");
 
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = 'Software created from template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    $software_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Software created from template";
+    // Logging
+    logAction("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
+
+    $_SESSION['alert_message'] = "Software <strong>$name</strong> created from template";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -71,7 +71,7 @@ if (isset($_POST['add_software'])) {
     $alert_extended = "";
 
     // Add Asset Licenses
-    if (!empty($_POST['assets'])) {
+    if (isset($_POST['assets'])) {
         foreach($_POST['assets'] as $asset) {
             $asset_id = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset_id");
@@ -79,15 +79,15 @@ if (isset($_POST['add_software'])) {
     }
 
     // Add Contact Licenses
-    if (!empty($_POST['contacts'])) {
+    if (isset($_POST['contacts'])) {
         foreach($_POST['contacts'] as $contact) {
             $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Create', log_description = '$session_name created software $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id");
+    // Logging
+    logAction("Software", "Create", "$session_name created software $name", $client_id, $software_id);
 
     $_SESSION['alert_message'] = "Software <strong>$name</strong> created $alert_extended";
 
@@ -128,7 +128,7 @@ if (isset($_POST['edit_software'])) {
 
     // Update Asset Licenses
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
-    if (!empty($_POST['assets'])) {
+    if (isset($_POST['assets'])) {
         foreach($_POST['assets'] as $asset) {
             $asset = intval($asset);
             mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
@@ -137,15 +137,15 @@ if (isset($_POST['edit_software'])) {
 
     // Update Contact Licenses
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
-    if (!empty($_POST['contacts'])) {
+    if (isset($_POST['contacts'])) {
         foreach($_POST['contacts'] as $contact) {
             $contact = intval($contact);
             mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Modify', log_description = '$session_name modified software $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id");
+    // Logging
+    logAction("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
 
     $_SESSION['alert_message'] = "Software <strong>$name</strong> updated";
 
@@ -171,8 +171,8 @@ if (isset($_GET['archive_software'])) {
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Archive', log_description = '$session_name archived software $software_name and removed all device/user license associations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id");
+    // Logging
+    logAction("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived and removed all device/user license associations";
@@ -200,7 +200,7 @@ if (isset($_GET['delete_software'])) {
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
     //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Delete', log_description = '$session_name deleted software $software_name and removed all device/user license associations', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $software_id");
+    logAction("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted and removed all device/user license associations";
@@ -278,8 +278,8 @@ if (isset($_POST['export_client_software_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Software', log_action = 'Export', log_description = '$session_name exported $num_rows software license(s) to a CSV file', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    //Logging
+    logAction("Software", "Export", "$session_name exported $num_rows software(s) $software_name to a CSV file", $client_id);
 
     exit;
 
