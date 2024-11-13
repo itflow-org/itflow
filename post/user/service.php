@@ -17,93 +17,68 @@ if (isset($_POST['add_service'])) {
     $service_notes = sanitizeInput($_POST['note']);
 
     // Create Service
-    $service_sql = mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO services SET service_name = '$service_name', service_description = '$service_description', service_category = '$service_category', service_importance = '$service_importance', service_backup = '$service_backup', service_notes = '$service_notes', service_client_id = $client_id");
 
     // Create links to assets
-    if ($service_sql) {
-        $service_id = $mysqli->insert_id;
+   
+    $service_id = mysqli_insert_id($mysqli);
 
-        if (!empty($_POST['contacts'])) {
-            $service_contact_ids = $_POST['contacts'];
-            foreach($service_contact_ids as $contact_id) {
-                $contact_id = intval($contact_id);
-                if ($contact_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = $service_id, contact_id = $contact_id");
-                }
-            }
+    if (isset($_POST['contacts'])) {
+        foreach($_POST['contacts'] as $contact_id) {
+            $contact_id = intval($contact_id); 
+            mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = $service_id, contact_id = $contact_id");
         }
-
-        if (!empty($_POST['vendors'])) {
-            $service_vendor_ids = $_POST['vendors'];
-            foreach($service_vendor_ids as $vendor_id) {
-                $vendor_id = intval($vendor_id);
-                if ($vendor_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = $service_id, vendor_id = $vendor_id");
-                }
-            }
-        }
-
-        if (!empty($_POST['documents'])) {
-            $service_document_ids = $_POST['documents'];
-            foreach($service_document_ids as $document_id) {
-                $document_id = intval($document_id);
-                if ($document_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = $service_id, document_id = $document_id");
-                }
-            }
-        }
-
-        if (!empty($_POST['assets'])) {
-            $service_asset_ids = $_POST['assets'];
-            foreach($service_asset_ids as $asset_id) {
-                $asset_id = intval($asset_id);
-                if ($asset_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = $service_id, asset_id = $asset_id");
-                }
-            }
-        }
-
-        if (!empty($_POST['logins'])) {
-            $service_login_ids = $_POST['logins'];
-            foreach($service_login_ids as $login_id) {
-                $login_id = intval($login_id);
-                if ($login_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
-                }
-            }
-        }
-
-        if (!empty($_POST['domains'])) {
-            $service_domain_ids = $_POST['domains'];
-            foreach($service_domain_ids as $domain_id) {
-                $domain_id = intval($domain_id);
-                if ($domain_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
-                }
-            }
-        }
-
-        if (!empty($_POST['certificates'])) {
-            $service_cert_ids = $_POST['certificates'];
-            foreach($service_cert_ids as $cert_id) {
-                $cert_id = intval($cert_id);
-                if ($cert_id > 0) {
-                    mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
-                }
-            }
-        }
-
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Create', log_description = '$session_name created service $service_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
-
-        $_SESSION['alert_message'] = "Service added";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
     }
-    else{
-        $_SESSION['alert_message'] = "Something went wrong (SQL)";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    if (isset($_POST['vendors'])) {
+        foreach($_POST['vendors'] as $vendor_id) {
+            $vendor_id = intval($vendor_id);
+            mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = $service_id, vendor_id = $vendor_id");
+        }
     }
+
+    if (isset($_POST['documents'])) {
+        foreach($_POST['documents'] as $document_id) {
+            $document_id = intval($document_id);
+            mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = $service_id, document_id = $document_id");
+        }
+    }
+
+    if (isset($_POST['assets'])) {
+        foreach($_POST['assets'] as $asset_id) {
+            $asset_id = intval($asset_id);
+            mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = $service_id, asset_id = $asset_id");
+        }
+    }
+
+    if (isset($_POST['logins'])) {
+        foreach($_POST['logins'] as $login_id) {
+            $login_id = intval($login_id);
+            mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
+        }
+    }
+
+    if (isset($_POST['domains'])) {
+        foreach($_POST['domains'] as $domain_id) {
+            $domain_id = intval($domain_id);
+            mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
+        }
+    }
+
+    if (isset($_POST['certificates'])) {
+        foreach($_POST['certificates'] as $cert_id) {
+            $cert_id = intval($cert_id);
+            mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
+        }
+    }
+
+    // Logging
+    logAction("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
+
+    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> created";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 if (isset($_POST['edit_service'])) {
@@ -132,80 +107,60 @@ if (isset($_POST['edit_service'])) {
     mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
 
     // Relink
-    if (!empty($_POST['contacts'])) {
-        $service_contact_ids = $_POST['contacts'];
-        foreach($service_contact_ids as $contact_id) {
+    if (isset($_POST['contacts'])) {
+        foreach($_POST['contacts'] as $contact_id) {
             $contact_id = intval($contact_id);
-            if ($contact_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = $service_id, contact_id = $contact_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_contacts SET service_id = $service_id, contact_id = $contact_id");
         }
     }
 
-    if (!empty($_POST['vendors'])) {
-        $service_vendor_ids = $_POST['vendors'];
-        foreach($service_vendor_ids as $vendor_id) {
+    if (isset($_POST['vendors'])) {
+        foreach($_POST['vendors'] as $vendor_id) {
             $vendor_id = intval($vendor_id);
-            if ($vendor_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = $service_id, vendor_id = $vendor_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_vendors SET service_id = $service_id, vendor_id = $vendor_id");
         }
     }
 
-    if (!empty($_POST['documents'])) {
-        $service_document_ids = $_POST['documents'];
-        foreach($service_document_ids as $document_id) {
+    if (isset($_POST['documents'])) {
+        foreach($_POST['documents'] as $document_id) {
             $document_id = intval($document_id);
-            if ($document_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = $service_id, document_id = $document_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_documents SET service_id = $service_id, document_id = $document_id");
         }
     }
 
-    if (!empty($_POST['assets'])) {
-        $service_asset_ids = $_POST['assets'];
-        foreach($service_asset_ids as $asset_id) {
+    if (isset($_POST['assets'])) {
+        foreach($_POST['assets'] as $asset_id) {
             $asset_id = intval($asset_id);
-            if ($asset_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = $service_id, asset_id = $asset_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_assets SET service_id = $service_id, asset_id = $asset_id");
         }
     }
 
-    if (!empty($_POST['logins'])) {
-        $service_login_ids = $_POST['logins'];
-        foreach($service_login_ids as $login_id) {
+    if (isset($_POST['logins'])) {
+        foreach($_POST['logins'] as $login_id) {
             $login_id = intval($login_id);
-            if ($login_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
         }
     }
 
-    if (!empty($_POST['domains'])) {
-        $service_domain_ids = $_POST['domains'];
-        foreach($service_domain_ids as $domain_id) {
+    if (isset($_POST['domains'])) {
+        foreach($_POST['domains'] as $domain_id) {
             $domain_id = intval($domain_id);
-            if ($domain_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
-            }
+            mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
         }
     }
 
-    if (!empty($_POST['certificates'])) {
-        $service_cert_ids = $_POST['certificates'];
-        foreach($service_cert_ids as $cert_id) {
-            $cert_id = intval($cert_id);
-            if ($cert_id > 0) {
-                mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
-            }
+    if (isset($_POST['certificates'])) {
+        foreach($_POST['certificates'] as $cert_id) {
+        $cert_id = intval($cert_id);
+            mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Modify', log_description = '$session_name modified service $service_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
 
-    $_SESSION['alert_message'] = "Service updated";
+    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> edited";
+    
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
@@ -217,28 +172,31 @@ if (isset($_GET['delete_service'])) {
 
     $service_id = intval($_GET['delete_service']);
 
+    // Get Service Details
+    $sql = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
     // Delete service
-    $delete_sql = mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
 
     // Delete relations
     // TODO: Convert this to a join delete
-    if ($delete_sql) {
-        mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Service', log_action = 'Delete', log_description = '$session_name deleted service $service_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Service", "Delete", "$session_name deleted service $service_name", $client_id);
 
-        $_SESSION['alert_message'] = "Service deleted";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> deleted";
+    
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
-    } else {
-        $_SESSION['alert_message'] = "Something went wrong (SQL)";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-    }
 }
