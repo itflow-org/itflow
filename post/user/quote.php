@@ -568,9 +568,9 @@ if(isset($_POST['export_client_quotes_csv'])){
 
     $_SESSION['alert_message'] = "Exported <strong>$num_rows</strong> quote(s)";
 
-    exit;
-
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    exit;
 
 }
 
