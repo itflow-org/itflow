@@ -26,12 +26,12 @@ if (isset($_POST['add_quote'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote created!', history_quote_id = $quote_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = '$quote_prefix$quote_number', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number", $client_id, $quote_id);
 
     customAction('quote_create', $quote_id);
 
-    $_SESSION['alert_message'] = "Quote added";
+    $_SESSION['alert_message'] = "Quote <strong>$config_quote_prefix$quote_number</strong> created";
 
     header("Location: quote.php?quote_id=$quote_id");
 
@@ -46,6 +46,8 @@ if (isset($_POST['add_quote_copy'])) {
     $date = sanitizeInput($_POST['date']);
     $expire = sanitizeInput($_POST['expire']);
 
+    $config_quote_prefix = sanitizeInput($config_quote_prefix);
+
     //Get the last Invoice Number and add 1 for the new invoice number
     $quote_number = $config_quote_next_number;
     $new_config_quote_next_number = $config_quote_next_number + 1;
@@ -53,6 +55,8 @@ if (isset($_POST['add_quote_copy'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
+    $original_quote_prefix = sanitizeInput($row['quote_prefix']);
+    $original_quote_number = sanitizeInput($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = sanitizeInput($row['quote_currency_code']);
@@ -85,8 +89,8 @@ if (isset($_POST['add_quote_copy'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Copied Quote', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
 
     customAction('quote_create', $new_quote_id);
 
@@ -104,12 +108,16 @@ if (isset($_POST['add_quote_to_invoice'])) {
     $date = sanitizeInput($_POST['date']);
     $client_net_terms = intval($_POST['client_net_terms']);
 
+    $config_invoice_prefix = sanitizeInput($config_invoice_prefix);
+
     $invoice_number = $config_invoice_next_number;
     $new_config_invoice_next_number = $config_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_currency_code = sanitizeInput($row['quote_currency_code']);
@@ -126,7 +134,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied to Invoice!', history_invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from quote $quote_prefix$quote_number', history_invoice_id = $new_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_array($sql_items)) {
@@ -146,12 +154,12 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Create', log_description = 'Quote copied to Invoice', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$config_invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
 
     customAction('invoice_create', $new_invoice_id);
 
-    $_SESSION['alert_message'] = "Quote copied to Invoice";
+    $_SESSION['alert_message'] = "Invoice created from quote <strong>$quote_prefix$quote_number</strong>";
 
     header("Location: invoice.php?invoice_id=$new_invoice_id");
 
@@ -184,12 +192,13 @@ if (isset($_POST['add_quote_item'])) {
 
     mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_quote_id = $quote_id");
 
-    //Get Discount
+    // Get Quote Details
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
-
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
-
+    $client_id = intval($row['quote_client_id']);
 
     //add up the total of all items
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
@@ -202,7 +211,10 @@ if (isset($_POST['add_quote_item'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-    $_SESSION['alert_message'] = "Item added";
+    // Logging
+    logAction("Quote", "Edit", "$session_name added item $name to quote $quote_prefix$quote_number", $client_id, $quote_id);
+
+    $_SESSION['alert_message'] = "Item <strong>$name</strong> added";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -215,7 +227,17 @@ if (isset($_POST['quote_note'])) {
     $quote_id = intval($_POST['quote_id']);
     $note = sanitizeInput($_POST['note']);
 
+    // Get Quote Details
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
+
+    // Logging
+    logAction("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     $_SESSION['alert_message'] = "Notes added";
 
@@ -231,6 +253,13 @@ if (isset($_POST['edit_quote'])) {
 
     $quote_id = intval($_POST['quote_id']);
 
+    // Get Quote Details for logging
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
     //Calculate the new quote amount
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
@@ -240,13 +269,12 @@ if (isset($_POST['edit_quote'])) {
     }
     $quote_amount = $quote_amount - $quote_discount;
 
-
     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_discount_amount = '$quote_discount', quote_amount = '$quote_amount', quote_category_id = $category WHERE quote_id = $quote_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Edit", "$session_name edited quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    $_SESSION['alert_message'] = "Quote modified";
+    $_SESSION['alert_message'] = "Quote edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -257,6 +285,13 @@ if (isset($_GET['delete_quote'])) {
     enforceUserPermission('module_sales', 3);
 
     $quote_id = intval($_GET['delete_quote']);
+
+    // Get Quote Details for logging
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
 
@@ -274,10 +309,11 @@ if (isset($_GET['delete_quote'])) {
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Delete', log_description = '$quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Delete", "$session_name deleted quote $quote_prefix$quote_number", $client_id);
 
-    $_SESSION['alert_message'] = "Quotes deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Quote <strong>$quote_prefix$quote_number</strong> deleted";
 
     if (isset($_GET['client_id'])) {
         $client_id = intval($_GET['client_id']);
@@ -296,6 +332,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
     $row = mysqli_fetch_array($sql);
+    $item_name = sanitizeInput($row['item_name']);
     $quote_id = intval($row['item_quote_id']);
     $item_subtotal = floatval($row['item_subtotal']);
     $item_tax = floatval($row['item_tax']);
@@ -303,17 +340,21 @@ if (isset($_GET['delete_quote_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_array($sql);
-
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+    
     $new_quote_amount = floatval($row['quote_amount']) - $item_total;
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote Item', log_action = 'Delete', log_description = '$item_id from $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Edit", "$session_name removed item $item_name from $quote_prefix$quote_number", $client_id, $quote_id);
 
-    $_SESSION['alert_message'] = "Item deleted";
+    $_SESSION['alert_type'] = "error"; 
+    $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -325,12 +366,18 @@ if (isset($_GET['mark_quote_sent'])) {
 
     $quote_id = intval($_GET['mark_quote_sent']);
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'QUOTE marked sent', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Quote marked sent', history_quote_id = $quote_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Update', log_description = '$quote_id marked sent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent", $client_id, $quote_id);
 
     $_SESSION['alert_message'] = "Quote marked sent";
 
@@ -344,12 +391,18 @@ if (isset($_GET['accept_quote'])) {
 
     $quote_id = intval($_GET['accept_quote']);
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Accepted', history_description = 'Quote accepted!', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Accepted', history_description = 'Quote accepted by $session_name', history_quote_id = $quote_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Accepted Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as accepted", $client_id, $quote_id);
 
     customAction('quote_accept', $quote_id);
 
@@ -365,15 +418,22 @@ if (isset($_GET['decline_quote'])) {
 
     $quote_id = intval($_GET['decline_quote']);
 
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Quote declined!', history_quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Quote declined by $session_name', history_quote_id = $quote_id");
 
     customAction('quote_decline', $quote_id);
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Modify', log_description = 'Declined Quote $quote_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as declined", $client_id, $quote_id);
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Quote declined";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -442,11 +502,13 @@ if (isset($_GET['email_quote'])) {
     ];
     addToMailQueue($mysqli, $data);
 
+    // Update History
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote', history_quote_id = $quote_id");
+    
     // Logging
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Quote Queued', history_quote_id = $quote_id");
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Quote', log_action = 'Email', log_description = '$session_name emailed Quote $quote_prefix$quote_number to $contact_email Email ID: ', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $quote_id");
+    logAction("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
 
-    $_SESSION['alert_message'] = "Quote has been queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
+    $_SESSION['alert_message'] = "Quote has been queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>See Mail Queue</a>";
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {
@@ -470,7 +532,10 @@ if(isset($_POST['export_client_quotes_csv'])){
     $client_name = $row['client_name'];
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_client_id = $client_id ORDER BY quote_number ASC");
-    if($sql->num_rows > 0){
+    
+    $num_rows = mysqli_num_rows($sql);
+
+    if($num_rows > 0){
         $delimiter = ",";
         $filename = $client_name . "-Quotes-" . date('Y-m-d') . ".csv";
 
@@ -497,7 +562,15 @@ if(isset($_POST['export_client_quotes_csv'])){
         //output all remaining data on a file pointer
         fpassthru($f);
     }
+    
+    // Logging
+    logAction("Quote", "Export", "$session_name exported $num_rows quote(s) to a CSV file");
+
+    $_SESSION['alert_message'] = "Exported <strong>$num_rows</strong> quote(s)";
+
     exit;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
