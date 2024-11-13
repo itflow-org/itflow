@@ -6,7 +6,7 @@
 
 if (isset($_POST['add_task'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
     $task_name = sanitizeInput($_POST['name']);
@@ -21,7 +21,7 @@ if (isset($_POST['add_task'])) {
     $task_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Create', log_description = '$session_name created task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    logAction("Task", "Create", "$session_name created task $task_name", $client_id, $task_id);
 
     $_SESSION['alert_message'] = "You created Task <strong>$task_name</strong>";
 
@@ -30,7 +30,7 @@ if (isset($_POST['add_task'])) {
 
 if (isset($_POST['edit_task'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $task_id = intval($_POST['task_id']);
     $task_name = sanitizeInput($_POST['name']);
@@ -50,9 +50,9 @@ if (isset($_POST['edit_task'])) {
     }
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Edit', log_description = '$session_name edited task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    logAction("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "You edited Task <strong>$task_name</strong>";
+    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -60,7 +60,7 @@ if (isset($_POST['edit_task'])) {
 
 if (isset($_GET['delete_task'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 3);
 
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
@@ -76,17 +76,17 @@ if (isset($_GET['delete_task'])) {
     mysqli_query($mysqli, "DELETE FROM tasks WHERE task_id = $task_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Delete', log_description = '$session_name deleted task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    logAction("Task", "Delete", "$session_name deleted task $task_name", $client_id, $task_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "You Deleted Task <strong>$task_name</strong>";
+    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_GET['complete_task'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $task_id = intval($_GET['complete_task']);
 
@@ -109,16 +109,16 @@ if (isset($_GET['complete_task'])) {
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Edit', log_description = '$session_name completed task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    logAction("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "You completed Task <strong>$task_name</strong> Great Job!<i class='far fa-4x fa-smile-wink ml-2'></i>";
+    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> Completed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_GET['undo_complete_task'])) {
 
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $task_id = intval($_GET['undo_complete_task']);
 
@@ -137,9 +137,10 @@ if (isset($_GET['undo_complete_task'])) {
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Task', log_action = 'Edit', log_description = '$session_name un-completed task $task_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $task_id");
+    logAction("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "You marked Task <strong>$task_name</strong> as incomplete";
+    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> marked as incomplete";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
