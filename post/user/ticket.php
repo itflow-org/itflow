@@ -77,7 +77,7 @@ if (isset($_POST['add_ticket'])) {
     }
 
     // Add Watchers
-    if (!empty($_POST['watchers'])) {
+    if (isset($_POST['watchers'])) {
         foreach ($_POST['watchers'] as $watcher) {
             $watcher_email = sanitizeInput($watcher);
             mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
@@ -157,11 +157,11 @@ if (isset($_POST['add_ticket'])) {
     customAction('ticket_create', $ticket_id);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = '$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    logAction("Ticket", "Create", "$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "You created Ticket $ticket_subject <strong>$config_ticket_prefix$ticket_number</strong>";
+    $_SESSION['alert_message'] = "Ticket <strong>$config_ticket_prefix$ticket_number</strong> created";
 
-    header("Location: ticket.php?ticket_id=" . $ticket_id);
+    header("Location: ticket.php?ticket_id=$ticket_id");
 }
 
 if (isset($_POST['edit_ticket'])) {
@@ -183,6 +183,7 @@ if (isset($_POST['edit_ticket'])) {
     $project_id = intval($_POST['project']);
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
+    $ticket_prefix = sanitizeInput($config_ticket_prefix);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category, ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
@@ -193,7 +194,7 @@ if (isset($_POST['edit_ticket'])) {
         $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id 
             LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                            
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id               
             WHERE ticket_id = $ticket_id 
             AND ticket_closed_at IS NULL");
         $row = mysqli_fetch_array($sql);
@@ -242,10 +243,10 @@ if (isset($_POST['edit_ticket'])) {
     // Custom action/notif handler
     customAction('ticket_update', $ticket_id);
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name modified ticket $ticket_number - $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    // Logging
+    logAction("Ticket", "Edit", "$session_name edited ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> updated";
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -258,14 +259,31 @@ if (isset($_POST['edit_ticket_priority'])) {
     $priority = sanitizeInput($_POST['priority']);
     $client_id = intval($_POST['client_id']);
 
+    // Get ticket details
+    $sql = mysqli_query($mysqli, "SELECT 
+        ticket_prefix, ticket_number ticket_priority, ticket_status_name, ticket_client_id
+        FROM tickets 
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id               
+        WHERE ticket_id = $ticket_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $original_priority = sanitizeInput($row['ticket_priority']);
+    $ticket_status = sanitizeInput($row['ticket_status_name']);
+    $client_id = intval($row['ticket_client_id']);
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_priority = '$priority' WHERE ticket_id = $ticket_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Modify', log_description = '$session_name edited ticket priority', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $ticket_id");
+    // Update Ticket History
+    mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status', ticket_history_description = '$session_name changed priority from $original_priority to $priority', ticket_history_ticket_id = $ticket_id");
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name changed priority from $original_priority to $priority for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
     customAction('ticket_update', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket priority updated";
+    $_SESSION['alert_message'] = "Priority updated <strong>$original_priority</strong> to <strong>$priority</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

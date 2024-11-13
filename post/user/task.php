@@ -139,6 +139,7 @@ if (isset($_GET['undo_complete_task'])) {
     // Logging
     logAction("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> marked as incomplete";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
