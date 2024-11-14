@@ -11,10 +11,10 @@ if (isset($_POST['add_trip'])) {
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Create', log_description = '$session_name logged trip to $destination', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
-    $_SESSION['alert_message'] = "Trip added";
+    $_SESSION['alert_message'] = "Trip from <strong>$source</strong> to <strong>$destination</strong> logged";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -24,15 +24,14 @@ if (isset($_POST['edit_trip'])) {
 
     require_once 'post/user/trip_model.php';
 
-
     $trip_id = intval($_POST['trip_id']);
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Modify', log_description = '$date', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
 
-    $_SESSION['alert_message'] = "Trip modified";
+    $_SESSION['alert_message'] = "Trip edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -41,16 +40,19 @@ if (isset($_POST['edit_trip'])) {
 if (isset($_GET['delete_trip'])) {
     $trip_id = intval($_GET['delete_trip']);
 
-    //Get Client ID
+    // Get Trip Info and Client ID for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_id = $trip_id"));
     $client_id = intval($row['trip_client_id']);
+    $trip_source = sanitizeInput($row['trip_source']);
+    $trip_destination = sanitizeInput($row['trip_destination']);
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Trip', log_action = 'Delete', log_description = '$trip_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    // Logging
+    logAction("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
 
-    $_SESSION['alert_message'] = "Trip deleted";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Trip ($trip_source - $trip_destination) deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -74,7 +76,9 @@ if (isset($_POST['export_trips_csv'])) {
         ORDER BY trip_date DESC"
     );
 
-    if(mysqli_num_rows($sql) > 0){
+    $count = mysqli_num_rows($sql);
+
+    if ($count > 0) {
         $delimiter = ",";
         $filename = "$session_company_name-Trips-$file_name_date.csv";
 
@@ -100,6 +104,9 @@ if (isset($_POST['export_trips_csv'])) {
 
         //output all remaining data on a file pointer
         fpassthru($f);
+    
+        // Logging
+        logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
     }
     exit;
 
@@ -112,12 +119,15 @@ if (isset($_POST['export_client_trips_csv'])) {
     $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
     $row = mysqli_fetch_array($sql);
 
-    $client_name = $row['client_name'];
+    $client_name = sanitizeInput($row['client_name']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_client_id = $client_id ORDER BY trip_date ASC");
-    if($sql->num_rows > 0){
+    
+    $count = mysqli_num_rows($sql);
+
+    if ($count > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Trips-" . date('Y-m-d') . ".csv";
+        $filename = $row['client_name'] . "-Trips-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -141,6 +151,9 @@ if (isset($_POST['export_client_trips_csv'])) {
 
         //output all remaining data on a file pointer
         fpassthru($f);
+
+        // Logging
+        logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file for client $client_name", $client_id);
     }
     exit;
 
