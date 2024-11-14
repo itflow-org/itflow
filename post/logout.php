@@ -5,7 +5,10 @@
  */
 
 if (isset($_GET['logout'])) {
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Logout', log_action = 'Success', log_description = '$session_name logged out', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    // Logging
+    logAction("Logout", "Success", "$session_name logged out");
+    
     mysqli_query($mysqli, "UPDATE users SET user_php_session = '' WHERE user_id = $session_user_id");
 
     setcookie("PHPSESSID", '', time() - 3600, "/");
