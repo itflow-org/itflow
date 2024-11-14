@@ -8,8 +8,8 @@ if (isset($_POST['edit_theme_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified theme settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name edited theme settings");
 
     $_SESSION['alert_message'] = "Changed theme to <strong>$theme</strong>";
 
@@ -45,10 +45,10 @@ if (isset($_POST['edit_favicon_settings'])) {
         }
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name updated the favicon', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name changed the favicon");
 
-    $_SESSION['alert_message'] = "You updated the favicon";
+    $_SESSION['alert_message'] = "Favicon Updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

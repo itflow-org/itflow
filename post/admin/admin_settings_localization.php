@@ -12,8 +12,8 @@ if (isset($_POST['edit_localization'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Edit', log_description = '$session_name edited company localization settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name edited localization settings");
 
     $_SESSION['alert_message'] = "Company localization updated";
 

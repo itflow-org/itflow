@@ -12,10 +12,12 @@ if(isset($_POST['create_custom_field'])){
 
     mysqli_query($mysqli,"INSERT INTO custom_fields SET custom_field_table = '$table', custom_field_label = '$label', custom_field_type = '$type'");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Field', log_action = 'Create', log_description = '$label', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $custom_field_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Custom field created";
+    // Logging
+    logAction("Custom Field", "Create", "$session_name created custom field $label", 0, $custom_field_id);
+
+    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -29,10 +31,10 @@ if(isset($_POST['edit_custom_field'])){
 
     mysqli_query($mysqli,"UPDATE custom_fields SET custom_field_label = '$label', custom_field_type = '$type' WHERE custom_field_id = $custom_field_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Field', log_action = 'Edit', log_description = '$label', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Custom Field", "Edit", "$session_name edited custom field $label", 0, $custom_field_id);
 
-    $_SESSION['alert_message'] = "You edited the custom field";
+    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -41,13 +43,18 @@ if(isset($_POST['edit_custom_field'])){
 if(isset($_GET['delete_custom_field'])){
     $custom_field_id = intval($_GET['delete_custom_field']);
 
+    // Get Custom Field Label for logging
+    $sql = mysqli_query($mysqli,"SELECT custom_field_label FROM custom_fields WHERE custom_field_id = $custom_field_id");
+    $row = mysqli_fetch_array($sql);
+    $custom_field_label = sanitizeInput($row['custom_field_label']);
+
     mysqli_query($mysqli,"DELETE FROM custom_fields WHERE custom_field_id = $custom_field_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Custom Fields', log_action = 'Delete', log_description = '$custom_field_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Custom Field", "Delete", "$session_name deleted custom field $label");
 
-    $_SESSION['alert_message'] = "You deleted custom field";
     $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

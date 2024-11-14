@@ -13,8 +13,8 @@ if (isset($_POST['edit_notification_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_recurring_auto_send_invoice = $config_recurring_auto_send_invoice, config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified notification settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name edited notification settings");
 
     $_SESSION['alert_message'] = "Notification Settings updated";
 
@@ -28,10 +28,10 @@ if (isset($_GET['generate_cron_key'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_cron_key = '$key' WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name regenerated cron key', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name regenerated the cron key");
 
-    $_SESSION['alert_message'] = "Cron key regenerated!";
+    $_SESSION['alert_message'] = "Cron key regenerated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

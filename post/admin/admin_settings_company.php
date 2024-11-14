@@ -45,10 +45,10 @@ if (isset($_POST['edit_company'])) {
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website' WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Company', log_action = 'Modify', log_description = '$session_name modified company $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name edited company details");
 
-    $_SESSION['alert_message'] = "Company <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Company <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

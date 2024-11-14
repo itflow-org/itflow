@@ -6,7 +6,9 @@
 
 if (isset($_POST['send_bulk_mail_now'])) {
     
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
+
+        $count = count($_POST['contact_ids']);
 
         $mail_from = sanitizeInput($_POST['mail_from']);
         $mail_from_name = sanitizeInput($_POST['mail_from_name']);
@@ -36,15 +38,11 @@ if (isset($_POST['send_bulk_mail_now'])) {
             ];
         }
         addToMailQueue($mysqli, $data);
-        
-        // Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Bulk Mail', log_action = 'Send', log_description = '$session_name sent bulk email', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
-        $_SESSION['alert_message'] = "You Sent Bulk Mail";
-    
-    } else {
-    
-        $_SESSION['alert_message'] = "NO Bulk Mail SENT";
+        // Logging
+        logAction("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
+
+        $_SESSION['alert_message'] = "<strong>$count</strong> messages queued";
     
     }
 

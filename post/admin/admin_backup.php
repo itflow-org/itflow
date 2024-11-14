@@ -79,8 +79,8 @@ if (isset($_GET['download_database'])) {
         exec('rm ' . $backup_file_name);
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Database', log_action = 'Download', log_description = '$session_name downloaded the database', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Database", "Download", "$session_name downloaded the database");
 
     $_SESSION['alert_message'] = "Database downloaded";
 }
@@ -92,25 +92,29 @@ if (isset($_POST['backup_master_key'])) {
     $password = $_POST['password'];
 
     $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
-    $userRow = mysqli_fetch_array($sql);
+    $row = mysqli_fetch_array($sql);
 
-    if (password_verify($password, $userRow['user_password'])) {
-        $site_encryption_master_key = decryptUserSpecificKey($userRow['user_specific_encryption_ciphertext'], $password);
+    if (password_verify($password, $row['user_password'])) {
+        $site_encryption_master_key = decryptUserSpecificKey($row['user_specific_encryption_ciphertext'], $password);
+        
+        // Logging
+        logAction("Master Key", "Download", "$session_name retrieved the master encryption key");
 
-        //Logging
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Master Key', log_action = 'Download', log_description = '$session_name retrieved the master encryption key', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-        mysqli_query($mysqli,"INSERT INTO notifications SET notification_type = 'Settings', notification = '$session_name retrieved the master encryption key'");
-
+        // App Notify
+        appNotify("Master Key", "$session_name retrieved the master encryption key");
 
         echo "==============================";
         echo "<br>Master encryption key:<br>";
         echo "<b>$site_encryption_master_key</b>";
         echo "<br>==============================";
+    
     } else {
-        //Log the failure
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Master Key', log_action = 'Download', log_description = '$session_name attempted to retrieve the master encryption key (failure)', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+        // Log the failure
+        logAction("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
 
+        $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Incorrect password.";
+        
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }

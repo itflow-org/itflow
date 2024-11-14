@@ -16,11 +16,10 @@ if (isset($_POST['edit_invoice_settings'])) {
         $config_invoice_paid_notification_email = sanitizeInput($_POST['config_invoice_paid_notification_email']);
     }
 
-
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_invoice_paid_notification_email = '$config_invoice_paid_notification_email', config_recurring_prefix = '$config_recurring_prefix', config_recurring_next_number = $config_recurring_next_number WHERE company_id = 1");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Edit', log_description = '$session_name edited invoice settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Settings", "Edit", "$session_name edited invoice settings");
 
     $_SESSION['alert_message'] = "Invoice Settings edited";
 

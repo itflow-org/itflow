@@ -14,7 +14,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = 1");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified SMTP mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Settings", "Edit", "$session_name edited SMTP mail settings");
 
     $_SESSION['alert_message'] = "SMTP Mail Settings updated";
 
@@ -36,7 +36,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified IMAP mail settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Settings", "Edit", "$session_name edited IMAP mail settings");
 
     $_SESSION['alert_message'] = "IMAP Mail Settings updated";
 
@@ -63,7 +63,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
     mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Modify', log_description = '$session_name modified Mail From settings', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Settings", "Edit", "$session_name edited mail from settings");
 
     $_SESSION['alert_message'] = "Mail From Settings updated";
 

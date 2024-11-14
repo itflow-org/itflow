@@ -14,9 +14,12 @@ if (isset($_POST['add_role'])) {
 
     mysqli_query($mysqli, "INSERT INTO user_roles SET user_role_name = '$name', user_role_description = '$description', user_role_is_admin = $admin");
 
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Role', log_action = 'Create', log_description = '$session_name created the $name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $user_role_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Role $name created";
+    // Logging
+    logAction("User Role", "Create", "$session_name created user role $name", 0, $user_role_id);
+
+    $_SESSION['alert_message'] = "User Role <strong$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -31,6 +34,7 @@ if (isset($_POST['edit_role'])) {
     $name = sanitizeInput($_POST['role_name']);
     $description = sanitizeInput($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
+    
     mysqli_query($mysqli, "UPDATE user_roles SET user_role_name = '$name', user_role_description = '$description', user_role_is_admin = $admin WHERE user_role_id = $role_id");
 
     // Update role access levels
@@ -48,9 +52,10 @@ if (isset($_POST['edit_role'])) {
 
     }
 
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Role', log_action = 'Modify', log_description = '$session_name updated the $name role', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
 
-    $_SESSION['alert_message'] = "Role $name updated";
+    $_SESSION['alert_message'] = "User Role <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

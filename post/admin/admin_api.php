@@ -10,19 +10,19 @@ if (isset($_POST['add_api_key'])) {
 
     $name = sanitizeInput($_POST['name']);
     $expire = sanitizeInput($_POST['expire']);
-    $client = intval($_POST['client']);
+    $client_id = intval($_POST['client']);
     $secret = sanitizeInput($_POST['key']); // API Key
 
     // Credential decryption password
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
     $apikey_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
-    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '$expire', api_key_client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '$expire', api_key_client_id = $client_id");
 
     $api_key_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API', log_action = 'Create', log_description = '$session_name created API Key $name set to expire on $expire', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_client_id = $client, log_user_id = $session_user_id, log_entity_id = $api_key_id");
+    logAction("API Key", "Create", "$session_name created API key $name set to expire on $expire", $client_id, $api_key_id);
 
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> created";
 
@@ -37,13 +37,14 @@ if (isset($_GET['delete_api_key'])) {
     $api_key_id = intval($_GET['delete_api_key']);
 
     // Get API Key Name
-    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM api_keys WHERE api_key_id = $api_key_id"));
-    $name = sanitizeInput($row['api_key_name']);
+    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT api_key_name, api_key_client_id FROM api_keys WHERE api_key_id = $api_key_id"));
+    $api_key_name = sanitizeInput($row['api_key_name']);
+    $client_id = intval($row['api_key_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id");
 
     // Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $api_key_id");
+    logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
@@ -56,25 +57,32 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $count = 0; // Default 0
-    $api_key_ids = $_POST['api_key_ids']; // Get array of API key IDs to be deleted
+    if (isset($_POST['api_key_ids'])) {
 
-    if (!empty($api_key_ids)) {
+        $count = count($_POST['api_key_ids']);
 
-        // Cycle through array and delete each scheduled ticket
-        foreach ($api_key_ids as $api_key_id) {
+        // Cycle through array and delete each record
+        foreach ($_POST['api_key_ids'] as $api_key_id) {
 
             $api_key_id = intval($api_key_id);
-            mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name deleted API key (bulk)', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $api_key_id");
+            
+            // Get API Key Name
+            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT api_key_name, api_key_client_id FROM api_keys WHERE api_key_id = $api_key_id"));
+            $api_key_name = sanitizeInput($row['api_key_name']);
+            $client_id = intval($row['api_key_client_id']);
 
-            $count++;
+            mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
+
+            // Logging
+            logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
+
         }
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API Key', log_action = 'Delete', log_description = '$session_name bulk deleted $count keys', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+        logAction("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
 
-        $_SESSION['alert_message'] = "Deleted $count keys(s)";
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> API keys(s)";
 
     }
 
