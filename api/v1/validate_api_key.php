@@ -20,6 +20,10 @@ $_POST = json_decode(file_get_contents('php://input'), true);
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
+// Temp Added this to work with the new logAction function
+$session_ip = $ip;
+$session_user_agent = $user_agent;
+
 // Setup return array
 $return_arr = array();
 
