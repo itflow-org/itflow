@@ -82,12 +82,10 @@ if (isset($_GET['delete_transfer'])) {
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Delete', log_description = '$transfer_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
-
     // Logging
     logAction("Account Transfer", "Delete", "$session_name deleted transfer");
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Transfer deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
