@@ -270,8 +270,8 @@ if (isset($_GET['update'])) {
 
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name ran updates', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("App", "Update", "$session_name ran updates");
 
     $_SESSION['alert_message'] = "Update successful";
 
@@ -291,8 +291,8 @@ if (isset($_GET['update_db'])) {
     // Perform upgrades, if required
     require_once ('database_updates.php');
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Settings', log_action = 'Update', log_description = '$session_name updated the database structure', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Database", "Update", "$session_name updated the database structure");
 
     $_SESSION['alert_message'] = "Database structure update successful";
 

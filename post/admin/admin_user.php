@@ -18,7 +18,7 @@ if (isset($_POST['add_user'])) {
     $user_id = mysqli_insert_id($mysqli);
 
     // Add Client Access Permissions if set
-    if (!empty($_POST['clients'])) {
+    if (isset($_POST['clients'])) {
         foreach($_POST['clients'] as $client_id) {
             $client_id = intval($client_id);
             mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
@@ -92,7 +92,7 @@ if (isset($_POST['add_user'])) {
     }
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Create', log_description = '$session_name created user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+    logAction("User", "Create", "$session_name created user $name", 0, $user_id);
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
 
@@ -111,7 +111,7 @@ if (isset($_POST['edit_user'])) {
 
     // Update Client Access
     mysqli_query($mysqli,"DELETE FROM user_permissions WHERE user_id = $user_id");
-    if (!empty($_POST['clients'])) {
+    if (isset($_POST['clients'])) {
         foreach($_POST['clients'] as $client_id) {
             $client_id = intval($client_id);
             mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
@@ -174,8 +174,8 @@ if (isset($_POST['edit_user'])) {
     //Update User Settings
     mysqli_query($mysqli, "UPDATE user_settings SET user_role = $role, user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name modified user $name $extended_log_description', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+    // Logging
+    logAction("User", "Edit", "$session_name edited user $name", 0, $user_id);
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
 
@@ -196,8 +196,8 @@ if (isset($_GET['activate_user'])) {
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name activated user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    // Logging
+    logAction("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
 
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> activated";
 
@@ -222,8 +222,8 @@ if (isset($_GET['disable_user'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_assigned_to = 0 WHERE scheduled_ticket_assigned_to = $user_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    // Logging
+    logAction("User", "Disable", "$session_name disabled user $name", 0, $user_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> disabled";
@@ -244,8 +244,8 @@ if (isset($_GET['revoke_remember_me'])) {
 
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
-    //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name revoked all remember me tokens for user $user_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    // Logging
+    logAction("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
@@ -271,7 +271,7 @@ if (isset($_GET['archive_user'])) {
     mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Archive', log_description = '$session_name archived user $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $user_id");
+    logAction("User", "Archive", "$session_name archived user $name", 0, $user_id);
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
@@ -285,7 +285,9 @@ if (isset($_POST['export_users_csv'])) {
     //get records from database
     $sql = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
 
-    if ($sql->num_rows > 0) {
+    $count = mysqli_num_rows($sql);
+
+    if ($count > 0) {
         $delimiter = ", ";
         $filename = $session_company_name . "-Users-" . date('Y-m-d') . ".csv";
 
@@ -329,6 +331,9 @@ if (isset($_POST['export_users_csv'])) {
 
         //output all remaining data on a file pointer
         fpassthru($f);
+
+        // Logging
+        logAction("User", "Export", "$session_name exported $count user(s) to a CSV file");
     }
     exit;
 
@@ -370,7 +375,7 @@ if (isset($_POST['ir_reset_user_password'])) {
     }
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name reset ALL user passwords', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id");
+    logAction("User", "Edit", "$session_name reset ALL user passwords");
 
     exit; // Stay on the plain text password page
 

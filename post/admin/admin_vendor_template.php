@@ -13,8 +13,8 @@ if (isset($_POST['add_vendor_template'])) {
 
     $vendor_id = mysqli_insert_id($mysqli);
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor Template', log_action = 'Create', log_description = '$session_name created vendor template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_id);
 
     $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> created";
 
@@ -107,10 +107,10 @@ if (isset($_POST['edit_vendor_template'])) {
         mysqli_query($mysqli,"UPDATE vendors SET $sql WHERE vendor_template_id = $vendor_id");
     }
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor Template', log_action = 'Modify', log_description = '$session_name modified vendor template $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
 
-    $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> modified";
+    $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

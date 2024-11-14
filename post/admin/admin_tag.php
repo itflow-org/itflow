@@ -10,10 +10,12 @@ if (isset($_POST['add_tag'])) {
 
     mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon'");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Create', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $tag_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Tag added";
+    // Logging
+    logAction("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
+
+    $_SESSION['alert_message'] = "Tag <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -27,10 +29,10 @@ if (isset($_POST['edit_tag'])) {
 
     mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon' WHERE tag_id = $tag_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Modify', log_description = '$name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Tag", "Edit", "$session_name edited tag $name", 0, $tag_id);
 
-    $_SESSION['alert_message'] = "Tag modified";
+    $_SESSION['alert_message'] = "Tag <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -39,14 +41,19 @@ if (isset($_POST['edit_tag'])) {
 if (isset($_GET['delete_tag'])) {
     $tag_id = intval($_GET['delete_tag']);
 
+    // Get Tag Name for logging
+    $sql = mysqli_query($mysqli,"SELECT tag_name FROM tags WHERE tag_id = $tag_id");
+    $row = mysqli_fetch_array($sql);
+    $tag_name = sanitizeInput($row['tag_name']);
+
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
     mysqli_query($mysqli,"DELETE FROM client_tags WHERE tag_id = $tag_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tag', log_action = 'Delete', log_description = '$tag_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Tag", "Delete", "$session_name deleted tag $tag_name");
 
-    $_SESSION['alert_message'] = "Tag deleted";
     $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Tag <strong>$tag_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

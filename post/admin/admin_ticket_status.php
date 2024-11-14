@@ -10,9 +10,9 @@ if (isset($_POST['add_ticket_status'])) {
     $ticket_status_id = mysqli_insert_id($mysqli);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Status', log_action = 'Create', log_description = '$session_name created ticket status $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_status_id");
+    logAction("Ticket Status", "Create", "$session_name created custom ticket status $name", 0, $ticket_status_id);
 
-    $_SESSION['alert_message'] = "You created Ticket Status <strong>$name</strong>";
+    $_SESSION['alert_message'] = "Custom Ticket Status <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -28,9 +28,9 @@ if (isset($_POST['edit_ticket_status'])) {
     mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color', ticket_status_active = $status WHERE ticket_status_id = $ticket_status_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Status', log_action = 'Edit', log_description = '$session_name edited ticket status $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_status_id");
+    logAction("Ticket Status", "Edit", "$session_name edited custom ticket status $name", 0, $ticket_status_id);
 
-    $_SESSION['alert_message'] = "You edited Ticket Status <strong>$name</strong>";
+    $_SESSION['alert_message'] = "Custom Ticket Status <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -48,10 +48,10 @@ if (isset($_GET['delete_ticket_status'])) {
     mysqli_query($mysqli, "DELETE FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Status', log_action = 'Delete', log_description = '$session_name deleted ticket_status $ticket_status_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_status_id");
+    logAction("Ticket Status", "Delete", "$session_name deleted custom ticket status $ticket_status_name");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "You Deleted Ticket Status <strong>$ticket_status_name</strong>";
+    $_SESSION['alert_message'] = "Custom Ticket Status <strong>$ticket_status_name</strong> Deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

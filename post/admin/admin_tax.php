@@ -12,10 +12,12 @@ if (isset($_POST['add_tax'])) {
 
     mysqli_query($mysqli,"INSERT INTO taxes SET tax_name = '$name', tax_percent = $percent");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Create', log_description = '$name - $percent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $tax_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Tax added";
+    // Logging
+    logAction("Tax", "Create", "$session_name created tax $name - $percent%", 0, $tax_id);
+
+    $_SESSION['alert_message'] = "Tax <strong>$name</strong> ($percent%) created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -30,10 +32,10 @@ if (isset($_POST['edit_tax'])) {
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_name = '$name', tax_percent = $percent WHERE tax_id = $tax_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Modify', log_description = '$name - $percent', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Tax", "Edit", "$session_name edited tax $name - $percent%", 0, $tax_id);
 
-    $_SESSION['alert_message'] = "Tax modified";
+    $_SESSION['alert_message'] = "Tax <strong>$name</strong> ($percent%) edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -43,12 +45,18 @@ if (isset($_GET['archive_tax'])) {
     validateCSRFToken($_GET['csrf_token']);
     $tax_id = intval($_GET['archive_tax']);
 
+    // Get Tax Name for logging
+    $sql = mysqli_query($mysqli,"SELECT tax_name FROM taxs WHERE tax_id = $tax_id");
+    $row = mysqli_fetch_array($sql);
+    $tax_name = sanitizeInput($row['tax_name']);
+
     mysqli_query($mysqli,"UPDATE taxes SET tax_archived_at = NOW() WHERE tax_id = $tax_id");
 
-    //logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Archive', log_description = '$tax_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+    // Logging
+    logAction("Tax", "Archive", "$session_name archived tax $tax_name", 0, $tax_id);
 
-    $_SESSION['alert_message'] = "Tax Archived";
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Tax <strong>$tax_name</strong> Archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -57,13 +65,18 @@ if (isset($_GET['archive_tax'])) {
 if (isset($_GET['delete_tax'])) {
     $tax_id = intval($_GET['delete_tax']);
 
+    // Get Tax Name for logging
+    $sql = mysqli_query($mysqli,"SELECT tax_name FROM taxs WHERE tax_id = $tax_id");
+    $row = mysqli_fetch_array($sql);
+    $tax_name = sanitizeInput($row['tax_name']);
+
     mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Tax', log_action = 'Delete', log_description = '$tax_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Tax", "Delete", "$session_name deleted tax $tax_name");
 
-    $_SESSION['alert_message'] = "Tax deleted";
     $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Tax <strong>$tax_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
