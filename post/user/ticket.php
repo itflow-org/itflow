@@ -1490,7 +1490,7 @@ if (isset($_GET['archive_ticket_reply'])) {
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id");
 
     //Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Archive', log_description = '$session_name arhived ticket reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket Reply', log_action = 'Archive', log_description = '$session_name archived ticket reply', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id, log_entity_id = $ticket_reply_id");
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Ticket reply archived";
