@@ -25,12 +25,11 @@ if (!empty($contact_id)) {
     if ($update_sql) {
         $update_count = mysqli_affected_rows($mysqli);
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Updated', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Updated contact $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Contact", "Edit", "$name via API ($api_key_name)", $client_id, $contact_id);
+        logAction("API", "Success", "Edited contact $name via API ($api_key_name)", $client_id);
     }
 }
 
 // Output
 require_once '../update_output.php';
-

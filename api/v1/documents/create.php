@@ -22,13 +22,12 @@ if (!empty($name) && !(empty($content))) {
         // Update field document_parent to be the same id as document ID as this is the only version of the document.
         mysqli_query($mysqli,"UPDATE documents SET document_parent = $insert_id WHERE document_id = $insert_id");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Document', log_action = 'Create', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created document $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Document", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAction("API", "Success", "Created document $name via API ($api_key_name)", $client_id);
     }
 
 }
-
 
 // Output
 require_once '../create_output.php';

@@ -46,16 +46,15 @@ if (!empty($document_id)) {
         // Vendor documents
         mysqli_query($mysqli,"UPDATE vendor_documents SET document_id = $new_document_id WHERE document_id = $document_id");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Document', log_action = 'Modify', log_description = '$name via API ($api_key_name) previous version was kept', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Edited document $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Document", "Edit", "$name via API ($api_key_name) previous version kept", $client_id, $insert_id);
+        logAction("API", "Success", "Edited document $name via API ($api_key_name)", $client_id);
 
         // Override update count to 1 for API to report a success (as we inserted a document, not "updated" an existing row)
         $update_count = 1;
     }
 
 }
-
 
 // Output
 require_once '../update_output.php';

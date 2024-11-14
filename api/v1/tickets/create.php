@@ -4,7 +4,6 @@ require_once '../validate_api_key.php';
 
 require_once '../require_post_method.php';
 
-
 // Ticket-related settings
 require_once "../../../get_settings.php";
 
@@ -16,7 +15,6 @@ $company_phone = formatPhoneNumber($row['company_phone']);
 // Parse Info
 $ticket_row = false; // Creation, not an update
 require_once 'ticket_model.php';
-
 
 // Default
 $insert_id = false;
@@ -41,13 +39,13 @@ if (!empty($subject) && !empty($client_id)) {
     // Check insert & get insert ID
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
+
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Created ticket $config_ticket_prefix$ticket_number $subject via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created ticket $config_ticket_prefix$ticket_number via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        logAction("Ticket", "Create", "Created ticket $config_ticket_prefix$ticket_number $subject via API ($api_key_name)", $client_id, $insert_id);
+        logAction("API", "Success", "Created ticket $config_ticket_prefix$ticket_number $subject via API ($api_key_name)", $client_id);
     }
 
 }
 
 // Output
 require_once '../create_output.php';
-

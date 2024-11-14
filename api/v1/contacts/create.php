@@ -25,9 +25,10 @@ if (!empty($name) && !empty($email) && !empty($client_id)) {
         // Check insert & get insert ID
         if ($insert_sql) {
             $insert_id = mysqli_insert_id($mysqli);
-            //Logging
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created contact $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+            
+            // Logging
+            logAction("Contact", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+            logAction("API", "Success", "Created contact $name via API ($api_key_name)", $client_id);
         }
 
     }

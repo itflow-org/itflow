@@ -27,9 +27,9 @@ if (!empty($_POST['api_key_decrypt_password']) && !empty($login_id)) {
             mysqli_query($mysqli, "UPDATE logins SET login_password_changed_at = NOW() WHERE login_id = $login_id LIMIT 1");
         }
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Update', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Updated credential $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Credential", "Edit", "$name via API ($api_key_name)", $client_id, $login_id);
+        logAction("API", "Success", "Updated credential $name via API ($api_key_name)", $client_id);
     }
 
 }

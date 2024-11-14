@@ -19,9 +19,9 @@ if (!empty($api_key_decrypt_password) && !empty($name) && !(empty($password))) {
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Credential', log_action = 'Create', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created credential $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Credential", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAction("API", "Success", "Created credential $name via API ($api_key_name)", $client_id);
     }
 
 }
