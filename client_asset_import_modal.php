@@ -14,7 +14,7 @@
                     <p><strong>Format csv file with headings & data:</strong><br>Name, Description, Type, Make, Model, Serial, OS, Assigned To, Location</p>
                     <hr>
                     <div class="form-group my-4">
-                        <input type="file" class="form-control-file" name="file" accept=".csv">
+                        <input type="file" class="form-control-file" name="file" accept=".csv" required>
                     </div>
                     <hr>
                     <div>Download <a href="post.php?download_client_assets_csv_template=<?php echo $client_id; ?>">sample csv template</a></div>
