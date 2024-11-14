@@ -28,9 +28,9 @@ if (!empty($asset_id)) {
         // Update Primary Interface
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Updated', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Updated asset $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Asset", "Edit", "$name via API ($api_key_name)", $client_id);
+        logAction("API", "Success", "Edited asset $name via API ($api_key_name)", $client_id);
     }
 }
 
