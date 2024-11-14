@@ -1517,6 +1517,7 @@ CREATE TABLE `settings` (
   `config_quote_footer` text DEFAULT NULL,
   `config_quote_from_name` varchar(200) DEFAULT NULL,
   `config_quote_from_email` varchar(200) DEFAULT NULL,
+  `config_quote_notification_email` varchar(200) DEFAULT NULL,
   `config_ticket_prefix` varchar(200) DEFAULT NULL,
   `config_ticket_next_number` int(11) DEFAULT NULL,
   `config_ticket_from_name` varchar(200) DEFAULT NULL,

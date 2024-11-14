@@ -7,6 +7,7 @@
   <!-- ./wrapper -->
 
   <!-- REQUIRED SCRIPTS -->
+  <?php require_once "inc_confirm_modal.php"; ?>
 
   <!-- jQuery -->
   <script src="plugins/jquery/jquery.min.js"></script>
@@ -22,6 +23,8 @@
   <script src='plugins/inputmask/min/inputmask/inputmask.min.js'></script>
 
   <script src="js/app.js"></script>
+
+  <script src="js/confirm_modal.js"></script>
 
   </body>
 </html>
