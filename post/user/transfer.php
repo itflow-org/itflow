@@ -6,8 +6,19 @@
 
 if (isset($_POST['add_transfer'])) {
 
+    enforceUserPermission('module_financial', 2);
+
     require_once 'post/user/transfer_model.php';
 
+    // Get Source Account Name for logging
+    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_from");
+    $row = mysqli_fetch_array($sql);
+    $source_account_name = sanitizeInput($row['account_name']);
+
+    // Get Destination Account Name for logging
+    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_to");
+    $row = mysqli_fetch_array($sql);
+    $destination_account_name = sanitizeInput($row['account_name']);
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account_from");
     $expense_id = mysqli_insert_id($mysqli);
@@ -17,16 +28,20 @@ if (isset($_POST['add_transfer'])) {
 
     mysqli_query($mysqli,"INSERT INTO transfers SET transfer_expense_id = $expense_id, transfer_revenue_id = $revenue_id, transfer_method = '$transfer_method', transfer_notes = '$notes'");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Create', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    $transfer_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Transfer complete";
+    // Logging
+    logAction("Account Transfer", "Create", "$session_name transferred $amount from account $source_account_name to $destination_account_name", 0 , $transfer_id);
+
+    $_SESSION['alert_message'] = "Transferred <strong>$amount</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 if (isset($_POST['edit_transfer'])) {
+
+    enforceUserPermission('module_financial', 2);
 
     require_once 'post/user/transfer_model.php';
 
@@ -41,19 +56,22 @@ if (isset($_POST['edit_transfer'])) {
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_method = '$transfer_method', transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
 
-    //Logging
-    mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Modifed', log_description = '$date - $amount', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    // Logging
+    logAction("Account Transfer", "Edit", "$session_name edited transfer", 0 , $transfer_id);
 
-    $_SESSION['alert_message'] = "Transfer modified";
+    $_SESSION['alert_message'] = "Transfer edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
 if (isset($_GET['delete_transfer'])) {
+
+    enforceUserPermission('module_financial', 3);
+
     $transfer_id = intval($_GET['delete_transfer']);
 
-    //Query the transfer ID to get the Payment and Expense IDs, so we can delete those as well
+    // Query the transfer ID to get the Payment and Expense IDs, so we can delete those as well
     $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id"));
     $expense_id = intval($row['transfer_expense_id']);
     $revenue_id = intval($row['transfer_revenue_id']);
@@ -66,6 +84,9 @@ if (isset($_GET['delete_transfer'])) {
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Transfer', log_action = 'Delete', log_description = '$transfer_id', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+
+    // Logging
+    logAction("Account Transfer", "Delete", "$session_name deleted transfer");
 
     $_SESSION['alert_message'] = "Transfer deleted";
 
