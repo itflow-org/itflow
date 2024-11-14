@@ -10,7 +10,7 @@ if (isset($_POST['add_quote'])) {
 
     require_once 'post/user/quote_model.php';
 
-    $client = intval($_POST['client']);
+    $client_id = intval($_POST['client']);
 
     //Get the last Quote Number and add 1 for the new Quote number
     $quote_number = $config_quote_next_number;
@@ -20,7 +20,7 @@ if (isset($_POST['add_quote'])) {
     //Generate a unique URL key for clients to access
     $quote_url_key = randomString(156);
 
-    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_currency_code = '$session_company_currency', quote_category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO quotes SET quote_prefix = '$config_quote_prefix', quote_number = $quote_number, quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_currency_code = '$session_company_currency', quote_category_id = $category, quote_status = 'Draft', quote_url_key = '$quote_url_key', quote_client_id = $client_id");
 
     $quote_id = mysqli_insert_id($mysqli);
 
