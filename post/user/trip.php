@@ -38,6 +38,7 @@ if (isset($_POST['edit_trip'])) {
 }
 
 if (isset($_GET['delete_trip'])) {
+    
     $trip_id = intval($_GET['delete_trip']);
 
     // Get Trip Info and Client ID for logging
@@ -59,6 +60,7 @@ if (isset($_GET['delete_trip'])) {
 }
 
 if (isset($_POST['export_trips_csv'])) {
+    
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
     if (!empty($date_from) && !empty($date_to)){
