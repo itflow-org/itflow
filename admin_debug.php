@@ -1,4 +1,5 @@
 <?php
+
 require_once "inc_all_admin.php";
 
 require_once "database_version.php";
@@ -512,10 +513,8 @@ $mysqli->close();
 
         <h2>Debugging</h2>
         <ul>
-            <li>If you are experiencing a problem with ITFlow you may be directed to this page to gather server/app info.</li>
-            <li>When creating forum posts / support requests ensure you share the information under <i>Server Info</i>, <i>ITFlow app</i> and <i>Database stats</i>.</li>
-            <li><a class="text-danger text-bold">Caution:</a> Be careful when sharing the full debug output - it contains your PHP session variables/cookies ("PHPSESSID") which could allow anyone to login to your ITFlow instance</li>
-            <li>Note: Sometimes you might need to gather <a href="https://docs.itflow.org/gathering_logs#error_logs">PHP error logs</a> as well</li>
+            <li>If you are experiencing a problem with ITFlow, this page should help you identify any configuration issues.</li>
+            <li>Note: You might also need to gather <a href="https://docs.itflow.org/gathering_logs#error_logs">error logs</a></li>
         </ul>
         <hr>
 
