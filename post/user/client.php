@@ -387,9 +387,16 @@ if (isset($_POST['export_clients_csv'])) {
 if (isset($_POST["import_clients_csv"])) {
 
     enforceUserPermission('module_client', 2);
-
-    $file_name = $_FILES["file"]["tmp_name"];
     $error = false;
+
+    if (!empty($_FILES["file"]["tmp_name"])) {
+        $file_name = $_FILES["file"]["tmp_name"];
+    } else {
+        $_SESSION['alert_message'] = "Please select a file to upload.";
+        $_SESSION['alert_type'] = "error";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
 
     //Check file is CSV
     $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
@@ -589,7 +596,7 @@ if (isset($_POST["import_clients_csv"])) {
 if (isset($_GET['download_clients_csv_template'])) {
 
     $delimiter = ",";
-    $filename = strtoAZaz09($client_name) . "-Clients-Template.csv";
+    $filename = "Clients-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');

@@ -8,12 +8,11 @@
                 </button>
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
                     <p><strong>Format csv file with headings & data:</strong><br>Client Name, Industry, Referral, Website, Location Name, Location Phone, Location Address, City, State, Postal Code, Country, Contact Name, Title, Contact Phone, Extension, Contact Mobile, Contact Email, Hourly Rate, Currency, Payment Terms, Tax ID, Abbreviation</p>
                     <hr>
                     <div class="form-group my-4">
-                        <input type="file" class="form-control-file" name="file" accept=".csv">
+                        <input type="file" class="form-control-file" name="file" accept=".csv" required>
                     </div>
                     <hr>
                     <div>Download: <a class="text-bold" href="post.php?download_clients_csv_template">sample csv template</a></div>

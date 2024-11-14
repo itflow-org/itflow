@@ -13,7 +13,7 @@
 					<p><strong>Format csv file with headings & data:</strong><br>Name, Description, Address, City, State, Postal Code, Phone, Hours</p>
 					<hr>
 					<div class="form-group my-4">
-						<input type="file" class="form-control-file" name="file" accept=".csv">
+						<input type="file" class="form-control-file" name="file" accept=".csv" required>
 					</div>
 					<hr>
 					<div>Download: <a class="text-bold" href="post.php?download_client_locations_csv_template=<?php echo $client_id; ?>">sample csv template</a></div>
