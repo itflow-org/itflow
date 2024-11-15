@@ -871,7 +871,7 @@ if (isset($_POST['add_payment'])) {
         mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added', history_invoice_id = $invoice_id");
 
         // Logging
-        logAction("Invoice", "Payment", "Payment amount of $payment_amount added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+        logAction("Invoice", "Payment", "Payment amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
         customAction('invoice_pay', $invoice_id);
 
