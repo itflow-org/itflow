@@ -125,7 +125,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['certificate_ids']) {
+    if (isset($_POST['certificate_ids'])) {
 
         // Get selected count
         $count = count($_POST['certificate_ids']);

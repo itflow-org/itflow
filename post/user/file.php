@@ -176,7 +176,7 @@ if (isset($_POST['bulk_delete_files'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     // Delete file loop
-    if ($_POST['file_ids']) {
+    if (isset($_POST['file_ids'])) {
 
         // Get selected file Count
         $file_count = count($_POST['file_ids']);
@@ -224,7 +224,7 @@ if (isset($_POST['bulk_move_files'])) {
     $client_id = intval($row['folder_client_id']);
 
     // Check array for data
-    if ($_POST['file_ids']) {
+    if (isset($_POST['file_ids'])) {
         // Get Selected file Count
         $file_count = count($_POST['file_ids']);
         

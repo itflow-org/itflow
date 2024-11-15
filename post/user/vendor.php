@@ -163,7 +163,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    if (isset($vendor_ids)) {
+    if (isset($_POST['vendor_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['vendor_ids']);
@@ -200,7 +200,7 @@ if (isset($_POST['bulk_unarchive_vendors'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    if (isset($vendor_ids)) {
+    if (isset($_POST['vendor_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['vendor_ids']);
@@ -237,7 +237,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    if (isset($vendor_ids)) {
+    if (isset($_POST['vendor_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['vendor_ids']);

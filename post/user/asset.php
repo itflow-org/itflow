@@ -273,7 +273,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
     $client_id = intval($row['location_client_id']);
     
     // Assign Location to Selected Contacts
-    if ($_POST['asset_ids']) {
+    if (isset($_POST['asset_ids'])) {
 
         // Get Selected Contacts Count
         $asset_count = count($_POST['asset_ids']);
@@ -318,7 +318,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
     $client_id = intval($row['contact_client_id']);
     
     // Assign Contact to Selected Assets
-    if ($_POST['asset_ids']) {
+    if (isset($_POST['asset_ids'])) {
 
         // Get Selected Contacts Count
         $asset_count = count($_POST['asset_ids']);
@@ -357,7 +357,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
     $status = sanitizeInput($_POST['bulk_status']);
     
     // Assign Status to Selected Assets
-    if ($_POST['asset_ids']) {
+    if (isset($_POST['asset_ids'])) {
 
         // Get Count
         $asset_count = count($_POST['asset_ids']);
@@ -394,7 +394,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['asset_ids']) {
+    if (isset($_POST['asset_ids'])) {
 
         // Get Count
         $count = count($_POST['asset_ids']);
@@ -433,7 +433,7 @@ if (isset($_POST['bulk_unarchive_assets'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['asset_ids']) {
+    if (isset($_POST['asset_ids'])) {
 
         // Get Count
         $count = count($_POST['asset_ids']);

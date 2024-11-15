@@ -92,7 +92,7 @@ if (isset($_POST['bulk_delete_networks'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['network_ids']) {
+    if (isset($_POST['network_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['network_ids']);

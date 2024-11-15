@@ -119,7 +119,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
     $category_name = sanitizeInput($row['category_name']);
 
     // Assign category to Selected Expenses
-    if ($_POST['expense_ids']) {
+    if (isset($_POST['expense_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['expense_ids']);
@@ -159,7 +159,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
     $account_name = sanitizeInput($row['account_name']);
 
     // Assign account to Selected Expenses
-    if ($_POST['expense_ids']) {
+    if (isset($_POST['expense_ids'])) {
 
         // Get Selected Contacts Count
         $count = count($_POST['expense_ids']);
@@ -199,7 +199,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     $client_name = sanitizeInput($row['client_name']);
 
     // Assign Client to Selected Expenses
-    if ($_POST['expense_ids']) {
+    if (isset($_POST['expense_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['expense_ids']);
@@ -229,7 +229,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
     validateAdminRole();
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['expense_ids']) {
+    if (isset($_POST['expense_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['expense_ids']);

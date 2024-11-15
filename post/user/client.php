@@ -62,7 +62,7 @@ if (isset($_POST['add_client'])) {
     }
 
     // Add Tags
-    if ($_POST['tags']) {
+    if (isset($_POST['tags'])) {
         foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
             mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
@@ -139,9 +139,11 @@ if (isset($_POST['edit_client'])) {
     mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     // Add new tags
-    foreach($_POST['tags'] as $tag) {
-        $tag = intval($tag);
-        mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+    if(isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+        }
     }
 
     // Logging

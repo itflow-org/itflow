@@ -95,9 +95,11 @@ if(isset($_POST['edit_location'])){
     mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
 
     // Add new tags
-    foreach($_POST['tags'] as $tag) {
-        $tag = intval($tag);
-        mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+        }
     }
 
     //Check to see if a file is attached
@@ -214,7 +216,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
     enforceUserPermission('module_client', 2);
 
     // Assign Tags to Selected
-    if ($_POST['location_ids']) {
+    if (isset($_POST['location_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['location_ids']);
@@ -234,12 +236,14 @@ if (isset($_POST['bulk_assign_location_tags'])) {
             }
 
             // Add new tags
-            foreach($_POST['bulk_tags'] as $tag) {
-                $tag = intval($tag);
+            if (isset($_POST['bulk_tags'])) {
+                foreach($_POST['bulk_tags'] as $tag) {
+                    $tag = intval($tag);
 
-                $sql = mysqli_query($mysqli,"SELECT * FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
-                if (mysqli_num_rows($sql) == 0) {
-                    mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT * FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
+                    if (mysqli_num_rows($sql) == 0) {
+                        mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
+                    }
                 }
             }
 
@@ -262,7 +266,7 @@ if (isset($_POST['bulk_archive_locations'])) {
     enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['location_ids']) {
+    if (isset($_POST['location_ids'])) {
 
         $count = 0; // Default 0
 
@@ -304,7 +308,7 @@ if (isset($_POST['bulk_unarchive_locations'])) {
     enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['location_ids']) {
+    if (isset($_POST['location_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['location_ids']);
@@ -341,7 +345,7 @@ if (isset($_POST['bulk_delete_locations'])) {
     enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['location_ids']) {
+    if (isset($_POST['location_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['location_ids']);

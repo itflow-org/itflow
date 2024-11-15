@@ -179,7 +179,7 @@ if (isset($_POST['bulk_archive_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['domain_ids']) {
+    if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['domain_ids']);
@@ -216,7 +216,7 @@ if (isset($_POST['bulk_unarchive_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['domain_ids']) {
+    if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['domain_ids']);
@@ -253,7 +253,7 @@ if (isset($_POST['bulk_delete_domains'])) {
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['domain_ids']) {
+    if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['domain_ids']);

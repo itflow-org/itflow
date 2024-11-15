@@ -123,7 +123,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
     $category_name = sanitizeInput($row['category_name']);
 
     // Assign category to Selected Products
-    if ($_POST['product_ids']) {
+    if (isset($_POST['product_ids'])) {
 
         // Get Count
         $count = count($_POST['product_ids']);
@@ -158,7 +158,7 @@ if (isset($_POST['bulk_archive_products'])) {
     
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['product_ids']) {
+    if (isset($_POST['product_ids'])) {
 
         $count = count($_POST['product_ids']);
 
@@ -193,7 +193,7 @@ if (isset($_POST['bulk_unarchive_products'])) {
     enforceUserPermission('module_sales', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['product_ids']) {
+    if (isset($_POST['product_ids'])) {
 
         $count = count($_POST['product_ids']);
 
@@ -228,7 +228,7 @@ if (isset($_POST['bulk_delete_products'])) {
     enforceUserPermission('module_sales', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['product_ids']) {
+    if (isset($_POST['product_ids'])) {
 
         $count = count($_POST['product_ids']);
 

@@ -180,7 +180,7 @@ if (isset($_POST['bulk_move_document'])) {
     $client_id = intval($row['folder_client_id']);
 
     // Move Documents to Folder Loop
-    if ($_POST['document_ids']) {
+    if (isset($_POST['document_ids'])) {
 
         // Get Selected Count
         $count = count($_POST['document_ids']);
@@ -701,7 +701,7 @@ if (isset($_POST['bulk_delete_documents'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     
-    if ($_POST['document_ids']) {     
+    if (isset($_POST['document_ids'])) {     
 
         // Get selected document count
         $count = count($_POST['document_ids']);

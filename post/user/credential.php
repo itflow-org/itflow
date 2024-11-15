@@ -153,7 +153,7 @@ if (isset($_POST['bulk_assign_login_tags'])) {
     enforceUserPermission('module_credential', 2);
 
     // Assign tags to Selected Credentials
-    if ($_POST['login_ids']) {
+    if (isset($_POST['login_ids'])) {
 
         // Get Selected Credential Count
         $count = count($_POST['login_ids']);
@@ -173,7 +173,7 @@ if (isset($_POST['bulk_assign_login_tags'])) {
             }
 
             // Add new tags
-            if(isset($_POST['bulk_tags'])) {
+            if (isset($_POST['bulk_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
@@ -204,7 +204,7 @@ if (isset($_POST['bulk_archive_logins'])) {
     enforceUserPermission('module_credential', 2);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['login_ids']) {
+    if (isset($_POST['login_ids'])) {
 
         // Get Selected Credential Count
         $count = count($_POST['login_ids']);
@@ -243,7 +243,7 @@ if (isset($_POST['bulk_unarchive_logins'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['login_ids']) {
+    if (isset($_POST['login_ids'])) {
 
         // Get Selected Credential Count
         $count = count($_POST['login_ids']);
@@ -282,7 +282,7 @@ if (isset($_POST['bulk_delete_logins'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['login_ids']) {
+    if (isset($_POST['login_ids'])) {
 
         // Get Selected Credential Count
         $count = count($_POST['login_ids']);

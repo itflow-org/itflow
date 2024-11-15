@@ -32,7 +32,7 @@ if (isset($_POST['add_contact'])) {
     $contact_id = mysqli_insert_id($mysqli);
 
     // Add Tags
-    if ($_POST['tags']) {
+    if (isset($_POST['tags'])) {
         foreach($_POST['tags'] as $tag) {
             $tag = intval($tag);
             mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
@@ -144,9 +144,11 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
 
     // Add new tags
-    foreach($_POST['tags'] as $tag) {
-        $tag = intval($tag);
-        mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+        }
     }
 
     // Update Primary contact in clients if primary contact is checked
@@ -225,7 +227,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     $client_id = intval($row['location_client_id']);
 
     // Assign Location to Selected Contacts
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
         
         // Get Selected Contacts Count
         $contact_count = count($_POST['contact_ids']);
@@ -262,7 +264,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
     $phone = preg_replace("/[^0-9]/", '', $_POST['bulk_phone']);
 
     // Assign Location to Selected Contacts
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $contact_count = count($_POST['contact_ids']);
@@ -299,7 +301,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
     $department = sanitizeInput($_POST['bulk_department']);
 
     // Assign Location to Selected Contacts
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $contact_count = count($_POST['contact_ids']);
@@ -339,7 +341,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
     $contact_technical = intval($_POST['bulk_contact_technical']);
 
     // Assign Location to Selected Contacts
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $contact_count = count($_POST['contact_ids']);
@@ -377,7 +379,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
     enforceUserPermission('module_client', 2);
 
     // Assign Location to Selected Contacts
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $count = count($_POST['contact_ids']);
@@ -397,12 +399,14 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
             }
 
             // Add new tags
-            foreach($_POST['bulk_tags'] as $tag) {
-                $tag = intval($tag);
+            if (isset($_POST['bulk_tags'])) {
+                foreach($_POST['bulk_tags'] as $tag) {
+                    $tag = intval($tag);
 
-                $sql = mysqli_query($mysqli,"SELECT * FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
-                if (mysqli_num_rows($sql) == 0) {
-                    mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT * FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
+                    if (mysqli_num_rows($sql) == 0) {
+                        mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
+                    }
                 }
             }
 
@@ -427,7 +431,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
     //validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         $count = 0; // Default 0
 
@@ -477,7 +481,7 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
     enforceUserPermission('module_client', 2);
     //validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $count = count($_POST['contact_ids']);
@@ -521,7 +525,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
     enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
-    if ($_POST['contact_ids']) {
+    if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
         $count = count($_POST['contact_ids']);

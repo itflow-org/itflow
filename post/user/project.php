@@ -199,7 +199,7 @@ if (isset($_POST['add_project_ticket'])) {
     $project_name = sanitizeInput($row['project_name']);
     
     // Add Tickets
-    if ($_POST['tickets']) {
+    if (isset($_POST['tickets'])) {
 
         // Get Selected Count
         $count = count($_POST['tickets']);
