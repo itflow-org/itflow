@@ -9,8 +9,6 @@ require_once "inc_portal.php";
 
 if (isset($_POST['add_ticket'])) {
 
-    $client_id = intval($session_client_id);
-    $contact = intval($session_contact_id);
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
 
@@ -36,7 +34,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $session_contact_id, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
     $ticket_id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email
@@ -66,7 +64,7 @@ if (isset($_POST['add_ticket'])) {
     customAction('ticket_create', $ticket_id);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Client contact $session_contact_name created ticket $subject', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id");
+    logAction("Ticket", "Create", "$session_contact_name created ticket $config_ticket_prefix$ticket_number - $subject from the client portal", $session_client_id, $ticket_id);
 
     header("Location: ticket.php?id=" . $ticket_id);
 
@@ -209,6 +207,12 @@ if (isset($_POST['add_ticket_feedback'])) {
 if (isset($_GET['resolve_ticket'])) {
     $ticket_id = intval($_GET['resolve_ticket']);
 
+    // Get ticket details for logging
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
@@ -218,8 +222,8 @@ if (isset($_GET['resolve_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket resolved by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Resolved', log_description = '$ticket_id resolved by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+        // Logging
+        logAction("Ticket", "Edit", "$session_contact_name marked ticket $ticket_prefix$ticket_number as resolved in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_resolve', $ticket_id);
@@ -236,6 +240,12 @@ if (isset($_GET['resolve_ticket'])) {
 if (isset($_GET['reopen_ticket'])) {
     $ticket_id = intval($_GET['reopen_ticket']);
 
+    // Get ticket details for logging
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
@@ -245,8 +255,8 @@ if (isset($_GET['reopen_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Replied', log_description = '$ticket_id reopened by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+        // Logging
+        logAction("Ticket", "Edit", "$session_contact_name reopend ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_update', $ticket_id);
@@ -263,6 +273,12 @@ if (isset($_GET['reopen_ticket'])) {
 if (isset($_GET['close_ticket'])) {
     $ticket_id = intval($_GET['close_ticket']);
 
+    // Get ticket details for logging
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Open")) {
 
@@ -272,8 +288,8 @@ if (isset($_GET['close_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Closed', log_description = '$ticket_id closed by client', log_ip = '$session_ip', log_user_agent = '$session_user_agent'");
+        // Logging
+        logAction("Ticket", "Edit", "$session_contact_name closed ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_close', $ticket_id);
@@ -303,7 +319,7 @@ if (isset($_POST['edit_profile'])) {
         mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $session_user_id");
 
         // Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client contact $session_contact_name modified their profile/password.', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, log_user_id = $session_user_id");
+        logAction("Contact", "Edit", "Client contact $session_contact_name edited their profile/password in the client portal", $session_client_id, $session_contact_id);
     }
     header('Location: index.php');
 }
@@ -319,12 +335,13 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Client $session_contact_name modified contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id, log_entity_id = $contact_id");
+    logAction("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Contact updated";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> updated";
+    
     header('Location: contacts.php');
 
-    customAction('contact_update', $ticket_id);
+    customAction('contact_update', $contact_id);
 }
 
 if (isset($_POST['add_contact'])) {
@@ -336,11 +353,14 @@ if (isset($_POST['add_contact'])) {
 
     mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id");
 
+    $contact_id = mysqli_insert_id($mysqli);
+
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Client $session_contact_name created contact $contact_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $session_client_id");
+    logAction("Contact", "Create", "Client contact $session_contact_name created contact $contact_name in the client portal", $session_client_id, $contact_id);
 
-    customAction('contact_create', $ticket_id);
+    customAction('contact_create', $contact_id);
 
-    $_SESSION['alert_message'] = "Contact created";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> created";
+
     header('Location: contacts.php');
 }
