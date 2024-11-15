@@ -177,7 +177,7 @@ if (isset($_POST['add_user'])) {
     //Create Settings
     mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1, user_role = 3");
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> created!";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created";
 
     header("Location: setup.php?company");
     exit;
@@ -314,7 +314,7 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO custom_links SET custom_link_name = 'Docs', custom_link_uri = 'https://docs.itflow.org', custom_link_new_tab = 1, custom_link_icon = 'question-circle'");
 
 
-    $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
+    $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
 
     header("Location: setup.php?localization");
 
