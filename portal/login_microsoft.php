@@ -20,6 +20,9 @@ if (!isset($_SESSION)) {
 // Set Timezone after session starts
 require_once "../inc_set_timezone.php";
 
+$session_ip = sanitizeInput(getIP());
+$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_array($sql_settings);
 
@@ -99,26 +102,40 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
             $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$upn' AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
             $row = mysqli_fetch_array($sql);
-            if ($row['user_auth_method'] == 'azure') {
+            $client_id = intval($row['contact_client_id']);
+            $user_id = intval($row['user_id']);
+            $contact_id = intval($row['contact_id']);
+            $user_email = sanitizeInput($row['user_email']);
+            $user_auth_method = sanitizeInput($row['user_auth_method']);
+
+            if ($user_auth_method == 'azure') {
 
                 $_SESSION['client_logged_in'] = true;
-                $_SESSION['client_id'] = $row['contact_client_id'];
-                $_SESSION['user_id'] = $row['user_id'];
-                $_SESSION['contact_id'] = $row['contact_id'];
+                $_SESSION['client_id'] = $client_id;
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['contact_id'] = $contact_id;
                 $_SESSION['login_method'] = "azure";
 
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = 'Success', log_description = 'Client contact $upn successfully logged in via Azure', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $row[contact_client_id], log_user_id = $row[user_id]");
+                // Logging
+                logAction("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);
 
                 header("Location: index.php");
 
             } else {
+                
                 $_SESSION['login_message'] = 'Something went wrong with logging you in: Your account is not configured for Azure SSO. Please ensure you are setup in ITFlow as a contact and have Azure SSO configured.';
+                
                 header("Location: index.php");
             }
+        
         }
+        
         header('Location: index.php');
+    
     } else {
+        
         echo "Error getting access_token";
+    
     }
 
 }
