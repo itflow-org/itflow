@@ -11,9 +11,10 @@ if (isset($_POST['add_transfer'])) {
     require_once 'post/user/transfer_model.php';
 
     // Get Source Account Name for logging
-    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_from");
+    $sql = mysqli_query($mysqli,"SELECT account_name, account_currency_code FROM accounts WHERE account_id = $account_from");
     $row = mysqli_fetch_array($sql);
     $source_account_name = sanitizeInput($row['account_name']);
+    $account_currency_code = sanitizeInput($row['account_currency_code']);
 
     // Get Destination Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_to");
@@ -31,9 +32,9 @@ if (isset($_POST['add_transfer'])) {
     $transfer_id = mysqli_insert_id($mysqli);
 
     // Logging
-    logAction("Account Transfer", "Create", "$session_name transferred $amount from account $source_account_name to $destination_account_name", 0, $transfer_id);
+    logAction("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
 
-    $_SESSION['alert_message'] = "Transferred <strong>$amount</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>";
+    $_SESSION['alert_message'] = "Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
