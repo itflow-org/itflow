@@ -25,18 +25,18 @@ require_once "rfc6238.php";
 
 
 // IP & User Agent for logging
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = sanitizeInput(getIP());
+$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 // Block brute force password attacks - check recent failed login attempts for this IP
 //  Block access if more than 15 failed login attempts have happened in the last 10 minutes
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$session_ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
 $failed_login_count = intval($row['failed_login_count']);
 
 if ($failed_login_count >= 15) {
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Blocked', log_description = '$ip was blocked access to login due to IP lockout', log_ip = '$ip', log_user_agent = '$user_agent'");
+    logAction("Login", "Blocked", "$session_ip was blocked access to login due to IP lockout");
 
     // Inform user & quit processing page
     header("HTTP/1.1 429 Too Many Requests");
@@ -163,16 +163,16 @@ if (isset($_POST['login'])) {
             }
 
             // Check this login isn't suspicious
-            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$ip' AND log_user_id = $user_id"));
+            $sql_ip_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ip_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_ip = '$session_ip' AND log_user_id = $user_id"));
             $ip_previous_logins = sanitizeInput($sql_ip_prev_logins['ip_previous_logins']);
 
-            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$user_agent' AND log_user_id = $user_id"));
+            $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS ua_previous_logins FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_user_agent = '$session_user_agent' AND log_user_id = $user_id"));
             $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
 
             // Notify if both the user agent and IP are different
             if (!empty($config_smtp_host) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
                 $subject = "$config_app_name new login for $user_name";
-                $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $ip<br> User Agent: $user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
+                $body = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $session_ip<br> User Agent: $session_user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
                 $data = [
                     [
@@ -187,9 +187,8 @@ if (isset($_POST['login'])) {
                 addToMailQueue($mysqli, $data);
             }
 
-
-            // Logging successful login
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Success', log_description = '$user_name successfully logged in $extended_log', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
+            // Logging
+            logAction("Login", "Success", "$user_name successfully logged in $extended_log", 0, $user_id);
 
             // Session info
             $_SESSION['user_id'] = $user_id;
@@ -245,7 +244,7 @@ if (isset($_POST['login'])) {
             if ($current_code !== 0) {
 
                 // Logging
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = '2FA Failed', log_description = '$user_name failed 2FA', log_ip = '$ip', log_user_agent = '$user_agent', log_user_id = $user_id");
+                logAction("Login", "MFA Failed", "$user_name failed MFA", 0, $user_id);
 
                 // Email the tech to advise their credentials may be compromised
                 if (!empty($config_smtp_host)) {
@@ -279,7 +278,8 @@ if (isset($_POST['login'])) {
 
         header("HTTP/1.1 401 Unauthorized");
 
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Login', log_action = 'Failed', log_description = 'Failed login attempt using $email', log_ip = '$ip', log_user_agent = '$user_agent'");
+        // Logging
+        logAction("Login", "Failed", "Failed login attempt using $email");
 
         $response = "
               <div class='alert alert-danger'>
