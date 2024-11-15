@@ -152,7 +152,7 @@ if (isset($_POST['client_set_notes'])) {
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Modify', log_description = '$session_name modified client notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
+    logAction("Client", "Edit", "$session_name edited client notes", $client_id);
 
 }
 
@@ -160,11 +160,19 @@ if (isset($_POST['contact_set_notes'])) {
     $contact_id = intval($_POST['contact_id']);
     $notes = sanitizeInput($_POST['notes']);
 
+    // Get Contact Details and Client ID for Logging
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id 
+        FROM contacts WHERE contact_id = $contact_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+
     // Update notes
     mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = '$session_name modified contact notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Contact", "Edit", "$session_name edited contact notes for $contact_name", $client_id, $contact_id);
 
 }
 
@@ -172,11 +180,19 @@ if (isset($_POST['asset_set_notes'])) {
     $asset_id = intval($_POST['asset_id']);
     $notes = sanitizeInput($_POST['notes']);
 
+    // Get Asset Details and Client ID for Logging
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id 
+        FROM assets WHERE asset_id = $asset_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
     // Update notes
     mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $asset_id");
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Modify', log_description = '$session_name modified asset notes', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Asset", "Edit", "$session_name edited asset notes for $asset_name", $client_id, $asset_id);
 
 }
 
@@ -331,7 +347,7 @@ if (isset($_GET['share_generate_link'])) {
     echo json_encode($url);
 
     // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'Create', log_description = '$session_name created shared link for $item_type - $item_name', log_client_id = $client_id, log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    logAction("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
 
 }
 
@@ -484,7 +500,9 @@ if (isset($_GET['get_totp_token_via_id'])) {
     $recent_totp_view_logged_count = intval($check_recent_totp_view_logged_sql['recent_totp_view']);
 
     if ($recent_totp_view_logged_count == 0) {
-        mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Login', log_action = 'View TOTP', log_description = '$session_name viewed login TOTP code for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $login_id");
+        // Logging
+        logAction("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $login_id);
+
     }
 }
 
