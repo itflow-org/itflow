@@ -543,4 +543,10 @@ $processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocess
 
 // Remove the lock file
 unlink($lock_file_path);
+
+// DEBUG
+echo "\nLock File Path: $lock_file_path\n";
+echo "Processed Emails into tickets: $processed_count\n";
+echo "Unprocessed Emails: $unprocessed_count\n";
+
 ?>

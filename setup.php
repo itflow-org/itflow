@@ -246,7 +246,7 @@ if (isset($_POST['add_company_settings'])) {
 
 
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-', config_timezone = '$timezone'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
     # Used only for the install script to grab the generated cronkey and insert into the db
     if (file_exists("uploads/tmp/cronkey.php")) {
@@ -257,9 +257,6 @@ if (isset($_POST['add_company_settings'])) {
 
         unlink('uploads/tmp/cronkey.php');
     }
-
-    // Create Default Cash Account
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
 
     // Create Categories
     // Expense Categories Examples
@@ -318,6 +315,27 @@ if (isset($_POST['add_company_settings'])) {
 
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created!";
+
+    header("Location: setup.php?localization");
+
+}
+
+if (isset($_POST['add_localization_settings'])) {
+
+    $locale = sanitizeInput($_POST['locale']);
+    $currency_code = sanitizeInput($_POST['currency_code']);
+    $timezone = sanitizeInput($_POST['timezone']);
+    $phone_mask = intval($_POST['phone_mask']);
+
+    mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
+
+    mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone', config_phone_mask = $phone_mask WHERE company_id = 1");
+
+    // Create Default Cash Account
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
+
+
+    $_SESSION['alert_message'] = "Localization Info saved";
 
     header("Location: setup.php?telemetry");
 
@@ -465,6 +483,12 @@ if (isset($_POST['add_telemetry'])) {
                         <a href="?company" class="nav-link <?php if (isset($_GET['company'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-briefcase"></i>
                             <p>Company</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="?localization" class="nav-link <?php if (isset($_GET['localization'])) { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-globe-americas"></i>
+                            <p>Localization</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1039,7 +1063,24 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
                                 </div>
 
-                                <Legend>Localization</Legend>
+                                <hr>
+
+                                <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
+                                    Next (Localization)<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                </button>
+
+                            </form>
+                        </div>
+                    </div>
+
+                <?php } elseif (isset($_GET['localization'])) { ?>
+
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-fw fa-globe-americas mr-2"></i>Region and Language</h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" autocomplete="off">
 
                                 <div class="form-group">
                                     <label>Language <strong class="text-danger">*</strong></label>
@@ -1086,9 +1127,22 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <label>Phone Mask</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-phone"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="phone_mask">
+                                            <option value="1">US Format - e.g. (412) 888-9999</option>
+                                            <option value="0">Non-US Format - e.g. 4128889999</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <hr>
 
-                                <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
+                                <button type="submit" name="add_localization_settings" class="btn btn-primary text-bold">
                                     Next (Telemetry Settings)<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
                                 </button>
 

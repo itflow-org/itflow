@@ -231,10 +231,10 @@ require_once "inc_all_admin.php";
                                 $phone_mask = intval($row['config_phone_mask']);
                             } ?>
                             <option <?php if ($phone_mask == 1) { echo "selected"; }?> value=1>
-                                Enable - e.g. (412) 888-9999
+                                US Format - e.g. (412) 888-9999
                             </option>
                             <option <?php if ($phone_mask == 0) { echo "selected"; }?> value=0>
-                                Disabled - e.g. 4128889999
+                                Non-US Format - e.g. 4128889999
                             </option>
                     </select>
                 </div>
