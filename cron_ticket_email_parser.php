@@ -55,9 +55,15 @@ if (file_exists($lock_file_path)) {
     // If file is older than 5 minutes (300 seconds), delete and continue
     if ($file_age > 300) {
         unlink($lock_file_path);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Delete', log_description = 'Cron Email Parser detected a lock file was present but was over 5 minutes old so it removed it'");
+
+        // Logging
+        logAction("Cron-Email-Parser", "Delete", "Cron Email Parser detected a lock file was present but was over 5 minutes old so it removed it.");
+    
     } else {
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Locked', log_description = 'Cron Email Parser attempted to execute but was already executing, so instead it terminated.'");
+       
+        // Logging
+        logAction("Cron-Email-Parser", "Locked", "Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
+
         exit("Script is already running. Exiting.");
     }
 }
@@ -108,7 +114,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Create', log_description = 'Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject) ($id)', log_client_id = $client_id");
+    // Logging
+    logAction("Ticket", "Create", "Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject) ($id)", $client_id, $id);
 
     mkdirMissing('uploads/tickets/');
     $att_dir = "uploads/tickets/" . $id . "/";
@@ -136,7 +143,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name_esc', ticket_attachment_reference_name = '$ticket_attachment_reference_name_esc', ticket_attachment_ticket_id = $id");
         } else {
             $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $att_name);
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Blocked attachment $ticket_attachment_name_esc from Client contact $contact_email_esc for ticket $ticket_prefix_esc$ticket_number', log_client_id = $client_id");
+            logAction("Ticket", "Edit", "Email parser: Blocked attachment $ticket_attachment_name_esc from Client contact $contact_email_esc for ticket $ticket_prefix_esc$ticket_number", $client_id, $id);
         }
     }
 
@@ -277,7 +284,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$ticket_attachment_name_esc', ticket_attachment_reference_name = '$ticket_attachment_reference_name_esc', ticket_attachment_reply_id = $reply_id, ticket_attachment_ticket_id = $ticket_id");
             } else {
                 $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $att_name);
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Blocked attachment $ticket_attachment_name_esc from Client contact $from_email_esc for ticket $config_ticket_prefix$ticket_number_esc', log_client_id = $client_id");
+                logAction("Ticket", "Edit", "Email parser: Blocked attachment $ticket_attachment_name_esc from Client contact $from_email_esc for ticket $config_ticket_prefix$ticket_number_esc", $client_id, $ticket_id);
             }
         }
 
@@ -313,7 +320,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Ticket', log_action = 'Update', log_description = 'Email parser: Client contact $from_email_esc updated ticket $config_ticket_prefix$ticket_number_esc ($subject)', log_client_id = $client_id");
+        logAction("Ticket", "Edit", "Email parser: Client contact $from_email_esc updated ticket $config_ticket_prefix$ticket_number_esc ($subject)", $client_id, $ticket_id);
 
         customAction('ticket_reply_client', $ticket_id);
 
@@ -473,7 +480,8 @@ if ($emails !== false) {
                     mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '".mysqli_real_escape_string($mysqli, $contact_name)."', contact_email = '".mysqli_real_escape_string($mysqli, $contact_email)."', contact_notes = 'Added automatically via email parsing.', contact_client_id = $client_id");
                     $contact_id = mysqli_insert_id($mysqli);
 
-                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Create', log_description = 'Email parser: created contact ".mysqli_real_escape_string($mysqli, $contact_name)."', log_client_id = $client_id");
+                    // Logging
+                    logAction("Contact", "Create", "Email parser: created contact " . mysqli_real_escape_string($mysqli, $contact_name) . "", $client_id, $contact_id);
                     customAction('contact_create', $contact_id);
 
                     if (addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file)) {
@@ -528,7 +536,8 @@ $execution_time_formatted = number_format($execution_time, 2);
 // Insert a log entry into the logs table
 $processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocessed_count email(s)";
 // Remove Comment below for Troubleshooting
-// mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Email-Parser', log_action = 'Execution', log_description = 'Cron Email Parser executed in $execution_time_formatted seconds. $processed_info'");
+
+//logAction("Cron-Email-Parser", "Execution", "Cron Email Parser executed in $execution_time_formatted seconds. $processed_info");
 
 // END Calculate execution time
 

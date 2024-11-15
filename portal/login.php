@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         $row = mysqli_fetch_array($sql);
         $client_id = intval($row['contact_client_id']);
         $user_id = intval($row['user_id']);
+        $session_user_id = $user_id; // to pass the user_id to logAction function
         $contact_id = intval($row['contact_id']);
         $user_email = sanitizeInput($row['user_email']);
         $user_auth_method = sanitizeInput($row['user_auth_method']);

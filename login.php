@@ -113,6 +113,7 @@ if (isset($_POST['login'])) {
         // Set temporary user variables
         $user_name = sanitizeInput($row['user_name']);
         $user_id = intval($row['user_id']);
+        $session_user_id = $user_id; // to pass the user_id to logAction function
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);

@@ -46,10 +46,16 @@ if (file_exists($lock_file_path)) {
 
     // If file is older than 10 minutes (600 seconds), delete and continue
     if ($file_age > 600) {
+        
         unlink($lock_file_path);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Delete', log_description = 'Cron Mail Queuer detected a lock file was present but was over 10 minutes old so it removed it.'");
+        // Logging
+        logAction("Cron-Mail-Queue", "Delete", "Cron Mail Queuer detected a lock file was present but was over 10 minutes old so it removed it.");
+    
     } else {
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Locked', log_description = 'Cron Mail Queuer attempted to execute but was already executing so instead it terminated.'");
+        
+        // Logging
+        logAction("Cron-Mail-Queue", "Locked", "Cron Mail Queuer attempted to execute but was already executing so instead it terminated.");
+        
         exit("Script is already running. Exiting.");
     }
 }
@@ -120,15 +126,20 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
                     appNotify("Cron-Mail-Queue", "Failed to send email #$email_id to $email_recipient_logging");
 
-                    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail'");
+                    // Logging
+                    logAction("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_recipient_logging regarding $email_subject_logging. $mail");
                 } else {
                     // Update Message - Success
                     mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
                 }
+            
             } else {
+                
                 // Recipient email isn't valid, mark as failed and log the error
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id due to invalid recipient address. Email subject was: $email_subject_logging.'");
+
+                // Logging
+                logAction("Cron-Mail-Queue", "Error", "Failed to send email: $email_id due to invalid recipient address. Email subject was: $email_subject_logging");
             }
 
         } else {
@@ -136,7 +147,9 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
             $email_from_logging = sanitizeInput($row['email_from']);
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.'");
+
+            // Logging
+            logAction("Cron-Mail-Queue", "Error", "Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.");
             
             appNotify("Mail", "Failed to send email #$email_id due to invalid sender address");
 
@@ -197,10 +210,15 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
             if ($mail !== true) {
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Cron-Mail-Queue', log_action = 'Error', log_description = 'Failed to re-send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail'");
+
+                // Logging
+                logAction("Cron-Mail-Queue", "Error", "Failed to re-send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $mail");
+            
             } else {
+                
                 // Update Message
                 mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
+            
             }
         }
     }
