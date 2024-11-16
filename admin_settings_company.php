@@ -48,7 +48,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
                 </div>
 
                 <div class="form-group">
-                    <input type="file" class="form-control-file" name="file">
+                    <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .png">
                 </div>
 
                 <div class="form-group">

@@ -216,7 +216,7 @@ if (isset($_POST['add_company_settings'])) {
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
 
         // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
+        $allowed_file_extensions = array('jpg', 'jpeg', 'png');
 
         if (in_array($file_extension,$allowed_file_extensions) === false) {
             $file_error = 1;
@@ -975,7 +975,7 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <div class="form-group">
                                     <label>Logo</label>
-                                    <input type="file" class="form-control-file" name="file">
+                                    <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .png">
                                 </div>
 
                                 <div class="form-group">

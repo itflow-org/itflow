@@ -20,9 +20,8 @@ if (isset($_POST['edit_company'])) {
 
     // Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'png'))) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
-
 
             // directory in which the uploaded file will be moved
             $upload_file_dir = "uploads/settings/";
