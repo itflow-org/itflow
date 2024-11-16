@@ -11,4 +11,4 @@ $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
 $hours = sanitizeInput($_POST['hours']);
 $notes = sanitizeInput($_POST['notes']);
 $contact = intval($_POST['contact']);
-$location_primary = intval($_POST['location_primary']);
+$location_primary = intval($_POST['location_primary'] ?? 0);

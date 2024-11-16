@@ -47,17 +47,13 @@ if(isset($_POST['add_location'])){
 
             mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
     // Logging
     logAction("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
-    $_SESSION['alert_message'] .= "Location <strong>$name</strong> created.";
+    $_SESSION['alert_message'] = "Location <strong>$name</strong> created.";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -120,17 +116,13 @@ if(isset($_POST['edit_location'])){
 
             mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 
     // Logging
     logAction("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
-    $_SESSION['alert_message'] .= "Location <strong>$name</strong> updated";
+    $_SESSION['alert_message'] = "Location <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
