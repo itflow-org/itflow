@@ -9,8 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="ticket_number" value="<?php echo "$ticket_prefix$ticket_number"; ?>">
                 <input type="hidden" name="contact_notify" value="0"> <!-- Default 0 -->
                 <input type="hidden" name="billable" value="0">
                 <div class="modal-body bg-white">

@@ -172,47 +172,42 @@ if (isset($_POST['edit_ticket'])) {
     $contact_id = intval($_POST['contact']);
     $notify = intval($_POST['contact_notify']);
     $category = intval($_POST['category']);
-    $subject = sanitizeInput($_POST['subject']);
+    $ticket_subject = sanitizeInput($_POST['subject']);
     $billable = intval($_POST['billable']);
-    $priority = sanitizeInput($_POST['priority']);
+    $ticket_priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
     $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);
     $vendor_id = intval($_POST['vendor']);
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
-    $client_id = intval($_POST['client_id']);
-    $ticket_number = sanitizeInput($_POST['ticket_number']);
-    $ticket_prefix = sanitizeInput($config_ticket_prefix);
+    
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category, ticket_subject = '$subject', ticket_priority = '$priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+    // Get contact/ticket details after update for logging / email purposes
+    $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_details, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+        LEFT JOIN clients ON ticket_client_id = client_id 
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id               
+        WHERE ticket_id = $ticket_id 
+        AND ticket_closed_at IS NULL");
+    $row = mysqli_fetch_array($sql);
+
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_category = sanitizeInput($row['ticket_category']);
+    $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+    $ticket_status = sanitizeInput($row['ticket_status_name']);
+    $ticket_created_by = intval($row['ticket_created_by']);
+    $ticket_assigned_to = intval($row['ticket_assigned_to']);
+    $client_id = intval($row['ticket_client_id']);
 
     // Notify new contact if selected
-    if ($notify && !empty($config_smtp_host)) {
+    if ($notify && !empty($config_smtp_host)) {     
 
-        // Get contact/ticket details
-        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
-            LEFT JOIN clients ON ticket_client_id = client_id 
-            LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id               
-            WHERE ticket_id = $ticket_id 
-            AND ticket_closed_at IS NULL");
-        $row = mysqli_fetch_array($sql);
-
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
-        $ticket_number = intval($row['ticket_number']);
-        $ticket_category = sanitizeInput($row['ticket_category']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
-        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
-        $ticket_priority = sanitizeInput($row['ticket_priority']);
-        $ticket_status = sanitizeInput($row['ticket_status_name']);
-        $client_id = intval($row['ticket_client_id']);
-        $ticket_created_by = intval($row['ticket_created_by']);
-        $ticket_assigned_to = intval($row['ticket_assigned_to']);
-
-        // Get Company Phone Number
+        // Get Company Name Phone Number and Sanitize for Email Sending
         $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
