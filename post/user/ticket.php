@@ -1582,7 +1582,7 @@ if (isset($_POST['change_client_ticket'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id LIMIT 1");
 
     // Logging
-    logAction("Ticket", "Change", "$session_name changed ticket client", $client_id, $ticket_id;
+    logAction("Ticket", "Change", "$session_name changed ticket client", $client_id, $ticket_id);
 
     customAction('ticket_update', $ticket_id);
 
