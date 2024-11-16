@@ -546,6 +546,9 @@ unlink($lock_file_path);
 
 // DEBUG
 echo "\nLock File Path: $lock_file_path\n";
+if (file_exists($lock_file_path)) {
+    echo "\nLock is present\n\n";
+}
 echo "Processed Emails into tickets: $processed_count\n";
 echo "Unprocessed Emails: $unprocessed_count\n";
 

@@ -221,7 +221,7 @@ if (isset($_POST['login'])) {
                 //}
 
             }
-            if ($_GET['last_visited']) {
+            if (isset($_GET['last_visited'])) {
                 header("Location: ".$_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
             } else {
                 header("Location: $config_start_page");
