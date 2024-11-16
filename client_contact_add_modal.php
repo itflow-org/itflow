@@ -8,12 +8,6 @@
                 </button>
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-                <!-- Prevent undefined checkbox errors on submit -->
-                <input type="hidden" name="contact_primary" value="0">
-                <input type="hidden" name="contact_important" value="0">
-                <input type="hidden" name="contact_billing" value="0">
-                <input type="hidden" name="contact_technical" value="0">
-                <!-- End prevent undefined errors -->
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
