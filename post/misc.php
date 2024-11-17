@@ -35,7 +35,7 @@ if (isset($_GET['dismiss_notification'])) {
 
 if (isset($_GET['dismiss_all_notifications'])) {
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_dismissed_at IS NULL");
+    $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL");
 
     $num_notifications = mysqli_num_rows($sql);
 
@@ -50,7 +50,7 @@ if (isset($_GET['dismiss_all_notifications'])) {
     // Logging
     logAction("Notification", "Dismiss", "$session_name dismissed $num_notifications notifications");
 
-    $_SESSION['alert_message'] = "$num_notifications Notifications Dismissed";
+    $_SESSION['alert_message'] = "<strong>$num_notifications</strong> Notifications Dismissed";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
