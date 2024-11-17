@@ -149,7 +149,7 @@ if (isset($_POST['edit_client'])) {
     // Logging
     logAction("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> updated";
+    $_SESSION['alert_message'] = "Client <strong>$name</strong> updated";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
