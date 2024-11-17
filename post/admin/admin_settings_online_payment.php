@@ -4,7 +4,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_stripe_enable = intval($_POST['config_stripe_enable']);
+    $config_stripe_enable = intval($_POST['config_stripe_enable'] ?? 0);
     $config_stripe_publishable = sanitizeInput($_POST['config_stripe_publishable']);
     $config_stripe_secret = sanitizeInput($_POST['config_stripe_secret']);
     $config_stripe_account = intval($_POST['config_stripe_account']);

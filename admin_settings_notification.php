@@ -11,11 +11,6 @@ require_once "inc_all_admin.php";
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="config_ticket_client_general_notifications" value="0">
-                <input type="hidden" name="config_enable_cron" value="0">
-                <input type="hidden" name="config_enable_alert_domain_expire" value="0">
-                <input type="hidden" name="config_send_invoice_reminders" value="0">
-                <input type="hidden" name="config_recurring_auto_send_invoice" value="0">
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">

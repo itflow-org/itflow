@@ -724,6 +724,8 @@ if ($user_config_dashboard_technical_enable == 1) {
 
 <?php require_once "footer.php"; ?>
 
+<?php if ($user_config_dashboard_financial_enable == 1) { ?>
+
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling
     Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
@@ -1124,3 +1126,5 @@ if ($user_config_dashboard_technical_enable == 1) {
         }
     });
 </script>
+
+<?php } ?>

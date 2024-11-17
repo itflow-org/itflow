@@ -10,9 +10,9 @@ require_once "inc_all_admin.php";
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-            <h4>Client Portal SSO via Microsoft Azure AD</h4>
+            <h4>Client Portal SSO via Microsoft Entra</h4>
             <div class="form-group">
-                <label>MS Azure OAuth App (Client) ID</label>
+                <label>MS Entra OAuth App (Client) ID</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -22,7 +22,7 @@ require_once "inc_all_admin.php";
             </div>
 
             <div class="form-group">
-                <label>MS Azure OAuth Secret</label>
+                <label>MS Entra OAuth Secret</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>

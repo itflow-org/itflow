@@ -5,7 +5,7 @@ if (isset($_POST['edit_security_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $config_login_message = sanitizeInput($_POST['config_login_message']);
-    $config_login_key_required = intval($_POST['config_login_key_required']);
+    $config_login_key_required = intval($_POST['config_login_key_required'] ?? 0);
     $config_login_key_secret = sanitizeInput($_POST['config_login_key_secret']);
     $config_login_remember_me_expire = intval($_POST['config_login_remember_me_expire']);
     $config_log_retention = intval($_POST['config_log_retention']);
