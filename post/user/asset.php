@@ -59,7 +59,7 @@ if (isset($_POST['add_asset'])) {
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name created $name', asset_history_asset_id = $asset_id");
 
     //Logging
-    logAction("Asset", "Create", "$session_name created asset $asset_name", $client_id, $asset_id);
+    logAction("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
     $_SESSION['alert_message'] = "Asset <strong>$name</strong> created $alert_extended";
 

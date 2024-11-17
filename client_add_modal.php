@@ -9,9 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="lead" value="0">
-                <input type="hidden" name="net_terms" value="0">
-                <input type="hidden" name="currency_code" value="<?php echo $session_company_currency; ?>">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">

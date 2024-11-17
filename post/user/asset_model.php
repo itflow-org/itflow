@@ -7,7 +7,8 @@ $model = sanitizeInput($_POST['model']);
 $serial = sanitizeInput($_POST['serial']);
 $os = sanitizeInput($_POST['os']);
 $ip = sanitizeInput($_POST['ip']);
-if ($_POST['dhcp'] == 1) {
+$dhcp = intval($_POST['dhcp'] ?? 0);
+if ($dhcp == 1) {
     $ip = 'DHCP';
 }
 $ipv6 = sanitizeInput($_POST['ipv6']);

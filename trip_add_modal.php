@@ -8,7 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="roundtrip" value="0">
+                
                 <div class="modal-body bg-white">
 
                     <div class="form-row">

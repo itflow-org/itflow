@@ -10,7 +10,6 @@
             <form action="post.php" method="post" autocomplete="off">
                 <div class="modal-body bg-white">
                     <input type="hidden" name="trip_id" value="<?php echo $trip_id; ?>">
-                    <input type="hidden" name="roundtrip" value="0">
 
                     <div class="form-row">
 

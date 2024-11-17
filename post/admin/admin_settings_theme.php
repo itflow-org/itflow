@@ -4,7 +4,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $theme = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['theme']));
+    $theme = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['edit_theme_settings']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
 
@@ -37,11 +37,6 @@ if (isset($_POST['edit_favicon_settings'])) {
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
-
-            $_SESSION['alert_message'] = 'File successfully uploaded.';
-        }else{
-
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
         }
     }
 

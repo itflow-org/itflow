@@ -11,13 +11,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="lead" value="0">
-                <input type="hidden" name="currency_code" value="<?php if (empty($currency_code)) {
-                    echo $session_company_currency;
-                } else {
-                    echo $currency_code;
-                } ?>">
-                <input type="hidden" name="net_terms" value="<?php echo $client_net_terms; ?>">
+                
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">

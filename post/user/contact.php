@@ -81,7 +81,7 @@ if (isset($_POST['edit_contact'])) {
     require_once 'post/user/contact_model.php';
 
     $contact_id = intval($_POST['contact_id']);
-    $send_email = intval($_POST['send_email']);
+    $send_email = intval($_POST['send_email'] ?? 0);
 
     // Get Exisiting Contact Photo and contact_user_id
     $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id FROM contacts WHERE contact_id = $contact_id");

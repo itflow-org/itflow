@@ -8,9 +8,9 @@ if (isset($_POST['add_custom_link'])) {
 
     $name = sanitizeInput($_POST['name']);
     $uri = sanitizeInput($_POST['uri']);
-    $new_tab = intval($_POST['new_tab']);
+    $new_tab = intval($_POST['new_tab'] ?? 0);
     $icon = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['icon']));
-    $order = intval($_POST['order']);
+    $order = intval($_POST['order'] ?? 0);
     $location = intval($_POST['location']);
 
     mysqli_query($mysqli,"INSERT INTO custom_links SET custom_link_name = '$name', custom_link_uri = '$uri', custom_link_new_tab = $new_tab, custom_link_icon = '$icon', custom_link_order = $order, custom_link_location = $location");
@@ -31,9 +31,9 @@ if (isset($_POST['edit_custom_link'])) {
     $custom_link_id = intval($_POST['custom_link_id']);
     $name = sanitizeInput($_POST['name']);
     $uri = sanitizeInput($_POST['uri']);
-    $new_tab = intval($_POST['new_tab']);
+    $new_tab = intval($_POST['new_tab'] ?? 0);
     $icon = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['icon']));
-    $order = intval($_POST['order']);
+    $order = intval($_POST['order'] ?? 0);
     $location = intval($_POST['location']);
 
     mysqli_query($mysqli,"UPDATE custom_links SET custom_link_name = '$name', custom_link_uri = '$uri', custom_link_new_tab = $new_tab, custom_link_icon = '$icon', custom_link_order = $order, custom_link_location = $location WHERE custom_link_id = $custom_link_id");

@@ -22,7 +22,7 @@ require_once "inc_all_admin.php";
                         <div class="col-3 text-center mb-3">
                             <div class="form-group">
                                 <div class="custom-control custom-radio">
-                                    <input class="custom-control-input" type="radio" id="customRadio<?php echo $theme_color; ?>" name="theme" value="<?php echo $theme_color; ?>" <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
+                                    <input class="custom-control-input" type="radio" onchange="this.form.submit()" id="customRadio<?php echo $theme_color; ?>" name="edit_theme_settings" value="<?php echo $theme_color; ?>" <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
                                     <label for="customRadio<?php echo $theme_color; ?>" class="custom-control-label">
                                         <i class="fa fa-fw fa-6x fa-circle text-<?php echo $theme_color; ?>"></i>
                                         <br>
@@ -35,10 +35,6 @@ require_once "inc_all_admin.php";
                     <?php } ?>
 
                 </div>
-
-                <hr>
-
-                <button type="submit" name="edit_theme_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Set Theme</button>
 
             </form>
         </div>
