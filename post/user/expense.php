@@ -15,7 +15,7 @@ if (isset($_POST['add_expense'])) {
     // Check for and process attachment
     $extended_alert_description = '';
     
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
@@ -54,7 +54,7 @@ if (isset($_POST['edit_expense'])) {
 
     // Check for and process attachment
     $extended_alert_description = '';
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 

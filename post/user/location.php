@@ -33,7 +33,7 @@ if(isset($_POST['add_location'])){
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 1 WHERE location_id = $location_id");
     }
 
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
@@ -95,7 +95,7 @@ if(isset($_POST['edit_location'])){
         }
     }
 
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 

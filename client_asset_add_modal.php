@@ -378,7 +378,7 @@
 
                             <div class="form-group">
                                 <label>Upload Photo</label>
-                                <input type="file" class="form-control-file" name="file">
+                                <input type="file" class="form-control-file" name="file" accept="image/*">
                             </div>
 
                             <div class="form-group">

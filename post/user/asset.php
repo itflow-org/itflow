@@ -19,7 +19,7 @@ if (isset($_POST['add_asset'])) {
     $asset_id = mysqli_insert_id($mysqli);
 
     // Add Photo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
@@ -92,7 +92,7 @@ if (isset($_POST['edit_asset'])) {
     }
 
     // Update Photo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         // Set directory in which the uploaded file will be moved
         $file_tmp_path = $_FILES['file']['tmp_name'];

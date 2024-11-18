@@ -239,7 +239,7 @@
                             </div>
 
                             <div class="form-group">
-                                <input type="file" class="form-control-file" name="file">
+                                <input type="file" class="form-control-file" name="file" accept="image/*">
                             </div>
 
                         </div>

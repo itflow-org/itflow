@@ -186,7 +186,7 @@
 
                     <div class="form-group">
                         <label>Receipt</label>
-                        <input type="file" class="form-control-file" name="file">
+                        <input type="file" class="form-control-file" name="file" accept="image/*, application/pdf">
                     </div>
 
                     <?php if (!empty($expense_receipt)) { ?>

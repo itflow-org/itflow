@@ -181,7 +181,7 @@
 
                     <div class="form-group col-md">
                         <label>Receipt</label>
-                        <input type="file" class="form-control-file" name="file">
+                        <input type="file" class="form-control-file" name="file" accept="image/*, application/pdf">
                     </div>
 
                 </div>

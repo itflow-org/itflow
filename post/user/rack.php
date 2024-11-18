@@ -24,7 +24,7 @@ if (isset($_POST['add_rack'])) {
     $rack_id = mysqli_insert_id($mysqli);
 
     // Add Photo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
@@ -67,7 +67,7 @@ if (isset($_POST['edit_rack'])) {
     mysqli_query($mysqli,"UPDATE racks SET rack_name = '$name', rack_description = '$description', rack_type = '$type', rack_model = '$model', rack_depth = '$depth', rack_units = $units, rack_location_id = $location, rack_physical_location = '$physical_location', rack_notes = '$notes' WHERE rack_id = $rack_id");
 
     // Add Photo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
