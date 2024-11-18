@@ -46,7 +46,7 @@ if (isset($_POST['add_contact'])) {
     }
 
     // Check for and process image/photo
-    if ($_FILES['file']['tmp_name']) {
+    if (isset($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
             $file_tmp_path = $_FILES['file']['tmp_name'];
@@ -122,7 +122,7 @@ if (isset($_POST['edit_contact'])) {
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
 
     // Upload Photo
-    if ($_FILES['file']['tmp_name']) {
+    if (isset($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
             // Set directory in which the uploaded file will be moved

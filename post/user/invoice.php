@@ -324,6 +324,7 @@ if (isset($_POST['add_recurring_item'])) {
     $recurring_discount = floatval($row['recurring_discount_amount']);
     $recurring_invoice_prefix = sanitizeInput($row['recurring_prefix']);
     $recurring_invoice_number = intval($row['recurring_number']);
+    $client_id = intval($row['recurring_client_id']);
 
     //add up all the items
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id");

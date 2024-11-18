@@ -111,7 +111,6 @@ if (isset($_POST['add_client'])) {
     $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
 
     header("Location: clients.php");
-    exit;
 
 }
 
