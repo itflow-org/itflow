@@ -340,7 +340,7 @@ if (isset($_POST['add_recurring_item'])) {
     // Logging
     logAction("Recurring Invoice", "Edit", "$session_name added item $name to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_id);
 
-    $_SESSION['alert_message'] = "Item <srrong>$item</strong> added to Recurring Invoice";
+    $_SESSION['alert_message'] = "Item <srrong>$name</strong> added to Recurring Invoice";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
