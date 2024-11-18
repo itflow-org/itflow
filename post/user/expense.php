@@ -14,22 +14,21 @@ if (isset($_POST['add_expense'])) {
 
     // Check for and process attachment
     $extended_alert_description = '';
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
+    
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/expenses/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
+        // directory in which the uploaded file will be moved
+        $upload_file_dir = "uploads/expenses/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
 
-            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
-        }
+        mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
+        $extended_alert_description = '. File successfully uploaded.';
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
     }
 
     //Logging
@@ -55,25 +54,23 @@ if (isset($_POST['edit_expense'])) {
 
     // Check for and process attachment
     $extended_alert_description = '';
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'pdf'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/expenses/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
+        // directory in which the uploaded file will be moved
+        $upload_file_dir = "uploads/expenses/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Delete old file
-            unlink("uploads/expenses/$existing_file_name");
+        //Delete old file
+        unlink("uploads/expenses/$existing_file_name");
 
-            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
-        }
+        mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
+        $extended_alert_description = '. File successfully uploaded.';
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
     }
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");

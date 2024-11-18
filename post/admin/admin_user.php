@@ -31,23 +31,21 @@ if (isset($_POST['add_user'])) {
 
     // Check for and process image/photo
     $extended_alert_description = '';
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/$user_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
+        // directory in which the uploaded file will be moved
+        $upload_file_dir = "uploads/users/$user_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
 
-            // Set Avatar
-            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
-        }
+        // Set Avatar
+        mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+        $extended_alert_description = '. File successfully uploaded.';
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
     }
 
     // Create Settings
@@ -134,26 +132,24 @@ if (isset($_POST['edit_user'])) {
 
     // Check for and process image/photo
     $extended_alert_description = '';
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/$user_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
+        // directory in which the uploaded file will be moved
+        $upload_file_dir = "uploads/users/$user_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
 
-            // Delete old file
-            unlink("uploads/users/$user_id/$existing_file_name");
+        // Delete old file
+        unlink("uploads/users/$user_id/$existing_file_name");
 
-            // Set Avatar
-            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
-        }
+        // Set Avatar
+        mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+        $extended_alert_description = '. File successfully uploaded.';
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $extended_alert_description = '. Error uploading photo. Check upload directory is writable/correct file type/size';
     }
 
     mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");

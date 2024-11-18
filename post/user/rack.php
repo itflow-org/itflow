@@ -24,21 +24,19 @@ if (isset($_POST['add_rack'])) {
     $rack_id = mysqli_insert_id($mysqli);
 
     // Add Photo
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            if (!file_exists("uploads/clients/$client_id")) {
-                mkdir("uploads/clients/$client_id");
-            }
-            $upload_file_dir = "uploads/clients/$client_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
+        // directory in which the uploaded file will be moved
+        if (!file_exists("uploads/clients/$client_id")) {
+            mkdir("uploads/clients/$client_id");
         }
+        $upload_file_dir = "uploads/clients/$client_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
+
+        mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
     // Logging
@@ -69,21 +67,19 @@ if (isset($_POST['edit_rack'])) {
     mysqli_query($mysqli,"UPDATE racks SET rack_name = '$name', rack_description = '$description', rack_type = '$type', rack_model = '$model', rack_depth = '$depth', rack_units = $units, rack_location_id = $location, rack_physical_location = '$physical_location', rack_notes = '$notes' WHERE rack_id = $rack_id");
 
     // Add Photo
-    if ($_FILES['file']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
+        $file_tmp_path = $_FILES['file']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            if (!file_exists("uploads/clients/$client_id")) {
-                mkdir("uploads/clients/$client_id");
-            }
-            $upload_file_dir = "uploads/clients/$client_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
+        // directory in which the uploaded file will be moved
+        if (!file_exists("uploads/clients/$client_id")) {
+            mkdir("uploads/clients/$client_id");
         }
+        $upload_file_dir = "uploads/clients/$client_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
+
+        mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
     // Logging

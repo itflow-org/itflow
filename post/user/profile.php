@@ -48,30 +48,25 @@ if (isset($_POST['edit_your_user_details'])) {
         $mail = addToMailQueue($mysqli, $data);
     }
 
-    // Check to see if a file is attached
-    if ($_FILES['avatar']['tmp_name'] != '') {
-        if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png'))) {
+    // Photo
+    if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png'))) {
 
-            $file_tmp_path = $_FILES['avatar']['tmp_name'];
+        $file_tmp_path = $_FILES['avatar']['tmp_name'];
 
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/$session_user_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
+        // directory in which the uploaded file will be moved
+        $upload_file_dir = "uploads/users/$session_user_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+        move_uploaded_file($file_tmp_path, $dest_path);
 
-            // Delete old file
-            unlink("uploads/users/$session_user_id/$existing_file_name");
+        // Delete old file
+        unlink("uploads/users/$session_user_id/$existing_file_name");
 
-            // Set Avatar
-            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
+        // Set Avatar
+        mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
 
-            // Extended Logging
-            $extended_log_description .= ", avatar updated";
+        // Extended Logging
+        $extended_log_description .= ", avatar updated";
 
-        } else {
-            $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-        }
     }
 
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $session_user_id");
