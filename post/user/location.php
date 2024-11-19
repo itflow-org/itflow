@@ -33,18 +33,20 @@ if(isset($_POST['add_location'])){
         mysqli_query($mysqli,"UPDATE locations SET location_primary = 1 WHERE location_id = $location_id");
     }
 
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
-        $file_tmp_path = $_FILES['file']['tmp_name'];
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // directory in which the uploaded file will be moved
-        $upload_file_dir = "uploads/clients/$client_id/";
-        $dest_path = $upload_file_dir . $new_file_name;
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/clients/$client_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
 
-        move_uploaded_file($file_tmp_path, $dest_path);
+            move_uploaded_file($file_tmp_path, $dest_path);
 
-        mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
+            mysqli_query($mysqli,"UPDATE locations SET location_photo = '$new_file_name' WHERE location_id = $location_id");
 
+        }
     }
 
     // Logging

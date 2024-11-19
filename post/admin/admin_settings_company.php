@@ -19,21 +19,23 @@ if (isset($_POST['edit_company'])) {
     $existing_file_name = sanitizeInput($row['company_logo']);
 
     // Company logo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'png'))) {
-        $file_tmp_path = $_FILES['file']['tmp_name'];
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'png'))) {
+            $file_tmp_path = $_FILES['file']['tmp_name'];
 
-        // directory in which the uploaded file will be moved
-        $upload_file_dir = "uploads/settings/";
-        $dest_path = $upload_file_dir . $new_file_name;
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/settings/";
+            $dest_path = $upload_file_dir . $new_file_name;
 
-        move_uploaded_file($file_tmp_path, $dest_path);
+            move_uploaded_file($file_tmp_path, $dest_path);
 
-        // Delete old file
-        unlink("uploads/settings/$existing_file_name");
+            // Delete old file
+            unlink("uploads/settings/$existing_file_name");
 
-        // Set Logo
-        mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
+            // Set Logo
+            mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
 
+        }
     }
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website' WHERE company_id = 1");

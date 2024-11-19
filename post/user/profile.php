@@ -49,24 +49,26 @@ if (isset($_POST['edit_your_user_details'])) {
     }
 
     // Photo
-    if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
-        $file_tmp_path = $_FILES['avatar']['tmp_name'];
+            $file_tmp_path = $_FILES['avatar']['tmp_name'];
 
-        // directory in which the uploaded file will be moved
-        $upload_file_dir = "uploads/users/$session_user_id/";
-        $dest_path = $upload_file_dir . $new_file_name;
-        move_uploaded_file($file_tmp_path, $dest_path);
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$session_user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
 
-        // Delete old file
-        unlink("uploads/users/$session_user_id/$existing_file_name");
+            // Delete old file
+            unlink("uploads/users/$session_user_id/$existing_file_name");
 
-        // Set Avatar
-        mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
+            // Set Avatar
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
 
-        // Extended Logging
-        $extended_log_description .= ", avatar updated";
+            // Extended Logging
+            $extended_log_description .= ", avatar updated";
 
+        }
     }
 
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $session_user_id");
