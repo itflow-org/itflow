@@ -8,9 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="billable" value="0">
-                <input type="hidden" name="use_primary_contact" value="0">
-                
+
                 <div class="modal-body bg-white">
 
                     <?php if (isset($_GET['client_id'])) { ?>
@@ -46,7 +44,7 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
@@ -174,7 +172,11 @@
                                             $mysqli,
                                             "SELECT users.user_id, user_name FROM users
                                             LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_role > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                            WHERE user_role > 1
+                                            AND user_type = 1
+                                            AND user_status = 1
+                                            AND user_archived_at IS NULL
+                                            ORDER BY user_name ASC"
                                         );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $user_id = intval($row['user_id']);
@@ -211,7 +213,7 @@
                                         <select class="form-control select2" name="contact">
                                             <option value="0">- No One -</option>
                                             <?php
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $contact_id = intval($row['contact_id']);
                                                 $contact_name = nullable_htmlentities($row['contact_name']);
@@ -251,7 +253,7 @@
                                         <select class="form-control select2" name="watchers[]" data-tags="true" data-placeholder="Enter or select email address" multiple>
                                             <option value=""></option>
                                             <?php
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                                 ?>
@@ -276,7 +278,7 @@
                                             <option value="0">- None -</option>
                                             <?php
 
-                                            $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                             while ($row = mysqli_fetch_array($sql_assets)) {
                                                 $asset_id_select = intval($row['asset_id']);
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
@@ -299,7 +301,7 @@
                                             <option value="0">- None -</option>
                                             <?php
 
-                                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                                            $sql_locations = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                                             while ($row = mysqli_fetch_array($sql_locations)) {
                                                 $location_id_select = intval($row['location_id']);
                                                 $location_name_select = nullable_htmlentities($row['location_name']);
@@ -325,7 +327,7 @@
                                                     <option value="0">- None -</option>
                                                     <?php
 
-                                                    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                                     while ($row = mysqli_fetch_array($sql_vendors)) {
                                                         $vendor_id_select = intval($row['vendor_id']);
                                                         $vendor_name_select = nullable_htmlentities($row['vendor_name']); ?>
@@ -364,7 +366,7 @@
                                             <option value="0">- None -</option>
                                             <?php
 
-                                            $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                                            $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                                             while ($row = mysqli_fetch_array($sql_projects)) {
                                                 $project_id_select = intval($row['project_id']);
                                                 $project_name_select = nullable_htmlentities($row['project_name']); ?>

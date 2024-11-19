@@ -25,20 +25,15 @@ if (isset($_POST['add_ticket'])) {
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
-    $use_primary_contact = intval($_POST['use_primary_contact']);
+    $use_primary_contact = intval($_POST['use_primary_contact'] ?? 0);
     $ticket_template_id = intval($_POST['ticket_template_id']);
+    $billable = intval($_POST['billable'] ?? 0);
 
     // Add the primary contact as the ticket contact if "Use primary contact" is checked
     if ($use_primary_contact == 1) {
         $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
         $contact = intval($row['contact_id']);
-    }
-
-    if (!isset($_POST['billable'])) {
-        $billable = 1;
-    } else {
-        $billable = intval($_POST['billable']);
     }
 
     //Get the next Ticket Number and add 1 for the new ticket number
@@ -170,10 +165,10 @@ if (isset($_POST['edit_ticket'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
-    $notify = intval($_POST['contact_notify']);
+    $notify = intval($_POST['contact_notify'] ?? 0);
     $category_id = intval($_POST['category']);
     $ticket_subject = sanitizeInput($_POST['subject']);
-    $billable = intval($_POST['billable']);
+    $billable = intval($_POST['billable'] ?? 0);
     $ticket_priority = sanitizeInput($_POST['priority']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
     $vendor_ticket_number = sanitizeInput($_POST['vendor_ticket_number']);

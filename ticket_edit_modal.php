@@ -9,8 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <input type="hidden" name="contact_notify" value="0"> <!-- Default 0 -->
-                <input type="hidden" name="billable" value="0">
+
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -109,7 +108,7 @@
                                     <select class="form-control select2" name="contact">
                                         <option value="0">No One</option>
                                         <?php
-                                        $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
+                                        $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_client_contacts_select)) {
                                             $contact_id_select = intval($row['contact_id']);
                                             $contact_name_select = nullable_htmlentities($row['contact_name']);
@@ -164,7 +163,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = intval($row['asset_id']);
                                             $asset_name_select = nullable_htmlentities($row['asset_name']);
@@ -189,7 +188,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                                        $sql_locations = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                                         while ($row = mysqli_fetch_array($sql_locations)) {
                                             $location_id_select = intval($row['location_id']);
                                             $location_name_select = nullable_htmlentities($row['location_name']);
@@ -217,7 +216,7 @@
                                                 <option value="0">- None -</option>
                                                 <?php
 
-                                                $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                                $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                                 while ($row = mysqli_fetch_array($sql_vendors)) {
                                                     $vendor_id_select = intval($row['vendor_id']);
                                                     $vendor_name_select = nullable_htmlentities($row['vendor_name']);
@@ -262,7 +261,7 @@
                                     <option value="0">- None -</option>
                                     <?php
 
-                                    $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                                    $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                                     while ($row = mysqli_fetch_array($sql_projects)) {
                                         $project_id_select = intval($row['project_id']);
                                         $project_name_select = nullable_htmlentities($row['project_name']); ?>

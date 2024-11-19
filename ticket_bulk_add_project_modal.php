@@ -18,7 +18,7 @@
                         <select class="form-control select2" name="project_id">
                             <option value="0">No Project</option>
                             <?php
-                            $sql_projects_select = mysqli_query($mysqli, "SELECT * FROM projects 
+                            $sql_projects_select = mysqli_query($mysqli, "SELECT project_id, project_name, project_prefix, project_number FROM projects 
                                 WHERE project_archived_at IS NULL
                                 AND project_completed_at IS NULL
                                 ORDER BY project_name DESC"
