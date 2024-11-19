@@ -22,20 +22,9 @@
                     </div>
                 </div>
 
-                <?php if($config_ai_enable) { ?>
                 <div class="form-group">
-                    <textarea class="form-control tinymceai" id="textInput" name="bulk_details"></textarea>
+                    <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="bulk_details"></textarea>
                 </div>
-
-                <div class="mb-3">
-                    <button id="rewordButton" class="btn btn-primary" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
-                    <button id="undoButton" class="btn btn-secondary" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
-                </div>
-                <?php } else { ?>
-                <div class="form-group">
-                    <textarea class="form-control tinymce" rows="5" name="bulk_details"></textarea>
-                </div>
-                <?php } ?>
 
                 <div class="row">
                                 

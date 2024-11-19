@@ -39,7 +39,11 @@ echo getUserAgent();
 
     <?php echo randomString(100); ?>
     <br>
+    <textarea class="tinymceTest"></textarea>
 
+    <textarea class="tinymce"></textarea>
+
+    <textarea class="tinymceTicket"></textarea>
 <?php
 // show the current Date and Time
 $date_time = date('Y-m-d H:i:s');

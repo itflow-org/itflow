@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymce" name="details"></textarea>
+                                <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="details"></textarea>
                             </div>
 
                             <div class="form-group">

@@ -624,7 +624,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymce<?php if ($config_ai_enable) { echo "ai"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
+                                <textarea class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
                             </div>
 
                             <div class="form-row">
@@ -674,10 +674,6 @@ if (isset($_GET['ticket_id'])) {
 
                                 <div class="col-md-3">
                                     <div class="btn-toolbar float-right">
-                                        <?php if ($config_ai_enable) { ?>
-                                            <button id="rewordButton" class="btn btn-secondary ml-3" type="button"><i class="fas fa-fw fa-robot mr-2"></i>Reword</button>
-                                            <button id="undoButton" class="btn btn-secondary ml-3" type="button" style="display:none;"><i class="fas fa-fw fa-redo-alt mr-2"></i>Undo</button>
-                                        <?php } ?>
                                         <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
                                     </div>
                                 </div>
