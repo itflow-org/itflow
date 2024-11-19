@@ -34,10 +34,6 @@ if (isset($_POST['edit_company'])) {
         // Set Logo
         mysqli_query($mysqli,"UPDATE companies SET company_logo = '$new_file_name' WHERE company_id = 1");
 
-        $_SESSION['alert_message'] = 'File successfully uploaded.';
-    }else{
-
-        $_SESSION['alert_message'] = 'There was an error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
     }
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website' WHERE company_id = 1");

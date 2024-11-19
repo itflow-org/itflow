@@ -48,7 +48,7 @@ require_once "inc_all_user.php";
                 <?php if ($session_avatar) { ?>
                     <br><a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>">Avatar is set, click to clear</a>
                 <?php } else { ?>
-                    <input type="file" class="form-control-file" accept="image/*;capture=camera" name="avatar">
+                    <input type="file" class="form-control-file" accept="image/*" name="avatar">
                 <?php } ?>
             </div>
 

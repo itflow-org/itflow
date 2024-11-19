@@ -26,9 +26,6 @@ if (isset($_POST['add_expense'])) {
 
         mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
         $extended_alert_description = '. File successfully uploaded.';
-    } else {
-        $_SESSION['alert_type'] = "error";
-        $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
     }
 
     //Logging
@@ -68,9 +65,6 @@ if (isset($_POST['edit_expense'])) {
 
         mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
         $extended_alert_description = '. File successfully uploaded.';
-    } else {
-        $_SESSION['alert_type'] = "error";
-        $extended_alert_description = '. Error uploading file. Check upload directory is writable/correct file type/size';
     }
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");

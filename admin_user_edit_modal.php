@@ -98,7 +98,7 @@
 
                             <div class="form-group">
                                 <label>Avatar</label>
-                                <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+                                <input type="file" class="form-control-file" accept="image/*" name="file">
                             </div>
 
                             <div class="form-group">
