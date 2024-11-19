@@ -9,8 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="ticket_number" value="<?php echo "$ticket_prefix$ticket_number"; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -23,7 +21,7 @@
                                 <option value="0">- None -</option>
                                 <?php
 
-                                $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                 while ($row = mysqli_fetch_array($sql_vendors)) {
                                     $vendor_id_select = intval($row['vendor_id']);
                                     $vendor_name_select = nullable_htmlentities($row['vendor_name']);

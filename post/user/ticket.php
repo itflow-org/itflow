@@ -391,7 +391,7 @@ if (isset($_POST['add_ticket_watcher'])) {
         $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
             LEFT JOIN clients ON ticket_client_id = client_id
             LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                                                                                         
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                         
             WHERE ticket_id = $ticket_id
             AND ticket_closed_at IS NULL");
         $row = mysqli_fetch_array($sql);
@@ -438,38 +438,7 @@ if (isset($_POST['add_ticket_watcher'])) {
     // Logging
     logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "You added $watcher_email as a watcher to Ticket <strong>$ticket_number</strong>";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['edit_ticket_watchers'])) {
-
-    enforceUserPermission('module_support', 2);
-
-    $ticket_id = intval($_POST['ticket_id']);
-    $client_id = intval($_POST['client_id']);
-    $ticket_number = sanitizeInput($_POST['ticket_number']);
-
-    // Add Watchers
-    if (isset($_POST['watchers'])) {
-
-        $count = count($_POST['watchers']);
-
-        // Remove all watchers first
-        mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-
-        //Add the Watchers
-        foreach ($_POST['watchers'] as $watcher) {
-            $watcher_email = sanitizeInput($watcher);
-            mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
-        }
-    }
-
-    // Logging
-    logAction("Ticket", "Edit", "$session_name added $count watcher(s) to ticket $ticket_number", $client_id, $ticket_id);
-
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> watchers updated";
+    $_SESSION['alert_message'] = "Added <strong>$watcher_email</strong> as a watcher";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -480,10 +449,31 @@ if (isset($_GET['delete_ticket_watcher'])) {
 
     $watcher_id = intval($_GET['delete_ticket_watcher']);
 
+    // Get ticket / watcher details for logging
+    $sql = mysqli_query($mysqli, "SELECT watcher_email, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id, ticket_id FROM ticket_watchers 
+        LEFT JOIN tickets ON watcher_ticket_id = ticket_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE watcher_id = $watcher_id"
+    );
+    $row = mysqli_fetch_array($sql);
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_status_name = sanitizeInput($row['ticket_status_name']);
+    $watcher_email = sanitizeInput($row['watcher_email']);
+    $client_id = intval($row['ticket_client_id']);
+    $ticket_id = intval($row['ticket_id']);
+    
     mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_id = $watcher_id");
 
+    // History
+    mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status_name', ticket_history_description = '$session_name removed ticket $watcher_email as a watcher', ticket_history_ticket_id = $ticket_id");
 
-    $_SESSION['alert_message'] = "You <b>removed</b> a ticket watcher";
+    // Logging
+    logAction("Ticket", "Edit", "$session_name removed $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Removed ticket watcher <strong>$watcher_email</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -494,15 +484,27 @@ if (isset($_POST['edit_ticket_asset'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $asset_id = intval($_POST['asset']);
-    $client_id = intval($_POST['client_id']);
-    $ticket_number = sanitizeInput($_POST['ticket_number']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
-    // Logging
-    logAction("Ticket", "Edit", "$session_name edited asset for ticket $ticket_number", $client_id, $ticket_id);
+    // Get ticket / asset details for logging
+    $sql = mysqli_query($mysqli, "SELECT asset_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM assets 
+        LEFT JOIN tickets ON ticket_asset_id = $asset_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_id = $ticket_id"
+    );
+    $row = mysqli_fetch_array($sql);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> asset updated";
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_status_name = sanitizeInput($row['ticket_status_name']);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['ticket_client_id']);
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name changed asset to $asset_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+
+    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -513,15 +515,27 @@ if (isset($_POST['edit_ticket_vendor'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $vendor_id = intval($_POST['vendor']);
-    $client_id = intval($_POST['client_id']);
-    $ticket_number = sanitizeInput($_POST['ticket_number']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_vendor_id = $vendor_id WHERE ticket_id = $ticket_id");
 
-    // Logging
-    logAction("Ticket", "Edit", "$session_name edited vendor for ticket $ticket_number", $client_id, $ticket_id);
+    // Get ticket / vendor details for logging
+    $sql = mysqli_query($mysqli, "SELECT vendor_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM vendors 
+        LEFT JOIN tickets ON ticket_vendor_id = $vendor_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_id = $ticket_id"
+    );
+    $row = mysqli_fetch_array($sql);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_number</strong> vendor updated";
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_status_name = sanitizeInput($row['ticket_status_name']);
+    $vendor_name = sanitizeInput($row['vendor_name']);
+    $client_id = intval($row['ticket_client_id']);
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name set vendor to $vendor_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+
+    $_SESSION['alert_message'] = "Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -2058,20 +2072,30 @@ if (isset($_POST['bulk_delete_scheduled_tickets']) || isset($_POST['bulk_delete_
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['set_billable_status'])) {
+if (isset($_POST['edit_ticket_billable_status'])) {
 
     enforceUserPermission('module_support', 2);
     enforceUserPermission('module_sales', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $billable_status = sanitizeInput($_POST['billable_status']);
+    $billable_status = intval($_POST['billable_status']);
+    if ($billable_status == 0 ) {
+        $billable_wording = "Not";
+    }
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_billable = '$billable_status' WHERE ticket_id = $ticket_id");
+    // Get ticket details for logging
+    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $client_id = intval($row['ticket_client_id']);
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_billable = $billable_status WHERE ticket_id = $ticket_id");
 
     // Logging
-    logAction("Ticket", "Edit", "$session_name edited ticket billable status", 0, $ticket_id);
+    logAction("Ticket", "Edit", "$session_name marked ticket $ticket_prefix$ticket_number as $billable_wording Billable", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket billable status updated";
+    $_SESSION['alert_message'] = "Ticket marked <strong>$billable_wording Billable</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
