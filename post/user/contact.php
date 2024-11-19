@@ -69,7 +69,7 @@ if (isset($_POST['add_contact'])) {
 
     customAction('contact_create', $contact_id);
 
-    //$_SESSION['alert_message'] = "Contact <strong>$name</strong> created";
+    $_SESSION['alert_message'] = "Contact <strong>$name</strong> created";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
