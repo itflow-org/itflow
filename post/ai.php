@@ -28,7 +28,7 @@ if (isset($_GET['ai_reword'])) {
     ];
 
     // Initialize cURL session to the OpenAI Chat API.
-    $ch = curl_init("$config_ai_url/v1/chat/completions");
+    $ch = curl_init("$config_ai_url");
 
     // Set cURL options for the request.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
