@@ -215,29 +215,39 @@
                                             <?php
                                             $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
-                                                $contact_id = intval($row['contact_id']);
-                                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                                $contact_primary = intval($row['contact_primary']);
-                                                if($contact_primary == 1) {
+                                                $contact_id_select = intval($row['contact_id']);
+                                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                                $contact_primary_select = intval($row['contact_primary']);
+                                                if($contact_primary_select == 1) {
                                                     $contact_primary_display = " (Primary)";
                                                 } else {
                                                     $contact_primary_display = "";
                                                 }
-                                                $contact_technical = intval($row['contact_technical']);
-                                                if($contact_technical == 1) {
+                                                $contact_technical_select = intval($row['contact_technical']);
+                                                if($contact_technical_select == 1) {
                                                     $contact_technical_display = " (Technical)";
                                                 } else {
                                                     $contact_technical_display = "";
                                                 }
-                                                $contact_title = nullable_htmlentities($row['contact_title']);
-                                                if(!empty($contact_title)) {
-                                                    $contact_title_display = " - $contact_title";
+                                                $contact_title_select = nullable_htmlentities($row['contact_title']);
+                                                if($contact_title_select) {
+                                                    $contact_title_display = " - $contact_title_select";
                                                 } else {
                                                     $contact_title_display = "";
                                                 }
 
                                                 ?>
-                                                <option value="<?php echo $contact_id; ?>" <?php if ($contact_primary == 1 || $contact_id == isset($_GET['contact_id'])) { echo "selected"; } ?>><?php echo "$contact_name$contact_title_display$contact_primary_display$contact_technical_display"; ?></option>
+                                                <option value="<?php echo $contact_id_select; ?>" 
+                                                    <?php 
+                                                    if (isset($_GET['contact_id']) && $contact_id_select == $_GET['contact_id']) {
+                                                        echo "selected";
+                                                    } elseif (empty($_GET['contact_id']) && $contact_primary_select == 1) {
+                                                        echo "selected";
+                                                    } 
+                                                    ?>
+                                                    >
+                                                    <?php echo "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display"; ?> 
+                                                </option>
 
                                             <?php } ?>
                                         </select>
