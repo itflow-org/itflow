@@ -118,6 +118,9 @@ if (isset($_GET['quote_id'])) {
         <li class="breadcrumb-item">
             <a href="quotes.php">Quotes</a>
         </li>
+        <li class="breadcrumb-item">
+            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+        </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
     </ol>

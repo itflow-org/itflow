@@ -259,7 +259,7 @@ if (isset($_GET['ticket_id'])) {
         }
 
 
-        // Get all ticket replies
+        // Get ticket replies
         $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies 
             LEFT JOIN users ON ticket_reply_by = user_id
             LEFT JOIN contacts ON ticket_reply_by = contact_id
@@ -268,17 +268,15 @@ if (isset($_GET['ticket_id'])) {
             ORDER BY ticket_reply_id DESC"
         );
 
-        // Get all Events
-        $sql_ticket_events = mysqli_query($mysqli, "SELECT * FROM logs 
-            LEFT JOIN users ON log_user_id = user_id
-            WHERE log_type = 'Ticket'
-            AND log_entity_id = $ticket_id
-            ORDER BY log_id DESC"
+        // Get ticket Events
+        $sql_ticket_events = mysqli_query($mysqli, "SELECT * FROM ticket_history
+            WHERE ticket_history_ticket_id = $ticket_id
+            ORDER BY ticket_history_id DESC"
         );
 
 
-        // Get other tickets for this asset
-        if (!empty($asset_id)) {
+        // Get past tickets for selected asset
+        if ($asset_id) {
             $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
             $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
         }
@@ -290,6 +288,7 @@ if (isset($_GET['ticket_id'])) {
             "SELECT users.user_id, user_name FROM users
             LEFT JOIN user_settings on users.user_id = user_settings.user_id
             WHERE user_role > 1
+            AND user_type = 1
             AND user_status = 1
             AND user_archived_at IS NULL
             ORDER BY user_name ASC"
@@ -354,6 +353,9 @@ if (isset($_GET['ticket_id'])) {
             <?php } else { ?>
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
             </li>
             <?php } ?>
             <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>

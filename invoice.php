@@ -155,6 +155,9 @@ if (isset($_GET['invoice_id'])) {
         <li class="breadcrumb-item">
             <a href="invoices.php">Invoices</a>
         </li>
+        <li class="breadcrumb-item">
+            <a href="client_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+        </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
         <?php if (isset($invoice_overdue)) { ?>

@@ -21,7 +21,7 @@ if (isset($_POST['edit_favicon_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     // Check to see if a file is attached
-    if ($_FILES['file']['tmp_name'] != '') {
+    if (isset($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('ico'))) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
