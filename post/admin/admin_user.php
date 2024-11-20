@@ -131,7 +131,7 @@ if (isset($_POST['edit_user'])) {
 
     // Check for and process image/photo
     $extended_alert_description = '';
-    if (isset($_FILES['file']['tmp_name'])) {\
+    if (isset($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
             $file_tmp_path = $_FILES['file']['tmp_name'];
