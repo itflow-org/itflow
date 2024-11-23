@@ -2232,16 +2232,57 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.5'");
     }
 
-     if (CURRENT_DATABASE_VERSION == '1.6.5') {
-         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_quote_notification_email` VARCHAR(200) DEFAULT NULL AFTER `config_quote_from_email`");
+    if (CURRENT_DATABASE_VERSION == '1.6.5') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_quote_notification_email` VARCHAR(200) DEFAULT NULL AFTER `config_quote_from_email`");
 
-         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.6'");
-     }
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.6'");
+    }
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.6') {
-    //     // Insert queries here required to update to DB version 1.6.7
+    if (CURRENT_DATABASE_VERSION == '1.6.6') {
+        
+        mysqli_query($mysqli, "CREATE TABLE `contact_notes` (
+            `contact_note_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `contact_note_type` VARCHAR(200) NOT NULL,
+            `contact_note` TEXT NULL DEFAULT NULL,
+            `contact_note_created_by` INT(11) NOT NULL,
+            `contact_note_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `contact_note_updated_at` DATETIME NULL DEFAULT NULL on update CURRENT_TIMESTAMP,
+            `contact_note_archived_at` DATETIME NULL DEFAULT NULL,
+            `contact_note_contact_id` INT(11) NOT NULL,
+            PRIMARY KEY (`contact_note_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `client_notes` (
+            `client_note_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `client_note_type` VARCHAR(200) NOT NULL,
+            `client_note` TEXT NULL DEFAULT NULL,
+            `client_note_created_by` INT(11) NOT NULL,
+            `client_note_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `client_note_updated_at` DATETIME NULL DEFAULT NULL on update CURRENT_TIMESTAMP,
+            `client_note_archived_at` DATETIME NULL DEFAULT NULL,
+            `client_note_client_id` INT(11) NOT NULL,
+            PRIMARY KEY (`client_note_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `asset_notes` (
+            `asset_note_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `asset_note_type` VARCHAR(200) NOT NULL,
+            `asset_note` TEXT NULL DEFAULT NULL,
+            `asset_note_created_by` INT(11) NOT NULL,
+            `asset_note_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            `asset_note_updated_at` DATETIME NULL DEFAULT NULL on update CURRENT_TIMESTAMP,
+            `asset_note_archived_at` DATETIME NULL DEFAULT NULL,
+            `asset_note_asset_id` INT(11) NOT NULL,
+            PRIMARY KEY (`asset_note_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.7') {
+    //     // Insert queries here required to update to DB version 1.6.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
     // }
 
 } else {

@@ -144,6 +144,26 @@ CREATE TABLE `asset_interfaces` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_notes`
+--
+
+DROP TABLE IF EXISTS `asset_notes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_notes` (
+  `asset_note_id` int(11) NOT NULL AUTO_INCREMENT,
+  `asset_note_type` varchar(200) NOT NULL,
+  `asset_note` text DEFAULT NULL,
+  `asset_note_created_by` int(11) NOT NULL,
+  `asset_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `asset_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `asset_note_archived_at` datetime DEFAULT NULL,
+  `asset_note_asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`asset_note_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `assets`
 --
 
@@ -264,6 +284,26 @@ CREATE TABLE `certificates` (
   `certificate_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`certificate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_notes`
+--
+
+DROP TABLE IF EXISTS `client_notes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_notes` (
+  `client_note_id` int(11) NOT NULL AUTO_INCREMENT,
+  `client_note_type` varchar(200) NOT NULL,
+  `client_note` text DEFAULT NULL,
+  `client_note_created_by` int(11) NOT NULL,
+  `client_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `client_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `client_note_archived_at` datetime DEFAULT NULL,
+  `client_note_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`client_note_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -389,6 +429,26 @@ CREATE TABLE `contact_logins` (
   `login_id` int(11) NOT NULL,
   PRIMARY KEY (`contact_id`,`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `contact_notes`
+--
+
+DROP TABLE IF EXISTS `contact_notes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contact_notes` (
+  `contact_note_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contact_note_type` varchar(200) NOT NULL,
+  `contact_note` text DEFAULT NULL,
+  `contact_note_created_by` int(11) NOT NULL,
+  `contact_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `contact_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `contact_note_archived_at` datetime DEFAULT NULL,
+  `contact_note_contact_id` int(11) NOT NULL,
+  PRIMARY KEY (`contact_note_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2167,4 +2227,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-04 12:20:25
+-- Dump completed on 2024-11-23 15:34:58
