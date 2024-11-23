@@ -584,6 +584,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
             mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
             mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
             mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
+            mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
 
             // Individual Logging
             logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
@@ -787,6 +788,7 @@ if (isset($_GET['delete_contact'])) {
     mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
     mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
     mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
+    mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
 
     //Logging
     logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);

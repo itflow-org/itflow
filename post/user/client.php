@@ -214,11 +214,16 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
-    // Delete Contacts and contact tags
+    // Delete Contacts including contact tags, notes
     $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)) {
         $contact_id = $row['contact_id'];
         mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
+        mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
+        mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
+        mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
+        mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
+        mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
     }
     mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
 
