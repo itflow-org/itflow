@@ -11,6 +11,8 @@ if (isset($_POST['add_trip'])) {
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id");
 
+    $trip_id = mysqli_insert_id($mysqli);
+
     // Logging
     logAction("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
