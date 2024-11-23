@@ -47,15 +47,17 @@ if ($row) {
 
 ?>
 
-    <ol class="breadcrumb d-print-none">
-        <li class="breadcrumb-item">
-            <a href="index.php">Home</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="documents.php">Documents</a>
-        </li>
-        <li class="breadcrumb-item active">Document</li>
-    </ol>
+<ol class="breadcrumb d-print-none">
+    <li class="breadcrumb-item">
+        <a href="index.php">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="documents.php">Documents</a>
+    </li>
+    <li class="breadcrumb-item active">
+        Document
+    </li>
+</ol>
 
 <div class="card">
     <div class="card-body prettyContent">
@@ -63,9 +65,6 @@ if ($row) {
         <?php echo $document_content; ?>
     </div>
 </div>
-
-<script src="../js/pretty_content.js"></script>
-
 
 <?php
 require_once "portal_footer.php";
