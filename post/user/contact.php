@@ -216,6 +216,33 @@ if (isset($_POST['edit_contact'])) {
 
 }
 
+if (isset($_POST['add_contact_note'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_id = intval($_POST['contact_id']);
+    $type = sanitizeInput($_POST['type']);
+    $note = sanitizeInput($_POST['note']);
+
+    // Get Contact details for logging and alerting
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+
+    mysqli_query($mysqli, "INSERT INTO contact_notes SET contact_note_type = '$type', contact_note = '$note', contact_note_created_by = $session_user_id, contact_note_contact_id = $contact_id");
+
+    $contact_note_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    logAction("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
+
+    $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_assign_contact_location'])) {
 
     enforceUserPermission('module_client', 2);

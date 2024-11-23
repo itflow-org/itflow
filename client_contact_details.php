@@ -94,6 +94,10 @@ if (isset($_GET['contact_id'])) {
     }
     $contact_tags_display = implode('', $contact_tag_name_display_array);
 
+    // Notes
+    $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id ORDER BY contact_note_created_at DESC");
+    $note_count = mysqli_num_rows($sql_related_notes);
+
     ?>
 
     <div class="row">
@@ -601,6 +605,71 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $ticket_assigned_to_display; ?></td>
                                     <td><?php echo $ticket_updated_at_display; ?></td>
                                     <td><?php echo $ticket_created_at; ?></td>
+                                </tr>
+
+                                <?php
+
+                            }
+
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+                
+            <div class="card card-dark <?php if ($note_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Type</th>
+                                <th>Note</th>
+                                <th>By</th>
+                                <th>Created</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_related_notes)) {
+                                $contact_note_id = intval($row['contact_note_id']);
+                                $contact_note_type = nullable_htmlentities($row['contact_note_type']);
+                                $contact_note = nullable_htmlentities($row['contact_note']);
+                                $note_by = nullable_htmlentities($row['user_name']);
+                                $contact_note_created_at = nullable_htmlentities($row['contact_note_created_at']);
+
+                                ?>
+
+                                <tr>
+                                    <td><?php echo $contact_note_type; ?></td>
+                                    <td><?php echo $contact_note; ?></td>
+                                    <td><?php echo $note_by; ?></td>
+                                    <td><?php echo $contact_note_created_at; ?></td>
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactNoteModal<?php echo $contact_note_id; ?>">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <?php if ($session_user_role == 3) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact_note=<?php echo $contact_note_id; ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
 
                                 <?php
