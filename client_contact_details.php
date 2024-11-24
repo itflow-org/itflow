@@ -39,11 +39,11 @@ if (isset($_GET['contact_id'])) {
         exit();
     }
 
-    // Related Assets Query
+    // Related Assets Query - 1 to 1 relationship
     $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
-    // Related Logins Query
+    // Related Logins Query 1 to 1 relationship
     $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
         LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
         LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
@@ -53,7 +53,7 @@ if (isset($_GET['contact_id'])) {
     ");
     $login_count = mysqli_num_rows($sql_related_logins);
 
-    // Related Software Query
+    // Related Software Query - many to many relationship
     //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id ORDER BY software.software_id DESC");
     $sql_related_software = mysqli_query(
         $mysqli,
@@ -65,14 +65,14 @@ if (isset($_GET['contact_id'])) {
 
     $software_count = mysqli_num_rows($sql_related_software);
 
-    // Related Tickets Query
+    // Related Tickets Query - 1 to 1 relationship
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN users ON ticket_assigned_to = user_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
-    // Tags
+    // Tags - many to many relationship
     $contact_tag_name_display_array = array();
     $contact_tag_id_array = array();
     $sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
@@ -94,7 +94,7 @@ if (isset($_GET['contact_id'])) {
     }
     $contact_tags_display = implode('', $contact_tag_name_display_array);
 
-    // Notes
+    // Notes - 1 to 1 relationship
     $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
@@ -187,16 +187,49 @@ if (isset($_GET['contact_id'])) {
                 <li class="breadcrumb-item active"><?php echo $contact_name; ?></li>
             </ol>
 
-            <div class="dropdown dropleft mb-3">
-                <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-fw fa-plus mr-2"></i>New</button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
-                        <i class="fa fa-fw fa-plus mr-2"></i>New Ticket
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
-                        <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note
-                    </a>
+            <div class="btn-group mb-3">
+                <div class="dropdown dropleft mr-2">
+                    <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dropdown dropleft">
+                    <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fa fa-fw fa-desktop mr-2"></i>Asset
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-cube mr-2"></i>License
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-key mr-2"></i>Credential
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-stream mr-2"></i>Service
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-folder mr-2"></i>Document
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-paperclip mr-2"></i>File
+                        </a>
+                        
+                        
+                    </div>
                 </div>
             </div>
 
@@ -664,10 +697,6 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactNoteModal<?php echo $contact_note_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                </a>
-                                                <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger" href="post.php?archive_contact_note=<?php echo $contact_note_id; ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
@@ -764,4 +793,3 @@ if (isset($_GET['contact_id'])) {
 require_once "ticket_add_modal.php";
 
 require_once "footer.php";
-
