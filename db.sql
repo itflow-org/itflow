@@ -202,6 +202,25 @@ CREATE TABLE `assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `auth_logs`
+--
+
+DROP TABLE IF EXISTS `auth_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_logs` (
+  `auth_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `auth_log_status` tinyint(1) NOT NULL,
+  `auth_log_details` varchar(200) DEFAULT NULL,
+  `auth_log_ip` varchar(200) DEFAULT NULL,
+  `auth_log_user_agent` varchar(250) DEFAULT NULL,
+  `auth_log_user_id` int(11) NOT NULL DEFAULT 0,
+  `auth_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`auth_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `budget`
 --
 
@@ -654,6 +673,22 @@ CREATE TABLE `email_queue` (
   `email_sent_at` datetime DEFAULT NULL,
   PRIMARY KEY (`email_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `error_logs`
+--
+
+DROP TABLE IF EXISTS `error_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `error_logs` (
+  `error_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `error_log_type` varchar(200) NOT NULL,
+  `error_log_details` varchar(1000) DEFAULT NULL,
+  `error_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`error_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2227,4 +2262,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-23 15:34:58
+-- Dump completed on 2024-11-24 15:03:10

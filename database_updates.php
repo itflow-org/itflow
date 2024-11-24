@@ -2279,10 +2279,34 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.7') {
-    //     // Insert queries here required to update to DB version 1.6.8
+    if (CURRENT_DATABASE_VERSION == '1.6.7') {
+        
+        mysqli_query($mysqli, "CREATE TABLE `error_logs` (
+            `error_log_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `error_log_type` VARCHAR(200) NOT NULL,
+            `error_log_details` VARCHAR(1000) NULL DEFAULT NULL,
+            `error_log_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`error_log_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `auth_logs` (
+            `auth_log_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `auth_log_status` TINYINT(1) NOT NULL,
+            `auth_log_details` VARCHAR(200) NULL DEFAULT NULL,
+            `auth_log_ip` VARCHAR(200) NULL DEFAULT NULL,
+            `auth_log_user_agent` VARCHAR(250) NULL DEFAULT NULL,
+            `auth_log_user_id` INT(11) NOT NULL DEFAULT 0,
+            `auth_log_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`auth_log_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.8') {
+    //     // Insert queries here required to update to DB version 1.6.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
     // }
 
 } else {
