@@ -95,7 +95,7 @@ if (isset($_GET['contact_id'])) {
     $contact_tags_display = implode('', $contact_tag_name_display_array);
 
     // Notes
-    $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id ORDER BY contact_note_created_at DESC");
+    $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
     ?>
@@ -177,7 +177,6 @@ if (isset($_GET['contact_id'])) {
 
         <div class="col-md-9">
 
-
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
@@ -185,7 +184,7 @@ if (isset($_GET['contact_id'])) {
                 <li class="breadcrumb-item">
                     <a href="client_contacts.php?client_id=<?php echo $client_id; ?>">Contacts</a>
                 </li>
-                <li class="breadcrumb-item active"><?php echo "$contact_name"; ?></li>
+                <li class="breadcrumb-item active"><?php echo $contact_name; ?></li>
             </ol>
 
             <div class="dropdown dropleft mb-3">
@@ -193,6 +192,10 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
                         <i class="fa fa-fw fa-plus mr-2"></i>New Ticket
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                        <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note
                     </a>
                 </div>
             </div>
@@ -664,6 +667,10 @@ if (isset($_GET['contact_id'])) {
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactNoteModal<?php echo $contact_note_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="post.php?archive_contact_note=<?php echo $contact_note_id; ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact_note=<?php echo $contact_note_id; ?>">
@@ -693,8 +700,8 @@ if (isset($_GET['contact_id'])) {
 
     <?php
 
+    require_once "client_contact_create_note_modal.php";
     require_once "share_modal.php";
-
 
     ?>
 

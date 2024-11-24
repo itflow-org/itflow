@@ -243,6 +243,84 @@ if (isset($_POST['add_contact_note'])) {
 
 }
 
+if (isset($_GET['archive_contact_note'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_note_id = intval($_GET['archive_contact_note']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_note_type = sanitizeInput($row['contact_note_type']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+    $contact_id = intval($row['contact_id']);
+
+    mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NOW() WHERE contact_note_id = $contact_note_id");
+    
+    // Logging
+    logAction("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
+
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unarchive_contact_note'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_note_id = intval($_GET['unarchive_contact_note']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_note_type = sanitizeInput($row['contact_note_type']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+    $contact_id = intval($row['contact_id']);
+
+    mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NULL WHERE contact_note_id = $contact_note_id");
+    
+    // Logging
+    logAction("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
+
+    $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> restored";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['delete_contact_note'])) {
+
+    enforceUserPermission('module_client', 3);
+
+    $contact_note_id = intval($_GET['delete_contact_note']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_note_type = sanitizeInput($row['contact_note_type']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+    $contact_id = intval($row['contact_id']);
+
+    mysqli_query($mysqli,"DELETE FROM contact_notes WHERE contact_note_id = $contact_note_id");
+
+    //Logging
+    logAction("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> deleted.";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_assign_contact_location'])) {
 
     enforceUserPermission('module_client', 2);
@@ -762,6 +840,7 @@ if (isset($_GET['unarchive_contact'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
 if (isset($_GET['delete_contact'])) {
 
     enforceUserPermission('module_client', 3);
