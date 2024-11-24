@@ -69,7 +69,7 @@ require_once "inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave bank for none" value="<?php echo nullable_htmlentities($config_ticket_new_ticket_notification_email); ?>">
+                        <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave blank for none" value="<?php echo nullable_htmlentities($config_ticket_new_ticket_notification_email); ?>">
                     </div>
                 </div>
 
