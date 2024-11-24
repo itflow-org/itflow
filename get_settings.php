@@ -298,3 +298,10 @@ $rack_type_select_array = array(
     "Other"
 );
 
+$note_types_array = array (
+    'Call'=>'fa-phone-alt',
+    'Email'=>'fa-envelope',
+    'Meeting'=>'fa-handshake',
+    'In Person'=>'fa-people-arrows',
+    'Note'=>'fa-sticky-note'
+);

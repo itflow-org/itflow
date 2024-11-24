@@ -645,10 +645,13 @@ if (isset($_GET['contact_id'])) {
                                 $note_by = nullable_htmlentities($row['user_name']);
                                 $contact_note_created_at = nullable_htmlentities($row['contact_note_created_at']);
 
+                                // Get the corresponding icon for the note type
+                                $note_type_icon = isset($note_types_array[$contact_note_type]) ? $note_types_array[$contact_note_type] : 'fa-fw fa-sticky-note'; // default icon if not found
+
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $contact_note_type; ?></td>
+                                    <td><i class="fa fa-fw <?php echo $note_type_icon; ?> mr-2"></i><?php echo $contact_note_type; ?></td>
                                     <td><?php echo $contact_note; ?></td>
                                     <td><?php echo $note_by; ?></td>
                                     <td><?php echo $contact_note_created_at; ?></td>

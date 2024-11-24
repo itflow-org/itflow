@@ -19,11 +19,9 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                             </div>
                             <select class="form-control select2" name="type">
-                                <option>Call</option>
-                                <option>Email</option>
-                                <option>Meeting</option>
-                                <option>In Person</option>
-                                <option>Note</option>
+                                <?php foreach ($note_types_array as $note_type => $note_type_icon) { ?>
+                                <option><?php echo nullable_htmlentities($note_type); ?></option>
+                                <?php } ?>
                             </select>
                         </div>
                     </div>
