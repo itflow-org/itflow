@@ -8,8 +8,8 @@ require_once "inc_set_timezone.php";
 require_once "functions.php";
 
 
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = sanitizeInput(getIP());
+$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
 if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
@@ -57,23 +57,21 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     }
 
     $file_name = sanitizeInput($file_row['file_name']);
-    $file_ext = sanitizeInput($file_row['file_ext']);
     $file_reference_name = sanitizeInput($file_row['file_reference_name']);
     $client_id = intval($file_row['file_client_id']);
     $file_path = "uploads/clients/$client_id/$file_reference_name";
-    $file_download_name = str_replace('.', '', $file_name) . '-' . $config_app_name . '-download.' . $file_ext; // Brand the downloaded file name, and also force the original file extension
 
     // Display file as download
     $mime_type = mime_content_type($file_path);
     header('Content-type: '.$mime_type);
-    header('Content-Disposition: attachment; filename=' . $file_download_name);
+    header('Content-Disposition: attachment; filename=' . $file_name);
     readfile($file_path);
 
     // Update file view count
     $new_item_views = $item_views + 1;
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
-    // Logging
-    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Sharing', log_action = 'View', log_description = 'Downloaded shared file $file_name via link', log_client_id = $client_id, log_ip = '$ip', log_user_agent = '$user_agent'");
+    //Logging
+    logAction("Share", "View", "Downloaded shared file $file_name via link", $client_id);
 
 }
