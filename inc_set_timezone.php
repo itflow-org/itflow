@@ -1,18 +1,15 @@
 <?php
 
-// Check if timezone and offset are set in session
-if (!isset($_SESSION['session_timezone']) || !isset($_SESSION['session_utc_offset'])) {
-    $result = mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1");
-    $row = mysqli_fetch_array($result);
-    $_SESSION['session_timezone'] = $row['config_timezone'];
+$result = mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1");
+$row = mysqli_fetch_array($result);
+$_SESSION['session_timezone'] = $row['config_timezone'];
 
-    // Set PHP timezone
-    date_default_timezone_set($_SESSION['session_timezone']);
+// Set PHP timezone
+date_default_timezone_set($_SESSION['session_timezone']);
 
-    // Calculate UTC offset and store it in session
-    $session_datetime = new DateTime('now', new DateTimeZone($_SESSION['session_timezone']));
-    $_SESSION['session_utc_offset'] = $session_datetime->format('P');
-}
+// Calculate UTC offset and store it in session
+$session_datetime = new DateTime('now', new DateTimeZone($_SESSION['session_timezone']));
+$_SESSION['session_utc_offset'] = $session_datetime->format('P');
 
 // Use the stored timezone and offset
 $session_timezone = $_SESSION['session_timezone'];
