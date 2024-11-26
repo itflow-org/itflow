@@ -39,6 +39,7 @@ header("X-Frame-Options: DENY");
     <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
     <link href="plugins/DataTables/datatables.min.css" rel="stylesheet">
+    <link href="/css/sidebar_navigation.css" rel="stylesheet" type="text/css">
 
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>

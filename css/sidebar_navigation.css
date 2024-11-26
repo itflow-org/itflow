@@ -1,0 +1,10 @@
+/*
+Center aligns ITFlow Company Name in the left navigation sidebar
+Adds center alignment to the adminlte class brand-text
+*/
+.brand-text {
+	text-align: center;
+	/*max-width: 300px;
+	white-space: normal;
+	word-wrap: break-word;*/
+}
