@@ -908,6 +908,36 @@ if (isset($_POST['link_contact_to_asset'])) {
 
 }
 
+if (isset($_GET['unlink_asset_from_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_GET['contact_id']);
+    $asset_id = intval($_GET['asset_id']);
+
+    // Get asset Name and Client ID for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = 0 WHERE asset_id = $asset_id");
+
+    //Logging
+    logAction("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['link_contact_to_credential'])) {
 
     enforceUserPermission('module_support', 2);
@@ -932,6 +962,36 @@ if (isset($_POST['link_contact_to_credential'])) {
     logAction("Asset", "Link", "$session_name linked credential $login_name to contact $contact_name", $client_id, $login_id);
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with credential <strong>$login_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_credential_from_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_GET['contact_id']);
+    $login_id = intval($_GET['login_id']);
+
+    // Get login Name and Client ID for logging
+    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql_login);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_contact_id = 0 WHERE login_id = $login_id");
+
+    //Logging
+    logAction("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $login_name", $client_id, $login_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> unlinked from Contact <strong>$contact_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

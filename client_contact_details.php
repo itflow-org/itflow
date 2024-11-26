@@ -362,6 +362,12 @@ if (isset($_GET['contact_id'])) {
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" 
+                                                    href="post.php?unlink_asset_from_contact&contact_id=<?php echo $contact_id; ?>&asset_id=<?php echo $asset_id; ?>" 
+                                                    class="btn btn-secondary btn-sm" title="Unlink">
+                                                    <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger" href="post.php?archive_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
@@ -495,6 +501,12 @@ if (isset($_GET['contact_id'])) {
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
                                                     <i class="fas fa-fw fa-share-alt mr-2"></i>Share
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" 
+                                                    href="post.php?unlink_credential_from_contact&contact_id=<?php echo $contact_id; ?>&login_id=<?php echo $login_id; ?>" 
+                                                    class="btn btn-secondary btn-sm" title="Unlink">
+                                                    <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
