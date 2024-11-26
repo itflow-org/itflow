@@ -937,6 +937,66 @@ if (isset($_POST['link_contact_to_credential'])) {
 
 }
 
+if (isset($_POST['link_contact_to_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $file_id = intval($_POST['file_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    // Contact add query
+    mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
+
+    // Logging
+    logAction("Document", "Link", "$session_name linked contact $contact_name to document $file_name", $client_id, $file_id);
+
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_contact_from_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_GET['contact_id']);
+    $file_id = intval($_GET['file_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"DELETE FROM contact_files WHERE contact_id = $contact_id AND file_id = $file_id");
+
+    //Logging
+    logAction("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['export_client_contacts_csv'])) {
 
     enforceUserPermission('module_client');
