@@ -43,6 +43,17 @@ if (isset($_GET['contact_id'])) {
     $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
     $asset_count = mysqli_num_rows($sql_related_assets);
 
+    // Linked Software Licenses
+    $sql_linked_software = mysqli_query($mysqli, "SELECT * FROM software_contacts, software
+        WHERE software_contacts.contact_id = $contact_id 
+        AND software_contacts.software_id = software.software_id
+        AND software_archived_at IS NULL
+        ORDER BY software_name ASC"
+    );
+    $software_count = mysqli_num_rows($sql_linked_software);
+
+    $linked_software = array();
+
     // Related Logins Query 1 to 1 relationship
     $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
         LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
@@ -52,18 +63,6 @@ if (isset($_GET['contact_id'])) {
         ORDER BY login_name DESC
     ");
     $login_count = mysqli_num_rows($sql_related_logins);
-
-    // Related Software Query - many to many relationship
-    //$sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id ORDER BY software.software_id DESC");
-    $sql_related_software = mysqli_query(
-        $mysqli,
-        "SELECT * FROM software_contacts 
-        LEFT JOIN software ON software_contacts.software_id = software.software_id 
-        WHERE software_contacts.contact_id = $contact_id 
-        ORDER BY software.software_id DESC"
-    );
-
-    $software_count = mysqli_num_rows($sql_related_software);
 
     // Related Tickets Query - 1 to 1 relationship
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -242,7 +241,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-desktop mr-2"></i>Asset
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkSoftwareModal">
                             <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
@@ -545,8 +544,13 @@ if (isset($_GET['contact_id'])) {
             </div>
 
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Related Licenses</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Related Licenses</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkSoftwareModal">
+                            <i class="fas fa-link mr-2"></i>Link License
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -557,12 +561,13 @@ if (isset($_GET['contact_id'])) {
                                 <th>Type</th>
                                 <th>License Type</th>
                                 <th>Seats</th>
+                                <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php
 
-                            while ($row = mysqli_fetch_array($sql_related_software)) {
+                            while ($row = mysqli_fetch_array($sql_linked_software)) {
                                 $software_id = intval($row['software_id']);
                                 $software_name = nullable_htmlentities($row['software_name']);
                                 $software_version = nullable_htmlentities($row['software_version']);
@@ -594,12 +599,17 @@ if (isset($_GET['contact_id'])) {
                                 }
                                 $contact_licenses = implode(',', $contact_licenses_array);
 
+                                $linked_software[] = $software_id;
+
                                 ?>
                                 <tr>
-                                    <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
+                                    <td><?php echo "$software_name $software_version"; ?></td>
                                     <td><?php echo $software_type; ?></td>
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
+                                    <td class="text-center">
+                                        <a href="post.php?unlink_software_from_contact&contact_id=<?php echo $contact_id; ?>&software_id=<?php echo $software_id; ?>" class="btn btn-secondary btn-sm" title="Remove License"><i class="fas fa-fw fa-unlink"></i></a>
+                                    </td>
                                 </tr>
 
                                 <?php
@@ -1030,6 +1040,7 @@ if (isset($_GET['contact_id'])) {
 require_once "client_contact_create_note_modal.php";
 require_once "ticket_add_modal.php";
 require_once "client_contact_link_asset_modal.php";
+require_once "client_contact_link_software_modal.php";
 require_once "client_contact_link_credential_modal.php";
 require_once "client_contact_link_service_modal.php";
 require_once "client_contact_link_document_modal.php";

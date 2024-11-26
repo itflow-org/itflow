@@ -938,6 +938,65 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
 }
 
+if (isset($_POST['link_software_to_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_POST['software_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"INSERT INTO software_contacts SET contact_id = $contact_id, software_id = $software_id");
+
+    // Logging
+    logAction("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
+
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_software_from_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_GET['contact_id']);
+    $software_id = intval($_GET['software_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE contact_id = $contact_id AND software_id = $software_id");
+
+    //Logging
+    logAction("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['link_contact_to_credential'])) {
 
     enforceUserPermission('module_support', 2);
