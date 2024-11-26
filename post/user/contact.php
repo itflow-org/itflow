@@ -879,6 +879,64 @@ if (isset($_GET['delete_contact'])) {
 
 }
 
+if (isset($_POST['link_contact_to_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_POST['asset_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Get Asset Name and Client ID for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
+
+    // Logging
+    logAction("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
+
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_contact_to_credential'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $login_id = intval($_POST['login_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Get login Name and Client ID for logging
+    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql_login);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_contact_id = $contact_id WHERE login_id = $login_id");
+
+    // Logging
+    logAction("Asset", "Link", "$session_name linked credential $login_name to contact $contact_name", $client_id, $login_id);
+
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with credential <strong>$login_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['export_client_contacts_csv'])) {
 
     enforceUserPermission('module_client');

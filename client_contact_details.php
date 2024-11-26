@@ -98,6 +98,19 @@ if (isset($_GET['contact_id'])) {
     $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
+    // Documents
+    $sql_linked_documents = mysqli_query($mysqli, "SELECT * FROM contact_documents, documents
+        LEFT JOIN users ON document_created_by = user_id
+        WHERE contact_documents.contact_id = $contact_id 
+        AND contact_documents.document_id = documents.document_id
+        AND document_template = 0
+        AND document_archived_at IS NULL
+        ORDER BY document_name ASC"
+    );
+    $document_count = mysqli_num_rows($sql_linked_documents);
+
+    $linked_documents = array();
+
     ?>
 
     <div class="row">
@@ -204,7 +217,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown dropleft">
                     <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkAssetModal">
                             <i class="fa fa-fw fa-desktop mr-2"></i>Asset
                         </a>
                         <div class="dropdown-divider"></div>
@@ -212,7 +225,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkCredentialModal">
                             <i class="fa fa-fw fa-key mr-2"></i>Credential
                         </a>
                         <div class="dropdown-divider"></div>
@@ -220,7 +233,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-stream mr-2"></i>Service
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkDocumentModal">
                             <i class="fa fa-fw fa-folder mr-2"></i>Document
                         </a>
                         <div class="dropdown-divider"></div>
@@ -569,8 +582,13 @@ if (isset($_GET['contact_id'])) {
             </div>
 
             <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Related Tickets</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Related Tickets</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fas fa-plus mr-2"></i>New Ticket
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -654,10 +672,76 @@ if (isset($_GET['contact_id'])) {
                     </div>
                 </div>
             </div>
+
+            <div class="card card-dark <?php if ($document_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Linked Documents</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkDocumentModal">
+                            <i class="fas fa-link mr-2"></i>Link Document
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Document Title</th>
+                                <th>By</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_linked_documents)) {
+                                $document_id = intval($row['document_id']);
+                                $document_name = nullable_htmlentities($row['document_name']);
+                                $document_description = nullable_htmlentities($row['document_description']);
+                                $document_created_by = nullable_htmlentities($row['user_name']);
+                                $document_created_at = nullable_htmlentities($row['document_created_at']);
+                                $document_updated_at = nullable_htmlentities($row['document_updated_at']);
+
+                                $linked_documents[] = $document_id;
+
+                                ?>
+
+                                <tr>
+                                    <td>
+                                        <div><a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
+                                        <div class="text-secondary"><?php echo $document_description; ?></div>
+                                    </td>
+                                    <td><?php echo $document_created_by; ?></td>
+                                    <td><?php echo $document_created_at; ?></td>
+                                    <td><?php echo $document_updated_at; ?></td>
+                                    <td class="text-center">
+                                        <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                    </td>
+                                </tr>
+
+                                <?php
+
+                            }
+
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
                 
             <div class="card card-dark <?php if ($note_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fas fa-plus mr-2"></i>New Note
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -729,7 +813,6 @@ if (isset($_GET['contact_id'])) {
 
     <?php
 
-    require_once "client_contact_create_note_modal.php";
     require_once "share_modal.php";
 
     ?>
@@ -790,6 +873,10 @@ if (isset($_GET['contact_id'])) {
 
 <?php
 
+require_once "client_contact_create_note_modal.php";
 require_once "ticket_add_modal.php";
+require_once "client_contact_link_asset_modal.php";
+require_once "client_contact_link_document_modal.php";
+require_once "client_contact_link_credential_modal.php";
 
 require_once "footer.php";
