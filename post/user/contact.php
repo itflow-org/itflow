@@ -997,6 +997,65 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
 }
 
+if (isset($_POST['link_service_to_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $service_id = intval($_POST['service_id']);
+    $contact_id = intval($_POST['contact_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"INSERT INTO service_contacts SET contact_id = $contact_id, service_id = $service_id");
+
+    // Logging
+    logAction("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
+
+    $_SESSION['alert_message'] = "service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_service_from_contact'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_GET['contact_id']);
+    $service_id = intval($_GET['service_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Contact Name for logging
+    $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql_contact);
+    $contact_name = sanitizeInput($row['contact_name']);
+
+    mysqli_query($mysqli,"DELETE FROM service_contacts WHERE contact_id = $contact_id AND service_id = $service_id");
+
+    //Logging
+    logAction("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['link_contact_to_file'])) {
 
     enforceUserPermission('module_support', 2);
@@ -1019,7 +1078,7 @@ if (isset($_POST['link_contact_to_file'])) {
     mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
 
     // Logging
-    logAction("Document", "Link", "$session_name linked contact $contact_name to document $file_name", $client_id, $file_id);
+    logAction("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>";
 
