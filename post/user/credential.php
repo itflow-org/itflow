@@ -133,7 +133,7 @@ if (isset($_GET['delete_login'])) {
     mysqli_query($mysqli,"DELETE FROM logins WHERE login_id = $login_id");
 
     // Remove Relations
-    mysqli_query($mysqli,"DELETE FROM client_logins WHERE login_id = $login_id");
+    mysqli_query($mysqli,"DELETE FROM contact_logins WHERE login_id = $login_id");
     mysqli_query($mysqli,"DELETE FROM service_logins WHERE login_id = $login_id");
     mysqli_query($mysqli,"DELETE FROM software_logins WHERE login_id = $login_id");
     mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE login_id = $login_id");
@@ -142,6 +142,7 @@ if (isset($_GET['delete_login'])) {
     // Logging
     logAction("Credential", "Delete", "$session_name deleted credential $login_name", $client_id);
 
+    $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -301,7 +302,7 @@ if (isset($_POST['bulk_delete_logins'])) {
             mysqli_query($mysqli, "DELETE FROM logins WHERE login_id = $login_id AND login_client_id = $client_id");
 
             // Remove Relations
-            mysqli_query($mysqli,"DELETE FROM client_logins WHERE login_id = $login_id");
+            mysqli_query($mysqli,"DELETE FROM contact_logins WHERE login_id = $login_id");
             mysqli_query($mysqli,"DELETE FROM service_logins WHERE login_id = $login_id");
             mysqli_query($mysqli,"DELETE FROM software_logins WHERE login_id = $login_id");
             mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE login_id = $login_id");
@@ -314,6 +315,7 @@ if (isset($_POST['bulk_delete_logins'])) {
         // Bulk Logging
         logAction("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
 
+        $_SESSION['alert_type'] = "error"; 
         $_SESSION['alert_message'] = "Deleted <strong>$count</strong> credential(s)";
 
     }
