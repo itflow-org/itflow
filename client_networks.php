@@ -146,7 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $network_gateway = nullable_htmlentities($row['network_gateway']);
                             $network_primary_dns = nullable_htmlentities($row['network_primary_dns']);
                             $network_secondary_dns = nullable_htmlentities($row['network_secondary_dns']);
-                            if ($network_primary_dns && $network_secondary_dns) {
+                            if ($network_primary_dns) {
                                 $network_dns_display = "$network_primary_dns<div class='text-secondary mt-1'>$network_secondary_dns</div>";
                             } else {
                                 $network_dns_display = "-";
