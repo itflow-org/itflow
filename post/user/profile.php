@@ -49,7 +49,7 @@ if (isset($_POST['edit_your_user_details'])) {
     }
 
     // Photo
-    if (isset($_FILES['file']['tmp_name'])) {
+    if (isset($_FILES['avatar']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
             $file_tmp_path = $_FILES['avatar']['tmp_name'];
