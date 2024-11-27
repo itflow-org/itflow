@@ -194,6 +194,7 @@ if (isset($_POST['login'])) {
             // Session info
             $_SESSION['user_id'] = $user_id;
             $_SESSION['user_name'] = $user_name;
+            $_SESSION['user_type'] = 1;
             $_SESSION['user_role'] = $user_role;
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;

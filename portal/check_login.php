@@ -20,6 +20,12 @@ if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
     die;
 }
 
+// Check user type
+if ($_SESSION['user_type'] !== 2) {
+    header("Location: login.php");
+    exit();
+}
+
 // Set Timezone
 require_once "../inc_set_timezone.php";
 

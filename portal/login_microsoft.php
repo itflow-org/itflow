@@ -114,6 +114,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $client_id;
                 $_SESSION['user_id'] = $user_id;
+                $_SESSION['user_type'] = 2;
                 $_SESSION['contact_id'] = $contact_id;
                 $_SESSION['login_method'] = "azure";
 

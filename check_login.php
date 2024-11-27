@@ -27,6 +27,11 @@ if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
     exit;
 }
 
+// Check user type
+if ($_SESSION['user_type'] !== 1) {
+    header("Location: login.php");
+    exit();
+}
 
 // Set Timezone
 require_once "inc_set_timezone.php";
