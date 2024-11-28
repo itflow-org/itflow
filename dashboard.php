@@ -37,6 +37,20 @@ $sql_years_select = mysqli_query($mysqli, "
 $sql_open_projects = mysqli_query($mysqli, "SELECT COUNT(*) AS open_projects_count FROM projects WHERE project_completed_at IS NULL");
 $row_open_projects = mysqli_fetch_array($sql_open_projects);
 $open_projects_count = intval($row_open_projects['open_projects_count']);
+
+
+// Fetch count of accepted quotations
+$sql_accepted_quotations = mysqli_query(
+    $mysqli,
+    "SELECT COUNT(*) AS accepted_quotations_count 
+     FROM quotes 
+     WHERE quote_status = 'accepted'"
+);
+
+$row_accepted_quotations = mysqli_fetch_array($sql_accepted_quotations);
+$accepted_quotations_count = intval($row_accepted_quotations['accepted_quotations_count']);
+
+
 ?>
 
 
@@ -630,16 +644,18 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-warning" href="report_domains.php">
+            <a class="small-box bg-primary">
                 <div class="inner">
-                    <h3><?php echo $expiring_domains; ?></h3>
-                    <p>Expiring Domains</p>
+                    <h3><?php echo $accepted_quotations_count; ?></h3>
+                    <p>Accepted Quotations</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-globe"></i>
+                    <i class="fa fa-file-alt"></i>
                 </div>
             </a>
         </div>
+
+
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
