@@ -54,6 +54,92 @@ if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_ad
     }
 
 }
+//// added by Qais 
+
+
+    // ADD NEW JOB
+    if (isset($_POST['add_job'])) {
+        $scope = mysqli_real_escape_string($mysqli, $_POST['scope']);
+        $client_id = intval($_POST['client_id']);
+        $type = mysqli_real_escape_string($mysqli, $_POST['type']);
+        $status = mysqli_real_escape_string($mysqli, $_POST['status']);
+        $dropbox_link = mysqli_real_escape_string($mysqli, $_POST['dropbox_link']);
+
+        // Insert new job into the database
+        $sql = "INSERT INTO jobs (client_id, scope, type, status, dropbox_link, created_at) 
+                VALUES ('$client_id', '$scope', '$type', '$status', '$dropbox_link', NOW())";
+
+        if (mysqli_query($mysqli, $sql)) {
+            $_SESSION['alert_message'] = "Job added successfully!";
+            header("Location: jobs.php"); // Redirect back to the jobs page
+            exit;
+        } else {
+            $_SESSION['alert_message'] = "Error: Unable to add job. " . mysqli_error($mysqli);
+            header("Location: jobs.php");
+            exit;
+        }
+    }
+
+    // EDIT JOB
+    if (isset($_POST['edit_job'])) {
+        $job_id = intval($_POST['job_id']);
+        $scope = mysqli_real_escape_string($mysqli, $_POST['scope']);
+        $type = mysqli_real_escape_string($mysqli, $_POST['type']);
+        $status = mysqli_real_escape_string($mysqli, $_POST['status']);
+        $dropbox_link = mysqli_real_escape_string($mysqli, $_POST['dropbox_link']);
+    
+        // Debugging: Log the received data
+        error_log("Received Data: " . print_r($_POST, true));
+    
+        // Generate SQL query
+        $sql = "UPDATE jobs 
+                SET scope = '$scope', 
+                    type = '$type', 
+                    status = '$status', 
+                    dropbox_link = '$dropbox_link', 
+                    updated_at = NOW() 
+                WHERE job_id = $job_id";
+    
+        // Debugging: Log the query
+        error_log("Generated SQL: $sql");
+    
+        if (mysqli_query($mysqli, $sql)) {
+            // Check affected rows
+            if (mysqli_affected_rows($mysqli) > 0) {
+                $_SESSION['alert_message'] = "Job updated successfully!";
+            } else {
+                $_SESSION['alert_message'] = "No changes made or job not found.";
+            }
+        } else {
+            $_SESSION['alert_message'] = "Error: " . mysqli_error($mysqli);
+        }
+        header("Location: jobs.php");
+        exit;
+    }
+    
+
+    // DELETE JOB
+    if (isset($_GET['delete_job'])) {
+        $job_id = intval($_GET['delete_job']); // Ensure it's an integer
+
+        // Update the column name to match your table structure
+        $sql = "DELETE FROM jobs WHERE job_id = $job_id";
+
+        if (mysqli_query($mysqli, $sql)) {
+            $_SESSION['alert_message'] = "Job deleted successfully!";
+            header("Location: jobs.php"); // Redirect back to jobs page
+            exit;
+        } else {
+            $_SESSION['alert_message'] = "Error: Unable to delete job. " . mysqli_error($mysqli);
+            header("Location: jobs.php");
+            exit;
+        }
+    }
+
+
+    ////////////// end added by Qais 
+
+
 
 // Logout is the same for user and admin
 require_once "post/logout.php";
