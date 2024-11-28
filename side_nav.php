@@ -31,6 +31,18 @@
                     </li>
                 <?php } ?>
 
+                <li class="nav-item">
+                            <a href="jobs.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "jobs.php" || basename($_SERVER["PHP_SELF"]) == "job.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-life-ring"></i>
+                                <p>
+                                    Jobs
+                                    <?php /*if ($num_active_tickets) { ?>
+                                        <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
+                                    <?php } */?>
+                                </p>
+                            </a>
+                </li>
+
                 <?php if (lookupUserPermission("module_support") >= 1) { ?>
                     <?php if ($config_module_enable_ticketing == 1) { ?>
                         <li class="nav-header mt-3">SUPPORT</li>
@@ -45,6 +57,7 @@
                                 </p>
                             </a>
                         </li>
+                        
                         <li class="nav-item">
                             <a href="recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-redo-alt"></i>
