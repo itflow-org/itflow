@@ -50,6 +50,10 @@ $sql_accepted_quotations = mysqli_query(
 $row_accepted_quotations = mysqli_fetch_array($sql_accepted_quotations);
 $accepted_quotations_count = intval($row_accepted_quotations['accepted_quotations_count']);
 
+// Fetch total jobs from the database
+$sql_total_jobs = mysqli_query($mysqli, "SELECT COUNT(*) AS total_jobs FROM jobs");
+$row_total_jobs = mysqli_fetch_assoc($sql_total_jobs);
+$total_jobs = intval($row_total_jobs['total_jobs']);
 
 ?>
 
@@ -661,11 +665,11 @@ if ($user_config_dashboard_technical_enable == 1) {
         <div class="col-lg-4 col-6">
             <a class="small-box bg-primary">
                 <div class="inner">
-                    <h3><?php echo $expiring_certificates; ?></h3>
-                    <p>Expiring Certificates</p>
+                    <h3><?php echo $total_jobs; ?></h3>
+                    <p>Total Jobs</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-lock"></i>
+                    <i class="fa fa-briefcase"></i>
                 </div>
             </a>
         </div>
