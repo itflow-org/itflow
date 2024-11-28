@@ -33,7 +33,12 @@ $sql_years_select = mysqli_query($mysqli, "
     ORDER BY all_years DESC
 ");
 
+// Fetch the count of open projects
+$sql_open_projects = mysqli_query($mysqli, "SELECT COUNT(*) AS open_projects_count FROM projects WHERE project_completed_at IS NULL");
+$row_open_projects = mysqli_fetch_array($sql_open_projects);
+$open_projects_count = intval($row_open_projects['open_projects_count']);
 ?>
+
 
 <div class="card card-body">
     <form class="form-inline">
@@ -599,13 +604,13 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-info" href="report_assets.php">
+            <a class="small-box bg-info" href="projects.php?status=open">
                 <div class="inner">
-                    <h3><?php echo $assets_added; ?></h3>
-                    <p>New Assets</p>
+                    <h3><?php echo $open_projects_count; ?></h3>
+                    <p>Open Projects</p>
                 </div>
                 <div class="icon">
-                    <i class="fa fa-desktop"></i>
+                    <i class="fa fa-door-open"></i>
                 </div>
             </a>
         </div>
