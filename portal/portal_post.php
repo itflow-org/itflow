@@ -324,6 +324,47 @@ if (isset($_POST['edit_profile'])) {
     header('Location: index.php');
 }
 
+if (isset($_POST['add_contact'])) {
+    $contact_name = sanitizeInput($_POST['contact_name']);
+    $contact_email = sanitizeInput($_POST['contact_email']);
+    $contact_technical = intval($_POST['contact_technical']);
+    $contact_billing = intval($_POST['contact_billing']);
+    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
+
+    // Check the email isn't already in use
+    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email'");
+    if ($sql && mysqli_num_rows($sql) > 0) {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Cannot add contact as that email address is already in use";
+        header('Location: contact_add.php');
+        exit();
+    }
+
+    // Create user account with rand password for the contact
+    $contact_user_id = 0;
+    if ($contact_name && $contact_email && $contact_auth_method) {
+
+        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
+
+        $contact_user_id = mysqli_insert_id($mysqli);
+    }
+
+    // Create contact record
+    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id, contact_user_id = $contact_user_id");
+    $contact_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Contact", "Create", "Client contact $session_contact_name created contact $contact_name in the client portal", $session_client_id, $contact_id);
+
+    customAction('contact_create', $contact_id);
+
+    $_SESSION['alert_message'] = "Contact $contact_name created";
+
+    header('Location: contacts.php');
+}
+
 if (isset($_POST['edit_contact'])) {
     $contact_id = intval($_POST['contact_id']);
     $contact_name = sanitizeInput($_POST['contact_name']);
@@ -332,35 +373,41 @@ if (isset($_POST['edit_contact'])) {
     $contact_billing = intval($_POST['contact_billing']);
     $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
 
-    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
+    // Get the existing contact_user_id - we look it up ourselves so the user can't just overwrite random users
+    $sql = mysqli_query($mysqli,"SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $session_client_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_user_id = intval($row['contact_user_id']);
+
+    // Check the email isn't already in use
+    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email' AND user_id != $contact_user_id");
+    if ($sql && mysqli_num_rows($sql) > 0) {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Cannot update contact as that email address is already in use";
+        header('Location: contact_edit.php?id=' . $contact_id);
+        exit();
+    }
+
+    // Update Existing User
+    if ($contact_user_id > 0) {
+        mysqli_query($mysqli, "UPDATE users SET user_name = '$contact_name', user_email = '$contact_email', user_auth_method = '$contact_auth_method' WHERE user_id = $contact_user_id");
+
+    // Else, create New User
+    } elseif ($contact_user_id == 0 && $contact_name && $contact_email && $contact_auth_method) {
+        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
+
+        $contact_user_id = mysqli_insert_id($mysqli);
+    }
+
+    // Update contact
+    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_user_id = $contact_user_id WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
 
     // Logging
     logAction("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> updated";
+    $_SESSION['alert_message'] = "Contact $contact_name updated";
     
     header('Location: contacts.php');
 
     customAction('contact_update', $contact_id);
-}
-
-if (isset($_POST['add_contact'])) {
-    $contact_name = sanitizeInput($_POST['contact_name']);
-    $contact_email = sanitizeInput($_POST['contact_email']);
-    $contact_technical = intval($_POST['contact_technical']);
-    $contact_billing = intval($_POST['contact_billing']);
-    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
-
-    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id");
-
-    $contact_id = mysqli_insert_id($mysqli);
-
-    // Logging
-    logAction("Contact", "Create", "Client contact $session_contact_name created contact $contact_name in the client portal", $session_client_id, $contact_id);
-
-    customAction('contact_create', $contact_id);
-
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> created";
-
-    header('Location: contacts.php');
 }
