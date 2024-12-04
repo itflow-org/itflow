@@ -901,6 +901,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
     // POST variables
     $details = mysqli_escape_string($mysqli, $_POST['bulk_details']);
+    $ticket_reply_time_worked = sanitizeInput($_POST['time']);
     $private_note = intval($_POST['bulk_private_note']);
     if ($private_note == 1) {
         $ticket_reply_type = 'Internal';
@@ -930,7 +931,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
             // Update ticket & insert reply
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
-            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
             
             // Logging
             logAction("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
