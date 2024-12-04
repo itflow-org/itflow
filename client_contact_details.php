@@ -55,7 +55,13 @@ if (isset($_GET['contact_id'])) {
     $linked_software = array();
 
     // Related Logins Query 1 to 1 relationship
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
+    $sql_related_logins = mysqli_query($mysqli, "
+        SELECT
+            logins.login_id AS logins_login_id,   -- Alias for logins.login_id
+            logins.*,                              -- All other columns from logins
+            login_tags.*,                          -- All columns from login_tags
+            tags.*                                 -- All columns from tags
+        FROM logins
         LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
         LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
         WHERE login_contact_id = $contact_id
@@ -434,7 +440,7 @@ if (isset($_GET['contact_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_logins)) {
-                                $login_id = intval($row['login_id']);
+                                $login_id = intval($row['logins_login_id']);
                                 $login_name = nullable_htmlentities($row['login_name']);
                                 $login_description = nullable_htmlentities($row['login_description']);
                                 $login_uri = nullable_htmlentities($row['login_uri']);
