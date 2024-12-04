@@ -179,6 +179,13 @@ if ($balance > 0) {
                             </div>
                         </div>
                     <?php } ?>
+                    <?php if ($invoice_status == "Cancelled") { ?>
+                        <div class="ribbon-wrapper">
+                            <div class="ribbon bg-danger">
+                                <?php echo $invoice_status; ?>
+                            </div>
+                        </div>
+                    <?php } ?>
                     <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
                 </div>
             </div>
