@@ -29,11 +29,10 @@
                     </div>
 
                     <?php if (!empty($ticket_reply_time_worked)) { ?>
-                        
                         <div class="col-3">
                             <div class="form-group">
                                 <label>Time worked</label>
-                                <input class="form-control timepicker" id="time_worked" name="time" type="text" value="<?php echo date_format($ticket_reply_time_worked, 'H:i:s') ?>"/>
+                                <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?php echo date_format($ticket_reply_time_worked, 'H:i:s') ?>" required/>
                             </div>
                         </div>
                     <?php } ?>
