@@ -17,40 +17,14 @@
 
                     <div id="div_share_link_form">
 
-                        <label>Views / Expire <strong class="text-danger">*</strong> <small class="text-secondary">Enter 0 for unlimited</small></label>
-                        <div class="form-row">
-                            <div class="col-4">
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    </div>
-                                    <input type="number" class="form-control" name="views" id="share_views" placeholder="Views before link expires" value="1" required>
-                                </div>
-                            </div>
-                            <div class="col-8">
-                                <div class="input-group mb-3">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                    </div>
-                                    <select class="form-control" name="expires" id="share_expires" required>
-                                        <option value="30 MINUTE">30 Minutes</option>
-                                        <option value="24 HOUR">24 Hours (1 Day)</option>
-                                        <option value="72 HOUR">72 Hours (3 Days)</option>
-                                        <option value="100 YEAR">NEVER</option>
-
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <label>Share with</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 </div>
-                                <select class="form-control select2" name="contact_email" id="share_email">
-                                    <option value="">-Select a contact-</option>
+                                <select class="form-control select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email">
+                                    <option value=""></option>
                                     <?php
 
                                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' AND contact_archived_at IS NULL ORDER BY contact_name ASC");
@@ -67,9 +41,34 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        <label>Expiration</label>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-dark active">
+                                        <input type="radio" name="expires" value="1 HOUR" checked>1 hour
+                                    </label>
+                                    <label class="btn btn-outline-dark">
+                                        <input type="radio" name="expires" value="24 HOUR">1 day
+                                    </label>
+                                    <label class="btn btn-outline-dark">
+                                        <input type="radio" name="expires" value="168 HOUR">1 week
+                                    </label>
+                                    <label class="btn btn-outline-dark">
+                                        <input type="radio" name="expires" value="730 HOUR">1 month
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" name="views" id="share_views" value="1">
+                            <label class="form-check-label text-secondary">Delete after viewing</label>
+                        </div>
 
                         <div class="form-group">
-                            <textarea class="form-control" rows="4" name="note" id="share_note" placeholder="Client visible note"></textarea>
+                            <textarea class="form-control" rows="6" name="note" id="share_note" placeholder="Client visible note"></textarea>
                         </div>
 
                         <hr>

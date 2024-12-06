@@ -251,15 +251,17 @@ if (isset($_GET['share_generate_link'])) {
     $item_id = intval($_GET['id']);
     $item_email = sanitizeInput($_GET['contact_email']);
     $item_note = sanitizeInput($_GET['note']);
-    $item_view_limit = intval($_GET['views']);
+    $item_view_limit = intval($_GET['views'] ?? 0);
     $item_expires = sanitizeInput($_GET['expires']);
     $item_expires_friendly = "never"; // default never
-    if ($item_expires == "30 MINUTE") {
-        $item_expires_friendly = "30 minutes";
-    } elseif ($item_expires == "24 HOUR") {
-        $item_expires_friendly = "24 hours";
-    } elseif ($item_expires == "72 HOUR") {
-        $item_expires_friendly = "72 hours (3 days)";
+    if ($item_expires == "1 HOUR") {
+        $item_expires_friendly = "1 hour";
+    } elseif ($item_expires == "24 HOURS") {
+        $item_expires_friendly = "1 day";
+    } elseif ($item_expires == "168 HOUR") {
+        $item_expires_friendly = "1 week";
+    } elseif ($item_expires == "730 HOUR") {
+        $item_expires_friendly = "1 month";
     }
 
     $item_key = randomString(156);
