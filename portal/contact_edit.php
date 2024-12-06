@@ -21,7 +21,12 @@ if (!isset($_GET['id']) && !intval($_GET['id'])) {
 
 $contact_id = intval($_GET['id']);
 
-$sql_contact = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_primary, contact_technical, contact_billing, contact_auth_method FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contacts.contact_archived_at IS NULL LIMIT 1");
+$sql_contact = mysqli_query(
+    $mysqli, "SELECT contact_id, contact_name, contact_email, contact_primary, contact_technical, contact_billing, user_auth_method
+    FROM contacts
+    LEFT JOIN users ON user_id = contact_user_id
+    WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contacts.contact_archived_at IS NULL LIMIT 1"
+);
 
 $row = mysqli_fetch_array($sql_contact);
 
@@ -32,7 +37,7 @@ if ($row) {
     $contact_primary = intval($row['contact_primary']);
     $contact_technical = intval($row['contact_technical']);
     $contact_billing = intval($row['contact_billing']);
-    $contact_auth_method = nullable_htmlentities($row['contact_auth_method']);
+    $contact_auth_method = nullable_htmlentities($row['user_auth_method']);
 } else {
     header("Location: portal_post.php?logout");
     exit();
