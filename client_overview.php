@@ -315,7 +315,7 @@ $sql_asset_retired = mysqli_query(
                                         <i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?>
                                     </td>
                                     <td>
-                                        <div>Views: <?php echo "$item_views / $item_view_limit" ?></div>
+                                        <div>Views: <?php echo $item_views ?></div>
                                         <div class="text-secondary"><?php echo $item_recipient; ?></div>
                                     </td>
                                     <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>

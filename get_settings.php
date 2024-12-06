@@ -211,23 +211,26 @@ $asset_types_array = array (
     'Phone'=>'fa-phone',
     'Mobile Phone'=>'fa-mobile-alt',
     'Tablet'=>'fa-tablet-alt',
-    'Firewall/Router'=>'fa-network-wired',
+    'Firewall/Router'=>'fa-fire-alt',
     'Switch'=>'fa-network-wired',
-    'Access Point'=>'fa-wifi',
+    'Wireless Access Point'=>'fa-wifi',
     'Printer'=>'fa-print',
+    'Display'=>'fa-tv',
     'Camera'=>'fa-video',
-    'TV'=>'fa-tv',
     'Virtual Machine'=>'fa-cloud',
     'Other'=>'fa-tag'
 );
 
 $software_types_array = array (
-    'SaaS',
-    'Application',
-    'Mobile',
+    'Software as a Service (SaaS)',
+    'Productivity Suites',
+    'Web Application',
+    'Desktop Application',
+    'Mobile Application',
+    'Security Software',
     'System Software',
     'Operating System',
-    'Misc'
+    'Other'
 );
 
 $license_types_array = array (

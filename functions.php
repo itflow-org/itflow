@@ -648,8 +648,10 @@ function getAssetIcon($asset_type)
         $device_icon = "print";
     } elseif ($asset_type == 'Camera') {
         $device_icon = "video";
-    } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
+    } elseif ($asset_type == 'Switch') {
         $device_icon = "network-wired";
+    } elseif ($asset_type == 'Firewall/Router') {
+        $device_icon = "fire-alt";
     } elseif ($asset_type == 'Access Point') {
         $device_icon = "wifi";
     } elseif ($asset_type == 'Phone') {
@@ -658,7 +660,7 @@ function getAssetIcon($asset_type)
         $device_icon = "mobile-alt";
     } elseif ($asset_type == 'Tablet') {
         $device_icon = "tablet-alt";
-    } elseif ($asset_type == 'TV') {
+    } elseif ($asset_type == 'Display') {
         $device_icon = "tv";
     } elseif ($asset_type == 'Virtual Machine') {
         $device_icon = "cloud";
