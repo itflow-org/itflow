@@ -51,8 +51,6 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_$archive_query
-        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%')
-        $location_query
     ) AS filtered_assets;
 "));
 
@@ -95,6 +93,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
+    <div class="col-sm-12 mb-3">
+        <div class="btn-group btn-block">
+            <a href="?client_id=<?php echo $client_id; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Workstations<span class="right badge badge-light ml-2"><?php echo $workstation_count; ?></span></a>
+         
+            <a href="?client_id=<?php echo $client_id; ?>&<?php echo $url_query_strings_sort; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server mr-2"></i>Servers<span class="right badge badge-light ml-2"><?php echo $server_count; ?></span></a>
+ 
+            <a href="?client_id=<?php echo $client_id; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud mr-2"></i>Virtual<span class="right badge badge-light ml-2"><?php echo $virtual_count; ?></span></a>
+      
+            <a href="?client_id=<?php echo $client_id; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired mr-2"></i>Network<span class="right badge badge-light ml-2"><?php echo $network_count; ?></span></a>
+      
+            <a href="?client_id=<?php echo $client_id; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag mr-2"></i>Other<span class="right badge badge-light ml-2"><?php echo $other_count; ?></span></a>
+        </div>
+    </div>
+
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
@@ -126,7 +138,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <input type="hidden" name="type" value="<?php echo stripslashes(nullable_htmlentities($_GET['type'])); ?>">
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
-
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
@@ -178,77 +189,50 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-12">
-                        <div class="btn-toolbar float-right">
-                            <div class="btn-group mr-5">
-                                <?php if ($all_count) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge badge-light ml-2"><?php echo $all_count; ?></span></a>
-                                <?php } ?>
-                                <?php
-                                if ($workstation_count > 0) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Workstations<span class="right badge badge-light ml-2"><?php echo $workstation_count; ?></span></a>
-                                    <?php
-                                }
-                                if ($server_count > 0) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server mr-2"></i>Servers<span class="right badge badge-light ml-2"><?php echo $server_count; ?></span></a>
-                                    <?php
-                                }
-                                if ($virtual_count > 0) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud mr-2"></i>Virtual<span class="right badge badge-light ml-2"><?php echo $virtual_count; ?></span></a>
-                                    <?php
-                                }
-                                if ($network_count > 0) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired mr-2"></i>Network<span class="right badge badge-light ml-2"><?php echo $network_count; ?></span></a>
-                                    <?php
-                                }
-                                if ($other_count > 0) { ?>
-                                    <a href="?<?php echo $url_query_strings_sort; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag mr-2"></i>Other<span class="right badge badge-light ml-2"><?php echo $other_count; ?></span></a>
-                                    <?php
-                                } ?>
-                            </div>
-                            <div class="btn-group mr-2">
-                                <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                                    class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                                    <i class="fa fa-fw fa-archive mr-2"></i>Archived
-                                </a>
-                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount"></span>)
+                    <div class="col-md-3">
+                        <div class="btn-group float-right">
+                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                                class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            </a>
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount"></span>)
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
+                                        <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
+                                        <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
+                                        <i class="fas fa-fw fa-info mr-2"></i>Set Status
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
+                                        <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
+                                    </a>
+                                    <?php if ($archived) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-info"
+                                        type="submit" form="bulkActions" name="bulk_unarchive_assets">
+                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                     </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
-                                            <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
-                                            <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
-                                            <i class="fas fa-fw fa-info mr-2"></i>Set Status
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
-                                            <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
-                                        </a>
-                                        <?php if ($archived) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-info"
-                                            type="submit" form="bulkActions" name="bulk_unarchive_assets">
-                                            <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
-                                        </button>
-                                        <?php } else { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger confirm-link"
-                                            type="submit" form="bulkActions" name="bulk_archive_assets">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                        </button>
-                                        <?php } ?>
-                                    </div>
+                                    <?php } else { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger confirm-link"
+                                        type="submit" form="bulkActions" name="bulk_archive_assets">
+                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    </button>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </form>
             <hr>
