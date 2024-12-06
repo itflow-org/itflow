@@ -44,27 +44,27 @@
                         
                         <label>Expiration</label>
                         <div class="form-group">
-                            <div class="input-group">
-                                <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-outline-dark active">
-                                        <input type="radio" name="expires" value="1 HOUR" checked>1 hour
-                                    </label>
-                                    <label class="btn btn-outline-dark">
-                                        <input type="radio" name="expires" value="24 HOUR">1 day
-                                    </label>
-                                    <label class="btn btn-outline-dark">
-                                        <input type="radio" name="expires" value="168 HOUR">1 week
-                                    </label>
-                                    <label class="btn btn-outline-dark">
-                                        <input type="radio" name="expires" value="730 HOUR">1 month
-                                    </label>
-                                </div>
+                            <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-outline-dark active">
+                                    <input type="radio" name="expires" value="1 HOUR" checked>1 hour
+                                </label>
+                                <label class="btn btn-outline-dark">
+                                    <input type="radio" name="expires" value="24 HOUR">1 day
+                                </label>
+                                <label class="btn btn-outline-dark">
+                                    <input type="radio" name="expires" value="168 HOUR">1 week
+                                </label>
+                                <label class="btn btn-outline-dark">
+                                    <input type="radio" name="expires" value="730 HOUR">1 month
+                                </label>
                             </div>
                         </div>
 
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" name="views" id="share_views" value="1">
-                            <label class="form-check-label text-secondary">Delete after viewing</label>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" name="views" id="share_views" value="1">
+                                <label class="custom-control-label" for="share_views">Delete after view</label>
+                            </div>
                         </div>
 
                         <div class="form-group">

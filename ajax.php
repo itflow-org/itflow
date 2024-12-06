@@ -251,7 +251,7 @@ if (isset($_GET['share_generate_link'])) {
     $item_id = intval($_GET['id']);
     $item_email = sanitizeInput($_GET['contact_email']);
     $item_note = sanitizeInput($_GET['note']);
-    $item_view_limit = intval($_GET['views'] ?? 0);
+    $item_view_limit = intval($_GET['views']);
     $item_expires = sanitizeInput($_GET['expires']);
     $item_expires_friendly = "never"; // default never
     if ($item_expires == "1 HOUR") {
