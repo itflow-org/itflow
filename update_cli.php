@@ -9,14 +9,8 @@ if (php_sapi_name() !== 'cli') {
 require_once 'config.php';
 require_once "functions.php";
 
-// Parse command-line options, including the optional --user argument
-$options = getopt('', ['update', 'force_update', 'update_db', 'help', 'user::']);
-
-// Determine the sudo user; default to www-data if none provided
-$sudo_user = isset($options['user']) && !empty($options['user']) ? $options['user'] : 'www-data';
-
-// If "help" is requested, show instructions and exit
-if (isset($options['help'])) {
+// A function to print the help message so we don't duplicate it
+function printHelp() {
     echo "Usage: php scriptname.php [options]\n\n";
     echo "Options:\n";
     echo "  --help          Show this help message.\n";
@@ -25,12 +19,56 @@ if (isset($options['help'])) {
     echo "  --update_db     Update the database structure to the latest version.\n";
     echo "  --user=USERNAME Run the git commands as USERNAME instead of www-data.\n";
     echo "\nIf no options are provided, a standard update (git pull) is performed.\n";
+}
+
+// Define allowed options
+$allowed_options = [
+    'help',
+    'update',
+    'force_update',
+    'update_db',
+    'user'
+];
+
+// Parse command-line options, including the optional --user argument
+$options = getopt('', ['update', 'force_update', 'update_db', 'help', 'user::']);
+
+// Check for invalid options by comparing argv against allowed options
+$argv_copy = $argv;
+array_shift($argv_copy); // Remove script name
+
+foreach ($argv_copy as $arg) {
+    if (substr($arg, 0, 2) === '--') {
+        // Extract the option name (everything after -- and before = if present)
+        $eqPos = strpos($arg, '=');
+        if ($eqPos !== false) {
+            $optName = substr($arg, 2, $eqPos - 2);
+        } else {
+            $optName = substr($arg, 2);
+        }
+
+        // In case there's something like --user=someuser, just consider 'user'
+        $optName = preg_replace('/=.*/', '', $optName);
+
+        if (!in_array($optName, $allowed_options)) {
+            echo "Error: Unrecognized option: $arg\n\n";
+            printHelp();
+            exit(1);
+        }
+    }
+}
+
+// Determine the sudo user; default to www-data if none provided
+$sudo_user = isset($options['user']) && !empty($options['user']) ? $options['user'] : 'www-data';
+
+// If "help" is requested, show instructions and exit
+if (isset($options['help'])) {
+    printHelp();
     exit;
 }
 
 // If no recognized options (other than help or user) are passed, default to --update
 $optionCount = count($options);
-// If only user or help is provided, we want to trigger --update by default
 if ($optionCount === 0 || ($optionCount === 1 && isset($options['user']))) {
     $options['update'] = true;
 }
@@ -53,7 +91,6 @@ if (isset($options['update']) || isset($options['force_update'])) {
 
 // If "update_db" is requested
 if (isset($options['update_db'])) {
-    // Load the latest version constant
     require_once('database_version.php');
 
     // Fetch the current version from the database
