@@ -1,8 +1,11 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
-    <div class="brand-link brand-text text-center">
-        <h4 class="text-light mb-0"><?php echo nullable_htmlentities($session_company_name); ?></h4>
+    <div class="brand-link">
+        <div class="brand-image">
+            <i class="fas fa-building fa-2x"></i>
+        </div>
+        <span class="brand-text h5 ml-2"><?php echo nullable_htmlentities($session_company_name); ?></span>
     </div>
 
     <!-- Sidebar -->
