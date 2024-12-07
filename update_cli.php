@@ -1,6 +1,9 @@
 #!/usr/bin/env php
 <?php
 
+// Change to the directory of this script so that all shell commands run here
+chdir(__DIR__);
+
 // Ensure script is run only from the CLI
 if (php_sapi_name() !== 'cli') {
     die("This script can only be run from the command line.\n");

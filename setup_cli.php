@@ -5,6 +5,9 @@
 //php setup_cli.php --help
 //php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow --base-url=example.com/itflow --locale=en_US --timezone=UTC --currency=USD --company-name="My Company" --country="United States" --user-name="John Doe" --user-email="john@example.com" --user-password="admin123" --non-interactive
 
+// Change to the directory of this script so that all shell commands run here
+chdir(__DIR__);
+
 // Ensure we're running from command line
 if (php_sapi_name() !== 'cli') {
     die("This setup script must be run from the command line.\n");
