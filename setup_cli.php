@@ -3,7 +3,7 @@
 
 // Example
 //php setup_cli.php --help
-//php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow --base-url=example.com/itflow --locale=en_US --timezone=UTC --currency=USD --company-name="My Company" --country="US" --user-name="John Doe" --user-email="john@example.com" --user-password="admin123" --non-interactive
+//php setup_cli.php --host=localhost --username=itflow --password=secret --database=itflow --base-url=example.com/itflow --locale=en_US --timezone=UTC --currency=USD --company-name="My Company" --country="United States" --user-name="John Doe" --user-email="john@example.com" --user-password="admin123" --non-interactive
 
 // Ensure we're running from command line
 if (php_sapi_name() !== 'cli') {
@@ -168,13 +168,13 @@ $base_url = rtrim($base_url, '/');
 // Locale, Timezone, Currency
 echo "\n=== Localization ===\n";
 $locale = getOptionOrPrompt('locale', "Enter the locale (e.g. en_US)", true);
-$timezone = getOptionOrPrompt('timezone', "Enter the timezone (e.g. UTC)", true);
+$timezone = getOptionOrPrompt('timezone', "Enter the timezone (e.g. UTC or America/New_York)", true);
 $currency_code = getOptionOrPrompt('currency', "Enter the currency code (e.g. USD)", true);
 
 // Company Details
 echo "\n=== Company Details ===\n";
 $company_name = getOptionOrPrompt('company-name', "Company Name", true);
-$country = getOptionOrPrompt('country', "Country", true);
+$country = getOptionOrPrompt('country', "Country (e.g. United States)", true);
 $address = getOptionOrPrompt('address', "Address (optional)", false);
 $city = getOptionOrPrompt('city', "City (optional)", false);
 $state = getOptionOrPrompt('state', "State/Province (optional)", false);
