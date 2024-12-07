@@ -2222,6 +2222,28 @@ CREATE TABLE `vendor_logins` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_templates`
+--
+
+DROP TABLE IF EXISTS `vendor_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_templates` (
+  `vendor_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_template_name` varchar(200) NOT NULL,
+  `vendor_template_description` varchar(200) DEFAULT NULL,
+  `vendor_template_phone` varchar(200) DEFAULT NULL,
+  `vendor_template_email` varchar(200) DEFAULT NULL,
+  `vendor_template_website` varchar(200) DEFAULT NULL,
+  `vendor_template_hours` varchar(200) DEFAULT NULL,
+  `vendor_template_created_at` datetime DEFAULT current_timestamp(),
+  `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_template_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`vendor_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendors`
 --
 
@@ -2262,4 +2284,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-24 15:03:10
+-- Dump completed on 2024-12-07 15:37:47

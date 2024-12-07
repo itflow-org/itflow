@@ -2303,10 +2303,28 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.8') {
-    //     // Insert queries here required to update to DB version 1.6.9
+     if (CURRENT_DATABASE_VERSION == '1.6.8') {
+        
+        // Create New Vendor Templates Table this eventual be used to seperate templates out of the vendors table
+        mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
+            `vendor_template_name` varchar(200) NOT NULL,
+            `vendor_template_description` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_phone` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_email` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_website` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_hours` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            `vendor_template_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+            `vendor_template_archived_at` datetime NULL DEFAULT NULL
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.6.9') {
+    //     // Insert queries here required to update to DB version 1.7.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.0'");
     // }
 
 } else {
