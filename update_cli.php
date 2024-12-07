@@ -11,7 +11,7 @@ require_once "functions.php";
 
 // A function to print the help message so we don't duplicate it
 function printHelp() {
-    echo "Usage: php scriptname.php [options]\n\n";
+    echo "Usage: php update_cli.php [options]\n\n";
     echo "Options:\n";
     echo "  --help          Show this help message.\n";
     echo "  --update        Perform a git pull to update the application.\n";
