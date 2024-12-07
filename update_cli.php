@@ -9,8 +9,11 @@ if (php_sapi_name() !== 'cli') {
 require_once 'config.php';
 require_once "functions.php";
 
-// Parse command-line options
-$options = getopt('', ['update', 'force_update', 'update_db', 'help']);
+// Parse command-line options, including the optional --user argument
+$options = getopt('', ['update', 'force_update', 'update_db', 'help', 'user::']);
+
+// Determine the sudo user; default to www-data if none provided
+$sudo_user = isset($options['user']) && !empty($options['user']) ? $options['user'] : 'www-data';
 
 // If "help" is requested, show instructions and exit
 if (isset($options['help'])) {
@@ -20,25 +23,28 @@ if (isset($options['help'])) {
     echo "  --update        Perform a git pull to update the application.\n";
     echo "  --force_update  Perform a git fetch and hard reset to origin/master.\n";
     echo "  --update_db     Update the database structure to the latest version.\n";
+    echo "  --user=USERNAME Run the git commands as USERNAME instead of www-data.\n";
     echo "\nIf no options are provided, a standard update (git pull) is performed.\n";
     exit;
 }
 
-// If no recognized options (other than help) are passed, default to --update
-if (count($options) === 0) {
+// If no recognized options (other than help or user) are passed, default to --update
+$optionCount = count($options);
+// If only user or help is provided, we want to trigger --update by default
+if ($optionCount === 0 || ($optionCount === 1 && isset($options['user']))) {
     $options['update'] = true;
 }
 
-// If "update" is requested
+// If "update" or "force_update" is requested
 if (isset($options['update']) || isset($options['force_update'])) {
 
     // If "force_update" is requested, do a hard reset, otherwise just pull
     if (isset($options['force_update'])) {
-        exec("sudo -u www-data git fetch --all 2>&1", $output, $return_var);
-        exec("sudo -u www-data git reset --hard origin/master 2>&1", $output2, $return_var2);
+        exec("sudo -u $sudo_user git fetch --all 2>&1", $output, $return_var);
+        exec("sudo -u $sudo_user git reset --hard origin/master 2>&1", $output2, $return_var2);
         echo implode("\n", $output) . "\n" . implode("\n", $output2) . "\n";
     } else {
-        exec("sudo -u www-data git pull 2>&1", $output, $return_var);
+        exec("sudo -u $sudo_user git pull 2>&1", $output, $return_var);
         echo implode("\n", $output) . "\n";
     }
 
