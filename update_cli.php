@@ -30,7 +30,7 @@ if (count($options) === 0) {
 }
 
 // If "update" is requested
-if (isset($options['update'])) {
+if (isset($options['update']) || isset($options['force_update'])) {
 
     // If "force_update" is requested, do a hard reset, otherwise just pull
     if (isset($options['force_update'])) {
