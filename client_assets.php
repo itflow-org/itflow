@@ -183,9 +183,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option
                                     <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { echo 'selected'; } ?>>Warranty_Expire
                                 </option>
-                                <option
-                                    <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { echo 'selected'; } ?>>Physical_Location
-                                </option>
                             </select>
                         </div>
                     </div>
@@ -321,13 +318,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { ?>
-                                <th>
-                                    <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_physical_location&order=<?php echo $disp; ?>">
-                                        Physical Location <?php if ($sort == 'asset_physical_location') { echo $order_icon; } ?>
-                                    </a>
-                                </th>
-                            <?php } ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">
                                     Status <?php if ($sort == 'asset_status') { echo $order_icon; } ?>
@@ -397,9 +387,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_photo = nullable_htmlentities($row['asset_photo']);
                             $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
                             if ($asset_physical_location) {
-                                $asset_physical_location_display = $asset_physical_location;
+                                $asset_physical_location_display = "<div class='text-secondary'>$asset_physical_location</div>";
                             } else {
-                                $asset_physical_location_display = "-";
+                                $asset_physical_location_display = "";
                             }
                             $asset_notes = nullable_htmlentities($row['asset_notes']);
                             $asset_created_at = nullable_htmlentities($row['asset_created_at']);
@@ -489,10 +479,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
                                     <td><?php echo $contact_name_display; ?></td>
                                 <?php } ?>
-                                <td><?php echo $location_name_display; ?></td>
-                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Physical_Location', $_GET['show_column'])) { ?>
-                                    <td><?php echo $asset_physical_location_display; ?></td>
-                                <?php } ?>
+                                <td>
+                                    <?php echo $location_name_display; ?>
+                                    <?php echo $asset_physical_location_display; ?>
+                                </td>
                                 <td><?php echo $asset_status; ?></td>
                                 <td class="text-center">
                                     <div class="btn-group">
