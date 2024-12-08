@@ -303,10 +303,7 @@ while ($folder_id > 0) {
                 <hr>
 
                 <?php
-                if ($num_of_files == 0) {
-                    echo "<div style='text-align: center;'><h3 class='text-secondary'>No Records Here</h3></div>";
-                }
-
+                
                 if($view == 1){
 
                 ?>
@@ -314,7 +311,7 @@ while ($folder_id > 0) {
                 <div class="row">
 
                     <?php
-
+                    $files = [];
                     while ($row = mysqli_fetch_array($sql)) {
                         $file_id = intval($row['file_id']);
                         $file_name = nullable_htmlentities($row['file_name']);
@@ -324,25 +321,67 @@ while ($folder_id > 0) {
                         $file_size_KB = number_format($file_size / 1024);
                         $file_mime_type = nullable_htmlentities($row['file_mime_type']);
                         $file_uploaded_by = nullable_htmlentities($row['user_name']);
+                        $file_has_thumbnail = intval($row['file_has_thumbnail']);
+                        $file_has_preview = intval($row['file_has_preview']);
+                        $file_thumbnail_source = $file_reference_name;
+                        if ($file_has_thumbnail == 1) {
+                            $file_thumbnail_source = "thumbnail_$file_reference_name";
+                        }
+                        $file_preview_source = $file_reference_name;
+                        if ($file_has_preview == 1) {
+                            $file_preview_source = "preview_$file_reference_name";
+                        }
+
+                        // Store file data into an array for JS
+                        $files[] = [
+                            'id' => $file_id,
+                            'name' => $file_name,
+                            'preview' => "uploads/clients/$client_id/$file_preview_source"
+                        ];
 
                         ?>
 
-                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-                            <div class="card">
-                                <a href="#" data-toggle="modal" data-target="#viewFileModal<?php echo $file_id; ?>">
-                                    <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
-                                </a>
-                                <div class="card-footer bg-dark text-white p-1" style="text-align: center;">
-                                    <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>" class="text-white float-left ml-1"><i class="fa fa-cloud-download-alt"></i></a>
-                                    <a href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)" class="text-white float-left ml-1"><i class="fa fa-share"></i></a>
+                        <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
+                        
+                            <a href="#" onclick="openModal(<?php echo count($files)-1; ?>)"><!-- passing the index -->
+                                <img class="img-thumbnail" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
+                            </a>
+                            
+                            <div>
 
-                                    <small><?php echo $file_name; ?></small>
-
-                                    <?php if ($session_user_role == 3) { ?>
-                                        <a href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)" class="text-white float-right mr-1"><i class="fa fa-times"></i></a>
-                                    <?php } ?>
-
+                                <div class="dropdown float-right">
+                                    <button class="btn btn-link btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                            <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
+                                            <i class="fas fa-fw fa-share mr-2"></i>Share
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#renameFileModal<?php echo $file_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Rename
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#moveFileModal<?php echo $file_id; ?>">
+                                            <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkAssetToFileModal<?php echo $file_id; ?>">
+                                            <i class="fas fa-fw fa-desktop mr-2"></i>Asset
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?php echo $file_id; ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
+                                        <?php if ($session_user_role == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold" href="#" data-toggle="modal" data-target="#deleteFileModal" onclick="populateFileDeleteModal(<?php echo "$file_id , '$file_name'" ?>)">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
+                                    </div>
                                 </div>
+                                <small class="text-secondary"><?php echo $file_name; ?></small>
                             </div>
                         </div>
 
@@ -351,6 +390,11 @@ while ($folder_id > 0) {
 
                     }
                     ?>
+                    <script>
+                        // Pass PHP array to JavaScript
+                        var files = <?php echo json_encode($files); ?>;
+                        var currentIndex = 0; // Keep track of which file is displayed
+                    </script>
                 </div>
 
                 <?php } else { ?>
@@ -428,7 +472,9 @@ while ($folder_id > 0) {
                                 $file_size = intval($row['file_size']);
                                 $file_size_KB = number_format($file_size / 1024);
                                 $file_mime_type = nullable_htmlentities($row['file_mime_type']);
-                                $file_uploaded_by = nullable_htmlentities($row['user_name']);
+                                $file_size = intval($row['file_size']);
+                                $file_has_thumbnail = intval($row['file_has_thumbnail']);
+                                $file_has_preview = intval($row['file_has_preview']);
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
                                 $file_folder_id = intval($row['file_folder_id']);
                                 
@@ -557,6 +603,29 @@ while ($folder_id > 0) {
         </div>
     </div>
 </div>
+
+<script>
+function openModal(index) {
+    currentIndex = index;
+    updateModalContent();
+    $('#viewFileModal').modal('show');
+}
+
+function updateModalContent() {
+    document.getElementById('modalTitle').innerText = files[currentIndex].name;
+    document.getElementById('modalImage').src = files[currentIndex].preview;
+}
+
+function nextFile() {
+    currentIndex = (currentIndex + 1) % files.length; // loop around
+    updateModalContent();
+}
+
+function prevFile() {
+    currentIndex = (currentIndex - 1 + files.length) % files.length; // loop around
+    updateModalContent();
+}
+</script>
 
 <script src="js/bulk_actions.js"></script>
 

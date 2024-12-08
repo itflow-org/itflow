@@ -780,6 +780,8 @@ CREATE TABLE `files` (
   `file_size` bigint(20) unsigned NOT NULL DEFAULT 0,
   `file_hash` varchar(200) DEFAULT NULL,
   `file_mime_type` varchar(100) DEFAULT NULL,
+  `file_has_thumbnail` tinyint(1) NOT NULL DEFAULT 0,
+  `file_has_preview` tinyint(1) NOT NULL DEFAULT 0,
   `file_important` tinyint(1) NOT NULL DEFAULT 0,
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -2284,4 +2286,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-07 15:37:47
+-- Dump completed on 2024-12-08 15:20:52

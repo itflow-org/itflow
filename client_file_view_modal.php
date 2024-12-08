@@ -1,17 +1,25 @@
-<div class="modal" id="viewFileModal<?php echo $file_id; ?>" tabindex="-1">
-    <div class="modal-dialog modal-xl ">
-        <div class="modal-content bg-dark">
+<div class="modal" id="viewFileModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark text-white">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-image mr-2"></i><?php echo $file_name; ?></h5>
+                <h6 class="modal-title" id="modalTitle"></h6>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
+            <div class="position-relative text-center">
+                <!-- Left arrow -->
+                <button type="button" class="btn btn-dark position-absolute" style="left:10px; top:50%; transform:translateY(-50%);" onclick="prevFile()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
 
-            <div style="text-align: center;">
-                <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>">
+                <img id="modalImage" class="img-fluid my-3" src="" alt="">
+
+                <!-- Right arrow -->
+                <button type="button" class="btn btn-dark position-absolute" style="right:10px; top:50%; transform:translateY(-50%);" onclick="nextFile()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-
         </div>
     </div>
 </div>

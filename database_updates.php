@@ -2303,7 +2303,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
     }
 
-     if (CURRENT_DATABASE_VERSION == '1.6.8') {
+    if (CURRENT_DATABASE_VERSION == '1.6.8') {
         
         // Create New Vendor Templates Table this eventual be used to seperate templates out of the vendors table
         mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
@@ -2321,10 +2321,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.9') {
-    //     // Insert queries here required to update to DB version 1.7.0
+    if (CURRENT_DATABASE_VERSION == '1.6.9') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_thumbnail` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_mime_type`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_preview` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_has_thumbnail`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.0') {
+    //     // Insert queries here required to update to DB version 1.7.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
     // }
 
 } else {
