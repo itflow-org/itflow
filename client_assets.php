@@ -17,9 +17,9 @@ if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'virtual') {
     $type_query = "asset_type = 'Virtual Machine'";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'network') {
-    $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
+    $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Wireless Access Point'";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'other') {
-    $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
+    $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'wireless access point'";
 } else {
     $type_query = "asset_type LIKE '%'";
     $_GET['type'] = '';
@@ -42,8 +42,8 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         SUM(CASE WHEN asset_type IN ('laptop', 'desktop') THEN 1 ELSE 0 END) AS workstation_count,
         SUM(CASE WHEN asset_type = 'server' THEN 1 ELSE 0 END) AS server_count,
         SUM(CASE WHEN asset_type = 'virtual machine' THEN 1 ELSE 0 END) AS virtual_count,
-        SUM(CASE WHEN asset_type IN ('Firewall/Router', 'switch', 'access point') THEN 1 ELSE 0 END) AS network_count,
-        SUM(CASE WHEN asset_type NOT IN ('laptop', 'desktop', 'server', 'virtual machine', 'Firewall/Router', 'switch', 'access point') THEN 1 ELSE 0 END) AS other_count
+        SUM(CASE WHEN asset_type IN ('Firewall/Router', 'switch', 'wireless access point') THEN 1 ELSE 0 END) AS network_count,
+        SUM(CASE WHEN asset_type NOT IN ('laptop', 'desktop', 'server', 'virtual machine', 'Firewall/Router', 'switch', 'wireless access point') THEN 1 ELSE 0 END) AS other_count
     FROM (
         SELECT assets.* FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 

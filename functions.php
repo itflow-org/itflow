@@ -652,7 +652,7 @@ function getAssetIcon($asset_type)
         $device_icon = "network-wired";
     } elseif ($asset_type == 'Firewall/Router') {
         $device_icon = "fire-alt";
-    } elseif ($asset_type == 'Access Point') {
+    } elseif ($asset_type == 'Wireless Access Point') {
         $device_icon = "wifi";
     } elseif ($asset_type == 'Phone') {
         $device_icon = "phone";
