@@ -2329,10 +2329,33 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.0') {
-    //     // Insert queries here required to update to DB version 1.7.1
+    if (CURRENT_DATABASE_VERSION == '1.7.0') {
+        
+        mysqli_query($mysqli, "DROP TABLE `vendor_templates`");
+
+        mysqli_query($mysqli, "CREATE TABLE `vendor_contacts` (
+            `vendor_contact_id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `vendor_contact_name` VARCHAR(200) NOT NULL,
+            `vendor_contact_title` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_department` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_email` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_phone` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_extension` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_mobile` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_notes` TEXT DEFAULT NULL,
+            `vendor_contact_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `vendor_contact_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            `vendor_contact_archived_at` DATETIME DEFAULT NULL,
+            `vendor_contact_vendor_id` INT(11) NOT NULL DEFAULT 0
+        )");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.1') {
+    //     // Insert queries here required to update to DB version 1.7.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
     // }
 
 } else {

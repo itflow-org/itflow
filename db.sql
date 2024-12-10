@@ -2182,6 +2182,31 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_contacts`
+--
+
+DROP TABLE IF EXISTS `vendor_contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_contacts` (
+  `vendor_contact_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_contact_name` varchar(200) NOT NULL,
+  `vendor_contact_title` varchar(200) DEFAULT NULL,
+  `vendor_contact_department` varchar(200) DEFAULT NULL,
+  `vendor_contact_email` varchar(200) DEFAULT NULL,
+  `vendor_contact_phone` varchar(200) DEFAULT NULL,
+  `vendor_contact_extension` varchar(200) DEFAULT NULL,
+  `vendor_contact_mobile` varchar(200) DEFAULT NULL,
+  `vendor_contact_notes` text DEFAULT NULL,
+  `vendor_contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `vendor_contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_contact_archived_at` datetime DEFAULT NULL,
+  `vendor_contact_vendor_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`vendor_contact_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendor_documents`
 --
 
@@ -2221,28 +2246,6 @@ CREATE TABLE `vendor_logins` (
   `login_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`,`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `vendor_templates`
---
-
-DROP TABLE IF EXISTS `vendor_templates`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vendor_templates` (
-  `vendor_template_id` int(11) NOT NULL AUTO_INCREMENT,
-  `vendor_template_name` varchar(200) NOT NULL,
-  `vendor_template_description` varchar(200) DEFAULT NULL,
-  `vendor_template_phone` varchar(200) DEFAULT NULL,
-  `vendor_template_email` varchar(200) DEFAULT NULL,
-  `vendor_template_website` varchar(200) DEFAULT NULL,
-  `vendor_template_hours` varchar(200) DEFAULT NULL,
-  `vendor_template_created_at` datetime DEFAULT current_timestamp(),
-  `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `vendor_template_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`vendor_template_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2286,4 +2289,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-08 15:20:52
+-- Dump completed on 2024-12-10 17:46:44
