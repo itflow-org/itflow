@@ -110,7 +110,7 @@ if (isset($_GET['ai_ticket_summary'])) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $config_ai_api_key,
+        'Authorization: Bearer ' . $config_ai_api_key
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
 

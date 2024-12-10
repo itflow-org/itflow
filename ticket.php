@@ -379,9 +379,9 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card-tools d-print-none">
                     <div class="btn-toolbar">
 
-                        <?php if($config_ai_enable == 1) { ?>
+                        <?php if ($config_ai_enable == 1) { ?>
                         <button class="btn btn-info btn-sm ml-3" data-toggle="modal" data-target="#summaryModal">
-                            <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
+                            <i class="fas fa-fw fa-lightbulb mr-2"></i>Summary
                         </button>
                         <?php } ?>
 
@@ -1217,4 +1217,19 @@ require_once "footer.php";
 
 <script src="js/pretty_content.js"></script>
 
-<script src="js/ai_ticket_summary.js"></script>
+<script>
+$('#summaryModal').on('shown.bs.modal', function (e) {
+    // Perform AJAX request to get the summary
+    $.ajax({
+        url: 'post.php?ai_ticket_summary',
+        method: 'POST',
+        data: { ticket_id: <?php echo $ticket_id; ?> },
+        success: function(response) {
+          $('#summaryContent').html(response);
+        },
+        error: function() {
+          $('#summaryContent').html('Error generating summary.');
+        }
+    });
+});
+</script>
