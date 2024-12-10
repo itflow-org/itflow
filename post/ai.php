@@ -92,7 +92,7 @@ if (isset($_GET['ai_ticket_summary'])) {
     }
 
     // Craft a prompt for ChatGPT
-    $prompt = "Summarize the following ticket and its responses in a concise and clear way. The summary should be short, highlight the main issue, the actions taken, and any resolution steps:\n\nTicket Subject: $ticket_subject\nTicket Details: $ticket_details\nReplies:$all_replies_text\n\nShort Summary:";
+    $prompt = "Based on the language detection (case not detected use default English), dont show \"Language Detected\", and Summarize using this language, the following ticket and its responses in a concise and clear way. The summary should be short, highlight the main issue, the actions taken, and any resolution steps:\n\nTicket Subject: $ticket_subject\nTicket Details: $ticket_details\nReplies:$all_replies_text\n\nShort Summary:";
 
     // Prepare the POST data
     $post_data = [
