@@ -383,7 +383,7 @@ if (isset($_GET['ticket_id'])) {
                         <button class="btn btn-info btn-sm ml-3" data-toggle="modal" data-target="#summaryModal">
                             <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
                         </button>
-                        <? } ?>
+                        <?php } ?>
 
                         <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
                             <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
