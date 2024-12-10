@@ -9,10 +9,21 @@ if (php_sapi_name() !== 'cli') {
     die("This script can only be run from the command line.\n");
 }
 
+// Ensure the script is run by the owner of the file
+$fileOwner = fileowner(__FILE__);
+$currentUser = posix_geteuid(); // Get the current effective user ID
+
+if ($currentUser !== $fileOwner) {
+    $ownerInfo = posix_getpwuid($fileOwner);
+    $ownerName = $ownerInfo['name'] ?? 'unknown';
+    fwrite(STDERR, "Error: This script must be run by the file owner ($ownerName) to proceed.\n");
+    exit(1);
+}
+
 require_once 'config.php';
 require_once "functions.php";
 
-// A function to print the help message so we don't duplicate it
+// A function to print the help message so that we don't duplicate it
 function printHelp() {
     echo "Usage: php update_cli.php [options]\n\n";
     echo "Options:\n";
@@ -20,21 +31,19 @@ function printHelp() {
     echo "  --update        Perform a git pull to update the application.\n";
     echo "  --force_update  Perform a git fetch and hard reset to origin/master.\n";
     echo "  --update_db     Update the database structure to the latest version.\n";
-    echo "  --user=USERNAME Run the git commands as USERNAME instead of www-data.\n";
     echo "\nIf no options are provided, a standard update (git pull) is performed.\n";
 }
 
-// Define allowed options
+// Define allowed options (removed 'user')
 $allowed_options = [
     'help',
     'update',
     'force_update',
-    'update_db',
-    'user'
+    'update_db'
 ];
 
-// Parse command-line options, including the optional --user argument
-$options = getopt('', ['update', 'force_update', 'update_db', 'help', 'user::']);
+// Parse command-line options
+$options = getopt('', ['update', 'force_update', 'update_db', 'help']);
 
 // Check for invalid options by comparing argv against allowed options
 $argv_copy = $argv;
@@ -50,9 +59,7 @@ foreach ($argv_copy as $arg) {
             $optName = substr($arg, 2);
         }
 
-        // In case there's something like --user=someuser, just consider 'user'
-        $optName = preg_replace('/=.*/', '', $optName);
-
+        // Check if option name is allowed
         if (!in_array($optName, $allowed_options)) {
             echo "Error: Unrecognized option: $arg\n\n";
             printHelp();
@@ -61,31 +68,27 @@ foreach ($argv_copy as $arg) {
     }
 }
 
-// Determine the sudo user; default to www-data if none provided
-$sudo_user = isset($options['user']) && !empty($options['user']) ? $options['user'] : 'www-data';
-
 // If "help" is requested, show instructions and exit
 if (isset($options['help'])) {
     printHelp();
     exit;
 }
 
-// If no recognized options (other than help or user) are passed, default to --update
-$optionCount = count($options);
-if ($optionCount === 0 || ($optionCount === 1 && isset($options['user']))) {
+// If no recognized options are passed, default to --update
+if (count($options) === 0) {
     $options['update'] = true;
 }
 
 // If "update" or "force_update" is requested
 if (isset($options['update']) || isset($options['force_update'])) {
-
-    // If "force_update" is requested, do a hard reset, otherwise just pull
     if (isset($options['force_update'])) {
-        exec("sudo -u $sudo_user git fetch --all 2>&1", $output, $return_var);
-        exec("sudo -u $sudo_user git reset --hard origin/master 2>&1", $output2, $return_var2);
+        // Perform a hard reset
+        exec("git fetch --all 2>&1", $output, $return_var);
+        exec("git reset --hard origin/master 2>&1", $output2, $return_var2);
         echo implode("\n", $output) . "\n" . implode("\n", $output2) . "\n";
     } else {
-        exec("sudo -u $sudo_user git pull 2>&1", $output, $return_var);
+        // Perform a standard update (git pull)
+        exec("git pull 2>&1", $output, $return_var);
         echo implode("\n", $output) . "\n";
     }
 
