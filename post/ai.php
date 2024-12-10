@@ -127,3 +127,53 @@ if (isset($_GET['ai_ticket_summary'])) {
     // Print the summary
     echo nl2br(htmlentities($summary));
 }
+
+if (isset($_GET['ai_create_document_template'])) {
+    // get_ai_document_template.php
+
+    header('Content-Type: text/html; charset=UTF-8');
+
+    $prompt = $_POST['prompt'] ?? '';
+
+    // Basic validation
+    if(empty($prompt)){
+        echo "No prompt provided.";
+        exit;
+    }
+
+    // Prepare prompt
+    $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, use realistic placeholders and professional language.";
+    $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
+
+    $post_data = [
+        "model" => "$config_ai_model",
+        "messages" => [
+            ["role" => "system", "content" => $system_message],
+            ["role" => "user", "content" => $user_message]
+        ],
+        "temperature" => 0.7
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $config_ai_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $config_ai_api_key
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
+
+    $response = curl_exec($ch);
+    if (curl_errno($ch)) {
+        echo "Error: " . curl_error($ch);
+        exit;
+    }
+    curl_close($ch);
+
+    $response_data = json_decode($response, true);
+    $template = $response_data['choices'][0]['message']['content'] ?? "<p>No content returned from AI.</p>";
+
+    // Print the generated HTML template directly
+    echo $template;
+}
