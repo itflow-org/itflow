@@ -379,6 +379,12 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card-tools d-print-none">
                     <div class="btn-toolbar">
 
+                        <?php if($config_ai_enable == 1) { ?>
+                        <button class="btn btn-info btn-sm ml-3" data-toggle="modal" data-target="#summaryModal">
+                            <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
+                        </button>
+                        <? } ?>
+
                         <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
                             <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                                 <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
@@ -1180,6 +1186,25 @@ require_once "footer.php";
 
 ?>
 
+<!-- Summary Modal -->
+<div class="modal fade" id="summaryModal" tabindex="-1" role="dialog" aria-labelledby="summaryModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body bg-white">
+        <div id="summaryContent" class="text-center">
+          <i class="fas fa-spinner fa-spin"></i> Generating summary...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="js/show_modals.js"></script>
 
 <?php if (empty($ticket_closed_at)) { ?>
@@ -1191,3 +1216,5 @@ require_once "footer.php";
 <?php } ?>
 
 <script src="js/pretty_content.js"></script>
+
+<script src="js/ai_ticket_summary.js"></script>

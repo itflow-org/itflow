@@ -57,3 +57,73 @@ if (isset($_GET['ai_reword'])) {
     }
 
 }
+
+if (isset($_GET['ai_ticket_summary'])) {
+
+    // Retrieve the ticket_id from POST
+    $ticket_id = intval($_POST['ticket_id']);
+
+    // Query the database for ticket details
+    // (You can reuse code from ticket.php or write a simplified query here)
+    $sql = mysqli_query($mysqli, "
+        SELECT ticket_subject, ticket_details
+        FROM tickets
+        WHERE ticket_id = $ticket_id
+        LIMIT 1
+    ");
+    $row = mysqli_fetch_assoc($sql);
+    $ticket_subject = $row['ticket_subject'];
+    $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
+
+    // Get ticket replies
+    $sql_replies = mysqli_query($mysqli, "
+        SELECT ticket_reply, ticket_reply_type
+        FROM ticket_replies
+        WHERE ticket_reply_ticket_id = $ticket_id
+        AND ticket_reply_archived_at IS NULL
+        ORDER BY ticket_reply_id ASC
+    ");
+
+    $all_replies_text = "";
+    while ($reply = mysqli_fetch_assoc($sql_replies)) {
+        $reply_type = $reply['ticket_reply_type'];
+        $reply_text = strip_tags($reply['ticket_reply']);
+        $all_replies_text .= "\n[$reply_type]: $reply_text";
+    }
+
+    // Craft a prompt for ChatGPT
+    $prompt = "Summarize the following ticket and its responses in a concise and clear way. The summary should be short, highlight the main issue, the actions taken, and any resolution steps:\n\nTicket Subject: $ticket_subject\nTicket Details: $ticket_details\nReplies:$all_replies_text\n\nShort Summary:";
+
+    // Prepare the POST data
+    $post_data = [
+        "model" => "$config_ai_model",
+        "messages" => [
+            ["role" => "system", "content" => "You are a helpful assistant."],
+            ["role" => "user", "content" => $prompt]
+        ],
+        "temperature" => 0.7
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $config_ai_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $config_ai_api_key,
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
+
+    $response = curl_exec($ch);
+    if (curl_errno($ch)) {
+        echo "Error: " . curl_error($ch);
+        exit;
+    }
+    curl_close($ch);
+
+    $response_data = json_decode($response, true);
+    $summary = $response_data['choices'][0]['message']['content'] ?? "No summary available.";
+
+    // Print the summary
+    echo nl2br(htmlentities($summary));
+}
