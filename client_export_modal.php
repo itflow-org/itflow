@@ -9,10 +9,6 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <div class="modal-body bg-white">
-
-                    <?php require_once "inc_export_warning.php";
- ?>
-
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="export_clients_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
