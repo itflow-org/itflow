@@ -93,6 +93,8 @@ if (isset($options['update']) || isset($options['force_update'])) {
     }
 
     echo "Update successful\n";
+} else {
+    echo "\n";
 }
 
 // If "update_db" is requested
