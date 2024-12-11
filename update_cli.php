@@ -16,7 +16,7 @@ $currentUser = posix_geteuid(); // Get the current effective user ID
 if ($currentUser !== $fileOwner) {
     $ownerInfo = posix_getpwuid($fileOwner);
     $ownerName = $ownerInfo['name'] ?? 'unknown';
-    fwrite(STDERR, "Error: This script must be run by the file owner ($ownerName) to proceed.\n");
+    fwrite(STDERR, "Error: This script must be run by the file owner ($ownerName) to proceed.\nYou could try sudo -u $ownerName php update_cli.php\n");
     exit(1);
 }
 
@@ -99,6 +99,8 @@ if (isset($options['update']) || isset($options['force_update'])) {
 if (isset($options['update_db'])) {
     require_once('database_version.php');
 
+    $latest_db_version = LATEST_DATABASE_VERSION;
+
     // Fetch the current version from the database
     $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings LIMIT 1");
     $row = mysqli_fetch_assoc($result);
@@ -113,10 +115,10 @@ if (isset($options['update_db'])) {
     $row = mysqli_fetch_assoc($result);
     $new_db_version = $row['config_current_database_version'];
 
-    if ($old_db_version !== $new_db_version) {
+    if ($old_db_version !== $latest_db_version) {
         echo "Database updated from version $old_db_version to $new_db_version.\n";
-        echo "The latest database version is $new_db_version.\n";
+        echo "The latest database version is $latest_db_version.\n";
     } else {
-        echo "Database is already at the latest version ($new_db_version). No updates were applied.\n";
+        echo "Database is already at the latest version ($latest_db_version). No updates were applied.\n";
     }
 }
