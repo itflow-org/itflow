@@ -2352,10 +2352,26 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.1') {
-    //     // Insert queries here required to update to DB version 1.7.2
+    if (CURRENT_DATABASE_VERSION == '1.7.1') {
+        
+        mysqli_query($mysqli, "DROP TABLE `error_logs`");
+
+        mysqli_query($mysqli, "CREATE TABLE `app_logs` (
+            `app_log_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `app_log_category` VARCHAR(200) NULL DEFAULT NULL,
+            `app_log_type` ENUM('info', 'warning', 'error', 'debug') NOT NULL DEFAULT 'info',
+            `app_log_details` VARCHAR(1000) NULL DEFAULT NULL,
+            `app_log_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`app_log_id`)
+        )");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.2') {
+    //     // Insert queries here required to update to DB version 1.7.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.3'");
     // }
 
 } else {

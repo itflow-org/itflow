@@ -121,6 +121,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="admin_app_log.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_app_log.php' ? 'active' : ''); ?>">
+                        <i class="nav-icon fas fa-history"></i>
+                        <p>App Logs</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="admin_backup.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_backup.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-cloud-upload-alt"></i>
                         <p>Backup</p>

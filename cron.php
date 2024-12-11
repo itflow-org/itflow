@@ -98,7 +98,7 @@ if ( $argv[1] !== $config_cron_key ) {
  */
 
 //Logging
-logAction("Cron", "Start", "Cron Started");
+logApp("Cron", "info", "Cron Started");
 
 /*
  * ###############################################################################################################
@@ -252,7 +252,7 @@ if ($tickets_pending_assignment > 0) {
     appNotify("Pending Tickets", "There are $tickets_pending_assignment new tickets pending assignment", "tickets.php?status=New");
 
     // Logging
-    logAction("Cron", "Task", "Cron created notifications for new tickets that are pending assignment");
+    logApp("Cron", "info", "Cron created notifications for new tickets that are pending assignment");
 }
 
 // Recurring (Scheduled) tickets
@@ -502,7 +502,8 @@ if ($config_send_invoice_reminders == 1) {
 
                 appNotify("Mail", "Failed to send email to $contact_email");
                 
-                logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
+                // Logging
+                logApp("Mail", "error", "Failed to send email to $contact_email regarding $subject. $mail");
             }
 
         }
@@ -626,7 +627,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
             appNotify("Mail", "Failed to send email to $contact_email");
 
-            logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
+            // Logging
+            logApp("Mail", "error", "Failed to send email to $contact_email regarding $subject. $mail");
 
         }
 
@@ -704,7 +706,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 } //End Recurring Invoices Loop
 
 // Logging
-logAction("Cron", "Task", "Cron created expenses from recurring expenses");
+logApp("Cron", "info", "Cron created expenses from recurring expenses");
 
 // TELEMETRY
 
@@ -978,4 +980,4 @@ if ($updates->current_version !== $updates->latest_version) {
 appNotify("Cron", "Cron successfully executed", "admin_audit_log.php");
 
 // Logging
-logAction("Cron", "Ended", "Cron executed successfully");
+logApp("Cron", "info", "Cron executed successfully");

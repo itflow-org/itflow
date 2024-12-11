@@ -57,6 +57,23 @@ CREATE TABLE `api_keys` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `app_logs`
+--
+
+DROP TABLE IF EXISTS `app_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `app_logs` (
+  `app_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_log_category` varchar(200) DEFAULT NULL,
+  `app_log_type` enum('info','warning','error','debug') NOT NULL DEFAULT 'info',
+  `app_log_details` varchar(1000) DEFAULT NULL,
+  `app_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`app_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_custom`
 --
 
@@ -673,22 +690,6 @@ CREATE TABLE `email_queue` (
   `email_sent_at` datetime DEFAULT NULL,
   PRIMARY KEY (`email_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `error_logs`
---
-
-DROP TABLE IF EXISTS `error_logs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `error_logs` (
-  `error_log_id` int(11) NOT NULL AUTO_INCREMENT,
-  `error_log_type` varchar(200) NOT NULL,
-  `error_log_details` varchar(1000) DEFAULT NULL,
-  `error_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`error_log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2289,4 +2290,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-10 17:46:44
+-- Dump completed on 2024-12-10 22:05:33

@@ -57,12 +57,12 @@ if (file_exists($lock_file_path)) {
         unlink($lock_file_path);
 
         // Logging
-        logAction("Cron-Email-Parser", "Delete", "Cron Email Parser detected a lock file was present but was over 5 minutes old so it removed it.");
+        logApp("Cron-Email-Parser", "warning", "Cron Email Parser detected a lock file was present but was over 5 minutes old so it removed it.");
     
     } else {
        
         // Logging
-        logAction("Cron-Email-Parser", "Locked", "Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
+        logApp("Cron-Email-Parser", "warning", "Lock file present. Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
 
         exit("Script is already running. Exiting.");
     }
