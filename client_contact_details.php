@@ -77,6 +77,14 @@ if (isset($_GET['contact_id'])) {
         WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
+    // Related Recurring Tickets Query
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets 
+        WHERE scheduled_ticket_contact_id = $contact_id
+        ORDER BY scheduled_ticket_next_run DESC"
+    );
+    $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
+
+
     // Tags - many to many relationship
     $contact_tag_name_display_array = array();
     $contact_tag_id_array = array();
@@ -235,6 +243,10 @@ if (isset($_GET['contact_id'])) {
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
                             <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRecurringTicketModal">
+                            <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
@@ -626,6 +638,71 @@ if (isset($_GET['contact_id'])) {
                             }
 
                             ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-dark <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-recycle mr-2"></i>Recurring Tickets</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Frequency</th>
+                                <th>Next Run</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_related_recurring_tickets)) {
+                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
+                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
+                                $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
+                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
+                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                            ?>
+
+                                <tr>
+                                    <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+
+                                    <td><?php echo $scheduled_ticket_priority ?></td>
+
+                                    <td><?php echo $scheduled_ticket_frequency ?></td>
+
+                                    <td><?php echo $scheduled_ticket_next_run ?></td>
+
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal"
+                                                   data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <?php
+                                                if ($session_user_role == 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
+                                            </div>
+                                            <?php } ?>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            <?php } ?>
 
                             </tbody>
                         </table>
@@ -1044,6 +1121,8 @@ if (isset($_GET['contact_id'])) {
         });
     </script>
 
+    <script src="js/recurring_tickets_edit_modal.js"></script>
+
 <?php
 
 require_once "client_contact_create_note_modal.php";
@@ -1054,5 +1133,8 @@ require_once "client_contact_link_credential_modal.php";
 require_once "client_contact_link_service_modal.php";
 require_once "client_contact_link_document_modal.php";
 require_once "client_contact_link_file_modal.php";
+
+require_once "recurring_ticket_add_modal.php";
+require_once "recurring_ticket_edit_modal.php";
 
 require_once "footer.php";
