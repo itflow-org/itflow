@@ -89,12 +89,16 @@ if (isset($options['update']) || isset($options['force_update'])) {
     } else {
         // Perform a standard update (git pull)
         exec("git pull 2>&1", $output, $return_var);
-        echo implode("\n", $output) . "\n";
+        
+        // Check if the repository is already up to date
+        if (strpos(implode("\n", $output), 'Already up to date.') === false) {
+            echo implode("\n", $output) . "\n";
+            echo "Update successful\n";
+        } else {
+            // If already up-to-date, don't show the update success message
+            echo implode("\n", $output) . "\n";
+        }
     }
-
-    echo "Update successful\n";
-} else {
-    echo "\n";
 }
 
 // If "update_db" is requested
