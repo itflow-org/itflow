@@ -6,7 +6,7 @@ require_once "inc_all_client.php";
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM assets 
+    $sql = mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
@@ -74,6 +74,13 @@ if (isset($_GET['asset_id'])) {
         ORDER BY ticket_number DESC"
     );
     $ticket_count = mysqli_num_rows($sql_related_tickets);
+
+    // Related Recurring Tickets Query
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets 
+        WHERE scheduled_ticket_asset_id = $asset_id
+        ORDER BY scheduled_ticket_next_run DESC"
+    );
+    $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
     // Related Documents
     $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents 
@@ -257,6 +264,56 @@ if (isset($_GET['asset_id'])) {
                 </li>
                 <li class="breadcrumb-item active"><?php echo $asset_name; ?></li>
             </ol>
+
+            <div class="btn-group mb-3">
+                <div class="dropdown dropleft mr-2">
+                    <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRecurringTicketModal">
+                            <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                            <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note (WIP)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dropdown dropleft">
+                    <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkAssetModal">
+                            <i class="fa fa-fw fa-desktop mr-2"></i>Asset (WIP)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkSoftwareModal">
+                            <i class="fa fa-fw fa-cube mr-2"></i>License (WIP)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkCredentialModal">
+                            <i class="fa fa-fw fa-key mr-2"></i>Credential (WIP)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkServiceModal">
+                            <i class="fa fa-fw fa-stream mr-2"></i>Service (WIP)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkDocumentModal">
+                            <i class="fa fa-fw fa-folder mr-2"></i>Document (WIP)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkFileModal">
+                            <i class="fa fa-fw fa-paperclip mr-2"></i>File (WIP)
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
 
             <div class="card card-dark">
                 <div class="card-header py-2">
@@ -644,6 +701,71 @@ if (isset($_GET['asset_id'])) {
                 </div>
             </div>
 
+            <div class="card card-dark <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa fa-fw fa-recycle mr-2"></i>Recurring Tickets</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Frequency</th>
+                                <th>Next Run</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_related_recurring_tickets)) {
+                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
+                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
+                                $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
+                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
+                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                            ?>
+
+                                <tr>
+                                    <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+
+                                    <td><?php echo $scheduled_ticket_priority ?></td>
+
+                                    <td><?php echo $scheduled_ticket_frequency ?></td>
+
+                                    <td><?php echo $scheduled_ticket_next_run ?></td>
+
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal"
+                                                   data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                </a>
+                                                <?php
+                                                if ($session_user_role == 3) { ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>">
+                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                </a>
+                                            </div>
+                                            <?php } ?>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            <?php } ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets</h3>
@@ -776,9 +898,17 @@ if (isset($_GET['asset_id'])) {
     });
 </script>
 
+<script src="js/recurring_tickets_edit_modal.js"></script>
+
 <?php
 
 require_once "client_asset_interface_add_modal.php";
+
+require_once "ticket_add_modal.php";
+
+require_once "recurring_ticket_add_modal.php";
+
+require_once "recurring_ticket_edit_modal.php";
 
 require_once "footer.php";
 
