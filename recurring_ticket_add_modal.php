@@ -190,7 +190,12 @@
                                                 $asset_id_select = intval($row['asset_id']);
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
                                                 ?>
-                                                <option value="<?php echo $asset_id_select; ?>"><?php echo $asset_name_select; ?></option>
+                                                <option value="<?php echo $asset_id_select; ?>"
+                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; } 
+                                                    ?>
+
+                                                    ><?php echo $asset_name_select; ?>
+                                                </option>
 
                                             <?php } ?>
                                         </select>
