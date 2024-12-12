@@ -2303,10 +2303,75 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.6.8') {
-    //     // Insert queries here required to update to DB version 1.6.9
+    if (CURRENT_DATABASE_VERSION == '1.6.8') {
+        
+        // Create New Vendor Templates Table this eventual be used to seperate templates out of the vendors table
+        mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
+            `vendor_template_name` varchar(200) NOT NULL,
+            `vendor_template_description` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_phone` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_email` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_website` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_hours` varchar(200) NULL DEFAULT NULL,
+            `vendor_template_created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+            `vendor_template_updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+            `vendor_template_archived_at` datetime NULL DEFAULT NULL
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.6.9') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_thumbnail` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_mime_type`");
+        mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_preview` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_has_thumbnail`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.0'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.0') {
+        
+        mysqli_query($mysqli, "DROP TABLE `vendor_templates`");
+
+        mysqli_query($mysqli, "CREATE TABLE `vendor_contacts` (
+            `vendor_contact_id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `vendor_contact_name` VARCHAR(200) NOT NULL,
+            `vendor_contact_title` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_department` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_email` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_phone` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_extension` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_mobile` VARCHAR(200) DEFAULT NULL,
+            `vendor_contact_notes` TEXT DEFAULT NULL,
+            `vendor_contact_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `vendor_contact_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            `vendor_contact_archived_at` DATETIME DEFAULT NULL,
+            `vendor_contact_vendor_id` INT(11) NOT NULL DEFAULT 0
+        )");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.1') {
+        
+        mysqli_query($mysqli, "DROP TABLE `error_logs`");
+
+        mysqli_query($mysqli, "CREATE TABLE `app_logs` (
+            `app_log_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `app_log_category` VARCHAR(200) NULL DEFAULT NULL,
+            `app_log_type` ENUM('info', 'warning', 'error', 'debug') NOT NULL DEFAULT 'info',
+            `app_log_details` VARCHAR(1000) NULL DEFAULT NULL,
+            `app_log_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`app_log_id`)
+        )");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.2') {
+    //     // Insert queries here required to update to DB version 1.7.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.6.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.3'");
     // }
 
 } else {

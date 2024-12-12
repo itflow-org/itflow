@@ -27,12 +27,12 @@ function generateShareLink() {
     let item_type = document.getElementById("share_item_type").value;
     let item_ref_id = document.getElementById("share_item_ref_id").value;
     let item_note = document.getElementById("share_note").value;
-    let item_views = document.getElementById("share_views").value;
-    let item_expires = document.getElementById("share_expires").value;
+    let item_views = document.getElementById("share_views").checked ? 1 : 0;
+    let item_expires = document.querySelector('input[name="expires"]:checked').value;
     let contact_email = document.getElementById("share_email").value;
 
     // Check values are provided
-    if (item_views && item_expires) {
+    if (item_expires) {
         // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
         jQuery.get(
             "ajax.php",

@@ -14,9 +14,26 @@
                         <input type="text" class="form-control" name="name" placeholder="Template name">
                     </div>
 
+                    <?php if ($config_ai_enable == 1) { ?>
+                    <!-- Prompt for AI -->
+                    <div class="form-group">
+                        <label>Enter a prompt for the type of IT documentation you want to generate:</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="aiPrompt" placeholder="e.g. 'A network troubleshooting guide for junior technicians'">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" type="button" id="generateAIContent">
+                                    <i class="fa fa-fw fa-magic mr-1"></i>Generate with AI
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                    <!-- TinyMCE Content -->
                     <div class="form-group">
                         <textarea class="form-control tinymce" name="content"></textarea>
                     </div>
+
                     <div class="form-group">
                         <input type="text" class="form-control" name="description" placeholder="Enter a short summary">
                     </div>

@@ -648,8 +648,10 @@ function getAssetIcon($asset_type)
         $device_icon = "print";
     } elseif ($asset_type == 'Camera') {
         $device_icon = "video";
-    } elseif ($asset_type == 'Switch' || $asset_type == 'Firewall/Router') {
+    } elseif ($asset_type == 'Switch') {
         $device_icon = "network-wired";
+    } elseif ($asset_type == 'Firewall/Router') {
+        $device_icon = "fire-alt";
     } elseif ($asset_type == 'Access Point') {
         $device_icon = "wifi";
     } elseif ($asset_type == 'Phone') {
@@ -658,7 +660,7 @@ function getAssetIcon($asset_type)
         $device_icon = "mobile-alt";
     } elseif ($asset_type == 'Tablet') {
         $device_icon = "tablet-alt";
-    } elseif ($asset_type == 'TV') {
+    } elseif ($asset_type == 'Display') {
         $device_icon = "tv";
     } elseif ($asset_type == 'Virtual Machine') {
         $device_icon = "cloud";
@@ -1348,10 +1350,10 @@ function logAction($type, $action, $description, $client_id = 0, $entity_id = 0)
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = '$type', log_action = '$action', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $entity_id");
 }
 
-function logError($type, $details) {
+function logApp($category, $type, $details) {
     global $mysqli;
 
-    mysqli_query($mysqli, "INSERT INTO error_logs SET error_log_type = '$type', error_log_details = '$details'");
+    mysqli_query($mysqli, "INSERT INTO app_logs SET app_log_category = '$category', app_log_type = '$type', app_log_details = '$details'");
 }
 
 function logAuth($status, $details) {

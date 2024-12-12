@@ -97,12 +97,12 @@ appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recip
 <div class="card mt-2">
     <div class="card-header bg-dark">
         <div class="card-title">
-            <h5><small>Secure Message intended for:</small><br><strong><?php echo $item_recipient ?></strong></h5>
+            <h6><small>Secure link intended for:</small><br><strong><?php echo $item_recipient ?></strong></h6>
         </div>
 
         <div class="card-tools">
             <div>
-                <?php echo "Views: $item_views / <strong>$item_view_limit</strong>"; ?>
+                <?php echo "Viewed: <strong>$item_views</strong> Times"; ?>
             </div>
             <div>
                 <?php echo "Expires: <strong>$item_expire</strong>"; ?>

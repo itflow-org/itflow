@@ -51,6 +51,119 @@ if (isset($_POST['upload_files'])) {
 
             $file_id = mysqli_insert_id($mysqli);
 
+            // If the file is an image, create a thumbnail and an optimized preview image
+            if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                // Thumbnail dimensions
+                $thumbnail_width = 200;
+                $thumbnail_height = 200;
+
+                // Optimized preview dimensions
+                $preview_max_width = 1200;
+                $preview_max_height = 1200;
+
+                // Get original dimensions
+                list($orig_width, $orig_height) = getimagesize($dest_path);
+
+                // Create image resource from the original file
+                switch ($file_extension) {
+                    case 'jpg':
+                    case 'jpeg':
+                        $src_img = imagecreatefromjpeg($dest_path);
+                        break;
+                    case 'png':
+                        $src_img = imagecreatefrompng($dest_path);
+                        break;
+                    case 'gif':
+                        $src_img = imagecreatefromgif($dest_path);
+                        break;
+                    case 'webp':
+                        $src_img = imagecreatefromwebp($dest_path);
+                        break;
+                }
+
+                if ($src_img) {
+                    // -------------------------
+                    // CREATE THUMBNAIL
+                    // -------------------------
+                    $thumb_img = imagecreatetruecolor($thumbnail_width, $thumbnail_height);
+                    imagecopyresampled($thumb_img, $src_img, 0, 0, 0, 0, 
+                                       $thumbnail_width, $thumbnail_height, 
+                                       $orig_width, $orig_height);
+
+                    $thumbnail_file_name = 'thumbnail_' . $file_reference_name;
+                    $thumb_path = $upload_file_dir . $thumbnail_file_name;
+
+                    // Save thumbnail to disk
+                    switch ($file_extension) {
+                        case 'jpg':
+                        case 'jpeg':
+                            imagejpeg($thumb_img, $thumb_path, 80);
+                            break;
+                        case 'png':
+                            imagepng($thumb_img, $thumb_path);
+                            break;
+                        case 'gif':
+                            imagegif($thumb_img, $thumb_path);
+                            break;
+                        case 'webp':
+                            imagewebp($thumb_img, $thumb_path);
+                            break;
+                    }
+
+                    imagedestroy($thumb_img);
+
+                    mysqli_query($mysqli,"UPDATE files SET file_has_thumbnail = 1 WHERE file_id = $file_id");
+
+                    // -------------------------
+                    // CREATE OPTIMIZED PREVIEW IMAGE
+                    // -------------------------
+                    $aspect_ratio = $orig_width / $orig_height;
+                    if ($orig_width <= $preview_max_width && $orig_height <= $preview_max_height) {
+                        $preview_new_width = $orig_width;
+                        $preview_new_height = $orig_height;
+                    } elseif ($aspect_ratio > 1) {
+                        // Wider than tall
+                        $preview_new_width = $preview_max_width;
+                        $preview_new_height = (int)($preview_max_width / $aspect_ratio);
+                    } else {
+                        // Taller or square
+                        $preview_new_height = $preview_max_height;
+                        $preview_new_width = (int)($preview_max_height * $aspect_ratio);
+                    }
+
+                    $preview_img = imagecreatetruecolor($preview_new_width, $preview_new_height);
+                    imagecopyresampled($preview_img, $src_img, 0, 0, 0, 0,
+                                       $preview_new_width, $preview_new_height,
+                                       $orig_width, $orig_height);
+
+                    $preview_file_name = 'preview_' . $file_reference_name;
+                    $preview_path = $upload_file_dir . $preview_file_name;
+
+                    switch ($file_extension) {
+                        case 'jpg':
+                        case 'jpeg':
+                            // Lower quality for optimization (70 is example)
+                            imagejpeg($preview_img, $preview_path, 70);
+                            break;
+                        case 'png':
+                            // Higher compression level (0-9), 7 is an example
+                            imagepng($preview_img, $preview_path, 7);
+                            break;
+                        case 'gif':
+                            imagegif($preview_img, $preview_path);
+                            break;
+                        case 'webp':
+                            imagewebp($preview_img, $preview_path, 70);
+                            break;
+                    }
+
+                    imagedestroy($preview_img);
+                    imagedestroy($src_img);
+
+                    mysqli_query($mysqli,"UPDATE files SET file_has_preview = 1 WHERE file_id = $file_id");
+                }
+            }
+
             // Logging
             logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
 
@@ -155,8 +268,17 @@ if (isset($_POST['delete_file'])) {
     $client_id = intval($row['file_client_id']);
     $file_name = sanitizeInput($row['file_name']);
     $file_reference_name = sanitizeInput($row['file_reference_name']);
-
+    $file_has_thumbnail = intval($row['file_has_thumbnail']);
+    $file_has_preview = intval($row['file_has_preview']);
+    
     unlink("uploads/clients/$client_id/$file_reference_name");
+
+    if ($file_has_thumbnail == 1) {
+        unlink("uploads/clients/$client_id/thumbnail_$file_reference_name");
+    }
+    if ($file_has_preview == 1) {
+        unlink("uploads/clients/$client_id/preview_$file_reference_name");
+    }
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
@@ -190,8 +312,17 @@ if (isset($_POST['bulk_delete_files'])) {
             $client_id = intval($row['file_client_id']);
             $file_name = sanitizeInput($row['file_name']);
             $file_reference_name = sanitizeInput($row['file_reference_name']);
+            $file_has_thumbnail = intval($row['file_has_thumbnail']);
+            $file_has_preview = intval($row['file_has_preview']);
 
             unlink("uploads/clients/$client_id/$file_reference_name");
+
+            if ($file_has_thumbnail == 1) {
+                unlink("uploads/clients/$client_id/thumbnail_$file_reference_name");
+            }
+            if ($file_has_preview == 1) {
+                unlink("uploads/clients/$client_id/preview_$file_reference_name");
+            }
 
             mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 

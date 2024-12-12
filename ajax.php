@@ -252,14 +252,20 @@ if (isset($_GET['share_generate_link'])) {
     $item_email = sanitizeInput($_GET['contact_email']);
     $item_note = sanitizeInput($_GET['note']);
     $item_view_limit = intval($_GET['views']);
+    $item_view_limit_wording = "";
+    if ($item_view_limit == 1) {
+        $item_view_limit_wording = " and may only be viewed <strong>once</strong>, before the link is destroyed.";
+    }
     $item_expires = sanitizeInput($_GET['expires']);
     $item_expires_friendly = "never"; // default never
-    if ($item_expires == "30 MINUTE") {
-        $item_expires_friendly = "30 minutes";
+    if ($item_expires == "1 HOUR") {
+        $item_expires_friendly = "1 hour";
     } elseif ($item_expires == "24 HOUR") {
-        $item_expires_friendly = "24 hours";
-    } elseif ($item_expires == "72 HOUR") {
-        $item_expires_friendly = "72 hours (3 days)";
+        $item_expires_friendly = "1 day";
+    } elseif ($item_expires == "168 HOUR") {
+        $item_expires_friendly = "1 week";
+    } elseif ($item_expires == "730 HOUR") {
+        $item_expires_friendly = "1 month";
     }
 
     $item_key = randomString(156);
@@ -324,7 +330,7 @@ if (isset($_GET['share_generate_link'])) {
         if ($item_expires_friendly == "never") {
             $subject = "$company_name secure link enclosed";
         }
-        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong> and may only be viewed <strong>$item_view_limit</strong> times, before the link is destroyed. <br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong>$item_view_limit_wording.<br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Add the intended recipient disclosure
         $body .= "<br><br><em>This email and any attachments are confidential and intended for the specified recipient(s) only. If you are not the intended recipient, please notify the sender and delete this email. Unauthorized use, disclosure, or distribution is prohibited.</em>";

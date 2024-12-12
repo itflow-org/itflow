@@ -135,3 +135,36 @@
 
 <?php include "admin_document_template_add_modal.php"; ?>
 <?php include "footer.php"; ?>
+
+<script>
+$(document).ready(function(){
+
+    $('#generateAIContent').on('click', function(){
+        var prompt = $('#aiPrompt').val().trim();
+        if(prompt === '') {
+            alert('Please enter a prompt.');
+            return;
+        }
+
+        $('#generateAIContent').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+
+        $.ajax({
+            url: 'post.php?ai_create_document_template', // The PHP script that calls the OpenAI API
+            method: 'POST',
+            data: { prompt: prompt },
+            dataType: 'html',
+            success: function(response) {
+                // Assuming you have exactly one TinyMCE instance on the page
+                // and it's targeting the .tinymce textarea:
+                tinymce.activeEditor.setContent(response);
+            },
+            error: function() {
+                alert('Error generating content. Please try again.');
+            },
+            complete: function() {
+                $('#generateAIContent').prop('disabled', false).html('<i class="fa fa-fw fa-magic mr-1"></i>Generate with AI');
+            }
+        });
+    });
+});
+</script>

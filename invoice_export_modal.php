@@ -10,9 +10,6 @@
             <form action="post.php" method="post" autocomplete="off">
                 <div class="modal-body bg-white">
 
-                    <?php require_once "inc_export_warning.php";
- ?>
-
                     <div class="form-group">
                         <label>Date From</label>
                         <div class="input-group">

@@ -57,6 +57,23 @@ CREATE TABLE `api_keys` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `app_logs`
+--
+
+DROP TABLE IF EXISTS `app_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `app_logs` (
+  `app_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_log_category` varchar(200) DEFAULT NULL,
+  `app_log_type` enum('info','warning','error','debug') NOT NULL DEFAULT 'info',
+  `app_log_details` varchar(1000) DEFAULT NULL,
+  `app_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`app_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_custom`
 --
 
@@ -676,22 +693,6 @@ CREATE TABLE `email_queue` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `error_logs`
---
-
-DROP TABLE IF EXISTS `error_logs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `error_logs` (
-  `error_log_id` int(11) NOT NULL AUTO_INCREMENT,
-  `error_log_type` varchar(200) NOT NULL,
-  `error_log_details` varchar(1000) DEFAULT NULL,
-  `error_log_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`error_log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `event_attendees`
 --
 
@@ -780,6 +781,8 @@ CREATE TABLE `files` (
   `file_size` bigint(20) unsigned NOT NULL DEFAULT 0,
   `file_hash` varchar(200) DEFAULT NULL,
   `file_mime_type` varchar(100) DEFAULT NULL,
+  `file_has_thumbnail` tinyint(1) NOT NULL DEFAULT 0,
+  `file_has_preview` tinyint(1) NOT NULL DEFAULT 0,
   `file_important` tinyint(1) NOT NULL DEFAULT 0,
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -2180,6 +2183,31 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_contacts`
+--
+
+DROP TABLE IF EXISTS `vendor_contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_contacts` (
+  `vendor_contact_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_contact_name` varchar(200) NOT NULL,
+  `vendor_contact_title` varchar(200) DEFAULT NULL,
+  `vendor_contact_department` varchar(200) DEFAULT NULL,
+  `vendor_contact_email` varchar(200) DEFAULT NULL,
+  `vendor_contact_phone` varchar(200) DEFAULT NULL,
+  `vendor_contact_extension` varchar(200) DEFAULT NULL,
+  `vendor_contact_mobile` varchar(200) DEFAULT NULL,
+  `vendor_contact_notes` text DEFAULT NULL,
+  `vendor_contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `vendor_contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_contact_archived_at` datetime DEFAULT NULL,
+  `vendor_contact_vendor_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`vendor_contact_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendor_documents`
 --
 
@@ -2262,4 +2290,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-24 15:03:10
+-- Dump completed on 2024-12-10 22:05:33
