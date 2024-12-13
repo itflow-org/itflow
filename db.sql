@@ -920,6 +920,7 @@ CREATE TABLE `locations` (
   `location_state` varchar(200) DEFAULT NULL,
   `location_zip` varchar(200) DEFAULT NULL,
   `location_phone` varchar(200) DEFAULT NULL,
+  `location_fax` varchar(200) DEFAULT NULL,
   `location_hours` varchar(200) DEFAULT NULL,
   `location_photo` varchar(200) DEFAULT NULL,
   `location_primary` tinyint(1) NOT NULL DEFAULT 0,
@@ -2183,31 +2184,6 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `vendor_contacts`
---
-
-DROP TABLE IF EXISTS `vendor_contacts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vendor_contacts` (
-  `vendor_contact_id` int(11) NOT NULL AUTO_INCREMENT,
-  `vendor_contact_name` varchar(200) NOT NULL,
-  `vendor_contact_title` varchar(200) DEFAULT NULL,
-  `vendor_contact_department` varchar(200) DEFAULT NULL,
-  `vendor_contact_email` varchar(200) DEFAULT NULL,
-  `vendor_contact_phone` varchar(200) DEFAULT NULL,
-  `vendor_contact_extension` varchar(200) DEFAULT NULL,
-  `vendor_contact_mobile` varchar(200) DEFAULT NULL,
-  `vendor_contact_notes` text DEFAULT NULL,
-  `vendor_contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `vendor_contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `vendor_contact_archived_at` datetime DEFAULT NULL,
-  `vendor_contact_vendor_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`vendor_contact_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `vendor_documents`
 --
 
@@ -2290,4 +2266,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-10 22:05:33
+-- Dump completed on 2024-12-13 15:11:31
