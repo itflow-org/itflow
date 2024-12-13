@@ -188,6 +188,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $location_phone_display = $location_phone;
                         }
+                        $location_fax = formatPhoneNumber($row['location_fax']);
+                        if ($location_fax) {
+                            $location_fax_display = "<div class='text-secondary'>Fax: $location_fax</div>";
+                        } else {
+                            $location_fax_display = '';
+                        }
                         $location_hours = nullable_htmlentities($row['location_hours']);
                         if (empty($location_hours)) {
                             $location_hours_display = "-";
@@ -255,7 +261,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </td>
                             <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip"; ?></a></td>
-                            <td><?php echo $location_phone_display; ?></td>
+                            <td>
+                                <?php echo $location_phone_display; ?>
+                                <?php echo $location_fax_display; ?>
+                            </td>
                             <td><?php echo $location_hours_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">

@@ -12,6 +12,7 @@ if (isset($_POST['add_client'])) {
     require_once 'post/user/client_model.php';
 
     $location_phone = preg_replace("/[^0-9]/", '', $_POST['location_phone']);
+    $location_fax = preg_replace("/[^0-9]/", '', $_POST['location_fax']);
     $address = sanitizeInput($_POST['address']);
     $city = sanitizeInput($_POST['city']);
     $state = sanitizeInput($_POST['state']);
@@ -46,7 +47,7 @@ if (isset($_POST['add_client'])) {
 
     // Create Location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary location $address added";

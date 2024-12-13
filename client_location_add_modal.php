@@ -160,6 +160,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Fax</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Hours</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
