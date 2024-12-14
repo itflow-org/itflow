@@ -29,11 +29,11 @@ if (isset($_POST['ticket_priority'])) {
 
 
 if (isset($_POST['ticket_details'])) {
-    $details = sanitizeInput($_POST['ticket_details']);
+    $details = sanitizeInput($_POST['ticket_details']) . "<br>";
 } elseif ($ticket_row) {
     $details = $ticket_row['ticket_details'];
 } else {
-    $details = '< blank >';
+    $details = '< blank ><br>';
 }
 
 if (isset($_POST['ticket_vendor_id'])) {
