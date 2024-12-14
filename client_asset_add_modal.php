@@ -12,7 +12,7 @@
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body bg-white ui-front">
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
@@ -116,7 +116,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro">
+                                        <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro">
                                     </div>
                                 </div>
                             <?php } ?>
