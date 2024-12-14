@@ -19,10 +19,14 @@ require_once 'ticket_model.php';
 // Default
 $insert_id = false;
 
-if (!empty($subject) && !empty($client_id)) {
+if (!empty($subject)) {
 
-    // If no contact is selected automatically choose the primary contact for the client
-    if ($contact == 0) {
+    if (!is_int($client_id)) {
+        $client_id = 0;
+    }
+
+    // If no contact is selected automatically choose the primary contact for the client (if client set)
+    if ($contact == 0 && $client_id != 0) {
         $sql = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
         $row = mysqli_fetch_array($sql);
         $contact = intval($row['contact_id']);
@@ -34,7 +38,8 @@ if (!empty($subject) && !empty($client_id)) {
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
     // Insert ticket
-    $insert_sql = mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_created_by = 0, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_client_id = $client_id");
+    $url_key = randomString(156);
+    $insert_sql = mysqli_query($mysqli,"INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_created_by = 0, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id");
 
     // Check insert & get insert ID
     if ($insert_sql) {
