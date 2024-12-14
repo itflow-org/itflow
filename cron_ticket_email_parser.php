@@ -147,6 +147,11 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         }
     }
 
+    // Guest ticket watchers
+    if ($client_id == 0) {
+        mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$contact_email_esc', watcher_ticket_id = $id");
+    }
+
     $data = [];
     if ($config_ticket_client_general_notifications == 1) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
@@ -162,7 +167,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     if ($config_ticket_new_ticket_notification_email) {
-        if ($client_id == 0){
+        if ($client_id == 0) {
             $client_name = "Guest";
         } else {
             $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
