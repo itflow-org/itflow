@@ -91,6 +91,16 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+
+// OS typeahead suggestions
+$os_sql = mysqli_query($mysqli, "SELECT DISTINCT asset_os AS label FROM assets WHERE asset_archived_at IS NULL");
+if (mysqli_num_rows($os_sql) > 0) {
+    while ($row = mysqli_fetch_array($os_sql)) {
+        $os_arr[] = $row;
+	 }
+    $json_os = json_encode($os_arr);
+}
+
 ?>
 
     <div class="col-sm-12 mb-3">
@@ -619,3 +629,20 @@ require_once "client_asset_export_modal.php";
 
 require_once "footer.php";
 
+?>
+
+<!-- JSON Autocomplete / type ahead -->
+<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
+<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<script>
+    $(function() {
+        var operatingSystems = <?php echo $json_os; ?>;
+        $("#os").autocomplete({
+            source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
+            select: function(event, ui) {
+                $("#os").val(ui.item.label); // Set the input field value to the selected label
+                return false;
+            }
+        });
+    });
+</script>
