@@ -19,7 +19,7 @@ function populateRecurringTicketEditModal(client_id, ticket_id) {
             document.getElementById("editHeader").innerText = " Edit Recurring ticket: " + ticket.scheduled_ticket_subject;
             document.getElementById("editTicketId").value = ticket_id;
             document.getElementById("editClientId").value = client_id;
-            document.getElementById("editTicketBillable").value = ticket.scheduled_ticket_billable;
+            document.getElementById("editTicketBillable").checked = !!parseInt(ticket.scheduled_ticket_billable);
             document.getElementById("editTicketSubject").value = ticket.scheduled_ticket_subject;
             document.getElementById("editTicketNextRun").value = ticket.scheduled_ticket_next_run;
             tinyMCE.get('editTicketDetails').setContent(ticket.scheduled_ticket_details);

@@ -10,7 +10,6 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="scheduled_ticket_id" id="editTicketId">
                 <input type="hidden" name="client" id="editClientId">
-                <input type="hidden" name="billable" value="0">
 
                 <div class="modal-body bg-white">
 
@@ -74,14 +73,12 @@
                                 </div>
                             </div>
 
-                            <?php //if ($config_module_enable_accounting) { ?>
                             <div class="form-group" <?php if (!$config_module_enable_accounting) { echo 'style="display:none"'; } ?>>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" name="billable" id="editTicketBillable" value="1">
                                     <label class="custom-control-label" for="editTicketBillable">Mark Billable</label>
                                 </div>
                             </div>
-                            <?php //} ?>
 
                         </div>
 
