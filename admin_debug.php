@@ -8,6 +8,9 @@ require_once "config.php";
 
 $checks = [];
 
+// Execute the git command to get the latest commit hash
+$commitHash = exec('git log -1 --format=%H');
+
 // Section: System Information
 $systemInfo = [];
 
@@ -317,10 +320,6 @@ if ($tablesResult) {
     $tablesResult->free();
 
     $databaseStats[] = [
-        'name' => 'Current Database Version',
-        'value' => CURRENT_DATABASE_VERSION,
-    ];
-    $databaseStats[] = [
         'name' => 'Total number of tables',
         'value' => $totalTables,
     ];
@@ -517,6 +516,17 @@ $mysqli->close();
             <li>Note: You might also need to gather <a href="https://docs.itflow.org/gathering_logs#error_logs">error logs</a></li>
         </ul>
         <hr>
+
+        <table class="table table-bordered mb-3">
+            <tr>
+                <td>Current App Version</td>
+                <th><?php echo $commitHash; ?></th>
+            </tr>
+            <tr>
+                <td>Current DB Version</td>
+                <th><?php echo CURRENT_DATABASE_VERSION; ?></th>
+            </tr>
+        </table>
 
         <!-- System Information Table -->
         <h3>System Information</h3>
