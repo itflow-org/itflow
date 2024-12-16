@@ -109,16 +109,15 @@ if (isset($_POST['add_ticket'])) {
         $company_name = sanitizeInput($row['company_name']);
         $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
-        
+
         // EMAILING
-        
+
         $subject = "Ticket created [$ticket_prefix$ticket_number] - $ticket_subject";
         $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Verify contact email is valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-            
 
             // Email Ticket Contact
             // Queue Mail
@@ -184,7 +183,7 @@ if (isset($_POST['edit_ticket'])) {
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
-    
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category_id, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
     // Get contact/ticket details after update for logging / email purposes
@@ -208,7 +207,7 @@ if (isset($_POST['edit_ticket'])) {
     $client_id = intval($row['ticket_client_id']);
 
     // Notify new contact if selected
-    if ($notify && !empty($config_smtp_host)) {     
+    if ($notify && !empty($config_smtp_host)) {
 
         // Get Company Name Phone Number and Sanitize for Email Sending
         $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
@@ -466,7 +465,7 @@ if (isset($_GET['delete_ticket_watcher'])) {
     $watcher_email = sanitizeInput($row['watcher_email']);
     $client_id = intval($row['ticket_client_id']);
     $ticket_id = intval($row['ticket_id']);
-    
+
     mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_id = $watcher_id");
 
     // History
@@ -795,7 +794,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
     // Assign Tech to Selected Tickets
     if (isset($_POST['ticket_ids'])) {
-        
+
         // Get a Ticket Count
         $ticket_count = count($_POST['ticket_ids']);
 
@@ -884,7 +883,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
             }
         } // End For Each Ticket ID Loop
-    
+
         mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
         $_SESSION['alert_message'] = "<strong>$ticket_count</strong> tickets merged into <strong>$ticket_prefix$merge_into_ticket_number</strong>";
@@ -932,7 +931,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-            
+
             // Logging
             logAction("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
@@ -962,7 +961,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 $company_name = sanitizeInput($row['company_name']);
                 $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
-                
+
                 // EMAIL
                 $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
                 $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
@@ -972,7 +971,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
                     $data = [];
 
-                    
+
 
                     // Email Ticket Contact
                     // Queue Mail
@@ -1071,7 +1070,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
                 // Logging
                 logAction("Ticket", "Resolved", "$session_name resolved Ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
-                
+
                 customAction('ticket_resolve', $ticket_id);
             }
 
@@ -1203,7 +1202,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
 
 
         } // End For Each Ticket ID Loop
-    
+
         $_SESSION['alert_message'] = "<strong>$ticket_count</strong> Tickets added to Project <strong>$project_name</strong>";
 
     }
@@ -1916,7 +1915,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     // Add internal note to ticket, and link to invoice in database
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created invoice <a href=\"invoice.php?invoice_id=$invoice_id\">$config_invoice_prefix$invoice_number</a> for this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-    
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
     // Logging
@@ -2031,9 +2030,137 @@ if (isset($_POST['edit_recurring_ticket'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['force_recurring_ticket'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_GET['csrf_token']);
+
+    $scheduled_ticket_id = intval($_GET['force_recurring_ticket']);
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_id = $scheduled_ticket_id");
+
+    if (mysqli_num_rows($sql) > 0) {
+        $row = mysqli_fetch_array($sql);
+        $schedule_id = intval($row['scheduled_ticket_id']);
+        $subject = sanitizeInput($row['scheduled_ticket_subject']);
+        $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
+        $priority = sanitizeInput($row['scheduled_ticket_priority']);
+        $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
+        $billable = intval($row['scheduled_ticket_billable']);
+        $old_next_scheduled_date = sanitizeInput($row['scheduled_ticket_next_run']);
+        $created_id = intval($row['scheduled_ticket_created_by']);
+        $assigned_id = intval($row['scheduled_ticket_assigned_to']);
+        $contact_id = intval($row['scheduled_ticket_contact_id']);
+        $client_id = intval($row['scheduled_ticket_client_id']);
+        $asset_id = intval($row['scheduled_ticket_asset_id']);
+        $url_key = randomString(156);
+
+        $ticket_status = 1; // Default
+        if ($assigned_id > 0) {
+            $ticket_status = 2; // Set to open if we've auto-assigned an agent
+        }
+
+        // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+        $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+        $config_base_url = sanitizeInput($config_base_url);
+
+        // Assign this new ticket the next ticket number & increment config_ticket_next_number by 1 (for the next ticket)
+        $ticket_number = $config_ticket_next_number;
+        $new_config_ticket_next_number = $config_ticket_next_number + 1;
+        mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+        // Raise the ticket
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+        $id = mysqli_insert_id($mysqli);
+
+        // Notifications
+
+        customAction('ticket_create', $id);
+
+        // Get client/contact/ticket details
+        $sql = mysqli_query(
+            $mysqli,
+            "SELECT client_name, contact_name, contact_email, ticket_prefix, ticket_number, ticket_priority, ticket_subject, ticket_details FROM tickets
+                LEFT JOIN clients ON ticket_client_id = client_id
+                LEFT JOIN contacts ON ticket_contact_id = contact_id
+                WHERE ticket_id = $id"
+        );
+        $row = mysqli_fetch_array($sql);
+
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $client_name = sanitizeInput($row['client_name']);
+        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_email = sanitizeInput($row['contact_email']);
+        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_number = intval($row['ticket_number']);
+        $ticket_priority = sanitizeInput($row['ticket_priority']);
+        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
+
+        $data = [];
+
+        // Notify client by email their ticket has been raised, if general notifications are turned on & there is a valid contact email
+        if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+            $email_subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
+            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+            $email = [
+                'from' => $config_ticket_from_email,
+                'from_name' => $config_ticket_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $email_subject,
+                'body' => $email_body
+            ];
+
+            $data[] = $email;
+
+        }
+
+        // Add to the mail queue
+        addToMailQueue($mysqli, $data);
+
+        // Set the next run date (based on the scheduled date, rather than now, so things keep their schedule)
+        $dt_old_next_scheduled_date = new DateTime($old_next_scheduled_date);
+        if ($frequency == "weekly") {
+            $next_run = date_add($dt_old_next_scheduled_date, date_interval_create_from_date_string('1 week'));
+        } elseif ($frequency == "monthly") {
+            $next_run = date_add($dt_old_next_scheduled_date, date_interval_create_from_date_string('1 month'));
+        } elseif ($frequency == "quarterly") {
+            $next_run = date_add($dt_old_next_scheduled_date, date_interval_create_from_date_string('3 months'));
+        } elseif ($frequency == "biannually") {
+            $next_run = date_add($dt_old_next_scheduled_date, date_interval_create_from_date_string('6 months'));
+        } elseif ($frequency == "annually") {
+            $next_run = date_add($dt_old_next_scheduled_date, date_interval_create_from_date_string('12 months'));
+        }
+
+        // Update the run date
+        $next_run = $next_run->format('Y-m-d');
+        mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = $schedule_id");
+
+        // Logging
+        logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
+
+        $_SESSION['alert_message'] = "Recurring Ticket Forced";
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Recurring Ticket Force failed";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+
+}
+
 if (isset($_GET['delete_recurring_ticket'])) {
 
     enforceUserPermission('module_support', 3);
+    validateCSRFToken($_GET['csrf_token']);
 
     $scheduled_ticket_id = intval($_GET['delete_recurring_ticket']);
 

@@ -5,7 +5,7 @@ $subject = sanitizeInput($_POST['subject']);
 $priority = sanitizeInput($_POST['priority']);
 $details = mysqli_real_escape_string($mysqli, $_POST['details']);
 $frequency = sanitizeInput($_POST['frequency']);
-$billable = intval($_POST['billable']);
+$billable = intval($_POST['billable'] ?? 0);
 
 $asset_id = "0";
 if (isset($_POST['asset'])) {
