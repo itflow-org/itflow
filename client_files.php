@@ -473,6 +473,7 @@ while ($folder_id > 0) {
                                 $file_size_KB = number_format($file_size / 1024);
                                 $file_mime_type = nullable_htmlentities($row['file_mime_type']);
                                 $file_size = intval($row['file_size']);
+                                $file_uploaded_by = nullable_htmlentities($row['user_name']);
                                 $file_has_thumbnail = intval($row['file_has_thumbnail']);
                                 $file_has_preview = intval($row['file_has_preview']);
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
@@ -490,19 +491,22 @@ while ($folder_id > 0) {
                                     AND item_related_id = $file_id
                                     LIMIT 1"
                                 );
-                                $row = mysqli_fetch_array($sql_shared);
-                                $item_id = intval($row['item_id']);
-                                $item_active = nullable_htmlentities($row['item_active']);
-                                $item_key = nullable_htmlentities($row['item_key']);
-                                $item_type = nullable_htmlentities($row['item_type']);
-                                $item_related_id = intval($row['item_related_id']);
-                                $item_note = nullable_htmlentities($row['item_note']);
-                                $item_recipient = nullable_htmlentities($row['item_recipient']);
-                                $item_views = nullable_htmlentities($row['item_views']);
-                                $item_view_limit = nullable_htmlentities($row['item_view_limit']);
-                                $item_created_at = nullable_htmlentities($row['item_created_at']);
-                                $item_expire_at = nullable_htmlentities($row['item_expire_at']);
-                                $item_expire_at_human = timeAgo($row['item_expire_at']);
+                                $file_shared = (mysqli_num_rows($sql_shared) > 0) ? true : false;
+                                if ($file_shared) {
+                                    $row = mysqli_fetch_array($sql_shared);
+                                    $item_id = intval($row['item_id']);
+                                    $item_active = nullable_htmlentities($row['item_active']);
+                                    $item_key = nullable_htmlentities($row['item_key']);
+                                    $item_type = nullable_htmlentities($row['item_type']);
+                                    $item_related_id = intval($row['item_related_id']);
+                                    $item_note = nullable_htmlentities($row['item_note']);
+                                    $item_recipient = nullable_htmlentities($row['item_recipient']);
+                                    $item_views = nullable_htmlentities($row['item_views']);
+                                    $item_view_limit = nullable_htmlentities($row['item_view_limit']);
+                                    $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                    $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                    $item_expire_at_human = timeAgo($row['item_expire_at']);
+                                }
 
                                 ?>
 
@@ -533,7 +537,7 @@ while ($folder_id > 0) {
                                         <div class="text-secondary mt-1"><?php echo $file_uploaded_by; ?></div>        
                                     </td>
                                     <td>
-                                        <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
+                                        <?php if ($file_shared) { ?>
                                             <div class="media" title="Expires <?php echo $item_expire_at_human; ?>">
                                                 <i class="fas fa-link mr-2 mt-1"></i>
                                                 <div class="media-body">Shared
