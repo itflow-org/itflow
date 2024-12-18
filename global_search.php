@@ -141,13 +141,13 @@ if (isset($_GET['query'])) {
 
     ?>
 
-
-<div class="col-sm-12">
-    <div class="card card-body mb-3">
-        <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card card-body mb-3">
+            <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
+        </div>
     </div>
 </div>
-
 
         <?php if (mysqli_num_rows($sql_clients) > 0) { ?>
 
