@@ -144,7 +144,7 @@ if (isset($_GET['query'])) {
 
     <div class="row">
 
-        <div class="col-sm-12">
+        <div class="card card-body col-sm-12">
             <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
         </div>
 
