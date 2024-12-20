@@ -12,8 +12,9 @@ enforceUserPermission('module_client');
 if (isset($_GET['client_id'])) {
     $client_id = intval($_GET['client_id']);
 
-    // Check to see if the logged in user has permission to access this client (Admins have access to all no matter what perms are set)
-    if(!in_array($client_id, $client_access_array) AND !empty($client_access_string) AND $session_user_role < 3) {
+    // Client Access Check
+    //  Ensure the user has permission to access this client (admins ignored)
+    if (!in_array($client_id, $client_access_array) AND !empty($client_access_string) AND !$session_is_admin) {
         // Logging
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Access', log_description = '$session_name was denied permission from accessing client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $client_id");
 
@@ -21,7 +22,6 @@ if (isset($_GET['client_id'])) {
         $_SESSION['alert_message'] = "Access Denied - You do not have permission to access that client!";
 
         echo "<script>window.history.back();</script>";
-
         exit();
     }
 

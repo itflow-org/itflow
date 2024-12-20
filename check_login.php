@@ -59,6 +59,8 @@ $session_user_role = intval($row['user_role']);
 $session_user_role_display = sanitizeInput($row['user_role_name']);
 if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
     $session_is_admin = true;
+} else {
+    $session_is_admin = false;
 }
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
@@ -88,12 +90,13 @@ try {
 
     $client_access_string = implode(',', $client_access_array);
 
-    // Role / Client Access Permission Check
-    if ($session_user_role < 3 && !empty($client_access_string)) {
+    // Client access permission check
+    //  Default allow, if a list of allowed clients is set & the user isn't an admin, restrict them
+    $access_permission_query = "";
+    if ($client_access_string && !$session_is_admin) {
         $access_permission_query = "AND clients.client_id IN ($client_access_string)";
-    } else {
-        $access_permission_query = "";
     }
+
 } catch (Exception $e) {
     // Handle exception
     error_log('MySQL error: ' . $e->getMessage());
