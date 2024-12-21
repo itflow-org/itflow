@@ -1384,6 +1384,28 @@ CREATE TABLE `recurring_expenses` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `recurring_payments`
+--
+
+DROP TABLE IF EXISTS `recurring_payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_payments` (
+  `recurring_payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_payment_amount` decimal(15,2) NOT NULL,
+  `recurring_payment_currency_code` varchar(10) NOT NULL,
+  `recurring_payment_method` varchar(200) NOT NULL,
+  `recurring_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `recurring_payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `recurring_payment_archived_at` datetime DEFAULT NULL,
+  `recurring_payment_account_id` int(11) NOT NULL,
+  `recurring_payment_recurring_expense_id` int(11) NOT NULL DEFAULT 0,
+  `recurring_payment_recurring_invoice_id` int(11) NOT NULL,
+  PRIMARY KEY (`recurring_payment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `remember_tokens`
 --
 
@@ -2266,4 +2288,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-13 15:11:31
+-- Dump completed on 2024-12-21 16:44:59

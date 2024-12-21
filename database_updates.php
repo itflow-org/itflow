@@ -2376,10 +2376,30 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.3'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.3') {
-    //     // Insert queries here required to update to DB version 1.7.4
+    if (CURRENT_DATABASE_VERSION == '1.7.3') {
+        
+        // Add Recurring Payments
+        mysqli_query($mysqli, "CREATE TABLE `recurring_payments` (
+            `recurring_payment_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `recurring_payment_amount` DECIMAL(15,2) NOT NULL,
+            `recurring_payment_currency_code` VARCHAR(10) NOT NULL,
+            `recurring_payment_method` VARCHAR(200) NOT NULL,
+            `recurring_payment_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `recurring_payment_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `recurring_payment_archived_at` DATETIME DEFAULT NULL,
+            `recurring_payment_account_id` INT(11) NOT NULL,
+            `recurring_payment_recurring_expense_id` INT(11) NOT NULL DEFAULT 0,
+            `recurring_payment_recurring_invoice_id` INT(11) NOT NULL,
+            PRIMARY KEY (`recurring_payment_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.4') {
+    //     // Insert queries here required to update to DB version 1.7.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.5'");
     // }
 
 } else {
