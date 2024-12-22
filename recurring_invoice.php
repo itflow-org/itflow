@@ -17,6 +17,7 @@ if (isset($_GET['recurring_id'])) {
         LEFT JOIN clients ON recurring_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
+        LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_id
         WHERE recurring_id = $recurring_id"
     );
 
@@ -58,6 +59,22 @@ if (isset($_GET['recurring_id'])) {
     } else {
         $status = "Inactive";
         $status_badge_color = "secondary";
+    }
+    $recurring_payment_id = intval($row['recurring_payment_id']);
+    $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+    if ($recurring_payment_recurring_invoice_id) {
+        $auto_pay_display = "
+            <a class='dropdown-item' href='post.php?delete_recurring_payment=$recurring_payment_id'>
+                <i class='fas fa-fw fa-times-circle text-secondary mr-2'></i>Remove AutoPay
+            </a>
+        ";
+    } else {
+        $auto_pay_display = "
+            <a class='dropdown-item' href='#' data-toggle='modal' data-target='#addRecurringPaymentModal$recurring_id'>
+                <i class='fas fa-fw fa-recycle text-secondary mr-2'></i>Create AutoPay
+            </a>
+        ";
+        require "recurring_payment_add_modal.php";
     }
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
@@ -129,6 +146,8 @@ if (isset($_GET['recurring_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
+                            <?php echo $auto_pay_display; ?>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>

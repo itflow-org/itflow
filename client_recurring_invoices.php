@@ -146,6 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $status = "Inactive";
                         $status_badge_color = "secondary";
                     }
+                    $recurring_payment_id = intval($row['recurring_payment_id']);
                     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
                     if ($recurring_payment_recurring_invoice_id) {
                         $auto_pay_display = "
