@@ -1392,7 +1392,6 @@ DROP TABLE IF EXISTS `recurring_payments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `recurring_payments` (
   `recurring_payment_id` int(11) NOT NULL AUTO_INCREMENT,
-  `recurring_payment_amount` decimal(15,2) NOT NULL,
   `recurring_payment_currency_code` varchar(10) NOT NULL,
   `recurring_payment_method` varchar(200) NOT NULL,
   `recurring_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -2288,4 +2287,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-21 16:44:59
+-- Dump completed on 2024-12-21 20:24:14

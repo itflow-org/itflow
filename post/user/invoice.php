@@ -1202,12 +1202,12 @@ if (isset($_POST['add_recurring_payment'])) {
     // Get Recurring Info for logging and alerting
     $sql = mysqli_query($mysqli, "SELECT * FROM recurring WHERE recurring_id = $recurring_id");
     $row = mysqli_fetch_array($sql);
-    $recurring_prefix = nullable_htmlentities($row['recurring_prefix']);
+    $recurring_prefix = sanitizeInput($row['recurring_prefix']);
     $recurring_number = intval($row['recurring_number']);
     $recurring_amount = floatval($row['recurring_amount']);
     $client_id = intval($row['recurring_client_id']);
 
-    mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_amount = $recurring_amount, recurring_payment_currency_code = '$currency_code', recurring_payment_account_id = $account, recurring_payment_method = '$payment_method', recurring_payment_recurring_invoice_id = $recurring_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_currency_code = '$currency_code', recurring_payment_account_id = $account, recurring_payment_method = '$payment_method', recurring_payment_recurring_invoice_id = $recurring_id");
 
     // Get Payment ID for reference
     $recurring_payment_id = mysqli_insert_id($mysqli);
