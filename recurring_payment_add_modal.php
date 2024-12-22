@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?php echo "$recurring_prefix$recurring_number"; ?>: Create Recurring Payment</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-redo-alt mr-2"></i>Creating Recurring Payment: <strong><?php echo "$recurring_prefix$recurring_number"; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>

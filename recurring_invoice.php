@@ -62,20 +62,6 @@ if (isset($_GET['recurring_id'])) {
     }
     $recurring_payment_id = intval($row['recurring_payment_id']);
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
-    if ($recurring_payment_recurring_invoice_id) {
-        $auto_pay_display = "
-            <a class='dropdown-item' href='post.php?delete_recurring_payment=$recurring_payment_id'>
-                <i class='fas fa-fw fa-times-circle text-secondary mr-2'></i>Remove AutoPay
-            </a>
-        ";
-    } else {
-        $auto_pay_display = "
-            <a class='dropdown-item' href='#' data-toggle='modal' data-target='#addRecurringPaymentModal$recurring_id'>
-                <i class='fas fa-fw fa-recycle text-secondary mr-2'></i>Create AutoPay
-            </a>
-        ";
-        require "recurring_payment_add_modal.php";
-    }
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -138,6 +124,18 @@ if (isset($_GET['recurring_id'])) {
                             <a href="post.php?recurring_invoice_email_notify=1&recurring_id=<?php echo $recurring_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
                         <?php } ?>
                     <?php } ?>
+
+                    <?php if ($recurring_payment_recurring_invoice_id) { ?>
+                        <a class="btn btn-outline-secondary" href="post.php?delete_recurring_payment=<?php echo $recurring_payment_id; ?>">
+                            <i class="fas fa-fw fa-times-circle mr-2"></i>Disable AutoPay
+                        </a>
+                    <?php } else { ?>
+                        <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_id; ?>">
+                            <i class="fas fa-fw fa-redo-alt mr-2"></i>Create AutoPay
+                        </a>
+                        <?php require_once "recurring_payment_add_modal.php"; ?>
+
+                    <?php } ?>
                 </div>
 
                 <div class="col-4">
@@ -146,8 +144,6 @@ if (isset($_GET['recurring_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <?php echo $auto_pay_display; ?>
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
