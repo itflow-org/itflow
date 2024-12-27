@@ -4,7 +4,7 @@
  * Landing / Home page for the client portal
  */
 
-header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
+header("Content-Security-Policy: default-src 'self'");
 
 require_once '../config.php';
 
@@ -50,13 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $password = $_POST['password'];
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        
+
         header("HTTP/1.1 401 Unauthorized");
-        
+
         $_SESSION['login_message'] = 'Invalid e-mail';
-    
+
     } else {
-        
+
         $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
         $row = mysqli_fetch_array($sql);
         $client_id = intval($row['contact_client_id']);
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 logAction("Client Login", "Success", "Client contact $user_email successfully logged in locally", $client_id, $user_id);
 
             } else {
-                
+
                 // Logging
                 logAction("Client Login", "Failed", "Failed client portal login attempt using $email (incorrect password for contact ID $contact_id)", $client_id, $user_id);
 
@@ -92,14 +92,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
             }
 
         } else {
-            
+
             // Logging
             logAction("Client Login", "Failed", "Failed client portal login attempt using $email (invalid email/not allowed local auth)");
-            
+
             header("HTTP/1.1 401 Unauthorized");
-            
+
             $_SESSION['login_message'] = 'Incorrect username or password.';
-        
+
         }
     }
 }
@@ -127,8 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         <!-- Theme style -->
         <link rel="stylesheet" href="../dist/css/adminlte.min.css">
 
-        <!-- Google Font: Source Sans Pro -->
-        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     </head>
 
     <body class="hold-transition login-page">
