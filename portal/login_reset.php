@@ -4,7 +4,7 @@
  * Password reset page
  */
 
-header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
+header("Content-Security-Policy: default-src 'self'");
 
 require_once '../config.php';
 require_once '../functions.php';
@@ -195,8 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <!-- Theme style -->
     <link rel="stylesheet" href="../dist/css/adminlte.min.css">
 
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 
 <body class="hold-transition login-page">
