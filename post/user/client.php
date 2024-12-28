@@ -129,7 +129,7 @@ if (isset($_POST['edit_client'])) {
     $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
     if(mysqli_num_rows($sql) == 0) {
         mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-        
+
         // Logging
         logAction("Category", "Create", "$session_name created referral category $referral");
     }
@@ -383,7 +383,7 @@ if (isset($_POST['export_clients_csv'])) {
 
         //output all remaining data on a file pointer
         fpassthru($f);
-        
+
         logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
 
     }
@@ -1937,7 +1937,12 @@ if (isset($_POST['export_client_pdf'])) {
         //pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
         pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
 
+        setTimeout(function(){
+            window.close();
+        }, 10000);
+
     </script>
+
 
 
     <?php

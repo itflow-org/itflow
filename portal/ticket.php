@@ -99,17 +99,20 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
                 <hr>
                 <p>
-                    <strong>State:</strong> <?php echo $ticket_status ?>
-                    <br>
-                    <strong>Priority:</strong> <?php echo $ticket_priority ?>
-                    <br>
+                    <strong>State:</strong> <?php echo $ticket_status ?><br>
+                    <strong>Priority:</strong> <?php echo $ticket_priority ?><br>
 
                     <?php if (empty($ticket_closed_at)) { ?>
+
                         <?php if ($task_count) { ?>
                             <strong>Tasks: </strong> <?php echo $completed_task_count . " / " .$task_count ?>
                             <br>
                         <?php } ?>
-                        <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+
+                        <?php if (!empty($ticket_assigned_to)) { ?>
+                            <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                        <?php } ?>
+
                     <?php } ?>
                 </p>
                 <?php echo $ticket_details ?>

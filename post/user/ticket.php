@@ -295,39 +295,38 @@ if (isset($_POST['edit_ticket_contact'])) {
 
     // Get Original contact, and ticket details
     $sql = mysqli_query($mysqli, "SELECT 
-        contact_name, contact_email, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id
+        contact_name, ticket_prefix, ticket_number, ticket_status_name, ticket_subject, ticket_details, ticket_url_key, ticket_client_id
         FROM tickets
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id"
     );
     $row = mysqli_fetch_array($sql);
-    $original_contact_name = sanitizeInput($row['contact_name']);
-    $original_contact_email = sanitizeInput($row['contact_email']);
+
+    // Original contact
+    $original_contact_name = !empty($row['contact_name']) ? sanitizeInput($row['contact_name']) : 'No one';
+
+    // Ticket details
     $ticket_prefix = sanitizeInput($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
     $ticket_status = sanitizeInput($row['ticket_status_name']);
-    $ticket_category = sanitizeInput($row['ticket_category']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
     $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
-    $ticket_priority = sanitizeInput($row['ticket_priority']);
-    $client_id = intval($row['ticket_client_id']);
-    $ticket_created_by = intval($row['ticket_created_by']);
-    $ticket_assigned_to = intval($row['ticket_assigned_to']);
     $url_key = sanitizeInput($row['ticket_url_key']);
     $client_id = intval($row['ticket_client_id']);
 
+    // Update the contact
     mysqli_query($mysqli, "UPDATE tickets SET ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id");
 
     // Get New contact details
     $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql);
 
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = !empty($row['contact_name']) ? sanitizeInput($row['contact_name']) : 'No one';
     $contact_email = sanitizeInput($row['contact_email']);
 
-    // Notify new contact if selected
-    if ($notify && !empty($config_smtp_host)) {
+    // Notify new contact (if selected, valid & configured)
+    if ($notify && filter_var($contact_email, FILTER_VALIDATE_EMAIL) && !empty($config_smtp_host)) {
 
         // Get Company Phone Number
         $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
@@ -344,18 +343,14 @@ if (isset($_POST['edit_ticket_contact'])) {
         $subject = "Ticket Created - [$ticket_prefix$ticket_number] - $ticket_subject";
         $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
-
-        // Only add contact to email queue if email is valid
-        if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-            $data[] = [
-                'from' => $config_ticket_from_email,
-                'from_name' => $config_ticket_from_name,
-                'recipient' => $contact_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject,
-                'body' => $body
-            ];
-        }
+        $data[] = [
+            'from' => $config_ticket_from_email,
+            'from_name' => $config_ticket_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject,
+            'body' => $body
+        ];
 
         addToMailQueue($mysqli, $data);
     }

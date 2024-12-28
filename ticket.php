@@ -895,7 +895,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Tasks Card -->
                 <div class="card card-body">
 
-                    <?php if (empty($ticket_closed_at) && lookupUserPermission("module_support") >= 2) { ?>
+                    <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                         <form action="post.php" method="post" autocomplete="off">
                             <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                             <div class="form-group">
@@ -934,7 +934,7 @@ if (isset($_GET['ticket_id'])) {
                                 <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
                                 <td>
                                     <div class="float-right">
-                                        <?php if (empty($ticket_closed_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                        <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                                             <div class="dropdown dropleft text-center">
                                                 <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
                                                     <i class="fas fa-fw fa-ellipsis-v"></i>

@@ -7,13 +7,13 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <form action="post.php" method="post" autocomplete="off">
+            <form action="post.php" method="post" autocomplete="off" target="_blank">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
                     <ul class="list-group">
                         <div class="row">
                             <div class="col-sm-6">
-                                
+
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="contacts" name="export_contacts" value="1" checked>
@@ -98,7 +98,7 @@
                             </div>
 
                             <div class="col-sm-6">
-                                
+
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
                                         <input class="custom-control-input" type="checkbox" id="scheduled_tickets" name="export_scheduled_tickets" value="1" checked>
@@ -170,7 +170,7 @@
                                         </label>
                                     </div>
                                 </li>
-                         
+
                             </div>
                         </div>
                     </ul>
