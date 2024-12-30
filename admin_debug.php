@@ -519,12 +519,16 @@ $mysqli->close();
 
         <table class="table table-bordered mb-3">
             <tr>
-                <td>Current App Version</td>
-                <th><?php echo $commitHash; ?></th>
+                <th>ITFlow release version</th>
+                <th><?php echo APP_VERSION; ?></th>
+            </tr>
+            <tr>
+                <td>Current Code Commit</td>
+                <td><?php echo $commitHash; ?></td>
             </tr>
             <tr>
                 <td>Current DB Version</td>
-                <th><?php echo CURRENT_DATABASE_VERSION; ?></th>
+                <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
             </tr>
         </table>
 
