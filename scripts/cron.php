@@ -1,8 +1,5 @@
 <?php
 
-// Cron scripts have now moved to the /scripts folder
-// This file will soon be removed from the project
-
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
@@ -1006,9 +1003,8 @@ if ($updates->current_version !== $updates->latest_version) {
  * ###############################################################################################################
  */
 
-// Alert we're using the old cron path
-appNotify("Cron", "Cron ran OK, but paths need updating - cron scripts are now in the scripts subfolder", "admin_audit_log.php");
+// Send Alert to inform Cron was run
+appNotify("Cron", "Cron successfully executed", "admin_audit_log.php");
 
 // Logging
 logApp("Cron", "info", "Cron executed successfully");
-logApp("Cron", "warning", "Cron ran using an old script path");
