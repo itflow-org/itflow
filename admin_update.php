@@ -3,7 +3,6 @@ require_once "inc_all_admin.php";
 
 require_once "database_version.php";
 
-
 $updates = fetchUpdates();
 
 $latest_version = $updates->latest_version;
@@ -43,8 +42,6 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 <br>
                 <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
                 <br>
-                <small class="text-secondary">Branch: <?php echo $repo_branch; ?></small>
-
                 <hr>
 
             <?php } else {
@@ -54,9 +51,9 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <a class="btn btn-danger btn-lg" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
 
                 <?php } else { ?>
-                    <p class="text-secondary">Current Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
-                    <p class="text-secondary">Current App Version:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
-                    <p class="text-secondary">Branch:<br><strong class="text-dark"><?php echo $repo_branch; ?></strong></p>
+                    <p><strong>Application Release Version:<br><strong class="text-dark"><?php echo APP_VERSION; ?></strong></p>
+                    <p class="text-secondary">Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
+                    <p class="text-secondary">Code Commit:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
                     <p class="text-muted">You are up to date!<br>Everything is going to be alright</p>
                     <i class="far fa-3x text-dark fa-smile-wink"></i><br>
                 <?php }
