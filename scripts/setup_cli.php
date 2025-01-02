@@ -92,11 +92,11 @@ if (isset($options['help'])) {
 }
 
 if (file_exists("../config.php")) {
-    include "../config.php";
+    include_once "../config.php";
 }
 
-include "../functions.php";
-include "../database_version.php";
+require_once "../functions.php";
+require_once "../database_version.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
