@@ -141,7 +141,7 @@ function getOptionOrPrompt($key, $promptMessage, $required = false, $default = '
 echo "Welcome to the ITFlow CLI Setup.\n";
 
 // If config exists, abort
-if (file_exists('config.php')) {
+if (file_exists('../config.php')) {
     echo "Database is already configured in config.php.\n";
     echo "To re-run the setup, remove config.php and run this script again.\n";
     exit;
@@ -233,15 +233,15 @@ $new_config .= "\$config_https_only = TRUE;\n";
 $new_config .= "\$repo_branch = 'master';\n";
 $new_config .= "\$installation_id = '$installation_id';\n";
 
-if (file_put_contents("config.php", $new_config) === false) {
+if (file_put_contents("../config.php", $new_config) === false) {
     die("Failed to write config.php. Check file permissions.\n");
 }
 
-if (!file_exists('config.php')) {
+if (!file_exists('../config.php')) {
     die("config.php does not exist after write attempt.\n");
 }
 
-include "config.php";
+require "../config.php";
 
 // Import DB Schema
 echo "Importing database schema...\n";
