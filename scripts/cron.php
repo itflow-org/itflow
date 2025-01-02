@@ -1,8 +1,5 @@
 <?php
 
-// Cron scripts have now moved to the /scripts folder
-// This file will soon be removed from the project
-
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
@@ -165,7 +162,7 @@ if ($config_enable_alert_domain_expire == 1) {
         $sql = mysqli_query(
             $mysqli,
             "SELECT * FROM domains
-            LEFT JOIN clients ON domain_client_id = client_id 
+            LEFT JOIN clients ON domain_client_id = client_id
             WHERE domain_expire IS NOT NULL AND domain_expire = CURDATE() + INTERVAL $day DAY"
         );
 
@@ -195,7 +192,7 @@ foreach ($certificateAlertArray as $day) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT * FROM certificates
-        LEFT JOIN clients ON certificate_client_id = client_id 
+        LEFT JOIN clients ON certificate_client_id = client_id
         WHERE certificate_expire = CURDATE() + INTERVAL $day DAY"
     );
 
@@ -400,7 +397,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 
 $sql_resolved_tickets_to_close = mysqli_query(
     $mysqli,
-    "SELECT * FROM tickets 
+    "SELECT * FROM tickets
     WHERE ticket_status = 4
     AND ticket_updated_at < NOW() - INTERVAL $config_ticket_autoclose_hours HOUR"
 );
@@ -522,7 +519,7 @@ if ($config_send_invoice_reminders == 1) {
 $sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring
     LEFT JOIN recurring_payments ON recurring_id = recurring_payment_recurring_invoice_id
     LEFT JOIN clients ON client_id = recurring_client_id
-    WHERE recurring_next_date = CURDATE() 
+    WHERE recurring_next_date = CURDATE()
     AND recurring_status = 1
 ");
 
@@ -685,7 +682,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $new_invoice_id");
 
         // Logging
-        logAction("Invoice", "Payment", "Auto Payment amount of " . numfmt_format_currency($currency_format, $recurring_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $new_invoice_id);                     
+        logAction("Invoice", "Payment", "Auto Payment amount of " . numfmt_format_currency($currency_format, $recurring_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $new_invoice_id);
+
     } //End Auto Payment
 
 } //End Recurring Invoices Loop
@@ -1006,9 +1004,8 @@ if ($updates->current_version !== $updates->latest_version) {
  * ###############################################################################################################
  */
 
-// Alert we're using the old cron path
-appNotify("Cron", "Cron ran OK, but paths need updating - cron scripts are now in the scripts subfolder", "admin_audit_log.php");
+// Send Alert to inform Cron was run
+appNotify("Cron", "Cron successfully executed", "admin_audit_log.php");
 
 // Logging
 logApp("Cron", "info", "Cron executed successfully");
-logApp("Cron", "warning", "Cron ran using an old script path");
