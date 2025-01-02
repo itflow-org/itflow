@@ -117,11 +117,11 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     // Logging
     logAction("Ticket", "Create", "Email parser: Client contact $contact_email_esc created ticket $ticket_prefix_esc$ticket_number ($subject) ($id)", $client_id, $id);
 
-    mkdirMissing('uploads/tickets/');
-    $att_dir = "uploads/tickets/" . $id . "/";
+    mkdirMissing('../uploads/tickets/');
+    $att_dir = "../uploads/tickets/" . $id . "/";
     mkdirMissing($att_dir);
 
-    rename("uploads/tmp/{$original_message_file}", "{$att_dir}/{$original_message_file}");
+    rename("../uploads/tmp/{$original_message_file}", "{$att_dir}/{$original_message_file}");
     $original_message_file_esc = mysqli_real_escape_string($mysqli, $original_message_file);
     mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = 'Original-parsed-email.eml', ticket_attachment_reference_name = '$original_message_file_esc', ticket_attachment_ticket_id = $id");
 
@@ -270,7 +270,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$message_esc', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
         $reply_id = mysqli_insert_id($mysqli);
 
-        mkdirMissing('uploads/tickets/');
+        mkdirMissing('../uploads/tickets/');
         foreach ($attachments as $attachment) {
             $att_name = $attachment->getFilename();
             $att_extarr = explode('.', $att_name);
@@ -278,7 +278,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             if (in_array($att_extension, $allowed_extensions)) {
                 $att_saved_filename = md5(uniqid(rand(), true)) . '.' . $att_extension;
-                $att_saved_path = "uploads/tickets/" . $ticket_id . "/" . $att_saved_filename;
+                $att_saved_path = "../uploads/tickets/" . $ticket_id . "/" . $att_saved_filename;
                 file_put_contents($att_saved_path, $attachment->getContent());
 
                 $ticket_attachment_name = sanitizeInput($att_name);
@@ -403,11 +403,11 @@ if ($emails !== false) {
         $email_processed = false;
 
         // Save original message
-        mkdirMissing('uploads/tmp/');
+        mkdirMissing('../uploads/tmp/');
         $original_message_file = "processed-eml-" . randomString(200) . ".eml";
 
         $raw_message = imap_fetchheader($imap, $email_uid, FT_UID) . imap_body($imap, $email_uid, FT_UID);
-        file_put_contents("uploads/tmp/{$original_message_file}", $raw_message);
+        file_put_contents("../uploads/tmp/{$original_message_file}", $raw_message);
 
         // Parse the message using php-mime-mail-parser
         $parser = new \PhpMimeMailParser\Parser();
@@ -521,8 +521,8 @@ if ($emails !== false) {
         }
 
         // Delete the temporary message file
-        if (file_exists("uploads/tmp/{$original_message_file}")) {
-            unlink("uploads/tmp/{$original_message_file}");
+        if (file_exists("../uploads/tmp/{$original_message_file}")) {
+            unlink("../uploads/tmp/{$original_message_file}");
         }
     }
 }
