@@ -261,7 +261,7 @@
                                     <option value="0">- None -</option>
                                     <?php
 
-                                    $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                                    $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE (project_client_id = $client_id OR project_client_id = 0) AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                                     while ($row = mysqli_fetch_array($sql_projects)) {
                                         $project_id_select = intval($row['project_id']);
                                         $project_name_select = nullable_htmlentities($row['project_name']); ?>
