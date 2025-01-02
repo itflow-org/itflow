@@ -11,14 +11,14 @@ $script_start_time = microtime(true); // unComment when Debugging Execution time
 chdir(dirname(__FILE__));
 
 // Get ITFlow config & helper functions
-require_once "config.php";
+require_once "../config.php";
 
 // Set Timezone
-require_once "inc_set_timezone.php";
-require_once "functions.php";
+require_once "../inc_set_timezone.php";
+require_once "../functions.php";
 
 // Get settings for the "default" company
-require_once "get_settings.php";
+require_once "../get_settings.php";
 
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -73,15 +73,15 @@ file_put_contents($lock_file_path, "Locked");
 
 // PHP Mail Parser
 use PhpMimeMailParser\Parser;
-require_once "plugins/php-mime-mail-parser/Contracts/CharsetManager.php";
-require_once "plugins/php-mime-mail-parser/Contracts/Middleware.php";
-require_once "plugins/php-mime-mail-parser/Attachment.php";
-require_once "plugins/php-mime-mail-parser/Charset.php";
-require_once "plugins/php-mime-mail-parser/Exception.php";
-require_once "plugins/php-mime-mail-parser/Middleware.php";
-require_once "plugins/php-mime-mail-parser/MiddlewareStack.php";
-require_once "plugins/php-mime-mail-parser/MimePart.php";
-require_once "plugins/php-mime-mail-parser/Parser.php";
+require_once "../plugins/php-mime-mail-parser/Contracts/CharsetManager.php";
+require_once "../plugins/php-mime-mail-parser/Contracts/Middleware.php";
+require_once "../plugins/php-mime-mail-parser/Attachment.php";
+require_once "../plugins/php-mime-mail-parser/Charset.php";
+require_once "../plugins/php-mime-mail-parser/Exception.php";
+require_once "../plugins/php-mime-mail-parser/Middleware.php";
+require_once "../plugins/php-mime-mail-parser/MiddlewareStack.php";
+require_once "../plugins/php-mime-mail-parser/MimePart.php";
+require_once "../plugins/php-mime-mail-parser/Parser.php";
 
 // Allowed attachment extensions
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
