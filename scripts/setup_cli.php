@@ -378,7 +378,7 @@ if (!$non_interactive) {
 }
 
 // finalize config
-$myfile = fopen("config.php", "a");
+$myfile = fopen("../config.php", "a");
 $txt = "\$config_enable_setup = 0;\n\n";
 fwrite($myfile, $txt);
 fclose($myfile);
