@@ -245,7 +245,7 @@ include "config.php";
 
 // Import DB Schema
 echo "Importing database schema...\n";
-$filename = 'db.sql';
+$filename = '../db.sql';
 if (!file_exists($filename)) {
     die("db.sql file not found.\n");
 }
