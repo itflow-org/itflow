@@ -519,7 +519,7 @@ if ($config_send_invoice_reminders == 1) {
 $sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring
     LEFT JOIN recurring_payments ON recurring_id = recurring_payment_recurring_invoice_id
     LEFT JOIN clients ON client_id = recurring_client_id
-    WHERE recurring_next_date = CURDATE() 
+    WHERE recurring_next_date = CURDATE()
     AND recurring_status = 1
 ");
 

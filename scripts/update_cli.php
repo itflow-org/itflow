@@ -20,7 +20,7 @@ if ($currentUser !== $fileOwner) {
     exit(1);
 }
 
-require_once 'config.php';
+require_once "config.php";
 require_once "functions.php";
 
 // A function to print the help message so that we don't duplicate it
@@ -103,7 +103,7 @@ if (isset($options['update']) || isset($options['force_update'])) {
 
 // If "update_db" is requested
 if (isset($options['update_db'])) {
-    require_once('database_version.php');
+    require_once "database_version.php";
 
     $latest_db_version = LATEST_DATABASE_VERSION;
 
@@ -114,7 +114,7 @@ if (isset($options['update_db'])) {
     $old_db_version = $row['config_current_database_version'];
 
     // Now include the update logic
-    require_once('database_updates.php');
+    require_once "database_updates.php";
 
     // After database_updates.php has done its job, fetch the updated current DB version again
     $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings LIMIT 1");
