@@ -33,16 +33,8 @@ if ( $argv[1] !== $config_cron_key ) {
  *  REFRESH DATA
  * ###############################################################################################################
  */
-// 2023-02-20 JQ Commenting this code out as its intermitently breaking cron executions, investigating
-// ERROR
-// php cron.php
-// PHP Fatal error:  Uncaught TypeError: mysqli_fetch_array(): Argument #1 ($result) must be of type mysqli_result, bool given in cron.php:141
-// Stack trace:
-//#0 cron.php(141): mysqli_fetch_array()
-//#1 {main}
-//  thrown in cron.php on line 141
-// END ERROR
-// REFRESH DOMAIN WHOIS DATA (1 a day)
+
+// REFRESH DOMAIN WHOIS DATA (1 a day/run)
 //  Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
 $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire FROM `domains` ORDER BY domain_updated_at LIMIT 1"));
 
