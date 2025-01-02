@@ -35,12 +35,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label>IP</label>
+                        <label>IP or DHCP</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
                             <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="dhcp" value="1" title="Check to mark address as DHCP controlled">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
