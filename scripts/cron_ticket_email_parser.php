@@ -556,5 +556,3 @@ if (file_exists($lock_file_path)) {
 }
 echo "Processed Emails into tickets: $processed_count\n";
 echo "Unprocessed Emails: $unprocessed_count\n";
-
-?>
