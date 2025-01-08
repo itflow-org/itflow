@@ -3,7 +3,6 @@
 <!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
 [![Commits][commit-shield]][commit-url]
 [![GPL License][license-shield]][license-url]
 
