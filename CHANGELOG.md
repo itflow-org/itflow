@@ -8,6 +8,7 @@ All notable changes to ITFlow will be documented in this file.
 - Bugfix: Asset interface losing DHCP setting
 - Bugfix: Editing / creating recurring expenses results in error 500 due to incorrect var name
 - Stripe online payment setup now prompts you to set the income/expense account
+- Admin pages now once again use the new admin rolecheck
 
 ## 24.12
 
