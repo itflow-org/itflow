@@ -11,6 +11,9 @@ $checks = [];
 // Execute the git command to get the latest commit hash
 $commitHash = exec('git log -1 --format=%H');
 
+// Get branch info
+$gitBranch = exec('git rev-parse --abbrev-ref HEAD');
+
 // Section: System Information
 $systemInfo = [];
 
@@ -523,12 +526,16 @@ $mysqli->close();
                 <th><?php echo APP_VERSION; ?></th>
             </tr>
             <tr>
+                <td>Current DB Version</td>
+                <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
+            </tr>
+            <tr>
                 <td>Current Code Commit</td>
                 <td><?php echo $commitHash; ?></td>
             </tr>
             <tr>
-                <td>Current DB Version</td>
-                <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
+                <td>Current Branch</td>
+                <td><?php echo $gitBranch; ?></td>
             </tr>
         </table>
 
