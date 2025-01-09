@@ -9,6 +9,7 @@ All notable changes to ITFlow will be documented in this file.
 - Bugfix: Editing / creating recurring expenses results in error 500 due to incorrect var name
 - Bugfix: Recurring tickets no longer require a contact
 - Bugfix: Stripe online payment setup now prompts you to set the income/expense account
+- Bugfix: Tickets created via portal/email not being marked as billable 
 - Admin pages now once again use the new admin role-check
 - Debug now shows the current git branch
 - Individual POST handler logic pages can no longer be accessed directly
