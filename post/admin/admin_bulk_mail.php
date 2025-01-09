@@ -4,6 +4,9 @@
  * ITFlow - GET/POST request handler for bulk email
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+
 if (isset($_POST['send_bulk_mail_now'])) {
     
     if (isset($_POST['contact_ids'])) {

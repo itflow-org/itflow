@@ -1,5 +1,7 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['edit_company'])) {
 
     validateCSRFToken($_POST['csrf_token']);

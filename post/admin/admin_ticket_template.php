@@ -2,6 +2,8 @@
 
 // Ticket Templates
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 // Import shared code from user-side tickets/tasks as we reuse functions
 require_once 'post/user/ticket.php';
 require_once 'post/user/task.php';

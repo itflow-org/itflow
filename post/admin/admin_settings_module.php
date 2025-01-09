@@ -1,5 +1,7 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['edit_module_settings'])) {
 
     $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc'] ?? 0);

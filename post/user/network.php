@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client networks
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_network'])) {
 
     enforceUserPermission('module_support', 2);

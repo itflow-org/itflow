@@ -2,6 +2,8 @@
 
 // Doc Templates
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 // Import shared code from user-side docs as we reuse functions
 require_once 'post/user/document.php';
 

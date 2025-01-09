@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client domains
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_domain'])) {
 
     enforceUserPermission('module_support', 2);

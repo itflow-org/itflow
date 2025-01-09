@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for expenses
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_expense'])) {
 
     require_once 'post/user/expense_model.php';

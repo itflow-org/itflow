@@ -10,6 +10,9 @@ require_once "functions.php";
 
 require_once "check_login.php";
 
+// Define a variable that we can use to only allow running post files via inclusion (prevents people/bots poking them)
+define('FROM_POST_HANDLER', true);
+
 
 // Determine which files we should load
 
@@ -28,13 +31,7 @@ if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_ad
     //  To add a new admin POST request handler, add a file named after the admin page
     //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page post/admin/admin_ticket_statues.php to handle the changes
 
-    if ($module !== 'admin_update') {
-        require_once "post/admin/$module.php";
-    }
-    // IF statement is temporary
-
-
-
+    require_once "post/admin/$module.php";
 
 } elseif (str_contains($module, 'xcustom')) {
     // Dynamically load any custom POST logic
@@ -57,10 +54,6 @@ if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_ad
 
 // Logout is the same for user and admin
 require_once "post/logout.php";
-
-// TODO: Move admin_update into the admin section to be auto-loaded
-//  We can't do this until everyone has the new database fields added in 1.4.9 on Sept 14th 2024
-require_once "post/admin_update.php"; // Load updater
 
 // TODO: Find a home for these
 

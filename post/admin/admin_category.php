@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for categories ('category')
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_category'])) {
 
     require_once 'post/admin/admin_category_model.php';

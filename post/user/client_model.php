@@ -1,4 +1,6 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 $name = sanitizeInput($_POST['name']);
 $type = sanitizeInput($_POST['type']);
 $website = preg_replace("(^https?://)", "", sanitizeInput($_POST['website']));

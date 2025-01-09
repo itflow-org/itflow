@@ -1,4 +1,6 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 $name = sanitizeInput($_POST['name']);
 $mac = sanitizeInput($_POST['mac']);
 $ip = sanitizeInput($_POST['ip']);

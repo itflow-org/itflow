@@ -4,6 +4,7 @@
  * ITFlow - GET/POST request handler for client software & licenses
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_software_from_template'])) {
 

@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for custom fields
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if(isset($_POST['create_custom_field'])){
 
     require_once 'post/admin/admin_custom_field_model.php';

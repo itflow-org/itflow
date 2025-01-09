@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for trips (accounting related)
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_trip'])) {
 
     require_once 'post/user/trip_model.php';

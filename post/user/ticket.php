@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client tickets
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_ticket'])) {
 
     enforceUserPermission('module_support', 2);

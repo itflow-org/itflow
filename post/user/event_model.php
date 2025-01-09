@@ -1,4 +1,6 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 $calendar_id = intval($_POST['calendar']);
 $title = sanitizeInput($_POST['title']);
 $location = sanitizeInput($_POST['location']);

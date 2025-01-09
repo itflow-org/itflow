@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for roles
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_role'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -58,4 +60,12 @@ if (isset($_POST['edit_role'])) {
     $_SESSION['alert_message'] = "User Role <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['archive_role'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+
+
 }

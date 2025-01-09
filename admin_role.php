@@ -110,11 +110,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </a>
 
                                             <?php if (empty($role_archived_at) && $role_user_count == 0) { ?>
-                                                    <!-- To be added -->
                                                 <div class="dropdown-divider"></div>
-<!--                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_role=--><?php //echo $role_id; ?><!--&csrf_token=--><?php //echo $_SESSION['csrf_token'] ?><!--">-->
-<!--                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive-->
-<!--                                                </a>-->
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_role=<?php echo $role_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                </a>
                                             <?php } ?>
 
                                         </div>

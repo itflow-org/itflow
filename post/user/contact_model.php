@@ -1,4 +1,5 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 $client_id = intval($_POST['client_id']);
 $name = sanitizeInput($_POST['name']);

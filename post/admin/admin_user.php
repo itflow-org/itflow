@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for user (agent) management
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_user'])) {
 
     validateCSRFToken($_POST['csrf_token']);

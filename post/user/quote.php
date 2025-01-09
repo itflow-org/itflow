@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for quotes
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_quote'])) {
 
     enforceUserPermission('module_sales', 2);

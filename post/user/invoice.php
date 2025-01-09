@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for invoices & payments
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_invoice'])) {
 
     require_once 'post/user/invoice_model.php';

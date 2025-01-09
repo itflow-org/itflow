@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for user profiles (tech/agent)
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['edit_your_user_details'])) {
 
     // CSRF Check
