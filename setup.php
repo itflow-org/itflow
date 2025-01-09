@@ -1217,7 +1217,7 @@ if (isset($_POST['add_telemetry'])) {
                             <?php
                             // Check that there is access to write to the current directory
                             if (!is_writable('.')) {
-                                echo "<div class='alert alert-danger'>Warning: The current directory is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation#ubuntu_setup_guide'>docs</a> for info.</div>";
+                                echo "<div class='alert alert-danger'>Warning: The current directory is not writable. Ensure the webserver process has write access (chmod/chown). Check the <a href='https://docs.itflow.org/installation'>docs</a> for info.</div>";
                             }
                             ?>
                             <hr>
