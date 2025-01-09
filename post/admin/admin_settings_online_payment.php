@@ -18,8 +18,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
     // Logging
     logAction("Settings", "Edit", "$session_name edited online payment settings");
 
-
-    if ($config_stripe_account == 0) {
+    if ($config_stripe_enable && $config_stripe_account == 0) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Stripe payment account must be specified!";
     } else {
