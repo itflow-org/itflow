@@ -6,7 +6,8 @@ All notable changes to ITFlow will be documented in this file.
 - Moved cron/cli scripts to scripts subfolder - Old scripts remain in the root for now, but please update your cron configurations!
 - Bugfix: Ticket edit modal not showing multi-client/no-client projects
 - Bugfix: Asset interface losing DHCP setting
-- Bugfix: Editing / creating recurring expensives results in error 500 due to incorrect var name
+- Bugfix: Editing / creating recurring expenses results in error 500 due to incorrect var name
+- Stripe online payment setup now prompts you to set the income/expense account
 
 ## 24.12
 
