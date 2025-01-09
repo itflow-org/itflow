@@ -85,12 +85,12 @@
                         <div class="tab-pane fade" id="pills-edit-contacts">
 
                             <div class="form-group">
-                                <label>Contact <strong class="text-danger">*</strong></label>
+                                <label>Contact</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="contact" id="editTicketContact" required>
+                                    <select class="form-control select2" name="contact" id="editTicketContact">
                                         <option value="">- Contact -</option>
                                     </select>
                                 </div>

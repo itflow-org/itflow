@@ -142,9 +142,7 @@ mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTER
 // Whitelabel - Disable if expired/invalid
 if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)) {
     mysqli_query($mysqli, "UPDATE settings SET config_whitelabel_enabled = 0, config_whitelabel_key = '' WHERE company_id = 1");
-    
     appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "settings_modules.php");
-
 }
 
 

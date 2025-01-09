@@ -1980,14 +1980,6 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $start_date = sanitizeInput($_POST['start_date']);
 
-    // If no contact is selected automatically choose the primary contact for the client
-    if ($client_id > 0 && $contact_id == 0) {
-        $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
-        $row = mysqli_fetch_array($sql);
-        $contact_id = intval($row['contact_id']);
-    }
-
-    // Add recurring (scheduled) ticket
     mysqli_query($mysqli, "INSERT INTO scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_billable = $billable, scheduled_ticket_start_date = '$start_date', scheduled_ticket_next_run = '$start_date', scheduled_ticket_assigned_to = $assigned_to, scheduled_ticket_created_by = $session_user_id, scheduled_ticket_client_id = $client_id, scheduled_ticket_contact_id = $contact_id, scheduled_ticket_asset_id = $asset_id");
 
     $scheduled_ticket_id = mysqli_insert_id($mysqli);
@@ -2009,14 +2001,6 @@ if (isset($_POST['edit_recurring_ticket'])) {
     $scheduled_ticket_id = intval($_POST['scheduled_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
 
-    // If no contact is selected automatically choose the primary contact for the client
-    if ($client_id > 0 && $contact_id == 0) {
-        $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id AND contact_primary = 1");
-        $row = mysqli_fetch_array($sql);
-        $contact_id = intval($row['contact_id']);
-    }
-
-    // Edit scheduled ticket
     mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_subject = '$subject', scheduled_ticket_details = '$details', scheduled_ticket_priority = '$priority', scheduled_ticket_frequency = '$frequency', scheduled_ticket_billable = $billable, scheduled_ticket_next_run = '$next_run_date', scheduled_ticket_assigned_to = $assigned_to, scheduled_ticket_asset_id = $asset_id, scheduled_ticket_contact_id = $contact_id WHERE scheduled_ticket_id = $scheduled_ticket_id");
 
     // Logging
