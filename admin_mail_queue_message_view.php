@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 //Initialize the HTML Purifier to prevent XSS
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -74,4 +74,4 @@ if ($email_status == 0) {
 
 <?php
 
-require_once "footer.php";
+require_once "includes/footer.php";

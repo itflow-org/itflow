@@ -1,4 +1,4 @@
-<?php require_once "inc_all.php"; ?>
+<?php require_once "includes/inc_all.php"; ?>
 
     <!-- Breadcrumbs-->
     <ol class="breadcrumb">
@@ -52,4 +52,4 @@ echo "Current Date and Time: <strong>$date_time</strong>";
 
 <script>toastr.success('Have Fun Wozz!!')</script>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";

@@ -315,7 +315,7 @@ if (isset($_POST['login'])) {
     <?php } ?>
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
 
 </head>
 <body class="hold-transition login-page">
@@ -401,7 +401,7 @@ if (isset($_POST['login'])) {
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
+<script src="plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script> -->
 

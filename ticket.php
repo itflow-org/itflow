@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else {
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 // Perms
@@ -1182,7 +1182,7 @@ if (isset($_GET['ticket_id'])) {
     }
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

@@ -4,7 +4,7 @@
 $sort = "scheduled_ticket_subject";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -180,5 +180,5 @@ require_once "recurring_ticket_add_modal.php";
 
 require_once "recurring_ticket_edit_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

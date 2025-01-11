@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 
 if (isset($_GET['asset_id'])) {
@@ -910,5 +910,5 @@ require_once "recurring_ticket_add_modal.php";
 
 require_once "recurring_ticket_edit_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

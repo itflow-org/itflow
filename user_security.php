@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_user.php";
+require_once "includes/inc_all_user.php";
 
 // User remember me tokens
 $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
@@ -121,4 +121,4 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 <?php } ?>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";

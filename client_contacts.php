@@ -4,7 +4,7 @@
 $sort = "contact_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
@@ -436,7 +436,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php require_once "modals/client_contact_bulk_assign_tags_modal.php"; ?>
                 <?php require_once "modals/client_contact_bulk_email_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
 ?>
         </div>
     </div>
@@ -490,4 +490,4 @@ require_once "modals/client_contact_import_modal.php";
 
 require_once "modals/client_contact_export_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

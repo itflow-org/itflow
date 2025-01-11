@@ -4,7 +4,7 @@
 $sort = "document_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -462,7 +462,7 @@ while ($folder_id > 0) {
                         </div>
                         <?php require_once "client_document_bulk_move_modal.php"; ?>
                     </form>
-                    <?php require_once "pagination.php";
+                    <?php require_once "includes/filter_footer.php";
  ?>
                 </div>
             </div>
@@ -478,4 +478,4 @@ require_once "client_document_add_modal.php";
 
 require_once "client_document_add_from_template_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

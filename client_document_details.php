@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
@@ -406,6 +406,6 @@ require_once "document_edit_visibility_modal.php";
 
 require_once "share_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
  ?>
 
 <div class="card card-dark">
@@ -73,5 +73,5 @@ require_once "inc_all_admin.php";
 </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";
 

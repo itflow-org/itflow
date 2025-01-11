@@ -4,7 +4,7 @@
 $sort = "asset_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -614,7 +614,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 <?php require_once "client_asset_bulk_edit_status_modal.php"; ?>
                 <?php require_once "client_asset_bulk_add_ticket_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php"; ?>
+            <?php require_once "includes/filter_footer.php"; ?>
         </div>
     </div>
 
@@ -627,7 +627,7 @@ require_once "client_asset_import_modal.php";
 
 require_once "client_asset_export_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_user.php";
+require_once "includes/inc_all_user.php";
 
 $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
 $user_config_calendar_first_day = intval($row['user_config_calendar_first_day']);
@@ -48,4 +48,4 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
 </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";

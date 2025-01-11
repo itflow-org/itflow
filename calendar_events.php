@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 
 if (isset($_GET['calendar_id'])) {
@@ -94,7 +94,7 @@ while ($row = mysqli_fetch_array($sql)) {
 
 ?>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
 ?>
 
 <script src='plugins/fullcalendar/dist/index.global.js'></script>
