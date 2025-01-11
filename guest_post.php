@@ -183,9 +183,14 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
     if (mysqli_num_rows($sql) == 1) {
         // Add feedback
         mysqli_query($mysqli, "UPDATE tickets SET ticket_feedback = '$feedback' WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+
         // Notify on bad feedback
         if ($feedback == "Bad") {
-            appNotify("Feedback", "Guest rated ticket ID $ticket_id as bad", "ticket.php?ticket_id=$ticket_id");
+            $ticket_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+            $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
+            $ticket_number = intval($ticket_details['ticket_number']);
+
+            appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "ticket.php?ticket_id=$ticket_id");
         }
 
         $_SESSION['alert_message'] = "Feedback recorded - thank you";

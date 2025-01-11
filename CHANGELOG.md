@@ -8,6 +8,7 @@ All notable changes to ITFlow will be documented in this file.
 - Debug now shows the current git branch
 - Individual POST handler logic pages can no longer be accessed directly
 - Auto-acknowledgement email for email parsed tickets now contains guest link
+- Guest ticket feedback now shows friendly ticket prefix & number, rather than just the ID
 - Bugfix: Ticket edit modal not showing multi-client/no-client projects
 - Bugfix: Asset interface losing DHCP setting
 - Bugfix: Editing / creating recurring expenses results in error 500 due to incorrect var name
