@@ -306,10 +306,10 @@ if (isset($_GET['share_generate_link'])) {
 
     // Return URL
     if ($item_type == "Login") {
-        $url = "https://$config_base_url/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
+        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
     }
     else {
-        $url = "https://$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
+        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
