@@ -297,7 +297,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php } ?>
                                     </div>
                                 </div>
-                                <?php require "client_location_edit_modal.php";
+                                <?php require "modals/client_location_edit_modal.php";
      ?>
                             </td>
                         </tr>
@@ -307,7 +307,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "client_location_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/client_location_bulk_assign_tags_modal.php"; ?>
         </form>
         <?php require_once "pagination.php";
  ?>
@@ -318,11 +318,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_location_add_modal.php";
+require_once "modals/client_location_add_modal.php";
 
-require_once "client_location_import_modal.php";
+require_once "modals/client_location_import_modal.php";
 
-require_once "client_location_export_modal.php";
+require_once "modals/client_location_export_modal.php";
 
 require_once "footer.php";
 
