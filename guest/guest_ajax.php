@@ -6,14 +6,14 @@
  * Always returns data in JSON format, unless otherwise specified
  */
 
-require_once "config.php";
+require_once "../config.php";
 
 // Set Timezone
-require_once "inc_set_timezone.php";
+require_once "../inc_set_timezone.php";
 
-require_once "functions.php";
+require_once "../functions.php";
 
-require_once "rfc6238.php";
+require_once "../rfc6238.php";
 
 
 /*
@@ -74,7 +74,7 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     // Setup Stripe
-    require_once 'vendor/stripe-php-10.5.0/init.php';
+    require_once '../vendor/stripe-php-10.5.0/init.php';
 
 
     $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));

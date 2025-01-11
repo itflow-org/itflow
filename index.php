@@ -1,7 +1,7 @@
 <?php 
 
 if (file_exists("config.php")) {
-    include "inc_all.php";
+    require_once "includes/inc_all.php";
  ?>
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
@@ -16,7 +16,7 @@ if (file_exists("config.php")) {
 	<hr>
 	<?php 
 
-	include "footer.php";
+	require_once "includes/footer.php";
 
 
 } else {

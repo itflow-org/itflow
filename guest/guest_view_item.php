@@ -8,7 +8,7 @@ require_once "guest_header.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -87,7 +87,7 @@ appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recip
 
 <?php
     if (!empty($company_logo)) { ?>
-            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
         <?php
         } else {
             echo "<h3>$company_name</h3>";

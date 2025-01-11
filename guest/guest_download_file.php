@@ -1,11 +1,11 @@
 <?php
 // Not including the guest header as we don't want any HTML output
-require_once "config.php";
+require_once "../config.php";
 
 // Set Timezone
-require_once "inc_set_timezone.php";
+require_once "../inc_set_timezone.php";
 
-require_once "functions.php";
+require_once "../functions.php";
 
 
 $session_ip = sanitizeInput(getIP());
@@ -59,7 +59,7 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     $file_name = sanitizeInput($file_row['file_name']);
     $file_reference_name = sanitizeInput($file_row['file_reference_name']);
     $client_id = intval($file_row['file_client_id']);
-    $file_path = "uploads/clients/$client_id/$file_reference_name";
+    $file_path = "../uploads/clients/$client_id/$file_reference_name";
 
     // Display file as download
     $mime_type = mime_content_type($file_path);
