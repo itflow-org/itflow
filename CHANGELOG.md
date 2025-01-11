@@ -13,6 +13,7 @@ All notable changes to ITFlow will be documented in this file.
 - Admin pages now once again use the new admin role-check
 - Debug now shows the current git branch
 - Individual POST handler logic pages can no longer be accessed directly
+- Auto-acknowledgement email for email parsed tickets now contains guest link
 
 ## 24.12
 
