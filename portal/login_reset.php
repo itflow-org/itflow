@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <?php } ?>
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
 
 </head>
 
@@ -294,7 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
-<script src="../dist/js/adminlte.min.js"></script>
+<script src="../plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- Prevents resubmit on refresh or back -->
 <script src="../js/login_prevent_resubmit.js"></script>

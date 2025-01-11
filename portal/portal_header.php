@@ -27,7 +27,7 @@ header("X-Frame-Options: DENY"); // Legacy
     <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="../dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
 
 </head>
 
