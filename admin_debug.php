@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 require_once "database_version.php";
 
@@ -755,5 +755,5 @@ $mysqli->close();
 
 <?php
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

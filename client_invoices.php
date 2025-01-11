@@ -4,7 +4,7 @@
 $sort = "invoice_number";
 $order = "DESC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_sales');
@@ -213,7 +213,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php require_once "pagination.php";
+        <?php require_once "includes/filter_footer.php";
         ?>
     </div>
 </div>
@@ -225,4 +225,4 @@ require_once "invoice_payment_add_bulk_modal.php";
 
 require_once "client_invoice_export_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

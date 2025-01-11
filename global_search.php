@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Initialize the HTML Purifier to prevent XSS
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -847,7 +847,7 @@ if (isset($_GET['query'])) {
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

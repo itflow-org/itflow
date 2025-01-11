@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Get expiration days from select box
 $expiration_days = isset($_GET['expiration_days']) ? intval($_GET['expiration_days']) : 90;
@@ -691,5 +691,5 @@ $sql_asset_retired = mysqli_query(
 
 <?php
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

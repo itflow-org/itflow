@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Get current year or the selected year
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
@@ -722,7 +722,7 @@ if ($user_config_dashboard_technical_enable == 1) {
 
 <?php } ?>
 
-<?php require_once "footer.php"; ?>
+<?php require_once "includes/footer.php"; ?>
 
 <?php if ($user_config_dashboard_financial_enable == 1) { ?>
 

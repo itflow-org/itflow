@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 
 if (isset($_GET['contact_id'])) {
@@ -1137,4 +1137,4 @@ require_once "modals/client_contact_link_file_modal.php";
 require_once "recurring_ticket_add_modal.php";
 require_once "recurring_ticket_edit_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

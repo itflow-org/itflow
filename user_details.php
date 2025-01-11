@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_user.php";
+require_once "includes/inc_all_user.php";
 
 ?>
 
@@ -62,4 +62,4 @@ require_once "inc_all_user.php";
 </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";

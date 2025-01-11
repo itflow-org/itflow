@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 
 if (isset($_GET['project_id'])) {
@@ -409,7 +409,7 @@ if (isset($_GET['project_id'])) {
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

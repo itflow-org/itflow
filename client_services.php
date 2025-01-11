@@ -4,7 +4,7 @@
 $sort = "service_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -218,5 +218,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 require_once "client_service_add_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

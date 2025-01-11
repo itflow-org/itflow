@@ -4,7 +4,7 @@
 $sort = "tax_name";
 $order = "ASC";
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 
 //Rebuild URL
@@ -98,5 +98,5 @@ $num_rows = mysqli_num_rows($sql);
 <?php
 require_once "admin_tax_add_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

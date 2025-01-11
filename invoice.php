@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else { 
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 if (isset($_GET['invoice_id'])) {
@@ -22,7 +22,7 @@ if (isset($_GET['invoice_id'])) {
 
     if (mysqli_num_rows($sql) == 0) {
         echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
-        require_once "footer.php";
+        require_once "includes/footer.php";
 
         exit();
     }
@@ -674,7 +674,7 @@ if (isset($_GET['invoice_id'])) {
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 
 ?>

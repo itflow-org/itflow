@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Perms
 enforceUserPermission('module_financial');
@@ -109,5 +109,5 @@ function getBudgetAmount($budgets, $categoryId, $month) {
     return 0;
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 ?>

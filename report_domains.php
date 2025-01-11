@@ -4,7 +4,7 @@
 $sort = "domain_name";
 $order = "ASC";
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -227,12 +227,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 </form>
             </div>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
             ?>
         </div>
     </div>
 
 <script src="js/bulk_actions.js"></script>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
 

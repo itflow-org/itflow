@@ -4,7 +4,7 @@
 $sort = "category_name";
 $order = "ASC";
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 
 if (isset($_GET['category'])) {
@@ -186,7 +186,7 @@ if (isset($_GET['archived'])) {
                 </tbody>
             </table>
         </div>
-        <?php require_once "pagination.php";
+        <?php require_once "includes/filter_footer.php";
  ?>
     </div>
 </div>
@@ -194,4 +194,4 @@ if (isset($_GET['archived'])) {
 <?php
 require_once "admin_category_add_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

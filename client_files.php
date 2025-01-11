@@ -4,7 +4,7 @@
 $sort = "file_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 
 // Folder
@@ -600,7 +600,7 @@ while ($folder_id > 0) {
 
                 <?php } ?>
 
-                <?php require_once "pagination.php";
+                <?php require_once "includes/filter_footer.php";
  ?>
 
             </div>
@@ -640,4 +640,4 @@ require_once "share_modal.php";
 
 require_once "client_file_delete_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

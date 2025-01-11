@@ -1,4 +1,4 @@
-<?php require_once "inc_all.php"; ?>
+<?php require_once "includes/inc_all.php"; ?>
 
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
@@ -25,4 +25,4 @@ foreach ($sql_tickets as $row) {
 
 ?>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
