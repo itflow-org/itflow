@@ -419,8 +419,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "client_contact_create_note_modal.php";
-                            require "client_contact_edit_modal.php";
+                            require "modals/client_contact_create_note_modal.php";
+                            require "modals/client_contact_edit_modal.php";
 
                         }
 
@@ -429,12 +429,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "client_contact_bulk_assign_location_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_phone_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_department_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_role_modal.php"; ?>
-                <?php require_once "client_contact_bulk_assign_tags_modal.php"; ?>
-                <?php require_once "client_contact_bulk_email_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_assign_location_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_phone_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_department_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_role_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_assign_tags_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_email_modal.php"; ?>
             </form>
             <?php require_once "pagination.php";
 ?>
@@ -482,12 +482,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_contact_add_modal.php";
+require_once "modals/client_contact_add_modal.php";
 
-require_once "client_contact_invite_modal.php";
+require_once "modals/client_contact_invite_modal.php";
 
-require_once "client_contact_import_modal.php";
+require_once "modals/client_contact_import_modal.php";
 
-require_once "client_contact_export_modal.php";
+require_once "modals/client_contact_export_modal.php";
 
 require_once "footer.php";

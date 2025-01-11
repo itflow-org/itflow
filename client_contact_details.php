@@ -210,7 +210,7 @@ if (isset($_GET['contact_id'])) {
                     <?php } ?>
                     <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
 
-                    <?php require_once "client_contact_edit_modal.php";
+                    <?php require_once "modals/client_contact_edit_modal.php";
  ?>
 
                 </div>
@@ -1125,14 +1125,14 @@ if (isset($_GET['contact_id'])) {
 
 <?php
 
-require_once "client_contact_create_note_modal.php";
+require_once "modals/client_contact_create_note_modal.php";
 require_once "ticket_add_modal.php";
-require_once "client_contact_link_asset_modal.php";
-require_once "client_contact_link_software_modal.php";
-require_once "client_contact_link_credential_modal.php";
-require_once "client_contact_link_service_modal.php";
-require_once "client_contact_link_document_modal.php";
-require_once "client_contact_link_file_modal.php";
+require_once "modals/client_contact_link_asset_modal.php";
+require_once "modals/client_contact_link_software_modal.php";
+require_once "modals/client_contact_link_credential_modal.php";
+require_once "modals/client_contact_link_service_modal.php";
+require_once "modals/client_contact_link_document_modal.php";
+require_once "modals/client_contact_link_file_modal.php";
 
 require_once "recurring_ticket_add_modal.php";
 require_once "recurring_ticket_edit_modal.php";
