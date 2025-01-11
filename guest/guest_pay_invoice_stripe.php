@@ -313,7 +313,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
         $data = [
             [
@@ -330,7 +330,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         // Email the internal notification address too
         if (!empty($config_invoice_paid_notification_email)) {
             $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
-            $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+            $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received your payment in the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br>Balance: " . numfmt_format_currency($currency_format, '0', $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
             $data[] = [
                 'from' => $config_invoice_from_email,
@@ -350,7 +350,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     }
 
     // Redirect user to invoice
-    header('Location: //' . $config_base_url . '/guest_view_invoice.php?invoice_id=' . $pi_invoice_id . '&url_key=' . $invoice_url_key);
+    header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $pi_invoice_id . '&url_key=' . $invoice_url_key);
 
 } else {
     exit(WORDING_PAYMENT_FAILED);
