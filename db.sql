@@ -343,6 +343,17 @@ CREATE TABLE `client_notes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `client_stripe`
+--
+
+DROP TABLE IF EXISTS `client_stripe`;
+CREATE TABLE IF NOT EXISTS `client_stripe` (
+  `client_id` int(11) NOT NULL,
+  `stripe_id` varchar(255) NOT NULL,
+  `stripe_pm` varchar(255) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `client_tags`
 --
 

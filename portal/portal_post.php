@@ -4,8 +4,11 @@
  * Process GET/POST requests
  */
 
-require_once "inc_portal.php";
-
+require_once '../config.php';
+require_once '../get_settings.php';
+require_once '../functions.php';
+require_once 'check_login.php';
+require_once 'portal_functions.php';
 
 if (isset($_POST['add_ticket'])) {
 
@@ -327,6 +330,12 @@ if (isset($_POST['edit_profile'])) {
 }
 
 if (isset($_POST['add_contact'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
     $contact_name = sanitizeInput($_POST['contact_name']);
     $contact_email = sanitizeInput($_POST['contact_email']);
     $contact_technical = intval($_POST['contact_technical']);
@@ -368,6 +377,12 @@ if (isset($_POST['add_contact'])) {
 }
 
 if (isset($_POST['edit_contact'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
     $contact_id = intval($_POST['contact_id']);
     $contact_name = sanitizeInput($_POST['contact_name']);
     $contact_email = sanitizeInput($_POST['contact_email']);
@@ -412,4 +427,234 @@ if (isset($_POST['edit_contact'])) {
     header('Location: contacts.php');
 
     customAction('contact_update', $contact_id);
+}
+
+if (isset($_POST['create_stripe_customer'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
+    if (!$config_stripe_enable) {
+        header("Location: autopay.php");
+        exit();
+    }
+
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
+
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
+    // Get client's StripeID from database (should be none)
+    $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
+    if (!$stripe_client_details) {
+
+        // Initiate Stripe
+        $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+        // Create customer
+        $customer = $stripe->customers->create([
+            'name' => $session_client_name,
+            'email' => $session_contact_email,
+            'metadata' => [
+                'itflow_client_id' => $session_client_id,
+                'consent' => $session_contact_name
+            ]
+        ]);
+
+        // Get & Store customer ID
+        $stripe_id = sanitizeInput($customer->id);
+
+        mysqli_query($mysqli, "INSERT INTO client_stripe SET client_id = $session_client_id, stripe_id = '$stripe_id'");
+
+        // Logging
+        logAction("Stripe", "Create", "$session_contact_name created Stripe customer for $session_client_name as $stripe_id and authorised future automatic payments", $session_client_id, $session_client_id);
+
+        $_SESSION['alert_message'] = "Stripe customer created, thank you for your consent";
+
+    } else {
+        $_SESSION['alert_type'] = "danger";
+        $_SESSION['alert_message'] = "Stripe customer already exists";
+    }
+
+    header('Location: autopay.php');
+}
+
+if (isset($_GET['create_stripe_checkout'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
+    if (!$config_stripe_enable) {
+        header("Location: autopay.php");
+        exit();
+    }
+
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
+
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
+    // Currency
+    $client_currency_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_currency_code FROM clients WHERE client_id = $session_client_id LIMIT 1"));
+    $client_currency = $client_currency_details['client_currency_code'];
+
+    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+    $return_url = "$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
+
+    $checkout_session = $stripe->checkout->sessions->create([
+        'currency' => $client_currency,
+        'mode' => 'setup',
+        'ui_mode' => 'embedded',
+        'return_url' => $return_url,
+    ]);
+
+    echo json_encode(array('clientSecret' => $checkout_session->client_secret));
+
+}
+
+if (isset($_GET['stripe_save_card'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
+    if (!$config_stripe_enable) {
+        header("Location: autopay.php");
+        exit();
+    }
+
+    // Get session ID from URL
+    $checkout_session_id = sanitizeInput($_GET['session_id']);
+
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
+
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
+    // Get client's StripeID from database
+    $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
+    $client_stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
+
+    // Initialize
+    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+    // Retrieve checkout session
+    $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id,[]);
+
+    // Get setup intent
+    $setup_intent_id = $checkout_session->setup_intent;
+
+    // Retrieve the setup intent details
+    $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
+
+    // Get the payment method token
+    $payment_method = sanitizeInput($setup_intent->payment_method);
+
+    // Attach the payment method to the client in Stripe
+    $stripe->paymentMethods->attach($payment_method, ['customer' => $client_stripe_id]);
+
+    // Update ITFlow
+    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = '$payment_method' WHERE client_id = $session_client_id LIMIT 1");
+
+    // Get some card details for the email/logging
+    $payment_method_details = $stripe->paymentMethods->retrieve($payment_method);
+    $card_info = sanitizeInput($payment_method_details->card->display_brand) . " " . sanitizeInput($payment_method_details->card->last4);
+
+    // Send email confirmation
+    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql_settings);
+
+    $config_smtp_host = $row['config_smtp_host'];
+    $config_smtp_port = intval($row['config_smtp_port']);
+    $config_smtp_encryption = $row['config_smtp_encryption'];
+    $config_smtp_username = $row['config_smtp_username'];
+    $config_smtp_password = $row['config_smtp_password'];
+    $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
+    $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
+    $config_invoice_paid_notification_email = sanitizeInput($row['config_invoice_paid_notification_email']);
+
+    $config_base_url = sanitizeInput($config_base_url);
+
+    if (!empty($config_smtp_host)) {
+        $subject = "Payment method saved";
+        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($card_info) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+
+        $data = [
+            [
+                'from' => $config_invoice_from_email,
+                'from_name' => $config_invoice_from_name,
+                'recipient' => $session_contact_email,
+                'recipient_name' => $session_contact_name,
+                'subject' => $subject,
+                'body' => $body,
+            ]
+        ];
+
+        $mail = addToMailQueue($mysqli, $data);
+
+    }
+
+    // Logging
+    logAction("Stripe", "Update", "$session_contact_name added saved card ($card_info) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
+
+    // Redirect
+    $_SESSION['alert_message'] = "Card saved - thank you";
+    header('Location: autopay.php');
+
+}
+
+if (isset($_GET['stripe_remove_card'])) {
+
+    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
+        header("Location: portal_post.php?logout");
+        exit();
+    }
+
+    if (!$config_stripe_enable) {
+        header("Location: autopay.php");
+        exit();
+    }
+
+    $payment_method = sanitizeInput($_GET['pm']);
+
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
+
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
+    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+    // Detach PM
+    $stripe->paymentMethods->detach($payment_method, []);
+
+    // Remove from ITFlow
+    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");
+    
+    //Logging & Redirect
+    logAction("Stripe", "Update", "$session_contact_name deleted saved card (PM: $payment_method)", $session_client_id, $session_client_id);
+
+    $_SESSION['alert_message'] = "Card removed";
+    header('Location: autopay.php');
 }
