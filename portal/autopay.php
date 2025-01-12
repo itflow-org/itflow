@@ -108,7 +108,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 ?>
 
-                <ul><li><?php echo "$card_brand card ending in $card_last4 issued to $card_name, expires $card_expires"; ?></li></ul>
+                <ul><li><?php echo "$card_name - $card_brand card ending in $card_last4, expires $card_expires"; ?></li></ul>
 
                 <hr>
                 <b>Actions</b><br>

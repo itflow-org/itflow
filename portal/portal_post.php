@@ -436,19 +436,18 @@ if (isset($_POST['create_stripe_customer'])) {
         exit();
     }
 
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
     if (!$config_stripe_enable) {
         header("Location: autopay.php");
         exit();
     }
 
-    // Initialize stripe
+    // Include stripe SDK
     require_once '../vendor/stripe-php-10.5.0/init.php';
-
-    // Get Stripe vars
-    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
-    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 
     // Get client's StripeID from database (should be none)
     $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
@@ -487,33 +486,35 @@ if (isset($_POST['create_stripe_customer'])) {
 
 if (isset($_GET['create_stripe_checkout'])) {
 
+    // This page is called by the autopay_setup_stripe.js, it returns a checkout session client secret
+
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
         header("Location: portal_post.php?logout");
         exit();
     }
+
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
 
     if (!$config_stripe_enable) {
         header("Location: autopay.php");
         exit();
     }
 
-    // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
-
-    // Get Stripe vars
-    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
-    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
-
-    // Currency
+    // Client Currency
     $client_currency_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_currency_code FROM clients WHERE client_id = $session_client_id LIMIT 1"));
     $client_currency = $client_currency_details['client_currency_code'];
 
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
+    // Define return URL that user is redirected to once payment method is verified by Stripe
     $return_url = "$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
+    // Create checkout session (server side)
     $checkout_session = $stripe->checkout->sessions->create([
         'currency' => $client_currency,
         'mode' => 'setup',
@@ -521,8 +522,10 @@ if (isset($_GET['create_stripe_checkout'])) {
         'return_url' => $return_url,
     ]);
 
+    // Return the client secret to the js script
     echo json_encode(array('clientSecret' => $checkout_session->client_secret));
 
+    // No redirect & no point logging this
 }
 
 if (isset($_GET['stripe_save_card'])) {
@@ -532,6 +535,11 @@ if (isset($_GET['stripe_save_card'])) {
         exit();
     }
 
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
     if (!$config_stripe_enable) {
         header("Location: autopay.php");
         exit();
@@ -540,20 +548,12 @@ if (isset($_GET['stripe_save_card'])) {
     // Get session ID from URL
     $checkout_session_id = sanitizeInput($_GET['session_id']);
 
-    // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
-
-    // Get Stripe vars
-    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
-    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
-
     // Get client's StripeID from database
     $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
     $client_stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
 
-    // Initialize
+    // Initialize stripe
+    require_once '../vendor/stripe-php-10.5.0/init.php';
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     // Retrieve checkout session
@@ -574,7 +574,7 @@ if (isset($_GET['stripe_save_card'])) {
     // Update ITFlow
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = '$payment_method' WHERE client_id = $session_client_id LIMIT 1");
 
-    // Get some card details for the email/logging
+    // Get some card/payment method details for the email/logging
     $payment_method_details = $stripe->paymentMethods->retrieve($payment_method);
     $card_info = sanitizeInput($payment_method_details->card->display_brand) . " " . sanitizeInput($payment_method_details->card->last4);
 
@@ -589,7 +589,6 @@ if (isset($_GET['stripe_save_card'])) {
     $config_smtp_password = $row['config_smtp_password'];
     $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
     $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
-    $config_invoice_paid_notification_email = sanitizeInput($row['config_invoice_paid_notification_email']);
 
     $config_base_url = sanitizeInput($config_base_url);
 
@@ -628,6 +627,11 @@ if (isset($_GET['stripe_remove_card'])) {
         exit();
     }
 
+    // Get Stripe vars
+    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
+    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
+    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+
     if (!$config_stripe_enable) {
         header("Location: autopay.php");
         exit();
@@ -637,22 +641,15 @@ if (isset($_GET['stripe_remove_card'])) {
 
     // Initialize stripe
     require_once '../vendor/stripe-php-10.5.0/init.php';
-
-    // Get Stripe vars
-    $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
-    $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-    $config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-    $config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
-
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     // Detach PM
     $stripe->paymentMethods->detach($payment_method, []);
 
-    // Remove from ITFlow
+    // Remove payment method from ITFlow
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");
     
-    //Logging & Redirect
+    // Logging & Redirect
     logAction("Stripe", "Update", "$session_contact_name deleted saved card (PM: $payment_method)", $session_client_id, $session_client_id);
 
     $_SESSION['alert_message'] = "Card removed";
