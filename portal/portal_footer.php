@@ -21,7 +21,7 @@
 </p>
 
 
-<?php require_once "../inc_confirm_modal.php"; ?>
+<?php require_once "../includes/inc_confirm_modal.php"; ?>
 
 <!-- jQuery -->
 <script src="../plugins/jquery/jquery.min.js"></script>
