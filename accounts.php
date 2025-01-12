@@ -109,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-                        include "account_edit_modal.php";
+                        require "modals/account_edit_modal.php";
                     }
                     ?>
 
@@ -122,5 +122,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "account_add_modal.php";
+require_once "modals/account_add_modal.php";
 require_once "includes/footer.php";

@@ -133,7 +133,7 @@ if (isset($_GET['recurring_id'])) {
                         <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_id; ?>">
                             <i class="fas fa-fw fa-redo-alt mr-2"></i>Create AutoPay
                         </a>
-                        <?php require_once "recurring_payment_add_modal.php"; ?>
+                        <?php require_once "modals/recurring_payment_add_modal.php"; ?>
 
                     <?php } ?>
                 </div>
@@ -314,7 +314,7 @@ if (isset($_GET['recurring_id'])) {
 
                                     <?php
 
-                                    require "item_edit_modal.php";
+                                    require "modals/item_edit_modal.php";
 
 
                                     }
@@ -470,9 +470,9 @@ if (isset($_GET['recurring_id'])) {
 
     <?php
 
-    require_once "recurring_invoice_edit_modal.php";
+    require_once "modals/recurring_invoice_edit_modal.php";
 
-    require_once "recurring_invoice_note_modal.php";
+    require_once "modals/recurring_invoice_note_modal.php";
 
 }
 

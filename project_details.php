@@ -404,8 +404,8 @@ if (isset($_GET['project_id'])) {
 
     <?php
 
-    require_once "project_edit_modal.php";
-    require_once "project_ticket_add_modal.php";
+    require_once "modals/project_edit_modal.php";
+    require_once "modals/project_ticket_add_modal.php";
 
 }
 

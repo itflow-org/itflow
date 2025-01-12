@@ -596,11 +596,11 @@ if (mysqli_num_rows($os_sql) > 0) {
 
                             <?php
 
-                            require "client_asset_edit_modal.php";
+                            require "modals/client_asset_edit_modal.php";
 
-                            require "client_asset_copy_modal.php";
+                            require "modals/client_asset_copy_modal.php";
 
-                            require "client_asset_transfer_modal.php";
+                            require "modals/client_asset_transfer_modal.php";
 
                         }
 
@@ -609,10 +609,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "client_asset_bulk_assign_location_modal.php"; ?>
-                <?php require_once "client_asset_bulk_assign_contact_modal.php"; ?>
-                <?php require_once "client_asset_bulk_edit_status_modal.php"; ?>
-                <?php require_once "client_asset_bulk_add_ticket_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_assign_location_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_assign_contact_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_edit_status_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_add_ticket_modal.php"; ?>
             </form>
             <?php require_once "includes/filter_footer.php"; ?>
         </div>
@@ -621,11 +621,11 @@ if (mysqli_num_rows($os_sql) > 0) {
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "client_asset_add_modal.php";
+require_once "modals/client_asset_add_modal.php";
 
-require_once "client_asset_import_modal.php";
+require_once "modals/client_asset_import_modal.php";
 
-require_once "client_asset_export_modal.php";
+require_once "modals/client_asset_export_modal.php";
 
 require_once "includes/footer.php";
 

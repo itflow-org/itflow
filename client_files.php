@@ -213,7 +213,7 @@ while ($folder_id > 0) {
                             echo '</div>';
 
                             // Include the rename and create subfolder modals
-                            require "folder_rename_modal.php";
+                            require "modals/folder_rename_modal.php";
 
                             if ($subfolder_count > 0) {
                                 // Display subfolders
@@ -230,7 +230,7 @@ while ($folder_id > 0) {
                     display_folders(0, $client_id);
                     ?>
                 </ul>
-                <?php require_once "folder_create_modal.php"; ?>
+                <?php require_once "modals/folder_create_modal.php"; ?>
             </div>
 
 
@@ -386,7 +386,7 @@ while ($folder_id > 0) {
                         </div>
 
                         <?php
-                        require "client_file_view_modal.php";
+                        require "modals/client_file_view_modal.php";
 
                     }
                     ?>
@@ -583,11 +583,9 @@ while ($folder_id > 0) {
                                     </td>
                                 </tr>
                                 <?php
-                                require "client_file_rename_modal.php";
-
-                                require "client_file_move_modal.php";
-
-                                require "client_file_link_asset_modal.php";
+                                require "modals/client_file_rename_modal.php";
+                                require "modals/client_file_move_modal.php";
+                                require "modals/client_file_link_asset_modal.php";
 
                             }
                             ?>
@@ -595,7 +593,7 @@ while ($folder_id > 0) {
 
                         </table>
                     </div>
-                    <?php require_once "client_file_bulk_move_modal.php"; ?>
+                    <?php require_once "modals/client_file_bulk_move_modal.php"; ?>
                 </form>
 
                 <?php } ?>
@@ -634,10 +632,7 @@ function prevFile() {
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "client_file_upload_modal.php";
-
-require_once "share_modal.php";
-
-require_once "client_file_delete_modal.php";
-
+require_once "modals/client_file_upload_modal.php";
+require_once "modals/share_modal.php";
+require_once "modals/client_file_delete_modal.php";
 require_once "includes/footer.php";

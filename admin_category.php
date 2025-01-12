@@ -177,7 +177,7 @@ if (isset($_GET['archived'])) {
 
                         <?php
 
-                        include "admin_category_edit_modal.php";
+                        require "modals/admin_category_edit_modal.php";
 
                     }
 
@@ -192,6 +192,6 @@ if (isset($_GET['archived'])) {
 </div>
 
 <?php
-require_once "admin_category_add_modal.php";
+require_once "modals/admin_category_add_modal.php";
 
 require_once "includes/footer.php";

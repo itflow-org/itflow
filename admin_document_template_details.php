@@ -59,7 +59,7 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 <?php
 
-require_once "admin_document_template_edit_modal.php";
+require_once "modals/admin_document_template_edit_modal.php";
 
 require_once "includes/footer.php";
 

@@ -396,7 +396,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                            require "client_login_edit_modal.php";
+                            require "modals/client_login_edit_modal.php";
                         }
 
                         ?>
@@ -404,7 +404,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "client_login_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/client_login_bulk_assign_tags_modal.php"; ?>
         </form>
         <?php require_once "includes/filter_footer.php";
         ?>
@@ -421,12 +421,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_login_add_modal.php";
+require_once "modals/client_login_add_modal.php";
 
-require_once "share_modal.php";
+require_once "modals/share_modal.php";
 
-require_once "client_login_import_modal.php";
+require_once "modals/client_login_import_modal.php";
 
-require_once "client_login_export_modal.php";
+require_once "modals/client_login_export_modal.php";
 
 require_once "includes/footer.php";

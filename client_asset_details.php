@@ -246,7 +246,7 @@ if (isset($_GET['asset_id'])) {
                 <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
             </div>
 
-            <?php require_once "client_asset_edit_modal.php"; ?>
+            <?php require_once "modals/client_asset_edit_modal.php"; ?>
 
         </div>
 
@@ -405,7 +405,7 @@ if (isset($_GET['asset_id'])) {
 
                                 <?php
 
-                                require "client_asset_interface_edit_modal.php";
+                                require "modals/client_asset_interface_edit_modal.php";
 
                             }
 
@@ -532,7 +532,7 @@ if (isset($_GET['asset_id'])) {
 
                                 <?php
 
-                                require "client_login_edit_modal.php";
+                                require "modals/client_login_edit_modal.php";
 
                             }
 
@@ -860,7 +860,7 @@ if (isset($_GET['asset_id'])) {
 
     <?php
 
-    require_once "share_modal.php";
+    require_once "modals/share_modal.php";
 
 
     ?>
@@ -902,13 +902,13 @@ if (isset($_GET['asset_id'])) {
 
 <?php
 
-require_once "client_asset_interface_add_modal.php";
+require_once "modals/client_asset_interface_add_modal.php";
 
-require_once "ticket_add_modal.php";
+require_once "modals/ticket_add_modal.php";
 
-require_once "recurring_ticket_add_modal.php";
+require_once "modals/recurring_ticket_add_modal.php";
 
-require_once "recurring_ticket_edit_modal.php";
+require_once "modals/recurring_ticket_edit_modal.php";
 
 require_once "includes/footer.php";
 

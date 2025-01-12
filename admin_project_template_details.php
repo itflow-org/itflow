@@ -222,8 +222,8 @@ if (isset($_GET['project_template_id'])) {
 
 <?php
 
-require_once "admin_project_template_edit_modal.php";
-require_once "admin_project_template_ticket_template_add_modal.php";
+require_once "modals/admin_project_template_edit_modal.php";
+require_once "modals/admin_project_template_ticket_template_add_modal.php";
 
 }
 

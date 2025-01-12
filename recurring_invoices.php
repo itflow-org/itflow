@@ -188,7 +188,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Create
                             </a>
                         ";
-                        require "recurring_payment_add_modal.php";
+                        require "modals/recurring_payment_add_modal.php";
                     }
 
                     ?>
@@ -232,7 +232,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tr>
 
                     <?php
-                    require "recurring_invoice_edit_modal.php";
+                    require "modals/recurring_invoice_edit_modal.php";
 
 
                     }
@@ -248,6 +248,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "recurring_invoice_add_modal.php";
+require_once "modals/recurring_invoice_add_modal.php";
 
 require_once "includes/footer.php";

@@ -155,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                        require "admin_vendor_template_edit_modal.php";
+                        require "modals/admin_vendor_template_edit_modal.php";
 
                     }
 
@@ -170,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "admin_vendor_template_add_modal.php";
+require_once "modals/admin_vendor_template_add_modal.php";
 
 require_once "includes/footer.php";
 

@@ -810,7 +810,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
 
-                    require "ticket_reply_edit_modal.php";
+                    require "modals/ticket_reply_edit_modal.php";
                 }
 
                 ?>
@@ -961,7 +961,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php
 
-                            require "task_edit_modal.php";
+                            require "modals/task_edit_modal.php";
                         } ?>
                     </table>
                 </div>
@@ -1154,30 +1154,30 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "ticket_edit_modal.php";
+            require_once "modals/ticket_edit_modal.php";
 
-            require_once "ticket_assign_modal.php";
+            require_once "modals/ticket_assign_modal.php";
 
-            require_once "ticket_edit_contact_modal.php";
+            require_once "modals/ticket_edit_contact_modal.php";
 
-            require_once "ticket_edit_asset_modal.php";
+            require_once "modals/ticket_edit_asset_modal.php";
 
-            require_once "ticket_edit_vendor_modal.php";
+            require_once "modals/ticket_edit_vendor_modal.php";
 
-            require_once "ticket_add_watcher_modal.php";
+            require_once "modals/ticket_add_watcher_modal.php";
 
-            require_once "ticket_edit_priority_modal.php";
+            require_once "modals/ticket_edit_priority_modal.php";
 
-            require_once "ticket_change_client_modal.php";
+            require_once "modals/ticket_change_client_modal.php";
 
-            require_once "ticket_edit_schedule_modal.php";
+            require_once "modals/ticket_edit_schedule_modal.php";
 
-            require_once "ticket_merge_modal.php";
+            require_once "modals/ticket_merge_modal.php";
         }
 
         if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
-            require_once "ticket_edit_billable_modal.php";
-            require_once "ticket_invoice_add_modal.php";
+            require_once "modals/ticket_edit_billable_modal.php";
+            require_once "modals/ticket_invoice_add_modal.php";
         }
     }
 }

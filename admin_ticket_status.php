@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
                         if ( $ticket_status_id > 5 ) {
-                            require "admin_ticket_status_edit_modal.php";
+                            require "modals/admin_ticket_status_edit_modal.php";
                         }
                     }
 
@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "admin_ticket_status_add_modal.php";
+require_once "modals/admin_ticket_status_add_modal.php";
 
 require_once "includes/footer.php";
 

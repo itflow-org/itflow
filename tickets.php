@@ -559,12 +559,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             // Edit actions, for open tickets
                             if (empty($ticket_closed_at)) {
 
-                                require "ticket_assign_modal.php";
+                                require "modals/ticket_assign_modal.php";
 
-                                require "ticket_edit_priority_modal.php";
+                                require "modals/ticket_edit_priority_modal.php";
 
                                 if ($config_module_enable_accounting) {
-                                    require "ticket_edit_billable_modal.php";
+                                    require "modals/ticket_edit_billable_modal.php";
                                 }
                             }
                         }
@@ -574,12 +574,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "ticket_bulk_assign_modal.php"; ?>
-                <?php require_once "ticket_bulk_edit_priority_modal.php"; ?>
-                <?php require_once "ticket_bulk_add_project_modal.php"; ?>
-                <?php require_once "ticket_bulk_reply_modal.php"; ?>
-                <?php require_once "ticket_bulk_merge_modal.php"; ?>
-                <?php require_once "ticket_bulk_resolve_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_assign_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_edit_priority_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_add_project_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_reply_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_merge_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_resolve_modal.php"; ?>
             </form>
             <?php require_once "includes/filter_footer.php"; ?>
         </div>
@@ -588,6 +588,6 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
     <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "ticket_add_modal.php";
+require_once "modals/ticket_add_modal.php";
 
 require_once "includes/footer.php";

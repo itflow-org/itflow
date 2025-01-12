@@ -229,8 +229,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 
                 </div>
-                <?php require "client_rack_edit_modal.php"; ?>
-                <?php require "client_rack_unit_add_modal.php"; ?>
+                <?php require "modals/client_rack_edit_modal.php"; ?>
+                <?php require "modals/client_rack_unit_add_modal.php"; ?>
             <?php } ?>
 
         </div>
@@ -241,6 +241,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_rack_add_modal.php";
+require_once "modals/client_rack_add_modal.php";
 require_once "includes/footer.php";
 ?>

@@ -119,7 +119,7 @@
 
                     <?php
 
-                            include "admin_document_template_edit_modal.php";
+                            require "modals/admin_document_template_edit_modal.php";
 
                         }
 
@@ -129,12 +129,12 @@
             </table>
             <br>
         </div>
-        <?php include "pagination.php"; ?>
+        <?php require_once "includes/filter_footer.php"; ?>
     </div>
 </div>
 
-<?php include "admin_document_template_add_modal.php"; ?>
-<?php include "footer.php"; ?>
+<?php require_once "modals/admin_document_template_add_modal.php"; ?>
+<?php require_once "includes/footer.php"; ?>
 
 <script>
 $(document).ready(function(){

@@ -124,7 +124,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                 </td>
                             </tr>
                             <?php
-                            require "task_edit_modal.php";
+                            require "modals/task_edit_modal.php";
                         }
                         ?>
                     </table>
@@ -139,5 +139,5 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
 <?php
 
-require_once "admin_ticket_template_edit_modal.php";
+require_once "modals/admin_ticket_template_edit_modal.php";
 require_once "includes/footer.php";

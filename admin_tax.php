@@ -78,7 +78,7 @@ $num_rows = mysqli_num_rows($sql);
 
                         <?php
 
-                        require "admin_tax_edit_modal.php";
+                        require "modals/admin_tax_edit_modal.php";
 
                     }
 
@@ -96,7 +96,7 @@ $num_rows = mysqli_num_rows($sql);
     </div>
 
 <?php
-require_once "admin_tax_add_modal.php";
+require_once "modals/admin_tax_add_modal.php";
 
 require_once "includes/footer.php";
 

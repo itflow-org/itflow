@@ -414,9 +414,9 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                require "client_asset_edit_modal.php";
+                                require "modals/client_asset_edit_modal.php";
 
-                                require "client_asset_copy_modal.php";
+                                require "modals/client_asset_copy_modal.php";
 
 
                             }
@@ -551,7 +551,7 @@ if (isset($_GET['contact_id'])) {
 
                                 <?php
 
-                                require "client_login_edit_modal.php";
+                                require "modals/client_login_edit_modal.php";
 
                             }
 
@@ -1063,7 +1063,7 @@ if (isset($_GET['contact_id'])) {
 
     <?php
 
-    require_once "share_modal.php";
+    require_once "modals/share_modal.php";
 
     ?>
 
@@ -1126,7 +1126,7 @@ if (isset($_GET['contact_id'])) {
 <?php
 
 require_once "modals/client_contact_create_note_modal.php";
-require_once "ticket_add_modal.php";
+require_once "modals/ticket_add_modal.php";
 require_once "modals/client_contact_link_asset_modal.php";
 require_once "modals/client_contact_link_software_modal.php";
 require_once "modals/client_contact_link_credential_modal.php";
@@ -1134,7 +1134,7 @@ require_once "modals/client_contact_link_service_modal.php";
 require_once "modals/client_contact_link_document_modal.php";
 require_once "modals/client_contact_link_file_modal.php";
 
-require_once "recurring_ticket_add_modal.php";
-require_once "recurring_ticket_edit_modal.php";
+require_once "modals/recurring_ticket_add_modal.php";
+require_once "modals/recurring_ticket_edit_modal.php";
 
 require_once "includes/footer.php";

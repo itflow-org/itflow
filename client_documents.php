@@ -268,7 +268,7 @@ while ($folder_id > 0) {
                                 echo '</div>';
 
                                 // Include the rename and create subfolder modals
-                                require "folder_rename_modal.php";
+                                require "modals/folder_rename_modal.php";
 
                                 if ($subfolder_count > 0) {
                                     // Display subfolders
@@ -285,7 +285,7 @@ while ($folder_id > 0) {
                         display_folders(0, $client_id);
                         ?>
                     </ul>
-                    <?php require_once "folder_create_modal.php"; ?>
+                    <?php require_once "modals/folder_create_modal.php"; ?>
                 </div>
 
                 <div class="col-md-9">
@@ -447,9 +447,9 @@ while ($folder_id > 0) {
 
                                 <?php
 
-                                require "client_document_move_modal.php";
+                                require "modals/client_document_move_modal.php";
 
-                                require "client_document_rename_modal.php";
+                                require "modals/client_document_rename_modal.php";
 
 
                                 }
@@ -460,7 +460,7 @@ while ($folder_id > 0) {
                             </table>
                             <br>
                         </div>
-                        <?php require_once "client_document_bulk_move_modal.php"; ?>
+                        <?php require_once "modals/client_document_bulk_move_modal.php"; ?>
                     </form>
                     <?php require_once "includes/filter_footer.php";
  ?>
@@ -472,10 +472,10 @@ while ($folder_id > 0) {
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "share_modal.php";
+require_once "modals/share_modal.php";
 
-require_once "client_document_add_modal.php";
+require_once "modals/client_document_add_modal.php";
 
-require_once "client_document_add_from_template_modal.php";
+require_once "modals/client_document_add_from_template_modal.php";
 
 require_once "includes/footer.php";

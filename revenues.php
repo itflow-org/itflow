@@ -165,7 +165,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                             <?php
 
-                            require "revenue_edit_modal.php";
+                            require "modals/revenue_edit_modal.php";
 
 
                             ?>
@@ -185,6 +185,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "revenue_add_modal.php";
+require_once "modals/revenue_add_modal.php";
 
 require_once "includes/footer.php";

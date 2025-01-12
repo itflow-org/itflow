@@ -231,11 +231,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_network_edit_modal.php";
+require_once "modals/client_network_edit_modal.php";
 
-require_once "client_network_add_modal.php";
+require_once "modals/client_network_add_modal.php";
 
-require_once "client_network_export_modal.php";
+require_once "modals/client_network_export_modal.php";
 
 
 ?>

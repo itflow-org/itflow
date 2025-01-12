@@ -166,7 +166,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         </div>
 
-        <?php require_once 'pagination.php';
+        <?php require_once 'includes/filter_footer.php';
  ?>
 
     </div>
@@ -176,9 +176,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "recurring_ticket_add_modal.php";
+require_once "modals/recurring_ticket_add_modal.php";
 
-require_once "recurring_ticket_edit_modal.php";
+require_once "modals/recurring_ticket_edit_modal.php";
 
 require_once "includes/footer.php";
 

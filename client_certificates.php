@@ -206,11 +206,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "client_certificate_edit_modal.php";
-
-require_once "client_certificate_add_modal.php";
-
-require_once "client_certificate_export_modal.php";
+require_once "modals/client_certificate_edit_modal.php";
+require_once "modals/client_certificate_add_modal.php";
+require_once "modals/client_certificate_export_modal.php";
 
 ?>
 

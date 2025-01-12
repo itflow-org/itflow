@@ -347,11 +347,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "expense_edit_modal.php";
+                            require "modals/expense_edit_modal.php";
 
-                            require "expense_copy_modal.php";
+                            require "modals/expense_copy_modal.php";
 
-                            require "expense_refund_modal.php";
+                            require "modals/expense_refund_modal.php";
 
 
                         }
@@ -361,9 +361,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "expense_bulk_edit_category_modal.php"; ?>
-                <?php require_once "expense_bulk_edit_account_modal.php"; ?>
-                <?php require_once "expense_bulk_edit_client_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_category_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_account_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_client_modal.php"; ?>
             </form>
             <?php require_once "includes/filter_footer.php";
  ?>
@@ -373,7 +373,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "expense_add_modal.php";
-require_once "expense_export_modal.php";
+require_once "modals/expense_add_modal.php";
+require_once "modals/expense_export_modal.php";
 
 require_once "includes/footer.php";

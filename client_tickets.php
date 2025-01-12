@@ -316,14 +316,14 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     // Edit actions, for open tickets
                     if (empty($ticket_closed_at)) {
 
-                        require "ticket_assign_modal.php";
+                        require "modals/ticket_assign_modal.php";
 
-                        require "ticket_edit_priority_modal.php";
+                        require "modals/ticket_edit_priority_modal.php";
 
-                        require "ticket_edit_contact_modal.php";
+                        require "modals/ticket_edit_contact_modal.php";
 
                         if ($config_module_enable_accounting) {
-                            require "ticket_edit_billable_modal.php";
+                            require "modals/ticket_edit_billable_modal.php";
                         }
 
                     }
@@ -340,9 +340,9 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 </div>
 
 <?php
-require_once "ticket_add_modal.php";
+require_once "modals/ticket_add_modal.php";
 
-require_once "client_ticket_export_modal.php";
+require_once "modals/client_ticket_export_modal.php";
 
 require_once "includes/footer.php";
 

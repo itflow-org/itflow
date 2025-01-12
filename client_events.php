@@ -21,9 +21,9 @@ if (isset($_GET['calendar_id'])) {
 </div>
 
 <?php
-include "calendar_event_add_modal.php";
+require_once "modals/calendar_event_add_modal.php";
 
-include "calendar_add_modal.php";
+require_once "modals/calendar_add_modal.php";
 
 
 //loop through IDs and create a modal for each
@@ -40,7 +40,7 @@ while ($row = mysqli_fetch_array($sql)) {
     $calendar_name = nullable_htmlentities($row['calendar_name']);
     $calendar_color = nullable_htmlentities($row['calendar_color']);
 
-    require "calendar_event_edit_modal.php";
+    require "modals/calendar_event_edit_modal.php";
 
 
 }
@@ -278,5 +278,5 @@ while ($row = mysqli_fetch_array($sql)) {
 </script>
 
 <?php
-require "footer.php";
+require_once "includes/footer.php";
 

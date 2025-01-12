@@ -387,7 +387,7 @@ if (isset($_GET['invoice_id'])) {
                                     </tr>
                                     <?php
                                     if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") {
-                                        require "item_edit_modal.php";
+                                        require "modals/item_edit_modal.php";
                                     }
                                 }
                                 ?>
@@ -660,17 +660,17 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
     <?php
-    include_once "invoice_add_ticket_modal.php";
+    include_once "modals/invoice_add_ticket_modal.php";
 
-    include_once "invoice_payment_add_modal.php";
+    include_once "modals/invoice_payment_add_modal.php";
 
-    include_once "invoice_copy_modal.php";
+    include_once "modals/invoice_copy_modal.php";
 
-    include_once "invoice_recurring_add_modal.php";
+    include_once "modals/invoice_recurring_add_modal.php";
 
-    include_once "invoice_edit_modal.php";
+    include_once "modals/invoice_edit_modal.php";
 
-    include_once "invoice_note_modal.php";
+    include_once "modals/invoice_note_modal.php";
 
 }
 

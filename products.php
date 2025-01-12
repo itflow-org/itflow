@@ -247,7 +247,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "product_edit_modal.php";
+                            require "modals/product_edit_modal.php";
 
 
                         }
@@ -257,7 +257,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "product_bulk_edit_category_modal.php"; ?>
+                <?php require_once "modals/product_bulk_edit_category_modal.php"; ?>
             </form>
             <?php require_once "includes/filter_footer.php";
  ?>
@@ -268,7 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "product_add_modal.php";
-require_once "product_export_modal.php";
+require_once "modals/product_add_modal.php";
+require_once "modals/product_export_modal.php";
 
 require_once "includes/footer.php";

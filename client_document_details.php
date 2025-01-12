@@ -390,22 +390,14 @@ $document_client_visible = intval($row['document_client_visible']);
 
 <?php
 
-require_once "client_document_edit_modal.php";
-
-require_once "client_document_link_file_modal.php";
-
-require_once "client_document_link_contact_modal.php";
-
-require_once "client_document_link_asset_modal.php";
-
-require_once "client_document_link_software_modal.php";
-
-require_once "client_document_link_vendor_modal.php";
-
-require_once "document_edit_visibility_modal.php";
-
-require_once "share_modal.php";
-
+require_once "modals/client_document_edit_modal.php";
+require_once "modals/client_document_link_file_modal.php";
+require_once "modals/client_document_link_contact_modal.php";
+require_once "modals/client_document_link_asset_modal.php";
+require_once "modals/client_document_link_software_modal.php";
+require_once "modals/client_document_link_vendor_modal.php";
+require_once "modals/document_edit_visibility_modal.php";
+require_once "modals/share_modal.php";
 require_once "includes/footer.php";
 
 ?>
