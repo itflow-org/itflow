@@ -736,7 +736,9 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $recurring_payment_account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $new_invoice_id");
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment automatically added', history_invoice_id = $new_invoice_id");
 
-                    // Notify/log
+                    //TODO: Email receipt
+
+                    // Log info
                     $extended_log_desc = '';
                     if (!$pi_livemode) {
                         $extended_log_desc = '(DEV MODE)';
@@ -748,8 +750,10 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                         mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
                     }
 
+                    // Notify/log
                     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$new_invoice_id", $client_id);
                     logAction("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $recurring_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $new_invoice_id);
+                    customAction('invoice_pay', $new_invoice_id);
 
                 } else {
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed due to payment error', history_invoice_id = $new_invoice_id");
