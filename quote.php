@@ -59,6 +59,10 @@ if (isset($_GET['quote_id'])) {
         $client_net_terms = $config_default_net_terms;
     }
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
 

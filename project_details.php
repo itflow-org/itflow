@@ -2,7 +2,6 @@
 
 require_once "includes/inc_all.php";
 
-
 if (isset($_GET['project_id'])) {
     $project_id = intval($_GET['project_id']);
 
@@ -33,7 +32,6 @@ if (isset($_GET['project_id'])) {
     $project_updated_at = nullable_htmlentities($row['project_updated_at']);
     $project_completed_at = nullable_htmlentities($row['project_completed_at']);
     $project_archived_at = nullable_htmlentities($row['project_archived_at']);
-
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
     if ($client_name) {
@@ -58,6 +56,10 @@ if (isset($_GET['project_id'])) {
         $project_completed_date_display = "";
     }
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = "{$row['project_prefix']}{$row['project_number']}";
+    $page_title = $row['project_name'];
+    
     // Get Tickets
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id

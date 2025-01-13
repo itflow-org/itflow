@@ -66,6 +66,9 @@ if (isset($_GET['asset_id'])) {
         $location_name_display = $location_name;
     }
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $page_title = $row['asset_name'];
+
     // Related Tickets Query
     $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
         LEFT JOIN users on ticket_assigned_to = user_id

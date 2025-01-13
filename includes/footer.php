@@ -13,6 +13,9 @@ if (str_contains(basename($_SERVER["PHP_SELF"]), "admin_")) { ?>
 </div> <!-- /.content-wrapper -->
 </div> <!-- ./wrapper -->
 
+<!-- Set the browser window title to the clients name -->
+<script>document.title = "<?php echo "$tab_title - $page_title"; ?>"</script>
+
 <!-- REQUIRED SCRIPTS -->
 
 <!-- Bootstrap 4 -->

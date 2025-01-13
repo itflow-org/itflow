@@ -59,6 +59,10 @@ if (isset($_GET['invoice_id'])) {
         $client_net_terms = $config_default_net_terms;
     }
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['invoice_prefix']}{$row['invoice_number']}";
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_id = intval($row['company_id']);

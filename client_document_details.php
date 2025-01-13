@@ -37,6 +37,9 @@ $document_folder_id = intval($row['document_folder_id']);
 $document_parent = intval($row['document_parent']);
 $document_client_visible = intval($row['document_client_visible']);
 
+// Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+$page_title = $row['document_name'];
+
 ?>
 
 <ol class="breadcrumb d-print-none">

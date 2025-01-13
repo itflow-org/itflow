@@ -63,6 +63,10 @@ if (isset($_GET['recurring_id'])) {
     $recurring_payment_id = intval($row['recurring_payment_id']);
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['recurring_prefix']}{$row['recurring_number']}";
+
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
 

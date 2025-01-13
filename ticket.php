@@ -116,6 +116,10 @@ if (isset($_GET['ticket_id'])) {
             $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
         }
 
+        // Tab Title // No Sanitizing needed
+        $page_title = $row['ticket_subject'];
+        $tab_title = "{$row['ticket_prefix']}{$row['ticket_number']}";
+
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
@@ -1155,23 +1159,14 @@ if (isset($_GET['ticket_id'])) {
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
             require_once "modals/ticket_edit_modal.php";
-
             require_once "modals/ticket_assign_modal.php";
-
             require_once "modals/ticket_edit_contact_modal.php";
-
             require_once "modals/ticket_edit_asset_modal.php";
-
             require_once "modals/ticket_edit_vendor_modal.php";
-
             require_once "modals/ticket_add_watcher_modal.php";
-
             require_once "modals/ticket_edit_priority_modal.php";
-
             require_once "modals/ticket_change_client_modal.php";
-
             require_once "modals/ticket_edit_schedule_modal.php";
-
             require_once "modals/ticket_merge_modal.php";
         }
 

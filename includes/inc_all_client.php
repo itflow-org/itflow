@@ -1,10 +1,9 @@
 <?php
 
 require_once "config.php";
-
 require_once "functions.php";
-
 require_once "check_login.php";
+require_once "page_title.php";
 
 // Perms
 enforceUserPermission('module_client');
@@ -43,7 +42,6 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_array($sql);
         $client_name = nullable_htmlentities($row['client_name']);
-        $client_name_title = $row['client_name'];
         $client_is_lead = intval($row['client_lead']);
         $client_type = nullable_htmlentities($row['client_type']);
         $client_website = nullable_htmlentities($row['client_website']);
@@ -76,6 +74,9 @@ if (isset($_GET['client_id'])) {
         $location_country = nullable_htmlentities($row['location_country']);
         $location_phone = formatPhoneNumber($row['location_phone']);
         $location_primary = intval($row['location_primary']);
+
+        // Tab Title // No Sanitizing needed
+        $tab_title = $row['client_name'];
 
         // Client Tags
 
@@ -294,20 +295,9 @@ if (isset($_GET['client_id'])) {
 }
 
 require_once "header.php";
-
 require_once "top_nav.php";
-
 require_once "client_side_nav.php";
-
 require_once "inc_wrapper.php";
-
 require_once "inc_alert_feedback.php";
-
 require_once "inc_client_top_head.php";
-
 require_once "filter_header.php";
-
-?>
-
-<!-- Set the browser window title to the clients name -->
-<script>document.title = "<?php echo $client_name_title; ?>"</script>

@@ -34,6 +34,9 @@ if (isset($_GET['contact_id'])) {
     $auth_method = nullable_htmlentities($row['user_auth_method']);
     $contact_client_id = intval($row['contact_client_id']);
 
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $page_title = $row['contact_name'];
+
     // Check to see if Contact belongs to client
     if($contact_client_id !== $client_id) {
         exit();
