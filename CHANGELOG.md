@@ -15,6 +15,11 @@ All notable changes to ITFlow will be documented in this file.
 - Bugfix: Recurring tickets no longer require a contact
 - Bugfix: Stripe online payment setup now prompts you to set the income/expense account
 - Bugfix: Tickets created via portal/email not being marked as billable
+- Moved all modal includes to /include to tidy root directory
+- Moved most include files to /includes to tidy root directory
+- Moved guest pages to /guest to tidy directory structure
+- Feature: Update Page titles to reflect the page name, client selection, company name, ticket info, invoice info etc for easier multi tab navigation.
+- Rename include file pagination.php to filter_footer.php as it makes more sense as its used in conjunction with filter_header.php for page filtering. 
 
 ## 24.12
 
