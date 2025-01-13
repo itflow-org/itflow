@@ -512,7 +512,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     // Define return URL that user is redirected to once payment method is verified by Stripe
-    $return_url = "$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
+    $return_url = "https://$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
     // Create checkout session (server side)
     $checkout_session = $stripe->checkout->sessions->create([

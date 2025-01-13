@@ -489,7 +489,7 @@ if ($config_send_invoice_reminders == 1) {
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
                 <br><br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
             $mail = addToMailQueue($mysqli, [
                 [
@@ -622,7 +622,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     if ($config_recurring_auto_send_invoice == 1 && $recurring_invoice_email_notify == 1) {
 
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
         $mail = addToMailQueue($mysqli, [
             [
@@ -734,9 +734,47 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
                     // Add Payment to History
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $recurring_payment_account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $new_invoice_id");
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment automatically added', history_invoice_id = $new_invoice_id");
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $new_invoice_id");
 
-                    //TODO: Email receipt
+                    // Email receipt
+                    if (!empty($config_smtp_host)) {
+                        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+                        $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                        // Queue Mail
+                        $data = [
+                            [
+                                'from' => $config_invoice_from_email,
+                                'from_name' => $config_invoice_from_name,
+                                'recipient' => $contact_email,
+                                'recipient_name' => $contact_name,
+                                'subject' => $subject,
+                                'body' => $body,
+                            ]
+                        ];
+
+                        // Email the internal notification address too
+                        if (!empty($config_invoice_paid_notification_email)) {
+                            $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
+                            $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                            $data[] = [
+                                'from' => $config_invoice_from_email,
+                                'from_name' => $config_invoice_from_name,
+                                'recipient' => $config_invoice_paid_notification_email,
+                                'recipient_name' => $contact_name,
+                                'subject' => $subject,
+                                'body' => $body,
+                            ];
+                        }
+
+                        $mail = addToMailQueue($mysqli, $data);
+
+                        // Email Logging
+                        $email_id = mysqli_insert_id($mysqli);
+                        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $new_invoice_id");
+                        logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $new_invoice_id);
+                    }
 
                     // Log info
                     $extended_log_desc = '';
@@ -766,6 +804,8 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
         } else {
             // Else: Cash/Bank payment
+
+            //TODO: Should we send a receipt for auto bank payments, even when nobody actually confirms receipt?
 
             mysqli_query($mysqli,"INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $recurring_amount, payment_currency_code = '$recurring_payment_currency_code', payment_account_id = $recurring_payment_account_id, payment_method = '$recurring_payment_method', payment_reference = 'Paid via AutoPay', payment_invoice_id = $new_invoice_id");
 
