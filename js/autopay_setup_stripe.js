@@ -1,5 +1,5 @@
 // Initialize Stripe.js
-const stripe = Stripe('pk_test_51OTpmkHRGkC845Mqz0zM2A1pjnnXwOyD5tyPzWnRwVthuizNjuBIjoYgMHBMLQBuegrUXQpIyX4yr1fNMo7QzCs500bBnFJgEr');
+const stripe = Stripe(document.getElementById("stripe_publishable_key").value);
 
 initialize();
 
