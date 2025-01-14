@@ -31,12 +31,12 @@ if (str_contains($module, 'admin') && isset($session_is_admin) && $session_is_ad
     //  To add a new admin POST request handler, add a file named after the admin page
     //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page post/admin/admin_ticket_statues.php to handle the changes
 
-    require_once "post/admin/$module.php";
+    include_once "post/admin/$module.php";
 
 } elseif (str_contains($module, 'xcustom')) {
     // Dynamically load any custom POST logic
 
-    require_once "post/xcustom/$module.php";
+    include_once "post/xcustom/$module.php";
 
 } else {
 
