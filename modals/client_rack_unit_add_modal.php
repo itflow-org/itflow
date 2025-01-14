@@ -21,7 +21,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Device Name">
+                            <input type="text" class="form-control" name="name" placeholder="Device Name" maxlength="200">
                         </div>
                     </div>
 

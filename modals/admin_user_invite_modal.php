@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                            <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" required>
                         </div>
                     </div>
 
@@ -29,9 +29,7 @@
                             </div>
                             <select class="form-control select2" name="role" required>
                                 <option value="">- Role -</option>
-                                <option value="3">Administrator</option>
-                                <option value="2">Technician</option>
-                                <option value="1">Accountant</option>
+                                <!-- //TODO: Pull from roles -->
                             </select>
                         </div>
                     </div>

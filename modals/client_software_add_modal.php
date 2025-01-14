@@ -41,7 +41,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Software name" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" required>
                                 </div>
                             </div>
 
@@ -51,7 +51,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="version" placeholder="Software version">
+                                    <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200">
                                 </div>
                             </div>
 
@@ -115,7 +115,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="key" placeholder="License key">
+                                    <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200">
                                 </div>
                             </div>
 

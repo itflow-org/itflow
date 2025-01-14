@@ -15,7 +15,7 @@
 
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" value="<?php echo $tax_name; ?>" required>
+            <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $tax_name; ?>" required>
           </div>
 
           <div class="form-group">

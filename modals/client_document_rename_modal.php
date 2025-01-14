@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                             </div>
-                            <input class="form-control" type="text" name="name" value="<?php echo $document_name; ?>" required>
+                            <input class="form-control" type="text" name="name" maxlength="200" value="<?php echo $document_name; ?>" required>
                         </div>
                     </div>
 

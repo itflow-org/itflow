@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo $contact_name; ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?php echo $contact_name; ?>" required>
                         </div>
                     </div>
 
@@ -28,7 +28,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="title" placeholder="Title" value="<?php echo $contact_title; ?>">
+                            <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200" value="<?php echo $contact_title; ?>">
                         </div>
                     </div>
 
@@ -38,7 +38,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="department" placeholder="Department" value="<?php echo $contact_department; ?>">
+                            <input type="text" class="form-control" name="department" placeholder="Department" maxlength="200" value="<?php echo $contact_department; ?>">
                         </div>
                     </div>
 
@@ -50,12 +50,12 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $contact_phone; ?>">
+                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $contact_phone; ?>">
                                 </div>
                             </div>
                         </div>
                         <div class="col-4">
-                            <input type="text" class="form-control" name="extension" placeholder="Extension" value="<?php echo $contact_extension; ?>">
+                            <input type="text" class="form-control" name="extension" placeholder="Extension" maxlength="200" value="<?php echo $contact_extension; ?>">
                         </div>
                     </div>
 
@@ -65,7 +65,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" value="<?php echo $contact_mobile; ?>">
+                            <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200" value="<?php echo $contact_mobile; ?>">
                         </div>
                     </div>
 
@@ -75,7 +75,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo $contact_email; ?>">
+                            <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" value="<?php echo $contact_email; ?>">
                         </div>
                     </div>
 

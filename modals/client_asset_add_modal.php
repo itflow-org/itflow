@@ -47,7 +47,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Asset name or asset tag" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Asset name or asset tag" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -57,7 +57,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Description of the asset">
+                                    <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255">
                                 </div>
                             </div>
 
@@ -84,7 +84,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="make" placeholder="Manufacturer">
+                                        <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200">
                                     </div>
                                 </div>
 
@@ -94,7 +94,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="model" placeholder="Model Number">
+                                        <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200">
                                     </div>
                                 </div>
 
@@ -104,7 +104,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="serial" placeholder="Serial number">
+                                        <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -116,7 +116,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro">
+                                        <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro" maxlength="200">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -170,7 +170,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                                 </div>
                             </div>
 
@@ -180,7 +180,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="ipv6" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329">
+                                    <input type="text" class="form-control" name="ipv6" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
                                 </div>
                             </div>
 
@@ -190,7 +190,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                    <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                                 </div>
                             </div>
 
@@ -200,7 +200,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
                                 </div>
                             </div>
 
@@ -210,7 +210,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc">
+                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
                                 </div>
                             </div>
 
@@ -224,7 +224,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B">
+                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200">
                                 </div>
                             </div>
 

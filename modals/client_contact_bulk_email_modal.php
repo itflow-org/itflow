@@ -24,12 +24,12 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="text" class="form-control" name="mail_from_name" placeholder="From Name"
+                    <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" maxlength="255"
                         value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
                 </div>
 
                 <div class="form-group">
-                    <input type="text" class="form-control" name="subject" placeholder="Subject">
+                    <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="255">
                 </div>
 
                 <div class="form-group">

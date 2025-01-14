@@ -12,7 +12,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <input type="text" class="form-control" name="name" placeholder="Name" required autofocus>
+                        <input type="text" class="form-control" name="name" placeholder="Name" maxlength="200" required autofocus>
                     </div>
 
                     <div class="form-group">

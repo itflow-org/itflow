@@ -39,7 +39,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Name of Service" required>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" required>
                 </div>
               </div>
 
@@ -49,7 +49,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of Service" required>
+                  <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" required>
                 </div>
               </div>
 
@@ -60,7 +60,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="category" placeholder="Category">
+                  <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20">
                 </div>
               </div>
 
@@ -84,7 +84,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy">
+                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200">
                 </div>
               </div>
 

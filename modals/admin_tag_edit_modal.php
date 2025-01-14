@@ -17,7 +17,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" value="<?php echo $tag_name; ?>" required>
+              <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $tag_name; ?>" required>
             </div>
           </div>
 

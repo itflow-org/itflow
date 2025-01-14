@@ -36,7 +36,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="editCertificateName" name="name" placeholder="Certificate name" value="" required>
+                                    <input type="text" class="form-control" id="editCertificateName" name="name" placeholder="Certificate name" maxlength="200" value="" required>
                                 </div>
                             </div>
 
@@ -71,7 +71,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
                                     </div>
-                                    <input type="text" class="form-control" id="editCertificateDomain" name="domain" placeholder="Domain" value="" required>
+                                    <input type="text" class="form-control" id="editCertificateDomain" name="domain" placeholder="Domain" maxlength="200" value="" required>
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-secondary" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
                                     </div>
@@ -84,7 +84,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="editCertificateIssuedBy" name="issued_by" placeholder="Issued By" value="">
+                                    <input type="text" class="form-control" id="editCertificateIssuedBy" name="issued_by" maxlength="200" placeholder="Issued By" value="">
                                 </div>
                             </div>
 

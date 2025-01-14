@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Category name" required autofocus>
+                            <input type="text" class="form-control" name="name" placeholder="Category name" maxlength="200" required autofocus>
                         </div>
                     </div>
 

@@ -38,7 +38,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="contact_primary" value="1">
@@ -53,7 +53,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="title" placeholder="Title">
+                                    <input type="text" class="form-control" name="title" placeholder="Job Title" maxlength="200">
                                 </div>
                             </div>
 
@@ -63,7 +63,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="department" placeholder="Department or group">
+                                    <input type="text" class="form-control" name="department" placeholder="Department or group" maxlength="200">
                                 </div>
                             </div>
 
@@ -75,12 +75,12 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="extension" placeholder="Extension">
+                                    <input type="text" class="form-control" name="extension" placeholder="Extension" maxlength="200">
                                 </div>
                             </div>
 
@@ -90,7 +90,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number">
+                                    <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -100,7 +100,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="email" placeholder="Email Address">
+                                    <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200">
                                 </div>
                             </div>
 
@@ -145,7 +145,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="pin" placeholder="Security code or pin">
+                                    <input type="text" class="form-control" name="pin" placeholder="Security code or pin" maxlength="255">
                                 </div>
                             </div>
                             <?php if ($config_client_portal_enable == 1) { ?>

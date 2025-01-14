@@ -11,7 +11,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                
+
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -19,9 +19,9 @@
                             <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
                         </li>
                         <?php if ($config_module_enable_accounting) { ?>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
+                            </li>
                         <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
@@ -40,8 +40,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name or Company"
-                                        value="<?php echo $client_name; ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
+                                           value="<?php echo $client_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
@@ -67,7 +67,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="type" placeholder="Industry"
-                                        value="<?php echo $client_type; ?>">
+                                           value="<?php echo $client_type; ?>">
                                 </div>
                             </div>
 
@@ -104,8 +104,8 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="website" placeholder="ex. google.com"
-                                        value="<?php echo $client_website; ?>">
+                                    <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
+                                           value="<?php echo $client_website; ?>">
                                 </div>
                             </div>
 
@@ -134,70 +134,70 @@
 
                         <?php if ($config_module_enable_accounting) { ?>
 
-                        <div class="tab-pane fade" id="pills-client-billing<?php echo $client_id; ?>">     
+                            <div class="tab-pane fade" id="pills-client-billing<?php echo $client_id; ?>">
 
-                            <div class="form-group">
-                                <label>Hourly Rate</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                <div class="form-group">
+                                    <label>Hourly Rate</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" inputmode="numeric"
+                                               pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
+                                               value="<?php echo number_format($client_rate, 2, '.', ''); ?>">
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric"
-                                        pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
-                                        value="<?php echo number_format($client_rate, 2, '.', ''); ?>">
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Currency <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                                <div class="form-group">
+                                    <label>Currency <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="currency_code" required>
+                                            <option value="">- Currency -</option>
+                                            <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
+                                                <option <?php if ($client_currency_code == $currency_code) {
+                                                    echo "selected";
+                                                } ?> value="<?php echo $currency_code; ?>">
+                                                    <?php echo "$currency_code - $currency_name"; ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
-                                    <select class="form-control select2" name="currency_code" required>
-                                        <option value="">- Currency -</option>
-                                        <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
-                                            <option <?php if ($client_currency_code == $currency_code) {
-                                                echo "selected";
-                                            } ?> value="<?php echo $currency_code; ?>">
-                                                <?php echo "$currency_code - $currency_name"; ?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Invoice Net Terms</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <div class="form-group">
+                                    <label>Invoice Net Terms</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="net_terms">
+                                            <option value="">- Net Terms -</option>
+                                            <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
+                                                <option <?php if ($net_term_value == $client_net_terms) {
+                                                    echo "selected";
+                                                } ?> value="<?php echo $net_term_value; ?>">
+                                                    <?php echo $net_term_name; ?>
+                                                </option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
-                                    <select class="form-control select2" name="net_terms">
-                                        <option value="">- Net Terms -</option>
-                                        <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                            <option <?php if ($net_term_value == $client_net_terms) {
-                                                echo "selected";
-                                            } ?> value="<?php echo $net_term_value; ?>">
-                                                <?php echo $net_term_name; ?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Tax ID</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <div class="form-group">
+                                    <label>Tax ID</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tax_id_number" maxlength="255"
+                                               placeholder="Tax ID Number" value="<?php echo $client_tax_id_number; ?>">
                                     </div>
-                                    <input type="text" class="form-control" name="tax_id_number"
-                                        placeholder="Tax ID Number" value="<?php echo $client_tax_id_number; ?>">
                                 </div>
-                            </div>
 
-                        </div>
+                            </div>
 
                         <?php } ?>
 
@@ -205,7 +205,7 @@
 
                             <div class="form-group">
                                 <textarea class="form-control" rows="10" placeholder="Enter some notes"
-                                    name="notes"><?php echo $client_notes; ?></textarea>
+                                          name="notes"><?php echo $client_notes; ?></textarea>
                             </div>
 
                         </div>

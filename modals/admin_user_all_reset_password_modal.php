@@ -15,7 +15,7 @@
                         <div class="row col-7 offset-4">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <input type="password" class="form-control" placeholder="Enter your account password to continue" name="admin_password" autocomplete="new-password" required>
+                                    <input type="password" class="form-control" placeholder="Enter your account password to continue" name="admin_password" required>
                                 </div>
                             </div>
                         </div>

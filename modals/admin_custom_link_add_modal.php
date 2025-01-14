@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Link name" required autofocus>
+                            <input type="text" class="form-control" name="name" placeholder="Link name" maxlength="200" required autofocus>
                         </div>
                     </div>
 
@@ -37,7 +37,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-external-link-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="uri" placeholder="Enter Link" required>
+                            <input type="text" class="form-control" name="uri" placeholder="Enter Link" maxlength="500" required>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="new_tab" value="1">
@@ -52,7 +52,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake">
+                            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200">
                         </div>
                     </div>
 

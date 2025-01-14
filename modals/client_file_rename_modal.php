@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="file_name" placeholder="File Name" value="<?php echo $file_name; ?>" required>
+                            <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?php echo $file_name; ?>" required>
                         </div>
                     </div>
 
@@ -27,7 +27,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="file_description" placeholder="Description" value="<?php echo $file_description; ?>">
+                            <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?php echo $file_description; ?>">
                         </div>
                     </div>
 

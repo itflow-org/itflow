@@ -40,7 +40,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of location" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="location_primary" value="1">
@@ -74,7 +74,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="address" placeholder="Street Address">
+                                    <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200">
                                 </div>
                             </div>
 
@@ -84,7 +84,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="city" placeholder="City">
+                                    <input type="text" class="form-control" name="city" placeholder="City" maxlength="200">
                                 </div>
                             </div>
 
@@ -94,7 +94,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province">
+                                    <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
                                 </div>
                             </div>
 
@@ -104,7 +104,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
+                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200">
                                 </div>
                             </div>
 
@@ -155,7 +155,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -165,7 +165,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number">
+                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -175,7 +175,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="hours" placeholder="Hours of operation">
+                                    <input type="text" class="form-control" name="hours" placeholder="Hours of operation" maxlength="200">
                                 </div>
                             </div>
 

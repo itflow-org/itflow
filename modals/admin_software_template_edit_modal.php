@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Software name" value="<?php echo $software_name; ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?php echo $software_name; ?>" required>
                         </div>
                     </div>
 
@@ -27,7 +27,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="version" placeholder="Software version" value="<?php echo $software_version; ?>">
+                            <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?php echo $software_version; ?>">
                         </div>
                     </div>
 

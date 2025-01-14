@@ -17,7 +17,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Name your calendar" value="<?php echo $calendar_name; ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Name your calendar" maxlength="200" value="<?php echo $calendar_name; ?>" required>
                         </div>
                     </div>
 

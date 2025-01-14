@@ -33,7 +33,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="example.com" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="example.com" maxlength="200" required autofocus>
                                 </div>
                             </div>
 

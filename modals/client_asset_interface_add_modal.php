@@ -20,7 +20,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Interface Name" required>
+                            <input type="text" class="form-control" name="name" placeholder="Interface Name" maxlength="200" required>
                         </div>
                     </div>
 
@@ -30,7 +30,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                            <input type="text" class="form-control" name="mac" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                         </div>
                     </div>
 
@@ -40,7 +40,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" data-mask>
+                            <input type="text" class="form-control" name="ip" placeholder="IP Address" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="dhcp" value="1" title="Check to mark address as DHCP controlled">
@@ -55,7 +55,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="ipv6" placeholder="IPv6 Address">
+                            <input type="text" class="form-control" name="ipv6" placeholder="IPv6 Address" maxlength="200">
                         </div>
                     </div>
 
@@ -65,7 +65,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="port" placeholder="Interface Port ex. eth0">
+                            <input type="text" class="form-control" name="port" placeholder="Interface Port ex. eth0" maxlength="200">
                         </div>
                     </div>
 

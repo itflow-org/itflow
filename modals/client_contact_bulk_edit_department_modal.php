@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="bulk_department" placeholder="Department or group">
+                        <input type="text" class="form-control" name="bulk_department" placeholder="Department or group" maxlength="200">
                     </div>
                 </div>
 

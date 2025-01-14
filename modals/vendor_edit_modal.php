@@ -35,7 +35,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Vendor Name" value="<?php echo "$vendor_name"; ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" value="<?php echo "$vendor_name"; ?>" required>
                                 </div>
                             </div>
 
@@ -45,7 +45,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Description" value="<?php echo $vendor_description; ?>">
+                                    <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200" value="<?php echo $vendor_description; ?>">
                                 </div>
                             </div>
 
@@ -55,7 +55,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="account_number" placeholder="Account number" value="<?php echo $vendor_account_number; ?>">
+                                    <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200" value="<?php echo $vendor_account_number; ?>">
                                 </div>
                             </div>
 
@@ -65,7 +65,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="contact_name" value="<?php echo $vendor_contact_name; ?>" placeholder="Vendor contact name">
+                                    <input type="text" class="form-control" name="contact_name" maxlength="200" value="<?php echo $vendor_contact_name; ?>" placeholder="Vendor contact name">
                                 </div>
                             </div>
 
@@ -102,12 +102,12 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $vendor_phone; ?>">
+                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $vendor_phone; ?>">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="extension" placeholder="Prompts" value="<?php echo $vendor_extension; ?>">
+                                    <input type="text" class="form-control" name="extension" placeholder="Prompts" maxlength="200" value="<?php echo $vendor_extension; ?>">
                                 </div>
                             </div>
 
@@ -117,7 +117,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="hours" placeholder="Support Hours" value="<?php echo $vendor_hours; ?>">
+                                    <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200" value="<?php echo $vendor_hours; ?>">
                                 </div>
                             </div>
 
@@ -127,7 +127,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="email" placeholder="Support Email" value="<?php echo $vendor_email; ?>">
+                                    <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200" value="<?php echo $vendor_email; ?>">
                                 </div>
                             </div>
 
@@ -137,7 +137,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" value="<?php echo $vendor_website; ?>">
+                                    <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200" value="<?php echo $vendor_website; ?>">
                                 </div>
                             </div>
 
@@ -147,7 +147,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" value="<?php echo $vendor_sla; ?>">
+                                    <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200" value="<?php echo $vendor_sla; ?>">
                                 </div>
                             </div>
 
@@ -157,7 +157,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" value="<?php echo $vendor_code; ?>">
+                                    <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200" value="<?php echo $vendor_code; ?>">
                                 </div>
                             </div>
 

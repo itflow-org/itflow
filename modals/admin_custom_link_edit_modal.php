@@ -19,7 +19,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list-ul"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" value="<?php echo $custom_link_name; ?>" required>
+                            <input type="text" class="form-control" name="name" value="<?php echo $custom_link_name; ?>" maxlength="200" required>
                         </div>
                     </div>
 
@@ -39,7 +39,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-external-link-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="uri" placeholder="Enter Link" value="<?php echo $custom_link_uri; ?>" required>
+                            <input type="text" class="form-control" name="uri" placeholder="Enter Link" maxlength="500" value="<?php echo $custom_link_uri; ?>" required>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="new_tab" value="1" <?php if ($custom_link_new_tab == 1) { echo "checked"; } ?>>
@@ -54,7 +54,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?php echo $custom_link_icon; ?>">
+                            <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200" value="<?php echo $custom_link_icon; ?>">
                         </div>
                     </div>
 

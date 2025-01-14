@@ -36,7 +36,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="subject" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
+                                    <input type="text" class="form-control" name="subject" maxlength="500" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
                                 </div>
                             </div>
 

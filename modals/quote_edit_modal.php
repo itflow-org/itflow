@@ -64,7 +64,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="scope" id="editQuoteScope" placeholder="Quick description" value="">
+                            <input type="text" class="form-control" name="scope" id="editQuoteScope" placeholder="Quick description" value="" maxlength="255">
                         </div>
                     </div>
 

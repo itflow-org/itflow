@@ -32,7 +32,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Full Name" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -42,7 +42,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                                    <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" required>
                                 </div>
                             </div>
 
@@ -52,7 +52,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" required minlength="8">
+                                    <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" minlength="8" required>
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>

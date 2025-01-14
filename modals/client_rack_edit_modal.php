@@ -36,7 +36,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Rack name" value="<?php echo $rack_name; ?>" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Rack name" maxlength="200" value="<?php echo $rack_name; ?>" required autofocus>
                                 </div>
                             </div>
 
@@ -71,7 +71,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" value="<?php echo $rack_model; ?>">
+                                    <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" maxlength="200" value="<?php echo $rack_model; ?>">
                                 </div>
                             </div>
 
@@ -81,7 +81,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" value="<?php echo $rack_depth; ?>">
+                                    <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" maxlength="50" value="<?php echo $rack_depth; ?>">
                                 </div>
                             </div>
 
@@ -101,7 +101,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" value="<?php echo $rack_physical_location; ?>">
+                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $rack_physical_location; ?>">
                                 </div>
                             </div>
 

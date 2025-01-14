@@ -13,7 +13,7 @@
 
                     <div class="form-group">
                         <label>Label <strong class="text-danger">*</strong></label>
-                        <input type="text" class="form-control" name="label" value="<?php echo $custom_field_label; ?>" required>
+                        <input type="text" class="form-control" name="label" maxlength="255" value="<?php echo $custom_field_label; ?>" required>
                     </div>
 
                     <div class="form-group">

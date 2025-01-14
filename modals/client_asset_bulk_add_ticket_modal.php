@@ -18,7 +18,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="bulk_subject" placeholder="Asset Name will be prepended to Subject">
+                        <input type="text" class="form-control" name="bulk_subject" placeholder="Asset Name will be prepended to Subject" maxlength="200">
                     </div>
                 </div>
 
