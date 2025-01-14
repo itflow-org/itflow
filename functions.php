@@ -51,7 +51,7 @@ function key32gen()
 function nullable_htmlentities($unsanitizedInput)
 {
     //return htmlentities($unsanitizedInput ?? '');
-    return htmlspecialchars($unsanitizedInput, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 function initials($str)

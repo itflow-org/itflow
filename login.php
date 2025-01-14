@@ -333,7 +333,7 @@ if (isset($_POST['login'])) {
     <div class="card">
         <div class="card-body login-card-body">
 
-            <?php if(!empty($config_login_message)){ ?>
+            <?php if (!empty($config_login_message)){ ?>
             <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
 
