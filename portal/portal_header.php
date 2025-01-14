@@ -57,17 +57,17 @@ header("X-Frame-Options: DENY"); // Legacy
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
                             <a class="dropdown-item" href="invoices.php">Invoices</a>
                             <a class="dropdown-item" href="quotes.php">Quotes</a>
-<!--                            <a class="dropdown-item" href="autopay.php">Auto Payment</a>-->
+                            <a class="dropdown-item" href="autopay.php">Auto Payment</a>
                         </div>
                     </li>
                 <?php } ?>
 
                 <?php if ($config_module_enable_itdoc && ($session_contact_primary == 1 || $session_contact_is_technical_contact)) { ?>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle <?php echo in_array(basename($_SERVER['PHP_SELF']), ['documents.php', 'contacts.php', 'domains.php', 'certificates.php']) ? 'active' : ''; ?>" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle <?php echo in_array(basename($_SERVER['PHP_SELF']), ['documents.php', 'contacts.php', 'domains.php', 'certificates.php']) ? 'active' : ''; ?>" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Technical
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                             <a class="dropdown-item" href="contacts.php">Contacts</a>
                             <a class="dropdown-item" href="documents.php">Documents</a>
                             <a class="dropdown-item" href="domains.php">Domains</a>

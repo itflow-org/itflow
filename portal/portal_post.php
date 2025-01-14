@@ -453,18 +453,25 @@ if (isset($_POST['create_stripe_customer'])) {
     $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
     if (!$stripe_client_details) {
 
-        // Initiate Stripe
-        $stripe = new \Stripe\StripeClient($config_stripe_secret);
+        try {
+            // Initiate Stripe
+            $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
-        // Create customer
-        $customer = $stripe->customers->create([
-            'name' => $session_client_name,
-            'email' => $session_contact_email,
-            'metadata' => [
-                'itflow_client_id' => $session_client_id,
-                'consent' => $session_contact_name
-            ]
-        ]);
+            // Create customer
+            $customer = $stripe->customers->create([
+                'name' => $session_client_name,
+                'email' => $session_contact_email,
+                'metadata' => [
+                    'itflow_client_id' => $session_client_id,
+                    'consent' => $session_contact_name
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            error_log("Stripe payment error - encountered exception when creating customer record for $session_client_name: $error");
+            logApp("Stripe", "error", "Exception creating customer $session_client_name: $error");
+        }
 
         // Get & Store customer ID
         $stripe_id = sanitizeInput($customer->id);
@@ -507,20 +514,26 @@ if (isset($_GET['create_stripe_checkout'])) {
     $client_currency_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_currency_code FROM clients WHERE client_id = $session_client_id LIMIT 1"));
     $client_currency = $client_currency_details['client_currency_code'];
 
-    // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
-    $stripe = new \Stripe\StripeClient($config_stripe_secret);
-
     // Define return URL that user is redirected to once payment method is verified by Stripe
     $return_url = "https://$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
-    // Create checkout session (server side)
-    $checkout_session = $stripe->checkout->sessions->create([
-        'currency' => $client_currency,
-        'mode' => 'setup',
-        'ui_mode' => 'embedded',
-        'return_url' => $return_url,
-    ]);
+    try {
+        // Initialize stripe
+        require_once '../vendor/stripe-php-10.5.0/init.php';
+        $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+        // Create checkout session (server side)
+        $checkout_session = $stripe->checkout->sessions->create([
+            'currency' => $client_currency,
+            'mode' => 'setup',
+            'ui_mode' => 'embedded',
+            'return_url' => $return_url,
+        ]);
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception when creating checkout session: $error");
+        logApp("Stripe", "error", "Exception creating checkout: $error");
+    }
 
     // Return the client secret to the js script
     echo json_encode(array('clientSecret' => $checkout_session->client_secret));
@@ -552,24 +565,31 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
     $client_stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
 
-    // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
-    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+    try {
+        // Initialize stripe
+        require_once '../vendor/stripe-php-10.5.0/init.php';
+        $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
-    // Retrieve checkout session
-    $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id,[]);
+        // Retrieve checkout session
+        $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id,[]);
 
-    // Get setup intent
-    $setup_intent_id = $checkout_session->setup_intent;
+        // Get setup intent
+        $setup_intent_id = $checkout_session->setup_intent;
 
-    // Retrieve the setup intent details
-    $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
+        // Retrieve the setup intent details
+        $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
 
-    // Get the payment method token
-    $payment_method = sanitizeInput($setup_intent->payment_method);
+        // Get the payment method token
+        $payment_method = sanitizeInput($setup_intent->payment_method);
 
-    // Attach the payment method to the client in Stripe
-    $stripe->paymentMethods->attach($payment_method, ['customer' => $client_stripe_id]);
+        // Attach the payment method to the client in Stripe
+        $stripe->paymentMethods->attach($payment_method, ['customer' => $client_stripe_id]);
+
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception when adding payment method info: $error");
+        logApp("Stripe", "error", "Exception adding payment method: $error");
+    }
 
     // Update ITFlow
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = '$payment_method' WHERE client_id = $session_client_id LIMIT 1");
@@ -579,9 +599,11 @@ if (isset($_GET['stripe_save_card'])) {
     $card_info = sanitizeInput($payment_method_details->card->display_brand) . " " . sanitizeInput($payment_method_details->card->last4);
 
     // Send email confirmation
-    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
-    $row = mysqli_fetch_array($sql_settings);
 
+    // Company Details & Settings
+    $sql_settings = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $row = mysqli_fetch_array($sql_settings);
+    $company_name = sanitizeInput($row['company_name']);
     $config_smtp_host = $row['config_smtp_host'];
     $config_smtp_port = intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];
@@ -589,12 +611,11 @@ if (isset($_GET['stripe_save_card'])) {
     $config_smtp_password = $row['config_smtp_password'];
     $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
     $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
-
     $config_base_url = sanitizeInput($config_base_url);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment method saved";
-        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($card_info) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($card_info) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         $data = [
             [
@@ -639,12 +660,19 @@ if (isset($_GET['stripe_remove_card'])) {
 
     $payment_method = sanitizeInput($_GET['pm']);
 
-    // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
-    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+    try {
+        // Initialize stripe
+        require_once '../vendor/stripe-php-10.5.0/init.php';
+        $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
-    // Detach PM
-    $stripe->paymentMethods->detach($payment_method, []);
+        // Detach PM
+        $stripe->paymentMethods->detach($payment_method, []);
+
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception when removing payment method info for $payment_method: $error");
+        logApp("Stripe", "error", "Exception removing payment method for $payment_method: $error");
+    }
 
     // Remove payment method from ITFlow
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");

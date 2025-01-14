@@ -985,8 +985,9 @@ if (isset($_GET['add_payment_stripe'])) {
         $pi_livemode = $payment_intent->livemode;
 
     } catch (Exception $e) {
-        error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number:-");
-        error_log($e->getMessage());
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
+        logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
     }
 
     if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {

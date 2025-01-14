@@ -722,9 +722,10 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                     $pi_livemode = $payment_intent->livemode;
 
                 } catch (Exception $e) {
-                    echo($e->getMessage());
-                    error_log("Stripe payment error - encountered exception during payment intent for invoice ID $new_invoice_id / $invoice_prefix$invoice_number:-");
-                    error_log($e->getMessage());
+                    $error = $e->getMessage();
+                    error_log("Stripe payment error - encountered exception during payment intent for invoice ID $new_invoice_id / $invoice_prefix$invoice_number: $error");
+                    logApp("Stripe", "error", "Exception during PI for invoice ID $new_invoice_id: $error");
+                    echo $error;
                 }
 
                 if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {

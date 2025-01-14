@@ -92,14 +92,22 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 <?php
 
-                // Initialize
-                $stripe = new \Stripe\StripeClient($config_stripe_secret);
+                try {
+                    // Initialize
+                    $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
-                $payment_method = $stripe->customers->retrievePaymentMethod(
-                    $stripe_id,
-                    $stripe_pm,
-                    []
-                );
+                    // Get payment method info (last 4 digits etc)
+                    $payment_method = $stripe->customers->retrievePaymentMethod(
+                        $stripe_id,
+                        $stripe_pm,
+                        []
+                    );
+
+                } catch (Exception $e) {
+                    $error = $e->getMessage();
+                    error_log("Stripe payment error - encountered exception when fetching payment method info for $stripe_pm: $error");
+                    logApp("Stripe", "error", "Exception when fetching payment method info for $stripe_pm: $error");
+                }
 
                 $card_name = nullable_htmlentities($payment_method->billing_details->name);
                 $card_brand = nullable_htmlentities($payment_method->card->display_brand);
