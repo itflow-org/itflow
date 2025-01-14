@@ -145,6 +145,17 @@ if (isset($_GET['invoice_id'])) {
         $json_products = json_encode($products);
     }
 
+    // Payment with saved card (auto-pay)
+    if ($config_stripe_enable) {
+        $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
+        if ($stripe_client_details) {
+            $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
+            $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+        }
+    }
+
+
+
     ?>
 
     <ol class="breadcrumb d-print-none">
@@ -197,6 +208,11 @@ if (isset($_GET['invoice_id'])) {
                         <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
                             <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                         </a>
+                        <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                            <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
+                            </a>
+                        <?php } ?>
                     <?php } ?>
                     
                     <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>

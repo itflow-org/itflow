@@ -50,28 +50,34 @@ header("X-Frame-Options: DENY"); // Legacy
                 </li>
 
                 <?php if (($session_contact_primary == 1 || $session_contact_is_billing_contact) && $config_module_enable_accounting == 1) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "invoices.php") {echo "active";} ?>" href="invoices.php">Invoices</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "quotes.php") {echo "active";} ?>" href="quotes.php">Quotes</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <?php echo in_array(basename($_SERVER['PHP_SELF']), ['invoices.php', 'quotes.php', 'autopay.php']) ? 'active' : ''; ?>" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Finance
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                            <a class="dropdown-item" href="invoices.php">Invoices</a>
+                            <a class="dropdown-item" href="quotes.php">Quotes</a>
+                            <a class="dropdown-item" href="autopay.php">Auto Payment</a>
+                        </div>
                     </li>
                 <?php } ?>
+
                 <?php if ($config_module_enable_itdoc && ($session_contact_primary == 1 || $session_contact_is_technical_contact)) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "documents.php") {echo "active";} ?>" href="documents.php">Documents</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "contacts.php") {echo "active";} ?>" href="contacts.php">Contacts</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "domains.php") {echo "active";} ?>" href="domains.php">Domains</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "certificates.php") {echo "active";} ?>" href="certificates.php">Certificates</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle <?php echo in_array(basename($_SERVER['PHP_SELF']), ['documents.php', 'contacts.php', 'domains.php', 'certificates.php']) ? 'active' : ''; ?>" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Technical
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+                            <a class="dropdown-item" href="contacts.php">Contacts</a>
+                            <a class="dropdown-item" href="documents.php">Documents</a>
+                            <a class="dropdown-item" href="domains.php">Domains</a>
+                            <a class="dropdown-item" href="certificates.php">Certificates</a>
+                            <a class="dropdown-item" href="ticket_view_all.php">All tickets</a>
+                        </div>
                     </li>
                 <?php } ?>
-            </ul>
+
+            </ul><!-- End left nav -->
 
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item dropdown">
@@ -100,7 +106,6 @@ header("X-Frame-Options: DENY"); // Legacy
                 <img src="<?php echo "../uploads/clients/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
 
             <?php } else { ?>
-
                 <span class="fa-stack fa-2x rounded-left">
                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                     <span class="fa fa-stack-1x text-white"><?php echo $session_contact_initials; ?></span>
