@@ -22,9 +22,9 @@
                             <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
                         </li>
                         <?php if ($config_module_enable_accounting) { ?>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
+                            </li>
                         <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
@@ -43,7 +43,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name or Company" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="lead" value="1" <?php if($leads == 1){ echo "checked"; } ?>>
@@ -68,7 +68,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="type" placeholder="Company Type">
+                                    <input type="text" class="form-control" name="type" placeholder="Company Type" maxlength="200">
                                 </div>
                             </div>
 
@@ -98,7 +98,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="website" placeholder="ex. google.com">
+                                    <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200">
                                 </div>
                             </div>
 
@@ -133,7 +133,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number">
+                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -143,7 +143,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number">
+                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -153,7 +153,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="address" placeholder="Street Address">
+                                    <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200">
                                 </div>
                             </div>
 
@@ -163,7 +163,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="city" placeholder="City">
+                                    <input type="text" class="form-control" name="city" placeholder="City" maxlength="200">
                                 </div>
                             </div>
 
@@ -173,7 +173,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province">
+                                    <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
                                 </div>
                             </div>
 
@@ -183,7 +183,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
+                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200">
                                 </div>
                             </div>
 
@@ -212,7 +212,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" required autofocus>
+                                    <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -222,7 +222,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="title" placeholder="Title">
+                                    <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200">
                                 </div>
                             </div>
 
@@ -234,12 +234,12 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="contact_phone" placeholder="Contact's Phone Number">
+                                            <input type="text" class="form-control" name="contact_phone" placeholder="Contact's Phone Number" maxlength="200">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <input type="text" class="form-control" name="contact_extension" placeholder="Extension">
+                                    <input type="text" class="form-control" name="contact_extension" placeholder="Extension" maxlength="200">
                                 </div>
                             </div>
 
@@ -250,7 +250,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="contact_mobile" placeholder="Contact's Mobile Number">
+                                    <input type="text" class="form-control" name="contact_mobile" placeholder="Contact's Mobile Number" maxlength="200">
                                 </div>
                             </div>
 
@@ -260,7 +260,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address">
+                                    <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address" maxlength="200">
                                 </div>
                             </div>
 
@@ -268,58 +268,58 @@
 
                         <?php if ($config_module_enable_accounting) { ?>
 
-                        <div class="tab-pane fade" id="pills-billing">
+                            <div class="tab-pane fade" id="pills-billing">
 
-                            <div class="form-group">
-                                <label>Hourly Rate</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                <div class="form-group">
+                                    <label>Hourly Rate</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
                                     </div>
-                                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Currency <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                                <div class="form-group">
+                                    <label>Currency <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="currency_code" required>
+                                            <option value="">- Currency -</option>
+                                            <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
+                                                <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
-                                    <select class="form-control select2" name="currency_code" required>
-                                        <option value="">- Currency -</option>
-                                        <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                            <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                                        <?php } ?>
-                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Payment Terms</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <div class="form-group">
+                                    <label>Payment Terms</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="net_terms">
+                                            <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
+                                                <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
-                                    <select class="form-control select2" name="net_terms">
-                                        <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                            <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
-                                        <?php } ?>
-                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label>Tax ID</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <div class="form-group">
+                                    <label>Tax ID</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number" maxlength="255">
                                     </div>
-                                    <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number">
                                 </div>
-                            </div>
 
-                        </div>
+                            </div>
 
                         <?php } ?>
 

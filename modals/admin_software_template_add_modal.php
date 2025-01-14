@@ -16,7 +16,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Software name" required autofocus>
+                            <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" required autofocus>
                         </div>
                     </div>
 
@@ -26,7 +26,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="version" placeholder="Software version">
+                            <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200">
                         </div>
                     </div>
 

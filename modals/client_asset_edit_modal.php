@@ -47,7 +47,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name the asset" value="<?php echo $asset_name; ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Name the asset" maxlength="200" value="<?php echo $asset_name; ?>" required>
                                 </div>
                             </div>
 
@@ -57,7 +57,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Description of the asset" value="<?php echo $asset_description; ?>">
+                                    <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?php echo $asset_description; ?>">
                                 </div>
                             </div>
 
@@ -83,7 +83,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="make" placeholder="Manufacturer" value="<?php echo $asset_make; ?>">
+                                        <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200" value="<?php echo $asset_make; ?>">
                                     </div>
                                 </div>
 
@@ -93,7 +93,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="model" placeholder="Model Number" value="<?php echo $asset_model; ?>">
+                                        <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200" value="<?php echo $asset_model; ?>">
                                     </div>
                                 </div>
 
@@ -103,7 +103,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="serial" placeholder="Serial number" value="<?php echo $asset_serial; ?>">
+                                        <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200" value="<?php echo $asset_serial; ?>">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -115,7 +115,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?php echo $asset_os; ?>">
+                                        <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" maxlength="200" value="<?php echo $asset_os; ?>">
                                     </div>
                                 </div>
                             <?php } ?>
@@ -160,7 +160,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
@@ -175,7 +175,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="nat_ip" value="<?php echo $asset_nat_ip; ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                                    <input type="text" class="form-control" name="nat_ip" value="<?php echo $asset_nat_ip; ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                                 </div>
                             </div>
 
@@ -185,7 +185,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="ipv6" value="<?php echo $asset_ipv6; ?>" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329">
+                                    <input type="text" class="form-control" name="ipv6" value="<?php echo $asset_ipv6; ?>" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
                                 </div>
                             </div>
 
@@ -195,7 +195,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mac" value="<?php echo $asset_mac; ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" data-mask>
+                                    <input type="text" class="form-control" name="mac" value="<?php echo $asset_mac; ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                                 </div>
                             </div>
 
@@ -205,7 +205,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" value="<?php echo $asset_uri; ?>">
+                                    <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?php echo $asset_uri; ?>">
                                 </div>
                             </div>
 
@@ -215,7 +215,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" value="<?php echo $asset_uri_2; ?>">
+                                    <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?php echo $asset_uri_2; ?>">
                                 </div>
                             </div>
 
@@ -229,7 +229,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" value="<?php echo $asset_physical_location; ?>">
+                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $asset_physical_location; ?>">
                                 </div>
                             </div>
 

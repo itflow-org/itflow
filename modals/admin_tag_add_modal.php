@@ -17,7 +17,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Tag name" required autofocus>
+              <input type="text" class="form-control" name="name" placeholder="Tag name" maxlength="200" required autofocus>
             </div>
           </div>
 

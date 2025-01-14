@@ -35,7 +35,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Certificate name" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Certificate name" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -81,7 +81,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
                                     </div>
-                                    <input type="text" class="form-control" name="domain" id="domain" placeholder="FQDN" required>
+                                    <input type="text" class="form-control" name="domain" id="domain" placeholder="FQDN" maxlength="200" required>
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-secondary" onclick="fetchSSL('new')"><i class="fas fa-fw fa-sync-alt"></i></button>
                                     </div>
@@ -94,7 +94,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="issued_by" id="issuedBy" placeholder="Issued By">
+                                    <input type="text" class="form-control" name="issued_by" id="issuedBy" placeholder="Issued By" maxlength="200">
                                 </div>
                             </div>
 

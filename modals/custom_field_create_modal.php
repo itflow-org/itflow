@@ -14,7 +14,7 @@
 
                     <div class="form-group">
                         <label>Label <strong class="text-danger">*</strong></label>
-                        <input type="text" class="form-control" name="label" placeholder="Enter a custom field label" required autofocus>
+                        <input type="text" class="form-control" name="label" placeholder="Enter a custom field label" maxlength="255" required autofocus>
                     </div>
 
                     <div class="form-group">

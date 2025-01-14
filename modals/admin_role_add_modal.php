@@ -18,7 +18,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="role_name" placeholder="Role Name" required>
+                                <input type="text" class="form-control" name="role_name" placeholder="Role Name" maxlength="200" required>
                             </div>
                         </div>
 
@@ -28,7 +28,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-chevron-right"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="role_description" placeholder="Role Description" required>
+                                <input type="text" class="form-control" name="role_description" placeholder="Role Description" maxlength="200" required>
                             </div>
                         </div>
 

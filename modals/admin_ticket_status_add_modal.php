@@ -17,7 +17,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
               </div>
-              <input type="text" class="form-control" name="name" placeholder="Ticket Status name" required autofocus>
+              <input type="text" class="form-control" name="name" placeholder="Ticket Status name" maxlength="200" required autofocus>
             </div>
           </div>
 

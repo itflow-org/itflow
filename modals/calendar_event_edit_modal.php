@@ -37,7 +37,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="title" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
+                                    <input type="text" class="form-control" name="title" maxlength="200" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
                                 </div>
                             </div>
 

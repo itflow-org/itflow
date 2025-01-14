@@ -20,7 +20,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Name the task" value="<?php echo $task_name; ?>" required autofocus>
+                            <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?php echo $task_name; ?>" required autofocus>
                         </div>
                     </div>
 

@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Project Name" required autofocus>
+                            <input type="text" class="form-control" name="name" placeholder="Project Name" maxlength="255" required autofocus>
                         </div>
                     </div>
 

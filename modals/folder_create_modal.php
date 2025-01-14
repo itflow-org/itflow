@@ -19,7 +19,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="folder_name" placeholder="Folder Name" required>
+                            <input type="text" class="form-control" name="folder_name" placeholder="Folder Name" maxlength="200" required>
                         </div>
                     </div>
 

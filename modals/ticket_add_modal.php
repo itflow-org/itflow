@@ -106,7 +106,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" required>
+                                    <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" required>
                                 </div>
                             </div>
 

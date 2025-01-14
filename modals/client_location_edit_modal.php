@@ -40,7 +40,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of location" value="<?php echo $location_name; ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" value="<?php echo $location_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
@@ -80,7 +80,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="address" placeholder="Street Address" value="<?php echo $location_address; ?>">
+                                    <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200" value="<?php echo $location_address; ?>">
                                 </div>
                             </div>
 
@@ -90,7 +90,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="city" placeholder="City" value="<?php echo $location_city; ?>">
+                                    <input type="text" class="form-control" name="city" placeholder="City" maxlength="200" value="<?php echo $location_city; ?>">
                                 </div>
                             </div>
 
@@ -100,7 +100,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province" value="<?php echo $location_state; ?>">
+                                    <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?php echo $location_state; ?>">
                                 </div>
                             </div>
 
@@ -110,7 +110,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" value="<?php echo $location_zip; ?>">
+                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200" value="<?php echo $location_zip; ?>">
                                 </div>
                             </div>
 
@@ -168,7 +168,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $location_phone; ?>">
+                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $location_phone; ?>">
                                 </div>
                             </div>
 
@@ -178,7 +178,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number" value="<?php echo $location_fax; ?>">
+                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number" maxlength="200" value="<?php echo $location_fax; ?>">
                                 </div>
                             </div>
 
@@ -188,7 +188,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="hours" placeholder="Hours of operation" value="<?php echo $location_hours; ?>">
+                                    <input type="text" class="form-control" name="hours" placeholder="Hours of operation" maxlength="200" value="<?php echo $location_hours; ?>">
                                 </div>
                             </div>
 

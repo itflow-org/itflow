@@ -157,7 +157,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="reference" placeholder="Check #, trans #, etc">
+                                <input type="text" class="form-control" name="reference" placeholder="Check #, trans #, etc" maxlength="200">
                             </div>
                         </div>
 

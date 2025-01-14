@@ -38,7 +38,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Network name (VLAN, WAN, LAN2 etc)" required autofocus>
+                  <input type="text" class="form-control" name="name" placeholder="Network name (VLAN, WAN, LAN2 etc)" maxlength="200" required autofocus>
                 </div>
               </div>
 
@@ -95,7 +95,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="network" placeholder="Network or IP ex 192.168.1.0/24" required>
+                  <input type="text" class="form-control" name="network" placeholder="Network or IP ex 192.168.1.0/24" maxlength="200" required>
                 </div>
               </div>
 
@@ -105,7 +105,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-mask"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="subnet" placeholder="ex 255.255.255.0" data-inputmask="'alias': 'ip'" data-mask>
+                  <input type="text" class="form-control" name="subnet" placeholder="ex 255.255.255.0" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                 </div>
               </div>
 
@@ -115,7 +115,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" data-inputmask="'alias': 'ip'" data-mask required>
+                  <input type="text" class="form-control" name="gateway" placeholder="ex 192.168.1.1" maxlength="200" data-inputmask="'alias': 'ip'" data-mask required>
                 </div>
               </div>
 
@@ -125,7 +125,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199">
+                  <input type="text" class="form-control" name="dhcp_range" placeholder="ex 192.168.1.11-199"  maxlength="200">
                 </div>
               </div>
 
@@ -138,7 +138,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="primary_dns" placeholder="ex 9.9.9.9" data-inputmask="'alias': 'ip'" data-mask>
+                  <input type="text" class="form-control" name="primary_dns" placeholder="ex 9.9.9.9"  maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                 </div>
               </div>
 
@@ -148,7 +148,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="secondary_dns" placeholder="ex 1.1.1.1" data-inputmask="'alias': 'ip'" data-mask>
+                  <input type="text" class="form-control" name="secondary_dns" placeholder="ex 1.1.1.1"  maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                 </div>
               </div>
             </div>

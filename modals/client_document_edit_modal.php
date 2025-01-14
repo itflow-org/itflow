@@ -15,7 +15,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <input type="text" class="form-control" name="name" value="<?php echo $document_name; ?>" placeholder="Name" required>
+                        <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $document_name; ?>" placeholder="Name" required>
                     </div>
 
                     <div class="form-group">

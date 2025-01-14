@@ -11,7 +11,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <input type="text" class="form-control" name="name" placeholder="Template name">
+                        <input type="text" class="form-control" name="name" placeholder="Template name" maxlength="200">
                     </div>
 
                     <?php if ($config_ai_enable == 1) { ?>

@@ -45,7 +45,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="source" value="<?php echo $trip_source; ?>" required>
+                            <input type="text" class="form-control" name="source" maxlength="200" value="<?php echo $trip_source; ?>" required>
                         </div>
                     </div>
 
@@ -79,7 +79,7 @@
 
                     <div class="form-group">
                         <label>Purpose <strong class="text-danger">*</strong></label>
-                        <textarea rows="4" class="form-control" placeholder="Enter a purpose" name="purpose" required><?php echo $trip_purpose; ?></textarea>
+                        <textarea rows="4" class="form-control" placeholder="Enter a purpose" name="purpose" maxlength="200" required><?php echo $trip_purpose; ?></textarea>
                     </div>
 
                     <div class="form-group">

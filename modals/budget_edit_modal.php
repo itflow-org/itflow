@@ -51,7 +51,7 @@
 
                     <div class="form-group">
                         <label>Description <strong class="text-danger">*</strong></label>
-                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?php echo $budget_description; ?></textarea>
+                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" maxlength="255" required><?php echo $budget_description; ?></textarea>
                     </div>
 
                     <div class="form-row">

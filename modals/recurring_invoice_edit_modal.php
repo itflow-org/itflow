@@ -18,7 +18,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?php echo $recurring_scope; ?>">
+                            <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255" value="<?php echo $recurring_scope; ?>">
                         </div>
                     </div>
 

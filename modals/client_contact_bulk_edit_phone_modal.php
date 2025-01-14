@@ -16,7 +16,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="bulk_phone" placeholder="Phone Number">
+                        <input type="text" class="form-control" name="bulk_phone" placeholder="Phone Number" maxlength="200">
                     </div>
                 </div>
 

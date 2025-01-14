@@ -37,7 +37,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of Login" value="<?php echo $login_name; ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of Login" maxlength="200" value="<?php echo $login_name; ?>" required>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="important" value="1" <?php if ($login_important == 1) { echo "checked"; } ?>>
@@ -62,7 +62,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username or ID" value="<?php echo $login_username; ?>">
+                                    <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350" value="<?php echo $login_username; ?>">
                                 </div>
                             </div>
 
@@ -72,7 +72,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" value="<?php echo $login_password; ?>" required autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?php echo $login_password; ?>" required autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -88,7 +88,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="otp_secret" value="<?php echo $login_otp_secret; ?>" placeholder="Insert secret key">
+                                    <input type="password" class="form-control" data-toggle="password" name="otp_secret" maxlength="200" value="<?php echo $login_otp_secret; ?>" placeholder="Insert secret key">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -101,7 +101,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" value="<?php echo $login_uri; ?>">
+                                    <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?php echo $login_uri; ?>">
                                     <div class="input-group-append">
 
                                         <a href="<?php echo $login_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
@@ -118,7 +118,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" value="<?php echo $login_uri_2; ?>">
+                                    <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?php echo $login_uri_2; ?>">
                                     <div class="input-group-append">
                                         <a href="<?php echo $login_uri_2; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                                     </div>

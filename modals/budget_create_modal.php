@@ -54,7 +54,7 @@
 
                     <div class="form-group">
                         <label>Description <strong class="text-danger">*</strong></label>
-                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required></textarea>
+                        <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" maxlength="255" required></textarea>
                     </div>
 
                     <div class="form-row">

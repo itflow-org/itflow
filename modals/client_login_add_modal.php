@@ -36,7 +36,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Name of Login" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Name of Login" maxlength="200" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
                                             <input type="checkbox" name="important" value="1">
@@ -51,7 +51,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Description">
+                                    <input type="text" class="form-control" name="description" placeholder="Description" maxlength="500">
                                 </div>
                             </div>
 
@@ -61,7 +61,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Username or ID">
+                                    <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350"> <!-- DB field is 500, 350 un-encrypted chars -->
                                 </div>
                             </div>
 
@@ -71,7 +71,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password or Key" required autocomplete="new-password">
+                                    <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password or Key" required maxlength="350" autocomplete="new-password">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -87,7 +87,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                                     </div>
-                                    <input type="password" class="form-control" data-toggle="password" name="otp_secret" placeholder="Insert secret key">
+                                    <input type="password" class="form-control" data-toggle="password" name="otp_secret" placeholder="Insert secret key" maxlength="200">
                                     <div class="input-group-append">
                                         <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                     </div>
@@ -100,7 +100,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri" placeholder="http://192.168.1.1">
+                                    <input type="text" class="form-control" name="uri" placeholder="http://192.168.1.1" maxlength="500">
                                 </div>
                             </div>
 
@@ -110,7 +110,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001">
+                                    <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500">
                                 </div>
                             </div>
 

@@ -36,7 +36,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" id="editDomainName" name="name" placeholder="Domain name example.com" value="" required>
+                                    <input type="text" class="form-control" id="editDomainName" name="name" placeholder="Domain name example.com" maxlength="200" value="" required>
                                 </div>
                             </div>
 

@@ -13,7 +13,7 @@
         <div class="modal-body bg-white">
           <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" placeholder="Tax name" required autofocus>
+            <input type="text" class="form-control" name="name" placeholder="Tax name" maxlength="200" required autofocus>
           </div>
           <div class="form-group">
             <label>Percent <strong class="text-danger">*</strong></label>

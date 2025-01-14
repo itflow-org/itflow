@@ -35,7 +35,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Rack name" required autofocus>
+                                    <input type="text" class="form-control" name="name" placeholder="Rack name" maxlength="200" required autofocus>
                                 </div>
                             </div>
 
@@ -70,7 +70,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame">
+                                    <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" maxlength="200">
                                 </div>
                             </div>
 
@@ -80,7 +80,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches">
+                                    <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" maxlength="50">
                                 </div>
                             </div>
 
@@ -100,7 +100,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B">
+                                    <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200">
                                 </div>
                             </div>
 

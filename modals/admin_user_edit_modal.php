@@ -45,7 +45,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Full Name"
+                                    <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200"
                                            value="<?php echo $user_name; ?>" required>
                                 </div>
                             </div>
@@ -56,7 +56,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="email" placeholder="Email Address"
+                                    <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200"
                                            value="<?php echo $user_email; ?>" required>
                                 </div>
                             </div>

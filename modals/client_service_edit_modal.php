@@ -38,7 +38,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="name" placeholder="Name of Service" value="<?php echo $service_name ?>" required>
+                  <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" value="<?php echo $service_name ?>" required>
                 </div>
               </div>
 
@@ -48,7 +48,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="description" placeholder="Description of Service" value="<?php echo $service_description ?>" required>
+                  <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" value="<?php echo $service_description ?>" required>
                 </div>
               </div>
 
@@ -59,7 +59,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="category" placeholder="Category" value="<?php echo $service_category ?>">
+                  <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20" value="<?php echo $service_category ?>">
                 </div>
               </div>
 
@@ -83,7 +83,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
                   </div>
-                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" value="<?php echo $service_backup ?>">
+                  <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200" value="<?php echo $service_backup ?>">
                 </div>
               </div>
 
