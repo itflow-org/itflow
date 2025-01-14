@@ -174,6 +174,6 @@
 </nav>
 
 <?php if ($config_module_enable_ticketing == 1) {
-    include_once "top_nav_tickets_modal.php";
+    include_once __DIR__ . "/../modals/top_nav_tickets_modal.php";
     } ?>
 <!-- /.navbar -->
