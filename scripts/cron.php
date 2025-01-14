@@ -130,6 +130,12 @@ mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_
 // Cleanup old audit logs
 mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
 
+// Cleanup old app/debug logs
+mysqli_query($mysqli, "DELETE FROM app_logs WHERE app_log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
+
+// Cleanup old auth logs
+mysqli_query($mysqli, "DELETE FROM auth_logs WHERE auth_log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
+
 // Logging
 // logAction("Cron", "Task", "Cron cleaned up old data");
 
