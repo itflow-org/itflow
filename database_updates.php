@@ -2404,18 +2404,26 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.5'");
     }
 
-     if (CURRENT_DATABASE_VERSION == '1.7.5') {
-         mysqli_query($mysqli, "CREATE TABLE `client_stripe` (`client_id` INT(11) NOT NULL, `stripe_id` VARCHAR(255) NOT NULL, `stripe_pm` varchar(255) NULL) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci; ");
+    if (CURRENT_DATABASE_VERSION == '1.7.5') {
+        mysqli_query($mysqli, "CREATE TABLE `client_stripe` (`client_id` INT(11) NOT NULL, `stripe_id` VARCHAR(255) NOT NULL, `stripe_pm` varchar(255) NULL) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci; ");
 
-         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.6'");
-     }
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.6'");
+    }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.6') {
-    //     // Insert queries here required to update to DB version 1.7.7
+    if (CURRENT_DATABASE_VERSION == '1.7.6') {
+        // Create a field to show connected interfae of a foreign asset
+        mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` ADD `interface_connected_asset_interface` INT(11) NOT NULL DEFAULT 0 AFTER `interface_network_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.7') {
+    //     // Insert queries here required to update to DB version 1.7.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.8'");
     // }
 
 } else {
     // Up-to-date
 }
+
