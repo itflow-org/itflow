@@ -100,7 +100,7 @@ if (isset($_GET['asset_id'])) {
         LEFT JOIN networks ON network_id = interface_network_id
         WHERE asset_id = $asset_id
         AND interface_archived_at IS NULL 
-        ORDER BY interface_name DESC"
+        ORDER BY interface_name ASC"
     );
     $interface_count = mysqli_num_rows($sql_related_interfaces);
 
