@@ -327,13 +327,14 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                        <table class="table table-striped table-borderless table-hover table-sm">
                             <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
                             <tr>
                                 <th>Name</th>
                                 <th>MAC</th>
                                 <th>IP</th>
                                 <th>Port</th>
+                                <th>Network</th>
                                 <th>Connected To</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -367,7 +368,7 @@ if (isset($_GET['asset_id'])) {
                                 $network_id = intval($row['network_id']);
                                 $network_name = nullable_htmlentities($row['network_name']);
                                 if ($network_name) {
-                                    $network_name_display = "<i class='fas fa-fw fa-network-wired mr-2'></i>$network_name";
+                                    $network_name_display = "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name";
                                 } else {
                                     $network_name_display = "-";
                                 }
@@ -377,7 +378,7 @@ if (isset($_GET['asset_id'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw fa-ethernet text-secondary mr-2"></i>
+                                        <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
                                         <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
                                             <?php echo $interface_name; ?>
                                         </a>
@@ -386,6 +387,7 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $interface_ip_display; ?></td>
                                     <td><?php echo $interface_port_display; ?></td>
                                     <td><?php echo $network_name_display; ?></td>
+                                    <td>-</td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
