@@ -1588,12 +1588,12 @@ DROP TABLE IF EXISTS `services`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `services` (
   `service_id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_name` varchar(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `service_description` varchar(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `service_category` varchar(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `service_importance` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `service_name` varchar(200) NOT NULL,
+  `service_description` varchar(200) NOT NULL,
+  `service_category` varchar(20) NOT NULL,
+  `service_importance` varchar(10) NOT NULL,
   `service_backup` varchar(200) DEFAULT NULL,
-  `service_notes` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `service_notes` text NOT NULL,
   `service_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `service_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `service_accessed_at` datetime DEFAULT NULL,
