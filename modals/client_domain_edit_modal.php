@@ -22,6 +22,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pillsEditNotes">Notes</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#pillsEditHistory">History</a>
+                        </li>
                     </ul>
 
                     <hr>
@@ -163,6 +166,14 @@
                         <div class="tab-pane fade" id="pillsEditNotes">
                             <div class="form-group">
                                 <textarea class="form-control" id="editDomainNotes" name="notes" rows="12" placeholder="Enter some notes"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="pillsEditHistory">
+                            <div style="overflow: auto">
+                                <div class="table-responsive-sm">
+                                    <div id="editDomainHistoryContainer"></div>
+                                </div>
                             </div>
                         </div>
 

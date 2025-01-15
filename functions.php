@@ -404,7 +404,6 @@ function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_
 // Get domain general info (whois + NS/A/MX records)
 function getDomainRecords($name)
 {
-
     $records = array();
 
     // Only run if we think the domain is valid
@@ -417,11 +416,53 @@ function getDomainRecords($name)
     }
 
     $domain = escapeshellarg(str_replace('www.', '', $name));
-    $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
-    $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
-    $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
-    $records['txt'] = substr(trim(strip_tags(shell_exec("dig +short TXT $domain"))), 0, 254);
-    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 254);
+
+    // Get A, NS, MX, TXT, and WHOIS records
+    $records['a'] = trim(strip_tags(shell_exec("dig +short $domain")));
+    $records['ns'] = trim(strip_tags(shell_exec("dig +short NS $domain")));
+    $records['mx'] = trim(strip_tags(shell_exec("dig +short MX $domain")));
+    $records['txt'] = trim(strip_tags(shell_exec("dig +short TXT $domain")));
+    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 255);
+
+    // Sort A records (if multiple records exist)
+    if (!empty($records['a'])) {
+        $aRecords = explode("\n", $records['a']);
+        array_walk($aRecords, function(&$record) {
+            $record = trim($record);
+        });
+        sort($aRecords);
+        $records['a'] = implode("\n", $aRecords);
+    }
+
+    // Sort NS records (if multiple records exist)
+    if (!empty($records['ns'])) {
+        $nsRecords = explode("\n", $records['ns']);
+        array_walk($nsRecords, function(&$record) {
+            $record = trim($record);
+        });
+        sort($nsRecords);
+        $records['ns'] = implode("\n", $nsRecords);
+    }
+
+    // Sort MX records (if multiple records exist)
+    if (!empty($records['mx'])) {
+        $mxRecords = explode("\n", $records['mx']);
+        array_walk($mxRecords, function(&$record) {
+            $record = trim($record);
+        });
+        sort($mxRecords);
+        $records['mx'] = implode("\n", $mxRecords);
+    }
+
+    // Sort TXT records (if multiple records exist)
+    if (!empty($records['txt'])) {
+        $txtRecords = explode("\n", $records['txt']);
+        array_walk($txtRecords, function(&$record) {
+            $record = trim($record);
+        });
+        sort($txtRecords);
+        $records['txt'] = implode("\n", $txtRecords);
+    }
 
     return $records;
 }

@@ -12,6 +12,7 @@ function populateDomainEditModal(client_id, domain_id) {
             // Access the domain info (one), registrars (multiple) and webhosts (multiple)
             const domain = response.domain[0];
             const vendors = response.vendors;
+            const history = response.history;
 
             // Populate the domain modal fields
             document.getElementById("editDomainHeader").innerText = domain.domain_name;
@@ -111,6 +112,9 @@ function populateDomainEditModal(client_id, domain_id) {
                     mailhostDropdown[mailhostDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
                 }
             });
+
+            // Domain History
+            document.getElementById('editDomainHistoryContainer').innerHTML = history;
 
         }
     );

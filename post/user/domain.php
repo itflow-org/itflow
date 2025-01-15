@@ -77,8 +77,8 @@ if (isset($_POST['edit_domain'])) {
     // Set/check/lookup expiry date
     if (strtotime($expire) && (new DateTime($expire)) > (new DateTime())) {
         $expire = "'" . $expire . "'";
-    }
-    else {
+
+    } else {
         $expire = getDomainExpirationDate($name);
         if (strtotime($expire)) {
             $expire = "'" . $expire . "'";
@@ -97,7 +97,52 @@ if (isset($_POST['edit_domain'])) {
     $txt = sanitizeInput($records['txt']);
     $whois = sanitizeInput($records['whois']);
 
+    // Current domain info
+    $original_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
+        SELECT
+            domains.*,
+            registrar.vendor_name AS registrar_name,
+            dnshost.vendor_name AS dnshost_name,
+            mailhost.vendor_name AS mailhost_name,
+            webhost.vendor_name AS webhost_name
+        FROM domains
+        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
+        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
+        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+        WHERE domain_id = $domain_id
+    "));
+
+    // Update domain
     mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
+
+    // Fetch updated info
+    $new_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
+        SELECT
+            domains.*,
+            registrar.vendor_name AS registrar_name,
+            dnshost.vendor_name AS dnshost_name,
+            mailhost.vendor_name AS mailhost_name,
+            webhost.vendor_name AS webhost_name
+        FROM domains
+        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
+        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
+        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+        WHERE domain_id = $domain_id
+    "));
+
+    // Compare/log changes
+    $ignored_columns = ["domain_updated_at", "domain_accessed_at", "domain_registrar", "domain_webhost", "domain_dnshost", "domain_mailhost"];
+    foreach ($original_domain_info as $column => $old_value) {
+        $new_value = $new_domain_info[$column];
+        if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
+            $column = sanitizeInput($column);
+            $old_value = sanitizeInput($old_value);
+            $new_value = sanitizeInput($new_value);
+            mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
+        }
+    }
 
     // Logging
     logAction("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
@@ -166,6 +211,8 @@ if (isset($_GET['delete_domain'])) {
     $client_id = intval($row['domain_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
+
+    mysqli_query($mysqli, "DELETE FROM domain_history WHERE domain_history_domain_id = $domain_id");#
 
     // Logging
     logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
