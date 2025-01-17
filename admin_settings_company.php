@@ -24,7 +24,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
 ?>
 
     <div class="card card-dark">
-        <div class="card-header py-3">
+        <div class="card-header">
             <h3 class="card-title"><i class="fas fa-fw fa-briefcase mr-2"></i>Company Details</h3>
         </div>
         <div class="card-body">
