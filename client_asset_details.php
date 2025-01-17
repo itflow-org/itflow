@@ -770,6 +770,10 @@ if (isset($_GET['asset_id'])) {
                                                    data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
+                                                </a>
                                                 <?php
                                                 if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
