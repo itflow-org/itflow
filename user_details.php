@@ -5,7 +5,7 @@ require_once "includes/inc_all_user.php";
 
 <div class="card card-dark">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-fw fa-user mr-2"></i>Your User Details</h3>
+        <h3 class="card-title"><i class="fas fa-cog mr-2"></i>User Preferences</h3>
     </div>
     <div class="card-body">
 
@@ -27,7 +27,7 @@ require_once "includes/inc_all_user.php";
                 <div class="col-9">
 
                     <div class="form-group">
-                        <label>Your Name <strong class="text-danger">*</strong></label>
+                        <label>Name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -37,7 +37,7 @@ require_once "includes/inc_all_user.php";
                     </div>
 
                     <div class="form-group">
-                        <label>Your Role</label>
+                        <label>Role</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
@@ -47,7 +47,7 @@ require_once "includes/inc_all_user.php";
                     </div>
 
                     <div class="form-group">
-                        <label>Your Email <strong class="text-danger">*</strong></label>
+                        <label>Email <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>

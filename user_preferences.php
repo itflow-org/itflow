@@ -40,7 +40,7 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
 
             <?php } ?>
 
-            <button type="submit" name="edit_your_user_preferences" class="btn btn-primary btn-block mt-3"><i class="fas fa-check mr-2"></i>Save</button>
+            <button type="submit" name="edit_your_user_preferences" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Save</button>
 
         </form>
 
