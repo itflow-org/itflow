@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Connected to</label>
+                        <label>Network</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
@@ -87,6 +87,30 @@
 
                                     ?>
                                     <option value="<?php echo $network_id; ?>"><?php echo $network_name; ?> - <?php echo $network; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Connected to</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            </div>
+                            <select class="form-control select2" name="connected_to">
+                                <option value="">- None -</option>
+                                <?php
+
+                                $sql_interfaces_select = mysqli_query($mysqli, "SELECT * FROM asset_interfaces LEFT JOIN assets ON interface_asset_id = asset_id WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_name ASC, interface_port ASC");
+                                while ($row = mysqli_fetch_array($sql_interfaces_select)) {
+                                    $interface_id_select = intval($row['interface_id']);
+                                    $interface_port_select = nullable_htmlentities($row['interface_port']);
+                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
+
+                                    ?>
+                                    <option value="<?php echo $interface_id_select; ?>"><?php echo "$asset_name_select - $interface_port_select"; ?></option>
                                 <?php } ?>
                             </select>
                         </div>
