@@ -68,12 +68,6 @@ if (isset($_POST['edit_domain'])) {
     require_once 'domain_model.php';
     $domain_id = intval($_POST['domain_id']);
 
-
-//    if (empty($expire) || (new DateTime($expire)) < (new DateTime())) {
-//        // Update domain expiry date
-//        $expire = getDomainExpirationDate($name);
-//    }
-
     // Set/check/lookup expiry date
     if (strtotime($expire) && (new DateTime($expire)) > (new DateTime())) {
         $expire = "'" . $expire . "'";

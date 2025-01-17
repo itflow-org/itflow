@@ -422,46 +422,46 @@ function getDomainRecords($name)
     $records['ns'] = trim(strip_tags(shell_exec("dig +short NS $domain")));
     $records['mx'] = trim(strip_tags(shell_exec("dig +short MX $domain")));
     $records['txt'] = trim(strip_tags(shell_exec("dig +short TXT $domain")));
-    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 255);
+    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | head -30 | sed 's/   //g'"))), 0, 254);
 
     // Sort A records (if multiple records exist)
     if (!empty($records['a'])) {
-        $aRecords = explode("\n", $records['a']);
-        array_walk($aRecords, function(&$record) {
+        $a_records = explode("\n", $records['a']);
+        array_walk($a_records, function(&$record) {
             $record = trim($record);
         });
-        sort($aRecords);
-        $records['a'] = implode("\n", $aRecords);
+        sort($a_records);
+        $records['a'] = implode("\n", $a_records);
     }
 
     // Sort NS records (if multiple records exist)
     if (!empty($records['ns'])) {
-        $nsRecords = explode("\n", $records['ns']);
-        array_walk($nsRecords, function(&$record) {
+        $ns_records = explode("\n", $records['ns']);
+        array_walk($ns_records, function(&$record) {
             $record = trim($record);
         });
-        sort($nsRecords);
-        $records['ns'] = implode("\n", $nsRecords);
+        sort($ns_records);
+        $records['ns'] = implode("\n", $ns_records);
     }
 
     // Sort MX records (if multiple records exist)
     if (!empty($records['mx'])) {
-        $mxRecords = explode("\n", $records['mx']);
-        array_walk($mxRecords, function(&$record) {
+        $mx_records = explode("\n", $records['mx']);
+        array_walk($mx_records, function(&$record) {
             $record = trim($record);
         });
-        sort($mxRecords);
-        $records['mx'] = implode("\n", $mxRecords);
+        sort($mx_records);
+        $records['mx'] = implode("\n", $mx_records);
     }
 
     // Sort TXT records (if multiple records exist)
     if (!empty($records['txt'])) {
-        $txtRecords = explode("\n", $records['txt']);
-        array_walk($txtRecords, function(&$record) {
+        $txt_records = explode("\n", $records['txt']);
+        array_walk($txt_records, function(&$record) {
             $record = trim($record);
         });
-        sort($txtRecords);
-        $records['txt'] = implode("\n", $txtRecords);
+        sort($txt_records);
+        $records['txt'] = implode("\n", $txt_records);
     }
 
     return $records;

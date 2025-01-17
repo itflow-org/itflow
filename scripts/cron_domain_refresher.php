@@ -39,7 +39,7 @@ if ( $argv[1] !== $config_cron_key ) {
 
 // REFRESH DOMAIN WHOIS DATA (1 a day/run)
 //  Get the oldest updated domain (MariaDB shows NULLs first when ordering by default)
-$row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire FROM `domains` ORDER BY domain_updated_at LIMIT 1"));
+$row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire FROM `domains` WHERE domain_archived_at IS NULL ORDER BY domain_updated_at LIMIT 1"));
 
 if ($row) {
 
@@ -71,7 +71,52 @@ if ($row) {
         $expire = 'NULL';
     }
 
+    // Current domain info
+    $original_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
+        SELECT
+            domains.*,
+            registrar.vendor_name AS registrar_name,
+            dnshost.vendor_name AS dnshost_name,
+            mailhost.vendor_name AS mailhost_name,
+            webhost.vendor_name AS webhost_name
+        FROM domains
+        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
+        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
+        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+        WHERE domain_id = $domain_id
+    "));
 
     // Update the domain
     mysqli_query($mysqli, "UPDATE domains SET domain_name = '$domain_name',  domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    echo "Updated $domain_name.";
+
+    // Fetch updated info
+    $new_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
+        SELECT
+            domains.*,
+            registrar.vendor_name AS registrar_name,
+            dnshost.vendor_name AS dnshost_name,
+            mailhost.vendor_name AS mailhost_name,
+            webhost.vendor_name AS webhost_name
+        FROM domains
+        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
+        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
+        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+        WHERE domain_id = $domain_id
+    "));
+
+    // Compare/log changes
+    $ignored_columns = ["domain_updated_at", "domain_accessed_at", "domain_registrar", "domain_webhost", "domain_dnshost", "domain_mailhost"];
+    foreach ($original_domain_info as $column => $old_value) {
+        $new_value = $new_domain_info[$column];
+        if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
+            $column = sanitizeInput($column);
+            $old_value = sanitizeInput($old_value);
+            $new_value = sanitizeInput($new_value);
+            mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
+        }
+    }
+
 }
