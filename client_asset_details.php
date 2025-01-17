@@ -95,13 +95,31 @@ if (isset($_GET['asset_id'])) {
     $document_count = mysqli_num_rows($sql_related_documents);
 
     // Network Interfaces
-    $sql_related_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces 
-        LEFT JOIN assets ON asset_id = interface_asset_id
-        LEFT JOIN networks ON network_id = interface_network_id
-        WHERE asset_id = $asset_id
-        AND interface_archived_at IS NULL 
-        ORDER BY interface_name ASC"
-    );
+        $sql_related_interfaces = mysqli_query($mysqli, "
+        SELECT 
+            ai.interface_id,
+            ai.interface_name,
+            ai.interface_mac,
+            ai.interface_ip,
+            ai.interface_ipv6,
+            ai.interface_port, 
+            ai.interface_primary, 
+            ai.interface_notes, 
+            ai.interface_connected_asset_interface, 
+            n.network_name,
+            n.network_id,
+            connected_assets.asset_name AS connected_asset_name,
+            connected_interfaces.interface_name AS connected_interface_name,
+            connected_interfaces.interface_port AS connected_interface_port
+        FROM asset_interfaces ai
+        LEFT JOIN assets a ON a.asset_id = ai.interface_asset_id
+        LEFT JOIN networks n ON n.network_id = ai.interface_network_id
+        LEFT JOIN asset_interfaces connected_interfaces ON connected_interfaces.interface_id = ai.interface_connected_asset_interface
+        LEFT JOIN assets connected_assets ON connected_assets.asset_id = connected_interfaces.interface_asset_id
+        WHERE ai.interface_asset_id = $asset_id
+        AND ai.interface_archived_at IS NULL
+        ORDER BY ai.interface_name ASC
+    ");
     $interface_count = mysqli_num_rows($sql_related_interfaces);
 
     // Related Files
@@ -320,7 +338,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark">
                 <div class="card-header py-2">
-                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i>Network Interfaces</h3>
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i><?php echo $asset_name; ?> Network Interfaces</h3>
                     <div class="card-tools">      
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal"><i class="fas fa-plus mr-2"></i>New Interface</button>
                     </div>
@@ -368,13 +386,14 @@ if (isset($_GET['asset_id'])) {
                                 $network_id = intval($row['network_id']);
                                 $network_name = nullable_htmlentities($row['network_name']);
                                 if ($network_name) {
-                                    $network_name_display = "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name";
+                                    $network_name_display = "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id";
                                 } else {
                                     $network_name_display = "-";
                                 }
                                 $interface_notes = nullable_htmlentities($row['interface_notes']);
-                    
-
+                                $connected_asset_interface = intval($row['interface_connected_asset_interface']);
+                                $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
+                                $connected_asset_port = nullable_htmlentities($row['connected_interface_port']);
                                 ?>
                                 <tr>
                                     <td>
@@ -387,7 +406,7 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $interface_ip_display; ?></td>
                                     <td><?php echo $interface_port_display; ?></td>
                                     <td><?php echo $network_name_display; ?></td>
-                                    <td>-</td>
+                                    <td><?php echo "<strong>$connected_asset_name</strong> - $connected_asset_port"; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -867,10 +886,9 @@ if (isset($_GET['asset_id'])) {
 
     require_once "modals/share_modal.php";
 
+    } 
 
     ?>
-
-<?php } ?>
 
 <script>
     function updateAssetNotes(asset_id) {
@@ -908,12 +926,7 @@ if (isset($_GET['asset_id'])) {
 <?php
 
 require_once "modals/client_asset_interface_add_modal.php";
-
 require_once "modals/ticket_add_modal.php";
-
 require_once "modals/recurring_ticket_add_modal.php";
-
 require_once "modals/recurring_ticket_edit_modal.php";
-
 require_once "includes/footer.php";
-

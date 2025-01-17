@@ -691,7 +691,7 @@ if (isset($_POST['add_asset_interface'])) {
     $asset_name = sanitizeInput($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
-    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_asset_id = $asset_id");
+    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_connected_asset_interface = $connected_to, interface_asset_id = $asset_id");
 
     $interface_id = mysqli_insert_id($mysqli);
 
@@ -721,7 +721,10 @@ if (isset($_POST['edit_asset_interface'])) {
     $asset_name = sanitizeInput($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
-    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network WHERE interface_id = $interface_id");
+    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_connected_asset_interface = $connected_to WHERE interface_id = $interface_id");
+
+    // Update the Connected device on the connecting device
+    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_connected_asset_interface = $interface_id WHERE interface_id = $connected_to");
 
     //Logging
     logAction("Asset Interface", "Edit", "$session_name edited interface $name for asset $asset_name", $client_id, $asset_id);

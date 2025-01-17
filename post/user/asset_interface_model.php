@@ -11,3 +11,4 @@ $ipv6 = sanitizeInput($_POST['ipv6']);
 $port = sanitizeInput($_POST['port']);
 $network = intval($_POST['network']);
 $notes = sanitizeInput($_POST['notes']);
+$connected_to = intval($_POST['connected_to']);
