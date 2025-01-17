@@ -76,9 +76,9 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                 Please add the payment details you would like to save.<br>
                 By adding payment details here, you grant consent for future automatic payments of invoices.<br><br>
 
+                <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
                 <script src="https://js.stripe.com/v3/"></script>
                 <script src="../js/autopay_setup_stripe.js"></script>
-            <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
                 <div id="checkout">
                     <!-- Checkout will insert the payment form here -->
                 </div>
