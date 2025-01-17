@@ -145,6 +145,23 @@ mysqli_query($mysqli, "DELETE FROM app_logs WHERE app_log_created_at < CURDATE()
 // Cleanup old auth logs
 mysqli_query($mysqli, "DELETE FROM auth_logs WHERE auth_log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
 
+// CLeanup old domain history
+$sql = mysqli_query($mysqli, "SELECT domain_id FROM domains");
+while ($row = mysqli_fetch_array($sql)) {
+    $domain_id = intval($row['domain_id']);
+    mysqli_query($mysqli, "
+        DELETE FROM domain_history
+        WHERE domain_history_id NOT IN (
+            SELECT domain_history_id FROM (
+                SELECT domain_history_id FROM domain_history
+                WHERE domain_history_domain_id = $domain_id
+                ORDER BY domain_history_modified_at DESC
+                LIMIT 25
+            ) AS recent_entries
+        ) AND domain_history_domain_id = $domain_id
+    ");
+}
+
 // Logging
 // logAction("Cron", "Task", "Cron cleaned up old data");
 

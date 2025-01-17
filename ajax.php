@@ -71,7 +71,7 @@ if (isset($_GET['certificate_get_json_details'])) {
  * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
  */
 if (isset($_GET['domain_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $domain_id = intval($_GET['domain_id']);
     $client_id = intval($_GET['client_id']);
@@ -87,6 +87,24 @@ if (isset($_GET['domain_get_json_details'])) {
     while ($row = mysqli_fetch_array($vendor_sql)) {
         $response['vendors'][] = $row;
     }
+
+    // Get domain history
+    $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
+    $history_html = "<table class='table table-borderless'>";
+    $history_html .= "<tr><th>Date</th><th>Column</th><th>Old Value</th><th>New Value</th></tr>";
+    while ($row = mysqli_fetch_array($history_sql)) {
+        // Fetch data from the query and create table rows
+        $history_html .= "<tr>";
+        $history_html .= "<td>" . htmlspecialchars(date('Y-m-d', strtotime($row['domain_history_modified_at']))) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_column']) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_old_value']) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_new_value']) . "</td>";
+        $history_html .= "</tr>";
+    }
+    $history_html .= "</table>";
+
+    // Return the HTML content to JavaScript
+    $response['history'] = $history_html;
 
     echo json_encode($response);
 }

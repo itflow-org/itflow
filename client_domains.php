@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $domain_expire = nullable_htmlentities($row['domain_expire']);
                             $domain_expire_ago = timeAgo($domain_expire);
                             // Convert the expiry date to a timestamp
-                            $domain_expire_timestamp = strtotime($row['domain_expire']);
+                            $domain_expire_timestamp = strtotime($row['domain_expire'] ?? '');
                             $current_timestamp = time(); // Get current timestamp
 
                             // Calculate the difference in days
@@ -228,12 +228,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_domain=<?php echo $domain_id; ?>">
                                                     <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                                 </a>
-                                                <?php if ($config_destructive_deletes_enable) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?php echo $domain_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
-                                                <?php } ?>
                                                 <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?php echo $domain_id; ?>">

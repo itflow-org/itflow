@@ -2411,16 +2411,23 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.6') {
-        // Create a field to show connected interfae of a foreign asset
+        // Create a field to show connected interface of a foreign asset
         mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` ADD `interface_connected_asset_interface` INT(11) NOT NULL DEFAULT 0 AFTER `interface_network_id`");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.7') {
-    //     // Insert queries here required to update to DB version 1.7.8
+     if (CURRENT_DATABASE_VERSION == '1.7.7') {
+         // Domain history
+         mysqli_query($mysqli, "CREATE TABLE `domain_history` (`domain_history_id` INT(11) NOT NULL AUTO_INCREMENT , `domain_history_column` VARCHAR(200) NOT NULL , `domain_history_old_value` TEXT NOT NULL , `domain_history_new_value` TEXT NOT NULL , `domain_history_domain_id` INT(11) NOT NULL , `domain_history_modified_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`domain_history_id`)) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.8'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.8') {
+    //     // Insert queries here required to update to DB version 1.7.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.9'");
     // }
 
 } else {
