@@ -101,6 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                         </a>
                     </th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -114,6 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $invoice_amount = floatval($row['invoice_amount']);
                     $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
                     $invoice_date = nullable_htmlentities($row['invoice_date']);
+                    $payment_id = intval($row['payment_id']);
                     $payment_date = nullable_htmlentities($row['payment_date']);
                     $payment_method = nullable_htmlentities($row['payment_method']);
                     $payment_reference = nullable_htmlentities($row['payment_reference']);
@@ -137,6 +139,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $payment_method; ?></td>
                         <td><?php echo $payment_reference_display; ?></td>
                         <td><?php echo $account_name; ?></td>
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_payment=<?php echo $payment_id; ?>">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
 
                 <?php } ?>
