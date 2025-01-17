@@ -20,6 +20,7 @@ All notable changes to ITFlow will be documented in this file.
 - Renamed include file pagination.php to filter_footer.php as it is used in conjunction with filter_header.php for page filtering
 - Guest ticket feedback now shows friendly ticket prefix & number, rather than just the ID
 - Individual POST handler logic pages can no longer be accessed directly
+- Added Payment Deltions on Payments and client Payments Page
 
 ### Fixed
 - Fixed ticket edit modal not showing multi-client/no-client projects
