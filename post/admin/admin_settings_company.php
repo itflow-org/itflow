@@ -50,3 +50,21 @@ if (isset($_POST['edit_company'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_GET['remove_company_logo'])) {
+
+    $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies");
+    $row = mysqli_fetch_array($sql);
+    $company_logo = $row['company_logo']; // FileSystem Operation Logo is already sanitized
+
+    unlink("uploads/settings/$company_logo");
+
+    // Logging
+    logAction("Settings", "Edit", "$session_name deleted company logo");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Removed company logo";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
