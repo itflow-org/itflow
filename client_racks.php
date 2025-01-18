@@ -128,12 +128,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php if ($rack_photo) { ?>
                                         <img class="img-thumbnail mb-3" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
                                     <?php } ?>
-                                    <table class="table table-sm table-borderless">
+                                    <table class="table table-sm table-borderless border">
                                         <tbody>
                                             <?php if ($rack_description) { ?>
                                                 <tr>
-                                                    <th>Description</th>
-                                                    <td><?php echo $rack_description; ?></td>
+                                                    <th colspan="2">Description</th>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2"><?php echo $rack_description; ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_type) { ?>
@@ -168,7 +170,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <?php } ?>
                                             <?php if ($rack_notes) { ?>
                                                 <tr>
-                                                    <th>Notes</th>
+                                                    <th colspan="2">Notes</th>
+                                                </tr>
+                                                <tr>
                                                     <td><?php echo $rack_notes; ?></td>
                                                 </tr>
                                             <?php } ?>
@@ -177,9 +181,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-sm border">
-                                        <thead>
+                                        <thead class="thead-dark">
                                             <tr>
-                                                <th class="text-center bg-light px-0 border">U</th>
+                                                <th class="text-center px-0">U</th>
                                                 <th class="text-center">Device</th>
                                                 <th class=""></th>
                                             </tr>
