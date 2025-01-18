@@ -342,21 +342,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td>
                                     <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                         <div class="media">
-                                            <?php if (!empty($contact_photo)) { ?>
+                                            <?php if ($contact_photo) { ?>
                                                 <span class="fa-stack fa-2x mr-3 text-center">
                                                     <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
                                                 </span>
                                             <?php } else { ?>
-
                                                 <span class="fa-stack fa-2x mr-3">
                                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                                                     <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
                                                 </span>
-
                                             <?php } ?>
 
                                             <div class="media-body">
-                                                <div class="<?php if(!empty($contact_important)) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                                <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
                                                 <?php echo $contact_title_display; ?>
                                                 <div><?php echo $contact_primary_display; ?></div>
                                                 <?php
@@ -483,11 +481,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/client_contact_add_modal.php";
-
 require_once "modals/client_contact_invite_modal.php";
-
 require_once "modals/client_contact_import_modal.php";
-
 require_once "modals/client_contact_export_modal.php";
-
 require_once "includes/footer.php";
