@@ -24,6 +24,7 @@ All notable changes to ITFlow will be documented in this file.
 - Added Domains history tracking
 - Added Asset Interface Linking / Connections to determine what interface is connected to what interface port of another asset
 - Added Force Recurring Ticket in more places instead of just recurring tickets
+- Row span and center devices that take up multiple units in a rack
 
 ### Fixed
 - Fixed ticket edit modal not showing multi-client/no-client projects
