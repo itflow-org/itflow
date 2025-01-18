@@ -90,8 +90,8 @@ if (isset($_GET['domain_get_json_details'])) {
 
     // Get domain history
     $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
-    $history_html = "<table class='table table-borderless'>";
-    $history_html .= "<tr><th>Date</th><th>Column</th><th>Old Value</th><th>New Value</th></tr>";
+    $history_html = "<table class='table table-sm table-striped border table-hover'>";
+    $history_html .= "<thead class='thead-dark'><tr><th>Date</th><th>Column</th><th>Old Value</th><th>New Value</th></tr></thead><tbody>";
     while ($row = mysqli_fetch_array($history_sql)) {
         // Fetch data from the query and create table rows
         $history_html .= "<tr>";
@@ -101,7 +101,7 @@ if (isset($_GET['domain_get_json_details'])) {
         $history_html .= "<td>" . htmlspecialchars($row['domain_history_new_value']) . "</td>";
         $history_html .= "</tr>";
     }
-    $history_html .= "</table>";
+    $history_html .= "</tbody></table>";
 
     // Return the HTML content to JavaScript
     $response['history'] = $history_html;
