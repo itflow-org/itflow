@@ -178,51 +178,142 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="col-md-6">
                                     <table class="table table-bordered">
                                         <?php 
-                                        for ($i = $rack_units; $i >= 1; $i--) { 
+                                        // Keep track of which device_ids we've already printed
+                                        $printedDevices = [];
+
+                                        for ($i = $rack_units; $i >= 1; $i--) {
+                                            
+                                            // Find all devices that occupy the current unit $i
                                             $unit_devices = [];
                                             foreach ($rack_units_data as $unit_data) {
-                                                if ($i >= $unit_data['unit_start_number'] && $i <= $unit_data['unit_end_number']) {
+                                                $start = (int) $unit_data['unit_start_number'];
+                                                $end   = (int) $unit_data['unit_end_number'];
+                                                
+                                                // If $i is between start and end, device occupies this unit
+                                                if ($i >= $start && $i <= $end) {
                                                     $unit_devices[] = [
-                                                        'unit_id' => intval($unit_data['unit_id']),
-                                                        'device' => nullable_htmlentities($unit_data['unit_device']),
-                                                        'asset_id' => intval($unit_data['asset_id']),
-                                                        'asset_name' => nullable_htmlentities($unit_data['asset_name']),
-                                                        'asset_type' => nullable_htmlentities($unit_data['asset_type']),
-                                                        'icon' => getAssetIcon($unit_data['asset_type'])
+                                                        'unit_id'          => (int) $unit_data['unit_id'],
+                                                        'unit_device'      => nullable_htmlentities($unit_data['unit_device']),
+                                                        'unit_start_number'=> $start,
+                                                        'unit_end_number'  => $end,
+                                                        'asset_id'         => (int) $unit_data['asset_id'],
+                                                        'asset_name'       => nullable_htmlentities($unit_data['asset_name']),
+                                                        'asset_type'       => nullable_htmlentities($unit_data['asset_type']),
+                                                        'icon'             => getAssetIcon($unit_data['asset_type'])
                                                     ];
                                                 }
                                             }
+
                                             ?>
                                             <tr>
-                                                <td class="px-0 text-center bg-light"><?php echo sprintf('%02d', $i); ?></td>
-                                                <td class="text-center">
-                                                    <?php foreach ($unit_devices as $unit_device) { ?>
-                                                        <?php echo $unit_device['device']; ?>
-                                                        <?php if ($unit_device['asset_name']) { ?>
-                                                        <i class="fa fa-fw fa-<?php echo $unit_device['icon']; ?> mr-1"></i>
-                                                        <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $unit_device['asset_id']; ?>" target="_blank"><?php echo $unit_device['asset_name']; ?><i class="fas fa-fw fa-external-link-alt ml-1"></i></a>
+                                                <!-- Always print the left-hand U #, for reference -->
+                                                <td class="px-0 text-center bg-light">
+                                                    <?php echo sprintf('%02d', $i); ?>
+                                                </td>
+
+                                                <?php
+                                                // If there's exactly one device in this row, attempt to rowSpan it.
+                                                // (If you can have multiple overlapping devices, you'll need more logic.)
+                                                if (count($unit_devices) === 1) {
+
+                                                    $d = $unit_devices[0];
+                                                    $deviceId = $d['unit_id'];
+
+                                                    // If not already printed, this is the *first* row of the device
+                                                    if (!in_array($deviceId, $printedDevices)) {
+
+                                                        // Mark it printed so it won't appear in later rows
+                                                        $printedDevices[] = $deviceId;
+
+                                                        // Calculate how many rows (U's) it spans
+                                                        $span = $d['unit_end_number'] - $d['unit_start_number'] + 1;
+                                                        if ($span < 1) {
+                                                            $span = 1; // safety check
+                                                        }
+
+                                                        // Print the device cell and action cell with rowSpan
+                                                        ?>
+                                                        <td class="text-center align-middle" rowspan="<?php echo $span; ?>">
+                                                            <!-- DEVICE INFO HERE -->
+                                                            <?php 
+                                                            echo $d['unit_device']; 
+                                                            if (!empty($d['asset_name'])) {
+                                                                $icon = $d['icon']; // already from getAssetIcon
+                                                                ?>
+                                                                <i class="fa fa-<?php echo $icon; ?>"></i>
+                                                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $d['asset_id']; ?>" 
+                                                                   target="_blank">
+                                                                   <?php echo $d['asset_name']; ?>
+                                                                   <i class="fas fa-external-link-alt ml-1"></i>
+                                                                </a>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </td>
+                                                        
+                                                        <td class="px-0 text-right align-middle" rowspan="<?php echo $span; ?>">
+                                                            <!-- ACTION ICON / DROPDOWN -->
+                                                            <div class="dropdown dropleft">
+                                                                <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                                </button>
+                                                                <div class="dropdown-menu">
+                                                                    <a class="dropdown-item text-danger text-bold confirm-link" 
+                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>">
+                                                                       <i class="fas fa-fw fa-minus mr-2"></i>Remove
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <?php
+                                                    } else {
+                                                        // This device was already spanned from a higher row, so skip printing device cell
+                                                        // but we still have the left column (U #).
+                                                    }
+
+                                                } elseif (count($unit_devices) > 1) {
+                                                    // If your data might have multiple devices in the same row,
+                                                    // you have to decide how to handle them. 
+                                                    // For now, we can fallback to older logic or display them all in one cell, etc.
+                                                    ?>
+                                                    <td class="text-center">
+                                                        <?php foreach ($unit_devices as $d) { ?>
+                                                            <?php echo $d['unit_device']; ?><br>
+                                                            <?php // Could also show asset_name, etc. ?>
                                                         <?php } ?>
-                                                    <?php } ?>
-                                                </td>
-                                                <?php if(!empty($unit_devices)) { ?>
-                                                <td class="px-0 text-right">
-                                                    <div class="dropdown dropleft">
-                                                        <button class="btn btn-tool" type="button" data-toggle="dropdown">
-                                                            <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            <?php foreach ($unit_devices as $unit_device) { ?>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?remove_rack_unit=<?php echo $unit_device['unit_id']; ?>">
-                                                                <i class="fas fa-fw fa-minus mr-2"></i>Remove
-                                                            </a>
-                                                            <?php } ?>
+                                                    </td>
+                                                    
+                                                    <td class="px-0 text-right">
+                                                        <div class="dropdown dropleft">
+                                                            <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                                                <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu">
+                                                                <?php foreach ($unit_devices as $d) { ?>
+                                                                    <a class="dropdown-item text-danger text-bold confirm-link" 
+                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>">
+                                                                       <i class="fas fa-fw fa-minus mr-2"></i>Remove
+                                                                    </a>
+                                                                <?php } ?>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <?php } ?>
+                                                    </td>
+                                                    <?php
+
+                                                } else {
+                                                    // No device in this row
+                                                    ?>
+                                                    <td class="text-center">No device</td>
+                                                    <td></td>
+                                                    <?php
+                                                }
+                                                ?>
                                             </tr>
-                                        <?php } ?>
+                                            <?php
+                                        }
+                                        ?>
                                     </table>
+
                                 </div>
                             </div>
                         </div>
