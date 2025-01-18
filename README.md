@@ -46,13 +46,12 @@
 
 
 ### The Problem
-- You're a busy MSP with 101 things to do. 
-- Information about your clients is unorganised and unstructured: scattered in random tickets or folders - when you do eventually find it, it's out of date. 
-- For some issues, you spend longer looking for the relevant documentation than actually working the ticket. 
+- You're a small but busy managed service provider with 101 things to do. Information about your clients is unorganised, unstructured and outdated.
+- For some work, you seem to spend longer looking for the relevant documentation than actually working on the issue/project. 
 - On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
-- ITFlow consolidates common MSP needs (IT Documentation, ticketing and billing) into one system
+- ITFlow consolidates common MSP needs (documentation, ticketing and billing) into one unified system.
 
 ### In Beta
 * This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
@@ -94,14 +93,8 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
-* Comprehensive API to allow custom third party integration
-* CalDAV to integrate with 3rd party calendars
-* CardDAV to integrate with 3rd party Address books
-* Recent caller toast alerts to click and bring up the clients account right away
-* FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
 
-See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
-
+We track the implementation of confirmed features and bugs via [TaskFlow](https://tasks.dev.itflow.org/tasks.php). Use the [forum](https://forum.itflow.org) to request features or raise bug reports. 
 
 <!-- CONTRIBUTING -->
 ## Support & Contributions
@@ -110,7 +103,7 @@ See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issue
 For help using ITFlow, bugs, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
 
 ### Contributing
-If you want to improve ITFlow, feel free to fork the repo and create a pull request, but make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our  [code standards](https://docs.itflow.org/code_standards).
+If you want to improve ITFlow, feel free to fork the repo and create a pull reques. Make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our [code standards](https://docs.itflow.org/code_standards). See the [contributing guide](https://docs.itflow.org/contribute).
 
 #### Contributors
 <a href="https://github.com/itflow-org/itflow/graphs/contributors">
@@ -127,7 +120,6 @@ We’re incredibly grateful to the organizations and individuals who support the
 ## License
 
 ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](https://github.com/itflow-org/itflow/blob/master/LICENSE) for details.
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
