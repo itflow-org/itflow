@@ -22,6 +22,8 @@ All notable changes to ITFlow will be documented in this file.
 - Individual POST handler logic pages can no longer be accessed directly
 - Added payment deletion on Payments and client Payments Page
 - Added Domains history tracking
+- Added Asset Interface Linking / Connections to determine what interface is connected to what interface port of another asset
+- Added Force Recurring Ticket in more places instead of just recurring tickets
 
 ### Fixed
 - Fixed ticket edit modal not showing multi-client/no-client projects
