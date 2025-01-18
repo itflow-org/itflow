@@ -676,88 +676,176 @@ if (isset($_POST['export_client_assets_csv'])) {
 
 if (isset($_POST['add_asset_interface'])) {
 
+    // 1) Permissions & CSRF
     enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
 
-    // Interface info
+    // 2) Gather posted values
     $interface_id = intval($_POST['interface_id']);
-    $asset_id = intval($_POST['asset_id']);
+    $asset_id     = intval($_POST['asset_id']);
+
+    // Defines $name, $mac, $ip, $ipv6, $port, $notes, $network, $connected_to, etc.
     require_once 'asset_interface_model.php';
 
-    // Get Asset Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql);
+    // 3) Fetch asset info for logging and alert
+    $sql   = mysqli_query($mysqli, "
+        SELECT asset_name, asset_client_id 
+        FROM assets 
+        WHERE asset_id = $asset_id
+    ");
+    $row        = mysqli_fetch_array($sql);
     $asset_name = sanitizeInput($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
+    $client_id  = intval($row['asset_client_id']);
 
-    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_connected_asset_interface = $connected_to, interface_asset_id = $asset_id");
+    // 4) Insert new interface into asset_interfaces (using SET syntax)
+    $sql_insert = "
+        INSERT INTO asset_interfaces SET
+            interface_name       = '$name',
+            interface_mac        = '$mac',
+            interface_ip         = '$ip',
+            interface_ipv6       = '$ipv6',
+            interface_port       = '$port',
+            interface_notes      = '$notes',
+            interface_network_id = $network,
+            interface_asset_id   = $asset_id
+    ";
+    mysqli_query($mysqli, $sql_insert);
+    
+    $new_interface_id = mysqli_insert_id($mysqli);
 
-    $interface_id = mysqli_insert_id($mysqli);
+    // 5) If user selected a connected interface, insert row in asset_interface_links
+    if (!empty($connected_to) && intval($connected_to) > 0) {
+        $sql_link = "
+            INSERT INTO asset_interface_links SET
+                interface_a_id = $new_interface_id,
+                interface_b_id = $connected_to
+        ";
+        mysqli_query($mysqli, $sql_link);
+    }
 
-    //Logging
-    logAction("Asset Interface", "Create", "$session_name created interface $name for asset $asset_name", $client_id, $asset_id);
+    // 6) Logging
+    logAction(
+        "Asset Interface", 
+        "Create", 
+        "$session_name created interface $name for asset $asset_name", 
+        $client_id, 
+        $asset_id
+    );
 
+    // 7) Alert message + redirect
     $_SESSION['alert_message'] = "Interface <strong>$name</strong> created";
-
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    exit;
 }
 
 if (isset($_POST['edit_asset_interface'])) {
 
     enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
 
     // Interface info
     $interface_id = intval($_POST['interface_id']);
-    require_once 'asset_interface_model.php';
+    require_once 'asset_interface_model.php'; 
+    // sets: $name, $mac, $ip, $ipv6, $port, $notes, $network, $connected_to, etc.
 
-    // Get Asset Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id, asset_id FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id WHERE interface_id = $interface_id");
-    $row = mysqli_fetch_array($sql);
-    $asset_id = intval($row['asset_id']);
-    $asset_name = sanitizeInput($row['asset_name']);
+    // 1) Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli, "
+        SELECT asset_name, asset_client_id, asset_id
+        FROM asset_interfaces 
+        LEFT JOIN assets ON asset_id = interface_asset_id
+        WHERE interface_id = $interface_id
+    ");
+    $row       = mysqli_fetch_array($sql);
+    $asset_id  = intval($row['asset_id']);
+    $asset_name= sanitizeInput($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
-    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_name = '$name', interface_mac = '$mac', interface_ip = '$ip', interface_ipv6 = '$ipv6', interface_port = '$port', interface_notes = '$notes', interface_network_id = $network, interface_connected_asset_interface = $connected_to WHERE interface_id = $interface_id");
+    // 2) Update the interface details in asset_interfaces
+    $sql_update = "
+        UPDATE asset_interfaces SET
+            interface_name       = '$name',
+            interface_mac        = '$mac',
+            interface_ip         = '$ip',
+            interface_ipv6       = '$ipv6',
+            interface_port       = '$port',
+            interface_notes      = '$notes',
+            interface_network_id = $network
+        WHERE interface_id = $interface_id
+    ";
+    mysqli_query($mysqli, $sql_update);
 
-    // Update the Connected device on the connecting device
-    mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_connected_asset_interface = $interface_id WHERE interface_id = $connected_to");
+    // 3) Remove any existing link for this interface (one-to-one)
+    $sql_delete_link = "
+        DELETE FROM asset_interface_links
+        WHERE interface_a_id = $interface_id
+           OR interface_b_id = $interface_id
+    ";
+    mysqli_query($mysqli, $sql_delete_link);
 
-    //Logging
-    logAction("Asset Interface", "Edit", "$session_name edited interface $name for asset $asset_name", $client_id, $asset_id);
+    // 4) If user selected a connected interface, create a new link
+    if (!empty($connected_to) && intval($connected_to) > 0) {
+        $sql_link = "
+            INSERT INTO asset_interface_links SET
+                interface_a_id = $interface_id,
+                interface_b_id = $connected_to
+        ";
+        mysqli_query($mysqli, $sql_link);
+    }
 
+    // 5) Logging
+    logAction(
+        "Asset Interface", 
+        "Edit", 
+        "$session_name edited interface $name for asset $asset_name", 
+        $client_id, 
+        $asset_id
+    );
+
+    // 6) Alert and redirect
     $_SESSION['alert_message'] = "Interface <strong>$name</strong> edited";
-
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    exit;
 }
 
 if (isset($_GET['delete_asset_interface'])) {
 
     enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_GET['csrf_token']);
 
     $interface_id = intval($_GET['delete_asset_interface']);
 
-    $sql = mysqli_query($mysqli,"SELECT asset_name, interface_name, asset_client_id, asset_id FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id WHERE interface_id = $interface_id");
+    // 1) Fetch details for logging / alerts
+    $sql = mysqli_query($mysqli, "
+        SELECT asset_name, interface_name, asset_client_id, asset_id
+        FROM asset_interfaces
+        LEFT JOIN assets ON asset_id = interface_asset_id
+        WHERE interface_id = $interface_id
+    ");
     $row = mysqli_fetch_array($sql);
-    $asset_id = intval($row['asset_id']);
+    $asset_id       = intval($row['asset_id']);
     $interface_name = sanitizeInput($row['interface_name']);
-    $asset_name = sanitizeInput($row['asset_name']);
-    $client_id = intval($row['asset_client_id']);
+    $asset_name     = sanitizeInput($row['asset_name']);
+    $client_id      = intval($row['asset_client_id']);
 
-    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_id = $interface_id");
+    // 2) Delete the interface this cascadingly delete asset_interface_links
+    mysqli_query($mysqli, "
+        DELETE FROM asset_interfaces
+        WHERE interface_id = $interface_id
+    ");
 
-    //Logging
-    logAction("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
+    // 3) Logging
+    logAction(
+        "Asset Interface", 
+        "Delete", 
+        "$session_name deleted interface $interface_name from asset $asset_name", 
+        $client_id, 
+        $asset_id
+    );
 
+    // 4) Alert and redirect
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Interface <strong>$interface_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit;
 }

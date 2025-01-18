@@ -95,31 +95,41 @@ if (isset($_GET['asset_id'])) {
     $document_count = mysqli_num_rows($sql_related_documents);
 
     // Network Interfaces
-        $sql_related_interfaces = mysqli_query($mysqli, "
+    $sql_related_interfaces = mysqli_query($mysqli, "
         SELECT 
             ai.interface_id,
             ai.interface_name,
             ai.interface_mac,
             ai.interface_ip,
             ai.interface_ipv6,
-            ai.interface_port, 
-            ai.interface_primary, 
-            ai.interface_notes, 
-            ai.interface_connected_asset_interface, 
+            ai.interface_port,
+            ai.interface_primary,
+            ai.interface_notes,
             n.network_name,
             n.network_id,
-            connected_assets.asset_name AS connected_asset_name,
+            connected_interfaces.interface_id AS connected_interface_id,
             connected_interfaces.interface_name AS connected_interface_name,
-            connected_interfaces.interface_port AS connected_interface_port
-        FROM asset_interfaces ai
-        LEFT JOIN assets a ON a.asset_id = ai.interface_asset_id
-        LEFT JOIN networks n ON n.network_id = ai.interface_network_id
-        LEFT JOIN asset_interfaces connected_interfaces ON connected_interfaces.interface_id = ai.interface_connected_asset_interface
-        LEFT JOIN assets connected_assets ON connected_assets.asset_id = connected_interfaces.interface_asset_id
-        WHERE ai.interface_asset_id = $asset_id
-        AND ai.interface_archived_at IS NULL
+            connected_interfaces.interface_port AS connected_interface_port,
+            connected_assets.asset_name AS connected_asset_name
+        FROM asset_interfaces AS ai
+        LEFT JOIN networks AS n
+          ON n.network_id = ai.interface_network_id
+        LEFT JOIN asset_interface_links AS ail
+          ON (ail.interface_a_id = ai.interface_id OR ail.interface_b_id = ai.interface_id)
+        LEFT JOIN asset_interfaces AS connected_interfaces
+          ON (
+              (ail.interface_a_id = ai.interface_id AND ail.interface_b_id = connected_interfaces.interface_id)
+              OR
+              (ail.interface_b_id = ai.interface_id AND ail.interface_a_id = connected_interfaces.interface_id)
+          )
+        LEFT JOIN assets AS connected_assets
+          ON connected_assets.asset_id = connected_interfaces.interface_asset_id
+        WHERE 
+            ai.interface_asset_id = $asset_id
+            AND ai.interface_archived_at IS NULL
         ORDER BY ai.interface_name ASC
     ");
+
     $interface_count = mysqli_num_rows($sql_related_interfaces);
 
     // Related Files
@@ -340,60 +350,57 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i><?php echo $asset_name; ?> Network Interfaces</h3>
                     <div class="card-tools">      
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal"><i class="fas fa-plus mr-2"></i>New Interface</button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
+                            <i class="fas fa-plus mr-2"></i>New Interface
+                        </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-borderless table-hover table-sm">
                             <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
-                            <tr>
-                                <th>Name</th>
-                                <th>MAC</th>
-                                <th>IP</th>
-                                <th>Port</th>
-                                <th>Network</th>
-                                <th>Connected To</th>
-                                <th class="text-center">Action</th>
-                            </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>MAC</th>
+                                    <th>IP</th>
+                                    <th>Port</th>
+                                    <th>Network</th>
+                                    <th>Connected To</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <?php
+                            <?php while ($row = mysqli_fetch_array($sql_related_interfaces)) { ?>
+                                <?php
+                                    $interface_id       = intval($row['interface_id']);
+                                    $interface_name     = nullable_htmlentities($row['interface_name']);
+                                    $interface_mac      = nullable_htmlentities($row['interface_mac']);
+                                    $interface_ip       = nullable_htmlentities($row['interface_ip']);
+                                    $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
+                                    $interface_port     = nullable_htmlentities($row['interface_port']);
+                                    $interface_primary  = intval($row['interface_primary']);
+                                    $network_id         = intval($row['network_id']);
+                                    $network_name       = nullable_htmlentities($row['network_name']);
+                                    $interface_notes    = nullable_htmlentities($row['interface_notes']);
 
-                            while ($row = mysqli_fetch_array($sql_related_interfaces)) {
-                                $interface_id = intval($row['interface_id']);
-                                $interface_name = nullable_htmlentities($row['interface_name']);
-                                $interface_mac = nullable_htmlentities($row['interface_mac']);
-                                if ($interface_mac) {
-                                    $interface_mac_display = "$interface_mac";
-                                } else {
-                                    $interface_mac_display = "-";
-                                }
-                                $interface_ip = nullable_htmlentities($row['interface_ip']);
-                                if ($interface_ip) {
-                                    $interface_ip_display = "$interface_ip";
-                                } else {
-                                    $interface_ip_display = "-";
-                                }
-                                $interface_ipv6 = nullable_htmlentities($row['interface_ipv6']);
-                                $interface_port = nullable_htmlentities($row['interface_port']);
-                                if ($interface_port) {
-                                    $interface_port_display = "$interface_port";
-                                } else {
-                                    $interface_port_display = "-";
-                                }
-                                $interface_primary = intval($row['interface_primary']);
-                                $network_id = intval($row['network_id']);
-                                $network_name = nullable_htmlentities($row['network_name']);
-                                if ($network_name) {
-                                    $network_name_display = "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id";
-                                } else {
-                                    $network_name_display = "-";
-                                }
-                                $interface_notes = nullable_htmlentities($row['interface_notes']);
-                                $connected_asset_interface = intval($row['interface_connected_asset_interface']);
-                                $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
-                                $connected_asset_port = nullable_htmlentities($row['connected_interface_port']);
+                                    // Prepare display text
+                                    $interface_mac_display = $interface_mac ?: '-';
+                                    $interface_ip_display  = $interface_ip ?: '-';
+                                    $interface_port_display = $interface_port ?: '-';
+                                    $network_name_display  = $network_name 
+                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id" 
+                                        : '-';
+
+                                    // Connected interface details
+                                    $connected_asset_name    = nullable_htmlentities($row['connected_asset_name']);
+                                    $connected_interface_port = nullable_htmlentities($row['connected_interface_port']);
+
+                                    // Show either "-" or "AssetName - Port"
+                                    if ($connected_asset_name) {
+                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_port";
+                                    } else {
+                                        $connected_to_display = "-";
+                                    }
                                 ?>
                                 <tr>
                                     <td>
@@ -406,7 +413,7 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $interface_ip_display; ?></td>
                                     <td><?php echo $interface_port_display; ?></td>
                                     <td><?php echo $network_name_display; ?></td>
-                                    <td><?php echo "<strong>$connected_asset_name</strong> - $connected_asset_port"; ?></td>
+                                    <td><?php echo $connected_to_display; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -416,29 +423,22 @@ if (isset($_GET['asset_id'])) {
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                                <?php if ($session_user_role == 3 && $interface_primary == 0) { ?>
+                                                <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?php echo $interface_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?php echo $interface_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
-                                                <?php } ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
 
-                                <?php
-
-                                require "modals/client_asset_interface_edit_modal.php";
-
-                            }
-
-                            ?>
-
+                                <?php require "modals/client_asset_interface_edit_modal.php"; ?>
+                            <?php } ?>
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
 
