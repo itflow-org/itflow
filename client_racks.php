@@ -176,7 +176,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </table>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered">
+                                    <table class="table border">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center bg-light px-0 border">U</th>
+                                                <th class="text-center">Device</th>
+                                                <th class=""></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                         <?php 
                                         // Keep track of which device_ids we've already printed
                                         $printedDevices = [];
@@ -207,7 +215,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             ?>
                                             <tr>
                                                 <!-- Always print the left-hand U #, for reference -->
-                                                <td class="px-0 text-center bg-light">
+                                                <td class="px-0 text-center bg-light border">
                                                     <?php echo sprintf('%02d', $i); ?>
                                                 </td>
 
@@ -283,7 +291,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                         <?php } ?>
                                                     </td>
                                                     
-                                                    <td class="px-0 text-right">
+                                                    <td class="text-right">
                                                         <div class="dropdown dropleft">
                                                             <button class="btn btn-tool" type="button" data-toggle="dropdown">
                                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -312,6 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <?php
                                         }
                                         ?>
+                                    </tbody>
                                     </table>
 
                                 </div>
