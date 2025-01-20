@@ -27,7 +27,7 @@
                             <p>
                               Clients
                               <?php if ($num_active_clients) { ?>
-                                      <span class="right badge text-light"><?php echo $num_active_clients; ?></span>
+                                      <span class="right badge text-light" data-toggle="tooltip" title="Active Clients"><?php echo $num_active_clients; ?></span>
                               <?php } ?>
                             </p>
                         </a>
@@ -43,7 +43,7 @@
                                 <p>
                                     Tickets
                                     <?php if ($num_active_tickets) { ?>
-                                        <span class="right badge text-light"><?php echo $num_active_tickets; ?></span>
+                                        <span class="right badge text-light" data-toggle="tooltip" title="Open Tickets"><?php echo $num_active_tickets; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -54,7 +54,7 @@
                                 <p>
                                     Recurring Tickets
                                     <?php if ($num_recurring_tickets) { ?>
-                                        <span class="right badge text-light"><?php echo $num_recurring_tickets; ?></span>
+                                        <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Tickets"><?php echo $num_recurring_tickets; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -65,7 +65,7 @@
                                 <p>
                                     Projects
                                     <?php if ($num_active_projects) { ?>
-                                        <span class="right badge text-light"><?php echo $num_active_projects; ?></span>
+                                        <span class="right badge text-light" data-toggle="tooltip" title="Open Projects"><?php echo $num_active_projects; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -87,7 +87,7 @@
                             <p>
                                 Quotes
                                 <?php if ($num_open_quotes) { ?>
-                                    <span class="right badge text-light"><?php echo $num_open_quotes; ?></span>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Quotes"><?php echo $num_open_quotes; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -98,7 +98,7 @@
                             <p>
                                 Invoices
                                 <?php if ($num_open_invoices) { ?>
-                                    <span class="right badge text-light"><?php echo $num_open_invoices; ?></span>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Open Invoices"><?php echo $num_open_invoices; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -109,7 +109,7 @@
                             <p>
                                 Recurring Invoices
                                 <?php if ($num_recurring_invoices) { ?>
-                                    <span class="right badge text-light"><?php echo $num_recurring_invoices; ?></span>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Invoices"><?php echo $num_recurring_invoices; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -153,7 +153,7 @@
                             <p>
                                 Recurring Expenses
                                 <?php if ($num_recurring_expenses) { ?>
-                                    <span class="right badge text-light"><?php echo $num_recurring_expenses; ?></span>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Recurring Expenses"><?php echo $num_recurring_expenses; ?></span>
                                 <?php } ?>
                             </p>
                         </a>
