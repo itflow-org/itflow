@@ -25,12 +25,14 @@ All notable changes to ITFlow will be documented in this file.
 - Added Asset Interface Linking / Connections to determine what interface is connected to what interface port of another asset
 - Added Force Recurring Ticket in more places instead of just recurring tickets
 - Row span and center devices that take up multiple units in a rack
+- Added Tooltips to main nav badge counts to show what its actually counting
 
 ### Fixed
 - Fixed ticket edit modal not showing multi-client/no-client projects
 - Fixed asset interface losing DHCP setting
 - Fixed creating / editing recurring expenses causing 500 error due to incorrect var name
 - Fixed tickets created via portal/email not being marked as billable
+- Fixed editing Recurring Expense
 
 ### Removed / Deprecated
 - Deprecated the current cron scripts in the root directory - change cron to use the ones in the scripts subfolder instead
