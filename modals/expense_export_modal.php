@@ -18,7 +18,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                             </div>
                             <select class="form-control select2" name="account">
-                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                <option value="">- All Accounts -</option>
 
                                 <?php
                                 $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -26,7 +26,7 @@
                                     $account_id = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']);
                                 ?>
-                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -42,7 +42,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
                             <select class="form-control select2" name="vendor">
-                                <option value="" <?php if ($vendor == "") { echo "selected"; } ?>>- All Vendors -</option>
+                                <option value="">- All Vendors -</option>
 
                                 <?php
                                 $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
@@ -50,7 +50,7 @@
                                     $vendor_id = intval($row['vendor_id']);
                                     $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 ?>
-                                    <option <?php if ($vendor == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                    <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -66,7 +66,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                             </div>
                             <select class="form-control select2" name="category">
-                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+                                <option value="">- All Categories -</option>
 
                                 <?php
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
@@ -74,7 +74,7 @@
                                     $category_id = intval($row['category_id']);
                                     $category_name = nullable_htmlentities($row['category_name']);
                                 ?>
-                                    <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php
                                 }
                                 ?>

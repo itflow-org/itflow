@@ -12,31 +12,31 @@ enforceUserPermission('module_financial');
 // Account Filter
 if (isset($_GET['account']) & !empty($_GET['account'])) {
     $account_query = 'AND (expense_account_id = ' . intval($_GET['account']) . ')';
-    $account = intval($_GET['account']);
+    $account_filter = intval($_GET['account']);
 } else {
     // Default - any
     $account_query = '';
-    $account = '';
+    $account_filter = '';
 }
 
 // Vendor Filter
 if (isset($_GET['vendor']) & !empty($_GET['vendor'])) {
     $vendor_query = 'AND (vendor_id = ' . intval($_GET['vendor']) . ')';
-    $vendor = intval($_GET['vendor']);
+    $vendor_filter = intval($_GET['vendor']);
 } else {
     // Default - any
     $vendor_query = '';
-    $vendor = '';
+    $vendor_filter = '';
 }
 
 // Category Filter
 if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
-    $category = intval($_GET['category']);
+    $category_filter = intval($_GET['category']);
 } else {
     // Default - any
     $category_query = '';
-    $category = '';
+    $category_filter = '';
 }
 
 //Rebuild URL
@@ -120,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (isset($_GET['dtf']) || $_GET['canned_date'] !== "custom" || isset($_GET['account']) || isset($_GET['vendor']) || isset($_GET['category'])) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (isset($_GET['dtf']) || $_GET['canned_date'] !== "custom" || $account_filter || $vendor_filter || $category_filter) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Vendor</label>
                                 <select class="form-control select2" name="vendor" onchange="this.form.submit()">
-                                    <option value="" <?php if ($vendor == "") { echo "selected"; } ?>>- All Vendors -</option>
+                                    <option value="">- All Vendors -</option>
 
                                     <?php
                                     $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $vendor_id = intval($row['vendor_id']);
                                         $vendor_name = nullable_htmlentities($row['vendor_name']);
                                     ?>
-                                        <option <?php if ($vendor == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                        <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -174,7 +174,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Category</label>
                                 <select class="form-control select2" name="category" onchange="this.form.submit()">
-                                    <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+                                    <option value="">- All Categories -</option>
 
                                     <?php
                                     $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $category_id = intval($row['category_id']);
                                         $category_name = nullable_htmlentities($row['category_name']);
                                     ?>
-                                        <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -194,7 +194,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Account</label>
                                 <select class="form-control select2" name="account" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                    <option value="">- All Accounts -</option>
 
                                     <?php
                                     $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -202,7 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = nullable_htmlentities($row['account_name']);
                                     ?>
-                                        <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
                                     }
                                     ?>
