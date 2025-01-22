@@ -26,6 +26,7 @@ All notable changes to ITFlow will be documented in this file.
 - Added Force Recurring Ticket in more places instead of just recurring tickets
 - Row span and center devices that take up multiple units in a rack
 - Added Tooltips to main nav badge counts to show what its actually counting
+- Changed the Max records per page from 500 to 100 to prevent performance issues
 
 ### Fixed
 - Fixed ticket edit modal not showing multi-client/no-client projects
@@ -33,6 +34,7 @@ All notable changes to ITFlow will be documented in this file.
 - Fixed creating / editing recurring expenses causing 500 error due to incorrect var name
 - Fixed tickets created via portal/email not being marked as billable
 - Fixed editing Recurring Expense
+- Fixed a regression TinyMCE Editor not showing when adding or editing ticket templates
 
 ### Removed / Deprecated
 - Deprecated the current cron scripts in the root directory - change cron to use the ones in the scripts subfolder instead
