@@ -127,14 +127,23 @@
 
                         <div class="tab-pane fade" id="pills-location">
 
-                            <label>Location Phone</label>
-
                             <div class="form-group">
+                                <label>Location Phone</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Location Fax</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number">
                                 </div>
                             </div>
 

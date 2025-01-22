@@ -2368,10 +2368,46 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.2') {
-    //     // Insert queries here required to update to DB version 1.7.3
+    if (CURRENT_DATABASE_VERSION == '1.7.2') {
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_fax` VARCHAR(200) DEFAULT NULL AFTER `location_phone`");
+
+        mysqli_query($mysqli, "DROP TABLE `vendor_contacts`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.3'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.3') {
+        
+        // Add Recurring Payments
+        mysqli_query($mysqli, "CREATE TABLE `recurring_payments` (
+            `recurring_payment_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `recurring_payment_amount` DECIMAL(15,2) NOT NULL,
+            `recurring_payment_currency_code` VARCHAR(10) NOT NULL,
+            `recurring_payment_method` VARCHAR(200) NOT NULL,
+            `recurring_payment_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `recurring_payment_updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            `recurring_payment_archived_at` DATETIME DEFAULT NULL,
+            `recurring_payment_account_id` INT(11) NOT NULL,
+            `recurring_payment_recurring_expense_id` INT(11) NOT NULL DEFAULT 0,
+            `recurring_payment_recurring_invoice_id` INT(11) NOT NULL,
+            PRIMARY KEY (`recurring_payment_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.4'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.4') {
+        
+        // Remove Recurring Payment Amount as it will use the Recurring Invoice Amount and is unessessary
+        mysqli_query($mysqli, "ALTER TABLE `recurring_payments` DROP `recurring_payment_amount`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.5'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.5') {
+    //     // Insert queries here required to update to DB version 1.7.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.6'");
     // }
 
 } else {

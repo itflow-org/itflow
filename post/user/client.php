@@ -12,6 +12,7 @@ if (isset($_POST['add_client'])) {
     require_once 'post/user/client_model.php';
 
     $location_phone = preg_replace("/[^0-9]/", '', $_POST['location_phone']);
+    $location_fax = preg_replace("/[^0-9]/", '', $_POST['location_fax']);
     $address = sanitizeInput($_POST['address']);
     $city = sanitizeInput($_POST['city']);
     $state = sanitizeInput($_POST['state']);
@@ -46,7 +47,7 @@ if (isset($_POST['add_client'])) {
 
     // Create Location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary location $address added";
@@ -128,7 +129,7 @@ if (isset($_POST['edit_client'])) {
     $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
     if(mysqli_num_rows($sql) == 0) {
         mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-        
+
         // Logging
         logAction("Category", "Create", "$session_name created referral category $referral");
     }
@@ -382,7 +383,7 @@ if (isset($_POST['export_clients_csv'])) {
 
         //output all remaining data on a file pointer
         fpassthru($f);
-        
+
         logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
 
     }
@@ -1936,7 +1937,12 @@ if (isset($_POST['export_client_pdf'])) {
         //pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
         pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09($client_name); ?>-IT_Documentation-<?php echo date('Y-m-d'); ?>');
 
+        setTimeout(function(){
+            window.close();
+        }, 10000);
+
     </script>
+
 
 
     <?php

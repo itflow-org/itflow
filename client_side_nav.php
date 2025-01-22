@@ -254,7 +254,7 @@
 
                 <?php if ($config_module_enable_accounting == 1) { ?>
 
-                    <li class="nav-header mt-3">FINANCE</li>
+                    <li class="nav-header mt-3">BILLING</li>
 
                     <?php if (lookupUserPermission("module_sales") >= 1) { ?>
 

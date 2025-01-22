@@ -59,16 +59,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-md-8">
 
-                    <div class="dropdown float-right" id="bulkActionButton" hidden>
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                        </button>
-                        <div class="dropdown-menu">
-                            <button class="dropdown-item text-danger text-bold" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets">
-                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                    <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                        <div class="dropdown float-right" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item text-danger text-bold" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    <?php } ?>
 
                 </div>
             </div>
@@ -92,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>         
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
@@ -115,7 +117,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Next Run Date <?php if ($sort == 'scheduled_ticket_next_run') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <th class="text-center">Action</th>
+                            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                <th class="text-center">Action</th>
+                            <?php } ?>
                         </tr>
                     </thead>
 
@@ -154,25 +158,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 <td class="text-bold"><?php echo $scheduled_ticket_next_run ?></td>
 
-                                <td>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                            </a>
-                                            <?php
-                                            if ($session_user_role == 3) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                    <td>
+                                        <div class="dropdown dropleft text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
+                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                            <?php } ?>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
+                                                </a>
+                                                <?php if (lookupUserPermission("module_support") == 3) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    </a>
+                                                <?php } ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
+                                    </td>
+                                <?php } ?>
 
                             </tr>
 

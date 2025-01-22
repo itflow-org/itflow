@@ -1,7 +1,7 @@
 <?php
 
 // Enforce a Content Security Policy for security against cross-site scripting
-header("Content-Security-Policy: default-src 'self' fonts.googleapis.com fonts.gstatic.com");
+header("Content-Security-Policy: default-src 'self'");
 
 if (!file_exists('config.php')) {
     header("Location: setup.php");
@@ -316,8 +316,7 @@ if (isset($_POST['login'])) {
 
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
-    <!-- Google Font: Source Sans Pro -->
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
 </head>
 <body class="hold-transition login-page">
 

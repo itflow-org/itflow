@@ -16,6 +16,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT * FROM recurring
     LEFT JOIN categories ON recurring_category_id = category_id
+    LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_id
     WHERE recurring_client_id = $client_id
     AND (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR category_name LIKE '%$q%') 
     ORDER BY $sort $order LIMIT $record_from, $record_to");
@@ -105,6 +106,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <th>
+                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_payment_recurring_invoice_id&order=<?php echo $disp; ?>">
+                            Auto Pay <?php if ($sort == 'recurring_payment_recurring_invoice_id') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
                         <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_status&order=<?php echo $disp; ?>">
                             Status <?php if ($sort == 'recurring_status') { echo $order_icon; } ?>
                         </a>
@@ -140,6 +146,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $status = "Inactive";
                         $status_badge_color = "secondary";
                     }
+                    $recurring_payment_id = intval($row['recurring_payment_id']);
+                    $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+                    if ($recurring_payment_recurring_invoice_id) {
+                        $auto_pay_display = "
+                            Yes
+                            <a href='post.php?delete_recurring_payment=$recurring_payment_id' title='Remove'>
+                                <i class='fas fa-fw fa-times-circle'></i>
+                            </a>
+                        ";
+                    } else {
+                        $auto_pay_display = "
+                            <a href='#' data-toggle='modal' data-target='#addRecurringPaymentModal$recurring_id'>
+                                Create
+                            </a>
+                        ";
+                        require "recurring_payment_add_modal.php";
+                    }
 
                     ?>
 
@@ -151,10 +174,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $recurring_last_sent; ?></td>
                         <td><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $category_name; ?></td>
+                        <td><?php echo $auto_pay_display; ?></td>
                         <td>
-                        <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
-                        <?php echo $status; ?>
-                        </span>
+                            <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
+                            <?php echo $status; ?>
+                            </span>
                         </td>
                         <td>
                             <div class="dropdown dropleft text-center">
@@ -177,7 +201,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tr>
 
                     <?php
-                    require "recurring_invoice_edit_modal.php";
+                    //require "recurring_invoice_edit_modal.php";
+                    
 
                 }
 

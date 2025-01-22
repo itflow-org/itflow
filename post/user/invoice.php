@@ -1192,6 +1192,64 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
+if (isset($_POST['add_recurring_payment'])) {
+
+    $recurring_id = intval($_POST['recurring_id']);
+    $account = intval($_POST['account']);
+    $currency_code = sanitizeInput($_POST['currency_code']);
+    $payment_method = sanitizeInput($_POST['payment_method']);
+
+    // Get Recurring Info for logging and alerting
+    $sql = mysqli_query($mysqli, "SELECT * FROM recurring WHERE recurring_id = $recurring_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_prefix = sanitizeInput($row['recurring_prefix']);
+    $recurring_number = intval($row['recurring_number']);
+    $recurring_amount = floatval($row['recurring_amount']);
+    $client_id = intval($row['recurring_client_id']);
+
+    mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_currency_code = '$currency_code', recurring_payment_account_id = $account, recurring_payment_method = '$payment_method', recurring_payment_recurring_invoice_id = $recurring_id");
+
+    // Get Payment ID for reference
+    $recurring_payment_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_prefix$recurring_number in the amount of " . numfmt_format_currency($currency_format, $recurring_amount, $currency_code), $client_id, $recurring_id);
+
+
+    $_SESSION['alert_message'] = "Automatic Payment created for <strong>$recurring_prefix$recurring_number</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['delete_recurring_payment'])) {
+    $recurring_payment_id = intval($_GET['delete_recurring_payment']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_payments WHERE recurring_payment_id = $recurring_payment_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+
+    // Get the invoice total and details
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring WHERE recurring_id = $recurring_invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_prefix = sanitizeInput($row['recurring_prefix']);
+    $recurring_number = intval($row['recurring_number']);
+    $client_id = intval($row['recurring_client_id']);
+
+    mysqli_query($mysqli,"DELETE FROM recurring_payments WHERE recurring_payment_id = $recurring_payment_id");
+
+    // Logging
+    logAction("Recurring Invoice", "Auto Payment", "$session_name removed auto Pay from Recurring Invoice $recurring_prefix$recurring_number", $client_id, $recurring_invoice_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Auto Payment Removed for Recurring Invoice <strong>$recurring_prefix$recurring_number</strong>";
+    if ($config_stripe_enable) {
+        $_SESSION['alert_message'] = "Auto Payment Removed - Stripe Auto payments must be manually removed in Stripe";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['force_recurring'])) {
     $recurring_id = intval($_GET['force_recurring']);
 

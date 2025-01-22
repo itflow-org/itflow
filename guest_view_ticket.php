@@ -80,7 +80,7 @@ if ($ticket_row) {
                 <br>
                 <strong>Priority:</strong> <?php echo $ticket_priority ?>
                 <br>
-                <?php if (empty($ticket_closed_at)) { ?>
+                <?php if (!empty($ticket_assigned_to) && empty($ticket_closed_at)) { ?>
                     <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
                 <?php } ?>
             </p>

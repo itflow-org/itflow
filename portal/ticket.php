@@ -52,6 +52,13 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
         $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
 
+        // Get Ticket Attachments (not associated with a specific reply)
+        $sql_ticket_attachments = mysqli_query(
+            $mysqli,
+            "SELECT * FROM ticket_attachments
+            WHERE ticket_attachment_reply_id IS NULL
+            AND ticket_attachment_ticket_id = $ticket_id"
+        );
 
         // Get Tasks
         $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
@@ -92,20 +99,31 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
                 <hr>
                 <p>
-                    <strong>State:</strong> <?php echo $ticket_status ?>
-                    <br>
-                    <strong>Priority:</strong> <?php echo $ticket_priority ?>
-                    <br>
+                    <strong>State:</strong> <?php echo $ticket_status ?><br>
+                    <strong>Priority:</strong> <?php echo $ticket_priority ?><br>
 
                     <?php if (empty($ticket_closed_at)) { ?>
+
                         <?php if ($task_count) { ?>
                             <strong>Tasks: </strong> <?php echo $completed_task_count . " / " .$task_count ?>
                             <br>
                         <?php } ?>
-                        <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+
+                        <?php if (!empty($ticket_assigned_to)) { ?>
+                            <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                        <?php } ?>
+
                     <?php } ?>
                 </p>
                 <?php echo $ticket_details ?>
+
+                <?php
+                while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
+                    $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
+                    $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                    echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a target='_blank' href='https://$config_base_url/uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                }
+                ?>
             </div>
         </div>
 
@@ -195,6 +213,14 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 $user_initials = initials($row['user_name']);
                 $avatar_link = "../uploads/users/$user_id/$user_avatar";
             }
+
+            // Get attachments for this reply
+            $sql_ticket_reply_attachments = mysqli_query(
+                $mysqli,
+                "SELECT * FROM ticket_attachments
+                        WHERE ticket_attachment_reply_id = $ticket_reply_id
+                        AND ticket_attachment_ticket_id = $ticket_id"
+            );
             ?>
 
             <div class="card card-outline <?php if ($ticket_reply_type == 'Client') { echo "card-warning"; } else { echo "card-info"; } ?> mb-3">
@@ -227,6 +253,14 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
                 <div class="card-body prettyContent">
                     <?php echo $ticket_reply; ?>
+
+                    <?php
+                    while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
+                        $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
+                        $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                        echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a target='_blank' href='https://$config_base_url/uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                    }
+                    ?>
                 </div>
             </div>
 
