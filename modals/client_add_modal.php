@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Creating New <?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Creating New <?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -46,7 +46,7 @@
                                     <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200" required autofocus>
                                     <div class="input-group-append">
                                         <div class="input-group-text">
-                                            <input type="checkbox" name="lead" value="1" <?php if($leads == 1){ echo "checked"; } ?>>
+                                            <input type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
                                         </div>
                                     </div>
                                 </div>

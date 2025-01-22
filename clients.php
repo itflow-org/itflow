@@ -9,18 +9,13 @@ require_once "includes/inc_all.php";
 // Perms
 enforceUserPermission('module_client');
 
-// Leads Query
-
-$leads = 0;
-
-if (isset($_GET['leads'])) {
-    $leads = intval($_GET['leads']);
-}
-
-if ($leads == 1){
-    $leads_query = 1;
+// Leads Filter
+if (isset($_GET['leads']) && $_GET['leads'] == 1) {
+    $leads_filter = 1;
+    $leads_query = "AND client_lead = 1";
 } else {
-    $leads_query = 0;
+    $leads_filter = 0;
+    $leads_query = "AND client_lead = 0";
 }
 
 // Tags Filter
@@ -42,21 +37,21 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 // Industry Filter
 if (isset($_GET['industry']) & !empty($_GET['industry'])) {
     $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
-    $industry = nullable_htmlentities($_GET['industry']);
+    $industry_filter = nullable_htmlentities($_GET['industry']);
 } else {
     // Default - any
     $industry_query = '';
-    $industry = '';
+    $industry_filter = '';
 }
 
 // Referral Filter
 if (isset($_GET['referral']) & !empty($_GET['referral'])) {
     $referral_query = "AND (clients.client_referral  = '" . sanitizeInput($_GET['referral']) . "')";
-    $referral = nullable_htmlentities($_GET['referral']);
+    $referral_filter = nullable_htmlentities($_GET['referral']);
 } else {
     // Default - any
     $referral_query = '';
-    $referral = '';
+    $referral_filter = '';
 }
 
 //Rebuild URL
@@ -78,7 +73,7 @@ $sql = mysqli_query(
            OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
       AND client_$archive_query
       AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
-      AND client_lead = $leads
+      $leads_query
       $access_permission_query
       $tag_query
       $industry_query
@@ -94,13 +89,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i><?php if($leads == 0){ echo "Client"; } else { echo "Lead"; } ?> Management</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i><?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?> Management</h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_client") >= 2) { ?>
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal">
                             <i class="fas fa-plus mr-2"></i>New
-                            <?php if ($leads == 0) { echo "Client"; } else { echo "Lead"; } ?>
+                            <?php if ($leads_filter == 0) { echo "Client"; } else { echo "Lead"; } ?>
                         </button>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
@@ -119,12 +114,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <div class="card-body p-2 p-md-3">
             <form class="mb-4" autocomplete="off">
-                <input type="hidden" name="leads" value="<?php echo $leads; ?>">
+                <input type="hidden" name="leads" value="<?php echo $leads_filter; ?>">
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if($leads == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -134,8 +129,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-8">
                         <div class="btn-toolbar float-right">
                             <div class="btn-group mr-2">
-                                <a href="?leads=0" class="btn btn-<?php if ($leads == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
-                                <a href="?leads=1" class="btn btn-<?php if ($leads == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
+                                <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
+                                <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
                             </div>
 
                             <div class="btn-group mr-2">
@@ -152,8 +147,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php 
                         if (
                         isset($_GET['dtf'])
-                        || isset($_GET['industry'])
-                        || isset($_GET['referral'])
+                        || $industry_filter
+                        || $referral_filter
                         || (isset($_GET['tags']) && is_array($_GET['tags']))
                         || $_GET['canned_date'] !== "custom" ) 
                         { 
@@ -212,14 +207,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Industry</label>
                                 <select class="form-control select2" name="industry" onchange="this.form.submit()">
-                                    <option value="" <?php if ($industry == "") { echo "selected"; } ?>>- All Industries -</option>
+                                    <option value="" <?php if ($industry_filter == "") { echo "selected"; } ?>>- All Industries -</option>
 
                                     <?php
                                     $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_archived_at IS NULL AND client_type != '' ORDER BY client_type ASC");
                                     while ($row = mysqli_fetch_array($sql_industries_filter)) {
                                         $industry_name = nullable_htmlentities($row['client_type']);
                                     ?>
-                                        <option <?php if ($industry_name == $industry) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
+                                        <option <?php if ($industry_name == $industry_filter) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -231,14 +226,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Referral</label>
                                 <select class="form-control select2" name="referral" onchange="this.form.submit()">
-                                    <option value="" <?php if ($referral == "") { echo "selected"; } ?>>- All Referrals -</option>
+                                    <option value="" <?php if ($referral_filter == "") { echo "selected"; } ?>>- All Referrals -</option>
 
                                     <?php
                                     $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_archived_at IS NULL AND client_referral != '' ORDER BY client_referral ASC");
                                     while ($row = mysqli_fetch_array($sql_referrals_filter)) {
                                         $referral_name = nullable_htmlentities($row['client_referral']);
                                     ?>
-                                        <option <?php if ($referral_name == $referral) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
+                                        <option <?php if ($referral_name == $referral_filter) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
                                     <?php
                                     }
                                     ?>
