@@ -25,29 +25,20 @@ if (isset($_GET['page'])) {
 }
 
 // Order
-if (isset($_GET['order'])) {
-    if ($_GET['order'] == 'ASC') {
-        $order = "ASC";
-        $disp = "DESC";
-    } else {
-        $order = "DESC";
-        $disp = "ASC";
-    }
-} elseif(isset($order)) {
-    if ($order == "ASC") {
-        $disp = "DESC";
-    } else {
-        $disp = "ASC";
-    }
+if (isset($_GET['order']) && $_GET['order'] == 'ASC') {
+    $order = "ASC";
+    $disp = "DESC";
+} else {
+    $order = "DESC";
+    $disp = "ASC";
 }
 
-// Set the order Icon
-if (isset($sort)) {
-    if ($order == "ASC") {
-        $order_icon = "<i class='fas fa-sort-up'></i>";
-    } else {
-        $order_icon = "<i class='fas fa-sort-down'></i>";
-    }
+if(isset($order) && $order == "ASC") {
+    $disp = "DESC";
+    $order_icon = "<i class='fas fa-sort-down'></i>";
+} else {
+    $disp = "ASC";
+    $order_icon = "<i class='fas fa-sort-up'></i>";
 }
 
 // Search
@@ -109,15 +100,10 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
 }
 
 // Archived
-
-$archived = 0;
-
-if (isset($_GET['archived'])) {
-    $archived = intval($_GET['archived']);
-}
-
-if ($archived == 1){
+if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+    $archived = 1;
     $archive_query = "archived_at IS NOT NULL";
 } else {
+    $archived = 0;
     $archive_query = "archived_at IS NULL";
 }

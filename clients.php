@@ -207,7 +207,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Industry</label>
                                 <select class="form-control select2" name="industry" onchange="this.form.submit()">
-                                    <option value="" <?php if ($industry_filter == "") { echo "selected"; } ?>>- All Industries -</option>
+                                    <option value="">- All Industries -</option>
 
                                     <?php
                                     $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_archived_at IS NULL AND client_type != '' ORDER BY client_type ASC");
@@ -226,7 +226,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Referral</label>
                                 <select class="form-control select2" name="referral" onchange="this.form.submit()">
-                                    <option value="" <?php if ($referral_filter == "") { echo "selected"; } ?>>- All Referrals -</option>
+                                    <option value="">- All Referrals -</option>
 
                                     <?php
                                     $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_archived_at IS NULL AND client_referral != '' ORDER BY client_referral ASC");

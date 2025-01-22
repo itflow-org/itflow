@@ -9,21 +9,21 @@ require_once "includes/inc_all_admin.php";
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
     $log_type_query = "AND (app_log_type  = '" . sanitizeInput($_GET['type']) . "')";
-    $type = nullable_htmlentities($_GET['type']);
+    $type_filter = nullable_htmlentities($_GET['type']);
 } else {
     // Default - any
     $log_type_query = '';
-    $type = '';
+    $type_filter = '';
 }
 
 // Log Category Filter
 if (isset($_GET['category']) & !empty($_GET['catergory'])) {
     $log_category_query = "AND (app_log_category  = '" . sanitizeInput($_GET['category']) . "')";
-    $category = nullable_htmlentities($_GET['category']);
+    $category_filter = nullable_htmlentities($_GET['category']);
 } else {
     // Default - any
     $log_category_query = '';
-    $category = '';
+    $category_filter = '';
 }
 
 //Rebuild URL
@@ -63,14 +63,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="type" onchange="this.form.submit()">
-                                <option value="" <?php if ($type == "") { echo "selected"; } ?>>- All Types -</option>
+                                <option value="">- All Types -</option>
 
                                 <?php
                                 $sql_types_filter = mysqli_query($mysqli, "SELECT DISTINCT app_log_type FROM app_logs ORDER BY app_log_type ASC");
                                 while ($row = mysqli_fetch_array($sql_types_filter)) {
                                     $log_type = nullable_htmlentities($row['app_log_type']);
                                 ?>
-                                    <option <?php if ($type == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
+                                    <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -82,14 +82,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
-                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+                                <option value="">- All Categories -</option>
 
                                 <?php
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT DISTINCT app_log_category FROM app_logs ORDER BY app_log_category ASC");
                                 while ($row = mysqli_fetch_array($sql_categories_filter)) {
                                     $log_category = nullable_htmlentities($row['app_log_category']);
                                 ?>
-                                    <option <?php if ($category == $log_category) { echo "selected"; } ?>><?php echo $log_category; ?></option>
+                                    <option <?php if ($category_filter == $log_category) { echo "selected"; } ?>><?php echo $log_category; ?></option>
                                 <?php
                                 }
                                 ?>

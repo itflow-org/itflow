@@ -32,12 +32,12 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 if (isset($_GET['location']) & !empty($_GET['location'])) {
     $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
     $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
-    $location = intval($_GET['location']);
+    $location_filter = intval($_GET['location']);
 } else {
     // Default - any
     $location_query_innerjoin = '';
     $location_query = '';
-    $location = '';
+    $location_filter = '';
 }
 
 
@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-2">
                     <div class="input-group">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
-                            <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Asset Locations -</option>
+                            <option value="">- All Asset Locations -</option>
 
                             <?php
                             $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
                             ?>
-                                <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                             <?php
                             }
                             ?>

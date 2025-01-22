@@ -12,11 +12,11 @@ enforceUserPermission('module_sales');
 // Category Filter
 if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
-    $category = intval($_GET['category']);
+    $category_filter = intval($_GET['category']);
 } else {
     // Default - any
     $category_query = '';
-    $category = '';
+    $category_filter = '';
 }
 
 //Rebuild URL
@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
-                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+                                <option value="">- All Categories -</option>
 
                                 <?php
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $category_id = intval($row['category_id']);
                                     $category_name = nullable_htmlentities($row['category_name']);
                                 ?>
-                                    <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php
                                 }
                                 ?>
