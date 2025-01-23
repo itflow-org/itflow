@@ -56,17 +56,7 @@ if ($ticket_row) {
 
     ?>
 
-    <ol class="breadcrumb d-print-none">
-        <li class="breadcrumb-item">
-            <a href="portal/index.php">Portal Home</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="portal/tickets.php">Tickets</a>
-        </li>
-        <li class="breadcrumb-item active">Ticket <?php echo $ticket_prefix . $ticket_number; ?></li>
-    </ol>
-
-    <div class="card">
+    <div class="card mt-3">
         <div class="card-header bg-dark text-center">
             <h4 class="mt-1">
                 Ticket <?php echo $ticket_prefix, $ticket_number ?>
@@ -95,7 +85,7 @@ if ($ticket_row) {
 
     <?php if (empty($ticket_resolved_at)) { ?>
         <!-- Reply - guest users should email or login so we know exactly who replied -->
-        <h6><i>Please <a href="portal">log in</a> or reply to the ticket via email to respond</i></h6>
+        <h6><i>Please <a href="../client">log in</a> or reply to the ticket via email to respond</i></h6>
 
     <?php } elseif (empty($ticket_closed_at)) { ?>
         <!-- Re-open -->
