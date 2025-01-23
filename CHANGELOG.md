@@ -39,6 +39,10 @@ All notable changes to ITFlow will be documented in this file.
 ### Removed / Deprecated
 - Deprecated the current cron scripts in the root directory - change cron to use the ones in the scripts subfolder instead
 
+### BREAKING CHANGES
+- Moved Client portal from /portal to /client - Links will be broken on previous emails, also you may need to update any other links for example website, support page etc?
+- Moved guest links from / to /guest - Links will be broken on previous emails.
+
 
 ## [24.12]
 
