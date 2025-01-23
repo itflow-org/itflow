@@ -151,7 +151,7 @@ if (isset($_POST['add_ticket'])) {
                 'body' => $body
             ];
         }
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
 
         // END EMAILING
 
@@ -236,7 +236,7 @@ if (isset($_POST['edit_ticket'])) {
             ];
         }
 
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
     }
 
     // Custom action/notif handler
@@ -354,7 +354,7 @@ if (isset($_POST['edit_ticket_contact'])) {
             'body' => $body
         ];
 
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
     }
 
     // Custom action/notif handler
@@ -431,7 +431,7 @@ if (isset($_POST['add_ticket_watcher'])) {
             ];
         }
 
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
     }
 
     // Logging
@@ -629,7 +629,7 @@ if (isset($_POST['assign_ticket'])) {
                     'body' => $body,
                 ]
             ];
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
         }
     }
 
@@ -772,7 +772,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                         'body' => $body,
                     ]
                 ];
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             }
         }
     }
@@ -999,7 +999,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                         'body' => $body
                     ];
                 }
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             } // End Mail IF
         } // End Loop
     } // End Array Empty Check
@@ -1136,7 +1136,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
                         'body' => $body
                     ];
                 }
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             } //End Mail IF
 
             // Notification for assigned ticket user
@@ -1452,7 +1452,7 @@ if (isset($_POST['add_ticket_reply'])) {
                     'body' => $body
                 ];
             }
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
 
         }
         //End Mail IF
@@ -1700,7 +1700,7 @@ if (isset($_GET['resolve_ticket'])) {
                 'body' => $body
             ];
         }
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
     }
     //End Mail IF
 
@@ -1794,7 +1794,7 @@ if (isset($_GET['close_ticket'])) {
                 'body' => $body
             ];
         }
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
     }
     //End Mail IF
 
@@ -2103,7 +2103,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         }
 
         // Add to the mail queue
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
 
         // Set the next run date (based on the scheduled date, rather than now, so things keep their schedule)
         $dt_old_next_scheduled_date = new DateTime($old_next_scheduled_date);
@@ -2367,7 +2367,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
     }
 
     // Send
-    $response = addToMailQueue($mysqli, $data);
+    $response = addToMailQueue($data);
 
     // Update ticket reply
     $ticket_reply_note = "Ticket scheduled for $email_datetime " . (boolval($onsite) ? '(onsite).' : '(remote).');
@@ -2519,7 +2519,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     }
 
     // Send email(s)
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Update ticket reply
     $ticket_reply_note = "Ticket schedule cancelled.";

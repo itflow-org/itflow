@@ -5,9 +5,7 @@ DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 
 // PHP Mailer Libs
 require_once "plugins/PHPMailer/src/Exception.php";
-
 require_once "plugins/PHPMailer/src/PHPMailer.php";
-
 require_once "plugins/PHPMailer/src/SMTP.php";
 
 // Initiate PHPMailer
@@ -1029,7 +1027,9 @@ function generateReadablePassword($security_level)
     return $password;
 }
 
-function addToMailQueue($mysqli, $data) {
+function addToMailQueue($data) {
+
+    global $mysqli;
 
     foreach ($data as $email) {
         $from = strval($email['from']);

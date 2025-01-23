@@ -185,7 +185,7 @@ if (isset($_POST['login'])) {
                         'body' => $body
                     ]
                 ];
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             }
 
             // Logging
@@ -262,7 +262,7 @@ if (isset($_POST['login'])) {
                             'body' => $body
                         ]
                     ];
-                    $mail = addToMailQueue($mysqli, $data);
+                    $mail = addToMailQueue($data);
                 }
 
                 // HTML feedback for incorrect 2FA code

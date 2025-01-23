@@ -364,7 +364,7 @@ if (isset($_GET['share_generate_link'])) {
             ]
         ];
 
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
 
     }
 

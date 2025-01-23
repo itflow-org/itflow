@@ -81,7 +81,7 @@ if (isset($_POST['add_user'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
         if ($mail !== true) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");

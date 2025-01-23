@@ -390,7 +390,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         }
 
         // Add to the mail queue
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
 
         // Set the next run date
         if ($frequency == "weekly") {
@@ -514,7 +514,7 @@ if ($config_send_invoice_reminders == 1) {
                 <br><br>
                 Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
-            $mail = addToMailQueue($mysqli, [
+            $mail = addToMailQueue([
                 [
                     'from' => $config_invoice_from_email,
                     'from_name' => $config_invoice_from_name,
@@ -523,7 +523,7 @@ if ($config_send_invoice_reminders == 1) {
                     'subject' => $subject,
                     'body' => $body
                 ]
-                ]);
+            ]);
 
             if ($mail === true) {
                 mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
@@ -647,7 +647,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
         $subject = "Invoice $invoice_prefix$invoice_number";
         $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
-        $mail = addToMailQueue($mysqli, [
+        $mail = addToMailQueue([
             [
                 'from' => $config_invoice_from_email,
                 'from_name' => $config_invoice_from_name,
@@ -694,7 +694,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                 ]
             ];
 
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
         }
 
     } //End if Autosend is on
@@ -792,7 +792,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                             ];
                         }
 
-                        $mail = addToMailQueue($mysqli, $data);
+                        $mail = addToMailQueue($data);
 
                         // Email Logging
                         $email_id = mysqli_insert_id($mysqli);

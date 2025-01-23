@@ -342,7 +342,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
             ];
         }
 
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
         // Email logging
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");

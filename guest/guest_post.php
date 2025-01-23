@@ -58,7 +58,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
                     'body' => $body,
                 ];
 
-            $mail = addToMailQueue($mysqli, $data);
+            $mail = addToMailQueue($data);
         }
 
         $_SESSION['alert_message'] = "Quote Accepted";
@@ -119,7 +119,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
                 'body' => $body,
             ];
 
-            $mail = addToMailQueue($mysqli, $data);
+            $mail = addToMailQueue($data);
         }
 
         $_SESSION['alert_type'] = "danger";

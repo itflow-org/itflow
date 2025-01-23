@@ -187,7 +187,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         ];
     }
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Custom action/notif handler
     customAction('ticket_create', $id);
@@ -249,7 +249,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 ]
             ];
 
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
 
             return true;
         }
@@ -319,7 +319,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                     ]
                 ];
 
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             }
         }
 

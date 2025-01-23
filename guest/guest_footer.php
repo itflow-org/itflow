@@ -21,9 +21,7 @@
   <script src='../plugins/daterangepicker/daterangepicker.js'></script>
   <script src='../plugins/select2/js/select2.min.js'></script>
   <script src='../plugins/inputmask/inputmask.min.js'></script>
-
   <script src="../js/app.js"></script>
-
   <script src="../js/confirm_modal.js"></script>
 
   </body>

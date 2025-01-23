@@ -47,7 +47,7 @@ if (isset($_POST['edit_your_user_details'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     // Photo
@@ -138,7 +138,7 @@ if (isset($_POST['edit_your_user_password'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -267,7 +267,7 @@ if (isset($_POST['disable_2fa'])){
                 'body' => $body
             ]
             ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     // Logging

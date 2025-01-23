@@ -201,7 +201,7 @@ if (isset($_POST['edit_contact'])) {
                 'body' => $body,
             ]
         ];
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
         // Get Email ID for reference
         $email_id = mysqli_insert_id($mysqli);
 

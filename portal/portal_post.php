@@ -60,7 +60,7 @@ if (isset($_POST['add_ticket'])) {
                 'body' => $email_body,
             ]
         ];
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
         }
 
     // Custom action/notif handler
@@ -125,7 +125,7 @@ if (isset($_POST['add_ticket_comment'])) {
                 ]
             ];
 
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
 
         }
 
@@ -628,7 +628,7 @@ if (isset($_GET['stripe_save_card'])) {
             ]
         ];
 
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
     }
 

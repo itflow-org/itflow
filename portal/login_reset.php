@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     'body' => $body
                 ]
             ];
-            $mail = addToMailQueue($mysqli, $data);
+            $mail = addToMailQueue($data);
 
             // Error handling
             if ($mail !== true) {
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 ]
             ];
 
-            $mail = addToMailQueue($mysqli, $data);
+            $mail = addToMailQueue($data);
 
             // Error handling
             if ($mail !== true) {

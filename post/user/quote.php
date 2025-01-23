@@ -502,7 +502,7 @@ if (isset($_GET['email_quote'])) {
             'body' => $body,
         ]
     ];
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Update History
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote', history_quote_id = $quote_id");

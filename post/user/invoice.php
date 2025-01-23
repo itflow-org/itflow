@@ -817,7 +817,7 @@ if (isset($_POST['add_payment'])) {
 
                 // Add email to queue
                 if (!empty($email)) {
-                    addToMailQueue($mysqli, $email_data);
+                    addToMailQueue($email_data);
                 }
 
                 // Get Email ID for reference
@@ -852,7 +852,7 @@ if (isset($_POST['add_payment'])) {
 
                 // Add email to queue
                 if (!empty($email)) {
-                    addToMailQueue($mysqli, $email_data);
+                    addToMailQueue($email_data);
                 }
 
                 // Get Email ID for reference
@@ -1031,7 +1031,7 @@ if (isset($_GET['add_payment_stripe'])) {
                 ];
             }
 
-            $mail = addToMailQueue($mysqli, $data);
+            $mail = addToMailQueue($data);
 
             // Email Logging
             $email_id = mysqli_insert_id($mysqli);
@@ -1326,7 +1326,7 @@ if (isset($_GET['email_invoice'])) {
         ]
     ];
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
@@ -1374,7 +1374,7 @@ if (isset($_GET['email_invoice'])) {
 
     }
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1563,7 +1563,7 @@ if (isset($_GET['force_recurring'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
         if ($mail === true) {
             // Add send history
