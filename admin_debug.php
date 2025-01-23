@@ -9,10 +9,10 @@ require_once "config.php";
 $checks = [];
 
 // Execute the git command to get the latest commit hash
-$commitHash = exec('git log -1 --format=%H');
+$commitHash = shell_exec('git log -1 --format=%H');
 
 // Get branch info
-$gitBranch = exec('git rev-parse --abbrev-ref HEAD');
+$gitBranch = shell_exec('git rev-parse --abbrev-ref HEAD');
 
 // Section: System Information
 $systemInfo = [];

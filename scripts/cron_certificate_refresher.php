@@ -3,11 +3,15 @@
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
+// Ensure we're running from command line
+if (php_sapi_name() !== 'cli') {
+    die("This setup script must be run from the command line.\n");
+}
+
 require_once "../config.php";
 
 // Set Timezone
 require_once "../inc_set_timezone.php";
-
 require_once "../functions.php";
 
 
@@ -17,18 +21,10 @@ $row = mysqli_fetch_array($sql_settings);
 
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
-$config_cron_key = $row['config_cron_key'];
-
-$argv = $_SERVER['argv'];
 
 // Check cron is enabled
 if ($config_enable_cron == 0) {
     exit("Cron: is not enabled -- Quitting..");
-}
-
-// Check Cron Key
-if ( $argv[1] !== $config_cron_key ) {
-    exit("Cron Key invalid  -- Quitting..");
 }
 
 /*

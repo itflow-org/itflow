@@ -10,6 +10,11 @@ $script_start_time = microtime(true); // unComment when Debugging Execution time
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
+// Ensure we're running from command line
+if (php_sapi_name() !== 'cli') {
+    die("This setup script must be run from the command line.\n");
+}
+
 // Get ITFlow config & helper functions
 require_once "../config.php";
 
@@ -33,13 +38,6 @@ $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
     exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
-}
-
-$argv = $_SERVER['argv'];
-
-// Check Cron Key
-if ($argv[1] !== $config_cron_key) {
-    exit("Cron Key invalid  -- Quitting..");
 }
 
 // Get system temp directory
