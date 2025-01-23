@@ -418,7 +418,7 @@ if (isset($_POST['add_telemetry'])) {
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
     <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
     <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
@@ -1249,7 +1249,7 @@ if (isset($_POST['add_telemetry'])) {
 <script src='plugins/select2/js/select2.min.js'></script>
 <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
+<script src="plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- Custom js-->
 <script src="js/app.js"></script>
