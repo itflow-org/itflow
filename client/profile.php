@@ -6,7 +6,7 @@
 
 header("Content-Security-Policy: default-src 'self'");
 
-require_once 'inc_portal.php';
+require_once 'includes/inc_all.php';
 
 ?>
 
@@ -30,7 +30,7 @@ require_once 'inc_portal.php';
     <hr>
     <div class="col-md-6">
         <h4>Password</h4>
-        <form action="portal_post.php" method="post" autocomplete="off">
+        <form action="post.php" method="post" autocomplete="off">
             <div class="form-group">
                 <label>New Password</label>
                 <div class="input-group">
@@ -46,5 +46,5 @@ require_once 'inc_portal.php';
 <?php endif ?>
 
 <?php
-require_once 'portal_footer.php';
+require_once 'includes/footer.php';
 

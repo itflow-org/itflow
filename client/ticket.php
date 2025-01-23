@@ -4,7 +4,7 @@
  * Ticket detail page
  */
 
-require_once "inc_portal.php";
+require_once "includes/inc_all.php";
 
 //Initialize the HTML Purifier to prevent XSS
 require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -91,7 +91,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
                     <?php
                     if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                        <a href="portal_post.php?resolve_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
+                        <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
                     <?php } ?>
                 </h4>
             </div>
@@ -135,7 +135,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         <?php if (empty($ticket_resolved_at)) { ?>
             <!-- Reply -->
 
-            <form action="portal_post.php" enctype="multipart/form-data" method="post">
+            <form action="post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
                 <div class="form-group">
                     <textarea class="form-control tinymce" name="comment" placeholder="Add comments.."></textarea>
@@ -154,11 +154,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <div class="col-6">
                 <div class="row">
                     <div class="col">
-                        <a href="portal_post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
+                        <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
                     </div>
 
                     <div class="col">
-                        <a href="portal_post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-success btn-lg confirm-link"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
+                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>" class="btn btn-success btn-lg confirm-link"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
             <h4>Ticket closed. Please rate your ticket</h4>
 
-            <form action="portal_post.php" method="post">
+            <form action="post.php" method="post">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
 
                 <button type="submit" class="btn btn-primary btn-lg" name="add_ticket_feedback" value="Good" onclick="this.form.submit()">
@@ -282,6 +282,6 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
     header("Location: index.php");
 }
 
-require_once "portal_footer.php";
+require_once "includes/footer.php";
 
 

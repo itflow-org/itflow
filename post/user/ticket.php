@@ -961,7 +961,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
                 // EMAIL
                 $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
                 // Check email valid
                 if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -1758,7 +1758,7 @@ if (isset($_GET['close_ticket'])) {
         // EMAIL
         $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";
             //$body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction. If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-        $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/portal/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$config_base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Check email valid
         if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -2087,7 +2087,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
             $email_subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
-            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/client/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
             $email = [
                 'from' => $config_ticket_from_email,
@@ -2230,7 +2230,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $onsite = intval($_POST['onsite']);
     $schedule = sanitizeInput($_POST['scheduled_date_time']);
     $ticket_link = "ticket.php?ticket_id=$ticket_id";
-    $full_ticket_url = "https://$config_base_url/portal/ticket.php?ticket_id=$ticket_id";
+    $full_ticket_url = "https://$config_base_url/client/ticket.php?ticket_id=$ticket_id";
     $ticket_link_html = "<a href=\"$full_ticket_url\">$ticket_link</a>";
 
     mysqli_query($mysqli,"UPDATE tickets 
@@ -2309,7 +2309,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
                             </div>
                             Your ticket regarding $ticket_subject has been scheduled for $email_datetime.
                             <br><br>
-                            <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
+                            <a href='https://$config_base_url/client/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
                             <br><br>
                             Please do not reply to this email.
                             <br><br>
@@ -2344,13 +2344,13 @@ if (isset($_POST['edit_ticket_schedule'])) {
         </div>
         The ticket regarding $ticket_subject has been scheduled for $email_datetime.
         <br><br>
-        <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
+        <a href='https://$config_base_url/client/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
         <br><br>
         Please do not reply to this email.
         <br><br>
         <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
         <strong>Subject:</strong> $ticket_subject<br>
-        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access the ticket here</a>
+        <strong>Portal:</strong> <a href='https://$config_base_url/client/ticket.php?id=$ticket_id'>Access the ticket here</a>
         <br><br>
         <div class='footer'>
             ~<br>
@@ -2462,7 +2462,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
                             </div>
                             Scheduled work for your ticket regarding $ticket_subject has been cancelled.
                             <br><br>
-                            <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
+                            <a href='https://$config_base_url/client/ticket.php?id=$ticket_id' class='link-button'>Access your ticket here</a>
                             <br><br>
                             Please do not reply to this email.
                             <br><br>
@@ -2496,13 +2496,13 @@ if (isset($_GET['cancel_ticket_schedule'])) {
         </div>
         Scheduled work for the ticket regarding $ticket_subject has been cancelled.
         <br><br>
-        <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
+        <a href='https://$config_base_url/client/ticket.php?id=$ticket_id' class='link-button'>$ticket_link</a>
         <br><br>
         Please do not reply to this email.
         <br><br>
         <strong>Ticket:</strong> $ticket_prefix$ticket_number<br>
         <strong>Subject:</strong> $ticket_subject<br>
-        <strong>Portal:</strong> <a href='https://$config_base_url/portal/ticket.php?id=$ticket_id'>Access the ticket here</a>
+        <strong>Portal:</strong> <a href='https://$config_base_url/client/ticket.php?id=$ticket_id'>Access the ticket here</a>
         <br><br>
         <div class='footer'>
             ~<br>

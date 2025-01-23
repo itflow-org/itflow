@@ -4,7 +4,7 @@
  * New ticket form
  */
 
-require_once 'inc_portal.php';
+require_once 'includes/inc_all.php';
 
 ?>
 
@@ -21,7 +21,7 @@ require_once 'inc_portal.php';
     <h3>Raise a new ticket</h3>
 
     <div class="col-md-8">
-        <form action="portal_post.php" method="post">
+        <form action="post.php" method="post">
 
             <div class="form-group">
                 <label>Subject <strong class="text-danger">*</strong></label>
@@ -58,5 +58,5 @@ require_once 'inc_portal.php';
     </div>
 
 <?php
-require_once 'portal_footer.php';
+require_once 'includes/footer.php';
 

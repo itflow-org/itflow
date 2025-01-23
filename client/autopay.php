@@ -4,10 +4,10 @@
  * Auto-pay configuration for PTC/finance contacts
  */
 
-require_once "inc_portal.php";
+require_once "includes/inc_all.php";
 
 if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-    header("Location: portal_post.php?logout");
+    header("Location: post.php?logout");
     exit();
 }
 
@@ -30,7 +30,7 @@ if ($stripe_client_details) {
 // Stripe not enabled in settings
 if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_secret) {
     echo "Stripe payment error - Stripe is not enabled, please talk to your helpdesk for further information.";
-    include_once 'portal_footer.php';
+    include_once 'includes/footer.php';
     exit();
 }
 
@@ -50,7 +50,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
             <br><br>
 
                 <div class="col-5">
-                    <form action="portal_post.php" method="POST">
+                    <form action="post.php" method="POST">
 
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
@@ -120,7 +120,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 <hr>
                 <b>Actions</b><br>
-                - <a href="portal_post.php?stripe_remove_card&pm=<?php echo $stripe_pm; ?>">Remove saved card</a>
+                - <a href="post.php?stripe_remove_card&pm=<?php echo $stripe_pm; ?>">Remove saved card</a>
 
             <?php } ?>
 
@@ -131,4 +131,4 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
 
 <?php
-require_once "portal_footer.php";
+require_once "includes/footer.php";

@@ -6,7 +6,7 @@
 
 header("Content-Security-Policy: default-src 'self'");
 
-require_once "inc_portal.php";
+require_once "includes/inc_all.php";
 
 
 // Ticket status from GET
@@ -109,5 +109,5 @@ $total_tickets = intval($row['total_tickets']);
     </div>
 </div>
 
-<?php require_once "portal_footer.php";
+<?php require_once "includes/footer.php";
  ?>

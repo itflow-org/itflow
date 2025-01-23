@@ -8,5 +8,5 @@ require_once '../config.php';
 require_once '../get_settings.php';
 require_once '../functions.php';
 require_once 'check_login.php';
-require_once 'portal_functions.php';
-require_once "portal_header.php";
+require_once 'functions.php';
+require_once "header.php";

@@ -87,7 +87,7 @@ header("X-Frame-Options: DENY"); // Legacy
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="profile.php"><i class="fas fa-fw fa-user mr-2"></i>Account</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="portal_post.php?logout"><i class="fas fa-fw fa-sign-out-alt mr-2"></i>Sign out</a>
+                        <a class="dropdown-item" href="post.php?logout"><i class="fas fa-fw fa-sign-out-alt mr-2"></i>Sign out</a>
                     </div>
                 </li>
             </ul>

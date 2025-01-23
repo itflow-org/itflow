@@ -383,7 +383,7 @@ if (isset($_POST['login'])) {
 
                 <?php if($config_client_portal_enable == 1){ ?>
                     <hr>
-                    <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
+                    <h5 class="text-center">Looking for the <a href="client">Client Portal?<a/></h5>
                 <?php } ?>
 
             </form>

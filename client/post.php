@@ -8,7 +8,7 @@ require_once '../config.php';
 require_once '../get_settings.php';
 require_once '../functions.php';
 require_once 'check_login.php';
-require_once 'portal_functions.php';
+require_once 'functions.php';
 
 if (isset($_POST['add_ticket'])) {
 
@@ -174,7 +174,7 @@ if (isset($_POST['add_ticket_comment'])) {
 
     } else {
         // The client does not have access to this ticket
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 }
@@ -203,7 +203,7 @@ if (isset($_POST['add_ticket_feedback'])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     } else {
         // The client does not have access to this ticket
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -332,7 +332,7 @@ if (isset($_POST['edit_profile'])) {
 if (isset($_POST['add_contact'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -379,7 +379,7 @@ if (isset($_POST['add_contact'])) {
 if (isset($_POST['edit_contact'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -432,7 +432,7 @@ if (isset($_POST['edit_contact'])) {
 if (isset($_POST['create_stripe_customer'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -496,7 +496,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     // This page is called by the autopay_setup_stripe.js, it returns a checkout session client secret
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -515,7 +515,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     $client_currency = $client_currency_details['client_currency_code'];
 
     // Define return URL that user is redirected to once payment method is verified by Stripe
-    $return_url = "https://$config_base_url/portal/portal_post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
+    $return_url = "https://$config_base_url/client/post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
     try {
         // Initialize stripe
@@ -544,7 +544,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 if (isset($_GET['stripe_save_card'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
@@ -644,7 +644,7 @@ if (isset($_GET['stripe_save_card'])) {
 if (isset($_GET['stripe_remove_card'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: portal_post.php?logout");
+        header("Location: post.php?logout");
         exit();
     }
 
