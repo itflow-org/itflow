@@ -24,15 +24,17 @@ if (isset($_GET['page'])) {
     $page = 1;
 }
 
-// Order
 if (isset($_GET['order']) && $_GET['order'] == 'ASC') {
     $order = "ASC";
     $disp = "DESC";
-} else {
+}
+
+if (isset($_GET['order']) && $_GET['order'] == 'DESC') {
     $order = "DESC";
     $disp = "ASC";
 }
 
+// Order
 if(isset($order) && $order == "ASC") {
     $disp = "DESC";
     $order_icon = "<i class='fas fa-sort-down'></i>";
