@@ -307,6 +307,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_archived_at = nullable_htmlentities($row['client_archived_at']);
                         $client_is_lead = intval($row['client_lead']);
 
+                        // Abbreviation
+                        if (empty($client_abbreviation)) {
+                            $client_abbreviation = shortenClient($client_name);
+                        }
+
                         // Client Tags
 
                         $client_tag_name_display_array = array();
@@ -382,7 +387,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 <?php } ?>
                                 <div class="mt-1 text-secondary">
-                                    <small><strong>Created: </strong> <?php echo $client_created_at; ?></small>
+                                    <small><strong>Abbreviation: </strong> <?php echo $client_abbreviation; ?></small><br>
+                                    <small><strong>Created: </strong> <?php echo $client_created_at; ?></small><br>
                                 </div>
 
                             </td>
@@ -395,7 +401,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 if (!empty($contact_name)) { ?>
                                     <div class="text-bold">
-                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $contact_name; ?>
+                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="client_contact_details?client_id=<?php echo $client_id ?>&contact_id=<?php echo $contact_id ?>"><?php echo $contact_name; ?></a>
                                     </div>
                                 <?php } else {
                                     echo "-";
