@@ -1,0 +1,2 @@
+# Prevent access to .git, .github, and config.php
+RedirectMatch 404 ^/(\.git|\.github|config\.php)
