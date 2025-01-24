@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $client = intval($row['contact_client_id']);
 
             $token = randomString(156);
-            $url = "https://$config_base_url/portal/login_reset.php?email=$email&token=$token&client=$client";
+            $url = "https://$config_base_url/client/login_reset.php?email=$email&token=$token&client=$client";
             mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = '$token' WHERE user_id = $user_id LIMIT 1");
             mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
 
