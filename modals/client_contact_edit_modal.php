@@ -112,7 +112,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
                                     <select class="form-control select2" name="location">
-                                        <option value="">- Location -</option>
+                                        <option value="">- Select Location -</option>
                                         <?php
 
                                         $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
@@ -152,15 +152,15 @@
                             <?php if ($config_client_portal_enable == 1) { ?>
                                 <div class="authForm">
                                     <div class="form-group">
-                                        <label>Login</label>
+                                        <label>Client Portal</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
                                             </div>
                                             <select class="form-control select2 authMethod" name="auth_method">
-                                                <option value="">- None -</option>
-                                                <option value="local" <?php if ($auth_method == "local") { echo "selected"; } ?>>Local</option>
-                                                <option value="azure" <?php if ($auth_method == "azure") { echo "selected"; } ?>>Azure</option>
+                                                <option value="">- No Access -</option>
+                                                <option value="local" <?php if ($auth_method == "local") { echo "selected"; } ?>>Using Set Password</option>
+                                                <option value="azure" <?php if ($auth_method == "azure") { echo "selected"; } ?>>Using Azure Credentials</option>
                                             </select>
                                         </div>
                                     </div>

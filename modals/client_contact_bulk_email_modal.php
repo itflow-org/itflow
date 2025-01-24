@@ -1,5 +1,5 @@
 <div class="modal" id="bulkSendEmailModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fa fa-fw fa-envelope-open mr-2"></i>Bulk Send Email</h5>
@@ -10,22 +10,26 @@
 
             <div class="modal-body bg-white">
 
-                <div class="form-group">
-                    <select type="text" class="form-control select2" name="mail_from">
-                        <option value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
-                            <?php echo nullable_htmlentities("$config_mail_from_name - $config_mail_from_email"); ?></option>
-                        <option value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
-                            <?php echo nullable_htmlentities("$config_invoice_from_name - $config_invoice_from_email"); ?></option>
-                        <option value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
-                            <?php echo nullable_htmlentities("$config_quote_from_name - $config_quote_from_email"); ?></option>
-                        <option value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>">
-                            <?php echo nullable_htmlentities("$config_ticket_from_name - $config_ticket_from_email"); ?></option>
-                    </select>
-                </div>
+                <label>From Email / Display Name</label>
+                <div class="form-row">
 
-                <div class="form-group">
-                    <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" maxlength="255"
-                        value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
+                    <div class="form-group col-sm-6">
+                        <select type="text" class="form-control select2" name="mail_from">
+                            <option value="<?php echo nullable_htmlentities($config_mail_from_email); ?>">
+                                <?php echo nullable_htmlentities("$config_mail_from_name - $config_mail_from_email"); ?></option>
+                            <option value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>">
+                                <?php echo nullable_htmlentities("$config_invoice_from_name - $config_invoice_from_email"); ?></option>
+                            <option value="<?php echo nullable_htmlentities($config_quote_from_email); ?>">
+                                <?php echo nullable_htmlentities("$config_quote_from_name - $config_quote_from_email"); ?></option>
+                            <option value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>">
+                                <?php echo nullable_htmlentities("$config_ticket_from_name - $config_ticket_from_email"); ?></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <input type="text" class="form-control" name="mail_from_name" placeholder="From Name" maxlength="255"
+                            value="<?php echo nullable_htmlentities($config_mail_from_name); ?>">
+                    </div>
                 </div>
 
                 <div class="form-group">

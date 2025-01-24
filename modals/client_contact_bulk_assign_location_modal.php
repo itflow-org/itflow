@@ -17,7 +17,7 @@
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
                         <select class="form-control select2" name="bulk_location_id">
-                            <option value="">- Location -</option>
+                            <option value="">- Select Location -</option>
                             <?php
 
                             $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");

@@ -75,10 +75,10 @@
                                 <label>Referral</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
                                     <select class="form-control select2" data-tags="true" name="referral">
-                                        <option value="">N/A</option>
+                                        <option value="">- Select Referral -</option>
                                         <?php
 
                                         $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND (category_archived_at > '$client_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");

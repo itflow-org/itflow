@@ -76,10 +76,10 @@
                                 <label>Referral</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-smile-wink"></i></span>
+                                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                                     </div>
                                     <select class="form-control select2" data-tags="true" name="referral">
-                                        <option value="">N/A</option>
+                                        <option value="">- Select Referral -</option>
                                         <?php
 
                                         $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -108,7 +108,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                                    <select class="form-control select2" name="tags[]" multiple>
                                         <?php
 
                                         $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
@@ -194,7 +194,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                                     </div>
                                     <select class="form-control select2" name="country">
-                                        <option value="">- Country -</option>
+                                        <option value="">- Select Country -</option>
                                         <?php foreach($countries_array as $country_name) { ?>
                                             <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
                                         <?php } ?>
@@ -287,7 +287,7 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                                         </div>
                                         <select class="form-control select2" name="currency_code" required>
-                                            <option value="">- Currency -</option>
+                                            <option value="">- Select Currency -</option>
                                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                                 <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
                                             <?php } ?>

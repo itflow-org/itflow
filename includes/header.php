@@ -35,7 +35,7 @@ header("X-Frame-Options: DENY");
     <!-- Custom Style Sheet -->
     <link href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
     <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="plugins/select2-bootstrap4-theme-old/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
     <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
     <link href="plugins/DataTables/datatables.min.css" rel="stylesheet">

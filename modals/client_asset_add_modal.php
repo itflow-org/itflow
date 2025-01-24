@@ -68,7 +68,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
                                     <select class="form-control select2" name="type" required>
-                                        <option value="">- Type -</option>
+                                        <option value="">- Select Type -</option>
                                         <?php foreach($asset_types_array as $asset_type => $asset_icon) { ?>
                                             <option><?php echo $asset_type; ?></option>
                                         <?php } ?>
@@ -132,7 +132,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                                     </div>
                                     <select class="form-control select2" name="network">
-                                        <option value="">- Network -</option>
+                                        <option value="">- Select Network -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
@@ -235,7 +235,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
                                     <select class="form-control select2" name="location">
-                                        <option value="">- Location -</option>
+                                        <option value="">- Select Location -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
@@ -257,7 +257,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
                                     <select class="form-control select2" name="contact">
-                                        <option value="">- Contact -</option>
+                                        <option value="">- Select Contact -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
@@ -280,7 +280,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                                     </div>
                                     <select class="form-control select2" name="status">
-                                        <option value="">- Status -</option>
+                                        <option value="">- Select Status -</option>
                                         <?php foreach($asset_status_array as $asset_status) { ?>
                                             <option><?php echo $asset_status; ?></option>
                                         <?php } ?>
@@ -299,7 +299,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
                                     <select class="form-control select2" name="vendor">
-                                        <option value="">- Vendor -</option>
+                                        <option value="">- Select Vendor -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id AND vendor_template = 0 ORDER BY vendor_name ASC");
