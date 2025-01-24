@@ -88,7 +88,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
             // Manage the saved card
             else { ?>
 
-                <b>Manage saved card details</b>
+                <b>Manage saved payment methods</b>
 
                 <?php
 
@@ -120,7 +120,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 <hr>
                 <b>Actions</b><br>
-                - <a href="post.php?stripe_remove_card&pm=<?php echo $stripe_pm; ?>">Remove saved card</a>
+                - <a href="post.php?stripe_remove_pm&pm=<?php echo $stripe_pm; ?>">Remove saved payment method</a>
 
             <?php } ?>
 

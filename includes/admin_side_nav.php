@@ -146,7 +146,7 @@
                 </li>
 
                 <!-- SETTINGS Section -->
-                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_settings_company.php', 'admin_settings_localization.php', 'admin_settings_theme.php', 'admin_settings_security.php', 'admin_settings_mail.php', 'admin_settings_notification.php', 'admin_settings_default.php', 'admin_settings_invoice.php', 'admin_settings_quote.php', 'admin_settings_online_payment.php', 'admin_settings_project.php', 'admin_settings_ticket.php', 'admin_settings_ai.php', 'admin_settings_integration.php', 'admin_settings_telemetry.php', 'admin_settings_module.php']) ? 'menu-open' : ''); ?>">
+                <li class="nav-item has-treeview mt-2 <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_settings_company.php', 'admin_settings_localization.php', 'admin_settings_theme.php', 'admin_settings_security.php', 'admin_settings_mail.php', 'admin_settings_notification.php', 'admin_settings_default.php', 'admin_settings_invoice.php', 'admin_settings_quote.php', 'admin_settings_online_payment.php', 'admin_settings_online_payment_clients.php', 'admin_settings_project.php', 'admin_settings_ticket.php', 'admin_settings_ai.php', 'admin_settings_integration.php', 'admin_settings_telemetry.php', 'admin_settings_module.php']) ? 'menu-open' : ''); ?>">
                     <a href="#" class="nav-link">
                         <p>
                             SETTINGS
@@ -212,6 +212,12 @@
                             <a href="admin_settings_online_payment.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_online_payment.php' ? 'active' : ''); ?>">
                                 <i class="nav-icon far fa-credit-card"></i>
                                 <p>Online Payment</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="admin_settings_online_payment_clients.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_settings_online_payment_clients.php' ? 'active' : ''); ?>">
+                                <i class="nav-icon far fa-credit-card"></i>
+                                <p>Payment/Stripe Clients</p>
                             </a>
                         </li>
                         <li class="nav-item">

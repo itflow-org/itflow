@@ -29,7 +29,7 @@ $settings = mysqli_fetch_array($sql_settings);
 $client_id = $settings['config_azure_client_id'];
 $client_secret = $settings['config_azure_client_secret'];
 
-$redirect_uri = "https://$config_base_url/portal/login_microsoft.php";
+$redirect_uri = "https://$config_base_url/client/login_microsoft.php";
 
 # https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
 $auth_code_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize";

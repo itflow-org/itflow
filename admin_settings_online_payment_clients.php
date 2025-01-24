@@ -18,6 +18,7 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
                     <th>Client</th>
                     <th>Stripe Customer ID</th>
                     <th>Stripe Payment ID</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -35,6 +36,25 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
                         <td><?php echo "$client_name ($client_id)" ?></td>
                         <td><?php echo $stripe_id; ?></td>
                         <td><?php echo $stripe_pm ?></td>
+                        <td>
+                            <div class="dropdown dropleft text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <?php if (!empty($stripe_pm)) { ?>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?stripe_remove_pm&client_id=<?php echo $client_id ?>&pm=<?php echo $stripe_pm ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-credit-card mr-2"></i>Delete payment method
+                                        </a>
+                                    <?php } else { ?>
+                                        <a data-toggle="tooltip" data-placement="left" title="May result in duplicate customer records in Stripe" class="dropdown-item text-danger confirm-link" href="post.php?stripe_reset_customer&client_id=<?php echo $client_id ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Reset Stripe
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </td>
+
                     </tr>
 
                 <?php } ?>

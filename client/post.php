@@ -633,15 +633,15 @@ if (isset($_GET['stripe_save_card'])) {
     }
 
     // Logging
-    logAction("Stripe", "Update", "$session_contact_name added saved card ($card_info) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
+    logAction("Stripe", "Update", "$session_contact_name saved payment method ($card_info) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
 
     // Redirect
-    $_SESSION['alert_message'] = "Card saved - thank you";
+    $_SESSION['alert_message'] = "Payment method saved - thank you";
     header('Location: autopay.php');
 
 }
 
-if (isset($_GET['stripe_remove_card'])) {
+if (isset($_GET['stripe_remove_pm'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
         header("Location: post.php?logout");
@@ -678,8 +678,8 @@ if (isset($_GET['stripe_remove_card'])) {
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");
     
     // Logging & Redirect
-    logAction("Stripe", "Update", "$session_contact_name deleted saved card (PM: $payment_method)", $session_client_id, $session_client_id);
+    logAction("Stripe", "Update", "$session_contact_name deleted saved Stripe payment method (PM: $payment_method)", $session_client_id, $session_client_id);
 
-    $_SESSION['alert_message'] = "Card removed";
+    $_SESSION['alert_message'] = "Payment method removed";
     header('Location: autopay.php');
 }

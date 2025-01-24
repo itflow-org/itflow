@@ -12,9 +12,6 @@ require_once "includes/inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="alert alert-secondary">Currently, we only integrate with Stripe. Please see <a href="https://forum.itflow.org/d/439-payment-integrations-megathread" target="_blank">this forum post</a>.</div>
-                <br>
-
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_stripe_enable" <?php if ($config_stripe_enable == 1) { echo "checked"; } ?> value="1" id="enableStripeSwitch">
@@ -139,6 +136,8 @@ require_once "includes/inc_all_admin.php";
                     </div>
 
                 </div>
+
+                <div class="alert alert-secondary">Currently, we only integrate with Stripe. Please see <a href="https://forum.itflow.org/d/439-payment-integrations-megathread" target="_blank">this forum post</a>.</div>
 
         </div>
 
