@@ -2,7 +2,7 @@
 
 // Default Column Sortby/Order Filter
 $sort = "invoice_number";
-$order = "ASC";
+$order = "DESC";
 
 require_once "includes/inc_all.php";
 

@@ -804,7 +804,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
                     // Create Stripe payment gateway fee as an expense (if configured)
                     if ($config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
                         $gateway_fee = round($invoice_amount * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
-                        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+                        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$company_currency', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
                     }
 
                     // Notify/log
