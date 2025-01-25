@@ -1,53 +1,67 @@
 # Changelog
 
-All notable changes to ITFlow will be documented in this file.
+This file documents all notable changes made to ITFlow.
 
 ## [25.1]
 
 ### Added / Changed
-- Added ability to save cards in Stripe for automatic invoice payment
-- Page titles now reflect the page name, client selection, company name, ticket info, invoice info etc. for easier multi tab navigation.
-- Admin pages now once again use the new admin role-check
-- Admin roles can now be archived
-- Debug now shows the current git branch
-- Auto-acknowledgement email for email-parsed tickets now contains a guest link
-- Recurring tickets no longer require a contact
-- Stripe online payment setup now prompts you to set the income/expense account
-- New cron/cli scripts are in the scripts subfolder - please update your cron configurations!
-- Moved all modal includes to /modals to tidy root directory
-- Moved most include files to /includes to tidy root directory
-- Moved guest pages to /guest to tidy directory structure
-- Renamed include file pagination.php to filter_footer.php as it is used in conjunction with filter_header.php for page filtering
-- Guest ticket feedback now shows friendly ticket prefix & number, rather than just the ID
-- Individual POST handler logic pages can no longer be accessed directly
-- Added payment deletion on Payments and client Payments Page
-- Added Domains history tracking
-- Added Asset Interface Linking / Connections to determine what interface is connected to what interface port of another asset
-- Added Force Recurring Ticket in more places instead of just recurring tickets
-- Row span and center devices that take up multiple units in a rack
-- Added Tooltips to main nav badge counts to show what its actually counting
-- Changed the Max records per page from 500 to 100 to prevent performance issues
+- Added support for saving cards in Stripe for automatic invoice payments.
+- Page titles now display detailed information (e.g., page name, client selection, company name, ticket and invoice info) for easier multi-tab navigation.
+- Reintroduced the new admin role-check for admin pages.
+- Admin roles can now be archived.
+- Debug mode now shows the current Git branch.
+- The auto-acknowledgment email for email-parsed tickets now includes a guest link.
+- Recurring tickets no longer require a contact.
+- Stripe online payment setup now prompts you to set the income/expense account.
+- New cron/CLI scripts have been moved to the `/scripts` subfolder — remember to update your cron configurations!
+- Moved modal includes to `/modals` to tidy up the root directory.
+- Moved most include files to `/includes` to improve directory structure.
+- Moved guest pages to `/guest` for better organization.
+- Renamed the include file `pagination.php` to `filter_footer.php`, as it is used in conjunction with `filter_header.php` for page filtering.
+- Guest ticket feedback now shows the ticket prefix and number, not just the ID.
+- Individual POST handler logic pages are no longer directly accessible.
+- Added the ability to delete payments on the Payments and Client Payments pages.
+- Implemented domain history tracking.
+- Added Asset Interface Linking/Connections to show what interface is connected to which interface port of another asset.
+- Added Force Recurring Ticket option in more locations, not just for recurring tickets.
+- Implemented row spanning and centered devices that occupy multiple units in a rack.
+- Added tooltips to main navigation badge counts to clarify what is being counted.
+- Reduced max records per page from 500 to 100 to prevent performance issues.
+- Updated several plugins:
+  - `stripe-php` from 10.5.0 to 16.4.0
+  - `Inputmask` from 5.0.8 to 5.0.9
+  - `DataTables` from 2.1.8 to 2.2.1
+  - `pdfmake` from 0.2.8 to 0.2.18
+  - `php-mime-mail-parser` to 9.0.1
+  - `TinyMCE` from 7.5.1 to 7.6.1
+- Removed unused libraries from the vendor folder and moved Stripe to the plugins folder, eliminating the vendor folder.
+- Merged the MFA TOTP functionality files `base32static.php` and `rfc6238.php` into a single file (`totp`) and moved it to the plugins folder.
+- No longer need to pass the DB connection (`$mysqli`) to the `addToMailQueue` function.
+- Disabled HTML Purifier caching.
+- Replaced the `nullable_htmlentities` function with `htmlspecialchars`.
+- Updated filter variable naming.
+- Implemented other minor UI updates, performance optimizations, and directory cleanups.
 
 ### Fixed
-- Fixed ticket edit modal not showing multi-client/no-client projects
-- Fixed asset interface losing DHCP setting
-- Fixed creating / editing recurring expenses causing 500 error due to incorrect var name
-- Fixed tickets created via portal/email not being marked as billable
-- Fixed editing Recurring Expense
-- Fixed a regression TinyMCE Editor not showing when adding or editing ticket templates
+- Fixed an issue where the ticket edit modal didn't show multi-client or no-client projects.
+- Fixed asset interface losing DHCP settings.
+- Fixed a 500 error when creating or editing recurring expenses due to an incorrect variable name.
+- Fixed tickets created via the portal/email not being marked as billable.
+- Fixed issues with editing recurring expenses.
+- Resolved a regression where the TinyMCE editor didn’t display when adding or editing ticket templates.
+- Fixed a TinyMCE license issue.
 
 ### Removed / Deprecated
-- Deprecated the current cron scripts in the root directory - change cron to use the ones in the scripts subfolder instead
+- Deprecated the cron scripts in the root directory. Cron jobs should now use the ones in the `/scripts` subfolder, which no longer require a cron key and must be run via CLI.
 
 ### BREAKING CHANGES
-- Moved Client portal from /portal to /client
-  - Links will be broken on previous emails
-  - Azure Entra ID SSO Redirect URI needs to be changed to /client
-  - Also, you may need to update any other links for example website, support page etc?
-- Moved guest links from / to /guest - Links will be broken on previous emails.
-
+- The client portal has been moved from `/portal` to `/client`:
+  - Links in previous emails will be broken.
+  - The Azure Entra ID SSO Redirect URI needs to be updated to `/client`.
+  - You may need to update other links (e.g., website, support page).
+- Guest links have been moved from `/` to `/guest`. Previous links will be broken.
 
 ## [24.12]
 
 ### Added / Changed
-- First introduced versioned releases!
+- Introduced versioned releases for the first time!
