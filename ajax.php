@@ -9,7 +9,7 @@
 require_once "config.php";
 require_once "functions.php";
 require_once "check_login.php";
-require_once "includes/totp.php";
+require_once "functions/totp.php";
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
