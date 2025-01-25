@@ -447,7 +447,7 @@ if (isset($_POST['create_stripe_customer'])) {
     }
 
     // Include stripe SDK
-    require_once '../plugins/stripe-php-10.5.0/init.php';
+    require_once '../plugins/stripe-php/init.php';
 
     // Get client's StripeID from database (should be none)
     $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT stripe_id FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
@@ -519,7 +519,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 
     try {
         // Initialize stripe
-        require_once '../plugins/stripe-php-10.5.0/init.php';
+        require_once '../plugins/stripe-php/init.php';
         $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
         // Create checkout session (server side)
@@ -567,7 +567,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     try {
         // Initialize stripe
-        require_once '../plugins/stripe-php-10.5.0/init.php';
+        require_once '../plugins/stripe-php/init.php';
         $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
         // Retrieve checkout session
@@ -662,7 +662,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
     try {
         // Initialize stripe
-        require_once '../plugins/stripe-php-10.5.0/init.php';
+        require_once '../plugins/stripe-php/init.php';
         $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
         // Detach PM

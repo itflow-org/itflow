@@ -12,7 +12,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
 }
 
 // Initialize stripe
-require_once '../plugins/stripe-php-10.5.0/init.php';
+require_once '../plugins/stripe-php/init.php';
 
 // Get Stripe vars
 $stripe_vars = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
