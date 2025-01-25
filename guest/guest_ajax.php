@@ -11,7 +11,7 @@ require_once "../config.php";
 // Set Timezone
 require_once "../inc_set_timezone.php";
 require_once "../functions.php";
-require_once "../includes/rfc6238.php";
+require_once "../functions/totp.php";
 
 
 /*
