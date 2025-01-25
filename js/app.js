@@ -40,6 +40,7 @@ tinymce.init({
         toolbar: 'bold italic styles'
     },
     plugins: 'link image lists table code codesample fullscreen autoresize',
+    license_key: 'gpl'
 });
 
 // Initialize TinyMCE
@@ -70,6 +71,7 @@ tinymce.init({
         toolbar: 'bold italic styles'
     },
     plugins: 'link image lists table code codesample fullscreen autoresize',
+    license_key: 'gpl',
     setup: function(editor) {
         var rewordButtonApi;
 
@@ -167,7 +169,7 @@ tinymce.init({
         toolbar: 'bold italic styles'
     },
     plugins: 'link image lists table code fullscreen autoresize',
-
+    license_key: 'gpl'
 });
 
 // Initialize TinyMCE AI
@@ -195,6 +197,7 @@ tinymce.init({
         toolbar: 'bold italic styles'
     },
     plugins: 'link image lists table code codesample fullscreen autoresize',
+    license_key: 'gpl',
     setup: function(editor) {
         var rewordButtonApi;
 
@@ -279,6 +282,7 @@ tinymce.init({
     statusbar: false,
     readonly: false,
     plugins: 'autoresize',
+    license_key: 'gpl',
 });
 
 // DateTime
