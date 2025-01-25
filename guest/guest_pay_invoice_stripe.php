@@ -181,7 +181,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_cs = $_GET['payment_intent_client_secret'];
 
     // Initialize stripe
-    require_once '../vendor/stripe-php-10.5.0/init.php';
+    require_once '../plugins/stripe-php-10.5.0/init.php';
 
     \Stripe\Stripe::setApiKey($config_stripe_secret);
 
