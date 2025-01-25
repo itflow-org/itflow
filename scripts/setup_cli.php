@@ -96,7 +96,7 @@ if (file_exists("../config.php")) {
 }
 
 require_once "../functions.php";
-require_once "../database_version.php";
+require_once "../includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;

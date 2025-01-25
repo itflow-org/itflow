@@ -288,7 +288,7 @@ if (isset($_GET['update_db'])) {
     validateAdminRole(); // Old function
 
     // Get the current version
-    require_once ('database_version.php');
+    require_once ('includes/database_version.php');
 
     // Perform upgrades, if required
     require_once ('database_updates.php');

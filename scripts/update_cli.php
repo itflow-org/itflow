@@ -103,7 +103,7 @@ if (isset($options['update']) || isset($options['force_update'])) {
 
 // If "update_db" is requested
 if (isset($options['update_db'])) {
-    require_once "../database_version.php";
+    require_once "../includes/database_version.php";
 
     $latest_db_version = LATEST_DATABASE_VERSION;
 

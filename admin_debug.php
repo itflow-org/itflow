@@ -1,9 +1,7 @@
 <?php
 
 require_once "includes/inc_all_admin.php";
-
-require_once "database_version.php";
-
+require_once "includes/database_version.php";
 require_once "config.php";
 
 $checks = [];

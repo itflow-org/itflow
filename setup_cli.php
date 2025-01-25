@@ -96,7 +96,7 @@ if (file_exists("config.php")) {
 }
 
 include "functions.php";
-include "database_version.php";
+include "includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
