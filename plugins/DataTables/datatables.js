@@ -4,32 +4,14 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs4/dt-2.1.8
+ *   https://datatables.net/download/#bs4/dt-2.2.1
  *
  * Included libraries:
- *   DataTables 2.1.8
+ *   DataTables 2.2.1
  */
 
-/*! DataTables 2.1.8
+/*! DataTables 2.2.1
  * © SpryMedia Ltd - datatables.net/license
- */
-
-/**
- * @summary     DataTables
- * @description Paginate, search and order HTML tables
- * @version     2.1.8
- * @author      SpryMedia Ltd
- * @contact     www.datatables.net
- * @copyright   SpryMedia Ltd.
- *
- * This source file is free software, available under the following license:
- *   MIT license - https://datatables.net/license
- *
- * This source file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
- *
- * For details please refer to: https://www.datatables.net
  */
 
 (function( factory ) {
@@ -441,7 +423,6 @@
 				thead = $('<thead/>').appendTo($this);
 			}
 			oSettings.nTHead = thead[0];
-			$('tr', thead).addClass(oClasses.thead.row);
 			
 			var tbody = $this.children('tbody');
 			if ( tbody.length === 0 ) {
@@ -456,7 +437,6 @@
 				tfoot = $('<tfoot/>').appendTo($this);
 			}
 			oSettings.nTFoot = tfoot[0];
-			$('tr', tfoot).addClass(oClasses.tfoot.row);
 			
 			// Copy the data index array
 			oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
@@ -539,7 +519,7 @@
 		 *
 		 *  @type string
 		 */
-		builder: "bs4/dt-2.1.8",
+		builder: "bs4/dt-2.2.1",
 	
 	
 		/**
@@ -2173,6 +2153,10 @@
 			var width = _fnColumnsSumWidth(settings, [i], false, false);
 	
 			cols[i].colEl.css('width', width);
+	
+			if (settings.oScroll.sX) {
+				cols[i].colEl.css('min-width', width);
+			}
 		}
 	}
 	
@@ -3240,9 +3224,13 @@
 	
 			// Add the number of cells needed to make up to the number of columns
 			if (row.length === 1) {
-				var cells = $('td, th', row);
+				var cellCount = 0;
+				
+				$('td, th', row).each(function () {
+					cellCount += this.colSpan;
+				});
 	
-				for ( i=cells.length, ien=columns.length ; i<ien ; i++ ) {
+				for ( i=cellCount, ien=columns.length ; i<ien ; i++ ) {
 					$('<th/>')
 						.html( columns[i][titleProp] || '' )
 						.appendTo( row );
@@ -3254,9 +3242,11 @@
 	
 		if (side === 'header') {
 			settings.aoHeader = detected;
+			$('tr', target).addClass(classes.thead.row);
 		}
 		else {
 			settings.aoFooter = detected;
+			$('tr', target).addClass(classes.tfoot.row);
 		}
 	
 		// Every cell needs to be passed through the renderer
@@ -4519,7 +4509,7 @@
 			// So the array reference doesn't break set the results into the
 			// existing array
 			displayRows.length = 0;
-			displayRows.push.apply(displayRows, rows);
+			_fnArrayApply(displayRows, rows);
 		}
 	}
 	
@@ -5247,8 +5237,11 @@
 			// [].find, but it wasn't supported in Chrome until Sept 2015, and DT has 10 year
 			// browser support
 			var firstTr = null;
+			var start = _fnDataSource( settings ) !== 'ssp'
+				? settings._iDisplayStart
+				: 0;
 	
-			for (i=settings._iDisplayStart ; i<settings.aiDisplay.length ; i++) {
+			for (i=start ; i<start + settings.aiDisplay.length ; i++) {
 				var idx = settings.aiDisplay[i];
 				var tr = settings.aoData[idx].nTr;
 	
@@ -5263,7 +5256,7 @@
 					return {
 						idx: _fnVisibleToColumnIndex(settings, vis),
 						width: $(this).outerWidth()
-					}
+					};
 				});
 	
 				// Check against what the colgroup > col is set to and correct if needed
@@ -5273,6 +5266,10 @@
 	
 					if (colWidth !== colSizes[i].width) {
 						colEl.style.width = colSizes[i].width + 'px';
+	
+						if (scroll.sX) {
+							colEl.style.minWidth = colSizes[i].width + 'px';
+						}
 					}
 				}
 			}
@@ -5365,6 +5362,14 @@
 			i, column, columnIdx;
 			
 		var styleWidth = table.style.width;
+		var containerWidth = _fnWrapperWidth(settings);
+	
+		// Don't re-run for the same width as the last time
+		if (containerWidth === settings.containerWidth) {
+			return false;
+		}
+	
+		settings.containerWidth = containerWidth;
 	
 		// If there is no width applied as a CSS style or as an attribute, we assume that
 		// the width is intended to be 100%, which is usually is in CSS, but it is very
@@ -5422,6 +5427,8 @@
 				// browser will collapse it. If this width is smaller than the
 				// width the column requires, then it will have no effect
 				if ( scrollX ) {
+					this.style.minWidth = width;
+	
 					$( this ).append( $('<div/>').css( {
 						width: width,
 						margin: 0,
@@ -5490,15 +5497,15 @@
 	
 			// If there is no width attribute or style, then allow the table to
 			// collapse
-			if ( tmpTable.width() < tableContainer.clientWidth && tableWidthAttr ) {
-				tmpTable.width( tableContainer.clientWidth );
+			if ( tmpTable.outerWidth() < tableContainer.clientWidth && tableWidthAttr ) {
+				tmpTable.outerWidth( tableContainer.clientWidth );
 			}
 		}
 		else if ( scrollY ) {
-			tmpTable.width( tableContainer.clientWidth );
+			tmpTable.outerWidth( tableContainer.clientWidth );
 		}
 		else if ( tableWidthAttr ) {
-			tmpTable.width( tableWidthAttr );
+			tmpTable.outerWidth( tableWidthAttr );
 		}
 	
 		// Get the width of each column in the constructed table
@@ -5531,20 +5538,55 @@
 		}
 	
 		if ( (tableWidthAttr || scrollX) && ! settings._reszEvt ) {
-			var bindResize = function () {
-				$(window).on('resize.DT-'+settings.sInstance, DataTable.util.throttle( function () {
-					if (! settings.bDestroying) {
-						_fnAdjustColumnSizing( settings );
-					}
-				} ) );
-			};
+			var resize = DataTable.util.throttle( function () {
+				var newWidth = _fnWrapperWidth(settings);
 	
-			bindResize();
+				// Don't do it if destroying or the container width is 0
+				if (! settings.bDestroying && newWidth !== 0) {
+					_fnAdjustColumnSizing( settings );
+				}
+			} );
+	
+			// For browsers that support it (~2020 onwards for wide support) we can watch for the
+			// container changing width.
+			if (window.ResizeObserver) {
+				// This is a tricky beast - if the element is visible when `.observe()` is called,
+				// then the callback is immediately run. Which we don't want. If the element isn't
+				// visible, then it isn't run, but we want it to run when it is then made visible.
+				// This flag allows the above to be satisfied.
+				var first = $(settings.nTableWrapper).is(':visible');
+	
+				settings.resizeObserver = new ResizeObserver(function (e) {
+					if (first) {
+						first = false;
+					}
+					else {
+						resize();
+					}
+				});
+	
+				settings.resizeObserver.observe(settings.nTableWrapper);
+			}
+			else {
+				// For old browsers, the best we can do is listen for a window resize
+				$(window).on('resize.DT-'+settings.sInstance, resize);
+			}
 	
 			settings._reszEvt = true;
 		}
 	}
 	
+	/**
+	 * Get the width of the DataTables wrapper element
+	 *
+	 * @param {*} settings DataTables settings object
+	 * @returns Width
+	 */
+	function _fnWrapperWidth(settings) {
+		return $(settings.nTableWrapper).is(':visible')
+			? $(settings.nTableWrapper).width()
+			: 0;
+	}
 	
 	/**
 	 * Get the maximum strlen for each data column
@@ -6153,15 +6195,26 @@
 			return;
 		}
 	
+		// Sort state saving uses [[idx, order]] structure.
+		var sorting = [];
+		_fnSortResolve(settings, sorting, settings.aaSorting );
+	
 		/* Store the interesting variables */
+		var columns = settings.aoColumns;
 		var state = {
 			time:    +new Date(),
 			start:   settings._iDisplayStart,
 			length:  settings._iDisplayLength,
-			order:   $.extend( true, [], settings.aaSorting ),
+			order:   sorting.map(function (sort) {
+				// If a column name is available, use it
+				return columns[sort[0]] && columns[sort[0]].sName
+					? [ columns[sort[0]].sName, sort[1] ]
+					: sort.slice();
+			} ),
 			search:  $.extend({}, settings.oPreviousSearch),
 			columns: settings.aoColumns.map( function ( col, i ) {
 				return {
+					name: col.sName,
 					visible: col.bVisible,
 					search: $.extend({}, settings.aoPreSearchCols[i])
 				};
@@ -6209,6 +6262,8 @@
 	function _fnImplementState ( settings, s, callback) {
 		var i, ien;
 		var columns = settings.aoColumns;
+		var currentNames = _pluck(settings.aoColumns, 'sName');
+	
 		settings._bLoadingState = true;
 	
 		// When StateRestore was introduced the state could now be implemented at any time
@@ -6233,13 +6288,6 @@
 		// cancelling of loading by returning false
 		var abStateLoad = _fnCallbackFire( settings, 'aoStateLoadParams', 'stateLoadParams', [settings, s] );
 		if ( abStateLoad.indexOf(false) !== -1 ) {
-			settings._bLoadingState = false;
-			callback();
-			return;
-		}
-	
-		// Number of columns have changed - all bets are off, no restore of settings
-		if ( s.columns && columns.length !== s.columns.length ) {
 			settings._bLoadingState = false;
 			callback();
 			return;
@@ -6278,10 +6326,23 @@
 		if ( s.order !== undefined ) {
 			settings.aaSorting = [];
 			$.each( s.order, function ( i, col ) {
-				settings.aaSorting.push( col[0] >= columns.length ?
-					[ 0, col[1] ] :
-					col
-				);
+				var set = [ col[0], col[1] ];
+	
+				// A column name was stored and should be used for restore
+				if (typeof col[0] === 'string') {
+					var idx = currentNames.indexOf(col[0]);
+	
+					// Find the name from the current list of column names, or fallback to index 0
+					set[0] = idx >= 0
+						? idx
+						: 0;
+				}
+				else if (set[0] >= columns.length) {
+					// If a column name, but it is out of bounds, set to 0
+					set[0] = 0;
+				}
+	
+				settings.aaSorting.push(set);
 			} );
 		}
 	
@@ -6292,30 +6353,64 @@
 	
 		// Columns
 		if ( s.columns ) {
-			for ( i=0, ien=s.columns.length ; i<ien ; i++ ) {
-				var col = s.columns[i];
+			var set = s.columns;
+			var incoming = _pluck(s.columns, 'name');
 	
-				// Visibility
-				if ( col.visible !== undefined ) {
-					// If the api is defined, the table has been initialised so we need to use it rather than internal settings
-					if (api) {
-						// Don't redraw the columns on every iteration of this loop, we will do this at the end instead
-						api.column(i).visible(col.visible, false);
+			// Check if it is a 2.2 style state object with a `name` property for the columns, and if
+			// the name was defined. If so, then create a new array that will map the state object
+			// given, to the current columns (don't bother if they are already matching tho).
+			if (incoming.join('').length && incoming.join('') !== currentNames.join('')) {
+				set = [];
+	
+				// For each column, try to find the name in the incoming array
+				for (i=0 ; i<currentNames.length ; i++) {
+					if (currentNames[i] != '') {
+						var idx = incoming.indexOf(currentNames[i]);
+	
+						if (idx >= 0) {
+							set.push(s.columns[idx]);
+						}
+						else {
+							// No matching column name in the state's columns, so this might be a new
+							// column and thus can't have a state already.
+							set.push({});
+						}
 					}
 					else {
-						columns[i].bVisible = col.visible;
+						// If no name, but other columns did have a name, then there is no knowing
+						// where this one came from originally so it can't be restored.
+						set.push({});
+					}
+				}
+			}
+	
+			// If the number of columns to restore is different from current, then all bets are off.
+			if (set.length === columns.length) {
+				for ( i=0, ien=set.length ; i<ien ; i++ ) {
+					var col = set[i];
+	
+					// Visibility
+					if ( col.visible !== undefined ) {
+						// If the api is defined, the table has been initialised so we need to use it rather than internal settings
+						if (api) {
+							// Don't redraw the columns on every iteration of this loop, we will do this at the end instead
+							api.column(i).visible(col.visible, false);
+						}
+						else {
+							columns[i].bVisible = col.visible;
+						}
+					}
+	
+					// Search
+					if ( col.search !== undefined ) {
+						$.extend( settings.aoPreSearchCols[i], col.search );
 					}
 				}
 	
-				// Search
-				if ( col.search !== undefined ) {
-					$.extend( settings.aoPreSearchCols[i], col.search );
+				// If the api is defined then we need to adjust the columns once the visibility has been changed
+				if (api) {
+					api.columns.adjust();
 				}
-			}
-			
-			// If the api is defined then we need to adjust the columns once the visibility has been changed
-			if (api) {
-				api.columns.adjust();
 			}
 		}
 	
@@ -6633,6 +6728,30 @@
 			replace(/_ENTRIES-TOTAL_/g, settings.api.i18n('entries', '', vis) );
 	}
 	
+	/**
+	 * Add elements to an array as quickly as possible, but stack stafe.
+	 *
+	 * @param {*} arr Array to add the data to
+	 * @param {*} data Data array that is to be added
+	 * @returns 
+	 */
+	function _fnArrayApply(arr, data) {
+		if (! data) {
+			return;
+		}
+	
+		// Chrome can throw a max stack error if apply is called with
+		// too large an array, but apply is faster.
+		if (data.length < 10000) {
+			arr.push.apply(arr, data);
+		}
+		else {
+			for (i=0 ; i<data.length ; i++) {
+				arr.push(data[i]);
+			}
+		}
+	}
+	
 	
 	
 	/**
@@ -6825,18 +6944,7 @@
 			: settings;
 	
 		// Initial data
-		if ( data ) {
-			// Chrome can throw a max stack error if apply is called with
-			// too large an array, but apply is faster.
-			if (data.length < 10000) {
-				this.push.apply(this, data);
-			}
-			else {
-				for (i=0 ; i<data.length ; i++) {
-					this.push(data[i]);
-				}
-			}
-		}
+		_fnArrayApply(this, data);
 	
 		// selector
 		this.selector = {
@@ -7217,7 +7325,7 @@
 			selector.forEach(function (sel) {
 				var inner = __table_selector(sel, a);
 	
-				result.push.apply(result, inner);
+				_fnArrayApply(result, inner);
 			});
 	
 			return result.filter( function (item) {
@@ -8071,7 +8179,7 @@
 		// Return an Api.rows() extended instance, so rows().nodes() etc can be used
 		var modRows = this.rows( -1 );
 		modRows.pop();
-		modRows.push.apply(modRows, newRows);
+		_fnArrayApply(modRows, newRows);
 	
 		return modRows;
 	} );
@@ -8584,7 +8692,10 @@
 				.map( function () {
 					return _fnColumnsFromHeader( this ); // `nodes` is column index complete and in order
 				} )
-				.toArray();
+				.toArray()
+				.sort(function (a, b) {
+					return a - b;
+				});
 	
 			if ( jqResult.length || ! s.nodeName ) {
 				return jqResult;
@@ -8838,6 +8949,10 @@
 	
 	_api_register( 'columns.adjust()', function () {
 		return this.iterator( 'table', function ( settings ) {
+			// Force a column sizing to happen with a manual call - otherwise it can skip
+			// if the size hasn't changed
+			settings.containerWidth = -1;
+	
 			_fnAdjustColumnSizing( settings );
 		}, 1 );
 	} );
@@ -9403,6 +9518,10 @@
 		} );
 	} );
 	
+	// Can be assigned in DateTable.use() - note luxon and moment vars are in helpers.js
+	var __bootstrap;
+	var __foundation;
+	
 	/**
 	 * Set the libraries that DataTables uses, or the global objects.
 	 * Note that the arguments can be either way around (legacy support)
@@ -9436,6 +9555,14 @@
 				case 'moment':
 					return __moment;
 	
+				case 'bootstrap':
+					// Use local if set, otherwise try window, which could be undefined
+					return __bootstrap || window.bootstrap;
+	
+				case 'foundation':
+					// Ditto
+					return __foundation || window.Foundation;
+	
 				default:
 					return null;
 			}
@@ -9445,7 +9572,7 @@
 		if (type === 'lib' || type === 'jq' || (module && module.fn && module.fn.jquery)) {
 			$ = module;
 		}
-		else if (type == 'win' || (module && module.document)) {
+		else if (type === 'win' || (module && module.document)) {
 			window = module;
 			document = module.document;
 		}
@@ -9457,6 +9584,14 @@
 		}
 		else if (type === 'moment' || (module && module.isMoment)) {
 			__moment = module;
+		}
+		else if (type === 'bootstrap' || (module && module.Modal && module.Modal.NAME === 'modal'))
+		{
+			// This is currently for BS5 only. BS3/4 attach to jQuery, so no need to use `.use()`
+			__bootstrap = module;
+		}
+		else if (type === 'foundation' || (module && module.Reveal)) {
+			__foundation = module;
 		}
 	}
 	
@@ -9748,6 +9883,11 @@
 				new _Api( settings ).columns().visible( true );
 			}
 	
+			// Container width change listener
+			if (settings.resizeObserver) {
+				settings.resizeObserver.disconnect();
+			}
+	
 			// Blitz all `DT` namespaced events (these are internal events, the
 			// lowercase, `dt` events are user subscribed and they are responsible
 			// for removing them
@@ -9866,7 +10006,7 @@
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "2.1.8";
+	DataTable.version = "2.2.1";
 	
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -11969,7 +12109,13 @@
 		deferLoading: null,
 	
 		/** Allow auto type detection */
-		typeDetect: true
+		typeDetect: true,
+	
+		/** ResizeObserver for the container div */
+		resizeObserver: null,
+	
+		/** Keep a record of the last size of the container, so we can skip duplicates */
+		containerWidth: -1
 	};
 	
 	/**
@@ -12111,8 +12257,8 @@
 	
 	
 	var __mlWarning = false;
-	var __luxon; // Can be assigned in DateTeble.use()
-	var __moment; // Can be assigned in DateTeble.use()
+	var __luxon; // Can be assigned in DateTable.use()
+	var __moment; // Can be assigned in DateTable.use()
 	
 	/**
 	 * 
@@ -12148,7 +12294,7 @@
 				return null;
 			}
 	
-			dt.setLocale(locale);
+			dt = dt.setLocale(locale);
 		}
 		else if (! format) {
 			// No format given, must be ISO
@@ -12531,6 +12677,13 @@
 		});
 	}
 	
+	var __diacriticHtmlSort = function (a, b) {
+		a = _stripHtml(a);
+		b = _stripHtml(b);
+	
+		return __diacriticSort(a, b);
+	}
+	
 	//
 	// Built in data types
 	//
@@ -12595,6 +12748,31 @@
 					a.replace ?
 						_stripHtml(a).trim().toLowerCase() :
 						a+'';
+			}
+		},
+		search: _filterString(true, true)
+	});
+	
+	
+	DataTable.type('html-utf8', {
+		detect: {
+			allOf: function ( d ) {
+				return _empty( d ) || (typeof d === 'string' && d.indexOf('<') !== -1);
+			},
+			oneOf: function ( d ) {
+				// At least one data point must contain a `<` and a non-ASCII character
+				// eslint-disable-next-line compat/compat
+				return navigator.languages &&
+					! _empty( d ) &&
+					typeof d === 'string' &&
+					d.indexOf('<') !== -1 &&
+					typeof d === 'string' && d.match(/[^\x00-\x7F]/);
+			}
+		},
+		order: {
+			asc: __diacriticHtmlSort,
+			desc: function (a, b) {
+				return __diacriticHtmlSort(a, b) * -1;
 			}
 		},
 		search: _filterString(true, true)
@@ -12811,6 +12989,7 @@
 					var indexes = columns.indexes();
 					var sortDirs = columns.orderable(true).flatten();
 					var orderedColumns = _pluck(sorting, 'col');
+					var tabIndex = settings.iTabIndex;
 	
 					cell
 						.removeClass(
@@ -12875,8 +13054,13 @@
 	
 					// Make the headers tab-able for keyboard navigation
 					if (orderable) {
-						cell.find('.dt-column-title').attr('role', 'button');
-						cell.attr('tabindex', 0)
+						var orderSpan = cell.find('.dt-column-order');
+						
+						orderSpan.attr('role', 'button');
+	
+						if (tabIndex !== -1) {
+							orderSpan.attr('tabindex', tabIndex);
+						}
 					}
 				} );
 			}
@@ -12890,7 +13074,7 @@
 					.addClass(items.className || classes.row)
 					.appendTo( container );
 	
-				$.each( items, function (key, val) {
+				DataTable.ext.renderer.layout._forLayoutRow(items, function (key, val) {
 					if (key === 'id' || key === 'className') {
 						return;
 					}
@@ -12921,7 +13105,31 @@
 						})
 						.append( val.contents )
 						.appendTo( row );
-				} );
+				});
+			},
+	
+			// Shared for use by the styling frameworks
+			_forLayoutRow: function (items, fn) {
+				// As we are inserting dom elements, we need start / end in a
+				// specific order, this function is used for sorting the layout
+				// keys.
+				var layoutEnum = function (x) {
+					switch (x) {
+						case '': return 0;
+						case 'start': return 1;
+						case 'end': return 2;
+						default: return 3;
+					}
+				};
+	
+				Object
+					.keys(items)
+					.sort(function (a, b) {
+						return layoutEnum(a) - layoutEnum(b);
+					})
+					.forEach(function (key) {
+						fn(key, items[key]);
+					});
 			}
 		}
 	} );
@@ -13273,7 +13481,7 @@
 				'data-dt-idx': button,
 				'tabIndex': btnInfo.disabled
 					? -1
-					: settings.iTabIndex
+					: settings.iTabIndex && btn.clicker[0].nodeName.toLowerCase() !== 'span'
 						? settings.iTabIndex
 						: null, // `0` doesn't need a tabIndex since it is the default
 			});
@@ -13307,12 +13515,16 @@
 	
 		// Responsive - check if the buttons are over two lines based on the
 		// height of the buttons and the container.
-		if (
-			buttonEls.length && // any buttons
-			opts.buttons > 1 && // prevent infinite
-			$(host).height() >= ($(buttonEls[0]).outerHeight() * 2) - 10
-		) {
-			_pagingDraw(settings, host, $.extend({}, opts, { buttons: opts.buttons - 2 }));
+		if (buttonEls.length) {
+			var outerHeight = $(buttonEls[0]).outerHeight();
+		
+			if (
+				opts.buttons > 1 && // prevent infinite
+				outerHeight > 0 && // will be 0 if hidden
+				$(host).height() >= (outerHeight * 2) - 10
+			) {
+				_pagingDraw(settings, host, $.extend({}, opts, { buttons: opts.buttons - 2 }));
+			}
 		}
 	}
 	
@@ -13336,7 +13548,6 @@
 		switch ( button ) {
 			case 'ellipsis':
 				o.display = '&#x2026;';
-				o.disabled = true;
 				break;
 	
 			case 'first':
@@ -13523,7 +13734,7 @@
 	
 		// Save text node content for macro updating
 		var textNodes = [];
-		Array.from(div.find('label')[0].childNodes).forEach(function (el) {
+		Array.prototype.slice.call(div.find('label')[0].childNodes).forEach(function (el) {
 			if (el.nodeType === Node.TEXT_NODE) {
 				textNodes.push({
 					el: el,
@@ -13541,7 +13752,6 @@
 	
 		// Next, the select itself, along with the options
 		var select = $('<select/>', {
-			'name':          tableId+'_length',
 			'aria-controls': tableId,
 			'class':         classes.select
 		} );
