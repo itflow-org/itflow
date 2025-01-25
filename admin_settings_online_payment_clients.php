@@ -12,13 +12,13 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
 
         <div class="card-body">
 
-            <table class="table tabled-bordered border border-dark">
+            <table class="table border border-dark">
                 <thead class="thead-dark">
                 <tr>
                     <th>Client</th>
                     <th>Stripe Customer ID</th>
                     <th>Stripe Payment ID</th>
-                    <th>Action</th>
+                    <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -26,9 +26,9 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
                 <?php
                 while ($row = mysqli_fetch_array($stripe_clients_sql)) {
                     $client_id = intval($row['client_id']);
-                    $client_name = sanitizeInput($row['client_name']);
-                    $stripe_id = sanitizeInput($row['stripe_id']);
-                    $stripe_pm = sanitizeInput($row['stripe_pm']);
+                    $client_name = nullable_htmlentities($row['client_name']);
+                    $stripe_id = nullable_htmlentities($row['stripe_id']);
+                    $stripe_pm = nullable_htmlentities($row['stripe_pm']);
 
                     ?>
 
@@ -68,4 +68,3 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
 
 <?php
 require_once "includes/footer.php";
-
