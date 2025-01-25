@@ -9,7 +9,7 @@
 require_once "config.php";
 require_once "functions.php";
 require_once "check_login.php";
-require_once "rfc6238.php";
+require_once "includes/rfc6238.php";
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
@@ -87,7 +87,7 @@ if (isset($_GET['domain_get_json_details'])) {
     // Get domain history
     $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
     $history_html = "<table class='table table-sm table-striped border table-hover'>";
-    $history_html .= "<thead class='thead-dark'><tr><th>Date</th><th>Column</th><th>Old Value</th><th>New Value</th></tr></thead><tbody>";
+    $history_html .= "<thead class='thead-dark'><tr><th>Date</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody>";
     while ($row = mysqli_fetch_array($history_sql)) {
         // Fetch data from the query and create table rows
         $history_html .= "<tr>";

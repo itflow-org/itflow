@@ -413,20 +413,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <!-- Include script to get TOTP code via the login ID -->
 <script src="js/logins_show_otp_via_id.js"></script>
-
 <!-- Include script to generate readable passwords for login entries -->
 <script src="js/logins_generate_password.js"></script>
-
 <script src="js/bulk_actions.js"></script>
 
 <?php
 
 require_once "modals/client_login_add_modal.php";
-
 require_once "modals/share_modal.php";
-
 require_once "modals/client_login_import_modal.php";
-
 require_once "modals/client_login_export_modal.php";
-
 require_once "includes/footer.php";

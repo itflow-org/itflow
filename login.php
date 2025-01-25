@@ -21,7 +21,7 @@ if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'o
 
 require_once "functions.php";
 
-require_once "rfc6238.php";
+require_once "includes/rfc6238.php";
 
 
 // IP & User Agent for logging
