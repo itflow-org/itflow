@@ -52,7 +52,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
             <center>
                 <?php
 
-                require_once 'functions/totp.php';
+                require_once 'plugins/totp/totp.php';
 
                 //Generate a base32 Key
                 $secretkey = key32gen();

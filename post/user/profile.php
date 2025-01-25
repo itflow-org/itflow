@@ -193,7 +193,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
 if (isset($_POST['verify'])) {
 
-    require_once "functions/totp.php";
+    require_once "plugins/totp/totp.php";
 
     $currentcode = intval($_POST['code']);  //code to validate, for example received from device
 
