@@ -13,4 +13,4 @@ require_once "admin_side_nav.php";
 require_once "inc_wrapper.php";
 require_once "inc_alert_feedback.php";
 require_once "filter_header.php";
-require_once "includes/app_version.php";
+require_once "app_version.php";
