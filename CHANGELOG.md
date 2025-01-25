@@ -2,7 +2,7 @@
 
 This file documents all notable changes made to ITFlow.
 
-## [25.1]
+## [25.01]
 
 ### Added / Changed
 - Added support for saving cards in Stripe for automatic invoice payments.
