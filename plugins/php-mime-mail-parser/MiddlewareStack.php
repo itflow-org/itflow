@@ -29,7 +29,7 @@ class MiddlewareStack
      *
      * @param Middleware $middleware
      */
-    public function __construct(MiddleWareContracts $middleware = null)
+    public function __construct(?MiddleWareContracts $middleware = null)
     {
         $this->middleware = $middleware;
     }
