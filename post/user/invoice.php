@@ -953,7 +953,7 @@ if (isset($_GET['add_payment_stripe'])) {
     }
 
     // Initialize Stripe
-    require_once __DIR__ . '/../../vendor/stripe-php-10.5.0/init.php';
+    require_once __DIR__ . '/../../plugins/stripe-php-10.5.0/init.php';
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     $balance_to_pay = round($invoice_amount, 2);
