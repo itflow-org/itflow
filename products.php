@@ -4,7 +4,7 @@
 $sort = "product_name";
 $order = "ASC";
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Perms
 enforceUserPermission('module_sales');
@@ -12,11 +12,11 @@ enforceUserPermission('module_sales');
 // Category Filter
 if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
-    $category = intval($_GET['category']);
+    $category_filter = intval($_GET['category']);
 } else {
     // Default - any
     $category_query = '';
-    $category = '';
+    $category_filter = '';
 }
 
 //Rebuild URL
@@ -70,7 +70,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
-                                <option value="" <?php if ($category == "") { echo "selected"; } ?>>- All Categories -</option>
+                                <option value="">- All Categories -</option>
 
                                 <?php
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $category_id = intval($row['category_id']);
                                     $category_name = nullable_htmlentities($row['category_name']);
                                 ?>
-                                    <option <?php if ($category == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -247,7 +247,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "product_edit_modal.php";
+                            require "modals/product_edit_modal.php";
 
 
                         }
@@ -257,9 +257,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "product_bulk_edit_category_modal.php"; ?>
+                <?php require_once "modals/product_bulk_edit_category_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
  ?>
         </div>
     </div>
@@ -268,7 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "product_add_modal.php";
-require_once "product_export_modal.php";
+require_once "modals/product_add_modal.php";
+require_once "modals/product_export_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

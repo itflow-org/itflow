@@ -4,7 +4,7 @@
 $sort = "scheduled_ticket_subject";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -145,6 +145,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                            data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
+                                        </a>
                                         <?php
                                         if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
@@ -166,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         </div>
 
-        <?php require_once 'pagination.php';
+        <?php require_once 'includes/filter_footer.php';
  ?>
 
     </div>
@@ -176,9 +180,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "recurring_ticket_add_modal.php";
+require_once "modals/recurring_ticket_add_modal.php";
 
-require_once "recurring_ticket_edit_modal.php";
+require_once "modals/recurring_ticket_edit_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

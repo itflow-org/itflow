@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client files/uploads
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['upload_files'])) {
     
     enforceUserPermission('module_support', 2);    

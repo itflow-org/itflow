@@ -155,7 +155,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $data = [];
     if ($config_ticket_client_general_notifications == 1) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/portal/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/client/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
         $data[] = [
             'from' => $config_ticket_from_email,
             'from_name' => $config_ticket_from_name,
@@ -187,7 +187,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         ];
     }
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Custom action/notif handler
     customAction('ticket_create', $id);
@@ -249,7 +249,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 ]
             ];
 
-            addToMailQueue($mysqli, $data);
+            addToMailQueue($data);
 
             return true;
         }
@@ -319,7 +319,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                     ]
                 ];
 
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             }
         }
 

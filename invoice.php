@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else { 
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 if (isset($_GET['invoice_id'])) {
@@ -22,7 +22,7 @@ if (isset($_GET['invoice_id'])) {
 
     if (mysqli_num_rows($sql) == 0) {
         echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
-        require_once "footer.php";
+        require_once "includes/footer.php";
 
         exit();
     }
@@ -58,6 +58,10 @@ if (isset($_GET['invoice_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
+
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['invoice_prefix']}{$row['invoice_number']}";
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -141,6 +145,17 @@ if (isset($_GET['invoice_id'])) {
         $json_products = json_encode($products);
     }
 
+    // Payment with saved card (auto-pay)
+    if ($config_stripe_enable) {
+        $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
+        if ($stripe_client_details) {
+            $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
+            $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+        }
+    }
+
+
+
     ?>
 
     <ol class="breadcrumb d-print-none">
@@ -193,6 +208,11 @@ if (isset($_GET['invoice_id'])) {
                         <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
                             <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                         </a>
+                        <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                            <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
+                            </a>
+                        <?php } ?>
                     <?php } ?>
                     
                     <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
@@ -231,7 +251,7 @@ if (isset($_GET['invoice_id'])) {
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
+                            <a class="dropdown-item" target="_blank" href="guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
                             <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
@@ -387,7 +407,7 @@ if (isset($_GET['invoice_id'])) {
                                     </tr>
                                     <?php
                                     if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") {
-                                        require "item_edit_modal.php";
+                                        require "modals/item_edit_modal.php";
                                     }
                                 }
                                 ?>
@@ -660,21 +680,21 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
     <?php
-    include_once "invoice_add_ticket_modal.php";
+    include_once "modals/invoice_add_ticket_modal.php";
 
-    include_once "invoice_payment_add_modal.php";
+    include_once "modals/invoice_payment_add_modal.php";
 
-    include_once "invoice_copy_modal.php";
+    include_once "modals/invoice_copy_modal.php";
 
-    include_once "invoice_recurring_add_modal.php";
+    include_once "modals/invoice_recurring_add_modal.php";
 
-    include_once "invoice_edit_modal.php";
+    include_once "modals/invoice_edit_modal.php";
 
-    include_once "invoice_note_modal.php";
+    include_once "modals/invoice_note_modal.php";
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 
 ?>

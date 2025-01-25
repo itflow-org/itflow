@@ -1,4 +1,6 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 $name = preg_replace("(^https?://)", "", sanitizeInput($_POST['name']));
 $description = sanitizeInput($_POST['description']);
 $registrar = intval($_POST['registrar']);

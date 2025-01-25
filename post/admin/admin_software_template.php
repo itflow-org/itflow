@@ -2,6 +2,8 @@
 
 // Software/License Templates
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 // Import shared code from software-side tickets as we reuse functions
 require_once 'post/user/software.php';
 

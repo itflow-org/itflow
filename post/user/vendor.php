@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for vendors
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_vendor_from_template'])) {
 
     // GET POST Data

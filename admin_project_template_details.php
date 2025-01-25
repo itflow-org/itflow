@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 
 if (isset($_GET['project_template_id'])) {
@@ -222,12 +222,12 @@ if (isset($_GET['project_template_id'])) {
 
 <?php
 
-require_once "admin_project_template_edit_modal.php";
-require_once "admin_project_template_ticket_template_add_modal.php";
+require_once "modals/admin_project_template_edit_modal.php";
+require_once "modals/admin_project_template_ticket_template_add_modal.php";
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

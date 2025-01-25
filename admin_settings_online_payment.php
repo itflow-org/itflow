@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 ?>
 
@@ -12,9 +12,6 @@ require_once "inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="alert alert-secondary">Currently, we only integrate with Stripe. Please see <a href="https://forum.itflow.org/d/439-payment-integrations-megathread" target="_blank">this forum post</a>.</div>
-                <br>
-
                 <div class="form-group">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" name="config_stripe_enable" <?php if ($config_stripe_enable == 1) { echo "checked"; } ?> value="1" id="enableStripeSwitch">
@@ -25,7 +22,7 @@ require_once "inc_all_admin.php";
                 <div class="<?php if ($config_stripe_enable == 0) { echo "d-none"; } ?>">
 
                     <div class="form-group">
-                        <label>Publishable key</label>
+                        <label>Publishable key <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
@@ -35,7 +32,7 @@ require_once "inc_all_admin.php";
                     </div>
 
                     <div class="form-group">
-                        <label>Secret key</label>
+                        <label>Secret key <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
@@ -45,7 +42,7 @@ require_once "inc_all_admin.php";
                     </div>
 
                     <div class="form-group">
-                        <label>Expense / Income Account</label>
+                        <label>Account <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
@@ -140,6 +137,8 @@ require_once "inc_all_admin.php";
 
                 </div>
 
+                <div class="alert alert-secondary">Currently, we only integrate with Stripe. Please see <a href="https://forum.itflow.org/d/439-payment-integrations-megathread" target="_blank">this forum post</a>.</div>
+
         </div>
 
         <hr>
@@ -151,5 +150,5 @@ require_once "inc_all_admin.php";
     </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";
 

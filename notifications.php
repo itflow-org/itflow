@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 
 $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON notification_client_id = client_id WHERE notification_dismissed_at IS NULL AND notification_user_id = $session_user_id ORDER BY notification_id DESC");
@@ -72,5 +72,5 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications LEFT JOIN clients ON n
     </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";
 

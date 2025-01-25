@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for user profiles (tech/agent)
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['edit_your_user_details'])) {
 
     // CSRF Check
@@ -45,7 +47,7 @@ if (isset($_POST['edit_your_user_details'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     // Photo
@@ -136,7 +138,7 @@ if (isset($_POST['edit_your_user_password'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -191,7 +193,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
 if (isset($_POST['verify'])) {
 
-    require_once "rfc6238.php";
+    require_once "plugins/totp/totp.php";
 
     $currentcode = intval($_POST['code']);  //code to validate, for example received from device
 
@@ -265,7 +267,7 @@ if (isset($_POST['disable_2fa'])){
                 'body' => $body
             ]
             ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
     }
 
     // Logging

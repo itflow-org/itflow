@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else {
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 // Perms
@@ -14,6 +14,7 @@ enforceUserPermission('module_support');
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
+$purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
@@ -115,6 +116,10 @@ if (isset($_GET['ticket_id'])) {
         } else {
             $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
         }
+
+        // Tab Title // No Sanitizing needed
+        $page_title = $row['ticket_subject'];
+        $tab_title = "{$row['ticket_prefix']}{$row['ticket_number']}";
 
         $contact_id = intval($row['contact_id']);
         $contact_name = nullable_htmlentities($row['contact_name']);
@@ -810,7 +815,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php
 
-                    require "ticket_reply_edit_modal.php";
+                    require "modals/ticket_reply_edit_modal.php";
                 }
 
                 ?>
@@ -961,7 +966,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php
 
-                            require "task_edit_modal.php";
+                            require "modals/task_edit_modal.php";
                         } ?>
                     </table>
                 </div>
@@ -1154,35 +1159,26 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "ticket_edit_modal.php";
-
-            require_once "ticket_assign_modal.php";
-
-            require_once "ticket_edit_contact_modal.php";
-
-            require_once "ticket_edit_asset_modal.php";
-
-            require_once "ticket_edit_vendor_modal.php";
-
-            require_once "ticket_add_watcher_modal.php";
-
-            require_once "ticket_edit_priority_modal.php";
-
-            require_once "ticket_change_client_modal.php";
-
-            require_once "ticket_edit_schedule_modal.php";
-
-            require_once "ticket_merge_modal.php";
+            require_once "modals/ticket_edit_modal.php";
+            require_once "modals/ticket_assign_modal.php";
+            require_once "modals/ticket_edit_contact_modal.php";
+            require_once "modals/ticket_edit_asset_modal.php";
+            require_once "modals/ticket_edit_vendor_modal.php";
+            require_once "modals/ticket_add_watcher_modal.php";
+            require_once "modals/ticket_edit_priority_modal.php";
+            require_once "modals/ticket_change_client_modal.php";
+            require_once "modals/ticket_edit_schedule_modal.php";
+            require_once "modals/ticket_merge_modal.php";
         }
 
         if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
-            require_once "ticket_edit_billable_modal.php";
-            require_once "ticket_invoice_add_modal.php";
+            require_once "modals/ticket_edit_billable_modal.php";
+            require_once "modals/ticket_invoice_add_modal.php";
         }
     }
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

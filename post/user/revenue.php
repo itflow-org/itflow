@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for revenue
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_revenue'])) {
 
     enforceUserPermission('module_sales', 2);

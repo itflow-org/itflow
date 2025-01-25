@@ -3,7 +3,7 @@
 $sort = "transfer_date";
 $order = "DESC";
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Perms
 enforceUserPermission('module_financial');
@@ -11,21 +11,21 @@ enforceUserPermission('module_financial');
 // Account Transfer From Filter
 if (isset($_GET['account_from']) & !empty($_GET['account_from'])) {
     $account_from_query = 'AND (expense_account_id = ' . intval($_GET['account_from']) . ')';
-    $account_from = intval($_GET['account_from']);
+    $account_from_filter = intval($_GET['account_from']);
 } else {
     // Default - any
     $account_from_query = '';
-    $account_from = '';
+    $account_from_filter = '';
 }
 
 // Account Transfer To Filter
 if (isset($_GET['account_to']) & !empty($_GET['account_to'])) {
     $account_to_query = 'AND (revenue_account_id = ' . intval($_GET['account_to']) . ')';
-    $account_to = intval($_GET['account_to']);
+    $account_to_filter = intval($_GET['account_to']);
 } else {
     // Default - any
     $account_to_query = '';
-    $account_to = '';
+    $account_to_filter = '';
 }
 
 
@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || isset($_GET['account_from']) || isset($_GET['account_to']) ) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" || $account_from_filter || $account_to_filter ) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -103,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Account From</label>
                                 <select class="form-control select2" name="account_from" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account_from == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                    <option value="">- All Accounts -</option>
 
                                     <?php
                                     $sql_accounts_from_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = nullable_htmlentities($row['account_name']);
                                     ?>
-                                        <option <?php if ($account_from == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_from_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Account To</label>
                                 <select class="form-control select2" name="account_to" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account_to == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                    <option value="">- All Accounts -</option>
 
                                     <?php
                                     $sql_accounts_to_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = nullable_htmlentities($row['account_name']);
                                     ?>
-                                        <option <?php if ($account_to == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_to_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -253,7 +253,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                        require "transfer_edit_modal.php";
+                        require "modals/transfer_edit_modal.php";
 
 
                     }
@@ -263,13 +263,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
  ?>
         </div>
     </div>
 
 <?php
-require_once "transfer_add_modal.php";
+require_once "modals/transfer_add_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

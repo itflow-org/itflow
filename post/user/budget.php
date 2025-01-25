@@ -4,6 +4,9 @@
  * ITFlow - GET/POST request handler for budget
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+
 if (isset($_POST['save_budget'])) {
 
     enforceUserPermission('module_financial', 2);

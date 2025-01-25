@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else { 
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 if (isset($_GET['recurring_id'])) {
@@ -62,6 +62,10 @@ if (isset($_GET['recurring_id'])) {
     }
     $recurring_payment_id = intval($row['recurring_payment_id']);
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['recurring_prefix']}{$row['recurring_number']}";
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -133,7 +137,7 @@ if (isset($_GET['recurring_id'])) {
                         <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_id; ?>">
                             <i class="fas fa-fw fa-redo-alt mr-2"></i>Create AutoPay
                         </a>
-                        <?php require_once "recurring_payment_add_modal.php"; ?>
+                        <?php require_once "modals/recurring_payment_add_modal.php"; ?>
 
                     <?php } ?>
                 </div>
@@ -314,7 +318,7 @@ if (isset($_GET['recurring_id'])) {
 
                                     <?php
 
-                                    require "item_edit_modal.php";
+                                    require "modals/item_edit_modal.php";
 
 
                                     }
@@ -470,13 +474,13 @@ if (isset($_GET['recurring_id'])) {
 
     <?php
 
-    require_once "recurring_invoice_edit_modal.php";
+    require_once "modals/recurring_invoice_edit_modal.php";
 
-    require_once "recurring_invoice_note_modal.php";
+    require_once "modals/recurring_invoice_note_modal.php";
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 
 ?>

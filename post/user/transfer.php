@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for transfers (accounting)
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_transfer'])) {
 
     enforceUserPermission('module_financial', 2);

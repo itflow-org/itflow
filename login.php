@@ -21,7 +21,7 @@ if ($config_https_only && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'o
 
 require_once "functions.php";
 
-require_once "rfc6238.php";
+require_once "plugins/totp/totp.php";
 
 
 // IP & User Agent for logging
@@ -185,7 +185,7 @@ if (isset($_POST['login'])) {
                         'body' => $body
                     ]
                 ];
-                addToMailQueue($mysqli, $data);
+                addToMailQueue($data);
             }
 
             // Logging
@@ -262,7 +262,7 @@ if (isset($_POST['login'])) {
                             'body' => $body
                         ]
                     ];
-                    $mail = addToMailQueue($mysqli, $data);
+                    $mail = addToMailQueue($data);
                 }
 
                 // HTML feedback for incorrect 2FA code
@@ -315,7 +315,7 @@ if (isset($_POST['login'])) {
     <?php } ?>
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
 
 </head>
 <body class="hold-transition login-page">
@@ -333,7 +333,7 @@ if (isset($_POST['login'])) {
     <div class="card">
         <div class="card-body login-card-body">
 
-            <?php if(!empty($config_login_message)){ ?>
+            <?php if (!empty($config_login_message)){ ?>
             <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
             <?php } ?>
 
@@ -383,7 +383,7 @@ if (isset($_POST['login'])) {
 
                 <?php if($config_client_portal_enable == 1){ ?>
                     <hr>
-                    <h5 class="text-center">Looking for the <a href="portal">Client Portal?<a/></h5>
+                    <h5 class="text-center">Looking for the <a href="client">Client Portal?<a/></h5>
                 <?php } ?>
 
             </form>
@@ -401,7 +401,7 @@ if (isset($_POST['login'])) {
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
+<script src="plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- <script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script> -->
 

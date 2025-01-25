@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client contacts
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_contact'])) {
 
     enforceUserPermission('module_client', 2);
@@ -180,13 +182,13 @@ if (isset($_POST['edit_contact'])) {
         if ($auth_method == 'azure') {
             $password_info = "Login with your Microsoft (Azure AD) account.";
         } elseif (empty($_POST['contact_password'])) {
-            $password_info = "Request a password reset at https://$config_base_url/portal/login_reset.php";
+            $password_info = "Request a password reset at https://$config_base_url/client/login_reset.php";
         } else {
             $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
         }
 
         $subject = "Your new $company_name portal account";
-        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/portal/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "Hello $name,<br><br>$company_name has created a support portal account for you. <br><br>Username: $email<br>Password: $password_info<br><br>Login URL: https://$config_base_url/client/<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
         // Queue Mail
         $data = [
@@ -199,7 +201,7 @@ if (isset($_POST['edit_contact'])) {
                 'body' => $body,
             ]
         ];
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
         // Get Email ID for reference
         $email_id = mysqli_insert_id($mysqli);
 

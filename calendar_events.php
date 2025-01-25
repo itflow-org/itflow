@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 
 if (isset($_GET['calendar_id'])) {
@@ -41,7 +41,7 @@ if (isset($_GET['calendar_id'])) {
                         <button type="button" class="btn btn-link btn-sm float-right" data-toggle="modal" data-target="#editCalendarModal<?php echo $calendar_id; ?>"><i class="fas fa-fw fa-pencil-alt text-secondary"></i></button>
                     </div>
                     <?php
-                        require "calendar_edit_modal.php";
+                        require "modals/calendar_edit_modal.php";
                     }
                     ?>
                 </form>
@@ -69,9 +69,9 @@ if (isset($_GET['calendar_id'])) {
 
 <?php
 
-require_once "calendar_event_add_modal.php";
+require_once "modals/calendar_event_add_modal.php";
 
-require_once "calendar_add_modal.php";
+require_once "modals/calendar_add_modal.php";
 
 
 //loop through IDs and create a modal for each
@@ -89,12 +89,12 @@ while ($row = mysqli_fetch_array($sql)) {
     $calendar_color = nullable_htmlentities($row['calendar_color']);
     $client_id = intval($row['event_client_id']);
 
-    require "calendar_event_edit_modal.php";
+    require "modals/calendar_event_edit_modal.php";
 }
 
 ?>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
 ?>
 
 <script src='plugins/fullcalendar/dist/index.global.js'></script>

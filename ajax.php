@@ -7,13 +7,9 @@
  */
 
 require_once "config.php";
-
 require_once "functions.php";
-
 require_once "check_login.php";
-
-require_once "rfc6238.php";
-
+require_once "plugins/totp/totp.php";
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
@@ -71,7 +67,7 @@ if (isset($_GET['certificate_get_json_details'])) {
  * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
  */
 if (isset($_GET['domain_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $domain_id = intval($_GET['domain_id']);
     $client_id = intval($_GET['client_id']);
@@ -87,6 +83,24 @@ if (isset($_GET['domain_get_json_details'])) {
     while ($row = mysqli_fetch_array($vendor_sql)) {
         $response['vendors'][] = $row;
     }
+
+    // Get domain history
+    $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
+    $history_html = "<table class='table table-sm table-striped border table-hover'>";
+    $history_html .= "<thead class='thead-dark'><tr><th>Date</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody>";
+    while ($row = mysqli_fetch_array($history_sql)) {
+        // Fetch data from the query and create table rows
+        $history_html .= "<tr>";
+        $history_html .= "<td>" . htmlspecialchars(date('Y-m-d', strtotime($row['domain_history_modified_at']))) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_column']) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_old_value']) . "</td>";
+        $history_html .= "<td>" . htmlspecialchars($row['domain_history_new_value']) . "</td>";
+        $history_html .= "</tr>";
+    }
+    $history_html .= "</tbody></table>";
+
+    // Return the HTML content to JavaScript
+    $response['history'] = $history_html;
 
     echo json_encode($response);
 }
@@ -306,10 +320,10 @@ if (isset($_GET['share_generate_link'])) {
 
     // Return URL
     if ($item_type == "Login") {
-        $url = "https://$config_base_url/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
+        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
     }
     else {
-        $url = "https://$config_base_url/guest_view_item.php?id=$share_id&key=$item_key";
+        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
@@ -346,7 +360,7 @@ if (isset($_GET['share_generate_link'])) {
             ]
         ];
 
-        addToMailQueue($mysqli, $data);
+        addToMailQueue($data);
 
     }
 

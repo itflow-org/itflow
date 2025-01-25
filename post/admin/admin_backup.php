@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for DB / master key backup
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_GET['download_database'])) {
 
     validateCSRFToken($_GET['csrf_token']);

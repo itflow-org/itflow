@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for vendor contacts
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_vendor_contact'])) {
 
     enforceUserPermission('module_client', 2);

@@ -1,4 +1,6 @@
 <?php
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 $date = sanitizeInput($_POST['date']);
 $source = sanitizeInput($_POST['source']);
 $destination = sanitizeInput($_POST['destination']);

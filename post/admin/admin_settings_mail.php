@@ -1,5 +1,6 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_mail_smtp_settings'])) {
 
@@ -104,7 +105,7 @@ if (isset($_POST['test_email_smtp'])) {
             'body' => $body
         ]
     ];
-    $mail = addToMailQueue($mysqli, $data);
+    $mail = addToMailQueue($data);
 
     if ($mail === true) {
         $_SESSION['alert_message'] = "Test email queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";

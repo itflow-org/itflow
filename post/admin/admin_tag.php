@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for tagging
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_tag'])) {
 
     require_once 'post/admin/admin_tag_model.php';

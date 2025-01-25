@@ -4,7 +4,7 @@
 $sort = "payment_date";
 $order = "DESC";
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Perms
 enforceUserPermission('module_financial');
@@ -12,21 +12,21 @@ enforceUserPermission('module_financial');
 // Payment Method Filter
 if (isset($_GET['method']) & !empty($_GET['method'])) {
     $payment_method_query = "AND (payment_method  = '" . sanitizeInput($_GET['method']) . "')";
-    $method = nullable_htmlentities($_GET['method']);
+    $method_filter = nullable_htmlentities($_GET['method']);
 } else {
     // Default - any
     $payment_method_query = '';
-    $method = '';
+    $method_filter = '';
 }
 
 // Account Filter
 if (isset($_GET['account']) & !empty($_GET['account'])) {
     $account_query = 'AND (payment_account_id = ' . intval($_GET['account']) . ')';
-    $account = intval($_GET['account']);
+    $account_filter = intval($_GET['account']);
 } else {
     // Default - any
     $account_query = '';
-    $account = '';
+    $account_filter = '';
 }
 
 //Rebuild URL
@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-2">
                         <div class="form-group">
                             <select class="form-control select2" name="account" onchange="this.form.submit()">
-                                <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                <option value="">- All Accounts -</option>
 
                                 <?php
                                 $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $account_id = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']);
                                 ?>
-                                    <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -89,14 +89,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="form-group">
                             <select class="form-control select2" name="method" onchange="this.form.submit()">
-                                <option value="" <?php if ($method == "") { echo "selected"; } ?>>- All Payment Methods -</option>
+                                <option value="">- All Payment Methods -</option>
 
                                 <?php
                                 $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method FROM payments ORDER BY payment_method ASC");
                                 while ($row = mysqli_fetch_array($sql_payment_methods_filter)) {
                                     $payment_method = nullable_htmlentities($row['payment_method']);
                                 ?>
-                                    <option <?php if ($method == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
+                                    <option <?php if ($method_filter == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -183,6 +183,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -194,6 +195,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $invoice_number = intval($row['invoice_number']);
                         $invoice_status = nullable_htmlentities($row['invoice_status']);
                         $invoice_date = nullable_htmlentities($row['invoice_date']);
+                        $payment_id = intval($row['payment_id']);
                         $payment_date = nullable_htmlentities($row['payment_date']);
                         $payment_method = nullable_htmlentities($row['payment_method']);
                         $payment_amount = floatval($row['payment_amount']);
@@ -225,17 +227,33 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $payment_method; ?></td>
                             <td><?php echo $payment_reference_display; ?></td>
                             <td><?php echo "$account_archived_display$account_name"; ?></td>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_payment=<?php echo $payment_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
 
-                    <?php } ?>
+                    <?php 
+                    
+                    } 
+
+                    ?>
 
                     </tbody>
                 </table>
             </div>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
  ?>
         </div>
     </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
  ?>

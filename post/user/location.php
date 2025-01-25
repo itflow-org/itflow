@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for client physical locations/sites
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if(isset($_POST['add_location'])){
 
     enforceUserPermission('module_client', 2);

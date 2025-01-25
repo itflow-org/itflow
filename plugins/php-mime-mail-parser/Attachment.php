@@ -241,7 +241,7 @@ class Attachment
             case Parser::ATTACHMENT_RANDOM_FILENAME:
                 $fileInfo = pathinfo($this->getFilename());
                 $extension  = empty($fileInfo['extension']) ? '' : '.'.$fileInfo['extension'];
-                $attachment_path = $attach_dir.uniqid().$extension;
+                $attachment_path = $attach_dir.bin2hex(random_bytes(16)).$extension;
                 break;
             case Parser::ATTACHMENT_DUPLICATE_THROW:
             case Parser::ATTACHMENT_DUPLICATE_SUFFIX:

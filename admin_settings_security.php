@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 ?>
 
@@ -44,7 +44,7 @@ require_once "inc_all_admin.php";
             </div>
 
             <div class="form-group">
-                <label>Log retention <small class="text-secondary">(The amount of days before audit logs are deleted during nightly cron)</small></label>
+                <label>Log retention <small class="text-secondary">(The amount of days before app/audit/auth logs are deleted during nightly cron)</small></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
@@ -62,5 +62,5 @@ require_once "inc_all_admin.php";
 </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";
 

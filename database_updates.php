@@ -2404,12 +2404,71 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.7.5') {
-    //     // Insert queries here required to update to DB version 1.7.6
+    if (CURRENT_DATABASE_VERSION == '1.7.5') {
+        mysqli_query($mysqli, "CREATE TABLE `client_stripe` (`client_id` INT(11) NOT NULL, `stripe_id` VARCHAR(255) NOT NULL, `stripe_pm` varchar(255) NULL) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci; ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.6'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.6') {
+        // Create a field to show connected interface of a foreign asset
+        mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` ADD `interface_connected_asset_interface` INT(11) NOT NULL DEFAULT 0 AFTER `interface_network_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.7'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.7') {
+        // Domain history
+        mysqli_query($mysqli, "CREATE TABLE `domain_history` (`domain_history_id` INT(11) NOT NULL AUTO_INCREMENT , `domain_history_column` VARCHAR(200) NOT NULL , `domain_history_old_value` TEXT NOT NULL , `domain_history_new_value` TEXT NOT NULL , `domain_history_domain_id` INT(11) NOT NULL , `domain_history_modified_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`domain_history_id`)) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.8'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.7.8') {
+
+        // Use a seperate table for Interface connections / links. This will make it easier to manage.
+        $createInterfaceLinksTable = "
+            CREATE TABLE IF NOT EXISTS `asset_interface_links` (
+                `interface_link_id` INT AUTO_INCREMENT PRIMARY KEY,
+                `interface_a_id` INT NOT NULL,
+                `interface_b_id` INT NOT NULL,
+                `interface_link_type` VARCHAR(100) NULL,
+                `interface_link_status` VARCHAR(50) NULL,
+                `interface_link_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `interface_link_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+                
+                CONSTRAINT `fk_interface_a`
+                    FOREIGN KEY (`interface_a_id`)
+                    REFERENCES `asset_interfaces` (`interface_id`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+
+                CONSTRAINT `fk_interface_b`
+                    FOREIGN KEY (`interface_b_id`)
+                    REFERENCES `asset_interfaces` (`interface_id`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ";
+        mysqli_query($mysqli, $createInterfaceLinksTable) or die(mysqli_error($mysqli));
+
+        // Drop the old column from asset_interfaces if it exists
+        $dropConnectedColumn = "
+            ALTER TABLE `asset_interfaces`
+            DROP COLUMN IF EXISTS `interface_connected_asset_interface`
+        ";
+        mysqli_query($mysqli, $dropConnectedColumn) or die(mysqli_error($mysqli));
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.7.9') {
+    //     // Insert queries here required to update to DB version 1.8.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.0'");
     // }
 
 } else {
     // Up-to-date
 }
+

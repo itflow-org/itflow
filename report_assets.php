@@ -4,7 +4,7 @@
 $sort = "asset_name";
 $order = "ASC";
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
 // Perms
 enforceUserPermission('module_support');
@@ -597,9 +597,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "client_asset_edit_modal.php";
+                            require "modals/client_asset_edit_modal.php";
 
-                            require "client_asset_transfer_modal.php";
+                            require "modals/client_asset_transfer_modal.php";
 
                         }
 
@@ -608,9 +608,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "client_asset_bulk_edit_status_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_edit_status_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php"; ?>
+            <?php require_once "includes/filter_footer.php"; ?>
         </div>
     </div>
 
@@ -618,5 +618,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

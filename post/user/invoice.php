@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for invoices & payments
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_invoice'])) {
 
     require_once 'post/user/invoice_model.php';
@@ -799,7 +801,7 @@ if (isset($_POST['add_payment'])) {
             if ($email_receipt == 1) {
 
                 $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received your payment in full for the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+                $body = "Hello $contact_name,<br><br>We have received your payment in full for the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
                 // Queue Mail
                 $email = [
@@ -813,14 +815,17 @@ if (isset($_POST['add_payment'])) {
 
                 $email_data[] = $email;
 
+                // Add email to queue
+                if (!empty($email)) {
+                    addToMailQueue($email_data);
+                }
+
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
 
                 // Email Logging
-
-                $_SESSION['alert_message'] = "Email queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
-
-                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Email Receipt Queued', history_invoice_id = $invoice_id");
+                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
+                logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
 
             }
 
@@ -831,7 +836,7 @@ if (isset($_POST['add_payment'])) {
             if ($email_receipt == 1) {
 
                 $subject = "Partial Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br>Invoice Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+                $body = "Hello $contact_name,<br><br>We have received partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br>Invoice Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
                 // Queue Mail
                 $email = [
@@ -845,24 +850,20 @@ if (isset($_POST['add_payment'])) {
 
                 $email_data[] = $email;
 
+                // Add email to queue
+                if (!empty($email)) {
+                    addToMailQueue($email_data);
+                }
+
                 // Get Email ID for reference
                 $email_id = mysqli_insert_id($mysqli);
 
                 // Email Logging
-
-                $_SESSION['alert_message'] = "Test email queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
-
                 mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-
                 logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
 
             }
 
-        }
-
-        // Add emails to queue
-        if (!empty($email)) {
-            addToMailQueue($mysqli, $email_data);
         }
 
         //Update Invoice Status
@@ -880,6 +881,193 @@ if (isset($_POST['add_payment'])) {
 
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
+}
+
+if (isset($_GET['add_payment_stripe'])) {
+
+    enforceUserPermission('module_sales', 2);
+    validateCSRFToken($_GET['csrf_token']);
+
+    $invoice_id = intval($_GET['invoice_id']);
+
+    // Get invoice details
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+            LEFT JOIN clients ON invoice_client_id = client_id
+            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+            WHERE invoice_id = $invoice_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $client_id = intval($row['client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone']));
+    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
+    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile']));
+
+    // Get ITFlow company details
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+    $company_country = sanitizeInput($row['company_country']);
+    $company_address = sanitizeInput($row['company_address']);
+    $company_city = sanitizeInput($row['company_city']);
+    $company_state = sanitizeInput($row['company_state']);
+    $company_zip = sanitizeInput($row['company_zip']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_email = sanitizeInput($row['company_email']);
+    $company_website = sanitizeInput($row['company_website']);
+
+    // Sanitize Config vars from get_settings.php
+    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
+    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+
+    // Get Client Stripe details
+    $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
+    $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
+    $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+
+    // Sanity checks
+    if (!$config_stripe_enable || !$stripe_id || !$stripe_pm) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Stripe not enabled or no client card saved";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Invalid invoice state (draft/partial/paid/not billable)";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    } elseif ($invoice_amount == 0) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Invalid invoice amount";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    // Initialize Stripe
+    require_once __DIR__ . '/../../plugins/stripe-php/init.php';
+    $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+    $balance_to_pay = round($invoice_amount, 2);
+    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+
+    // Create a payment intent
+    try {
+        $payment_intent = $stripe->paymentIntents->create([
+            'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
+            'currency' => $invoice_currency_code,
+            'customer' => $stripe_id,
+            'payment_method' => $stripe_pm,
+            'off_session' => true,
+            'confirm' => true,
+            'description' => $pi_description,
+            'metadata' => [
+                'itflow_client_id' => $client_id,
+                'itflow_client_name' => $client_name,
+                'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+                'itflow_invoice_id' => $invoice_id,
+            ]
+        ]);
+
+        // Get details from PI
+        $pi_id = sanitizeInput($payment_intent->id);
+        $pi_date = date('Y-m-d', $payment_intent->created);
+        $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
+        $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+        $pi_livemode = $payment_intent->livemode;
+
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
+        logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
+    }
+
+    if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+
+        // Update Invoice Status
+        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+
+        // Add Payment to History
+        mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $config_stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)', history_invoice_id = $invoice_id");
+
+        // Email receipt
+        if (!empty($config_smtp_host)) {
+            $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+            $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+            // Queue Mail
+            $data = [
+                [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ]
+            ];
+
+            // Email the internal notification address too
+            if (!empty($config_invoice_paid_notification_email)) {
+                $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
+                $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                $data[] = [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $config_invoice_paid_notification_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ];
+            }
+
+            $mail = addToMailQueue($data);
+
+            // Email Logging
+            $email_id = mysqli_insert_id($mysqli);
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
+            logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
+        }
+
+        // Log info
+        $extended_log_desc = '';
+        if (!$pi_livemode) {
+            $extended_log_desc = '(DEV MODE)';
+        }
+
+        // Create Stripe payment gateway fee as an expense (if configured)
+        if ($config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
+            $gateway_fee = round($invoice_amount * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+            mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+        }
+
+        // Notify/log
+        appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
+        logAction("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+        customAction('invoice_pay', $invoice_id);
+
+        $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    } else {
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
+        logAction("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Payment failed";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
 }
 
 if (isset($_POST['add_bulk_payment'])) {
@@ -958,7 +1146,7 @@ if (isset($_POST['add_bulk_payment'])) {
         mysqli_query($mysqli, $add_history_query);
 
         // Add to Email Body Invoice Portion
-        $email_body_invoices .= "<br>Invoice <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a> - Outstanding Amount: " . numfmt_format_currency($currency_format, $invoice_balance, $currency_code) . " - Payment Applied: " . numfmt_format_currency($currency_format, $payment_amount, $currency_code) . " - New Balance: " . numfmt_format_currency($currency_format, $remaining_invoice_balance, $currency_code);
+        $email_body_invoices .= "<br>Invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a> - Outstanding Amount: " . numfmt_format_currency($currency_format, $invoice_balance, $currency_code) . " - Payment Applied: " . numfmt_format_currency($currency_format, $payment_amount, $currency_code) . " - New Balance: " . numfmt_format_currency($currency_format, $remaining_invoice_balance, $currency_code);
 
         customAction('invoice_pay', $invoice_id);
 
@@ -1120,10 +1308,10 @@ if (isset($_GET['email_invoice'])) {
 
     if ($invoice_status == 'Paid') {
         $subject = "Invoice $invoice_prefix$invoice_number Receipt";
-        $body = "Hello $contact_name,<br><br>Please click on the link below to see your invoice regarding \"$invoice_scope\" marked <b>paid</b>.<br><br><a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>Invoice Link</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>Please click on the link below to see your invoice regarding \"$invoice_scope\" marked <b>paid</b>.<br><br><a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>Invoice Link</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
     } else {
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>Please view the details of your invoice regarding \"$invoice_scope\" below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>Please view the details of your invoice regarding \"$invoice_scope\" below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
     }
 
     // Queue Mail
@@ -1138,7 +1326,7 @@ if (isset($_GET['email_invoice'])) {
         ]
     ];
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
@@ -1186,7 +1374,7 @@ if (isset($_GET['email_invoice'])) {
 
     }
 
-    addToMailQueue($mysqli, $data);
+    addToMailQueue($data);
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1362,7 +1550,7 @@ if (isset($_GET['force_recurring'])) {
         // Email to client
 
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: $$invoice_amount<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$company_phone";
 
 
         $data = [
@@ -1375,7 +1563,7 @@ if (isset($_GET['force_recurring'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
         if ($mail === true) {
             // Add send history

@@ -2,9 +2,9 @@
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
-    require_once "inc_all_client.php";
+    require_once "includes/inc_all_client.php";
 } else { 
-    require_once "inc_all.php";
+    require_once "includes/inc_all.php";
 }
 
 if (isset($_GET['quote_id'])) {
@@ -22,7 +22,7 @@ if (isset($_GET['quote_id'])) {
 
     if (mysqli_num_rows($sql) == 0) {
         echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
-        require_once "footer.php";
+        require_once "includes/footer.php";
 
         exit();
     }
@@ -58,6 +58,10 @@ if (isset($_GET['quote_id'])) {
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
     }
+
+    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    $tab_title = $row['client_name'];
+    $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -191,7 +195,7 @@ if (isset($_GET['quote_id'])) {
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
+                            <a class="dropdown-item" target="_blank" href="guest/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 3) { ?>
@@ -363,7 +367,7 @@ if (isset($_GET['quote_id'])) {
                                     <?php
 
                                         if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
-                                            require "item_edit_modal.php";
+                                            require "modals/item_edit_modal.php";
                                         }
                                     }
 
@@ -528,16 +532,16 @@ if (isset($_GET['quote_id'])) {
     </div>
 
 <?php
-    require_once "quote_edit_modal.php";
+    require_once "modals/quote_edit_modal.php";
 
-    require_once "quote_to_invoice_modal.php";
+    require_once "modals/quote_to_invoice_modal.php";
 
-    require_once "quote_copy_modal.php";
+    require_once "modals/quote_copy_modal.php";
 
-    require_once "quote_note_modal.php";
+    require_once "modals/quote_note_modal.php";
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 
 ?>

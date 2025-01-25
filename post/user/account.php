@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for account(s) (accounting related)
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_account'])) {
     enforceUserPermission('module_financial', 2);
     validateCSRFToken($_POST['csrf_token']);

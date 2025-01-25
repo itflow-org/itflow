@@ -1,5 +1,7 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_GET['send_failed_mail'])) {
 
     $email_id = intval($_GET['send_failed_mail']);

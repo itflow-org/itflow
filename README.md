@@ -3,15 +3,10 @@
 <!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
 [![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
 [![Commits][commit-shield]][commit-url]
 [![GPL License][license-shield]][license-url]
 
-<!-- PROJECT LOGO -->
 <div align="center">
-  <!-- <a href="https://github.com/itflow-org/itflow">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a> -->
 
   <h3 align="center">ITFlow</h3>
 
@@ -47,43 +42,26 @@
 
 
 ### The Problem
-- You're a busy MSP with 101 things to do. 
-- Information about your clients is unorganised and unstructured: scattered in random tickets or folders - when you do eventually find it, it's out of date. 
-- For some issues, you spend longer looking for the relevant documentation than actually working the ticket. 
+- You're a small but busy managed service provider with 101 things to do. Information about your clients is unorganised, unstructured and outdated.
+- For some work, you seem to spend longer looking for the relevant documentation than actually working on the issue/project. 
 - On top of the technical day to day, you also have to take care of the financial side of the business - consistent pricing, quotes/invoicing, and accounting. 
 
 ### The Solution: ITFlow
-- ITFlow consolidates common MSP needs (IT Documentation, ticketing and billing) into one system
-
-### In Beta
-* This project is in beta with many ongoing changes. Updates may unintentionally introduce bugs/security issues. Writing functional, secure code is very difficult.
-* Whilst we are confident the code is safe, nothing in life is 100% safe or risk-free. Use your best judgement before deciding to store highly confidential information in ITFlow.
-* We are hoping to have a stable 1.0 release by early 2025.
+- ITFlow consolidates common MSP needs (documentation, ticketing and billing) into one unified system.
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-ITFlow is self-hosted. There is a full installation guide in the [docs](https://docs.itflow.org/installation).
+### Self Hosting
+- The best installation method is to use the [install script](https://docs.itflow.org/installation_script) on Ubuntu/Debian. A video walk through is available [here](https://www.youtube.com/watch?v=kKz9NOU_1XE).
+```
+  wget -O itflow_install.sh https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh
+  bash itflow_install.sh
+```
+- Other manual installation methods are available in the [docs](https://docs.itflow.org/installation).
 
-
-<!-- EASY INSTALL -->
-### Installation via Script (Recommended Method)
-     
-  **Requirements**
-  - Clean Install of Debian 12 or Ubuntu 22.04
-  - A public IP Address
-  - Ports 80 (HTTP) and 443 (HTTPS) TCP accessible from the outside in
-  - A Fully Qualified Domain Name pointing to the public IP Address – example itflow.example.com
-
-  **Process**
-  - Login as root
-  - Download & run install script
-    ```
-      wget -O itflow_install.sh https://github.com/itflow-org/itflow-install-script/raw/main/itflow_install.sh
-      bash itflow_install.sh
-    ```
-  - Follow Instructions & navigate to setup URL shown
-  - Leave us feedback in the [forum](https://forum.itflow.org/d/11-road-map)
+### Managed Hosting
+- If you'd prefer, we can [host ITFlow for you](https://services.itflow.org/hosting.php).
 
 <!-- FEATURES -->
 ## Key Features
@@ -95,14 +73,7 @@ ITFlow is self-hosted. There is a full installation guide in the [docs](https://
   
 <!-- ROADMAP -->
 ## Roadmap / Future to-do
-* Comprehensive API to allow custom third party integration
-* CalDAV to integrate with 3rd party calendars
-* CardDAV to integrate with 3rd party Address books
-* Recent caller toast alerts to click and bring up the clients account right away
-* FIDO2 WebAuthn Support for passwordless auth (TPM Fingerprint), (USB Hardware keys such as Yubikey)
-
-See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issues](https://github.com/itflow-org/itflow/issues) for a full list of proposed features & known issues.
-
+We track the implementation of confirmed features and bugs via [TaskFlow](https://tasks.dev.itflow.org/tasks.php). Use the [forum](https://forum.itflow.org) to request features or raise bug reports. 
 
 <!-- CONTRIBUTING -->
 ## Support & Contributions
@@ -111,7 +82,7 @@ See the [forum](https://forum.itflow.org/t/added-to-roadmap) and the [open issue
 For help using ITFlow, bugs, feature requests, and general ideas / discussions please use the community [forum](https://forum.itflow.org).
 
 ### Contributing
-If you want to improve ITFlow, feel free to fork the repo and create a pull request, but make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our  [code standards](https://docs.itflow.org/code_standards).
+If you want to improve ITFlow, feel free to fork the repo and create a pull reques. Make sure to discuss significant changes or new features with fellow contributors on the forum first. This helps ensure that your contributions are aligned with project goals, and saves time for everyone. All contributions should follow our [code standards](https://docs.itflow.org/code_standards). See the [contributing guide](https://docs.itflow.org/contribute).
 
 #### Contributors
 <a href="https://github.com/itflow-org/itflow/graphs/contributors">
@@ -122,13 +93,14 @@ If you want to improve ITFlow, feel free to fork the repo and create a pull requ
 We’re incredibly grateful to the organizations and individuals who support the project - a big thank you to:
 - CompuMatter
 - F1 for HELP
-- JetBrains
 
-<!-- LICENSE -->
 ## License
-
 ITFlow is distributed "as is" under the GPL License, WITHOUT WARRANTY OF ANY KIND. See [`LICENSE`](https://github.com/itflow-org/itflow/blob/master/LICENSE) for details.
 
+## Security
+* As of 2025, we now have a stable release of the project.
+* Whilst we are confident in the safety of the code, no system is risk-free. Nearly all software has bugs. Use your best judgement before storing highly confidential information in ITFlow.
+* If you have a security concern, privately report it [here](https://github.com/itflow-org/itflow/security/policy).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

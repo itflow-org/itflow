@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for API settings
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_api_key'])) {
 
     validateCSRFToken($_POST['csrf_token']);

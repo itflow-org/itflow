@@ -1,5 +1,7 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['edit_online_payment_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -18,7 +20,12 @@ if (isset($_POST['edit_online_payment_settings'])) {
     // Logging
     logAction("Settings", "Edit", "$session_name edited online payment settings");
 
-    $_SESSION['alert_message'] = "Online Payment Settings updated";
+    if ($config_stripe_enable && $config_stripe_account == 0) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Stripe payment account must be specified!";
+    } else {
+        $_SESSION['alert_message'] = "Online Payment Settings updated";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

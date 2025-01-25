@@ -4,7 +4,7 @@
 $sort = "contact_name";
 $order = "ASC";
 
-require_once "inc_all_client.php";
+require_once "includes/inc_all_client.php";
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
@@ -25,11 +25,11 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 // Location Filter
 if (isset($_GET['location']) & !empty($_GET['location'])) {
     $location_query = 'AND (contact_location_id = ' . intval($_GET['location']) . ')';
-    $location = intval($_GET['location']);
+    $location_filter = intval($_GET['location']);
 } else {
     // Default - any
     $location_query = '';
-    $location = '';
+    $location_filter = '';
 }
 
 //Rebuild URL
@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-2">
                         <div class="input-group">
                             <select class="form-control select2" name="location" onchange="this.form.submit()">
-                                <option value="" <?php if ($location == "") { echo "selected"; } ?>>- All Locations -</option>
+                                <option value="">- All Locations -</option>
 
                                 <?php
                                 $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
@@ -118,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $location_id = intval($row['location_id']);
                                     $location_name = nullable_htmlentities($row['location_name']);
                                 ?>
-                                    <option <?php if ($location == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                    <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                                 <?php
                                 }
                                 ?>
@@ -342,21 +342,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td>
                                     <a class="text-dark" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                         <div class="media">
-                                            <?php if (!empty($contact_photo)) { ?>
+                                            <?php if ($contact_photo) { ?>
                                                 <span class="fa-stack fa-2x mr-3 text-center">
                                                     <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
                                                 </span>
                                             <?php } else { ?>
-
                                                 <span class="fa-stack fa-2x mr-3">
                                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
                                                     <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
                                                 </span>
-
                                             <?php } ?>
 
                                             <div class="media-body">
-                                                <div class="<?php if(!empty($contact_important)) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                                <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
                                                 <?php echo $contact_title_display; ?>
                                                 <div><?php echo $contact_primary_display; ?></div>
                                                 <?php
@@ -419,8 +417,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
 
-                            require "client_contact_create_note_modal.php";
-                            require "client_contact_edit_modal.php";
+                            require "modals/client_contact_create_note_modal.php";
+                            require "modals/client_contact_edit_modal.php";
 
                         }
 
@@ -429,14 +427,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "client_contact_bulk_assign_location_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_phone_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_department_modal.php"; ?>
-                <?php require_once "client_contact_bulk_edit_role_modal.php"; ?>
-                <?php require_once "client_contact_bulk_assign_tags_modal.php"; ?>
-                <?php require_once "client_contact_bulk_email_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_assign_location_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_phone_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_department_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_edit_role_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_assign_tags_modal.php"; ?>
+                <?php require_once "modals/client_contact_bulk_email_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
 ?>
         </div>
     </div>
@@ -482,12 +480,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "client_contact_add_modal.php";
-
-require_once "client_contact_invite_modal.php";
-
-require_once "client_contact_import_modal.php";
-
-require_once "client_contact_export_modal.php";
-
-require_once "footer.php";
+require_once "modals/client_contact_add_modal.php";
+require_once "modals/client_contact_invite_modal.php";
+require_once "modals/client_contact_import_modal.php";
+require_once "modals/client_contact_export_modal.php";
+require_once "includes/footer.php";

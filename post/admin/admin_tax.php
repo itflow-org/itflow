@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for tax
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_tax'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -46,7 +48,7 @@ if (isset($_GET['archive_tax'])) {
     $tax_id = intval($_GET['archive_tax']);
 
     // Get Tax Name for logging
-    $sql = mysqli_query($mysqli,"SELECT tax_name FROM taxs WHERE tax_id = $tax_id");
+    $sql = mysqli_query($mysqli,"SELECT tax_name FROM taxes WHERE tax_id = $tax_id");
     $row = mysqli_fetch_array($sql);
     $tax_name = sanitizeInput($row['tax_name']);
 

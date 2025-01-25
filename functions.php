@@ -5,9 +5,7 @@ DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 
 // PHP Mailer Libs
 require_once "plugins/PHPMailer/src/Exception.php";
-
 require_once "plugins/PHPMailer/src/PHPMailer.php";
-
 require_once "plugins/PHPMailer/src/SMTP.php";
 
 // Initiate PHPMailer
@@ -50,7 +48,8 @@ function key32gen()
 
 function nullable_htmlentities($unsanitizedInput)
 {
-    return htmlentities($unsanitizedInput ?? '');
+    //return htmlentities($unsanitizedInput ?? '');
+    return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 function initials($str)
@@ -403,7 +402,6 @@ function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_
 // Get domain general info (whois + NS/A/MX records)
 function getDomainRecords($name)
 {
-
     $records = array();
 
     // Only run if we think the domain is valid
@@ -416,11 +414,53 @@ function getDomainRecords($name)
     }
 
     $domain = escapeshellarg(str_replace('www.', '', $name));
-    $records['a'] = substr(trim(strip_tags(shell_exec("dig +short $domain"))), 0, 254);
-    $records['ns'] = substr(trim(strip_tags(shell_exec("dig +short NS $domain"))), 0, 254);
-    $records['mx'] = substr(trim(strip_tags(shell_exec("dig +short MX $domain"))), 0, 254);
-    $records['txt'] = substr(trim(strip_tags(shell_exec("dig +short TXT $domain"))), 0, 254);
-    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | sed 's/   //g' | head -30"))), 0, 254);
+
+    // Get A, NS, MX, TXT, and WHOIS records
+    $records['a'] = trim(strip_tags(shell_exec("dig +short $domain")));
+    $records['ns'] = trim(strip_tags(shell_exec("dig +short NS $domain")));
+    $records['mx'] = trim(strip_tags(shell_exec("dig +short MX $domain")));
+    $records['txt'] = trim(strip_tags(shell_exec("dig +short TXT $domain")));
+    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | head -30 | sed 's/   //g'"))), 0, 254);
+
+    // Sort A records (if multiple records exist)
+    if (!empty($records['a'])) {
+        $a_records = explode("\n", $records['a']);
+        array_walk($a_records, function(&$record) {
+            $record = trim($record);
+        });
+        sort($a_records);
+        $records['a'] = implode("\n", $a_records);
+    }
+
+    // Sort NS records (if multiple records exist)
+    if (!empty($records['ns'])) {
+        $ns_records = explode("\n", $records['ns']);
+        array_walk($ns_records, function(&$record) {
+            $record = trim($record);
+        });
+        sort($ns_records);
+        $records['ns'] = implode("\n", $ns_records);
+    }
+
+    // Sort MX records (if multiple records exist)
+    if (!empty($records['mx'])) {
+        $mx_records = explode("\n", $records['mx']);
+        array_walk($mx_records, function(&$record) {
+            $record = trim($record);
+        });
+        sort($mx_records);
+        $records['mx'] = implode("\n", $mx_records);
+    }
+
+    // Sort TXT records (if multiple records exist)
+    if (!empty($records['txt'])) {
+        $txt_records = explode("\n", $records['txt']);
+        array_walk($txt_records, function(&$record) {
+            $record = trim($record);
+        });
+        sort($txt_records);
+        $records['txt'] = implode("\n", $txt_records);
+    }
 
     return $records;
 }
@@ -987,7 +1027,9 @@ function generateReadablePassword($security_level)
     return $password;
 }
 
-function addToMailQueue($mysqli, $data) {
+function addToMailQueue($data) {
+
+    global $mysqli;
 
     foreach ($data as $email) {
         $from = strval($email['from']);

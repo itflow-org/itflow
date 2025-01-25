@@ -135,6 +135,29 @@ CREATE TABLE `asset_history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_interface_links`
+--
+
+DROP TABLE IF EXISTS `asset_interface_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_interface_links` (
+  `interface_link_id` int(11) NOT NULL AUTO_INCREMENT,
+  `interface_a_id` int(11) NOT NULL,
+  `interface_b_id` int(11) NOT NULL,
+  `interface_link_type` varchar(100) DEFAULT NULL,
+  `interface_link_status` varchar(50) DEFAULT NULL,
+  `interface_link_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `interface_link_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`interface_link_id`),
+  KEY `fk_interface_a` (`interface_a_id`),
+  KEY `fk_interface_b` (`interface_b_id`),
+  CONSTRAINT `fk_interface_a` FOREIGN KEY (`interface_a_id`) REFERENCES `asset_interfaces` (`interface_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_interface_b` FOREIGN KEY (`interface_b_id`) REFERENCES `asset_interfaces` (`interface_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_interfaces`
 --
 
@@ -340,6 +363,21 @@ CREATE TABLE `client_notes` (
   `client_note_client_id` int(11) NOT NULL,
   PRIMARY KEY (`client_note_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_stripe`
+--
+
+DROP TABLE IF EXISTS `client_stripe`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_stripe` (
+  `client_id` int(11) NOT NULL,
+  `stripe_id` varchar(255) NOT NULL,
+  `stripe_pm` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -634,6 +672,24 @@ CREATE TABLE `documents` (
   PRIMARY KEY (`document_id`),
   FULLTEXT KEY `document_content_raw` (`document_content_raw`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `domain_history`
+--
+
+DROP TABLE IF EXISTS `domain_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `domain_history` (
+  `domain_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `domain_history_column` varchar(200) NOT NULL,
+  `domain_history_old_value` text NOT NULL,
+  `domain_history_new_value` text NOT NULL,
+  `domain_history_domain_id` int(11) NOT NULL,
+  `domain_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`domain_history_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2287,4 +2343,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-21 20:24:14
+-- Dump completed on 2025-01-18 13:03:55

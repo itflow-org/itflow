@@ -1,5 +1,7 @@
 <?php
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_ticket_status'])) {
 
     $name = sanitizeInput($_POST['name']);

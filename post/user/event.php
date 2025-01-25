@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for calendar & events
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_calendar'])) {
 
     $name = sanitizeInput($_POST['name']);
@@ -92,7 +94,7 @@ if (isset($_POST['add_event'])) {
                 'body' => $body
             ]
         ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
 
         // Logging for email (success/fail)
         if ($mail === true) {
@@ -161,7 +163,7 @@ if (isset($_POST['edit_event'])) {
                 'body' => $body
             ]
             ];
-        $mail = addToMailQueue($mysqli, $data);
+        $mail = addToMailQueue($data);
         // Logging for email (success/fail)
         if ($mail === true) {
             logAction("Calendar Event", "Email", "$session_name Emailed modified event $title to $contact_name email $contact_email", $client, $event_id);

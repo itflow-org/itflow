@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_user.php";
+require_once "includes/inc_all_user.php";
 
 // User remember me tokens
 $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
@@ -8,8 +8,8 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 ?>
 
 <div class="card card-dark">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-shield-alt mr-2"></i>Your Password</h3>
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-shield-alt mr-2"></i>Your Password</h3>
     </div>
     <div class="card-body">
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -28,31 +28,31 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
                 </div>
             </div>
 
-            <button type="submit" name="edit_your_user_password" class="btn btn-primary btn-block mt-3"><i class="fas fa-check mr-2"></i>Save</button>
+            <button type="submit" name="edit_your_user_password" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Change</button>
 
         </form>
     </div>
 </div>
 
 <div class="card card-dark">
-    <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-lock mr-2"></i>Mult-Factor Authentication</h3>
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-lock mr-2"></i>Mult-Factor Authentication</h3>
     </div>
     <div class="card-body">
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
             <?php if (empty($session_token)) { ?>
-                <button type="submit" name="enable_2fa" class="btn btn-success btn-block mt-3"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
+                <button type="submit" name="enable_2fa" class="btn btn-success"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
             <?php } else { ?>
                 <p>You have set up 2FA. Your QR code is below.</p>
-                <button type="submit" name="disable_2fa" class="btn btn-danger btn-block mt-3"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
+                <button type="submit" name="disable_2fa" class="btn btn-danger"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
             <?php } ?>
 
             <center>
                 <?php
 
-                require_once 'rfc6238.php';
+                require_once 'plugins/totp/totp.php';
 
                 //Generate a base32 Key
                 $secretkey = key32gen();
@@ -121,4 +121,4 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 <?php } ?>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";

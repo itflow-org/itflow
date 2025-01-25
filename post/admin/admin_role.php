@@ -4,6 +4,8 @@
  * ITFlow - GET/POST request handler for roles
  */
 
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
 if (isset($_POST['add_role'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -57,5 +59,32 @@ if (isset($_POST['edit_role'])) {
 
     $_SESSION['alert_message'] = "User Role <strong>$name</strong> edited";
 
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['archive_role'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    $role_id = intval($_GET['archive_role']);
+
+    // Check role isn't in use
+    $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(users.user_id) FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+    $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
+    if ($role_user_count != 0) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Role must not in use to archive it";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    mysqli_query($mysqli, "UPDATE user_roles SET user_role_archived_at = NOW() WHERE user_role_id = $role_id");
+
+    // Logging
+    $role_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_role_name FROM user_roles WHERE user_role_id = $role_id LIMIT 1"));
+    $role_name = sanitizeInput($role_details['user_role_name']);
+    logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
+
+    $_SESSION['alert_message'] = "User Role archived";
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
