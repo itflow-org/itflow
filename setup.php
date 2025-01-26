@@ -243,20 +243,8 @@ if (isset($_POST['add_company_settings'])) {
         }
     }
 
-
-
     $latest_database_version = LATEST_DATABASE_VERSION;
     mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_prefix = 'REC-', config_recurring_next_number = 1, config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
-
-    # Used only for the install script to grab the generated cronkey and insert into the db
-    if (file_exists("uploads/tmp/cronkey.php")) {
-        include "uploads/tmp/cronkey.php";
-
-
-        mysqli_query($mysqli,"UPDATE settings SET config_cron_key = '$itflow_install_script_generated_cronkey'");
-
-        unlink('uploads/tmp/cronkey.php');
-    }
 
     // Create Categories
     // Expense Categories Examples
