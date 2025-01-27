@@ -316,12 +316,12 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             </th>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
-                                    Subject / Tasks <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
+                                    Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                    Client / Contact <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                    Client / <span class="text-secondary">Contact</span> <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             
