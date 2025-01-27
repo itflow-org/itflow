@@ -418,7 +418,7 @@ $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
                             if (empty($contact_name)) {
                                 $contact_display = "-";
                             } else {
-                                $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                                $contact_display = "$contact_name";
                             }
 
                             // Get who last updated the ticket - to be shown in the last Response column
