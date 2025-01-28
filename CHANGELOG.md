@@ -13,6 +13,9 @@ This file documents all notable changes made to ITFlow.
 - Fixed Inaccurate Quarter 2 results in Profit & Loss Report
 - Fixed OTP not showing on hover when in contact or asset details section
 
+### BREAKING CHANGES
+- Completely removed old cron scripts along with cron key, new cron scripts are located in /scripts/  directory, no cron key rrequired.
+
 ## [25.01]
 
 ### Added / Changed
