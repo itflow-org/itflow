@@ -24,7 +24,7 @@ require_once "includes/inc_all_user.php";
                         <input type="file" class="form-control-file" accept="image/*" name="avatar">
                     </div>
                 </div>
-                <div class="col-9">
+                <div class="col-md-9">
 
                     <div class="form-group">
                         <label>Name <strong class="text-danger">*</strong></label>
