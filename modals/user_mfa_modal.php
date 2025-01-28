@@ -1,8 +1,12 @@
 <?php
 require_once 'plugins/totp/totp.php';
 
-//Generate a base32 Key
-$token = key32gen();
+// Only generate the token once and store it in session:
+if (empty($_SESSION['mfa_token'])) {
+    $token = key32gen();
+    $_SESSION['mfa_token'] = $token;
+}
+$token = $_SESSION['mfa_token'];
 
 // Generate QR Code
 $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
@@ -13,14 +17,13 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i>Enabling Multi-Factor Authentication</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-lock mr-2"></i>Multi-Factor Authentication</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="token" value="<?php echo $token; ?>">
                 <div class="modal-body bg-white">
                         
                     <div class="text-center">
@@ -35,7 +38,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                             </div>
-                            <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
+                            <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
                         </div>
                     </div>
 

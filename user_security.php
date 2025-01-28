@@ -76,4 +76,25 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 <?php } ?>
 
 <?php
+
+// Show the error alert if it exists:
+if (!empty($_SESSION['alert_type']) && $_SESSION['alert_type'] == 'error') {
+    echo "<div class='alert alert-danger'>{$_SESSION['alert_message']}</div>";
+    // Clear it so it doesn't persist on refresh
+    unset($_SESSION['alert_type']);
+    unset($_SESSION['alert_message']);
+}
+
+// If the user just failed a TOTP verification, auto-open the modal:
+if (!empty($_SESSION['show_mfa_modal'])) {
+    echo "
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // jQuery or vanilla JS to open the modal
+            $('#enableMFAModal').modal('show');
+        });
+    </script>";
+    unset($_SESSION['show_mfa_modal']);
+}
+
 require_once "includes/footer.php";

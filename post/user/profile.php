@@ -214,11 +214,20 @@ if (isset($_POST['enable_mfa'])) {
 
     require_once "plugins/totp/totp.php";
 
-    $verify_code = intval($_POST['verify_code']);  //code to validate, for example received from device
-    $token = sanitizeInput($_POST['token']);
+    // Grab the code from the user
+    $verify_code = trim($_POST['verify_code']); 
+    // Ensure it's numeric
+    if (!ctype_digit($verify_code)) {
+        $verify_code = '';
+    }
 
+    // Grab the secret from the session
+    $token = $_SESSION['mfa_token'] ?? '';
+
+    // Verify
     if (TokenAuth6238::verify($token, $verify_code)) {
 
+        // SUCCESS
         mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
         // Delete any existing 2FA tokens - these browsers should be re-validated
@@ -229,12 +238,20 @@ if (isset($_POST['enable_mfa'])) {
 
         $_SESSION['alert_message'] = "Multi-Factor authentication enabled";
 
+        // Clear the mfa_token from the session to avoid re-use.
+        unset($_SESSION['mfa_token']);
+
     } else {
+        // FAILURE
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Verification Code Invalid, Multi-Factor Authenticaion not enabled, Try again!";
+        $_SESSION['alert_message'] = "Verification code invalid, please try again.";
+
+        // Set a flag to automatically open the MFA modal again
+        $_SESSION['show_mfa_modal'] = true;
     }    
 
     header("Location: user_security.php");
+    exit;
 
 }
 
