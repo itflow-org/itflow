@@ -4,8 +4,14 @@ This file documents all notable changes made to ITFlow.
 
 ## [UNRELEASED]
 
+### Added / Changed
+- Greatly Improved MFA Setup Flow UI/UX
+- Fixed Client Portal redirect whgen login key is enabled
+
 ### Fixed
 - Stripe now shows as a payment option in the add recurring payment modal
+- Fixed Inaccurate Quarter 2 results in Profit & Loss Report
+- Fixed OTP not showing on hover when in contact or asset details section
 
 ## [25.01]
 
