@@ -31,65 +31,20 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
             <button type="submit" name="edit_your_user_password" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Change</button>
 
         </form>
-    </div>
-</div>
 
-<div class="card card-dark">
-    <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-lock mr-2"></i>Mult-Factor Authentication</h3>
-    </div>
-    <div class="card-body">
-        <form action="post.php" method="post" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-
+         <div class="float-right">
             <?php if (empty($session_token)) { ?>
-                <button type="submit" name="enable_2fa" class="btn btn-success"><i class="fa fa-fw fa-lock"></i><br> Enable 2FA</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#enableMFAModal">
+                    <i class="fas fa-lock mr-2"></i>Enable Multi-Factor Authentication
+                </button>
+
+                <?php require_once "modals/user_mfa_modal.php"; ?>
+            
             <?php } else { ?>
-                <p>You have set up 2FA. Your QR code is below.</p>
-                <button type="submit" name="disable_2fa" class="btn btn-danger"><i class="fa fa-fw fa-unlock"></i><br>Disable 2FA</button>
+                <a href="post.php?disable_mfa&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock mr-2"></i>Disable Multi-Factor Authentication</a>
             <?php } ?>
+        </div>
 
-            <center>
-                <?php
-
-                require_once 'plugins/totp/totp.php';
-
-                //Generate a base32 Key
-                $secretkey = key32gen();
-
-                if (!empty($session_token)) {
-
-                    // Generate QR Code
-                    $data = "otpauth://totp/ITFlow:$session_email?secret=$session_token";
-                    print "<img src='plugins/barcode/barcode.php?f=png&s=qr&d=$data'>";
-
-                    echo "<p class='text-secondary'>$session_token</p>";
-
-                }
-
-                ?>
-            </center>
-
-            <input type="hidden" name="token" value="<?php echo $secretkey; ?>">
-
-        </form>
-
-        <?php if (!empty($session_token)) { ?>
-            <form action="post.php" method="post" autocomplete="off">
-                <div class="form-group">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="code" placeholder="Verify 2FA Code" required>
-                        <div class="input-group-append">
-                            <button type="submit" name="verify" class="btn btn-success">Verify</button>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
-        <?php } ?>
     </div>
 </div>
 

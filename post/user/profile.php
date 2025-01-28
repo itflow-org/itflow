@@ -208,6 +208,76 @@ if (isset($_POST['verify'])) {
 
 }
 
+if (isset($_POST['enable_mfa'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    require_once "plugins/totp/totp.php";
+
+    $verify_code = intval($_POST['verify_code']);  //code to validate, for example received from device
+    $token = sanitizeInput($_POST['token']);
+
+    if (TokenAuth6238::verify($token, $verify_code)) {
+
+        mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
+
+        // Delete any existing 2FA tokens - these browsers should be re-validated
+        mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+
+        // Logging
+        logAction("User Account", "Edit", "$session_name enabled MFA on their account");
+
+        $_SESSION['alert_message'] = "Multi-Factor authentication enabled";
+
+    } else {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Verification Code Invalid, Multi-Factor Authenticaion not enabled, Try again!";
+    }    
+
+    header("Location: user_security.php");
+
+}
+
+if (isset($_GET['disable_mfa'])){
+
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
+    mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
+
+    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_app_name = sanitizeInput($config_app_name);
+
+    // Email notification
+    if (!empty($config_smtp_host)) {
+        $subject = "$config_app_name account update confirmation for $session_name";
+        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
+
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $session_email,
+                'recipient_name' => $session_name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+            ];
+        $mail = addToMailQueue($data);
+    }
+
+    // Logging
+    logAction("User Account", "Edit", "$session_name disabled MFA on their account");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Multi-Factor authentication disabled";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['enable_2fa']) || isset($_GET['enable_2fa_force'])) {
 
     // CSRF Check
