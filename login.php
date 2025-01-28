@@ -75,7 +75,7 @@ $config_login_remember_me_expire = intval($row['config_login_remember_me_expire'
 //  If no/incorrect 'key' is supplied, send to client portal instead
 if ($config_login_key_required) {
     if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
-        header("Location: portal");
+        header("Location: client");
         exit();
     }
 }
