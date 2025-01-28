@@ -2,6 +2,11 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [UNRELEASED]
+
+### Fixed
+- Stripe now shows as a payment option in the add recurring payment modal
+
 ## [25.01]
 
 ### Added / Changed

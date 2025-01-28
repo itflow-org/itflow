@@ -48,6 +48,9 @@
                             </div>
                             <select class="form-control select2" name="payment_method" required>
                                 <option value="">- Method of Payment -</option>
+                                <?php if ($config_stripe_enable) { ?>
+                                    <option value="Stripe">Stripe</option>
+                                <?php } ?>
                                 <?php
 
                                 $sql_payment_method_select = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL ORDER BY category_name ASC");
