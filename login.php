@@ -145,7 +145,7 @@ if (isset($_POST['login'])) {
         // Validate MFA code
         if (!empty($current_code) && TokenAuth6238::verify($token, $current_code)) {
             $mfa_is_complete = true;
-            $extended_log = 'with 2FA';
+            $extended_log = 'with MFA';
         }
 
         if ($mfa_is_complete) {
@@ -201,8 +201,8 @@ if (isset($_POST['login'])) {
 
             // Forcing MFA
             if ($force_mfa == 1 && $token == NULL) {
-                $secretMFA = key32gen();
-                $config_start_page = "post.php?enable_2fa_force&token=$secretMFA&csrf_token=$_SESSION[csrf_token]";
+                //$secretMFA = key32gen();
+                $config_start_page = "mfa_enforcement.php";
             }
 
             // Setup encryption session key

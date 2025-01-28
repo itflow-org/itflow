@@ -54,7 +54,7 @@ $row = mysqli_fetch_array($sql);
 $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
 $session_avatar = $row['user_avatar'];
-$session_token = $row['user_token'];
+$session_token = $row['user_token']; // MFA Token
 $session_user_role = intval($row['user_role']);
 $session_user_role_display = sanitizeInput($row['user_role_name']);
 if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
@@ -128,8 +128,3 @@ $session_mobile = isMobile();
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
 $num_notifications = $row['num'];
 
-
-// FORCE MFA Setup
-//if ($session_user_config_force_mfa == 1 && $session_token == NULL) {
-//    header("Location: force_mfa.php");
-//}

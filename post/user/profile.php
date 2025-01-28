@@ -190,24 +190,6 @@ if (isset($_POST['edit_your_user_preferences'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-
-if (isset($_POST['verify'])) {
-
-    require_once "plugins/totp/totp.php";
-
-    $currentcode = intval($_POST['code']);  //code to validate, for example received from device
-
-    if (TokenAuth6238::verify($session_token, $currentcode)) {
-        $_SESSION['alert_message'] = "VALID!";
-    }else{
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "IN-VALID!";
-    }
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
 if (isset($_POST['enable_mfa'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -230,7 +212,7 @@ if (isset($_POST['enable_mfa'])) {
         // SUCCESS
         mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
-        // Delete any existing 2FA tokens - these browsers should be re-validated
+        // Delete any existing MFA tokens - these browsers should be re-validated
         mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
         // Logging
@@ -241,6 +223,16 @@ if (isset($_POST['enable_mfa'])) {
         // Clear the mfa_token from the session to avoid re-use.
         unset($_SESSION['mfa_token']);
 
+        // Check if the previous page is mfa_enforcement.php
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
+            if ($previousPage === 'mfa_enforcement.php') {
+                // Redirect back to mfa_enforcement.php
+                header("Location: $config_start_page");
+                exit;
+            }
+        }    
+
     } else {
         // FAILURE
         $_SESSION['alert_type'] = "error";
@@ -248,7 +240,19 @@ if (isset($_POST['enable_mfa'])) {
 
         // Set a flag to automatically open the MFA modal again
         $_SESSION['show_mfa_modal'] = true;
-    }    
+
+        // Check if the previous page is mfa_enforcement.php
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
+            if ($previousPage === 'mfa_enforcement.php') {
+                // Redirect back to mfa_enforcement.php
+                header("Location: " . $_SERVER['HTTP_REFERER']);
+                exit;
+            }
+        }    
+    }
+
+
 
     header("Location: user_security.php");
     exit;
@@ -261,6 +265,9 @@ if (isset($_GET['disable_mfa'])){
     validateCSRFToken($_GET['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
+
+    // Delete any existing MFA tokens - these browsers should be re-validated
+        mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
@@ -290,78 +297,6 @@ if (isset($_GET['disable_mfa'])){
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Multi-Factor authentication disabled";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if (isset($_POST['enable_2fa']) || isset($_GET['enable_2fa_force'])) {
-
-    // CSRF Check
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        validateCSRFToken($_POST['csrf_token']);
-
-        $extended_log_description = "";
-        $token = sanitizeInput($_POST['token']);
-    } else {
-        // If this is a GET request then we forced MFA as part of login
-        validateCSRFToken($_GET['csrf_token']);
-
-        $extended_log_description = "(forced)";
-        $token = sanitizeInput($_GET['token']);
-    }
-
-
-
-    mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
-
-    // Delete any existing 2FA tokens - these browsers should be re-validated
-    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
-
-    // Logging
-    logAction("User Account", "Edit", "$session_name enabled MFA on their account $extended_log_description");
-
-    $_SESSION['alert_message'] = "Two-factor authentication enabled $extended_log_description";
-
-    header("Location: user_security.php");
-
-}
-
-if (isset($_POST['disable_2fa'])){
-
-    // CSRF Check
-    validateCSRFToken($_POST['csrf_token']);
-
-    mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
-
-    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
-    $config_app_name = sanitizeInput($config_app_name);
-
-    // Email notification
-    if (!empty($config_smtp_host)) {
-        $subject = "$config_app_name account update confirmation for $session_name";
-        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $session_email,
-                'recipient_name' => $session_name,
-                'subject' => $subject,
-                'body' => $body
-            ]
-            ];
-        $mail = addToMailQueue($data);
-    }
-
-    // Logging
-    logAction("User Account", "Edit", "$session_name disabled MFA on their account");
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Two-factor authentication disabled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
