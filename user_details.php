@@ -56,7 +56,7 @@ require_once "includes/inc_all_user.php";
                         </div>
                     </div>
                     
-                    <button type="submit" name="edit_your_user_details" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Save</button>
+                    <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-responsive"><i class="fas fa-check mr-2"></i>Save</button>
 
                 </div>
             </div>
