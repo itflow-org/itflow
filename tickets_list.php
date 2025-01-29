@@ -1,5 +1,5 @@
 <div class="card card-dark">
-        <div class="card-body">
+    <div class="card-body">
         <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
@@ -19,12 +19,12 @@
                             </th>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
-                                    Subject / Tasks <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
+                                    Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                    Client / Contact <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                    Client / <span class="text-secondary">Contact</span> <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             
@@ -121,7 +121,7 @@
                             if (empty($contact_name)) {
                                 $contact_display = "-";
                             } else {
-                                $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                                $contact_display = "$contact_name";
                             }
 
                             // Get who last updated the ticket - to be shown in the last Response column
