@@ -131,7 +131,7 @@ $kanban = $ordered_kanban;
     <div class="kanban-column card card-dark" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>">
         <h6 class="panel-title"><?=htmlspecialchars($kanban_column->name); ?></h6>
         <div id="status_<?=htmlspecialchars($kanban_column->id); ?>" data-column-name="<?=$kanban_column->name?>" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>" style="height: 100%;" >
-            <?php
+            <?php 
             foreach($kanban_column->tickets as $item){
                 if ($item['ticket_priority'] == "High") {
                     $ticket_priority_color = "danger";
@@ -273,6 +273,7 @@ $kanban = $ordered_kanban;
                 //update the status id of the card if needed
                 if (statusId != columnId) {
                      $(card).data('ticket-status-id', columnId);
+                     statusId = columnId;
                 }
                 positions.push({
                     ticket_id: ticketId,
