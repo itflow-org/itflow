@@ -9,7 +9,7 @@
                         <tr>
                             <td>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                 </div>
                             </td>
                             <th>
@@ -195,12 +195,12 @@
                                     <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
-                                    <div class="progress mt-2" style="height: 20px;"> 
+                                    <div class="progress mt-2" style="height: 20px;">
                                         <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count.' / '.$task_count; ?></div>
                                     </div>
                                     <?php } ?>
                                     <?php if($task_count && $completed_task_count == 0) { ?>
-                                    <div class="mt-2" style="height: 20px; background-color:#e9ecef;">   
+                                    <div class="mt-2" style="height: 20px; background-color:#e9ecef;">
                                         <p class="text-center" ><?php echo $completed_task_count.' / '.$task_count; ?></p>
                                     </div>
                                     <?php } ?>
@@ -262,12 +262,12 @@
                             // Edit actions, for open tickets
                             if (empty($ticket_closed_at)) {
 
-                                require "modals/ticket_assign_modal.php";
+                                require_once "modals/ticket_assign_modal.php";
 
-                                require "modals/ticket_edit_priority_modal.php";
+                                require_once "modals/ticket_edit_priority_modal.php";
 
                                 if ($config_module_enable_accounting) {
-                                    require "modals/ticket_edit_billable_modal.php";
+                                    require_once "modals/ticket_edit_billable_modal.php";
                                 }
                             }
                         }
