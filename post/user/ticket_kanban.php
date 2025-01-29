@@ -14,7 +14,7 @@ if (isset($_POST['update_kanban_status_position'])) {
 
     foreach ($positions as $position) {
         $status_id = intval($position['status_id']);
-        $kanban = intval($position['status_kanban']); 
+        $kanban = intval($position['status_kanban']);
 
         mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_kanban = $kanban WHERE ticket_status_id = $status_id");
     }
@@ -35,9 +35,8 @@ if (isset($_POST['update_kanban_ticket'])) {
         $kanban = intval($position['ticket_kanban']); // ticket kanban position
         $status = intval($position['ticket_status']); // ticket statuses
 
-        // Exit if status is null
+        // Continue if status is null
         if ($status === null) {
-            //echo json_encode(['status' => 'error', 'message' => 'Ticket status is null']);
             continue;
         }
 
