@@ -5,16 +5,16 @@ This file documents all notable changes made to ITFlow.
 ## [25.01.01]
 
 ### Added / Changed
-- Completely redesigned the Multi-Factor Authentication (MFA) Setup and Enforcement Flow UI/UX for a more intuitive user experience.
-- Added a "Member" column in the roles listing for improved visibility.
+- Redesigned the Multi-Factor Authentication (MFA) Setup and Enforcement Flow UI/UX for a more intuitive user experience.
+- Added a "Member" column in the user roles listing for improved visibility.
 - General UI/UX improvements, along with minor performance optimizations and cleanups.
 
 ### Fixed
-- Fixed an issue where Stripe was not appearing as a payment option in the "Add Recurring Payment" modal.
+- Fixed an issue where Stripe was not appearing as a recurring payment option.
 - Corrected inaccurate Quarter 2 Expense results in the Profit & Loss Report.
-- Resolved the issue where OTP was not displaying correctly on hover in the Contact or Asset Details sections.
+- Resolved TOTP code not displaying correctly on hover in the Contact or Asset Details sections.
 - Archived contacts no longer appear in the Bulk Mail section.
-- Fixed an issue where the Ticket Assign Modal was showing both Itflow and client users.
+- Fixed an issue where the Ticket Assign Modal was showing both ITFlow and client users.
 - Fixed issue with login key redirecting to legacy client portal page.
 
 ## [25.01]
