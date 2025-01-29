@@ -37,12 +37,13 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
 }
 
 if (isset($_GET['category'])) {
-    if ($_GET['category'] == 'empty') {
+    $category = sanitizeInput($_GET['category']);
+    if ($category == 'empty') {
         $category_snippet = "AND ticket_category = 0 ";
-    } elseif ($_GET['category'] == 'all') {
+    } elseif ($category == 'all') {
         $category_snippet = "";
     } else {
-        $category_snippet = "AND ticket_category = " . $_GET['category'];
+        $category_snippet = "AND ticket_category = " . $category;
     }
 }
 
