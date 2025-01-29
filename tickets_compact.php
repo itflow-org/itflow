@@ -9,35 +9,35 @@
                         <tr>
                             <td>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onKeyPress="checkAll(this)">
                                 </div>
                             </td>
 
-                            <th>
+                            <th scope="col">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
                                     Ticket <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <th>
+                            <th scope="col">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             
                             <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
-                            <th class="text-center">
+                            <th class="text-center" scope="col">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">
                                     Billable <?php if ($sort == 'ticket_billable') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <?php } ?>
 
-                            <th>
+                            <th scope="col">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">
                                     Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <th>
+                            <th scope="col">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
                                     Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                                 </a>
@@ -187,7 +187,7 @@
                                     
 
                                     <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
-                                        <?php 
+                                        <?php
                                         if (empty($ticket_closed_at) && $ticket_reply_type == "Client") {
                                             echo "<strong>$ticket_subject</strong>";
                                         } else {
@@ -198,14 +198,14 @@
 
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
-                                    <div class="progress mt-2" style="height: 15px; font-size: 11px; width: 150px;"> 
+                                    <div class="progress mt-2" style="height: 15px; font-size: 11px; width: 150px;">
                                         <div class="progress-bar progress-bar-striped" style="width: <?php echo $tasks_completed_percent; ?>%;">
                                             <?php echo $completed_task_count.' / '.$task_count; ?>
                                         </div>
                                     </div>
                                     <?php } ?>
                                     <?php if($task_count && $completed_task_count == 0) { ?>
-                                    <div class="mt-2" style="height: 20px; background-color:#e9ecef; width: 150px;">   
+                                    <div class="mt-2" style="height: 20px; background-color:#e9ecef; width: 150px;">
                                         <p class="text-center small" >
                                             <?php echo $completed_task_count.' / '.$task_count; ?>
                                         </p>
@@ -221,7 +221,7 @@
                                 </td>
 
                                 <!-- Ticket Billable (if accounting enabled -->
-                                <?php if (1==2&&$config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
+                                <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
                                         <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
                                             <?php
@@ -253,12 +253,12 @@
                             // Edit actions, for open tickets
                             if (empty($ticket_closed_at)) {
 
-                                require "modals/ticket_assign_modal.php";
+                                require_once "modals/ticket_assign_modal.php";
 
-                                require "modals/ticket_edit_priority_modal.php";
+                                require_once "modals/ticket_edit_priority_modal.php";
 
                                 if ($config_module_enable_accounting) {
-                                    require "modals/ticket_edit_billable_modal.php";
+                                    require_once "modals/ticket_edit_billable_modal.php";
                                 }
                             }
                         }
