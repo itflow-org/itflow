@@ -201,7 +201,6 @@ if (isset($_POST['login'])) {
 
             // Forcing MFA
             if ($force_mfa == 1 && $token == NULL) {
-                //$secretMFA = key32gen();
                 $config_start_page = "mfa_enforcement.php";
             }
 
