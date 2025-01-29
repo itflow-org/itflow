@@ -4,6 +4,11 @@ require_once "functions.php";
 require_once "check_login.php";
 require_once 'plugins/totp/totp.php';
 
+// Get Company Logo
+$sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
+$row = mysqli_fetch_array($sql);
+$company_logo = nullable_htmlentities($row['company_logo']);
+
 
 // Only generate the token once and store it in session:
 if (empty($_SESSION['mfa_token'])) {
@@ -60,24 +65,19 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
         <!-- /.login-logo -->
         <div class="card">
-            <div class="card-body login-card-body">
+            <div class="card-body login-card-body text-center">
                 
                 <p class="login-box-msg">Multi-Factor Authentication Enforced</p>
 
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                     
-                    <div class="text-center">
-                        
-                        <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
-                       
-                        <p>
-                            <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?php echo $token; ?></small>
-                            <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
-                        </p>
-                    </div>
-
+                    <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
                    
+                    <p>
+                        <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?php echo $token; ?></small>
+                        <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
+                    </p>
 
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
