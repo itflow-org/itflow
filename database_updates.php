@@ -2469,10 +2469,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.0') {
-    //     // Insert queries here required to update to DB version 1.8.1
+    if (CURRENT_DATABASE_VERSION == '1.8.0') {
+    
+
+        mysqli_query($mysqli, "ALTER TABLE `ticket_statuses` ADD `ticket_status_kanban` int(11)");
+
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_kanban` int(11);");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.8.1') {
+    //     // Insert queries here required to update to DB version 1.8.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.2'");
     // }
 
 } else {
