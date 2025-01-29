@@ -47,50 +47,55 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
-<body class="bg-light">
-    <div class="wrapper text-sm">
-        <div class="container col-md-5">
-
-            <?php require_once 'includes/inc_alert_feedback.php'; ?>
-
-            <div class="card card-dark mt-5">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-shield-alt mr-2"></i>Multi-Factor Authentication Enforcement</h3>
-                </div>
-                <div class="card-body">
-                     <form action="post.php" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                        
-                        <div class="text-center">
-                            <h4>Scan this code into your app</h4>
-                            <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>'>
-                            <div>Can't Scan? <span class="text-secondary">Copy and paste the secret below</span>
-                            </div>
-                            <hr>
-                            <p><span class='text-secondary'>Secret:</span> <?php echo $token; ?>
-                                <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                </div>
-                                <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
-                                <div class="input-group-append">
-                                    <button type="submit" name="enable_mfa" class="btn btn-primary"><i class="fa fa-check mr-2"></i>Enable</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<body class="hold-transition login-page">
+    <?php require_once "includes/inc_alert_feedback.php"; ?>
+    <div class="login-box">
+        <div class="login-logo">
+            <?php if (!empty($company_logo)) { ?>
+                <img alt="<?=nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <?php } else { ?>
+                <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
+            <?php } ?>
         </div>
-    </div> <!-- ./wrapper -->
 
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                
+                <p class="login-box-msg">Multi-Factor Authentication Enforced</p>
+
+                <form action="post.php" method="post" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                    
+                    <div class="text-center">
+                        
+                        <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>'>
+                       
+                        <p>
+                            <small><?php echo $token; ?></small>
+                            <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
+                        </p>
+                    </div>
+
+                   
+
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" name="enable_mfa" class="btn btn-primary btn-block mb-3"><i class="fa fa-check mr-2"></i>Enable MFA</button>
+                </form>
+
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
 
 <!-- REQUIRED SCRIPTS -->
 
@@ -143,6 +148,5 @@ clipboard.on('error', function(e) {
 });
 
 </script>
-<script src="js/confirm_modal.js"></script>
 </body>
 </html>
