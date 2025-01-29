@@ -177,13 +177,13 @@ $sql_categories = mysqli_query(
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'all']))); ?>">All</a>
                                     <div class="dropdown-divider"></div>
-                                    <?php 
+                                    <?php
                                     while ($row = mysqli_fetch_array($sql_categories)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = nullable_htmlentities($row['category_name']);
                                         $category_color = nullable_htmlentities($row['category_color']);
                                     ?>
-                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => $category_id]))); ?>"><?php echo $category_name ?></a>    
+                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => $category_id]))); ?>"><?php echo $category_name ?></a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'empty']))); ?>">No Category</a>
