@@ -6,9 +6,9 @@
     #kanban-board {
         display: flex;
         box-sizing: border-box;
-        overflow-x: auto; 
+        overflow-x: auto;
         min-width: 400px;
-        height: calc(100vh - 210px); 
+        height: calc(100vh - 210px);
     }
 
     .kanban-column {
@@ -19,8 +19,8 @@
         background: #f4f4f4;
         padding: 10px;
         border: 1px solid #ccc;
-        min-height: calc(100vh - 230px); 
-        max-height: calc(100vh - 230px); 
+        min-height: calc(100vh - 230px);
+        max-height: calc(100vh - 230px);
         box-sizing: border-box;
     }
 
@@ -92,8 +92,12 @@ $kanban_array = array_values($statuses);
 
 // Sort the array by the 'order' field, moving null values to the end
 usort($kanban_array, function($a, $b) {
-    if ($a->order === null) return 1;
-    if ($b->order === null) return -1;
+    if ($a->order === null) {
+        return 1;
+    }
+    if ($b->order === null) {
+        return -1;
+    }
     return $a->order - $b->order;
 });
 
@@ -138,7 +142,7 @@ $kanban = $ordered_kanban;
                 }
             ?>
             
-            <div 
+            <div
                 class="task"
                 data-ticket-id= "<?=$item['ticket_id']?>"
                 data-ticket-status-id= "<?=$item['ticket_status_id']?>"
@@ -154,7 +158,7 @@ $kanban = $ordered_kanban;
                 <br>
                 
                 <b>
-                    <?php 
+                    <?php
                         if ($item['contact_name'] != ""){
                             echo $item['client_name'] . ' - ' . $item['contact_name'];
                         } else {
@@ -210,7 +214,7 @@ $kanban = $ordered_kanban;
             console.log('Dropped column:', el.querySelector('.panel-title').innerText);
 
             // Get all columns and their positions
-            var columns = document.querySelectorAll('#kanban-board .kanban-column'); 
+            var columns = document.querySelectorAll('#kanban-board .kanban-column');
             var columnPositions = [];
 
             columns.forEach(function(column, index) {
@@ -256,7 +260,7 @@ $kanban = $ordered_kanban;
             //console.log('Dropped into:', target.getAttribute('data-column-name'));
             
             // Get all cards in the target column and their positions
-            var cards = $(target).children('.task'); 
+            var cards = $(target).children('.task');
             var positions = [];
 
             //id of current status / column
@@ -268,7 +272,7 @@ $kanban = $ordered_kanban;
 
                 //update the status id of the card if needed
                 if (statusId != columnId) {
-                     $(card).data('ticket-status-id', columnId);  
+                     $(card).data('ticket-status-id', columnId);
                 }
                 positions.push({
                     ticket_id: ticketId,
