@@ -69,10 +69,10 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                     
                     <div class="text-center">
                         
-                        <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>'>
+                        <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
                        
                         <p>
-                            <small><?php echo $token; ?></small>
+                            <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?php echo $token; ?></small>
                             <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
                         </p>
                     </div>
@@ -145,6 +145,11 @@ clipboard.on('success', function(e) {
 clipboard.on('error', function(e) {
   setTooltip(e.trigger, 'Failed!');
   hideTooltip(e.trigger);
+});
+
+// Enable Popovers
+$(function () {
+  $('[data-toggle="popover"]').popover()
 });
 
 </script>
