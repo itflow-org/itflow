@@ -24,7 +24,7 @@
                                 </a>
                             </th>
                             
-                            <?php if (1==2 && $config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
+                            <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <th class="text-center">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">
                                     Billable <?php if ($sort == 'ticket_billable') { echo $order_icon; } ?>
