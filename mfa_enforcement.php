@@ -2,7 +2,7 @@
 require_once "config.php";
 require_once "functions.php";
 require_once "check_login.php";
-require_once 'plugins/totp/totp.php';
+require_once 'plugins/totp/totp.php'; //TOTP MFA Lib
 
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
@@ -97,61 +97,63 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     </div>
     <!-- /.login-box -->
 
-<!-- REQUIRED SCRIPTS -->
+    <!-- REQUIRED SCRIPTS -->
 
-<!-- Bootstrap 4 -->
-<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-<!-- Custom js-->
-<script src="plugins/clipboardjs/clipboard.min.js"></script>
+    <!-- Custom js-->
+    <script src="plugins/clipboardjs/clipboard.min.js"></script>
 
-<script>
+    <script>
 
-// Slide alert up after 4 secs
-$("#alert").fadeTo(5000, 500).slideUp(500, function(){
-  $("#alert").slideUp(500);
-});
+    // Slide alert up after 4 secs
+    $("#alert").fadeTo(5000, 500).slideUp(500, function(){
+        $("#alert").slideUp(500);
+    });
 
-// ClipboardJS
+    // ClipboardJS
 
-// Tooltip
+    // Tooltip
 
-$('button').tooltip({
-  trigger: 'click',
-  placement: 'bottom'
-});
+    $('button').tooltip({
+        trigger: 'click',
+        placement: 'bottom'
+    });
 
-function setTooltip(btn, message) {
-  $(btn).tooltip('hide')
-    .attr('data-original-title', message)
-    .tooltip('show');
-}
+    function setTooltip(btn, message) {
+        $(btn).tooltip('hide')
+        .attr('data-original-title', message)
+        .tooltip('show');
+    }
 
-function hideTooltip(btn) {
-  setTimeout(function() {
-    $(btn).tooltip('hide');
-  }, 1000);
-}
+    function hideTooltip(btn) {
+        setTimeout(function() {
+            $(btn).tooltip('hide');
+        }, 1000);
+    }
 
-// Clipboard
+    // Clipboard
 
-var clipboard = new ClipboardJS('.clipboardjs');
+    var clipboard = new ClipboardJS('.clipboardjs');
 
-clipboard.on('success', function(e) {
-  setTooltip(e.trigger, 'Copied!');
-  hideTooltip(e.trigger);
-});
+    clipboard.on('success', function(e) {
+        setTooltip(e.trigger, 'Copied!');
+        hideTooltip(e.trigger);
+    });
 
-clipboard.on('error', function(e) {
-  setTooltip(e.trigger, 'Failed!');
-  hideTooltip(e.trigger);
-});
+    clipboard.on('error', function(e) {
+        setTooltip(e.trigger, 'Failed!');
+        hideTooltip(e.trigger);
+    });
 
-// Enable Popovers
-$(function () {
-  $('[data-toggle="popover"]').popover()
-});
+    // Enable Popovers
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    });
 
-</script>
+    </script>
+
 </body>
+
 </html>
