@@ -6,9 +6,9 @@ return [
     'user_created' => 'User <strong>{name}</strong> created successfully.',
     'new_vendor' => 'New Vendor',
     'search_vendors' => 'Search Vendors',
-    'archived' => 'Archived',
+    'archived' => 'Archived',  // Nur einmal behalten
     'canned_date' => 'Canned Date',
-    'description' => 'Description',
+    'description' => 'Description',  // Nur einmal behalten
     'contact' => 'Contact',
     'action' => 'Action',
     'edit' => 'Edit',
@@ -22,15 +22,14 @@ return [
     'lastmonth' => 'Last Month',
     'thisyear' => 'This Year',
     'lastyear' => 'Last Year',
-    'vendor' => 'Vendor'
-    'vendors' => 'Vendors'
+    'vendor' => 'Vendor',
+    'vendors' => 'Vendors',
     'editing_vendor' => 'Editing Vendor',
     'details' => 'Details',
     'support' => 'Support',
     'notes' => 'Notes',
     'vendor_name' => 'Vendor Name',
     'vendor_name_placeholder' => 'Enter Vendor Name',
-    'description' => 'Description',
     'description_placeholder' => 'Enter Description',
     'account_number' => 'Account Number',
     'account_number_placeholder' => 'Enter Account Number',
@@ -53,7 +52,7 @@ return [
     'notes_placeholder' => 'Enter notes here...',
     'vendor_id_label' => 'Vendor ID',
     'save' => 'Save',
-    'cancel' => 'Cancel'
+    'cancel' => 'Cancel',
     'editing_trip' => 'Editing Trip',
     'date' => 'Date',
     'miles' => 'Miles',
@@ -67,11 +66,25 @@ return [
     'driver_placeholder' => 'Driver',
     'client' => 'Client',
     'client_placeholder' => 'Client (Optional)',
-    'archived' => 'Archived',
     'export_trips_csv' => 'Export Trips to CSV',
     'date_from' => 'Date From',
     'date_to' => 'Date To',
     'download_csv' => 'Download CSV',
-
-    // Weitere Übersetzungen...
+    'trips' => 'Trips',
+    'new_trip' => 'New Trip',
+    'export' => 'Export',
+    'search_trips' => 'Search Trips',
+    'canned_date' => 'Date Preset',
+    'date' => 'Date',
+    'client' => 'Client',
+    'driver' => 'Driver',
+    'purpose' => 'Purpose',
+    'source' => 'Source',
+    'destination' => 'Destination',
+    'miles' => 'Miles',
+    'action' => 'Action',
+    'map_it' => 'Map it',
+    'edit' => 'Edit',
+    'copy' => 'Copy',
+    'delete' => 'Delete'
 ];
