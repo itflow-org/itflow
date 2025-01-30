@@ -68,6 +68,10 @@ return [
     'client' => 'Client',
     'client_placeholder' => 'Client (Optional)',
     'archived' => 'Archived',
+    'export_trips_csv' => 'Export Trips to CSV',
+    'date_from' => 'Date From',
+    'date_to' => 'Date To',
+    'download_csv' => 'Download CSV',
 
     // Weitere Übersetzungen...
 ];
