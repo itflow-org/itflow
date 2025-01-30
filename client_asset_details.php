@@ -485,7 +485,7 @@ if (isset($_GET['asset_id'])) {
                                 if (empty($login_otp_secret)) {
                                     $otp_display = "-";
                                 } else {
-                                    $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+                                    $otp_display = "<span onmouseenter='showOTPViaLoginID($login_id)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
                                 }
                                 $login_note = nullable_htmlentities($row['login_note']);
                                 $login_important = intval($row['login_important']);
@@ -926,6 +926,8 @@ if (isset($_GET['asset_id'])) {
 </script>
 
 <script src="js/recurring_tickets_edit_modal.js"></script>
+<!-- Include script to get TOTP code via the login ID -->
+<script src="js/logins_show_otp_via_id.js"></script>
 
 <?php
 

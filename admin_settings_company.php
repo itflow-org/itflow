@@ -33,7 +33,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
 
                     <div class="row">
                         <div class="col-md-3 text-center">
-                            <?php if(file_exists("uploads/settings/$company_logo")) { ?>
+                            <?php if($company_logo) { ?>
                             <img class="img-thumbnail" src="<?php echo "uploads/settings/$company_logo"; ?>">
                             <a href="post.php?remove_company_logo" class="btn btn-outline-danger btn-block">Remove Logo</a>
                             <hr>

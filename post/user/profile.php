@@ -190,62 +190,91 @@ if (isset($_POST['edit_your_user_preferences'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['enable_mfa'])) {
 
-if (isset($_POST['verify'])) {
+    validateCSRFToken($_POST['csrf_token']);
 
     require_once "plugins/totp/totp.php";
 
-    $currentcode = intval($_POST['code']);  //code to validate, for example received from device
-
-    if (TokenAuth6238::verify($session_token, $currentcode)) {
-        $_SESSION['alert_message'] = "VALID!";
-    }else{
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "IN-VALID!";
+    // Grab the code from the user
+    $verify_code = trim($_POST['verify_code']); 
+    // Ensure it's numeric
+    if (!ctype_digit($verify_code)) {
+        $verify_code = '';
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    // Grab the secret from the session
+    $token = $_SESSION['mfa_token'] ?? '';
 
-}
+    // Verify
+    if (TokenAuth6238::verify($token, $verify_code)) {
 
-if (isset($_POST['enable_2fa']) || isset($_GET['enable_2fa_force'])) {
+        // SUCCESS
+        mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
 
-    // CSRF Check
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        validateCSRFToken($_POST['csrf_token']);
+        // Delete any existing MFA tokens - these browsers should be re-validated
+        mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
-        $extended_log_description = "";
-        $token = sanitizeInput($_POST['token']);
+        // Logging
+        logAction("User Account", "Edit", "$session_name enabled MFA on their account");
+
+        $_SESSION['alert_message'] = "Multi-Factor authentication enabled";
+
+        // Clear the mfa_token from the session to avoid re-use.
+        unset($_SESSION['mfa_token']);
+
+        // Check if the previous page is mfa_enforcement.php
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
+            if ($previousPage === 'mfa_enforcement.php') {
+                // Redirect back to mfa_enforcement.php
+                header("Location: $config_start_page");
+                exit;
+            }
+        }    
+
     } else {
-        // If this is a GET request then we forced MFA as part of login
-        validateCSRFToken($_GET['csrf_token']);
+        // FAILURE
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Verification code invalid, please try again.";
 
-        $extended_log_description = "(forced)";
-        $token = sanitizeInput($_GET['token']);
+        // Set a flag to automatically open the MFA modal again
+        $_SESSION['show_mfa_modal'] = true;
+
+        // Check if the previous page is mfa_enforcement.php
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
+            if ($previousPage === 'mfa_enforcement.php') {
+                // Redirect back to mfa_enforcement.php
+                header("Location: " . $_SERVER['HTTP_REFERER']);
+                exit;
+            }
+        }    
     }
 
 
-
-    mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
-
-    // Delete any existing 2FA tokens - these browsers should be re-validated
-    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
-
-    // Logging
-    logAction("User Account", "Edit", "$session_name enabled MFA on their account $extended_log_description");
-
-    $_SESSION['alert_message'] = "Two-factor authentication enabled $extended_log_description";
 
     header("Location: user_security.php");
+    exit;
 
 }
 
-if (isset($_POST['disable_2fa'])){
+if (isset($_GET['disable_mfa'])){
+
+    if ($session_user_config_force_mfa) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Multi-Factor authentication cannot be disabled for your account";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
 
     // CSRF Check
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken($_GET['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
+
+    // Delete any existing MFA tokens - these browsers should be re-validated
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
@@ -274,7 +303,7 @@ if (isset($_POST['disable_2fa'])){
     logAction("User Account", "Edit", "$session_name disabled MFA on their account");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Two-factor authentication disabled";
+    $_SESSION['alert_message'] = "Multi-Factor authentication disabled";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -19,19 +19,6 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Cron Key</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="config_cron_key" placeholder="Generate a CRON Key" value="<?php echo nullable_htmlentities($config_cron_key); ?>" readonly>
-                        <div class="input-group-append">
-                            <a href="post.php?generate_cron_key" class="btn btn-secondary confirm-link"><i class="fas fa-fw fa-sync mr-2"></i>Regenerate</a>
-                        </div>
-                    </div>
-                </div>
-
                 <table class="table table-bordered">
                     <thead class="thead-dark">
                         <tr>

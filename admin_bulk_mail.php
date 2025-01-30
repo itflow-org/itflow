@@ -4,7 +4,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     LEFT JOIN clients ON client_id = contact_client_id
-    WHERE contact_archived_at IS NULL
+    WHERE client_archived_at IS NULL
+    AND contact_archived_at IS NULL
     AND contact_email != ''
     AND (contact_primary = 1 OR
     contact_important = 1 OR
@@ -22,7 +23,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
         <h3 class="card-title mt-2 mb-2"><i class="fa fa-fw fa-envelope-open mr-2"></i>Bulk Mail</h3>
         <div class="card-tools">
             <button id="bulkActionButton" hidden class="btn btn-primary" type="submit" form='bulkActions' name="send_bulk_mail_now">
-                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Now (<span id="selectedCount">0</span>)
+                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send (<span id="selectedCount">0</span>)
             </button>
         </div>
     </div>

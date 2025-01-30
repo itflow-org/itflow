@@ -75,7 +75,7 @@ $config_login_remember_me_expire = intval($row['config_login_remember_me_expire'
 //  If no/incorrect 'key' is supplied, send to client portal instead
 if ($config_login_key_required) {
     if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
-        header("Location: portal");
+        header("Location: client");
         exit();
     }
 }
@@ -145,7 +145,7 @@ if (isset($_POST['login'])) {
         // Validate MFA code
         if (!empty($current_code) && TokenAuth6238::verify($token, $current_code)) {
             $mfa_is_complete = true;
-            $extended_log = 'with 2FA';
+            $extended_log = 'with MFA';
         }
 
         if ($mfa_is_complete) {
@@ -201,8 +201,7 @@ if (isset($_POST['login'])) {
 
             // Forcing MFA
             if ($force_mfa == 1 && $token == NULL) {
-                $secretMFA = key32gen();
-                $config_start_page = "post.php?enable_2fa_force&token=$secretMFA&csrf_token=$_SESSION[csrf_token]";
+                $config_start_page = "mfa_enforcement.php";
             }
 
             // Setup encryption session key
@@ -325,7 +324,7 @@ if (isset($_POST['login'])) {
         <?php if (!empty($company_logo)) { ?>
             <img alt="<?=nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
         <?php } else { ?>
-            <b>IT</b>Flow
+            <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
         <?php } ?>
     </div>
 

@@ -62,8 +62,9 @@ if (isset($_GET['recurring_id'])) {
     }
     $recurring_payment_id = intval($row['recurring_payment_id']);
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+    $recurring_payment_method = nullable_htmlentities($row['recurring_payment_method']);
 
-    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $tab_title = $row['client_name'];
     $page_title = "{$row['recurring_prefix']}{$row['recurring_number']}";
 
@@ -131,7 +132,7 @@ if (isset($_GET['recurring_id'])) {
 
                     <?php if ($recurring_payment_recurring_invoice_id) { ?>
                         <a class="btn btn-outline-secondary" href="post.php?delete_recurring_payment=<?php echo $recurring_payment_id; ?>">
-                            <i class="fas fa-fw fa-times-circle mr-2"></i>Disable AutoPay
+                            <i class="fas fa-fw fa-times-circle mr-2"></i>Disable AutoPay (<?php echo $recurring_payment_method ?>)
                         </a>
                     <?php } else { ?>
                         <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_id; ?>">

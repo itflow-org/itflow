@@ -1430,9 +1430,6 @@ if (isset($_GET['delete_recurring_payment'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Auto Payment Removed for Recurring Invoice <strong>$recurring_prefix$recurring_number</strong>";
-    if ($config_stripe_enable) {
-        $_SESSION['alert_message'] = "Auto Payment Removed - Stripe Auto payments must be manually removed in Stripe";
-    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

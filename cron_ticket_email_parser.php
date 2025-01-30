@@ -10,6 +10,11 @@ $script_start_time = microtime(true); // unComment when Debugging Execution time
 // Set working directory to the directory this cron script lives at.
 chdir(dirname(__FILE__));
 
+// Ensure we're running from command line
+if (php_sapi_name() !== 'cli') {
+    die("This script must be run from the command line.\n");
+}
+
 // Get ITFlow config & helper functions
 require_once "config.php";
 
@@ -33,13 +38,6 @@ $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
     exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
-}
-
-$argv = $_SERVER['argv'];
-
-// Check Cron Key
-if ($argv[1] !== $config_cron_key) {
-    exit("Cron Key invalid  -- Quitting..");
 }
 
 // Get system temp directory
@@ -88,7 +86,7 @@ $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', '
 
 // Function to raise a new ticket for a given contact and email them confirmation (if configured)
 function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message, $attachments, $original_message_file) {
-    global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $allowed_extensions;
+    global $mysqli, $config_app_name, $company_name, $company_phone, $config_ticket_prefix, $config_ticket_client_general_notifications, $config_ticket_new_ticket_notification_email, $config_base_url, $config_ticket_from_name, $config_ticket_from_email, $config_ticket_default_billable, $allowed_extensions;
 
     $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1"));
     $ticket_number = intval($ticket_number_sql['config_ticket_next_number']);
@@ -111,7 +109,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$ticket_prefix_esc', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$message_esc', ticket_priority = 'Low', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = 0, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_client_id = $client_id");
     $id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -155,7 +153,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     $data = [];
     if ($config_ticket_client_general_notifications == 1) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
-        $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>https://$config_base_url/client/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+        $body = "<i style='color: #808080'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Thank you for your email. A ticket regarding \"$subject\" has been automatically created for you.<br><br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $subject<br>Status: New<br>Portal: <a href='https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$id&url_key=$url_key'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
         $data[] = [
             'from' => $config_ticket_from_email,
             'from_name' => $config_ticket_from_name,
@@ -556,5 +554,3 @@ if (file_exists($lock_file_path)) {
 }
 echo "Processed Emails into tickets: $processed_count\n";
 echo "Unprocessed Emails: $unprocessed_count\n";
-
-?>

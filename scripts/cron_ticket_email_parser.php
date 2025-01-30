@@ -12,7 +12,7 @@ chdir(dirname(__FILE__));
 
 // Ensure we're running from command line
 if (php_sapi_name() !== 'cli') {
-    die("This setup script must be run from the command line.\n");
+    die("This script must be run from the command line.\n");
 }
 
 // Get ITFlow config & helper functions
