@@ -108,5 +108,6 @@ return [
     'see_more' => 'See More',
     'create' => 'Create',
     'modify' => 'Modify',
-    
+
+    // Weitere Übersetzungen...
 ];
