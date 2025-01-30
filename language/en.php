@@ -116,7 +116,12 @@ return [
     'email_address' => 'Email Address',
     'your_avatar' => 'Your Avatar',
     'avatar_clear_text' => 'Avatar is set, click to clear',
-    'save' => 'Save'
+    'save' => 'Save'´,
+    'web_certificates' => 'Web Certificates',
+    'certificate_name' => 'Certificate Name',
+    'fqdn' => 'FQDN',
+    'issuer' => 'Issuer',
+    'expiry' => 'Expiry'
 
     // Weitere Übersetzungen...
 ];
