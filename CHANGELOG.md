@@ -2,6 +2,10 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.01.2]
+### Fixed
+- Fixed app version.
+
 ## [25.01.01]
 
 ### Added / Changed
