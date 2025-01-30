@@ -73,6 +73,26 @@ return [
     'date_from' => 'Datum von',
     'date_to' => 'Datum bis',
     'download_csv' => 'CSV herunterladen',
+     'trips' => 'Fahrten',
+    'new_trip' => 'Neue Fahrt',
+    'export' => 'Exportieren',
+    'search_trips' => 'Fahrten suchen',
+    'canned_date' => 'Datum Vorgabe',
+    'custom' => 'Benutzerdefiniert',
+    'date_from' => 'Datum von',
+    'date_to' => 'Datum bis',
+    'date' => 'Datum',
+    'client' => 'Kunde',
+    'driver' => 'Fahrer',
+    'purpose' => 'Zweck',
+    'source' => 'Startort',
+    'destination' => 'Zielort',
+    'miles' => 'Meilen',
+    'action' => 'Aktion',
+    'map_it' => 'Auf Karte zeigen',
+    'edit' => 'Bearbeiten',
+    'copy' => 'Kopieren',
+    'delete' => 'Löschen'
 
     // Weitere Übersetzungen...
 ];
