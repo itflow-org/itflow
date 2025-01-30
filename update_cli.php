@@ -1,22 +1,29 @@
 #!/usr/bin/env php
 <?php
 
+// Sprachdatei laden
+include_once 'languages/lang.php';
+
+// Sprache setzen
+$selectedLang = $_SESSION['language'] ?? 'en'; // Standard: Englisch
+$langArray = loadLanguage($selectedLang);
+
 // Change to the directory of this script so that all shell commands run here
 chdir(__DIR__);
 
 // Ensure script is run only from the CLI
 if (php_sapi_name() !== 'cli') {
-    die("This script can only be run from the command line.\n");
+    die(lang('cli_error_cli_only') . "\n");
 }
 
 // Ensure the script is run by the owner of the file
 $fileOwner = fileowner(__FILE__);
-$currentUser = posix_geteuid(); // Get the current effective user ID
+$currentUser = posix_geteuid();
 
 if ($currentUser !== $fileOwner) {
     $ownerInfo = posix_getpwuid($fileOwner);
-    $ownerName = $ownerInfo['name'] ?? 'unknown';
-    fwrite(STDERR, "Error: This script must be run by the file owner ($ownerName) to proceed.\nYou could try sudo -u $ownerName php update_cli.php\n");
+    $ownerName = $ownerInfo['name'] ?? lang('unknown');
+    fwrite(STDERR, lang('cli_error_owner', ['owner' => $ownerName]) . "\n");
     exit(1);
 }
 
@@ -25,13 +32,13 @@ require_once "functions.php";
 
 // A function to print the help message so that we don't duplicate it
 function printHelp() {
-    echo "Usage: php update_cli.php [options]\n\n";
-    echo "Options:\n";
-    echo "  --help          Show this help message.\n";
-    echo "  --update        Perform a git pull to update the application.\n";
-    echo "  --force_update  Perform a git fetch and hard reset to origin/master.\n";
-    echo "  --update_db     Update the database structure to the latest version.\n";
-    echo "\nIf no options are provided, a standard update (git pull) is performed.\n";
+    echo lang('cli_help_usage') . "\n\n";
+    echo lang('cli_help_options') . "\n";
+    echo "  --help          " . lang('cli_help_help') . "\n";
+    echo "  --update        " . lang('cli_help_update') . "\n";
+    echo "  --force_update  " . lang('cli_help_force_update') . "\n";
+    echo "  --update_db     " . lang('cli_help_update_db') . "\n";
+    echo "\n" . lang('cli_help_no_options') . "\n";
 }
 
 // Define allowed options (removed 'user')
@@ -47,21 +54,17 @@ $options = getopt('', ['update', 'force_update', 'update_db', 'help']);
 
 // Check for invalid options by comparing argv against allowed options
 $argv_copy = $argv;
-array_shift($argv_copy); // Remove script name
+array_shift($argv_copy);
 
 foreach ($argv_copy as $arg) {
     if (substr($arg, 0, 2) === '--') {
         // Extract the option name (everything after -- and before = if present)
         $eqPos = strpos($arg, '=');
-        if ($eqPos !== false) {
-            $optName = substr($arg, 2, $eqPos - 2);
-        } else {
-            $optName = substr($arg, 2);
-        }
-
+        $optName = ($eqPos !== false) ? substr($arg, 2, $eqPos - 2) : substr($arg, 2);
+        
         // Check if option name is allowed
         if (!in_array($optName, $allowed_options)) {
-            echo "Error: Unrecognized option: $arg\n\n";
+            echo lang('cli_error_invalid_option', ['option' => $arg]) . "\n\n";
             printHelp();
             exit(1);
         }
@@ -91,9 +94,9 @@ if (isset($options['update']) || isset($options['force_update'])) {
         exec("git pull 2>&1", $output, $return_var);
         
         // Check if the repository is already up to date
-        if (strpos(implode("\n", $output), 'Already up to date.') === false) {
+        if (strpos(implode("\n", $output), lang('cli_update_already_updated')) === false) {
             echo implode("\n", $output) . "\n";
-            echo "Update successful\n";
+            echo lang('cli_update_success') . "\n";
         } else {
             // If already up-to-date, don't show the update success message
             echo implode("\n", $output) . "\n";
@@ -104,7 +107,6 @@ if (isset($options['update']) || isset($options['force_update'])) {
 // If "update_db" is requested
 if (isset($options['update_db'])) {
     require_once('database_version.php');
-
     $latest_db_version = LATEST_DATABASE_VERSION;
 
     // Fetch the current version from the database
@@ -122,9 +124,12 @@ if (isset($options['update_db'])) {
     $new_db_version = $row['config_current_database_version'];
 
     if ($old_db_version !== $latest_db_version) {
-        echo "Database updated from version $old_db_version to $new_db_version.\n";
-        echo "The latest database version is $latest_db_version.\n";
+        echo lang('cli_db_updated', [
+            'old_version' => $old_db_version,
+            'new_version' => $new_db_version
+        ]) . "\n";
+        echo lang('cli_db_latest_version', ['version' => $latest_db_version]) . "\n";
     } else {
-        echo "Database is already at the latest version ($latest_db_version). No updates were applied.\n";
+        echo lang('cli_db_already_updated', ['version' => $latest_db_version]) . "\n";
     }
 }
