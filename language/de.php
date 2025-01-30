@@ -69,6 +69,10 @@ return [
     'client' => 'Kunde',
     'client_placeholder' => 'Kunde (optional)',
     'archived' => 'Archiviert',
+    'export_trips_csv' => 'Fahrten als CSV exportieren',
+    'date_from' => 'Datum von',
+    'date_to' => 'Datum bis',
+    'download_csv' => 'CSV herunterladen',
 
     // Weitere Übersetzungen...
 ];
