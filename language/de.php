@@ -114,6 +114,15 @@ return [
     'see_more' => 'Mehr anzeigen',
     'create' => 'Erstellen',
     'modify' => 'Bearbeiten',
+    'your_user_details' => 'Ihre Benutzerdaten',
+    'user_avatar' => 'Benutzer-Avatar',
+    'your_name' => 'Ihr Name',
+    'full_name' => 'Vollständiger Name',
+    'your_email' => 'Ihre E-Mail',
+    'email_address' => 'E-Mail-Adresse',
+    'your_avatar' => 'Ihr Avatar',
+    'avatar_clear_text' => 'Avatar gesetzt, zum Entfernen klicken',
+    'save' => 'Speichern'
 
     // Weitere Übersetzungen...
 ];
