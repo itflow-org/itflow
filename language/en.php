@@ -112,7 +112,20 @@ return [
     'certificate_name' => 'Certificate Name',
     'fqdn' => 'FQDN',
     'issuer' => 'Issuer',
-    'expiry' => 'Expiry'
+    'expiry' => 'Expiry',
+     'home' => 'Home',
+    'contacts' => 'Contacts',
+    'add_contact' => 'Add Contact',
+    'name' => 'Name',
+    'email' => 'Email',
+    'roles' => 'Roles',
+    'billing' => 'Billing',
+    'technical' => 'Technical',
+    'portal_authentication' => 'Portal authentication',
+    'no_portal_access' => 'No portal access',
+    'local_auth_method' => 'Local (Email and password)',
+    'azure_auth_method' => 'Azure (Microsoft 365)',
+    'add' => 'Add'
 
     // Weitere Übersetzungen...
 ];
