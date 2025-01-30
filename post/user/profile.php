@@ -261,13 +261,20 @@ if (isset($_POST['enable_mfa'])) {
 
 if (isset($_GET['disable_mfa'])){
 
+    if ($session_user_config_force_mfa) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Multi-Factor authentication cannot be disabled for your account";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
     // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
 
     // Delete any existing MFA tokens - these browsers should be re-validated
-        mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
