@@ -132,7 +132,7 @@ if ($item_type == "Document") {
     $doc_content = $purifier->purify($doc_row['document_content']);
 
     echo "<h3>$doc_title</h3>";
-    echo $doc_content;
+    echo "<div class='prettyContent'>$doc_content</div>";
 
     // Update document view count
     $new_item_views = $item_views + 1;
