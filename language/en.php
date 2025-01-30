@@ -102,5 +102,11 @@ return [
     'cli_update_success' => 'Update successful',
     'cli_db_updated' => 'Database updated from version {old_version} to {new_version}.',
     'cli_db_latest_version' => 'The latest database version is {version}.',
-    'cli_db_already_updated' => 'Database is already at the latest version ({version}).'
+    'cli_db_already_updated' => 'Database is already at the latest version ({version}).',
+    'recent_sign_ins' => 'Your Recent Sign ins',
+    'recent_activity' => 'Your Recent Activity',
+    'see_more' => 'See More',
+    'create' => 'Create',
+    'modify' => 'Modify',
+    
 ];
