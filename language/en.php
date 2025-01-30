@@ -108,6 +108,15 @@ return [
     'see_more' => 'See More',
     'create' => 'Create',
     'modify' => 'Modify',
+    'your_user_details' => 'Your User Details',
+    'user_avatar' => 'User avatar',
+    'your_name' => 'Your Name',
+    'full_name' => 'Full Name',
+    'your_email' => 'Your Email',
+    'email_address' => 'Email Address',
+    'your_avatar' => 'Your Avatar',
+    'avatar_clear_text' => 'Avatar is set, click to clear',
+    'save' => 'Save'
 
     // Weitere Übersetzungen...
 ];
