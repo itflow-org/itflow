@@ -137,7 +137,7 @@
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link" data-toggle="dropdown">
                 <?php if (empty($session_avatar)) { ?>
-                <i class="fas fa-user"></i>
+                <i class="fas fa-user-circle mr-1"></i>
                 <?php }else{ ?>
                 <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>"
                     class="user-image img-circle">
