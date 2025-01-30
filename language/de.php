@@ -108,7 +108,12 @@ return [
     'cli_update_success' => 'Update erfolgreich',
     'cli_db_updated' => 'Datenbank von Version {old_version} auf {new_version} aktualisiert.',
     'cli_db_latest_version' => 'Die neueste Datenbankversion ist {version}.',
-    'cli_db_already_updated' => 'Datenbank ist bereits auf der neuesten Version ({version}).'
+    'cli_db_already_updated' => 'Datenbank ist bereits auf der neuesten Version ({version}).',
+    'recent_sign_ins' => 'Ihre letzten Anmeldungen',
+    'recent_activity' => 'Ihre letzte Aktivität',
+    'see_more' => 'Mehr anzeigen',
+    'create' => 'Erstellen',
+    'modify' => 'Bearbeiten',
 
     // Weitere Übersetzungen...
 ];
