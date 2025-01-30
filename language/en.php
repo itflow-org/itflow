@@ -6,9 +6,9 @@ return [
     'user_created' => 'User <strong>{name}</strong> created successfully.',
     'new_vendor' => 'New Vendor',
     'search_vendors' => 'Search Vendors',
-    'archived' => 'Archived',  // Nur einmal behalten
+    'archived' => 'Archived',
     'canned_date' => 'Canned Date',
-    'description' => 'Description',  // Nur einmal behalten
+    'description' => 'Description',
     'contact' => 'Contact',
     'action' => 'Action',
     'edit' => 'Edit',
