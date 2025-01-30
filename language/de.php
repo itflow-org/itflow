@@ -92,7 +92,23 @@ return [
     'map_it' => 'Auf Karte zeigen',
     'edit' => 'Bearbeiten',
     'copy' => 'Kopieren',
-    'delete' => 'Löschen'
+    'delete' => 'Löschen',
+    'cli_error_cli_only' => 'Dieses Skript kann nur über die Kommandozeile ausgeführt werden.',
+    'cli_error_owner' => 'Fehler: Dieses Skript muss vom Dateibesitzer ({owner}) ausgeführt werden.',
+    'unknown' => 'unbekannt',
+    'cli_help_usage' => 'Verwendung: php update_cli.php [Optionen]',
+    'cli_help_options' => 'Optionen:',
+    'cli_help_help' => 'Zeige diese Hilfemeldung an.',
+    'cli_help_update' => 'Führe ein git pull für das Update aus.',
+    'cli_help_force_update' => 'Führe einen Hard Reset auf origin/master durch.',
+    'cli_help_update_db' => 'Datenbankstruktur aktualisieren.',
+    'cli_help_no_options' => 'Wenn keine Optionen angegeben werden, wird ein Standard-Update durchgeführt.',
+    'cli_error_invalid_option' => 'Fehler: Unbekannte Option: {option}',
+    'cli_update_already_updated' => 'Bereits aktuell.',
+    'cli_update_success' => 'Update erfolgreich',
+    'cli_db_updated' => 'Datenbank von Version {old_version} auf {new_version} aktualisiert.',
+    'cli_db_latest_version' => 'Die neueste Datenbankversion ist {version}.',
+    'cli_db_already_updated' => 'Datenbank ist bereits auf der neuesten Version ({version}).'
 
     // Weitere Übersetzungen...
 ];
