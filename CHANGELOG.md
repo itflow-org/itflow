@@ -6,7 +6,7 @@ This file documents all notable changes made to ITFlow.
 ### Fixed
 - Fixed app version.
 
-## [25.01.01]
+## [25.01.1]
 
 ### Added / Changed
 - Redesigned the Multi-Factor Authentication (MFA) Setup and Enforcement Flow UI/UX for a more intuitive user experience.
