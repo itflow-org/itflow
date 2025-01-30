@@ -113,7 +113,20 @@ return [
     'certificate_name' => 'Zertifikatsname',
     'fqdn' => 'Domainname',
     'issuer' => 'Aussteller',
-    'expiry' => 'Ablaufdatum'
+    'expiry' => 'Ablaufdatum',
+    'home' => 'Startseite',
+    'contacts' => 'Kontakte',
+    'add_contact' => 'Kontakt hinzufügen',
+    'name' => 'Name',
+    'email' => 'E-Mail',
+    'roles' => 'Rollen',
+    'billing' => 'Rechnungswesen',
+    'technical' => 'Technisch',
+    'portal_authentication' => 'Portal-Authentifizierung',
+    'no_portal_access' => 'Kein Portalzugang',
+    'local_auth_method' => 'Lokal (E-Mail und Passwort)',
+    'azure_auth_method' => 'Azure (Microsoft 365)',
+    'add' => 'Hinzufügen'
 
     // Weitere Übersetzungen...
 ];
