@@ -86,5 +86,21 @@ return [
     'map_it' => 'Map it',
     'edit' => 'Edit',
     'copy' => 'Copy',
-    'delete' => 'Delete'
+    'delete' => 'Delete',
+    'cli_error_cli_only' => 'This script can only be run from the command line.',
+    'cli_error_owner' => 'Error: This script must be run by the file owner ({owner}) to proceed.',
+    'unknown' => 'unknown',
+    'cli_help_usage' => 'Usage: php update_cli.php [options]',
+    'cli_help_options' => 'Options:',
+    'cli_help_help' => 'Show this help message.',
+    'cli_help_update' => 'Perform a git pull to update the application.',
+    'cli_help_force_update' => 'Perform a hard reset to origin/master.',
+    'cli_help_update_db' => 'Update the database structure.',
+    'cli_help_no_options' => 'If no options are provided, a standard update is performed.',
+    'cli_error_invalid_option' => 'Error: Unrecognized option: {option}',
+    'cli_update_already_updated' => 'Already up to date.',
+    'cli_update_success' => 'Update successful',
+    'cli_db_updated' => 'Database updated from version {old_version} to {new_version}.',
+    'cli_db_latest_version' => 'The latest database version is {version}.',
+    'cli_db_already_updated' => 'Database is already at the latest version ({version}).'
 ];
