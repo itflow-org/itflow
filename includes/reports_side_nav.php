@@ -116,12 +116,6 @@
                 <li class="nav-header">OVERVIEWS</li>
 
                 <li class="nav-item">
-                    <a href="report_contacts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_contacts.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-address-book"></i>
-                        <p>All Contacts</p>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="report_assets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_assets.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-desktop"></i>
                         <p>All Assets</p>
