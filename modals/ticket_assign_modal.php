@@ -23,7 +23,7 @@
                                 <?php
                                 $sql_users_select = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
                                     LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                    AND user_type = 1
+                                    WHERE user_type = 1
                                     AND user_archived_at IS NULL
                                     ORDER BY user_name DESC"
                                 );
