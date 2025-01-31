@@ -41,10 +41,12 @@ if (isset($_GET['category'])) {
     if ($category == 'empty') {
         $category_snippet = "AND ticket_category = 0 ";
     } elseif ($category == 'all') {
-        $category_snippet = "";
+        $category_snippet = '';
     } else {
         $category_snippet = "AND ticket_category = " . $category;
     }
+} else {
+    $category_snippet = '';
 }
 
 
@@ -166,8 +168,10 @@ $sql_categories = mysqli_query(
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'compact']))); ?>">Compact List</a>
+                                    <?php if ($status !== 'Closed') {?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'kanban']))); ?>">Kanban</a>
+                                    <?php } ?>
                                 </div>
                             </div>
                             <div class="btn-group">
@@ -353,9 +357,9 @@ $sql_categories = mysqli_query(
         </div>
     </div>
 
-<?php
+    <?php
 
-if ($_GET["view"]) {
+if (isset($_GET["view"])) {
     if ($_GET["view"] == "list") {
         require_once "tickets_list.php";
     } elseif ($_GET["view"] == "compact") {

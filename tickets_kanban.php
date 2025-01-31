@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
 <style>
     .popover {
         max-width: 600px;
@@ -43,12 +43,12 @@ $kanban = [];
 
 
 // Fetch all statuses
-$status_sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses");
+$status_sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses where ticket_status_active = 1 AND  ticket_status_id != 5 ORDER BY ticket_status_order");
 $statuses = [];
 while ($status_row = mysqli_fetch_array($status_sql)) {
     $id = $status_row['ticket_status_id'];
     $name = $status_row['ticket_status_name'];
-    $kanban_order = $status_row['ticket_status_kanban'];
+    $kanban_order = $status_row['ticket_status_order'];
 
     $statuses[$id] = new stdClass();
     $statuses[$id]->id = $id;
@@ -192,7 +192,7 @@ $kanban = $ordered_kanban;
 
 
     
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
+<script src="/plugins/dragula/dragula.min.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -227,7 +227,7 @@ $kanban = $ordered_kanban;
 
             // Send AJAX request to update all column positions
             $.ajax({
-                url: 'post.php',
+                url: 'ajax.php',
                 type: 'POST',
                 data: {
                     update_kanban_status_position: true,
@@ -265,10 +265,18 @@ $kanban = $ordered_kanban;
 
             //id of current status / column
             var columnId = $(target).data('status-id');
-            
+
+            var movedTicketId = $(el).data('ticket-id');
+            var movedTicketStatusId = $(el).data('ticket-status-id');
+
             cards.each(function(index, card) {
-                ticketId = $(card).data('ticket-id');
-                statusId = $(card).data('ticket-status-id');
+                let ticketId = $(card).data('ticket-id');
+                let statusId = $(card).data('ticket-status-id');
+                
+                oldStatus = false;     
+                if (ticketId == movedTicketId) {
+                    oldStatus = movedTicketStatusId;
+                }
 
                 //update the status id of the card if needed
                 if (statusId != columnId) {
@@ -278,6 +286,7 @@ $kanban = $ordered_kanban;
                 positions.push({
                     ticket_id: ticketId,
                     ticket_kanban: index,
+                    ticket_oldStatus: oldStatus,
                     ticket_status: statusId ??  null// Get the new status ID from the target column
                 });
             });
@@ -285,7 +294,7 @@ $kanban = $ordered_kanban;
             //console.log(positions);
             // Send AJAX request to update all ticket kanban orders and statuses
             $.ajax({
-                url: 'post.php',
+                url: 'ajax.php',
                 type: 'POST',
                 data: {
                     update_kanban_ticket: true,
@@ -301,10 +310,3 @@ $kanban = $ordered_kanban;
         });
     });
 </script>
-
-
-
-
-
-
-

@@ -2019,7 +2019,7 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_name` varchar(200) NOT NULL,
   `ticket_status_color` varchar(200) NOT NULL,
   `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
-  `ticket_status_kanban` int(11),
+  `ticket_status_order` int(11),
   PRIMARY KEY (`ticket_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
