@@ -13,16 +13,6 @@
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
-                        <label>Description</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="description" maxlength="250" placeholder="Description of the file">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <input type="file" class="form-control-file" name="file[]" id="fileInput" accept=".pdf">
                     </div>
 
