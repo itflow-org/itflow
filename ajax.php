@@ -529,3 +529,80 @@ if (isset($_GET['get_totp_token_via_id'])) {
 if (isset($_GET['get_readable_pass'])) {
     echo json_encode(GenerateReadablePassword(4));
 }
+
+/*
+ * ITFlow - POST request handler for client tickets
+ */
+if (isset($_POST['update_kanban_status_position'])) {
+    // Update multiple ticket status kanban orders
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+
+    foreach ($positions as $position) {
+        $status_id = intval($position['status_id']);
+        $kanban = intval($position['status_kanban']);
+
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_order = $kanban WHERE ticket_status_id = $status_id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_kanban_ticket'])) {
+    // Update ticket kanban order and status
+    enforceUserPermission('module_support', 2);
+
+    
+    // have to do new logic, to update only one dragged ticket
+    $positions = $_POST['positions']; //old and new position
+
+    
+    
+    
+    // old logic that updated all tickets on the column
+    $positions = $_POST['positions'];
+
+    foreach ($positions as $position) {
+        $ticket_id = intval($position['ticket_id']);
+        $kanban = intval($position['ticket_kanban']); // ticket kanban position
+        $status = intval($position['ticket_status']); // ticket statuses
+        $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
+
+        $statuses['Closed'] = 5;
+        $statuses['Resolved'] = 4;
+
+        // Continue if status is null / Closed
+        if ($status === null || $status === $statuses['Closed']) {
+            continue;
+        }
+
+
+        if ($oldStatus === false) {
+            // if ticket was not moved, just uptdate the order on kanban
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban WHERE ticket_id = $ticket_id");
+            customAction('ticket_update', $ticket_id);
+        } else { 
+            // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
+            if ($oldStatus === $statuses['Resolved']) {
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+            } elseif ($status === $statuses['Resolved']) {
+                // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+            } else {
+                // If the ticket was moved from any status to another status
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+            }
+        }
+
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success','payload' => $positions]);
+    exit;
+}
