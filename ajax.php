@@ -529,3 +529,22 @@ if (isset($_GET['get_totp_token_via_id'])) {
 if (isset($_GET['get_readable_pass'])) {
     echo json_encode(GenerateReadablePassword(4));
 }
+
+if (isset($_POST['update_ticket_tasks_order'])) {
+    // Update multiple ticket tasks order
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+    $ticket_id = intval($_POST['ticket_id']);
+
+    foreach ($positions as $position) {
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE tasks SET task_order = $order WHERE task_ticket_id = $ticket_id AND task_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
