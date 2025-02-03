@@ -50,13 +50,13 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $subject = "Quote Accepted - $client_name - Quote $quote_prefix$quote_number";
             $body = "Hello, <br><br>This is a notification that a quote has been accepted in ITFlow. <br><br>Client: $client_name<br>Quote: <a href=\'https://$config_base_url/quote.php?quote_id=$quote_id\'>$quote_prefix$quote_number</a><br><br>~<br>$company_name - Billing<br>$config_quote_from_email";
 
-                $data[] = [
-                    'from' => $config_quote_from_email,
-                    'from_name' => $config_quote_from_name,
-                    'recipient' => $config_quote_notification_email,
-                    'subject' => $subject,
-                    'body' => $body,
-                ];
+            $data[] = [
+                'from' => $config_quote_from_email,
+                'from_name' => $config_quote_from_name,
+                'recipient' => $config_quote_notification_email,
+                'subject' => $subject,
+                'body' => $body,
+            ];
 
             $mail = addToMailQueue($data);
         }
@@ -200,4 +200,72 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         echo "Invalid!!";
     }
 }
+
+if (isset($_POST['guest_quote_upload_file'])) {
+    $quote_id = intval($_POST['quote_id']);
+    $url_key = sanitizeInput($_POST['url_key']);
+
+    // Select only the necessary fields
+    $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+
+    if (mysqli_num_rows($sql) == 1) {
+        $row = mysqli_fetch_array($sql);
+        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_number = intval($row['quote_number']);
+        $client_id = intval($row['client_id']);
+
+        // Define & create directories, as required
+        mkdirMissing('../uploads/quotes/');
+        $upload_file_dir = "../uploads/quotes/" . $quote_id . "/";
+        mkdirMissing($upload_file_dir);
+
+        // Store attached any file
+        if (!empty($_FILES)) {
+
+            for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
+                // Extract file details for this iteration
+                $single_file = [
+                    'name' => $_FILES['file']['name'][$i],
+                    'type' => $_FILES['file']['type'][$i],
+                    'tmp_name' => $_FILES['file']['tmp_name'][$i],
+                    'error' => $_FILES['file']['error'][$i],
+                    'size' => $_FILES['file']['size'][$i]
+                ];
+
+                if ($file_reference_name = checkFileUpload($single_file, array('pdf'))) {
+
+                    $file_tmp_path = $_FILES['file']['tmp_name'][$i];
+
+                    $file_name = sanitizeInput($_FILES['file']['name'][$i]);
+                    $extarr = explode('.', $_FILES['file']['name'][$i]);
+                    $file_extension = sanitizeInput(strtolower(end($extarr)));
+
+                    // Define destination file path
+                    $dest_path = $upload_file_dir . $file_reference_name;
+
+                    // Do upload
+                    move_uploaded_file($file_tmp_path, $dest_path);
+                    mysqli_query($mysqli, "INSERT INTO quote_attachments SET quote_attachment_name = '$file_name', quote_attachment_reference_name = '$file_reference_name', quote_attachment_quote_id = $quote_id");
+
+                    // Logging & feedback
+                    $_SESSION['alert_message'] = 'File uploaded!';
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
+                    logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
+
+                } else {
+                    $_SESSION['alert_type'] = 'error';
+                    $_SESSION['alert_message'] = 'Something went wrong uploading the file - please let the support team know.';
+
+                }
+
+            }
+        }
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    } else {
+        echo "Invalid!!";
+    }
+}
+
 ?>
