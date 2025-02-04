@@ -2,6 +2,10 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02]
+### Fixed
+- 
+
 ## [25.01.3]
 ### Fixed
 - Fixed ticket assignment modal showing client contacts.
