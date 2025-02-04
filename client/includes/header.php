@@ -77,6 +77,29 @@ header("X-Frame-Options: DENY"); // Legacy
                     </li>
                 <?php } ?>
 
+                <?php
+                $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 3 AND custom_link_archived_at IS NULL
+                    ORDER BY custom_link_order ASC, custom_link_name ASC"
+                );
+
+                while ($row = mysqli_fetch_array($sql_custom_links)) {
+                    $custom_link_name = nullable_htmlentities($row['custom_link_name']);
+                    $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+                    $custom_link_new_tab = intval($row['custom_link_new_tab']);
+                    if ($custom_link_new_tab == 1) {
+                        $target = "target='_blank' rel='noopener noreferrer'";
+                    } else {
+                        $target = "";
+                    }
+
+                    ?>
+
+                    <li class="nav-item">
+                        <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>"><?php echo $custom_link_name ?></a>
+                    </li>
+
+                <?php } ?>
+
             </ul><!-- End left nav -->
 
             <ul class="nav navbar-nav pull-right">
