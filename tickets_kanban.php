@@ -42,7 +42,7 @@ $sql = mysqli_query(
 
 while ($row = mysqli_fetch_array($sql)) {
     $id = $row['ticket_status_id'];
-    $ticket_order = $row['ticket_kanban'];
+    $ticket_order = $row['ticket_order'];
     $row['ticket_order'] = $ticket_order; // Store the ticket order
 
     // Loop over all items in $row to apply nullable_htmlentities only if the content is a string
@@ -71,7 +71,7 @@ usort($kanban_array, function($a, $b) {
     return $a->order - $b->order;
 });
 
-// Sort tickets within each column by 'ticket_kanban'
+// Sort tickets within each column by 'ticket_order'
 foreach ($kanban_array as $kanban_column) {
     usort($kanban_column->tickets, function($a, $b) {
         return $a['ticket_order'] - $b['ticket_order'];

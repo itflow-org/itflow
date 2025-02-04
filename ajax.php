@@ -560,7 +560,7 @@ if (isset($_POST['update_kanban_ticket'])) {
 
     foreach ($positions as $position) {
         $ticket_id = intval($position['ticket_id']);
-        $kanban = intval($position['ticket_kanban']); // ticket kanban position
+        $kanban = intval($position['ticket_order']); // ticket kanban position
         $status = intval($position['ticket_status']); // ticket statuses
         $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
 
@@ -575,20 +575,20 @@ if (isset($_POST['update_kanban_ticket'])) {
 
         if ($oldStatus === false) {
             // if ticket was not moved, just uptdate the order on kanban
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban WHERE ticket_id = $ticket_id");
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
             customAction('ticket_update', $ticket_id);
         } else { 
             // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
             if ($oldStatus === $statuses['Resolved']) {
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
                 customAction('ticket_update', $ticket_id);
             } elseif ($status === $statuses['Resolved']) {
                 // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
                 customAction('ticket_update', $ticket_id);
             } else {
                 // If the ticket was moved from any status to another status
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_kanban = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
                 customAction('ticket_update', $ticket_id);
             }
         }

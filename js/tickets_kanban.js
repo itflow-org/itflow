@@ -82,7 +82,7 @@ $(document).ready(function() {
             }
             positions.push({
                 ticket_id: ticketId,
-                ticket_kanban: index,
+                ticket_order: index,
                 ticket_oldStatus: oldStatus,
                 ticket_status: statusId ??  null// Get the new status ID from the target column
             });
