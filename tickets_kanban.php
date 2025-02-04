@@ -1,42 +1,5 @@
 <link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
-<style>
-    .popover {
-        max-width: 600px;
-    }
-    #kanban-board {
-        display: flex;
-        box-sizing: border-box;
-        overflow-x: auto;
-        min-width: 400px;
-        height: calc(100vh - 210px);
-    }
-
-    .kanban-column {
-        flex: 1; /* Allows columns to grow equally */
-        margin: 0 10px; /* Space between columns */
-        min-width: 300px;
-        max-width: 300px;
-        background: #f4f4f4;
-        padding: 10px;
-        border: 1px solid #ccc;
-        min-height: calc(100vh - 230px);
-        max-height: calc(100vh - 230px);
-        box-sizing: border-box;
-    }
-
-    .kanban-column div {
-        max-height: calc(100vh - 280px);  /* Set your desired max height */
-        overflow-y: auto;  /* Adds a scrollbar when content exceeds max height */
-    }
-
-    .task {
-        background: #fff;
-        margin: 5px 0;
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-</style>
-
+<link rel="stylesheet" href="/css/tickets_kanban.css">
 
 <?php
 $kanban = [];
@@ -130,7 +93,7 @@ $kanban = $ordered_kanban;
     ?>
     <div class="kanban-column card card-dark" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>">
         <h6 class="panel-title"><?=htmlspecialchars($kanban_column->name); ?></h6>
-        <div id="status_<?=htmlspecialchars($kanban_column->id); ?>" data-column-name="<?=$kanban_column->name?>" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>" style="height: 100%;" >
+        <div id="status" data-column-name="<?=$kanban_column->name?>" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>" style="height: 100%;" >
             <?php
             foreach($kanban_column->tickets as $item){
                 if ($item['ticket_priority'] == "High") {
@@ -193,120 +156,4 @@ $kanban = $ordered_kanban;
 
     
 <script src="/plugins/dragula/dragula.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        // Initialize Dragula for the Kanban board
-        var boardDrake = dragula([
-            document.querySelector('#kanban-board')
-        ], {
-            moves: function(el, container, handle) {
-                return handle.classList.contains('panel-title');
-            }
-        });
-
-        // Log the event of moving the column panel-title
-        boardDrake.on('drag', function(el) {
-            console.log('Dragging column:', el.querySelector('.panel-title').innerText);
-        });
-
-        boardDrake.on('drop', function(el, target, source, sibling) {
-            console.log('Dropped column:', el.querySelector('.panel-title').innerText);
-
-            // Get all columns and their positions
-            var columns = document.querySelectorAll('#kanban-board .kanban-column');
-            var columnPositions = [];
-
-            columns.forEach(function(column, index) {
-                var statusId = $(column).data('status-id'); // Assuming you have a data attribute for status ID
-                columnPositions.push({
-                    status_id: statusId,
-                    status_kanban: index
-                });
-            });
-
-            // Send AJAX request to update all column positions
-            $.ajax({
-                url: 'ajax.php',
-                type: 'POST',
-                data: {
-                    update_kanban_status_position: true,
-                    positions: columnPositions
-                },
-                success: function(response) {
-                    console.log('Ticket status kanban orders updated successfully.');
-                    // Optionally, you can refresh the page or update the UI here
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error updating ticket status kanban orders:', error);
-                }
-            });
-        });
-
-        // Initialize Dragula for the Kanban Cards
-        var drake = dragula([
-            <?php
-                $kanban_columns = [];
-                foreach($kanban as $kanban_column) {
-                    $kanban_columns[] = "document.querySelector('#status_" . htmlspecialchars($kanban_column->id) . "')";
-                }
-                echo implode(", ", $kanban_columns);
-            ?>
-        ]);
-
-        // Add event listener for the drop event
-        drake.on('drop', function (el, target, source, sibling) {
-            // Log the target ID to the console
-            //console.log('Dropped into:', target.getAttribute('data-column-name'));
-            
-            // Get all cards in the target column and their positions
-            var cards = $(target).children('.task');
-            var positions = [];
-
-            //id of current status / column
-            var columnId = $(target).data('status-id');
-
-            var movedTicketId = $(el).data('ticket-id');
-            var movedTicketStatusId = $(el).data('ticket-status-id');
-
-            cards.each(function(index, card) {
-                let ticketId = $(card).data('ticket-id');
-                let statusId = $(card).data('ticket-status-id');
-                
-                oldStatus = false;     
-                if (ticketId == movedTicketId) {
-                    oldStatus = movedTicketStatusId;
-                }
-
-                //update the status id of the card if needed
-                if (statusId != columnId) {
-                     $(card).data('ticket-status-id', columnId);
-                     statusId = columnId;
-                }
-                positions.push({
-                    ticket_id: ticketId,
-                    ticket_kanban: index,
-                    ticket_oldStatus: oldStatus,
-                    ticket_status: statusId ??  null// Get the new status ID from the target column
-                });
-            });
-
-            //console.log(positions);
-            // Send AJAX request to update all ticket kanban orders and statuses
-            $.ajax({
-                url: 'ajax.php',
-                type: 'POST',
-                data: {
-                    update_kanban_ticket: true,
-                    positions: positions
-                },
-                success: function(response) {
-                    //console.log('Ticket kanban orders and statuses updated successfully.');
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error updating ticket kanban orders and statuses:', error);
-                }
-            });
-        });
-    });
-</script>
+<script src="/js/tickets_kanban.js"></script>
