@@ -554,15 +554,8 @@ if (isset($_POST['update_kanban_status_position'])) {
 if (isset($_POST['update_kanban_ticket'])) {
     // Update ticket kanban order and status
     enforceUserPermission('module_support', 2);
-
     
-    // have to do new logic, to update only one dragged ticket
-    $positions = $_POST['positions']; //old and new position
-
-    
-    
-    
-    // old logic that updated all tickets on the column
+    // all tickets on the column
     $positions = $_POST['positions'];
 
     foreach ($positions as $position) {
