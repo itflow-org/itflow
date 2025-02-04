@@ -586,6 +586,82 @@ if (isset($_POST['update_kanban_ticket'])) {
                 // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
                 customAction('ticket_update', $ticket_id);
+
+                // Client notification email
+                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
+
+                    // Get details
+                    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets 
+                        LEFT JOIN clients ON ticket_client_id = client_id 
+                        LEFT JOIN contacts ON ticket_contact_id = contact_id
+                        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+                        WHERE ticket_id = $ticket_id
+                    ");
+                    $row = mysqli_fetch_array($ticket_sql);
+
+                    $contact_name = sanitizeInput($row['contact_name']);
+                    $contact_email = sanitizeInput($row['contact_email']);
+                    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                    $ticket_number = intval($row['ticket_number']);
+                    $ticket_subject = sanitizeInput($row['ticket_subject']);
+                    $client_id = intval($row['ticket_client_id']);
+                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
+                    $ticket_status = sanitizeInput($row['ticket_status_name']);
+                    $url_key = sanitizeInput($row['ticket_url_key']);
+
+                    // Sanitize Config vars from get_settings.php
+                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                    $config_base_url = sanitizeInput($config_base_url);
+
+                    // Get Company Info
+                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+                    $row = mysqli_fetch_array($sql);
+                    $company_name = sanitizeInput($row['company_name']);
+                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+                    // EMAIL
+                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
+                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+                    // Check email valid
+                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+                        $data = [];
+
+                        // Email Ticket Contact
+                        // Queue Mail
+
+                        $data[] = [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $contact_email,
+                            'recipient_name' => $contact_name,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+
+                    // Also Email all the watchers
+                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+                    $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
+                    while ($row = mysqli_fetch_array($sql_watchers)) {
+                        $watcher_email = sanitizeInput($row['watcher_email']);
+
+                        // Queue Mail
+                        $data[] = [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $watcher_email,
+                            'recipient_name' => $watcher_email,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+                    addToMailQueue($data);
+                }
+                //End Mail IF
+                
             } else {
                 // If the ticket was moved from any status to another status
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
@@ -597,5 +673,24 @@ if (isset($_POST['update_kanban_ticket'])) {
 
     // return a response
     echo json_encode(['status' => 'success','payload' => $positions]);
+    exit;
+}
+
+if (isset($_POST['update_ticket_tasks_order'])) {
+    // Update multiple ticket tasks order
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+    $ticket_id = intval($_POST['ticket_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE tasks SET task_order = $order WHERE task_ticket_id = $ticket_id AND task_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
     exit;
 }
