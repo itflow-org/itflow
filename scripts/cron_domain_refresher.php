@@ -23,6 +23,7 @@ $config_enable_cron = intval($row['config_enable_cron']);
 
 // Check cron is enabled
 if ($config_enable_cron == 0) {
+    logApp("Cron-Domain-Refresher", "error", "Cron Domain Refresh unable to run - cron not enabled in admin settings.");
     exit("Cron: is not enabled -- Quitting..");
 }
 

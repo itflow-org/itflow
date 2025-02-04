@@ -37,6 +37,7 @@ $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
+    logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - not enabled in admin settings.");
     exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
