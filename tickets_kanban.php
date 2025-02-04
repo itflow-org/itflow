@@ -10,7 +10,7 @@ $status_sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses where ticket_
 $statuses = [];
 while ($status_row = mysqli_fetch_array($status_sql)) {
     $id = $status_row['ticket_status_id'];
-    $name = $status_row['ticket_status_name'];
+    $name = nullable_htmlentities($status_row['ticket_status_name']);
     $kanban_order = $status_row['ticket_status_order'];
 
     $statuses[$id] = new stdClass();
@@ -44,6 +44,13 @@ while ($row = mysqli_fetch_array($sql)) {
     $id = $row['ticket_status_id'];
     $ticket_order = $row['ticket_kanban'];
     $row['ticket_order'] = $ticket_order; // Store the ticket order
+
+    // Loop over all items in $row to apply nullable_htmlentities only if the content is a string
+    foreach ($row as $key => $value) {
+        if (is_string($value)) {
+            $row[$key] = nullable_htmlentities($value);
+        }
+    }
 
     if (isset($statuses[$id])) {
         $statuses[$id]->tickets[] = $row;
