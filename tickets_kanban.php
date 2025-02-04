@@ -20,6 +20,19 @@ while ($status_row = mysqli_fetch_array($status_sql)) {
     $statuses[$id]->order = $kanban_order; // Store the order
 }
 
+$ordering_snippet = "ORDER BY 
+    CASE 
+        WHEN ticket_priority = 'High' THEN 1
+        WHEN ticket_priority = 'Medium' THEN 2
+        WHEN ticket_priority = 'Low' THEN 3
+        ELSE 4
+    END, 
+    ticket_id DESC";
+
+if ($config_ticket_ordering === 1) {
+    $ordering_snippet = "ORDER BY ticket_order ASC";
+}
+
 // Fetch tickets and merge into statuses
 $sql = mysqli_query(
     $mysqli,
@@ -37,13 +50,12 @@ $sql = mysqli_query(
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     $ticket_permission_snippet
-    ORDER BY $sort $order"
+    $ordering_snippet"
 );
 
 while ($row = mysqli_fetch_array($sql)) {
     $id = $row['ticket_status_id'];
     $ticket_order = $row['ticket_order'];
-    $row['ticket_order'] = $ticket_order; // Store the ticket order
 
     // Loop over all items in $row to apply nullable_htmlentities only if the content is a string
     foreach ($row as $key => $value) {
@@ -58,38 +70,7 @@ while ($row = mysqli_fetch_array($sql)) {
 }
 
 // Convert associative array to indexed array for sorting
-$kanban_array = array_values($statuses);
-
-// Sort the array by the 'order' field, moving null values to the end
-usort($kanban_array, function($a, $b) {
-    if ($a->order === null) {
-        return 1;
-    }
-    if ($b->order === null) {
-        return -1;
-    }
-    return $a->order - $b->order;
-});
-
-// Sort tickets within each column by 'ticket_order'
-foreach ($kanban_array as $kanban_column) {
-    usort($kanban_column->tickets, function($a, $b) {
-        return $a['ticket_order'] - $b['ticket_order'];
-    });
-}
-
-// Re-index the sorted array back to associative array if needed
-$ordered_kanban = [];
-foreach ($kanban_array as $item) {
-    $ordered_kanban[$item->id] = $item;
-}
-
-$kanban = $ordered_kanban;
-
-
-
-
-
+$kanban = array_values($statuses);
 
 ?>
 
@@ -161,6 +142,11 @@ $kanban = $ordered_kanban;
 </div>
 
 
-    
+<?php
+echo "<script>";
+echo   "const CONFIG_TICKET_MOVING_COLUMNS = " . json_encode($config_ticket_moving_columns) . ";";
+echo   "const CONFIG_TICKET_ORDERING = " . json_encode($config_ticket_ordering) . ";";
+echo "</script>";
+?>
 <script src="/plugins/dragula/dragula.min.js"></script>
 <script src="/js/tickets_kanban.js"></script>

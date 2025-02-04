@@ -357,7 +357,7 @@ $sql_categories = mysqli_query(
         </div>
     </div>
 
-    <?php
+<?php
 
 if (isset($_GET["view"])) {
     if ($_GET["view"] == "list") {
@@ -369,7 +369,15 @@ if (isset($_GET["view"])) {
     }
 } else {
     // here we have to get default view setting
-    require_once "tickets_list.php";
+    if ($config_ticket_default_view === 0) {
+        require_once "tickets_list.php";
+    } elseif ($config_ticket_default_view === 1) {
+        require_once "tickets_compact.php";
+    } elseif ($config_ticket_default_view === 2) {
+        require_once "tickets_kanban.php";
+    } else {
+        require_once "tickets_list.php";
+    }
 }
 
 ?>

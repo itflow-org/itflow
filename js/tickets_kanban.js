@@ -1,20 +1,25 @@
 $(document).ready(function() {
+    console.log('CONFIG_TICKET_MOVING_COLUMNS: ' + CONFIG_TICKET_MOVING_COLUMNS);
+    console.log('CONFIG_TICKET_ORDERING: ' + CONFIG_TICKET_ORDERING);
     // Initialize Dragula for the Kanban board
     let boardDrake = dragula([
         document.querySelector('#kanban-board')
     ], {
         moves: function(el, container, handle) {
             return handle.classList.contains('panel-title');
+        },
+        accepts: function(el, target, source, sibling) {
+            return CONFIG_TICKET_MOVING_COLUMNS === 1;
         }
     });
 
     // Log the event of moving the column panel-title
     boardDrake.on('drag', function(el) {
-        console.log('Dragging column:', el.querySelector('.panel-title').innerText);
+        //console.log('Dragging column:', el.querySelector('.panel-title').innerText);
     });
 
     boardDrake.on('drop', function(el, target, source, sibling) {
-        console.log('Dropped column:', el.querySelector('.panel-title').innerText);
+        //console.log('Dropped column:', el.querySelector('.panel-title').innerText);
 
         // Get all columns and their positions
         let columns = document.querySelectorAll('#kanban-board .kanban-column');
@@ -55,6 +60,11 @@ $(document).ready(function() {
     drake.on('drop', function (el, target, source, sibling) {
         // Log the target ID to the console
         //console.log('Dropped into:', target.getAttribute('data-column-name'));
+
+        if (CONFIG_TICKET_ORDERING === 0 && source == target) {
+            drake.cancel(true); // Move the card back to its original position
+            return;
+        }
         
         // Get all cards in the target column and their positions
         let cards = $(target).children('.task');

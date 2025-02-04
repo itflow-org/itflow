@@ -2476,6 +2476,10 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_order` int(11) NOT NULL DEFAULT 0");
 
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1");
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.1'");
     }
 
