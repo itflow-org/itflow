@@ -47,7 +47,6 @@ if (isset($_POST['edit_role'])) {
             $access_level = intval($value);
 
             if ($access_level > 0) {
-                echo $key . ' with id ' . $module_id . " : ". $access_level . "\n";
                 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = $role_id, module_id = $module_id, user_role_permission_level = $access_level");
             }
         }
