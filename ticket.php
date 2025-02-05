@@ -898,7 +898,8 @@ if (isset($_GET['ticket_id'])) {
 
 
                 <!-- Tasks Card -->
-                <div class="card card-body">
+                <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
+                    <div class="card card-body">
 
                     <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                         <form action="post.php" method="post" autocomplete="off">
@@ -970,6 +971,7 @@ if (isset($_GET['ticket_id'])) {
                         } ?>
                     </table>
                 </div>
+                <?php } ?>
                 <!-- End Tasks Card -->
 
 
