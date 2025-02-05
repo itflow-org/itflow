@@ -14,8 +14,6 @@ uploads/tmp/*
 !uploads/tmp/index.php
 uploads/tickets/*
 !uploads/tickets/index.php
-uploads/quotes/*
-!uploads/quotes/index.php
 .idea/*
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/HTML/.gitkeep
