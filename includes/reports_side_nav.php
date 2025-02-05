@@ -106,9 +106,9 @@
                 <?php } ?>
                 <?php if (lookupUserPermission("module_credential") >= 1) { ?>
                     <li class="nav-item">
-                        <a href="report_password_rotation.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_password_rotation.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Password rotation</p>
+                        <a href="report_credential_rotation.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_credential_rotation.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>Credential rotation</p>
                         </a>
                     </li>
                 <?php } ?>
