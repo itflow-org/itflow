@@ -4,7 +4,7 @@ This file documents all notable changes made to ITFlow.
 
 ## [25.02]
 ### Fixed
-- Fix report permissions for un-billed tickets
+- Changed several reports over to the new permissions/roles system
 - Fixed empty task box showing for resolved/closed tickets
 
 ### Added / Changed

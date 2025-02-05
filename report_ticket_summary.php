@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateTechRole();
+enforceUserPermission('module_support');
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
