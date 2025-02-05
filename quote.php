@@ -108,11 +108,10 @@ if (isset($_GET['quote_id'])) {
         $json_products = json_encode($products);
     }
 
-    // Attachments
-    // Get Ticket Attachments
-    $sql_quote_attachments = mysqli_query(
+    // Quote File Attachments
+    $sql_quote_files = mysqli_query(
         $mysqli,
-        "SELECT * FROM quote_attachments WHERE quote_attachments.quote_attachment_quote_id = $quote_id"
+        "SELECT file_reference_name, file_name, file_created_at FROM quote_files LEFT JOIN files ON quote_files.file_id = files.file_id WHERE quote_id = $quote_id"
     );
 
 ?>
@@ -490,7 +489,7 @@ if (isset($_GET['quote_id'])) {
         </div>
     </div>
 
-    <?php if (mysqli_num_rows($sql_quote_attachments) > 0) { ?>
+    <?php if (mysqli_num_rows($sql_quote_files) > 0) { ?>
         <div class="row mb-3">
         <div class="col-sm d-print-none">
             <div class="card">
@@ -516,14 +515,14 @@ if (isset($_GET['quote_id'])) {
                         <tbody>
                         <?php
 
-                        while ($quote_attachment = mysqli_fetch_array($sql_quote_attachments)) {
-                            $name = nullable_htmlentities($quote_attachment['quote_attachment_name']);
-                            $ref_name = nullable_htmlentities($quote_attachment['quote_attachment_reference_name']);
-                            $created = nullable_htmlentities($quote_attachment['quote_attachment_created_at']);
+                        while ($quote_file = mysqli_fetch_array($sql_quote_files)) {
+                            $name = nullable_htmlentities($quote_file['file_name']);
+                            $ref_name = nullable_htmlentities($quote_file['file_reference_name']);
+                            $created = nullable_htmlentities($quote_file['file_created_at']);
 
                             ?>
                             <tr>
-                                <td><a href="/uploads/quotes/<?php echo $quote_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
+                                <td><a target="_blank" href="/uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
                                 <td><?php echo $created; ?></td>
                             </tr>
                             <?php

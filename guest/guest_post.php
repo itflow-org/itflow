@@ -215,8 +215,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
         $client_id = intval($row['client_id']);
 
         // Define & create directories, as required
-        mkdirMissing('../uploads/quotes/');
-        $upload_file_dir = "../uploads/quotes/" . $quote_id . "/";
+        $upload_file_dir = "../uploads/clients/$client_id/";
         mkdirMissing($upload_file_dir);
 
         // Store attached any file
@@ -240,22 +239,46 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     $extarr = explode('.', $_FILES['file']['name'][$i]);
                     $file_extension = sanitizeInput(strtolower(end($extarr)));
 
+                    // Extract the file mime type and size
+                    $file_mime_type = sanitizeInput($single_file['type']);
+                    $file_size = intval($single_file['size']);
+
                     // Define destination file path
                     $dest_path = $upload_file_dir . $file_reference_name;
 
-                    // Do upload
+                    // Get/Create a top-level folder called Client Uploads
+                    $folder_sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1");
+                    if (mysqli_num_rows($folder_sql) == 1) {
+                        // Get
+                        $row = mysqli_fetch_array($folder_sql);
+                        $folder_id = $row['folder_id'];
+                    } else {
+                        // Create
+                        mysqli_query($mysqli,"INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
+                        $folder_id = mysqli_insert_id($mysqli);
+                        logAction("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
+                    }
+
+                    // Do move/upload
                     move_uploaded_file($file_tmp_path, $dest_path);
-                    mysqli_query($mysqli, "INSERT INTO quote_attachments SET quote_attachment_name = '$file_name', quote_attachment_reference_name = '$file_reference_name', quote_attachment_quote_id = $quote_id");
+
+                    // Create reference in files
+                    mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_description = 'Uploaded via $quote_prefix$quote_number', file_ext = '$file_extension', file_mime_type = '$file_mime_type', file_size = $file_size, file_folder_id = $folder_id, file_client_id = $client_id");
+                    $file_id = mysqli_insert_id($mysqli);
+
+                    // Associate file with quote
+                    mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
 
                     // Logging & feedback
                     $_SESSION['alert_message'] = 'File uploaded!';
+                    appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "quote.php?quote_id=$quote_id", $client_id);
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
                     logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
                     $_SESSION['alert_type'] = 'error';
                     $_SESSION['alert_message'] = 'Something went wrong uploading the file - please let the support team know.';
-
+                    logApp("Guest", "error", "Error uploading file to invoice");
                 }
 
             }
