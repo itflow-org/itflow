@@ -15,6 +15,7 @@ require_once "plugins/totp/totp.php";
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
  */
 if (isset($_GET['certificate_fetch_parse_json_details'])) {
+    enforceUserPermission('module_support');
 
     // PHP doesn't appreciate attempting SSL sockets to non-existent domains
     if (empty($_GET['domain'])) {
@@ -43,7 +44,7 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
  * Looks up info for a given certificate ID from the database, used to dynamically populate modal fields
  */
 if (isset($_GET['certificate_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $certificate_id = intval($_GET['certificate_id']);
     $client_id = intval($_GET['client_id']);
@@ -109,7 +110,7 @@ if (isset($_GET['domain_get_json_details'])) {
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if (isset($_GET['merge_ticket_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
@@ -134,7 +135,7 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
  * Looks up info for a given network ID from the database, used to dynamically populate modal fields
  */
 if (isset($_GET['network_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $network_id = intval($_GET['network_id']);
     $client_id = intval($_GET['client_id']);
@@ -159,6 +160,8 @@ if (isset($_GET['network_get_json_details'])) {
 }
 
 if (isset($_POST['client_set_notes'])) {
+    enforceUserPermission('module_client', 2);
+
     $client_id = intval($_POST['client_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -171,6 +174,8 @@ if (isset($_POST['client_set_notes'])) {
 }
 
 if (isset($_POST['contact_set_notes'])) {
+    enforceUserPermission('module_client', 2);
+
     $contact_id = intval($_POST['contact_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -191,6 +196,8 @@ if (isset($_POST['contact_set_notes'])) {
 }
 
 if (isset($_POST['asset_set_notes'])) {
+    enforceUserPermission('module_support', 2);
+
     $asset_id = intval($_POST['asset_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -211,7 +218,7 @@ if (isset($_POST['asset_set_notes'])) {
 }
 
 /*
- * Collision Detection/Avoidance
+ * Ticketing Collision Detection/Avoidance
  * Called upon loading a ticket, and every 2 mins thereafter
  * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket
  */
@@ -222,7 +229,7 @@ if (isset($_GET['ticket_add_view'])) {
 }
 
 /*
- * Collision Detection/Avoidance
+ * Ticketing Collision Detection/Avoidance
  * Returns formatted text of the agents currently viewing a ticket
  * Called upon loading a ticket, and every 2 mins thereafter
  */
@@ -255,7 +262,7 @@ if (isset($_GET['ticket_query_views'])) {
  * Generates public/guest links for sharing logins/docs
  */
 if (isset($_GET['share_generate_link'])) {
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $item_encrypted_username = '';  // Default empty
     $item_encrypted_credential = '';  // Default empty
@@ -375,7 +382,7 @@ if (isset($_GET['share_generate_link'])) {
  *  Looks up info for a given recurring (was scheduled) ticket ID from the database, used to dynamically populate modal edit fields
  */
 if (isset($_GET['recurring_ticket_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $client_id = intval($_GET['client_id']);
     $ticket_id = intval($_GET['ticket_id']);
@@ -426,6 +433,8 @@ if (isset($_GET['recurring_ticket_get_json_details'])) {
  * Looks up info for a given quote ID from the database, used to dynamically populate modal fields
  */
 if (isset($_GET['quote_get_json_details'])) {
+    enforceUserPermission('module_sales');
+
     $quote_id = intval($_GET['quote_id']);
 
     // Get quote details
@@ -462,6 +471,7 @@ if (isset($_GET['quote_get_json_details'])) {
  * Returns sorted list of active clients
  */
 if (isset($_GET['get_active_clients'])) {
+    enforceUserPermission('module_client');
 
     $client_sql = mysqli_query(
         $mysqli,
@@ -481,6 +491,8 @@ if (isset($_GET['get_active_clients'])) {
  * Returns ordered list of active contacts for a specified client
  */
 if (isset($_GET['get_client_contacts'])) {
+    enforceUserPermission('module_client');
+
     $client_id = intval($_GET['client_id']);
 
     $contact_sql = mysqli_query(
@@ -502,7 +514,7 @@ if (isset($_GET['get_client_contacts'])) {
  * When provided with a login ID, checks permissions and returns the 6-digit code
  */
 if (isset($_GET['get_totp_token_via_id'])) {
-    validateTechRole();
+    enforceUserPermission('module_credential');
 
     $login_id = intval($_GET['login_id']);
 
