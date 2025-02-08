@@ -1704,6 +1704,9 @@ CREATE TABLE `settings` (
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1,
+  `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
@@ -2019,6 +2022,7 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_name` varchar(200) NOT NULL,
   `ticket_status_color` varchar(200) NOT NULL,
   `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
+  `ticket_status_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2113,6 +2117,7 @@ CREATE TABLE `tickets` (
   `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
   `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   `ticket_project_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
