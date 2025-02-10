@@ -266,15 +266,13 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             $current_asset_id = intval($current_asset_id);
 
             // Get Asset details and current client ID/Name for logging
-            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name, interface_mac
+            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name
                 FROM assets
-                LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
                 LEFT JOIN clients ON client_id = asset_client_id
                 WHERE asset_id = $current_asset_id")
             );
             $asset_name = sanitizeInput($row['asset_name']);
             $asset_notes = sanitizeInput($row['asset_notes']);
-            $interface_mac = sanitizeInput($row['interface_mac']);
             $current_client_id = intval($row['asset_client_id']);
             $current_client_name = sanitizeInput($row['client_name']);
 
@@ -291,8 +289,18 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             ");
             $new_asset_id = mysqli_insert_id($mysqli);
 
-            // Add Primary Interface
-            mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_mac = '$interface_mac', interface_port = 'eth0', interface_primary = 1, interface_asset_id = $new_asset_id");
+            // Transfer all Interfaces over too
+            $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
+
+            while ($row = mysqli_fetch_array($sql_interfaces)) {
+                $interface_name = sanitizeInput($row['interface_name']);
+                $interface_mac = sanitizeInput($row['interface_mac']);
+                $interface_port = sanitizeInput($row['interface_port']);
+                $interface_primary = intval($row['interface_primary']);
+
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac', interface_port = '$interface_port', interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
+
+            }
 
             mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
 
