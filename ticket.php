@@ -11,7 +11,7 @@ if (isset($_GET['client_id'])) {
 enforceUserPermission('module_support');
 
 // Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -345,6 +345,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_collaborators = nullable_htmlentities($row['user_names']);
 
         ?>
+        <link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
@@ -927,7 +928,7 @@ if (isset($_GET['ticket_id'])) {
                             $task_completion_estimate = intval($row['task_completion_estimate']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                             ?>
-                            <tr>
+                            <tr data-task-id="<?php echo $task_id; ?>">
                                 <td>
                                     <?php if ($task_completed_at) { ?>
                                         <i class="far fa-fw fa-check-square text-primary"></i>
@@ -964,10 +965,9 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 </td>
                             </tr>
+                        <?php
 
-                            <?php
-
-                            require "modals/task_edit_modal.php";
+                        require "modals/task_edit_modal.php";
                         } ?>
                     </table>
                 </div>
@@ -1231,3 +1231,43 @@ $('#summaryModal').on('shown.bs.modal', function (e) {
     });
 });
 </script>
+
+
+<script src="/plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('.table tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('taskId'),
+                    order: index
+                };
+            }).get();
+
+            //console.log('New positions:', positions);
+
+            // Send the new order to the server (example using fetch)
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_ticket_tasks_order: true,
+                    ticket_id: <?php echo $ticket_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    //console.log('Order updated:', data);
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
+</script>
+
