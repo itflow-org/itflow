@@ -22,7 +22,7 @@
 			        $notification_type = nullable_htmlentities($row['notification_type']);
 			        $notification_details = nullable_htmlentities($row['notification']);
 			        $notification_action = nullable_htmlentities($row['notification_action']);
-			        $notification_created_at_formated = date('M d g:ia',strtotime($row['notification_created_at']));
+			        $notification_timestamp_formated = date('M d g:ia',strtotime($row['notification_timestamp']));
                     $notification_client_id = intval($row['notification_client_id']);
 			        if(empty($notification_action)) { $notification_action = "#"; }
 				?>
@@ -34,7 +34,7 @@
                         	<i class="fas fa-bullhorn mr-2"></i><?php echo $notification_type; ?>
                         </span>
                         <small class="text-muted float-right">
-                        	<?php echo $notification_created_at_formated; ?>
+                        	<?php echo $notification_timestamp_formated; ?>
                         </small>
                     </div>
                     <small class="text-secondary"><?php echo $notification_details; ?></small>

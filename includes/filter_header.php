@@ -12,6 +12,8 @@ $get_copy = $_GET; // create a copy of the $_GET array
 //unset($get_copy['page']);
 unset($get_copy['sort']);
 unset($get_copy['order']);
+//Rebuild URL
+$url_query_strings_sort = http_build_query($get_copy);
 
 // Paging
 if (isset($_GET['page'])) {

@@ -120,61 +120,6 @@ if (isset($_POST['edit_asset'])) {
 
 }
 
-if (isset($_POST['change_client_asset'])) {
-
-    enforceUserPermission('module_support', 2);
-
-    validateCSRFToken($_POST['csrf_token']);
-
-    $current_asset_id = intval($_POST['current_asset_id']);
-    $new_client_id = intval($_POST['new_client_id']);
-
-    // Get Asset details and current client ID/Name for logging
-    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name FROM assets LEFT JOIN clients ON client_id = asset_client_id WHERE asset_id = $current_asset_id"));
-    $asset_name = sanitizeInput($row['asset_name']);
-    $asset_notes = sanitizeInput($row['asset_notes']);
-    $current_client_id = intval($row['asset_client_id']);
-    $current_client_name = sanitizeInput($row['client_name']);
-
-    // Get new client name for logging
-    $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $new_client_id"));
-    $new_client_name = sanitizeInput($row['client_name']);
-
-    // Create new asset
-    mysqli_query($mysqli, "
-        INSERT INTO assets (asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important)
-        SELECT asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important
-        FROM assets
-        WHERE asset_id = $current_asset_id
-    ");
-    $new_asset_id = mysqli_insert_id($mysqli);
-    mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
-
-    // Archive/log the current asset
-    $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
-    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
-    
-    // Log Archive
-    logAction("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
-
-    // Log Transfer
-    logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $current_client_id, $current_asset_id);
-    mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $current_asset_id");
-
-    // Log the new asset
-    $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
-    logAction("Asset", "Create", "$session_name created asset $name (via transfer)", $new_client_id, $new_asset_id);
-
-    logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $new_client_id, $new_asset_id);
-
-    mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $new_asset_id");
-
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> transferred";
-
-    header("Location: client_assets.php?client_id=$new_client_id&asset_id=$new_asset_id");
-
-}
-
 if (isset($_GET['archive_asset'])) {
 
     enforceUserPermission('module_support', 2);
@@ -301,6 +246,84 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if (isset($_POST['bulk_transfer_client_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $new_client_id = intval($_POST['bulk_client_id']);
+    
+    // Transfer selected asset to new client
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $current_asset_id) {
+            $current_asset_id = intval($current_asset_id);
+
+            // Get Asset details and current client ID/Name for logging
+            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name, interface_mac
+                FROM assets
+                LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+                LEFT JOIN clients ON client_id = asset_client_id
+                WHERE asset_id = $current_asset_id")
+            );
+            $asset_name = sanitizeInput($row['asset_name']);
+            $asset_notes = sanitizeInput($row['asset_notes']);
+            $interface_mac = sanitizeInput($row['interface_mac']);
+            $current_client_id = intval($row['asset_client_id']);
+            $current_client_name = sanitizeInput($row['client_name']);
+
+            // Get new client name for logging
+            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $new_client_id"));
+            $new_client_name = sanitizeInput($row['client_name']);
+
+            // Create new asset
+            mysqli_query($mysqli, "
+                INSERT INTO assets (asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important)
+                SELECT asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important
+                FROM assets
+                WHERE asset_id = $current_asset_id
+            ");
+            $new_asset_id = mysqli_insert_id($mysqli);
+
+            // Add Primary Interface
+            mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_mac = '$interface_mac', interface_port = 'eth0', interface_primary = 1, interface_asset_id = $new_asset_id");
+
+            mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
+
+            // Archive/log the current asset
+            $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
+            
+            // Log Archive
+            logAction("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
+
+            // Log Transfer
+            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $current_client_id, $current_asset_id);
+            mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $current_asset_id");
+
+            // Log the new asset
+            $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+            logAction("Asset", "Create", "$session_name created asset $name (via transfer)", $new_client_id, $new_asset_id);
+
+            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $new_client_id, $new_asset_id);
+
+            mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $new_asset_id");
+
+        } // End Transfer to Client Loop
+
+        // Bulk Logging
+        logAction("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
+        
+        $_SESSION['alert_message'] = "Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.";
+    }
+
+    header("Location: client_assets.php?client_id=$new_client_id&asset_id=$new_asset_id");
 }
 
 if (isset($_POST['bulk_assign_asset_contact'])) {

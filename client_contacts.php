@@ -33,7 +33,7 @@ if (isset($_GET['location']) & !empty($_GET['location'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+//$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*, users.*, GROUP_CONCAT(tags.tag_name) FROM contacts
     LEFT JOIN locations ON location_id = contact_location_id
