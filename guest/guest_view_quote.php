@@ -270,14 +270,18 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             <div class="text-center"><?php echo nl2br($config_quote_footer); ?></div>
             <div class="">
                 <?php
-                    if ($quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) {
-                        ?>
+                    if ($quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) { ?>
                         <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
                             <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
                         </a>
                         <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
                             <i class="fas fa-fw fa-thumbs-down mr-2"></i>Decline
                         </a>
+                    <?php } ?>
+                    <?php if ($quote_status == "Accepted") { ?>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadFileModal">
+                            <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload File
+                        </button>
                     <?php } ?>
             </div>
 
@@ -712,5 +716,6 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
     </script>
 
 <?php
+require_once "guest_quote_upload_file_modal.php";
 require_once "guest_footer.php";
 
