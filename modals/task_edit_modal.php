@@ -25,16 +25,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Order</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
-                            </div>
-                            <input type="number" class="form-control" name="order" placeholder="Order" value="<?php echo $task_order; ?>">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Estimated Completion Time <span class="text-secondary">(Minutes)</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
