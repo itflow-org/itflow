@@ -938,7 +938,12 @@ if (isset($_GET['ticket_id'])) {
                                         </a>
                                     <?php } ?>
                                 </td>
-                                <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
+                                <td>
+                                    <a href="#" class="grab-cursor">
+                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
+                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                    </a>
+                                </td>
                                 <td>
                                     <div class="float-right">
                                         <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
