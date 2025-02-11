@@ -10,18 +10,17 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="important" value="0">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $login_id; ?>">Details</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-login-details<?php echo $login_id; ?>">Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-relation<?php echo $login_id; ?>">Relation</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-login-relation<?php echo $login_id; ?>">Relation</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $login_id; ?>">Notes</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-login-notes<?php echo $login_id; ?>">Notes</a>
                         </li>
                     </ul>
 
@@ -29,7 +28,7 @@
 
                     <div class="tab-content" <?php if (lookupUserPermission('module_credential') <= 1) { echo 'inert'; } ?>>
 
-                        <div class="tab-pane fade show active" id="pills-details<?php echo $login_id; ?>">
+                        <div class="tab-pane fade show active" id="pills-login-details<?php echo $login_id; ?>">
 
                             <div class="form-group">
                                 <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
@@ -130,7 +129,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-relation<?php echo $login_id; ?>">
+                        <div class="tab-pane fade" id="pills-login-relation<?php echo $login_id; ?>">
 
                             <div class="form-group">
                                 <label>Contact</label>
@@ -142,7 +141,7 @@
                                         <option value="">- Contact -</option>
                                         <?php
 
-                                        $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                                        $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                                         while ($row = mysqli_fetch_array($sql_contacts)) {
                                             $contact_id_select = intval($row['contact_id']);
                                             $contact_name_select = nullable_htmlentities($row['contact_name']);
@@ -163,7 +162,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
                                         while ($row = mysqli_fetch_array($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);
@@ -185,7 +184,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                        $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, location_name  FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                                         while ($row = mysqli_fetch_array($sql_assets)) {
                                             $asset_id_select = intval($row['asset_id']);
                                             $asset_name_select = nullable_htmlentities($row['asset_name']);
@@ -214,7 +213,7 @@
                                         <option value="0">- None -</option>
                                         <?php
 
-                                        $sql_software = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
+                                        $sql_software = mysqli_query($mysqli, "SELECT software_id, software_name FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
                                         while ($row = mysqli_fetch_array($sql_software)) {
                                             $software_id_select = intval($row['software_id']);
                                             $software_name_select = nullable_htmlentities($row['software_name']);
@@ -228,7 +227,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-notes<?php echo $login_id; ?>">
+                        <div class="tab-pane fade" id="pills-login-notes<?php echo $login_id; ?>">
 
                             <div class="form-group">
                                 <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?php echo $login_note; ?></textarea>
@@ -243,7 +242,7 @@
                                     <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                                         <?php
 
-                                        $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
+                                        $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
                                         while ($row = mysqli_fetch_array($sql_tags_select)) {
                                             $tag_id_select = intval($row['tag_id']);
                                             $tag_name_select = nullable_htmlentities($row['tag_name']);

@@ -154,14 +154,29 @@ if (isset($_GET['asset_id'])) {
 
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
-         LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
+    $sql_related_logins = mysqli_query($mysqli, "
+        SELECT 
+            logins.login_id AS login_id,
+            logins.login_name,
+            logins.login_description,
+            logins.login_uri,
+            logins.login_username,
+            logins.login_password,
+            logins.login_otp_secret,
+            logins.login_note,
+            logins.login_important,
+            logins.login_contact_id,
+            logins.login_vendor_id,
+            logins.login_asset_id,
+            logins.login_software_id
+        FROM logins
+        LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
         LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
         WHERE login_asset_id = $asset_id
-        AND login_archived_at IS NULL
+          AND login_archived_at IS NULL
         GROUP BY logins.login_id
-        ORDER BY login_name DESC"
-    );
+        ORDER BY login_name DESC
+    ");
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
