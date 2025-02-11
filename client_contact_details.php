@@ -462,7 +462,7 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($login_uri)) {
                                     $login_uri_display = "-";
                                 } else {
-                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
                                 $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
