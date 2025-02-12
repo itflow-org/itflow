@@ -22,7 +22,7 @@ $sql = mysqli_query(
     ORDER BY
         CASE 
             WHEN '$sort' = 'scheduled_ticket_priority' THEN
-                CASE ticket_priority
+                CASE scheduled_ticket_priority
                     WHEN 'High' THEN 1
                     WHEN 'Medium' THEN 2
                     WHEN 'Low' THEN 3
