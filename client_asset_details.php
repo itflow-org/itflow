@@ -365,9 +365,25 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i><?php echo $asset_name; ?> Network Interfaces</h3>
                     <div class="card-tools">      
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
-                            <i class="fas fa-plus mr-2"></i>New Interface
-                        </button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
+                                <i class="fas fa-plus mr-2"></i>New Interface
+                            </button>
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addMultipleAssetInterfacesModal">
+                                    <i class="fa fa-fw fa-check-double mr-2"></i>Add Multiple
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetInterfacesModal">
+                                    <i class="fa fa-fw fa-upload mr-2"></i>Import
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetInterfacesModal">
+                                    <i class="fa fa-fw fa-download mr-2"></i>Export
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -947,6 +963,7 @@ if (isset($_GET['asset_id'])) {
 <?php
 
 require_once "modals/client_asset_interface_add_modal.php";
+require_once "modals/client_asset_interface_multiple_add_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/recurring_ticket_edit_modal.php";

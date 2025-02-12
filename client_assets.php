@@ -122,7 +122,7 @@ if (mysqli_num_rows($os_sql) > 0) {
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                    <div class="btn-group">
+                <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">
                         <i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>
                     </button>
