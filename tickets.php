@@ -90,7 +90,19 @@ $sql = mysqli_query(
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     $ticket_permission_snippet
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
+    ORDER BY
+        CASE 
+            WHEN '$sort' = 'ticket_priority' THEN
+                CASE ticket_priority
+                    WHEN 'High' THEN 1
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low' THEN 3
+                    ELSE 4  -- Optional: for unexpected priority values
+                END
+            ELSE NULL
+        END $order, 
+        $sort $order  -- Apply normal sorting by $sort and $order
+    LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
