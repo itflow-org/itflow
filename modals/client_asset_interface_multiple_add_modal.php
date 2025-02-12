@@ -27,7 +27,7 @@
 
                     <!-- Number of Interfaces -->
                     <div class="form-group">
-                        <label for="interfaces">Number of Interfaces</label>
+                        <label for="interfaces">Number of Interfaces / Ports</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
@@ -36,25 +36,30 @@
                         </div>
                     </div>
 
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label for="network">Type</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            </div>
+                            <select class="form-control select2" name="type">
+                                <option value="">- Select Type -</option>
+                                <?php foreach($interface_types_array as $interface_type) { ?>
+                                    <option><?php echo $interface_type; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Interface Name -->
                     <div class="form-group">
-                        <label for="name_prefix">Interface Name Prefix (Optional)</label>
+                        <label for="name_prefix">Interface Name / Port Prefix (Optional)</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             </div>
                             <input type="text" id="name_prefix" class="form-control" name="name_prefix" placeholder="e.g., eth-" maxlength="200">
-                        </div>
-                    </div>
-
-                    <!-- Port Prefix -->
-                    <div class="form-group">
-                        <label for="port_prefix">Port Prefix (Optional)</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                            </div>
-                            <input type="text" id="port_prefix" class="form-control" name="port_prefix" placeholder="e.g., fe" maxlength="200">
                         </div>
                     </div>
 

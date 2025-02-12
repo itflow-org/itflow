@@ -167,11 +167,12 @@ DROP TABLE IF EXISTS `asset_interfaces`;
 CREATE TABLE `asset_interfaces` (
   `interface_id` int(11) NOT NULL AUTO_INCREMENT,
   `interface_name` varchar(200) NOT NULL,
+  `interface_description` varchar(200) DEFAULT NULL,
+  `interface_type` varchar(50) DEFAULT NULL,
   `interface_mac` varchar(200) DEFAULT NULL,
   `interface_ip` varchar(200) DEFAULT NULL,
   `interface_nat_ip` varchar(200) DEFAULT NULL,
   `interface_ipv6` varchar(200) DEFAULT NULL,
-  `interface_port` varchar(200) DEFAULT NULL,
   `interface_notes` text DEFAULT NULL,
   `interface_primary` tinyint(1) DEFAULT 0,
   `interface_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1704,9 +1705,6 @@ CREATE TABLE `settings` (
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
-  `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1,
-  `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
@@ -1743,6 +1741,9 @@ CREATE TABLE `settings` (
   `config_phone_mask` tinyint(1) NOT NULL DEFAULT 1,
   `config_whitelabel_enabled` int(11) NOT NULL DEFAULT 0,
   `config_whitelabel_key` text DEFAULT NULL,
+  `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2347,4 +2348,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-25 21:47:06
+-- Dump completed on 2025-02-12 17:12:46

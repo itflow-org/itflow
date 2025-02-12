@@ -309,3 +309,9 @@ $note_types_array = array (
     'In Person'=>'fa-people-arrows',
     'Note'=>'fa-sticky-note'
 );
+
+$interface_types_array = array (
+    'Ethernet',
+    'SFP',
+    'WiFi'
+);

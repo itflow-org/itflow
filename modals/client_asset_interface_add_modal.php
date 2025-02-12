@@ -16,12 +16,45 @@
 
                     <!-- Interface Name -->
                     <div class="form-group">
-                        <label>Interface Name</label>
+                        <label>Interface Name / Port</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Interface Name" maxlength="200" required>
+                            <input type="text" class="form-control" name="name" placeholder="Interface name or port number" maxlength="200" required>
+                        </div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label for="network">Type</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            </div>
+                            <select class="form-control select2" name="type">
+                                <option value="">- Select Type -</option>
+                                <?php foreach($interface_types_array as $interface_type) { ?>
+                                    <option><?php echo $interface_type; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Interface Description -->
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            </div>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="description"
+                                placeholder="Short Description" 
+                                maxlength="200"
+                            >
                         </div>
                     </div>
 
@@ -63,17 +96,6 @@
                         </div>
                     </div>
 
-                    <!-- Port -->
-                    <div class="form-group">
-                        <label>Port</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="port" placeholder="Interface Port ex. eth0" maxlength="200">
-                        </div>
-                    </div>
-
                     <!-- Network -->
                     <div class="form-group">
                         <label>Network</label>
@@ -108,7 +130,7 @@
                                 <option value="">- None -</option>
                                 <?php
                                 $sql_interfaces_select = mysqli_query($mysqli, "
-                                    SELECT i.interface_id, i.interface_port, a.asset_name
+                                    SELECT i.interface_id, i.interface_name, a.asset_name
                                     FROM asset_interfaces i
                                     LEFT JOIN assets a ON a.asset_id = i.interface_asset_id
                                     WHERE a.asset_archived_at IS NULL
@@ -116,16 +138,16 @@
                                       AND a.asset_id != $asset_id
                                       AND i.interface_id NOT IN (SELECT interface_a_id FROM asset_interface_links)
                                       AND i.interface_id NOT IN (SELECT interface_b_id FROM asset_interface_links)
-                                    ORDER BY a.asset_name ASC, i.interface_port ASC
+                                    ORDER BY a.asset_name ASC, i.interface_name ASC
                                 ");
 
                                 while ($row = mysqli_fetch_array($sql_interfaces_select)) {
                                     $interface_id_select = intval($row['interface_id']);
-                                    $interface_port_select = nullable_htmlentities($row['interface_port']);
+                                    $interface_name_select = nullable_htmlentities($row['interface_name']);
                                     $asset_name_select = nullable_htmlentities($row['asset_name']);
                                     ?>
                                     <option value="<?php echo $interface_id_select; ?>">
-                                        <?php echo "$asset_name_select - $interface_port_select"; ?>
+                                        <?php echo "$asset_name_select - $interface_name_select"; ?>
                                     </option>
                                 <?php } ?>
                             </select>

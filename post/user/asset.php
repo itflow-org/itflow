@@ -39,7 +39,7 @@ if (isset($_POST['add_asset'])) {
     }
 
     // Add Primary Interface
-    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_port = '1', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
 
     if (!empty($_POST['username'])) {
@@ -89,7 +89,7 @@ if (isset($_POST['edit_asset'])) {
 
     if(mysqli_num_rows($sql_interfaces) == 0 ) {
         // Add Primary Interface
-        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_port = '1', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
     } else {
         // Update Primary Interface
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
@@ -732,10 +732,11 @@ if (isset($_POST['add_asset_interface'])) {
     $sql_insert = "
         INSERT INTO asset_interfaces SET
             interface_name       = '$name',
+            interface_description= '$description',
+            interface_type       = '$type',
             interface_mac        = '$mac',
             interface_ip         = '$ip',
             interface_ipv6       = '$ipv6',
-            interface_port       = '$port',
             interface_notes      = '$notes',
             interface_network_id = $network,
             interface_asset_id   = $asset_id
@@ -777,8 +778,8 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
     $asset_id = intval($_POST['asset_id']);
     $interface_start = intval($_POST['interface_start']);
     $interfaces = intval($_POST['interfaces']);
+    $type = sanitizeInput($_POST['type']);
     $name_prefix = sanitizeInput($_POST['name_prefix']);
-    $port_prefix = sanitizeInput($_POST['port_prefix']);
     $network = intval($_POST['network']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -795,7 +796,7 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
         $sql_insert = "
             INSERT INTO asset_interfaces SET
                 interface_name       = '$name_prefix$formatted_interface_number',
-                interface_port       = '$port_prefix$formatted_interface_number',
+                interface_type       = '$type',
                 interface_notes      = '$notes',
                 interface_network_id = $network,
                 interface_asset_id   = $asset_id
@@ -837,10 +838,11 @@ if (isset($_POST['edit_asset_interface'])) {
     $sql_update = "
         UPDATE asset_interfaces SET
             interface_name       = '$name',
+            interface_description= '$description',
+            interface_type       = '$type',
             interface_mac        = '$mac',
             interface_ip         = '$ip',
-            interface_ipv6       = '$ipv6',
-            interface_port       = '$port',
+            interface_ipv6       = '$ipv6',   
             interface_notes      = '$notes',
             interface_network_id = $network
         WHERE interface_id = $interface_id

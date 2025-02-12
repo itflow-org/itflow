@@ -25,7 +25,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fa fa-fw fa-ethernet mr-2"></i>
-                    Editing: <?php echo htmlspecialchars($interface_name, ENT_QUOTES, 'UTF-8'); ?>
+                    Editing: <?php echo $interface_name; ?>
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -40,7 +40,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
 
                     <!-- Interface Name -->
                     <div class="form-group">
-                        <label>Interface Name</label>
+                        <label>Interface Name / Port</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
@@ -49,11 +49,47 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 type="text" 
                                 class="form-control" 
                                 name="name"
-                                placeholder="Interface Name" 
+                                placeholder="Interface name or port number" 
                                 maxlength="200"
-                                value="<?php echo nullable_htmlentities($interface_name); ?>"
+                                value="<?php echo $interface_name; ?>"
                                 required
                             >
+                        </div>
+                    </div>
+
+                    <!-- Interface Description -->
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            </div>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="description"
+                                placeholder="Short Description" 
+                                maxlength="200"
+                                value="<?php echo $interface_description; ?>"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="form-group">
+                        <label for="network">Type</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            </div>
+                            <select class="form-control select2" name="type">
+                                <option value="">- Select Type -</option>
+                                <?php foreach($interface_types_array as $interface_type_select) { ?>
+                                    <option <?php if($interface_type == $interface_type_select) { echo "selected"; } ?>>
+                                        <?php echo $interface_type_select; ?>   
+                                    </option>
+                                <?php } ?>
+                            </select>
                         </div>
                     </div>
 
@@ -70,7 +106,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 name="mac"
                                 placeholder="MAC Address" 
                                 maxlength="200"
-                                value="<?php echo nullable_htmlentities($interface_mac); ?>"
+                                value="<?php echo $interface_mac; ?>"
                                 data-inputmask="'alias': 'mac'"
                                 data-mask
                             >
@@ -90,7 +126,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 name="ip"
                                 placeholder="IP Address" 
                                 maxlength="200"
-                                value="<?php echo nullable_htmlentities($interface_ip); ?>"
+                                value="<?php echo $interface_ip; ?>"
                                 data-inputmask="'alias': 'ip'"
                                 data-mask
                             >
@@ -121,25 +157,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 name="ipv6"
                                 placeholder="IPv6 Address" 
                                 maxlength="200"
-                                value="<?php echo nullable_htmlentities($interface_ipv6); ?>"
-                            >
-                        </div>
-                    </div>
-
-                    <!-- Port -->
-                    <div class="form-group">
-                        <label>Port</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                            </div>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                name="port"
-                                placeholder="Interface Port ex. eth0"
-                                maxlength="200"
-                                value="<?php echo nullable_htmlentities($interface_port); ?>"
+                                value="<?php echo $interface_ipv6; ?>"
                             >
                         </div>
                     </div>
@@ -152,7 +170,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                             </div>
                             <select class="form-control select2" name="network">
-                                <option value="">- None -</option>
+                                <option value="">- Select Network -</option>
                                 <?php
                                 $sql_network_select = mysqli_query($mysqli, "
                                     SELECT network_id, network_name, network
@@ -184,10 +202,10 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                             </div>
                             <select class="form-control select2" name="connected_to">
-                                <option value="">- None -</option>
+                                <option value="">- Select Asset -</option>
                                 <?php
                                 $sql_interfaces_select = mysqli_query($mysqli, "
-                                    SELECT i.interface_id, i.interface_port, a.asset_name
+                                    SELECT i.interface_id, i.interface_name, a.asset_name
                                     FROM asset_interfaces i
                                     LEFT JOIN assets a ON a.asset_id = i.interface_asset_id
                                     WHERE a.asset_archived_at IS NULL
@@ -201,16 +219,16 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                            )
                                            OR i.interface_id = " . (int)$linked_interface_id . "
                                       )
-                                    ORDER BY a.asset_name ASC, i.interface_port ASC
+                                    ORDER BY a.asset_name ASC, i.interface_name ASC
                                 ");
                                 while ($row_if = mysqli_fetch_array($sql_interfaces_select)) {
                                     $iface_id_select         = intval($row_if['interface_id']);
-                                    $iface_port_select       = nullable_htmlentities($row_if['interface_port']);
+                                    $iface_name_select       = nullable_htmlentities($row_if['interface_name']);
                                     $iface_asset_name_select = nullable_htmlentities($row_if['asset_name']);
 
                                     $selected = ($linked_interface_id === $iface_id_select) ? 'selected' : '';
                                     echo "<option value='$iface_id_select' $selected>";
-                                    echo "$iface_asset_name_select - $iface_port_select";
+                                    echo "$iface_asset_name_select - $iface_name_select";
                                     echo "</option>";
                                 }
                                 ?>

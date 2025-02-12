@@ -2471,7 +2471,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '1.8.0') {
     
-
         mysqli_query($mysqli, "ALTER TABLE `ticket_statuses` ADD `ticket_status_order` int(11) NOT NULL DEFAULT 0");
 
         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_order` int(11) NOT NULL DEFAULT 0");
@@ -2482,11 +2481,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.1'");
     }
+    
+    if (CURRENT_DATABASE_VERSION == '1.8.1') {
+        mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` CHANGE `interface_port` `interface_description` VARCHAR(200) DEFAULT NULL AFTER `interface_name`");
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.1') {
-    //     // Insert queries here required to update to DB version 1.8.2
+        mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` ADD `interface_type` VARCHAR(50) DEFAULT NULL AFTER `interface_description`");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.8.2') {
+    //     // Insert queries here required to update to DB version 1.8.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.3'");
     // }
 
 } else {

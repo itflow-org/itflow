@@ -99,17 +99,17 @@ if (isset($_GET['asset_id'])) {
         SELECT 
             ai.interface_id,
             ai.interface_name,
+            ai.interface_description,
+            ai.interface_type,
             ai.interface_mac,
             ai.interface_ip,
             ai.interface_ipv6,
-            ai.interface_port,
             ai.interface_primary,
             ai.interface_notes,
             n.network_name,
             n.network_id,
             connected_interfaces.interface_id AS connected_interface_id,
             connected_interfaces.interface_name AS connected_interface_name,
-            connected_interfaces.interface_port AS connected_interface_port,
             connected_assets.asset_name AS connected_asset_name
         FROM asset_interfaces AS ai
         LEFT JOIN networks AS n
@@ -391,10 +391,10 @@ if (isset($_GET['asset_id'])) {
                         <table class="table table-striped table-borderless table-hover table-sm">
                             <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
                                 <tr>
-                                    <th>Name</th>
+                                    <th>Name / Port</th>
+                                    <th>Type</th>
                                     <th>MAC</th>
                                     <th>IP</th>
-                                    <th>Port</th>
                                     <th>Network</th>
                                     <th>Connected To</th>
                                     <th class="text-center">Action</th>
@@ -405,10 +405,11 @@ if (isset($_GET['asset_id'])) {
                                 <?php
                                     $interface_id       = intval($row['interface_id']);
                                     $interface_name     = nullable_htmlentities($row['interface_name']);
+                                    $interface_description = nullable_htmlentities($row['interface_description']);
+                                    $interface_type     = nullable_htmlentities($row['interface_type']);
                                     $interface_mac      = nullable_htmlentities($row['interface_mac']);
                                     $interface_ip       = nullable_htmlentities($row['interface_ip']);
                                     $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
-                                    $interface_port     = nullable_htmlentities($row['interface_port']);
                                     $interface_primary  = intval($row['interface_primary']);
                                     $network_id         = intval($row['network_id']);
                                     $network_name       = nullable_htmlentities($row['network_name']);
@@ -417,18 +418,18 @@ if (isset($_GET['asset_id'])) {
                                     // Prepare display text
                                     $interface_mac_display = $interface_mac ?: '-';
                                     $interface_ip_display  = $interface_ip ?: '-';
-                                    $interface_port_display = $interface_port ?: '-';
+                                    $interface_type_display = $interface_type ?: '-';
                                     $network_name_display  = $network_name 
                                         ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id" 
                                         : '-';
 
                                     // Connected interface details
                                     $connected_asset_name    = nullable_htmlentities($row['connected_asset_name']);
-                                    $connected_interface_port = nullable_htmlentities($row['connected_interface_port']);
+                                    $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
 
                                     // Show either "-" or "AssetName - Port"
                                     if ($connected_asset_name) {
-                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_port";
+                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_name";
                                     } else {
                                         $connected_to_display = "-";
                                     }
@@ -440,9 +441,9 @@ if (isset($_GET['asset_id'])) {
                                             <?php echo $interface_name; ?>
                                         </a>
                                     </td>
+                                    <td><?php echo $interface_type_display; ?></td>
                                     <td><?php echo $interface_mac_display; ?></td>
                                     <td><?php echo $interface_ip_display; ?></td>
-                                    <td><?php echo $interface_port_display; ?></td>
                                     <td><?php echo $network_name_display; ?></td>
                                     <td><?php echo $connected_to_display; ?></td>
                                     <td>
