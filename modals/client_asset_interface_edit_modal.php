@@ -40,7 +40,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
 
                     <!-- Interface Name -->
                     <div class="form-group">
-                        <label>Interface Name / Port</label>
+                        <label>Interface Name or Port / <span class="text-secondary">Primary</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
@@ -54,6 +54,11 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 value="<?php echo $interface_name; ?>"
                                 required
                             >
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="primary_interface" value="1" <?php if($interface_primary) { echo "checked"; } ?> title="Mark Interface as primary">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -144,6 +149,24 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                         </div>
                     </div>
 
+                    <!-- NAT IP -->
+                    <div class="form-group">
+                        <label>NAT IP</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                            </div>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="nat_ip"
+                                placeholder="Nat IP" 
+                                maxlength="200"
+                                value="<?php echo $interface_nat_ip; ?>"
+                            >
+                        </div>
+                    </div>
+
                     <!-- IPv6 -->
                     <div class="form-group">
                         <label>IPv6</label>
@@ -202,7 +225,7 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                             </div>
                             <select class="form-control select2" name="connected_to">
-                                <option value="">- Select Asset -</option>
+                                <option value="">- Select Asset and Interface -</option>
                                 <?php
                                 $sql_interfaces_select = mysqli_query($mysqli, "
                                     SELECT i.interface_id, i.interface_name, a.asset_name

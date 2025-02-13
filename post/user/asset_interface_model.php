@@ -2,6 +2,7 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 $name = sanitizeInput($_POST['name']);
+$primary_interface = sanitizeInput($_POST['primary_interface']) ?? 0;
 $description = sanitizeInput($_POST['description']);
 $type = sanitizeInput($_POST['type']);
 $mac = sanitizeInput($_POST['mac']);

@@ -438,7 +438,7 @@ if (isset($_GET['asset_id'])) {
                                     <td>
                                         <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
                                         <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
-                                            <?php echo $interface_name; ?>
+                                            <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                                         </a>
                                     </td>
                                     <td><?php echo $interface_type_display; ?></td>
