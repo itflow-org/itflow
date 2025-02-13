@@ -163,6 +163,8 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
                                 placeholder="Nat IP" 
                                 maxlength="200"
                                 value="<?php echo $interface_nat_ip; ?>"
+                                data-inputmask="'alias': 'ip'"
+                                data-mask
                             >
                         </div>
                     </div>

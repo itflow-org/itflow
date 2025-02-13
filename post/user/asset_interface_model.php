@@ -10,6 +10,7 @@ $ip = sanitizeInput($_POST['ip']);
 if ($_POST['dhcp'] == 1){
     $ip = 'DHCP';
 }
+$nat_ip = sanitizeInput($_POST['nat_ip']);
 $ipv6 = sanitizeInput($_POST['ipv6']);
 $network = intval($_POST['network']);
 $notes = sanitizeInput($_POST['notes']);

@@ -103,6 +103,8 @@
                                 name="nat_ip"
                                 placeholder="Nat IP"
                                 maxlength="200"
+                                data-inputmask="'alias': 'ip'"
+                                data-mask
                             >
                         </div>
                     </div>

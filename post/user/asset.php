@@ -736,6 +736,7 @@ if (isset($_POST['add_asset_interface'])) {
             interface_type       = '$type',
             interface_mac        = '$mac',
             interface_ip         = '$ip',
+            interface_nat_ip     = '$nat_ip',
             interface_ipv6       = '$ipv6',
             interface_notes      = '$notes',
             interface_network_id = $network,
@@ -848,6 +849,7 @@ if (isset($_POST['edit_asset_interface'])) {
             interface_type       = '$type',
             interface_mac        = '$mac',
             interface_ip         = '$ip',
+            interface_nat_ip     = '$nat_ip',
             interface_ipv6       = '$ipv6',   
             interface_notes      = '$notes',
             interface_network_id = $network

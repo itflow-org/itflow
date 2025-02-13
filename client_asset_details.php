@@ -103,6 +103,7 @@ if (isset($_GET['asset_id'])) {
             ai.interface_type,
             ai.interface_mac,
             ai.interface_ip,
+            ai.interface_nat_ip,
             ai.interface_ipv6,
             ai.interface_primary,
             ai.interface_notes,
@@ -409,6 +410,7 @@ if (isset($_GET['asset_id'])) {
                                     $interface_type     = nullable_htmlentities($row['interface_type']);
                                     $interface_mac      = nullable_htmlentities($row['interface_mac']);
                                     $interface_ip       = nullable_htmlentities($row['interface_ip']);
+                                    $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
                                     $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
                                     $interface_primary  = intval($row['interface_primary']);
                                     $network_id         = intval($row['network_id']);
