@@ -269,6 +269,7 @@
                     </table>
                 </div>
                 <?php require_once "modals/ticket_bulk_assign_modal.php"; ?>
+                <?php require_once "modals/ticket_bulk_edit_category_modal.php"; ?>
                 <?php require_once "modals/ticket_bulk_edit_priority_modal.php"; ?>
                 <?php require_once "modals/ticket_bulk_add_project_modal.php"; ?>
                 <?php require_once "modals/ticket_bulk_reply_modal.php"; ?>

@@ -229,6 +229,10 @@ $sql_categories = mysqli_query(
                                         <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
                                     </a>
                                     <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
                                         <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
                                     </a>
@@ -398,5 +402,4 @@ if (isset($_GET["view"])) {
 
 <?php
 require_once "modals/ticket_add_modal.php";
-
 require_once "includes/footer.php";
