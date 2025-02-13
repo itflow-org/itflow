@@ -375,11 +375,11 @@ if (isset($_GET['asset_id'])) {
                                     <i class="fa fa-fw fa-check-double mr-2"></i>Add Multiple
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetInterfacesModal">
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetInterfaceModal">
                                     <i class="fa fa-fw fa-upload mr-2"></i>Import
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetInterfacesModal">
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetInterfaceModal">
                                     <i class="fa fa-fw fa-download mr-2"></i>Export
                                 </a>
                             </div>
@@ -420,7 +420,7 @@ if (isset($_GET['asset_id'])) {
                                     $interface_ip_display  = $interface_ip ?: '-';
                                     $interface_type_display = $interface_type ?: '-';
                                     $network_name_display  = $network_name 
-                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id" 
+                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name" 
                                         : '-';
 
                                     // Connected interface details
@@ -965,6 +965,8 @@ if (isset($_GET['asset_id'])) {
 
 require_once "modals/client_asset_interface_add_modal.php";
 require_once "modals/client_asset_interface_multiple_add_modal.php";
+require_once "modals/client_asset_interface_import_modal.php";
+require_once "modals/client_asset_interface_export_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/recurring_ticket_edit_modal.php";

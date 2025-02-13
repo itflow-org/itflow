@@ -600,7 +600,7 @@ if (isset($_POST["import_client_assets_csv"])) {
                 $asset_id = mysqli_insert_id($mysqli);
                 
                 // Add Primary Interface
-                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_port = 'eth0', interface_primary = 1, interface_asset_id = $asset_id");
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_primary = 1, interface_asset_id = $asset_id");
 
                 $row_count = $row_count + 1;
             } else {
@@ -923,4 +923,206 @@ if (isset($_GET['delete_asset_interface'])) {
 
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
+}
+
+if (isset($_POST["import_client_asset_interfaces_csv"])) {
+
+    enforceUserPermission('module_support', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $asset_id = intval($_POST['asset_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+
+    // Get Asset Details for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_assoc($sql_asset);
+    $client_id = intval($row['asset_client_id']);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    $error = false;
+
+    if (!empty($_FILES["file"]["tmp_name"])) {
+        $file_name = $_FILES["file"]["tmp_name"];
+    } else {
+        $_SESSION['alert_message'] = "Please select a file to upload.";
+        $_SESSION['alert_type'] = "error";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad file extension";
+    }
+
+    //Check file isn't empty
+    elseif ($_FILES["file"]["size"] < 1) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad file size (empty?)";
+    }
+
+    //(Else)Check column count (Name, Description, Type, MAC, IP, NAT IP, IPv6, Network)
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if (!$error & count($f_columns) != 8) {
+        $error = true;
+        $_SESSION['alert_message'] = "Bad column count.";
+    }
+
+    //Else, parse the file
+    if (!$error) {
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== false) {
+
+            // Default variables (if undefined)
+            $description = $type = $mac = $ip = $nat_ip = $ipv6 = $network = '';
+
+            $duplicate_detect = 0;
+            if (isset($column[0])) {
+                $name = sanitizeInput($column[0]);
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT interface_name FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_name = '$name'")) > 0) {
+                    $duplicate_detect = 1;
+                }
+            }
+            if (!empty($column[1])) {
+                $description = sanitizeInput($column[1]);
+            }
+            if (!empty($column[2])) {
+                $type = sanitizeInput($column[2]);
+            }
+            if (!empty($column[3])) {
+                $mac = sanitizeInput($column[3]);
+            }
+            if (!empty($column[4])) {
+                $ip = sanitizeInput($column[4]);
+            }
+            if (!empty($column[5])) {
+                $nat_ip = sanitizeInput($column[5]);
+            }
+            if (!empty($column[6])) {
+                $ipv6 = sanitizeInput($column[6]);
+            }
+            if (!empty($column[7])) {
+                $network = sanitizeInput($column[7]);
+                if ($network) {
+                    $sql_network = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_name = '$network' AND network_archived_at IS NULL AND network_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_network);
+                    $network_id = intval($row['network_id']);
+                }
+            }
+
+            // Check if duplicate was detected
+            if ($duplicate_detect == 0) {
+                //Add
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_description = '$description', interface_type = '$type', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network_id, interface_asset_id = $asset_id");
+
+                $row_count = $row_count + 1;
+            } else {
+                $duplicate_count = $duplicate_count + 1;
+            }
+        }
+        fclose($file);
+
+        // Logging
+        logAction("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
+
+        $_SESSION['alert_message'] = "<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+    //Check for any errors, if there are notify user and redirect
+    if ($error) {
+        $_SESSION['alert_type'] = "warning";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+    }
+}
+
+if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
+    $asset_id = intval($_GET['download_client_asset_interfaces_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+
+    $asset_name = $row['asset_name'];
+
+    $delimiter = ",";
+    $filename = strtoAZaz09($asset_name) . "-Asset-Interfaces-Template.csv";
+
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+
+    //set column headers
+    $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
+    fputcsv($f, $fields, $delimiter);
+
+    //move back to beginning of file
+    fseek($f, 0);
+
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+    //output all remaining data on a file pointer
+    fpassthru($f);
+    exit;
+
+}
+
+if (isset($_POST['export_client_asset_interfaces_csv'])) {
+
+    enforceUserPermission('module_support');
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $asset_id = intval($_POST['asset_id']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id LEFT JOIN networks ON interface_network_id = network_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_id = $asset_id AND interface_archived_at IS NULL ORDER BY interface_name ASC");
+    $row = mysqli_fetch_array($sql);
+
+    $asset_name = $row['asset_name'];
+    $client_id = $row['asset_client_id'];
+
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows > 0) {
+        $delimiter = ",";
+        $filename = strtoAZaz09($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = mysqli_fetch_array($sql)) {
+            $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+
+    // Logging
+    logAction("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
+
+    exit;
+
 }
