@@ -240,7 +240,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark">
                 <div class="card-header">
-                    <h5 class="card-title">Network</h5>
+                    <h5 class="card-title">Primary Network Interface</h5>
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
@@ -288,7 +288,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h5 class="card-title">Notes</h5>
+                    <h5 class="card-title">Additional Notes</h5>
                 </div>
                 <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
             </div>
