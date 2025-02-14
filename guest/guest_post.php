@@ -50,13 +50,13 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $subject = "Quote Accepted - $client_name - Quote $quote_prefix$quote_number";
             $body = "Hello, <br><br>This is a notification that a quote has been accepted in ITFlow. <br><br>Client: $client_name<br>Quote: <a href=\'https://$config_base_url/quote.php?quote_id=$quote_id\'>$quote_prefix$quote_number</a><br><br>~<br>$company_name - Billing<br>$config_quote_from_email";
 
-                $data[] = [
-                    'from' => $config_quote_from_email,
-                    'from_name' => $config_quote_from_name,
-                    'recipient' => $config_quote_notification_email,
-                    'subject' => $subject,
-                    'body' => $body,
-                ];
+            $data[] = [
+                'from' => $config_quote_from_email,
+                'from_name' => $config_quote_from_name,
+                'recipient' => $config_quote_notification_email,
+                'subject' => $subject,
+                'body' => $body,
+            ];
 
             $mail = addToMailQueue($data);
         }
@@ -200,4 +200,95 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         echo "Invalid!!";
     }
 }
+
+if (isset($_POST['guest_quote_upload_file'])) {
+    $quote_id = intval($_POST['quote_id']);
+    $url_key = sanitizeInput($_POST['url_key']);
+
+    // Select only the necessary fields
+    $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+
+    if (mysqli_num_rows($sql) == 1) {
+        $row = mysqli_fetch_array($sql);
+        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_number = intval($row['quote_number']);
+        $client_id = intval($row['client_id']);
+
+        // Define & create directories, as required
+        $upload_file_dir = "../uploads/clients/$client_id/";
+        mkdirMissing($upload_file_dir);
+
+        // Store attached any file
+        if (!empty($_FILES)) {
+
+            for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
+                // Extract file details for this iteration
+                $single_file = [
+                    'name' => $_FILES['file']['name'][$i],
+                    'type' => $_FILES['file']['type'][$i],
+                    'tmp_name' => $_FILES['file']['tmp_name'][$i],
+                    'error' => $_FILES['file']['error'][$i],
+                    'size' => $_FILES['file']['size'][$i]
+                ];
+
+                if ($file_reference_name = checkFileUpload($single_file, array('pdf'))) {
+
+                    $file_tmp_path = $_FILES['file']['tmp_name'][$i];
+
+                    $file_name = sanitizeInput($_FILES['file']['name'][$i]);
+                    $extarr = explode('.', $_FILES['file']['name'][$i]);
+                    $file_extension = sanitizeInput(strtolower(end($extarr)));
+
+                    // Extract the file mime type and size
+                    $file_mime_type = sanitizeInput($single_file['type']);
+                    $file_size = intval($single_file['size']);
+
+                    // Define destination file path
+                    $dest_path = $upload_file_dir . $file_reference_name;
+
+                    // Get/Create a top-level folder called Client Uploads
+                    $folder_sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1");
+                    if (mysqli_num_rows($folder_sql) == 1) {
+                        // Get
+                        $row = mysqli_fetch_array($folder_sql);
+                        $folder_id = $row['folder_id'];
+                    } else {
+                        // Create
+                        mysqli_query($mysqli,"INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
+                        $folder_id = mysqli_insert_id($mysqli);
+                        logAction("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
+                    }
+
+                    // Do move/upload
+                    move_uploaded_file($file_tmp_path, $dest_path);
+
+                    // Create reference in files
+                    mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_description = 'Uploaded via $quote_prefix$quote_number', file_ext = '$file_extension', file_mime_type = '$file_mime_type', file_size = $file_size, file_folder_id = $folder_id, file_client_id = $client_id");
+                    $file_id = mysqli_insert_id($mysqli);
+
+                    // Associate file with quote
+                    mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
+
+                    // Logging & feedback
+                    $_SESSION['alert_message'] = 'File uploaded!';
+                    appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "quote.php?quote_id=$quote_id", $client_id);
+                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
+                    logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
+
+                } else {
+                    $_SESSION['alert_type'] = 'error';
+                    $_SESSION['alert_message'] = 'Something went wrong uploading the file - please let the support team know.';
+                    logApp("Guest", "error", "Error uploading file to invoice");
+                }
+
+            }
+        }
+
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+    } else {
+        echo "Invalid!!";
+    }
+}
+
 ?>
