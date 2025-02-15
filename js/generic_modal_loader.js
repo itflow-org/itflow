@@ -1,12 +1,16 @@
 // Generic Ajax Modal Load Script
 //
-/*Trigger Button using data-ajax attributes -->
-        <button type="button"
-                class="btn btn-primary ajax-trigger"
-                data-ajax-url="ajax_contact_edit.php"
-                data-ajax-id="123">
-            Edit Contact
-        </button>
+/* Example Triggering  -->
+
+<button type="button"
+    class="btn btn-primary"
+    data-toggle = "ajax-modal" // Triggers the AJAX Modal
+    data-modal-size = "lg" // Optional: Defaults to md
+    data-ajax-url="ajax/ajax_contact_edit.php"
+    data-ajax-id="123">
+    Edit Contact
+</button>
+
 */
 $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
     e.preventDefault();
@@ -15,6 +19,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
     var $trigger = $(this);
     var ajaxUrl = $trigger.data('ajax-url');
     var ajaxId = $trigger.data('ajax-id');
+    var modalSize = $trigger.data('modal-size') || 'md';
     
     // Make the AJAX call to fetch modal content.
     $.ajax({
@@ -38,7 +43,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             // Build the modal HTML using the returned title and content.
             var modalHtml = 
                 '<div class="modal text-sm" id="' + modalId + '" tabindex="-1">' +
-                '    <div class="modal-dialog">' +
+                '    <div class="modal-dialog modal-'+ modalSize +'">' +
                 '        <div class="modal-content bg-dark">' +
                 '            <div class="modal-header">' +
                 '                <h5 class="modal-title" id="' + modalId + 'Label">' + response.title + '</h5>' +
