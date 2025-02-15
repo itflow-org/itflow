@@ -2,6 +2,10 @@
 
 require_once '../includes/ajax_header.php';
 
+if (!isset($session_is_admin) || !$session_is_admin) {
+    exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
+}
+
 $email_id = intval($_GET['id']);
 
 //Initialize the HTML Purifier to prevent XSS

@@ -439,7 +439,10 @@ if (isset($_GET['asset_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                        <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
+                                        <a class="text-dark" href="#" 
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                            data-ajax-id="<?php echo $interface_id; ?>">
                                             <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                                         </a>
                                     </td>
@@ -454,7 +457,10 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                                    data-ajax-id="<?php echo $interface_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
@@ -467,8 +473,6 @@ if (isset($_GET['asset_id'])) {
                                         </div>
                                     </td>
                                 </tr>
-
-                                <?php require "modals/client_asset_interface_edit_modal.php"; ?>
                             <?php } ?>
                             </tbody>
                         </table>
