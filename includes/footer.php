@@ -39,7 +39,9 @@ if (str_contains(basename($_SERVER["PHP_SELF"]), "admin_")) { ?>
 <!-- AdminLTE App -->
 <script src="plugins/adminlte/js/adminlte.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/generic_modal_loader.js"></script>
 <script src="js/confirm_modal.js"></script>
+
 </body>
 </html>
 

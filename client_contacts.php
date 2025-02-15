@@ -383,7 +383,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item ajax-trigger" href="#"
+                                                data-ajax-url="ajax/ajax_contact_edit.php"
+                                                data-ajax-id="<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
@@ -418,7 +420,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php
 
                             require "modals/client_contact_create_note_modal.php";
-                            require "modals/client_contact_edit_modal.php";
 
                         }
 
