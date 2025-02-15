@@ -62,13 +62,16 @@
 
         <!-- New Notifications Dropdown -->
         <?php
-        $sql_notifications = mysqli_query($mysqli, "SELECT * FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL ORDER BY notification_id DESC LIMIT 8");
-        $num_notifications = mysqli_num_rows($sql_notifications);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL"));
+        $num_notifications = $row['num'];
 
         ?>
 
         <li class="nav-item">
-            <a class="nav-link" href="#notificationsModal" data-toggle="modal">
+            <a class="nav-link" href="#"
+                data-toggle="ajax-modal"
+                data-ajax-url="ajax/ajax_notifications.php"
+                >
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
                 <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">

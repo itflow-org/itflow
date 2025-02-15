@@ -1,5 +1,4 @@
 <?php
-require_once "modals/notifications_modal.php";
 require_once "inc_confirm_modal.php";
 ?>
 

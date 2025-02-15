@@ -7,7 +7,7 @@ require_once "../check_login.php";
 header('Content-Type: application/json');
 
 // Check for the 'id' parameter
-if (!isset($_GET['id'])) {
-    echo json_encode(['error' => 'ID missing.']);
-    exit;
-}
+//if (!isset($_GET['id'])) {
+//    echo json_encode(['error' => 'ID missing.']);
+//    exit;
+//}
