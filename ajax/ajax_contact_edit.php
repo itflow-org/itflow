@@ -330,7 +330,7 @@ ob_start();
 function generatePassword(type, id) {
     // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
     jQuery.get(
-        "ajax.php", {
+        "../ajax.php", {
             get_readable_pass: 'true'
         },
         function(data) {

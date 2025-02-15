@@ -1,8 +1,5 @@
-<script>// Initialize Select2 Elements
-$('.select2').select2({
-  theme: 'bootstrap4',
-});
-</script>
+<script src="js/app.js"></script>
+<script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 
 <?php
     $content = ob_get_clean();
