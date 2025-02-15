@@ -1,14 +1,6 @@
 <?php
 
-require_once '../includes/inc_all_ajax.php';
-
-// ajax_contact_edit.php
-
-// Check for the 'id' parameter
-if (!isset($_GET['id'])) {
-    echo json_encode(['error' => 'Contact ID missing.']);
-    exit;
-}
+require_once '../includes/ajax_header.php';
 
 $contact_id = intval($_GET['id']);
 
@@ -332,12 +324,6 @@ ob_start();
     </div>
 </form>
 
-<script>// Initialize Select2 Elements
-$('.select2').select2({
-  theme: 'bootstrap4',
-});
-</script>
-
 <!-- JavaScript to Show/Hide Password Form Group -->
 <script>
 
@@ -376,9 +362,8 @@ $(document).ready(function() {
 </script>
 
 <?php
-    $content = ob_get_clean();
 
-    // Return the title and content as a JSON response
-    echo json_encode(['title' => $title, 'content' => $content]);
+require_once "../includes/ajax_footer.php";
+
 ?>
 

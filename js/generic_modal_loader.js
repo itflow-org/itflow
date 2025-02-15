@@ -8,7 +8,7 @@
             Edit Contact
         </button>
 */
-$(document).on('click', '.ajax-trigger', function (e) {
+$(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
     e.preventDefault();
     
     // Get the URL and ID from the element's data attributes.

@@ -383,7 +383,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                             </a>
-                                            <a class="dropdown-item ajax-trigger" href="#"
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
                                                 data-ajax-url="ajax/ajax_contact_edit.php"
                                                 data-ajax-id="<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit

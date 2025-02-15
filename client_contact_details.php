@@ -156,7 +156,10 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
-                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                    <button type="button" class="btn btn-default float-right"
+                        data-toggle="ajax-modal"
+                        data-ajax-url="ajax/ajax_contact_edit.php"
+                        data-ajax-id="<?php echo $contact_id; ?>">
                         <i class="fas fa-fw fa-user-edit"></i>
                     </button>
                     <h3 class="text-bold"><?php echo $contact_name; ?></h3>
@@ -213,7 +216,6 @@ if (isset($_GET['contact_id'])) {
                     <?php } ?>
                     <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
 
-                    <?php require_once "modals/client_contact_edit_modal.php";
  ?>
 
                 </div>
