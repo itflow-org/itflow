@@ -41,15 +41,30 @@ if ($email_status == 0) {
 }
 
 // Build the dynamic modal title
-$title = "<i class='fas fa-envelope-open mr-2'></i><strong>$email_subject</strong>";
+$title = "<i class='fas fa-fw fa-envelope-open mr-2'></i><strong>$email_subject</strong>";
 
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
 <div class="modal-body bg-white">
-    <div>From: <?php echo "$email_from_name <small>($email_from)</small>"; ?></div>
-    <div>To: <?php echo "$email_recipient_name <small>($email_recipient)</small>"; ?></div>
-    <hr>
+    <div class="row">
+        <div class="col-md-1">
+            <span class="text-secondary">From:</span>
+        </div>
+        <div class="col-md-10">
+            <?php echo "<strong>$email_from_name</strong> ($email_from)"; ?>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="row">
+        <div class="col-md-1">
+            <span class="text-secondary">To:</span>
+        </div>
+        <div class="col-md-10">
+            <?php echo "<strong>$email_recipient_name</strong> ($email_recipient)"; ?>
+        </div>
+    </div>
+    <hr class="my-2">
     <div class="prettyContent">
         <?php echo $email_content; ?>
     </div>
