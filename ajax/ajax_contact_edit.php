@@ -41,12 +41,15 @@ while ($row = mysqli_fetch_array($sql_contact_tags)) {
     $contact_tag_id_array[] = $contact_tag_id;
 }
 
-// Build the dynamic modal title
-$title = "<i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong>$contact_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong><?php echo $contact_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">

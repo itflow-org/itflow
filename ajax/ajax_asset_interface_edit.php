@@ -45,13 +45,15 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
     }
 }
 
-// Build the dynamic modal title
-$title = "<i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: $asset_name - <strong>$interface_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: <?php echo $asset_name; ?> - <strong><?php echo $interface_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <input type="hidden" name="interface_id" value="<?php echo $interface_id; ?>">

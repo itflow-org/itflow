@@ -8,12 +8,17 @@ $sql = mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id
 $row = mysqli_fetch_array($sql);
 $contact_name = nullable_htmlentities($row['contact_name']);
 
-// Build the dynamic modal title
-$title = "<i class='fa fa-fw fa-sticky-note mr-2'></i>Creating note: <strong>$contact_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fa fa-fw fa-sticky-note mr-2'></i>Creating note: <strong><?php echo $contact_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
 

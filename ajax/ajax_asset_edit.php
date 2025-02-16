@@ -48,13 +48,15 @@ $sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history
     DESC LIMIT 10"
 );
 
-// Build the dynamic modal title
-$title = "<i class='fa fa-fw fa-$device_icon mr-2'></i>Editing asset: <strong>$asset_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fa fa-fw fa-<?php echo $device_icon; ?> mr-2'></i>Editing asset: <strong><?php echo $asset_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">

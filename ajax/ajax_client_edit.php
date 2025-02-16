@@ -29,12 +29,16 @@ while ($row = mysqli_fetch_array($sql_client_tags)) {
     $client_tag_id_array[] = $client_tag_id;
 }
 
-// Build the dynamic modal title
-$title = "<i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong>$client_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong><?php echo $client_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 

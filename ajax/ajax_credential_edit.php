@@ -33,12 +33,17 @@ while ($row = mysqli_fetch_array($sql_login_tags)) {
     $login_tag_id_array[] = $login_tag_id;
 }
 
-// Build the dynamic modal title
-$title = "<i class='fas fa-fw fa-key mr-2'></i>Editing credential: <strong>$login_name</strong>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fas fa-fw fa-key mr-2'></i>Editing credential: <strong><?php echo $login_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="login_id" value="<?php echo $login_id; ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">

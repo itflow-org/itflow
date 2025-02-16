@@ -38,17 +38,19 @@ $asset_vendor_id = intval($row['asset_vendor_id']);
 $asset_location_id = intval($row['asset_location_id']);
 $asset_contact_id = intval($row['asset_contact_id']);
 $asset_network_id = intval($row['interface_network_id']);
-
 $device_icon = getAssetIcon($asset_type);
-
-// Build the dynamic modal title
-$title = "<i class='fa fa-fw fa-$device_icon mr-2'></i>Copying asset: <strong>$asset_name</strong>";
 
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
 
- <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fa fa-fw fa-<?php echo $device_icon; ?> mr-2'></i>Copying asset: <strong><?php echo $asset_name; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 

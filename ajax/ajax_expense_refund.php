@@ -19,12 +19,17 @@ $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
 $expense_client_id = intval($row['expense_client_id']);
 
-// Build the dynamic modal title
-$title = "<i class='fas fa-fw fa-undo mr-2'></i>Refunding expense";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fas fa-fw fa-undo mr-2'></i>Refunding expense</h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body bg-white">
         <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">

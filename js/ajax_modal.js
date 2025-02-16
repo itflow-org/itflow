@@ -1,4 +1,4 @@
-// Generic Ajax Modal Load Script
+// Ajax Modal Load Script
 //
 /* Example Triggering  -->
 
@@ -35,7 +35,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             }
             
             // Create a modal ID by appending the ajaxId.
-            var modalId = 'dynamicAjaxModal_' + ajaxId;
+            var modalId = 'ajaxModal_' + ajaxId;
             
             // Remove any existing modal with this ID.
             $('#' + modalId).remove();
@@ -44,14 +44,8 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             var modalHtml = 
                 '<div class="modal text-sm" id="' + modalId + '" tabindex="-1">' +
                 '    <div class="modal-dialog modal-'+ modalSize +'">' +
-                '        <div class="modal-content bg-dark">' +
-                '            <div class="modal-header">' +
-                '                <h5 class="modal-title" id="' + modalId + 'Label">' + response.title + '</h5>' +
-                '                <button type="button" class="close text-white" data-dismiss="modal">' +
-                '                    <span>&times;</span>' +
-                '                </button>' +
-                '            </div>' +
-                         response.content +
+                '       <div class="modal-content bg-dark">'
+                            + response.content +
                 '        </div>' +
                 '    </div>' +
                 '</div>';

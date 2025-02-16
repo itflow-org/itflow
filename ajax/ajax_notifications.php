@@ -10,12 +10,17 @@ $sql = mysqli_query($mysqli, "SELECT * FROM notifications
 
 $num_notifications = mysqli_num_rows($sql);
 
-// Build the dynamic modal title
-$title = "<i class='fas fa-bell mr-2'></i>Notifications<span class='badge badge-secondary badge-pill px-3 ml-3'>$num_notifications<span>";
-
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fas fa-bell mr-2'></i>Notifications<span class='badge badge-secondary badge-pill px-3 ml-3'><?php echo $num_notifications; ?><span></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
 <div class="modal-body bg-white">
     <?php if ($num_notifications) { ?>
 
