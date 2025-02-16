@@ -533,7 +533,10 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_credential_edit.php"
+                                                    data-ajax-id="<?php echo $login_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
@@ -557,8 +560,6 @@ if (isset($_GET['contact_id'])) {
                                 </tr>
 
                                 <?php
-
-                                require "modals/client_login_edit_modal.php";
 
                             }
 

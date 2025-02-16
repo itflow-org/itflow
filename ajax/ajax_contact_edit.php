@@ -35,7 +35,7 @@ $contact_user_id = intval($row['contact_user_id']);
 
 // Tags
 $contact_tag_id_array = array();
-$sql_contact_tags = mysqli_query($mysqli, "SELECT contact_tags.tag_id FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+$sql_contact_tags = mysqli_query($mysqli, "SELECT tag_id FROM contact_tags WHERE contact_id = $contact_id");
 while ($row = mysqli_fetch_array($sql_contact_tags)) {
     $contact_tag_id = intval($row['tag_id']);
     $contact_tag_id_array[] = $contact_tag_id;
