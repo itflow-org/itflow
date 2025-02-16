@@ -202,7 +202,10 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card">
                 <div class="card-header">
-                    <button type="button" class="btn btn-light float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                    <button type="button" class="btn btn-light float-right"
+                        data-toggle="ajax-modal"
+                        data-ajax-url="ajax/ajax_asset_edit.php"
+                        data-ajax-id="<?php echo $asset_id; ?>">
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
@@ -292,8 +295,6 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
             </div>
-
-            <?php require_once "modals/client_asset_edit_modal.php"; ?>
 
         </div>
 
