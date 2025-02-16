@@ -277,13 +277,25 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
                         <!-- Ticket Contact -->
                         <td>
-                            <a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><?php echo $contact_display; ?></a>
+                            <a href="#"
+                                <?php if (empty($ticket_closed_at)) { ?>
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                <?php } ?>
+                                >
+                                <?php echo $contact_display; ?>    
+                            </a>
                         </td>
 
                         <!-- Ticket Billable (if accounting perms & enabled) -->
                         <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <td class="text-center">
-                                <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                                <a href="#" 
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_ticket_billable.php"
+                                    data-ajax-id = "<?php echo $ticket_id; ?>"
+                                    >
                                     <?php
                                     if ($ticket_billable == 1) {
                                         echo "<span class='badge badge-pill badge-success p-2'>Yes</span>";
@@ -291,12 +303,21 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                                         echo "<span class='badge badge-pill badge-secondary p-2'>No</span>";
                                     }
                                     ?>
+                                </a>
                             </td>
                         <?php } ?>
 
                         <!-- Ticket Priority -->
                         <td>
-                            <a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a>
+                            <a href="#"
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_ticket_priority.php"
+                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                <?php } ?>
+                                >
+                                <?php echo $ticket_priority_display; ?>
+                            </a>
                         </td>
 
                         <!-- Ticket Status -->
@@ -306,7 +327,15 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
                         <!-- Ticket Assigned agent -->
                         <td>
-                            <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a>
+                            <a href="#"
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_ticket_assign.php"
+                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                <?php } ?>
+                                >
+                                <?php echo $ticket_assigned_to_display; ?>
+                            </a>
                         </td>
 
                         <!-- Ticket Last Response -->
@@ -325,20 +354,6 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
                     </tr>
 
                     <?php
-                    // Edit actions, for open tickets
-                    if (empty($ticket_closed_at)) {
-
-                        require "modals/ticket_assign_modal.php";
-
-                        require "modals/ticket_edit_priority_modal.php";
-
-                        require "modals/ticket_edit_contact_modal.php";
-
-                        if ($config_module_enable_accounting) {
-                            require "modals/ticket_edit_billable_modal.php";
-                        }
-
-                    }
 
                 }
 
@@ -353,8 +368,5 @@ $total_tickets_closed = intval($row['total_tickets_closed']);
 
 <?php
 require_once "modals/ticket_add_modal.php";
-
 require_once "modals/client_ticket_export_modal.php";
-
 require_once "includes/footer.php";
-

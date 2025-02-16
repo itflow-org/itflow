@@ -112,7 +112,11 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle = "ajax-modal"
+                                                    data-ajax-url = "ajax/ajax_ticket_template_task_edit.php"
+                                                    data-ajax-id = "<?php echo $task_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -125,7 +129,6 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                 </td>
                             </tr>
                             <?php
-                            require "modals/task_edit_modal.php";
                         }
                         ?>
                     </table>

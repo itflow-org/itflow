@@ -293,7 +293,7 @@ if (isset($_POST['edit_ticket_contact'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $contact_id = intval($_POST['contact']);
-    $notify = intval($_POST['contact_notify']);
+    $notify = intval($_POST['contact_notify']) ?? 0;
 
     // Get Original contact, and ticket details
     $sql = mysqli_query($mysqli, "SELECT 

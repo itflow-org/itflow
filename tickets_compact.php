@@ -173,7 +173,13 @@
 
                                     
                                     <div class="mt-1">
-                                        <a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>">
+                                        <a href="#"
+                                            <?php if (empty($ticket_closed_at)) { ?>
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_ticket_priority.php"
+                                            data-ajax-id = "<?php echo $ticket_id; ?>"
+                                            <?php } ?>
+                                            >
                                             <span class='badge badge-<?php echo $ticket_priority_color; ?>'>
                                                 <?php echo $ticket_priority; ?>
                                             </span>
@@ -223,7 +229,11 @@
                                 <!-- Ticket Billable (if accounting enabled -->
                                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
-                                        <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                                        <a href="#" 
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_ticket_billable.php"
+                                            data-ajax-id = "<?php echo $ticket_id; ?>"
+                                            >
                                             <?php
                                             if ($ticket_billable == 1) {
                                                 echo "<span class='badge badge-pill badge-success p-2'>Yes</span>";
@@ -231,6 +241,7 @@
                                                 echo "<span class='badge badge-pill badge-secondary p-2'>No</span>";
                                             }
                                             ?>
+                                        </a>
                                     </td>
                                 <?php } ?>
 
@@ -242,25 +253,21 @@
 
                                 <!-- Ticket Assigned agent -->
                                 <td>
-                                    <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>"><?php echo $ticket_assigned_to_display; ?></a>
+                                    <a href="#"
+                                        <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                        data-toggle = "ajax-modal"
+                                        data-ajax-url = "ajax/ajax_ticket_assign.php"
+                                        data-ajax-id = "<?php echo $ticket_id; ?>"
+                                        <?php } ?>
+                                        >
+                                        <?php echo $ticket_assigned_to_display; ?>        
+                                    </a>
                                 </td>
-
-         
 
                             </tr>
 
                             <?php
-                            // Edit actions, for open tickets
-                            if (empty($ticket_closed_at)) {
-
-                                require_once "modals/ticket_assign_modal.php";
-
-                                require_once "modals/ticket_edit_priority_modal.php";
-
-                                if ($config_module_enable_accounting) {
-                                    require_once "modals/ticket_edit_billable_modal.php";
-                                }
-                            }
+                            
                         }
 
                         ?>
