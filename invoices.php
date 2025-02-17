@@ -313,10 +313,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_invoice_edit.php"
+                                            data-ajax-id = "<?php echo $invoice_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_invoice_copy.php"
+                                            data-ajax-id = "<?php echo $invoice_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -335,12 +343,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-
-                        require "modals/invoice_edit_modal.php";
-
-                        require "modals/invoice_copy_modal.php";
-
 
                     }
 

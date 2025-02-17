@@ -217,7 +217,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-ajax-url = "ajax/ajax_recurring_invoice_edit.php"
+                                        data-ajax-id = "<?php echo $recurring_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($status !== 'Active') { ?>
@@ -232,9 +236,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tr>
 
                     <?php
-                    require "modals/recurring_invoice_edit_modal.php";
-
-
                     }
                     ?>
 
@@ -249,5 +250,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/recurring_invoice_add_modal.php";
-
 require_once "includes/footer.php";

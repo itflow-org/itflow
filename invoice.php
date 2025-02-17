@@ -230,10 +230,18 @@ if (isset($_GET['invoice_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editInvoiceModal<?php echo $invoice_id; ?>">
+                            <a class="dropdown-item" href="#"
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_invoice_edit.php"
+                                data-ajax-id = "<?php echo $invoice_id; ?>"
+                                >
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceCopyModal<?php echo $invoice_id; ?>">
+                            <a class="dropdown-item" href="#"
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_invoice_copy.php"
+                                data-ajax-id = "<?php echo $invoice_id; ?>"
+                                >
                                 <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
                             </a>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">
@@ -681,15 +689,9 @@ if (isset($_GET['invoice_id'])) {
             </div>
     <?php
     include_once "modals/invoice_add_ticket_modal.php";
-
     include_once "modals/invoice_payment_add_modal.php";
-
     include_once "modals/invoice_copy_modal.php";
-
     include_once "modals/invoice_recurring_add_modal.php";
-
-    include_once "modals/invoice_edit_modal.php";
-
     include_once "modals/invoice_note_modal.php";
 
 }
