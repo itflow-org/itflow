@@ -6,9 +6,15 @@ This file documents all notable changes made to ITFlow.
 ### Fixed
 - Changed several reports over to the new permissions/roles system
 - Fixed empty task box showing for resolved/closed tickets
+- Fix ticket priority sorting
+- Clone asset interfaces when assets are transferred between clients
 
 ### Added / Changed
-- Client Portal now shows ticket categories
+- Added a kanban view for tickets
+- Migrated many repeating modals to ajax modals for faster loading times
+- Clients can upload PDF documents to accepted quotes
+- Client Portal now shows ticket category
+- Custom links can now be added to the client portal navbar
 
 ## [25.01.3]
 ### Fixed
