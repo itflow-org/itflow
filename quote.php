@@ -183,7 +183,11 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                <a class="dropdown-item" href="#"
+                                     data-toggle = "ajax-modal" 
+                                    data-ajax-url = "ajax/ajax_quote_copy.php"
+                                    data-ajax-id = "<?php echo $quote_id; ?>"
+                                    >
                                     <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
                                 </a>
                             <?php } ?>

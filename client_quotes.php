@@ -171,7 +171,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle = "ajax-modal" 
+                                            data-ajax-url = "ajax/ajax_quote_copy.php?client_id=<?php echo $client_id; ?>"
+                                            data-ajax-id = "<?php echo $quote_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -190,8 +194,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/quote_copy_modal.php";
 
                     }
 
