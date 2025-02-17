@@ -1309,6 +1309,20 @@ CREATE TABLE `quotes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quote_files`
+--
+
+DROP TABLE IF EXISTS `quote_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quote_files` (
+   `quote_id` int(11) NOT NULL,
+   `file_id` int(11) NOT NULL,
+   PRIMARY KEY (`quote_id`,`file_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `rack_units`
 --
 

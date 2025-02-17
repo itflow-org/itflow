@@ -284,6 +284,8 @@ if (isset($_POST['delete_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
+    mysqli_query($mysqli,"DELETE FROM quote_files WHERE file_id = $file_id");
+
     //Logging
     logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
 

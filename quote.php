@@ -108,6 +108,12 @@ if (isset($_GET['quote_id'])) {
         $json_products = json_encode($products);
     }
 
+    // Quote File Attachments
+    $sql_quote_files = mysqli_query(
+        $mysqli,
+        "SELECT file_reference_name, file_name, file_created_at FROM quote_files LEFT JOIN files ON quote_files.file_id = files.file_id WHERE quote_id = $quote_id"
+    );
+
 ?>
 
     <ol class="breadcrumb d-print-none">
@@ -490,6 +496,54 @@ if (isset($_GET['quote_id'])) {
             <div class="d-none d-print-block text-center"><?php echo nl2br(nullable_htmlentities($config_quote_footer)); ?></div>
         </div>
     </div>
+
+    <?php if (mysqli_num_rows($sql_quote_files) > 0) { ?>
+        <div class="row mb-3">
+        <div class="col-sm d-print-none">
+            <div class="card">
+                <div class="card-header text-bold">
+                    <i class="fa fa-paperclip mr-2"></i>Attachments
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Upload date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+
+                        while ($quote_file = mysqli_fetch_array($sql_quote_files)) {
+                            $name = nullable_htmlentities($quote_file['file_name']);
+                            $ref_name = nullable_htmlentities($quote_file['file_reference_name']);
+                            $created = nullable_htmlentities($quote_file['file_created_at']);
+
+                            ?>
+                            <tr>
+                                <td><a target="_blank" href="/uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
+                                <td><?php echo $created; ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 
     <div class="row mb-3">
         <div class="col-sm d-print-none">
