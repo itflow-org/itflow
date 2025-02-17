@@ -40,29 +40,7 @@ header("X-Frame-Options: DENY");
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
     <link href="plugins/DataTables/datatables.min.css" rel="stylesheet">
     <!-- CSS to allow regular button to show as block button in mobile response view using the class btn-responsive -->
-    <style>
-        /* 
-           For screens below 576px (xs): 
-           - Make the button full-width, display:block 
-        */
-        @media (max-width: 575.98px) {
-          .btn-responsive {
-            display: block;
-            width: 100%;
-          }
-        }
-
-        /* 
-           For screens 576px (sm) and above:
-           - Revert to an inline style 
-        */
-        @media (min-width: 576px) {
-          .btn-responsive {
-            display: inline-block;
-            width: auto;
-          }
-        }
-    </style>
+    <link href="css/itflow_custom.css" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>

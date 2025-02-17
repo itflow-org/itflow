@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateTechRole();
+enforceUserPermission('module_support');
 
 function secondsToTime($inputSeconds) {
     $inputSeconds = floor($inputSeconds);

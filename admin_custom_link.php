@@ -96,8 +96,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $custom_link_location = intval($row['custom_link_location']);
                         if ($custom_link_location == 1) {
                             $custom_link_location_display = "Main Side Nav";
-                        } else {
+                        } elseif ($custom_link_location == 2) {
                             $custom_link_location_display = "Top Nav";
+                        } elseif ($custom_link_location == 3) {
+                            $custom_link_location_display = "Client Portal Nav";
                         }
 
                         ?>

@@ -75,6 +75,9 @@ $config_ticket_client_general_notifications = intval($row['config_ticket_client_
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 $config_ticket_new_ticket_notification_email = $row['config_ticket_new_ticket_notification_email'];
 $config_ticket_default_billable = intval($row['config_ticket_default_billable']);
+$config_ticket_default_view = intval($row['config_ticket_default_view']);
+$config_ticket_moving_columns = intval($row['config_ticket_moving_columns']);
+$config_ticket_ordering = intval($row['config_ticket_ordering']);
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);
@@ -305,4 +308,10 @@ $note_types_array = array (
     'Meeting'=>'fa-handshake',
     'In Person'=>'fa-people-arrows',
     'Note'=>'fa-sticky-note'
+);
+
+$interface_types_array = array (
+    'Ethernet',
+    'SFP',
+    'WiFi'
 );

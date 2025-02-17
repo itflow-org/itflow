@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control tinymce" name="ticket_reply"><?php echo nullable_htmlentities($ticket_reply); ?></textarea>
+                        <textarea class="form-control" name="ticket_reply"><?php echo nullable_htmlentities($ticket_reply); ?></textarea>
                     </div>
 
                     <?php if (!empty($ticket_reply_time_worked)) { ?>

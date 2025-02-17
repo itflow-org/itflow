@@ -1,0 +1,35 @@
+.popover {
+    max-width: 600px;
+}
+#kanban-board {
+    display: flex;
+    box-sizing: border-box;
+    overflow-x: auto;
+    min-width: 400px;
+    height: calc(100vh - 210px);
+}
+
+.kanban-column {
+    flex: 1; /* Allows columns to grow equally */
+    margin: 0 10px; /* Space between columns */
+    min-width: 300px;
+    max-width: 300px;
+    background: #f4f4f4;
+    padding: 10px;
+    border: 1px solid #ccc;
+    min-height: calc(100vh - 230px);
+    max-height: calc(100vh - 230px);
+    box-sizing: border-box;
+}
+
+.kanban-column div {
+    max-height: calc(100vh - 280px);  /* Set your desired max height */
+    overflow-y: auto;  /* Adds a scrollbar when content exceeds max height */
+}
+
+.task {
+    background: #fff;
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+}

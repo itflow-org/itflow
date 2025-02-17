@@ -54,9 +54,6 @@ if (isset($_GET['referral']) & !empty($_GET['referral'])) {
     $referral_filter = '';
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
-
 $sql = mysqli_query(
     $mysqli,
     "
@@ -452,7 +449,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_client_edit.php"
+                                                data-ajax-id="<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
 
@@ -470,10 +470,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/client_edit_modal.php";
-
-
                     } ?>
 
                     </tbody>

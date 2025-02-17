@@ -11,7 +11,10 @@
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editClientModal<?php echo $client_id; ?>">
+                        <a class="dropdown-item" href="#" 
+                            data-toggle="ajax-modal"
+                            data-ajax-url="ajax/ajax_client_edit.php"
+                            data-ajax-id="<?php echo $client_id; ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                         </a>
                         <?php if (lookupUserPermission("module_client") >= 3) { ?>
@@ -167,8 +170,5 @@
 
 <?php
 
-require_once "modals/client_edit_modal.php";
-
 require_once "modals/client_delete_modal.php";
-
 require_once "modals/client_download_pdf_modal.php";

@@ -99,17 +99,18 @@ if (isset($_GET['asset_id'])) {
         SELECT 
             ai.interface_id,
             ai.interface_name,
+            ai.interface_description,
+            ai.interface_type,
             ai.interface_mac,
             ai.interface_ip,
+            ai.interface_nat_ip,
             ai.interface_ipv6,
-            ai.interface_port,
             ai.interface_primary,
             ai.interface_notes,
             n.network_name,
             n.network_id,
             connected_interfaces.interface_id AS connected_interface_id,
             connected_interfaces.interface_name AS connected_interface_name,
-            connected_interfaces.interface_port AS connected_interface_port,
             connected_assets.asset_name AS connected_asset_name
         FROM asset_interfaces AS ai
         LEFT JOIN networks AS n
@@ -154,14 +155,29 @@ if (isset($_GET['asset_id'])) {
 
 
     // Related Logins Query
-    $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins
-         LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
+    $sql_related_logins = mysqli_query($mysqli, "
+        SELECT 
+            logins.login_id AS login_id,
+            logins.login_name,
+            logins.login_description,
+            logins.login_uri,
+            logins.login_username,
+            logins.login_password,
+            logins.login_otp_secret,
+            logins.login_note,
+            logins.login_important,
+            logins.login_contact_id,
+            logins.login_vendor_id,
+            logins.login_asset_id,
+            logins.login_software_id
+        FROM logins
+        LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
         LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
         WHERE login_asset_id = $asset_id
-        AND login_archived_at IS NULL
+          AND login_archived_at IS NULL
         GROUP BY logins.login_id
-        ORDER BY login_name DESC"
-    );
+        ORDER BY login_name DESC
+    ");
     $login_count = mysqli_num_rows($sql_related_logins);
 
     // Related Software Query
@@ -186,7 +202,10 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card">
                 <div class="card-header">
-                    <button type="button" class="btn btn-light float-right" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                    <button type="button" class="btn btn-light float-right"
+                        data-toggle="ajax-modal"
+                        data-ajax-url="ajax/ajax_asset_edit.php"
+                        data-ajax-id="<?php echo $asset_id; ?>">
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
@@ -224,7 +243,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark">
                 <div class="card-header">
-                    <h5 class="card-title">Network</h5>
+                    <h5 class="card-title">Primary Network Interface</h5>
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
@@ -272,12 +291,10 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h5 class="card-title">Notes</h5>
+                    <h5 class="card-title">Additional Notes</h5>
                 </div>
                 <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
             </div>
-
-            <?php require_once "modals/client_asset_edit_modal.php"; ?>
 
         </div>
 
@@ -350,9 +367,25 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i><?php echo $asset_name; ?> Network Interfaces</h3>
                     <div class="card-tools">      
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
-                            <i class="fas fa-plus mr-2"></i>New Interface
-                        </button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
+                                <i class="fas fa-plus mr-2"></i>New Interface
+                            </button>
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addMultipleAssetInterfacesModal">
+                                    <i class="fa fa-fw fa-check-double mr-2"></i>Add Multiple
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetInterfaceModal">
+                                    <i class="fa fa-fw fa-upload mr-2"></i>Import
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetInterfaceModal">
+                                    <i class="fa fa-fw fa-download mr-2"></i>Export
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -360,10 +393,10 @@ if (isset($_GET['asset_id'])) {
                         <table class="table table-striped table-borderless table-hover table-sm">
                             <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
                                 <tr>
-                                    <th>Name</th>
+                                    <th>Name / Port</th>
+                                    <th>Type</th>
                                     <th>MAC</th>
                                     <th>IP</th>
-                                    <th>Port</th>
                                     <th>Network</th>
                                     <th>Connected To</th>
                                     <th class="text-center">Action</th>
@@ -374,10 +407,12 @@ if (isset($_GET['asset_id'])) {
                                 <?php
                                     $interface_id       = intval($row['interface_id']);
                                     $interface_name     = nullable_htmlentities($row['interface_name']);
+                                    $interface_description = nullable_htmlentities($row['interface_description']);
+                                    $interface_type     = nullable_htmlentities($row['interface_type']);
                                     $interface_mac      = nullable_htmlentities($row['interface_mac']);
                                     $interface_ip       = nullable_htmlentities($row['interface_ip']);
+                                    $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
                                     $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
-                                    $interface_port     = nullable_htmlentities($row['interface_port']);
                                     $interface_primary  = intval($row['interface_primary']);
                                     $network_id         = intval($row['network_id']);
                                     $network_name       = nullable_htmlentities($row['network_name']);
@@ -386,18 +421,18 @@ if (isset($_GET['asset_id'])) {
                                     // Prepare display text
                                     $interface_mac_display = $interface_mac ?: '-';
                                     $interface_ip_display  = $interface_ip ?: '-';
-                                    $interface_port_display = $interface_port ?: '-';
+                                    $interface_type_display = $interface_type ?: '-';
                                     $network_name_display  = $network_name 
-                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name $network_id" 
+                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name" 
                                         : '-';
 
                                     // Connected interface details
                                     $connected_asset_name    = nullable_htmlentities($row['connected_asset_name']);
-                                    $connected_interface_port = nullable_htmlentities($row['connected_interface_port']);
+                                    $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
 
                                     // Show either "-" or "AssetName - Port"
                                     if ($connected_asset_name) {
-                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_port";
+                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_name";
                                     } else {
                                         $connected_to_display = "-";
                                     }
@@ -405,13 +440,16 @@ if (isset($_GET['asset_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                        <a class="text-dark" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
-                                            <?php echo $interface_name; ?>
+                                        <a class="text-dark" href="#" 
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                            data-ajax-id="<?php echo $interface_id; ?>">
+                                            <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                                         </a>
                                     </td>
+                                    <td><?php echo $interface_type_display; ?></td>
                                     <td><?php echo $interface_mac_display; ?></td>
                                     <td><?php echo $interface_ip_display; ?></td>
-                                    <td><?php echo $interface_port_display; ?></td>
                                     <td><?php echo $network_name_display; ?></td>
                                     <td><?php echo $connected_to_display; ?></td>
                                     <td>
@@ -420,7 +458,10 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetInterfaceModal<?php echo $interface_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                                    data-ajax-id="<?php echo $interface_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
@@ -433,8 +474,6 @@ if (isset($_GET['asset_id'])) {
                                         </div>
                                     </td>
                                 </tr>
-
-                                <?php require "modals/client_asset_interface_edit_modal.php"; ?>
                             <?php } ?>
                             </tbody>
                         </table>
@@ -471,7 +510,7 @@ if (isset($_GET['asset_id'])) {
                                 if (empty($login_uri)) {
                                     $login_uri_display = "-";
                                 } else {
-                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
                                 if (empty($login_username)) {
@@ -537,7 +576,10 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_credential_edit.php"
+                                                    data-ajax-id="<?php echo $login_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
@@ -555,8 +597,6 @@ if (isset($_GET['asset_id'])) {
                                 </tr>
 
                                 <?php
-
-                                require "modals/client_login_edit_modal.php";
 
                             }
 
@@ -932,6 +972,9 @@ if (isset($_GET['asset_id'])) {
 <?php
 
 require_once "modals/client_asset_interface_add_modal.php";
+require_once "modals/client_asset_interface_multiple_add_modal.php";
+require_once "modals/client_asset_interface_import_modal.php";
+require_once "modals/client_asset_interface_export_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/recurring_ticket_edit_modal.php";

@@ -33,7 +33,7 @@ if (isset($_GET['location']) & !empty($_GET['location'])) {
 }
 
 //Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+//$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, locations.*, users.*, GROUP_CONCAT(tags.tag_name) FROM contacts
     LEFT JOIN locations ON location_id = contact_location_id
@@ -380,10 +380,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-eye mr-2"></i>Details
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_contact_note_create.php"
+                                                data-ajax-id="<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_contact_edit.php"
+                                                data-ajax-id="<?php echo $contact_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
@@ -416,10 +422,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </tr>
 
                             <?php
-
-                            require "modals/client_contact_create_note_modal.php";
-                            require "modals/client_contact_edit_modal.php";
-
                         }
 
                         ?>

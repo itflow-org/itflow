@@ -25,7 +25,19 @@ $sql = mysqli_query(
     LEFT JOIN clients on scheduled_ticket_client_id = client_id
     WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
     $rec_ticket_permission_snippet
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
+    ORDER BY
+        CASE 
+            WHEN '$sort' = 'scheduled_ticket_priority' THEN
+                CASE scheduled_ticket_priority
+                    WHEN 'High' THEN 1
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low' THEN 3
+                    ELSE 4  -- Optional: for unexpected priority values
+                END
+            ELSE NULL
+        END $order, 
+        $sort $order  -- Apply normal sorting by $sort and $order
+    LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

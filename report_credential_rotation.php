@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateTechRole();
+enforceUserPermission('module_credential');
 
 // TODO: Default to 90 but allow input field to change this
 if (isset($_GET['days'])) {
@@ -23,7 +23,7 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Login entry passwords not changed/rotated in the last 90 days</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Client credentials not changed/rotated in the last 90 days</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
             </div>
@@ -35,9 +35,9 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
                     <thead>
                     <tr>
                         <th>Client</th>
-                        <th class="text-right">Login Name</th>
-                        <th class="text-right">Login Description</th>
-                        <th class="text-right">Login Password Last Changed</th>
+                        <th class="text-right">Credential Name</th>
+                        <th class="text-right">Credential Description</th>
+                        <th class="text-right">Credential Password Last Changed</th>
                     </tr>
                     </thead>
                     <tbody>

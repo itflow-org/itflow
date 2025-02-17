@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 if (isset($_GET['year'])) {
     if ($_GET['year'] === 'all') {

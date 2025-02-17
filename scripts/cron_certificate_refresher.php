@@ -24,6 +24,7 @@ $config_enable_cron = intval($row['config_enable_cron']);
 
 // Check cron is enabled
 if ($config_enable_cron == 0) {
+    logApp("Cron-Certificate-Refresher", "error", "Cron Certificate Refresh unable to run - cron not enabled in admin settings.");
     exit("Cron: is not enabled -- Quitting..");
 }
 
@@ -62,6 +63,7 @@ while ($row = mysqli_fetch_array($sql_certificates)) {
         mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
 
     } else {
+        logApp("Cron-Certificate-Refresher", "error", "Cron Certificate Refresh - error updating Error updating $domain.");
         error_log("Certificate Cron Error - Error updating $domain");
     }
 

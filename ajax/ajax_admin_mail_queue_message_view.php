@@ -1,24 +1,22 @@
 <?php
 
-require_once "includes/inc_all_admin.php";
+require_once '../includes/ajax_header.php';
+
+if (!isset($session_is_admin) || !$session_is_admin) {
+    exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
+}
+
+$email_id = intval($_GET['id']);
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
-if (isset($_GET['email_id'])) {
-	$email_id = intval($_GET['email_id']);
-} else {
-	echo "You dont belong here";
-	exit();
-}
-
-$sql = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_id = $email_id");
-
+$sql = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_id = $email_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
 
 $email_from = nullable_htmlentities($row['email_from']);
@@ -42,37 +40,40 @@ if ($email_status == 0) {
     $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary'>$email_sent_at</small>";
 }
 
+// Generate the HTML form content using output buffering.
+ob_start();
 ?>
-
-<ol class="breadcrumb d-print-none">
-  <li class="breadcrumb-item">
-    <a href="admin_user.php"><i class="fas fa-fw fa-user-shield mr-2"></i>Admin</a>
-  </li>
-  <li class="breadcrumb-item">
-    <a href="admin_mail_queue.php"><i class="fas fa-fw fa-mail-bulk mr-2"></i>Mail Queue</a>
-  </li>
-  <li class="breadcrumb-item active"><i class="fas fa-fw fa-envelope-open mr-2"></i><?php echo $email_subject; ?></li>
-</ol>
-
-<div class="row">
-
-  <div class="col-md-12">
-    <div class="card">
-      <div class="card-header bg-dark">
-        <div>From: <?php echo "$email_from_name <small>($email_from)</small>"; ?></div>
-        <div>To: <?php echo "$email_recipient_name <small>($email_recipient)</small>"; ?></div>
-        <div>Subject: <?php echo $email_subject; ?></div>
-      </div>
-      <div class="card-body prettyContent">
-        <?php echo $email_content; ?>
-      </div>
+<div class="modal-header">
+    <h5 class="modal-title"><i class='fas fa-fw fa-envelope-open mr-2'></i><strong><?php echo $email_subject; ?></strong></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+<div class="modal-body bg-white">
+    <div class="row">
+        <div class="col-md-1">
+            <span class="text-secondary">From:</span>
+        </div>
+        <div class="col-md-10">
+            <?php echo "<strong>$email_from_name</strong> ($email_from)"; ?>
+        </div>
     </div>
-  </div>
-
+    <hr class="my-2">
+    <div class="row">
+        <div class="col-md-1">
+            <span class="text-secondary">To:</span>
+        </div>
+        <div class="col-md-10">
+            <?php echo "<strong>$email_recipient_name</strong> ($email_recipient)"; ?>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="prettyContent">
+        <?php echo $email_content; ?>
+    </div>
 </div>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
 
 <?php
-
-require_once "includes/footer.php";
+require_once "../includes/ajax_footer.php";

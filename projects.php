@@ -266,7 +266,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </button>
                                     <div class="dropdown-menu">
                                         <?php if (empty($project_completed_at)) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle = "ajax-modal"
+                                                data-ajax-url = "ajax/ajax_project_edit.php"
+                                                data-ajax-id = "<?php echo $project_id; ?>"
+                                                >
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                         <?php } ?>
@@ -294,8 +298,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/project_edit_modal.php";
 
                     }
 

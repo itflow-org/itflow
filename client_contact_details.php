@@ -156,7 +156,10 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
-                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#editContactModal<?php echo $contact_id; ?>">
+                    <button type="button" class="btn btn-default float-right"
+                        data-toggle="ajax-modal"
+                        data-ajax-url="ajax/ajax_contact_edit.php"
+                        data-ajax-id="<?php echo $contact_id; ?>">
                         <i class="fas fa-fw fa-user-edit"></i>
                     </button>
                     <h3 class="text-bold"><?php echo $contact_name; ?></h3>
@@ -213,9 +216,6 @@ if (isset($_GET['contact_id'])) {
                     <?php } ?>
                     <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
 
-                    <?php require_once "modals/client_contact_edit_modal.php";
- ?>
-
                 </div>
             </div>
 
@@ -252,8 +252,11 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
-                            <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note
+                        <a class="dropdown-item text-dark" href="#"
+                            data-toggle="ajax-modal"
+                            data-ajax-url="ajax/ajax_contact_note_create.php"
+                            data-ajax-id="<?php echo $contact_id; ?>">
+                            <i class="fas fa-fw fa-sticky-note mr-2"></i>New Note
                         </a>
                     </div>
                 </div>
@@ -389,10 +392,16 @@ if (isset($_GET['contact_id'])) {
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_edit.php"
+                                                    data-ajax-id="<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_copy.php"
+                                                    data-ajax-id="<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -416,11 +425,6 @@ if (isset($_GET['contact_id'])) {
                                 </tr>
 
                                 <?php
-
-                                require "modals/client_asset_edit_modal.php";
-
-                                require "modals/client_asset_copy_modal.php";
-
 
                             }
 
@@ -462,7 +466,7 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($login_uri)) {
                                     $login_uri_display = "-";
                                 } else {
-                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='https://$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                    $login_uri_display = "$login_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button><a href='$login_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
                                 $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
                                 $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
@@ -529,7 +533,10 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_credential_edit.php"
+                                                    data-ajax-id="<?php echo $login_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
@@ -553,8 +560,6 @@ if (isset($_GET['contact_id'])) {
                                 </tr>
 
                                 <?php
-
-                                require "modals/client_login_edit_modal.php";
 
                             }
 
@@ -995,7 +1000,10 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary"
+                            data-toggle="ajax-modal"
+                            data-ajax-url="ajax/ajax_contact_note_create.php"
+                            data-ajax-id="<?php echo $contact_id; ?>">
                             <i class="fas fa-plus mr-2"></i>New Note
                         </button>
                     </div>
@@ -1134,7 +1142,6 @@ if (isset($_GET['contact_id'])) {
 
 <?php
 
-require_once "modals/client_contact_create_note_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/client_contact_link_asset_modal.php";
 require_once "modals/client_contact_link_software_modal.php";

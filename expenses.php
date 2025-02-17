@@ -39,9 +39,6 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_filter = '';
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
-
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM expenses
@@ -306,7 +303,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="expense_ids[]" value="<?php echo $expense_id ?>">
                                     </div>
                                 </td>
-                                <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
+                                <td>
+                                    <?php echo $receipt_attached; ?>
+                                    <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_expense_edit.php"
+                                        data-ajax-id="<?php echo $expense_id; ?>">
+                                        <?php echo $expense_date; ?>
+                                    </a>
+                                </td>
                                 <td><?php echo $vendor_name; ?></td>
                                 <td><?php echo $category_name; ?></td>
                                 <td><?php echo truncate($expense_description, 50); ?></td>
@@ -326,14 +332,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_edit.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_copy.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_refund.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -346,16 +364,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </tr>
 
                             <?php
-
-                            require "modals/expense_edit_modal.php";
-
-                            require "modals/expense_copy_modal.php";
-
-                            require "modals/expense_refund_modal.php";
-
-
                         }
-
                         ?>
 
                         </tbody>

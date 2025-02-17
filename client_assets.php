@@ -122,7 +122,7 @@ if (mysqli_num_rows($os_sql) > 0) {
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                    <div class="btn-group">
+                <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">
                         <i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>
                     </button>
@@ -206,6 +206,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
                                         <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkTransferAssetClientModal">
+                                        <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer to Client
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
@@ -564,10 +568,16 @@ if (mysqli_num_rows($os_sql) > 0) {
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_edit.php"
+                                                    data-ajax-id="<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#copyAssetModal<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_asset_copy.php"
+                                                    data-ajax-id="<?php echo $asset_id; ?>">
                                                     <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                                 </a>
                                                 <?php if ($session_user_role > 2) { ?>
@@ -579,9 +589,6 @@ if (mysqli_num_rows($os_sql) > 0) {
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                     <?php } else { ?>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#transferAssetModal<?php echo $asset_id; ?>">
-                                                        <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer
-                                                    </a>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                     </a>
@@ -596,12 +603,6 @@ if (mysqli_num_rows($os_sql) > 0) {
 
                             <?php
 
-                            require "modals/client_asset_edit_modal.php";
-
-                            require "modals/client_asset_copy_modal.php";
-
-                            require "modals/client_asset_transfer_modal.php";
-
                         }
 
                         ?>
@@ -611,6 +612,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </div>
                 <?php require_once "modals/client_asset_bulk_assign_location_modal.php"; ?>
                 <?php require_once "modals/client_asset_bulk_assign_contact_modal.php"; ?>
+                <?php require_once "modals/client_asset_bulk_transfer_client_modal.php"; ?>
                 <?php require_once "modals/client_asset_bulk_edit_status_modal.php"; ?>
                 <?php require_once "modals/client_asset_bulk_add_ticket_modal.php"; ?>
             </form>
@@ -622,11 +624,8 @@ if (mysqli_num_rows($os_sql) > 0) {
 
 <?php
 require_once "modals/client_asset_add_modal.php";
-
 require_once "modals/client_asset_import_modal.php";
-
 require_once "modals/client_asset_export_modal.php";
-
 require_once "includes/footer.php";
 
 ?>
