@@ -243,7 +243,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_location_edit.php"
+                                    data-ajax-id="<?php echo $location_id; ?>"
+                                    >
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
                                         <div class="media-body">
@@ -272,7 +276,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLocationModal<?php echo $location_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_location_edit.php"
+                                            data-ajax-id="<?php echo $location_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
@@ -297,8 +305,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php } ?>
                                     </div>
                                 </div>
-                                <?php require "modals/client_location_edit_modal.php";
-     ?>
                             </td>
                         </tr>
 
@@ -319,10 +325,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/client_location_add_modal.php";
-
 require_once "modals/client_location_import_modal.php";
-
 require_once "modals/client_location_export_modal.php";
-
 require_once "includes/footer.php";
-

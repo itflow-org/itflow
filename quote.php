@@ -177,7 +177,7 @@ if (isset($_GET['quote_id'])) {
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal" 
+                                data-toggle = "ajax-modal"
                                 data-ajax-url = "ajax/ajax_quote_edit.php"
                                 data-ajax-id = "<?php echo $quote_id; ?>"
                                 >
@@ -185,7 +185,7 @@ if (isset($_GET['quote_id'])) {
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                 <a class="dropdown-item" href="#"
-                                     data-toggle = "ajax-modal" 
+                                    data-toggle = "ajax-modal" 
                                     data-ajax-url = "ajax/ajax_quote_copy.php"
                                     data-ajax-id = "<?php echo $quote_id; ?>"
                                     >

@@ -82,23 +82,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $service_updated_at = nullable_htmlentities($row['service_updated_at']);
                         $service_review_due = nullable_htmlentities($row['service_review_due']);
 
-                        // Service Importance
-                        if ($service_importance == "High") {
-                            $service_importance_display = "<span class='p-2 badge badge-danger'>$service_importance</span>";
-                        } elseif ($service_importance == "Medium") {
-                            $service_importance_display = "<span class='p-2 badge badge-warning'>$service_importance</span>";
-                        } elseif ($service_importance == "Low") {
-                            $service_importance_display = "<span class='p-2 badge badge-info'>$service_importance</span>";
-                        } else {
-                            $service_importance_display = "-";
-                        }
-
                         ?>
 
                         <tr>
                             <!-- Name/Category/Updated/Importance from DB -->
                             <td>
-                                <a class="text-dark" href="#" data-toggle="modal" data-target="#viewServiceModal<?php echo $service_id; ?>">
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-modal-size="xl"
+                                    data-ajax-url="ajax/ajax_service_details.php"
+                                    data-ajax-id="<?php echo $service_id; ?>"
+                                    >
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
                                         <div class="media-body">
@@ -120,7 +114,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editServiceModal<?php echo $service_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_service_edit.php"
+                                            data-ajax-id="<?php echo $service_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
@@ -133,77 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                         </tr>
-
                         <?php
-
-                        // Associated Assets (and their logins/networks/locations)
-                        $sql_assets = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_assets
-                            LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
-                            LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-                            LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
-                            LEFT JOIN networks ON interface_network_id = networks.network_id
-                            LEFT JOIN locations ON assets.asset_location_id = locations.location_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        // Associated logins
-                        $sql_logins = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_logins
-                            LEFT JOIN logins ON service_logins.login_id = logins.login_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        // Associated Domains
-                        $sql_domains = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_domains
-                            LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
-                            WHERE service_id = $service_id"
-                        );
-                        // Associated Certificates
-                        $sql_certificates = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_certificates
-                            LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        // Associated URLs ---- REMOVED for now
-                        //$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
-                        //WHERE service_id = '$service_id'");
-
-                        // Associated Vendors
-                        $sql_vendors = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_vendors
-                            LEFT JOIN vendors ON service_vendors.vendor_id = vendors.vendor_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        // Associated Contacts
-                        $sql_contacts = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_contacts
-                            LEFT JOIN contacts ON service_contacts.contact_id = contacts.contact_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        // Associated Documents
-                        $sql_docs = mysqli_query(
-                            $mysqli,
-                            "SELECT * FROM service_documents
-                            LEFT JOIN documents ON service_documents.document_id = documents.document_id
-                            WHERE service_id = $service_id"
-                        );
-
-                        require "modals/client_service_edit_modal.php";
-
-                        require "modals/client_service_view_modal.php";
-
-
                     }
                     ?>
 
@@ -217,6 +145,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/client_service_add_modal.php";
-
 require_once "includes/footer.php";
-

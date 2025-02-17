@@ -85,7 +85,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_account_edit.php"
+                                    data-ajax-id="<?php echo $account_id; ?>"
+                                    >
+                                    <?php echo $account_name; ?>
+                                </a>
+                            </td>
                             <td><?php echo $account_currency_code; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?></td>
                             <td>
@@ -94,7 +102,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_account_edit.php"
+                                            data-ajax-id="<?php echo $account_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
@@ -109,7 +121,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-                        require "modals/account_edit_modal.php";
                     }
                     ?>
 

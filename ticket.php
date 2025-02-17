@@ -421,8 +421,13 @@ if (isset($_GET['ticket_id'])) {
                                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                 </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-modal-size = "lg"
+                                        data-ajax-url = "ajax/ajax_ticket_edit.php"
+                                        data-ajax-id = "<?php echo $ticket_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
@@ -1198,7 +1203,6 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket_edit_modal.php";
             require_once "modals/ticket_edit_asset_modal.php";
             require_once "modals/ticket_edit_vendor_modal.php";
             require_once "modals/ticket_add_watcher_modal.php";
@@ -1218,7 +1222,7 @@ require_once "includes/footer.php";
 ?>
 
 <!-- Summary Modal -->
-<div class="modal fade" id="summaryModal" tabindex="-1" role="dialog" aria-labelledby="summaryModalTitle" aria-hidden="true">
+<div class="modal fade" id="summaryModal" tabindex="-1">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content bg-dark">
       <div class="modal-header">

@@ -169,7 +169,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_trip_edit.php"
+                                    data-ajax-id="<?php echo $trip_id; ?>"
+                                    >
+                                    <?php echo $trip_date; ?>
+                                </a>
+                            </td>
                             <td><?php echo $client_name_display; ?></td>
                             <td><?php echo $user_name_display; ?></td>
                             <td><?php echo $trip_purpose; ?></td>
@@ -186,10 +194,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fa fa-fw fa-map-marker-alt mr-2"></i>Map it<i class="fa fa-fw fa-external-link-alt ml-2"></i>
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_trip_edit.php"
+                                            data-ajax-id="<?php echo $trip_id; ?>"
+                                            >
                                             <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_trip_copy.php"
+                                            data-ajax-id="<?php echo $trip_id; ?>"
+                                            >
                                             <i class="fa fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -202,14 +218,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/trip_copy_modal.php";
-
-                        require "modals/trip_edit_modal.php";
-
-                        require "modals/trip_export_modal.php";
-
-
                     }
                     ?>
 
@@ -223,6 +231,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/trip_add_modal.php";
-
+require_once "modals/trip_export_modal.php";
 require_once "includes/footer.php";
-
