@@ -59,7 +59,7 @@ if (isset($_GET['quote_id'])) {
         $client_net_terms = $config_default_net_terms;
     }
 
-    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $tab_title = $row['client_name'];
     $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
 
@@ -146,12 +146,7 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-paper-plane mr-2"></i>Send
                         </button>
                         <div class="dropdown-menu">
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php } ?>
+
                             <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
                                 <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                             </a>
@@ -595,7 +590,6 @@ if (isset($_GET['quote_id'])) {
 
 <?php
     require_once "modals/quote_to_invoice_modal.php";
-    require_once "modals/quote_copy_modal.php";
     require_once "modals/quote_note_modal.php";
 }
 
