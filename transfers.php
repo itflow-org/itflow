@@ -227,7 +227,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>"><?php echo $transfer_date; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_transfer_edit.php"
+                                    data-ajax-id = "<?php echo $transfer_id; ?>"
+                                    >
+                                    <?php echo $transfer_date; ?>
+                                </a>
+                            </td>
                             <td><?php echo "$account_from_archived_display$account_name_from"; ?></td>
                             <td><?php echo "$account_to_archived_display$account_name_to"; ?></td>
                             <td><?php echo $transfer_method_display; ?></td>
@@ -239,7 +247,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTransferModal<?php echo $transfer_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_transfer_edit.php"
+                                            data-ajax-id = "<?php echo $transfer_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -252,9 +264,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/transfer_edit_modal.php";
-
 
                     }
 

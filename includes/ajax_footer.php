@@ -5,5 +5,5 @@
     $content = ob_get_clean();
 
     // Return the title and content as a JSON response
-    echo json_encode(['title' => $title, 'content' => $content]);
+    echo json_encode(['content' => $content]);
 ?>

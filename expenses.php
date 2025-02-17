@@ -303,7 +303,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="expense_ids[]" value="<?php echo $expense_id ?>">
                                     </div>
                                 </td>
-                                <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
+                                <td>
+                                    <?php echo $receipt_attached; ?>
+                                    <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_expense_edit.php"
+                                        data-ajax-id="<?php echo $expense_id; ?>">
+                                        <?php echo $expense_date; ?>
+                                    </a>
+                                </td>
                                 <td><?php echo $vendor_name; ?></td>
                                 <td><?php echo $category_name; ?></td>
                                 <td><?php echo truncate($expense_description, 50); ?></td>

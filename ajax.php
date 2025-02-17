@@ -430,44 +430,6 @@ if (isset($_GET['recurring_ticket_get_json_details'])) {
 }
 
 /*
- * Looks up info for a given quote ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['quote_get_json_details'])) {
-    enforceUserPermission('module_sales');
-
-    $quote_id = intval($_GET['quote_id']);
-
-    // Get quote details
-    $quote_sql = mysqli_query(
-        $mysqli,
-        "SELECT * FROM quotes
-        LEFT JOIN clients ON quote_client_id = client_id
-        WHERE quote_id = $quote_id LIMIT 1"
-    );
-
-    while ($row = mysqli_fetch_array($quote_sql)) {
-        $response['quote'][] = $row;
-    }
-
-
-    // Get all income-related categories for quoting
-    $quote_created_at = $response['quote'][0]['quote_created_at'];
-    $category_sql = mysqli_query(
-        $mysqli,
-        "SELECT category_id, category_name FROM categories
-        WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL)
-        ORDER BY category_name"
-    );
-
-    while ($row = mysqli_fetch_array($category_sql)) {
-        $response['categories'][] = $row;
-    }
-
-    echo json_encode($response);
-
-}
-
-/*
  * Returns sorted list of active clients
  */
 if (isset($_GET['get_active_clients'])) {
