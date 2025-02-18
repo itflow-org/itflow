@@ -599,9 +599,6 @@ if (isset($_POST['invoice_note'])) {
 
 if (isset($_POST['edit_item'])) {
 
-    $invoice_id = intval($_POST['invoice_id']);
-    $quote_id = intval($_POST['quote_id']);
-    $recurring_id = intval($_POST['recurring_id']);
     $item_id = intval($_POST['item_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -623,6 +620,13 @@ if (isset($_POST['edit_item'])) {
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
+
+    // Determine what type of line item
+    $sql = mysqli_query($mysqli,"SELECT item_invoice_id, item_quote_id, item_recurring_id FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_id = intval($row['item_invoice_id']);
+    $quote_id = intval($row['item_quote_id']);
+    $recurring_id = intval($row['item_recurring_id']);
 
     if ($invoice_id > 0) {
         //Get Discount Amount

@@ -398,7 +398,13 @@ if (isset($_GET['invoice_id'])) {
                                                             <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>><i class="fas fa-fw fa-arrow-down mr-2"></i>Move down</button>
                                                         </form>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                        <a class="dropdown-item" href="#"
+                                                            data-toggle="ajax-modal"
+                                                            data-ajax-url="ajax/ajax_item_edit.php"
+                                                            data-ajax-id="<?php echo $item_id; ?>"
+                                                            >
+                                                            <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                        </a>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
                                                     </div>
@@ -414,9 +420,6 @@ if (isset($_GET['invoice_id'])) {
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
                                     </tr>
                                     <?php
-                                    if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") {
-                                        require "modals/item_edit_modal.php";
-                                    }
                                 }
                                 ?>
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled") { echo "hidden"; } ?>>
@@ -690,14 +693,12 @@ if (isset($_GET['invoice_id'])) {
     <?php
     include_once "modals/invoice_add_ticket_modal.php";
     include_once "modals/invoice_payment_add_modal.php";
-    include_once "modals/invoice_copy_modal.php";
     include_once "modals/invoice_recurring_add_modal.php";
     include_once "modals/invoice_note_modal.php";
 
 }
 
 require_once "includes/footer.php";
-
 
 ?>
 

@@ -305,7 +305,13 @@ if (isset($_GET['recurring_id'])) {
                                                         <button class="dropdown-item" type="submit" name="update_recurring_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i> Move Down</button>
                                                     </form>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                    <a class="dropdown-item" href="#"
+                                                        data-toggle="ajax-modal"
+                                                        data-ajax-url="ajax/ajax_item_edit.php"
+                                                        data-ajax-id="<?php echo $item_id; ?>"
+                                                        >
+                                                        <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                    </a>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
 
@@ -322,9 +328,6 @@ if (isset($_GET['recurring_id'])) {
                                     </tr>
 
                                     <?php
-
-                                    require "modals/item_edit_modal.php";
-
 
                                     }
 
