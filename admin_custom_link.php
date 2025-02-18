@@ -105,9 +105,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a href="#" data-toggle="modal" data-target="#editLinkModal<?php echo $custom_link_id; ?>">
-                                    <i class="fa fa-fw fa-<?php echo $custom_link_icon; ?> mr-2"></i>
-                                    <?php echo $custom_link_name;?>
+                                <a href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_custom_link_edit.php"
+                                    data-ajax-id="<?php echo $custom_link_id; ?>"
+                                    >
+                                    <i class="fa fa-fw fa-<?php echo $custom_link_icon; ?> mr-2"></i><?php echo $custom_link_name;?>
                                 </a>
                             </td>
                             <td><?php echo $custom_link_order_display; ?></td>
@@ -119,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editLinkModal<?php echo $custom_link_id; ?>">
+                                        <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_custom_link_edit.php" data-ajax-id="<?php echo $custom_link_id; ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -132,10 +135,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/admin_custom_link_edit_modal.php";
-
-
                     }
 
                     ?>
@@ -150,6 +149,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/admin_custom_link_add_modal.php";
-
 require_once "includes/footer.php";
-
