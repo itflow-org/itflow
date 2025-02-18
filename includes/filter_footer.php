@@ -26,6 +26,8 @@ if ($total_found_rows > 5) {
                     <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>
                     <option <?php if ($user_config_records_per_page == 50) { echo "selected"; } ?> >50</option>
                     <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
+                    <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
+                    <option <?php if ($user_config_records_per_page == 1000) { echo "selected"; } ?> >1000</option>
                 </select>
             </form>
         </div>
