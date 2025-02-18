@@ -165,7 +165,12 @@ $page_title = $row['document_name'];
     <div class="col-md-3 d-print-none">
         <div class="row">
             <div class="col-12 mb-3">
-                <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+                <button type="button" class="btn btn-primary mr-2"
+                    data-toggle="ajax-modal"
+                    data-modal-size="lg"
+                    data-ajax-url="ajax/ajax_document_edit.php"
+                    data-ajax-id="<?php echo $document_id; ?>"
+                    >
                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                 </button>
                 <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#shareModal"
@@ -394,7 +399,6 @@ $page_title = $row['document_name'];
 
 <?php
 
-require_once "modals/client_document_edit_modal.php";
 require_once "modals/client_document_link_file_modal.php";
 require_once "modals/client_document_link_contact_modal.php";
 require_once "modals/client_document_link_asset_modal.php";
@@ -403,5 +407,3 @@ require_once "modals/client_document_link_vendor_modal.php";
 require_once "modals/document_edit_visibility_modal.php";
 require_once "modals/share_modal.php";
 require_once "includes/footer.php";
-
-?>

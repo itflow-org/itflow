@@ -425,6 +425,15 @@ while ($folder_id > 0) {
                                                     <i class="fas fa-fw fa-eye mr-2"></i>Quick View
                                                 </a>
                                                 <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-modal-size="lg"
+                                                    data-ajax-url="ajax/ajax_document_edit.php"
+                                                    data-ajax-id="<?php echo $document_id; ?>"
+                                                    >
+                                                    <i class="fas fa-fw fa-pencil-alt mr-2"></i>Edit
+                                                </a>
+                                                <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>

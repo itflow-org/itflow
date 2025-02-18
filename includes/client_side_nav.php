@@ -285,7 +285,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
+                            <a href="quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-comment-dollar"></i>
                                 <p>
                                     Quotes

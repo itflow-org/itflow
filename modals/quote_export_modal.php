@@ -8,12 +8,14 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <?php if(isset($_GET['client_id'])) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="modal-body bg-white">
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="export_client_quotes_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
+                    <button type="submit" name="export_quotes_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>

@@ -521,7 +521,7 @@ if (isset($_GET['email_quote'])) {
 
 }
 
-if(isset($_POST['export_client_quotes_csv'])){
+if(isset($_POST['export_quotes_csv'])){
 
     enforceUserPermission('module_sales');
 

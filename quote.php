@@ -122,14 +122,14 @@ if (isset($_GET['quote_id'])) {
             <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>">Quotes</a>
+            <a href="quotes.php?client_id=<?php echo $client_id; ?>">Quotes</a>
         </li>
         <?php } else { ?>
         <li class="breadcrumb-item">
-            <a href="quotes.php">Quotes</a>
+            <a href="quotes.php">Global Quotes</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?>Quotes</a>
         </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
