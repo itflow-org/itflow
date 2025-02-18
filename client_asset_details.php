@@ -26,6 +26,7 @@ if (isset($_GET['asset_id'])) {
     $asset_uri = nullable_htmlentities($row['asset_uri']);
     $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
     $asset_status = nullable_htmlentities($row['asset_status']);
+    $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
     $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
     $asset_install_date = nullable_htmlentities($row['asset_install_date']);
@@ -202,8 +203,6 @@ if (isset($_GET['asset_id'])) {
     );
 
     $software_count = mysqli_num_rows($sql_related_software);
-
-
 
     ?>
 

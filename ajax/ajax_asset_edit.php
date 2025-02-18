@@ -26,6 +26,7 @@ $asset_mac = nullable_htmlentities($row['interface_mac']);
 $asset_uri = nullable_htmlentities($row['asset_uri']);
 $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
 $asset_status = nullable_htmlentities($row['asset_status']);
+$asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
 $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
 $asset_install_date = nullable_htmlentities($row['asset_install_date']);
@@ -389,10 +390,20 @@ ob_start();
 
                 <?php if ($asset_type !== 'Virtual Machine') { ?>
                     <div class="form-group">
-                        <label>Purchase Date</label>
+                        <label>Purchase Reference</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?php echo $asset_purchase_reference; ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Purchase Date</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
                             <input type="date" class="form-control" name="purchase_date" max="2999-12-31" value="<?php echo $asset_purchase_date; ?>">
                         </div>

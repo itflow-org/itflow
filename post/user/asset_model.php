@@ -24,6 +24,7 @@ $physical_location = sanitizeInput($_POST['physical_location']);
 $vendor = intval($_POST['vendor']);
 $contact = intval($_POST['contact']);
 $network = intval($_POST['network']);
+$purchase_reference = sanitizeInput($_POST['purchase_reference']);
 $purchase_date = sanitizeInput($_POST['purchase_date']);
 if (empty($purchase_date)) {
     $purchase_date = "NULL";

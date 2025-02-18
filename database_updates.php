@@ -2500,10 +2500,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.3'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.3') {
-    //     // Insert queries here required to update to DB version 1.8.4
+    if (CURRENT_DATABASE_VERSION == '1.8.3') {
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_purchase_reference` VARCHAR(200) DEFAULT NULL AFTER `asset_status`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.8.4') {
+    //     // Insert queries here required to update to DB version 1.8.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.5'");
     // }
 
 } else {

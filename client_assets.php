@@ -375,6 +375,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                             $asset_uri = nullable_htmlentities($row['asset_uri']);
                             $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
                             $asset_status = nullable_htmlentities($row['asset_status']);
+                            $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
                             $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
                             if ($asset_purchase_date) {
                                 $asset_purchase_date_display = $asset_purchase_date;
