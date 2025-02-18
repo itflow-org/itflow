@@ -4,7 +4,11 @@ require_once '../includes/ajax_header.php';
 
 $expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM expenses
+    LEFT JOIN vendors ON expense_vendor_id = vendor_id
+    LEFT JOIN categories ON expense_category_id = category_id
+    WHERE expense_id = $expense_id LIMIT 1"
+);
 
 $row = mysqli_fetch_array($sql);
 $expense_date = nullable_htmlentities($row['expense_date']);
@@ -18,6 +22,8 @@ $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
 $expense_client_id = intval($row['expense_client_id']);
+$vendor_name = nullable_htmlentities($row['vendor_name']);
+$category_name = nullable_htmlentities($row['category_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
