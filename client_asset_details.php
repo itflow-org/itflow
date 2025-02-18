@@ -740,6 +740,14 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $document_created_at; ?></td>
                                     <td><?php echo $document_updated_at; ?></td>
                                     <td class="text-center">
+                                        <a href="#" class="btn btn-dark btn-sm"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="lg"
+                                            data-ajax-url="ajax/ajax_document_view.php"
+                                            data-ajax-id="<?php echo $document_id; ?>"
+                                            >
+                                            <i class="fas fa-fw fa-eye"></i>
+                                        </a>
                                         <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
