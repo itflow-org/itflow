@@ -259,7 +259,7 @@
                     <?php if (lookupUserPermission("module_sales") >= 1) { ?>
 
                         <li class="nav-item">
-                            <a href="client_invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
+                            <a href="invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-file-invoice"></i>
                                 <p>
                                     Invoices

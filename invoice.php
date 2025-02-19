@@ -164,14 +164,14 @@ if (isset($_GET['invoice_id'])) {
             <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_invoices.php?client_id=<?php echo $client_id; ?>">Invoices</a>
+            <a href="invoices.php?client_id=<?php echo $client_id; ?>">Invoices</a>
         </li>
         <?php } else { ?>
         <li class="breadcrumb-item">
             <a href="invoices.php">Invoices</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>

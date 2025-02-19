@@ -1594,54 +1594,14 @@ if (isset($_GET['force_recurring'])) {
 
 }
 
-if (isset($_POST['export_client_invoices_csv'])) {
-    $client_id = intval($_POST['client_id']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id ORDER BY invoice_number ASC");
-    
-    $num_rows = mysqli_num_rows($sql);
-
-    if ($num_rows > 0) {
-        $delimiter = ",";
-        $filename = $client_name . "-Invoices-" . date('Y-m-d') . ".csv";
-
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
-
-        //set column headers
-        $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter);
-
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status']);
-            fputcsv($f, $lineData, $delimiter);
-        }
-
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+if (isset($_POST['export_invoices_csv'])) {
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND invoice_client_id = $client_id";
+    } else {
+        $client_query = '';
     }
 
-    logAction("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file", $client_id);
-
-    exit;
-
-}
-
-if (isset($_POST['export_invoices_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
     if (!empty($date_from) && !empty($date_to)) {
@@ -1652,7 +1612,7 @@ if (isset($_POST['export_invoices_csv'])) {
         $file_name_date = date('Y-m-d');
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query ORDER BY invoice_number ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query $client_query ORDER BY invoice_number ASC");
 
     $row = mysqli_fetch_array($sql);
     $client_name = $row['client_name'];
