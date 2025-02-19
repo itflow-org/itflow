@@ -273,7 +273,6 @@ require_once "modals/client_domain_add_modal.php";
 require_once "modals/client_domain_export_modal.php";
 ?>
 
-<script src="js/domain_edit_modal.js"></script>
 <script src="js/bulk_actions.js"></script>
 
 <?php require_once "includes/footer.php";

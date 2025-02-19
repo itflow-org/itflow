@@ -148,7 +148,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_certificate_edit.php"
+                                    data-ajax-id="<?php echo $certificate_id; ?>"
+                                    >
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-lock mr-3"></i>
                                         <div class="media-body">
@@ -173,7 +177,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateCertificateEditModal(<?php echo $client_id, ",", $certificate_id ?>)" data-target="#editCertificateModal">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_certificate_edit.php"
+                                            data-ajax-id="<?php echo $certificate_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
@@ -206,15 +214,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/client_certificate_edit_modal.php";
 require_once "modals/client_certificate_add_modal.php";
 require_once "modals/client_certificate_export_modal.php";
-
 ?>
 
-<script src="js/certificate_edit_modal.js"></script>
 <script src="js/bulk_actions.js"></script>
 <script src="js/certificate_fetch_ssl.js"></script>
 
 <?php require_once "includes/footer.php";
- ?>
