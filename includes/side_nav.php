@@ -74,7 +74,7 @@
                 <?php } ?>
 
                 <li class="nav-item">
-                    <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
+                    <a href="calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>Calendar</p>
                     </a>

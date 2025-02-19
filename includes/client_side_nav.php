@@ -98,7 +98,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_events.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_events.php") { echo "active"; } ?>">
+                    <a href="calendar.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>
                             Calendar

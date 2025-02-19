@@ -308,7 +308,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                            <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
                             <td><?php echo $invoice_scope_display; ?></td>
                             <?php if(!isset($_GET['client_id'])) { ?>
                             <td class="text-bold"><a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
