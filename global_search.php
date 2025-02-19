@@ -556,7 +556,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="recurring_tickets.php"><?php echo $scheduled_ticket_subject; ?></a></td>
                                     <td><?php echo $scheduled_ticket_frequency; ?></td>
                                     <td><?php echo $scheduled_ticket_next_run; ?></td>
-                                    <td><a href="client_recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>

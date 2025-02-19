@@ -4,7 +4,14 @@
 $sort = "scheduled_ticket_subject";
 $order = "ASC";
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND scheduled_ticket_client_id = $client_id";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -25,6 +32,7 @@ $sql = mysqli_query(
     LEFT JOIN clients on scheduled_ticket_client_id = client_id
     WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
     $rec_ticket_permission_snippet
+    $client_query
     ORDER BY
         CASE 
             WHEN '$sort' = 'scheduled_ticket_priority' THEN
@@ -59,6 +67,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
 
         <form autocomplete="off">
+            <?php if(isset($_GET['client_id'])) { ?>
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
 
                 <div class="col-md-4">
@@ -104,11 +115,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
+                            <?php if (!isset($_GET['client_id'])) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php } ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_subject&order=<?php echo $disp; ?>">
                                     Subject <?php if ($sort == 'scheduled_ticket_subject') { echo $order_icon; } ?>
@@ -156,8 +169,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
 
-                                <th><a href="client_recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
+                                <?php if (!isset($_GET['client_id'])) { ?>
+                                <th><a href="recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
                                 </th>
+                                <?php } ?>
 
                                 <td>
                                     <a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?>
@@ -218,7 +233,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/recurring_ticket_add_modal.php";
-
 require_once "modals/recurring_ticket_edit_modal.php";
-
 require_once "includes/footer.php";
