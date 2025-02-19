@@ -65,34 +65,6 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
     }
 }
 
-/*
- * Looks up info for a given network ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['network_get_json_details'])) {
-    enforceUserPermission('module_support');
-
-    $network_id = intval($_GET['network_id']);
-    $client_id = intval($_GET['client_id']);
-
-    // Individual network lookup
-    $network_sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
-    while ($row = mysqli_fetch_array($network_sql)) {
-        $response['network'][] = $row;
-    }
-
-    // Lookup all client locations, as networks can be associated with any client location
-    $locations_sql = mysqli_query(
-        $mysqli,
-        "SELECT location_id, location_name FROM locations
-         WHERE location_client_id = '$client_id'"
-    );
-    while ($row = mysqli_fetch_array($locations_sql)) {
-        $response['locations'][] = $row;
-    }
-
-    echo json_encode($response);
-}
-
 if (isset($_POST['client_set_notes'])) {
     enforceUserPermission('module_client', 2);
 
