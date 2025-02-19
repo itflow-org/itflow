@@ -195,7 +195,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td class="">
-                                    <a class="text-dark" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">
+                                    <a class="text-dark" href="#"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_domain_edit.php"
+                                        data-ajax-id="<?php echo $domain_id; ?>"
+                                        >
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-globe mr-3"></i>
                                             <div class="media-body">
@@ -219,7 +224,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateDomainEditModal(<?php echo $client_id, ",", $domain_id ?>)" data-target="#editDomainModal">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_domain_edit.php"
+                                                data-ajax-id="<?php echo $domain_id; ?>"
+                                                >
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
@@ -259,7 +269,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/client_domain_edit_modal.php";
 require_once "modals/client_domain_add_modal.php";
 require_once "modals/client_domain_export_modal.php";
 ?>
