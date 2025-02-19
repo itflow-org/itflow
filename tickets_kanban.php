@@ -2,8 +2,8 @@
 <link rel="stylesheet" href="/css/tickets_kanban.css">
 
 <?php
-$kanban = [];
 
+$kanban = [];
 
 // Fetch all statuses
 $status_sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses where ticket_status_active = 1 AND  ticket_status_id != 5 ORDER BY ticket_status_order");
@@ -47,6 +47,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON ticket_category = category_id
     WHERE $ticket_status_snippet " . $ticket_assigned_query . "
     $category_snippet
+    $client_query
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     $ticket_permission_snippet
@@ -110,10 +111,14 @@ $kanban = array_values($statuses);
                 
                 <b>
                     <?php
-                        if ($item['contact_name'] != ""){
-                            echo $item['client_name'] . ' - ' . $item['contact_name'];
+                        if (!isset($_GET['client_id'])) {
+                            if ($item['contact_name'] != ""){
+                                echo $item['client_name'] . ' - ' . $item['contact_name'];
+                            } else {
+                                echo $item['client_name'];
+                            }
                         } else {
-                            echo $item['client_name'];
+                            echo $item['contact_name']; 
                         }
                     ?>
                 </b>

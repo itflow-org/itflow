@@ -22,12 +22,20 @@
                                     Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php if (!isset($_GET['client_id'])) { ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client / <span class="text-secondary">Contact</span> <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            
+                            <?php } ?>
+                            <?php if (isset($_GET['client_id'])) { ?>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                    Contact <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <?php } ?>
                             <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                             <th class="text-center">
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_billable&order=<?php echo $disp; ?>">
@@ -185,14 +193,14 @@
 
                                 <!-- Ticket Number -->
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>">
                                         <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Subject -->
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>"><?php echo $ticket_subject; ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-2" style="height: 20px;">
@@ -208,9 +216,10 @@
 
                                 <!-- Ticket Contact -->
                                 <td>
-                                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
-
-                                    <div class="mt-1"><?php echo $contact_display; ?></div>
+                                    <?php if (!isset($_GET['client_id'])) { ?>
+                                    <a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
+                                    <?php } ?>
+                                    <div><?php echo $contact_display; ?></div>
                                 </td>
 
                                 <!-- Ticket Billable (if accounting enabled -->

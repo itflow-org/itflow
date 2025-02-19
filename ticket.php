@@ -354,14 +354,14 @@ if (isset($_GET['ticket_id'])) {
                 <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
             </li>
             <li class="breadcrumb-item">
-                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
+                <a href="tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
             </li>
             <?php } else { ?>
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
             </li>
             <?php } ?>
             <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>

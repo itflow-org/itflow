@@ -5,7 +5,14 @@
 $sort = "ticket_number";
 $order = "DESC";
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND ticket_client_id = $client_id";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -90,6 +97,7 @@ $sql = mysqli_query(
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     $ticket_permission_snippet
+    $client_query
     ORDER BY
         CASE 
             WHEN '$sort' = 'ticket_priority' THEN
@@ -108,22 +116,22 @@ $sql = mysqli_query(
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 //Get Total tickets open
-$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_resolved_at IS NULL $ticket_permission_snippet");
+$sql_total_tickets_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_open FROM tickets WHERE ticket_resolved_at IS NULL $client_query $ticket_permission_snippet");
 $row = mysqli_fetch_array($sql_total_tickets_open);
 $total_tickets_open = intval($row['total_tickets_open']);
 
 //Get Total tickets closed
-$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_resolved_at IS NOT NULL $ticket_permission_snippet");
+$sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_resolved_at IS NOT NULL $client_query $ticket_permission_snippet");
 $row = mysqli_fetch_array($sql_total_tickets_closed);
 $total_tickets_closed = intval($row['total_tickets_closed']);
 
 //Get Unassigned tickets
-$sql_total_tickets_unassigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_unassigned FROM tickets WHERE ticket_assigned_to = '0' AND ticket_resolved_at IS NULL $ticket_permission_snippet");
+$sql_total_tickets_unassigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_unassigned FROM tickets WHERE ticket_assigned_to = '0' AND ticket_resolved_at IS NULL $client_query $ticket_permission_snippet");
 $row = mysqli_fetch_array($sql_total_tickets_unassigned);
 $total_tickets_unassigned = intval($row['total_tickets_unassigned']);
 
 //Get Total tickets assigned to me
-$sql_total_tickets_assigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $session_user_id AND ticket_resolved_at IS NULL $ticket_permission_snippet");
+$sql_total_tickets_assigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_assigned FROM tickets WHERE ticket_assigned_to = $session_user_id AND ticket_resolved_at IS NULL $client_query $ticket_permission_snippet");
 $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
@@ -146,20 +154,31 @@ $sql_categories = mysqli_query(
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
                 <small class="ml-3">
-                    <a href="?status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
-            <div class='card-tools'>
+            <div class="card-tools">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
                         <i class="fas fa-plus mr-2"></i>New Ticket
                     </button>
+                    <?php if ($num_rows[0] > 0) { ?>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
+                <?php if(isset($_GET['client_id'])) { ?>
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
@@ -210,12 +229,12 @@ $sql_categories = mysqli_query(
                                     <i class="fa fa-fw fa-envelope mr-2"></i>My Tickets
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                    <a class="dropdown-item" href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                                    <a class="dropdown-item " href="<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
                                 </div>
                             </div>
-                            <a href="?assigned=unassigned" class="btn btn-outline-danger">
+                            <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>assigned=unassigned" class="btn btn-outline-danger">
                                 <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 
@@ -402,4 +421,5 @@ if (isset($_GET["view"])) {
 
 <?php
 require_once "modals/ticket_add_modal.php";
+require_once "modals/ticket_export_modal.php";
 require_once "includes/footer.php";

@@ -1970,28 +1970,27 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     header("Location: invoice.php?invoice_id=$invoice_id");
 }
 
-if (isset($_POST['export_client_tickets_csv'])) {
+if (isset($_POST['export_tickets_csv'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "WHERE ticket_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
     $sql = mysqli_query(
         $mysqli,
         "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        WHERE ticket_client_id = $client_id ORDER BY ticket_number ASC"
+        $client_query ORDER BY ticket_number ASC"
     );
 
     if ($sql->num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Tickets-" . date('Y-m-d') . ".csv";
+        $filename = "Tickets-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
