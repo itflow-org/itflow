@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $document_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id LIMIT 1");
                      
 $row = mysqli_fetch_array($sql);
 $client_id = intval($row['document_client_id']);

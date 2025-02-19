@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $custom_link_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_id = $custom_link_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_id = $custom_link_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
 $custom_link_name = nullable_htmlentities($row['custom_link_name']);
 $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);

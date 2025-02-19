@@ -6,7 +6,7 @@ $asset_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM assets 
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-    WHERE asset_id = $asset_id"
+    WHERE asset_id = $asset_id LIMIT 1"
 );
                      
 $row = mysqli_fetch_array($sql);

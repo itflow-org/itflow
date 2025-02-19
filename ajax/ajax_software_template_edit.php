@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $software_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = $software_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = $software_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
 $software_name = nullable_htmlentities($row['software_name']);
 $software_version = nullable_htmlentities($row['software_version']);

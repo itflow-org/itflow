@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $file_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id LIMIT 1");
                      
 $row = mysqli_fetch_array($sql);
 $client_id = intval($row['file_client_id']);

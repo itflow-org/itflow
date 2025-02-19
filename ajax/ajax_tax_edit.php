@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $tax_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $tax_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $tax_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
 $tax_name = nullable_htmlentities($row['tax_name']);
 $tax_percent = floatval($row['tax_percent']);

@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $item_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_id = $item_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
 $item_name = nullable_htmlentities($row['item_name']);
 $item_description = nullable_htmlentities($row['item_description']);

@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $folder_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id");
+$sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id LIMIT 1");
                      
 $row = mysqli_fetch_array($sql);
 $folder_name = nullable_htmlentities($row['folder_name']);
