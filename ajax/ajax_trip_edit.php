@@ -16,7 +16,7 @@ $trip_user_id = intval($row['trip_user_id']);
 $trip_created_at = nullable_htmlentities($row['trip_created_at']);
 $trip_archived_at = nullable_htmlentities($row['trip_archived_at']);
 $round_trip = nullable_htmlentities($row['round_trip']);
-$client_id = intval($row['client_id']);
+$client_id = intval($row['trip_client_id']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

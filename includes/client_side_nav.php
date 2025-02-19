@@ -315,7 +315,7 @@
                     <?php } ?>
 
                     <li class="nav-item">
-                        <a href="client_trips.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_trips.php") { echo "active"; } ?>">
+                        <a href="trips.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>
                                 Trips
