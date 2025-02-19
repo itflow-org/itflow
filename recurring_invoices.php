@@ -8,9 +8,11 @@ $order = "ASC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND recurring_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
     $client_query = '';
+    $client_url = '';
 }
 
 // Perms
@@ -44,7 +46,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
-            <?php if(isset($_GET['client_id'])) { ?>
+            <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
             <div class="row">
@@ -115,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Scope <?php if ($sort == 'recurring_scope') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <?php if (!isset($_GET['client_id'])) { ?>
+                    <?php if (!$client_url) { ?>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
@@ -208,13 +210,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td class="text-bold">
-                            <a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>">
+                            <a href="recurring_invoice.php?<?php echo $client_url; ?>recurring_id=<?php echo $recurring_id; ?>">
                                 <?php echo "$recurring_prefix$recurring_number"; ?>
                             </a>
                         </td>
                         <td class="text-bold"><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $recurring_scope; ?></td>
-                        <?php if (!isset($_GET['client_id'])) { ?>
+                        <?php if (!$client_url) { ?>
                         <td class="text-bold"><a href="recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <?php } ?>
                         <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>

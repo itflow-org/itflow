@@ -22,14 +22,14 @@
                                     Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <?php if (!isset($_GET['client_id'])) { ?>
+                            <?php if (!$client_url) { ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client / <span class="text-secondary">Contact</span> <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <?php } ?>
-                            <?php if (isset($_GET['client_id'])) { ?>
+                            <?php if ($client_url) { ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
                                     Contact <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
@@ -193,14 +193,14 @@
 
                                 <!-- Ticket Number -->
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>">
+                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
                                         <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Subject -->
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>"><?php echo $ticket_subject; ?></a>
+                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-2" style="height: 20px;">
@@ -216,7 +216,7 @@
 
                                 <!-- Ticket Contact -->
                                 <td>
-                                    <?php if (!isset($_GET['client_id'])) { ?>
+                                    <?php if (!$client_url) { ?>
                                     <a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
                                     <?php } ?>
                                     <div><?php echo $contact_display; ?></div>

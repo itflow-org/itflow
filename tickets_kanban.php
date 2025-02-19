@@ -111,7 +111,7 @@ $kanban = array_values($statuses);
                 
                 <b>
                     <?php
-                        if (!isset($_GET['client_id'])) {
+                        if (!$client_url) {
                             if ($item['contact_name'] != ""){
                                 echo $item['client_name'] . ' - ' . $item['contact_name'];
                             } else {

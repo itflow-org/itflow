@@ -8,9 +8,11 @@ $order = "DESC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND quote_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
     $client_query = '';
+    $client_url = '';
 }
 
 // Perms
@@ -53,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
-            <?php if(isset($_GET['client_id'])) { ?>
+            <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
             <div class="row">
@@ -120,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Scope <?php if ($sort == 'quote_scope') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <?php if (!isset($_GET['client_id'])) { ?>
+                    <?php if (!$client_url) { ?>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
@@ -203,12 +205,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td class="text-bold">
-                            <a href="quote.php?quote_id=<?php echo $quote_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>">
+                            <a href="quote.php?<?php echo $client_url; ?>quote_id=<?php echo $quote_id; ?>">
                                 <?php echo "$quote_prefix$quote_number"; ?>  
                             </a>
                         </td>
                         <td><?php echo $quote_scope_display; ?></td>
-                        <?php if (!isset($_GET['client_id'])) { ?>
+                        <?php if (!$client_url) { ?>
                         <td class="text-bold">
                             <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                         </td>

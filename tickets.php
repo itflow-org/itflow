@@ -9,9 +9,11 @@ $order = "DESC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND ticket_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
     $client_query = '';
+    $client_url = '';
 }
 
 // Perms
@@ -154,8 +156,8 @@ $sql_categories = mysqli_query(
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
                 <small class="ml-3">
-                    <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?<?php echo $client_url; ?>status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?<?php echo $client_url; ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
             <div class="card-tools">
@@ -176,7 +178,7 @@ $sql_categories = mysqli_query(
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <?php if(isset($_GET['client_id'])) { ?>
+                <?php if ($client_url) { ?>
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
                 <div class="row">
@@ -229,12 +231,12 @@ $sql_categories = mysqli_query(
                                     <i class="fa fa-fw fa-envelope mr-2"></i>My Tickets
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                    <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>?status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                                    <a class="dropdown-item " href="?<?php echo $client_url; ?>status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
                                 </div>
                             </div>
-                            <a href="?<?php if (isset($_GET['client_id'])) { echo "client_id=$client_id&"; } ?>assigned=unassigned" class="btn btn-outline-danger">
+                            <a href="?<?php echo $client_url; ?>assigned=unassigned" class="btn btn-outline-danger">
                                 <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 

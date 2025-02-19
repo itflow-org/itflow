@@ -8,9 +8,11 @@ $order = "ASC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND scheduled_ticket_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
     $client_query = '';
+    $client_url = '';
 }
 
 // Perms
@@ -67,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
 
         <form autocomplete="off">
-            <?php if(isset($_GET['client_id'])) { ?>
+            <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
             <div class="row">
@@ -115,7 +117,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <?php if (!isset($_GET['client_id'])) { ?>
+                            <?php if (!$client_url) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
@@ -169,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
 
-                                <?php if (!isset($_GET['client_id'])) { ?>
+                                <?php if (!$client_url) { ?>
                                 <th><a href="recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
                                 </th>
                                 <?php } ?>

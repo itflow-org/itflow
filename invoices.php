@@ -8,9 +8,11 @@ $order = "DESC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND invoice_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
     $client_query = '';
+    $client_url = '';
 }
 
 // Perms
@@ -164,7 +166,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo nullable_htmlentities($_GET['status']); } ?>">
-                <?php if(isset($_GET['client_id'])) { ?>
+                <?php if ($client_url) { ?>
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
                 <div class="row">
@@ -230,7 +232,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Scope <?php if ($sort == 'invoice_scope') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <?php if(!isset($_GET['client_id'])) { ?>
+                            <?php if (!$client_url) { ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
@@ -308,9 +310,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="text-bold"><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?><?php if (isset($_GET['client_id'])) { echo "&client_id=$client_id"; } ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                            <td class="text-bold">
+                                <a href="invoice.php?<?php echo $client_url; ?>invoice_id=<?php echo $invoice_id; ?>">
+                                <?php echo "$invoice_prefix$invoice_number"; ?>
+                                </a>
+                            </td>
                             <td><?php echo $invoice_scope_display; ?></td>
-                            <?php if(!isset($_GET['client_id'])) { ?>
+                            <?php if (!$client_url) { ?>
                             <td class="text-bold"><a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                             <?php } ?>
                             <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
