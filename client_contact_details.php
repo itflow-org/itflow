@@ -439,7 +439,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark <?php if ($login_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Related Logins</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -681,13 +681,9 @@ if (isset($_GET['contact_id'])) {
 
                                 <tr>
                                     <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
-
                                     <td><?php echo $scheduled_ticket_priority ?></td>
-
                                     <td><?php echo $scheduled_ticket_frequency ?></td>
-
                                     <td><?php echo $scheduled_ticket_next_run ?></td>
-
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
