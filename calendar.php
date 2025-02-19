@@ -48,10 +48,15 @@ if (isset($_GET['calendar_id'])) {
                     ?>
                     <div class="form-group">
                         <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
-                        <button type="button" class="btn btn-link btn-sm float-right" data-toggle="modal" data-target="#editCalendarModal<?php echo $calendar_id; ?>"><i class="fas fa-fw fa-pencil-alt text-secondary"></i></button>
+                        <button type="button" class="btn btn-link btn-sm float-right"
+                            data-toggle="ajax-modal"
+                            data-ajax-url="ajax/ajax_calendar_edit.php"
+                            data-ajax-id="<?php echo $calendar_id; ?>"
+                            >
+                            <i class="fas fa-fw fa-pencil-alt text-secondary"></i>
+                        </button>
                     </div>
                     <?php
-                        require "modals/calendar_edit_modal.php";
                     }
                     ?>
                 </form>
@@ -97,8 +102,6 @@ while ($row = mysqli_fetch_array($sql)) {
     $calendar_name = nullable_htmlentities($row['calendar_name']);
     $calendar_color = nullable_htmlentities($row['calendar_color']);
     $client_id = intval($row['event_client_id']);
-
-    require "modals/calendar_event_edit_modal.php";
 }
 
 ?>
@@ -140,7 +143,16 @@ while ($row = mysqli_fetch_array($sql)) {
 
         selectMirror: true,
         eventClick: function(editEvent) {
-            $('#editEventModal' + editEvent.event.id).modal();
+            var $link = $('<a>', {
+                href: '#',
+                'data-toggle': 'ajax-modal',
+                'data-ajax-url': 'ajax/ajax_calendar_event_edit.php?<?php echo $client_url; ?>',
+                'data-ajax-id': editEvent.event.id
+            });
+
+            $('body').append($link); // Append to the body
+            $link.trigger('click');  // Trigger the modal
+            $link.remove(); // Cleanup
         },
         dayMaxEvents: true, // allow "more" link when too many events
         views: {
