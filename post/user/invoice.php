@@ -1702,22 +1702,21 @@ if (isset($_POST['export_client_recurring_csv'])) {
 
 }
 
-if (isset($_POST['export_client_payments_csv'])) {
-    $client_id = intval($_POST['client_id']);
+if (isset($_POST['export_payments_csv'])) {
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND invoice_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE invoice_client_id = $client_id AND payment_invoice_id = invoice_id ORDER BY payment_date ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE payment_invoice_id = invoice_id $client_query ORDER BY payment_date ASC");
     
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Payments-" . date('Y-m-d') . ".csv";
+        $filename = "Payments-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

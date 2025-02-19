@@ -301,7 +301,7 @@
 
                     <?php if (lookupUserPermission("module_financial") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="client_payments.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_payments.php") { echo "active"; } ?>">
+                            <a href="payments.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-credit-card"></i>
                                 <p>
                                     Payments
