@@ -281,7 +281,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
                                     <td><?php echo $vendor_description; ?></td>
                                     <td><?php echo $vendor_phone; ?></td>
-                                    <td><a href="client_vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
