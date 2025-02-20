@@ -34,6 +34,24 @@
                             <p><strong>ALL</strong> Domains</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-cube"></i>
+                            <p><strong>ALL</strong> Licenses</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="credentials.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p><strong>ALL</strong> Credentials</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="certificates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-lock"></i>
+                            <p><strong>ALL</strong> Certificates</p>
+                        </a>
+                    </li>
                 <?php } ?>
 
             </ul>

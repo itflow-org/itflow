@@ -66,7 +66,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, clients.*, 
     LEFT JOIN tags ON tags.tag_id = contact_tags.tag_id
     WHERE contact_$archive_query
     $tag_query
-    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%')
+    AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $client_query
     $location_query
     GROUP BY contact_id
@@ -263,7 +263,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                             <?php if (!$client_url) { ?>
+                            <?php if (!$client_url) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>

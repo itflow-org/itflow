@@ -160,25 +160,24 @@ if (isset($_POST['bulk_delete_certificates'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['export_client_certificates_csv'])) {
+if (isset($_POST['export_certificates_csv'])) {
 
     enforceUserPermission('module_support');
 
-    $client_id = intval($_POST['client_id']);
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND certificate_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id ORDER BY certificate_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_archived_at IS NULL $client_query ORDER BY certificate_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Certificates-" . date('Y-m-d') . ".csv";
+        $filename = "Certificates-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -205,7 +204,7 @@ if (isset($_POST['export_client_certificates_csv'])) {
     }
 
     // Logging
-    logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
+    logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file");
 
     exit;
 

@@ -4,7 +4,16 @@
 $sort = "certificate_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND certificate_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -12,11 +21,13 @@ enforceUserPermission('module_support');
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates 
-  WHERE certificate_archived_at IS NULL
-  AND certificate_client_id = $client_id 
-  AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%') 
-  ORDER BY $sort $order LIMIT $record_from, $record_to");
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates
+    LEFT JOIN clients ON client_id = certificate_client_id
+    WHERE certificate_archived_at IS NULL
+    AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
+    $client_query
+    ORDER BY $sort $order LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
@@ -41,7 +52,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
+            <?php if ($client_url) { ?> 
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
 
                 <div class="col-md-4">
@@ -105,6 +118,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Expire <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php } ?>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -112,6 +132,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
+                        $client_id = intval($row['client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $certificate_id = intval($row['certificate_id']);
                         $certificate_name = nullable_htmlentities($row['certificate_name']);
                         $certificate_description = nullable_htmlentities($row['certificate_description']);
@@ -170,7 +192,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div><?php echo $certificate_expire; ?></div>
                                 <div><small><?php echo $certificate_expire_ago; ?></small></div>
                             </td>
-
+                            <?php if (!$client_url) { ?>
+                            <td><a href="certificates.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -214,8 +238,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/client_certificate_add_modal.php";
-require_once "modals/client_certificate_export_modal.php";
+require_once "modals/certificate_add_modal.php";
+require_once "modals/certificate_export_modal.php";
 ?>
 
 <script src="js/bulk_actions.js"></script>

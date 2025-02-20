@@ -33,7 +33,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*, clients.*,
     LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
     AND domain_$archive_query
-    AND (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%')
+    AND (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
@@ -61,7 +61,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <div class="card-body">
             <form autocomplete="off">
+                <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">

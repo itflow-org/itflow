@@ -4,13 +4,23 @@
 $sort = "login_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND login_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+    // Log when users load the Credentials/Logins page
+    logAction("Credential", "View", "$session_name viewed the Credentials page for client", $client_id);
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+    // Log when users load the Credentials/Logins page
+    logAction("Credential", "View", "$session_name viewed the All Credentials page");
+}
 
 // Perms
 enforceUserPermission('module_credential');
-
-// Log when users load the Credentials/Logins page
-mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Credential', log_action = 'View', log_description = '$session_name viewed the Credentials page for client', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
@@ -28,34 +38,46 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
-// Location Filter
-if (isset($_GET['location']) & !empty($_GET['location'])) {
-    $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
-    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
-    $location_filter = intval($_GET['location']);
-} else {
-    // Default - any
-    $location_query_innerjoin = '';
-    $location_query = '';
-    $location_filter = '';
+if (!$client_url) {
+    // Client Filter
+    if (isset($_GET['client']) & !empty($_GET['client'])) {
+        $client_query = 'AND (login_client_id = ' . intval($_GET['client']) . ')';
+        $client = intval($_GET['client']);
+    } else {
+        // Default - any
+        $client_query = '';
+        $client = '';
+    }
 }
 
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+if ($client_url) {
+    // Location Filter
+    if (isset($_GET['location']) & !empty($_GET['location'])) {
+        $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
+        $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
+        $location_filter = intval($_GET['location']);
+    } else {
+        // Default - any
+        $location_query_innerjoin = '';
+        $location_query = '';
+        $location_filter = '';
+    }
+}
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.* 
+    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.*, clients.*
     FROM logins l
     LEFT JOIN login_tags ON login_tags.login_id = l.login_id
     LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
+    LEFT JOIN clients ON client_id = login_client_id
     $location_query_innerjoin
-    WHERE l.login_client_id = $client_id
+    WHERE l.login_$archive_query
     $tag_query
-    AND l.login_$archive_query
-    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%')
+    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
+    $client_query
+
     GROUP BY l.login_id
     ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
@@ -91,7 +113,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
+            <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
 
                 <div class="col-md-4">
@@ -102,7 +126,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-
+                
+                <?php if ($client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
@@ -122,6 +147,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </select>
                     </div>
                 </div>
+                <?php } else { ?>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+
+                            <?php
+                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                            while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                            ?>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
 
                 <div class="col-md-3">
                     <div class="form-group">
@@ -141,7 +187,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-3">
                     <div class="btn-group float-right">
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?php echo $client_url; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -204,6 +250,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </th>
                             <th></th>
+                            <?php if (!$client_url) { ?>
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <?php } ?>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -211,6 +264,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
+                            $client_id = intval($row['client_id']);
+                            $client_name = nullable_htmlentities($row['client_name']);
                             $login_id = intval($row['l_login_id']);
                             $login_name = nullable_htmlentities($row['login_name']);
                             $login_description = nullable_htmlentities($row['login_description']);
@@ -303,7 +358,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td>
-                                    <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                    <a class="text-dark" href="#"
+                                        data-toggle="ajax-modal"
+                                        data-ajax-url="ajax/ajax_credential_edit.php"
+                                        data-ajax-id="<?php echo $login_id; ?>"
+                                        >
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                             <div class="media-body">
@@ -336,6 +395,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </div>
                                     <?php } ?>
                                 </td>
+                                <?php if (!$client_url) { ?>
+                                <td><a href="credentials.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                <?php } ?>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <?php if ( !empty($login_uri) || !empty($login_uri_2) ) { ?>
@@ -366,7 +428,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#"
                                                     data-toggle="ajax-modal"
                                                     data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $login_id; ?>">
+                                                    data-ajax-id="<?php echo $login_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -406,7 +469,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/client_login_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/credential_bulk_assign_tags_modal.php"; ?>
         </form>
         <?php require_once "includes/filter_footer.php";
         ?>
@@ -414,15 +477,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <!-- Include script to get TOTP code via the login ID -->
-<script src="js/logins_show_otp_via_id.js"></script>
+<script src="js/credential_show_otp_via_id.js"></script>
 <!-- Include script to generate readable passwords for login entries -->
-<script src="js/logins_generate_password.js"></script>
+<script src="js/generate_password.js"></script>
 <script src="js/bulk_actions.js"></script>
 
 <?php
 
-require_once "modals/client_login_add_modal.php";
+require_once "modals/credential_add_modal.php";
 require_once "modals/share_modal.php";
-require_once "modals/client_login_import_modal.php";
-require_once "modals/client_login_export_modal.php";
+require_once "modals/credential_import_modal.php";
+require_once "modals/credential_export_modal.php";
 require_once "includes/footer.php";

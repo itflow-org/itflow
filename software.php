@@ -4,21 +4,28 @@
 $sort = "software_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND software_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
-
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM software
-    WHERE software_client_id = $client_id
-    AND software_template = 0
+    LEFT JOIN clients ON client_id = software_client_id
+    WHERE software_template = 0
     AND software_$archive_query
-    AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%')
+    AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -50,7 +57,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
         <div class="card-body">
             <form autocomplete="off">
+                <?php if($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
 
@@ -65,7 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="float-right">
-                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                            <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -104,6 +113,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Expire <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php } ?>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -111,6 +127,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
+                        $client_id = intval($row['client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $software_id = intval($row['software_id']);
                         $software_name = nullable_htmlentities($row['software_name']);
                         $software_description = nullable_htmlentities($row['software_description']);
@@ -192,6 +210,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $software_license_type; ?></td>
                             <td><?php echo "$seat_count / $software_seats"; ?></td>
                             <td><?php echo $software_expire_display; ?></td>
+                            <?php if (!$client_url) { ?>
+                            <td><a href="software.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
@@ -236,7 +257,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/client_software_add_modal.php";
-require_once "modals/client_software_add_from_template_modal.php";
-require_once "modals/client_software_export_modal.php";
+require_once "modals/software_add_modal.php";
+require_once "modals/software_add_from_template_modal.php";
+require_once "modals/software_export_modal.php";
 require_once "includes/footer.php";

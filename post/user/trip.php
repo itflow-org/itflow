@@ -94,7 +94,7 @@ if (isset($_POST['export_trips_csv'])) {
 
     if ($count > 0) {
         $delimiter = ",";
-        $filename = "$session_company_name-Trips-$file_name_date.csv";
+        $filename = "Trips-$file_name_date.csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

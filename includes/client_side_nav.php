@@ -129,7 +129,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_software.php") { echo "active"; } ?>">
+                            <a href="software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-cube"></i>
                                 <p>
                                     Licenses
@@ -142,7 +142,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_logins.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_logins.php") { echo "active"; } ?>">
+                            <a href="credentials.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-key"></i>
                                 <p>
                                     Credentials
@@ -181,7 +181,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_certificates.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_certificates.php") { echo "active"; } ?>">
+                            <a href="certificates.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-lock"></i>
                                 <p>
                                     Certificates
