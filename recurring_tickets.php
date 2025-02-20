@@ -177,7 +177,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
 
                                 <td>
-                                    <a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?>
+                                    <a href="#" 
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                        data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                        >
+                                        <?php echo $scheduled_ticket_subject ?>
                                     </a>
                                 </td>
 
@@ -194,7 +200,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-modal-size="lg"
+                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -230,10 +241,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 </div>
 
-<script src="js/recurring_tickets_edit_modal.js"></script>
 <script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/recurring_ticket_edit_modal.php";
 require_once "includes/footer.php";
