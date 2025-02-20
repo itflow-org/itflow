@@ -48,8 +48,6 @@ $sql_shared_items = mysqli_query(
     "SELECT * FROM shared_items
     WHERE item_client_id = $client_id
         AND item_active = 1
-        AND item_views != item_view_limit
-        AND item_expire_at > NOW()
     ORDER BY item_created_at ASC
     LIMIT 5"
 );
