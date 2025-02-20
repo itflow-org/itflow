@@ -45,7 +45,7 @@
                             <?php } else { ?>
 
                                 <div class="form-group">
-                                    <label>Client <strong class="text-danger">*</strong> / <span class="text-secondary">Use Primary Contact</label>
+                                    <label>Client <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
@@ -62,11 +62,6 @@
 
                                             <?php } ?>
                                         </select>
-                                        <div class="input-group-append">
-                                            <div class="input-group-text">
-                                                <input type="checkbox" name="use_primary_contact" value="1">
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
