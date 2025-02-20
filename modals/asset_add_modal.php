@@ -10,7 +10,6 @@
 
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
                 <div class="modal-body bg-white ui-front">
 
@@ -40,6 +39,38 @@
                     <div class="tab-content">
 
                         <div class="tab-pane fade show active" id="pills-details">
+
+                            <?php if ($client_url) { ?>
+                                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                            <?php } else { ?>
+
+                                <div class="form-group">
+                                    <label>Client <strong class="text-danger">*</strong> / <span class="text-secondary">Use Primary Contact</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="client_id" required>
+                                            <option value="">- Select Client -</option>
+                                            <?php
+
+                                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                            while ($row = mysqli_fetch_array($sql)) {
+                                                $client_id = intval($row['client_id']);
+                                                $client_name = nullable_htmlentities($row['client_name']); ?>
+                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+
+                                            <?php } ?>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <div class="input-group-text">
+                                                <input type="checkbox" name="use_primary_contact" value="1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php } ?>
 
                             <div class="form-group">
                                 <label>Name <strong class="text-danger">*</strong></label>

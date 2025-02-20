@@ -15,8 +15,6 @@
 
             <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
 
-                <li class="nav-header">OVERVIEWS</li>
-
                 <?php  if (lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-item">
                         <a href="contacts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "contacts.php" || basename($_SERVER["PHP_SELF"]) == "contact_details.php") { echo "active"; } ?>">

@@ -26,26 +26,6 @@
 
                         <div class="tab-pane fade show active" id="pills-details">
 
-                            <div class="form-group">
-                                <label>Domain Name <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="name" placeholder="example.com" maxlength="200" required autofocus>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Description</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="description" placeholder="Short Description">
-                                </div>
-                            </div>
-
                             <?php if ($client_url) { ?>
                                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                             <?php } else { ?>
@@ -77,6 +57,26 @@
                                 </div>
 
                             <?php } ?>
+
+                            <div class="form-group">
+                                <label>Domain Name <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="name" placeholder="example.com" maxlength="200" required autofocus>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="description" placeholder="Short Description">
+                                </div>
+                            </div>
 
                             <div class="form-group">
                                 <label>Registrar</label>
