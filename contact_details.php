@@ -384,12 +384,9 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                        <a class="text-secondary" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_asset_edit.php"
-                                            data-ajax-id="<?php echo $asset_id; ?>"
-                                            >
-                                            <?php echo $asset_name; ?></a>
+                                        <a class="text-secondary" href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>">
+                                            <?php echo $asset_name; ?>
+                                        </a>
                                         <div class="mt-0">
                                             <small class="text-muted"><?php echo $asset_description; ?></small>
                                         </div>
@@ -544,7 +541,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?php echo $login_description; ?></td>
                                     <td><?php echo $login_username_display; ?></td>
                                     <td>
-                                        <a tabindex="0" href="#" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
                                     <td><?php echo $otp_display; ?></td>
                                     <td><?php echo $login_uri_display; ?></td>
@@ -1173,17 +1170,17 @@ if (isset($_GET['contact_id'])) {
     </script>
 
     <!-- Include script to get TOTP code via the login ID -->
-    <script src="js/logins_show_otp_via_id.js"></script>
+    <script src="js/credential_show_otp_via_id.js"></script>
 
 <?php
 
 require_once "modals/ticket_add_modal.php";
-require_once "modals/client_contact_link_asset_modal.php";
-require_once "modals/client_contact_link_software_modal.php";
-require_once "modals/client_contact_link_credential_modal.php";
-require_once "modals/client_contact_link_service_modal.php";
-require_once "modals/client_contact_link_document_modal.php";
-require_once "modals/client_contact_link_file_modal.php";
+require_once "modals/contact_link_asset_modal.php";
+require_once "modals/contact_link_software_modal.php";
+require_once "modals/contact_link_credential_modal.php";
+require_once "modals/contact_link_service_modal.php";
+require_once "modals/contact_link_document_modal.php";
+require_once "modals/contact_link_file_modal.php";
 
 require_once "modals/recurring_ticket_add_modal.php";
 

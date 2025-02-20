@@ -23,6 +23,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="locations.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "locations.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-map-marker-alt"></i>
+                            <p><strong>ALL</strong> Locations</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="assets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-desktop"></i>
                             <p><strong>ALL</strong> Assets</p>

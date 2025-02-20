@@ -39,7 +39,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="client_locations.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_locations.php") { echo "active"; } ?>">
+                    <a href="locations.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "locations.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-map-marker-alt"></i>
                         <p>
                             Locations

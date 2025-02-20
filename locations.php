@@ -4,7 +4,16 @@
 $sort = "location_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND location_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
@@ -27,13 +36,14 @@ $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS locations.*, GROUP_CONCAT(tag_name) FROM locations 
+    "SELECT SQL_CALC_FOUND_ROWS locations.*, clients.*, GROUP_CONCAT(tag_name) FROM locations
+    LEFT JOIN clients ON client_id = location_client_id
     LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
     LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
-    WHERE location_client_id = $client_id
+    WHERE location_$archive_query
     $tag_query
-    AND location_$archive_query
-    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%') 
+    AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    $client_query
     GROUP BY location_id
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
 );
@@ -67,7 +77,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
+            <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
 
@@ -97,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-5">
                     <div class="btn-group float-right">
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -167,6 +179,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Hours <?php if ($sort == 'location_hours') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php } ?>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -174,6 +193,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
+                        $client_id = intval($row['client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $location_id = intval($row['location_id']);
                         $location_name = nullable_htmlentities($row['location_name']);
                         $location_description = nullable_htmlentities($row['location_description']);
@@ -231,7 +252,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $location_tag_id_array[] = $location_tag_id;
-                            $location_tag_name_display_array[] = "<a href='client_locations.php?client_id=$client_id&tags[]=$location_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
+                            $location_tag_name_display_array[] = "<a href='locations.php?$client_url tags[]=$location_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
                         }
                         $location_tags_display = implode('', $location_tag_name_display_array);
 
@@ -270,6 +291,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php echo $location_fax_display; ?>
                             </td>
                             <td><?php echo $location_hours_display; ?></td>
+                            <?php if (!$client_url) { ?>
+                            <td><a href="locations.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -313,7 +337,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/client_location_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/location_bulk_assign_tags_modal.php"; ?>
         </form>
         <?php require_once "includes/filter_footer.php";
  ?>
@@ -324,7 +348,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/client_location_add_modal.php";
-require_once "modals/client_location_import_modal.php";
-require_once "modals/client_location_export_modal.php";
+require_once "modals/location_add_modal.php";
+require_once "modals/location_import_modal.php";
+require_once "modals/location_export_modal.php";
 require_once "includes/footer.php";

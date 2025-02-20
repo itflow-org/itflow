@@ -592,7 +592,7 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $login_description; ?></td>
                                     <td><?php echo $login_username_display; ?></td>
                                     <td>
-                                        <a tabindex="0" href="#" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
                                     <td><?php echo $otp_display; ?></td>
                                     <td><?php echo $login_uri_display; ?></td>
@@ -1080,9 +1080,8 @@ if (isset($_GET['asset_id'])) {
     });
 </script>
 
-<script src="js/recurring_tickets_edit_modal.js"></script>
 <!-- Include script to get TOTP code via the login ID -->
-<script src="js/logins_show_otp_via_id.js"></script>
+<script src="js/credential_show_otp_via_id.js"></script>
 
 <?php
 
