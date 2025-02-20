@@ -1,20 +1,32 @@
 <?php
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND asset_client_id = $client_id";
+    $client_url = "AND client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM assets
+        LEFT JOIN clients ON client_id = asset_client_id 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_id = $asset_id
-        AND asset_client_id = $client_id
+        $client_query
     ");
 
     $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['asset_client_id']);
+    $client_name = nullable_htmlentities($row['client_name']);
     $asset_id = intval($row['asset_id']);
     $asset_type = nullable_htmlentities($row['asset_type']);
     $asset_name = nullable_htmlentities($row['asset_name']);
@@ -318,7 +330,7 @@ if (isset($_GET['asset_id'])) {
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="client_assets.php?client_id=<?php echo $client_id; ?>">Assets</a>
+                    <a href="assets.php?client_id=<?php echo $client_id; ?>">Assets</a>
                 </li>
                 <li class="breadcrumb-item active"><?php echo $asset_name; ?></li>
             </ol>
@@ -569,7 +581,11 @@ if (isset($_GET['asset_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-key text-secondary"></i>
-                                        <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                        <a class="text-dark" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_credential_edit.php"
+                                            data-ajax-id="<?php echo $login_id; ?>"
+                                            >
                                             <?php echo $login_name; ?>
                                         </a>
                                     </td>
@@ -589,7 +605,8 @@ if (isset($_GET['asset_id'])) {
                                                 <a class="dropdown-item" href="#"
                                                     data-toggle="ajax-modal"
                                                     data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $login_id; ?>">
+                                                    data-ajax-id="<?php echo $login_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
@@ -676,7 +693,15 @@ if (isset($_GET['asset_id'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editSoftwareModal<?php echo $software_id; ?>"><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></a></td>
+                                    <td>
+                                        <a class="text-dark" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_software_edit.php"
+                                            data-ajax-id="<?php echo $software_id; ?>"
+                                            >
+                                            <?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?>
+                                        </a>
+                                    </td>
                                     <td><?php echo $software_type; ?></td>
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
@@ -871,7 +896,15 @@ if (isset($_GET['asset_id'])) {
                             ?>
 
                                 <tr>
-                                    <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+                                    <td class="text-bold">
+                                        <a href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                            data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                            >
+                                            <?php echo $scheduled_ticket_subject ?>
+                                        </a>
+                                    </td>
 
                                     <td><?php echo $scheduled_ticket_priority ?></td>
 
@@ -885,8 +918,11 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal"
-                                                   data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -1050,11 +1086,10 @@ if (isset($_GET['asset_id'])) {
 
 <?php
 
-require_once "modals/client_asset_interface_add_modal.php";
-require_once "modals/client_asset_interface_multiple_add_modal.php";
-require_once "modals/client_asset_interface_import_modal.php";
-require_once "modals/client_asset_interface_export_modal.php";
+require_once "modals/asset_interface_add_modal.php";
+require_once "modals/asset_interface_multiple_add_modal.php";
+require_once "modals/asset_interface_import_modal.php";
+require_once "modals/asset_interface_export_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/recurring_ticket_edit_modal.php";
 require_once "includes/footer.php";

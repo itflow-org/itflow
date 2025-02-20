@@ -4,7 +4,16 @@
 $sort = "domain_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND domain_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -12,19 +21,20 @@ enforceUserPermission('module_support');
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*,
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*, clients.*,
     registrar.vendor_name AS registrar_name,
     dnshost.vendor_name AS dnshost_name,
     mailhost.vendor_name AS mailhost_name,
     webhost.vendor_name AS webhost_name
     FROM domains
+    LEFT JOIN clients ON client_id = domain_client_id
     LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
     LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
     LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-    WHERE domain_client_id = $client_id
     AND domain_$archive_query
-    AND (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%') 
+    AND (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%')
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -33,7 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe mr-2"></i>Domains</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe mr-2"></i>Domain Management</h3>
             <div class="card-tools">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDomainModal"><i class="fas fa-plus mr-2"></i>New Domain</button>
@@ -64,7 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-8">
                         <div class="btn-group float-right">
-                            <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                            <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -101,8 +111,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <form id="bulkActions" action="post.php" method="post">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                    <?php if ($client_url) { ?>
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-
+                    <?php } ?>
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                         <tr>
@@ -141,6 +152,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php if (!$client_url) { ?>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <?php } ?>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>
@@ -181,6 +199,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $domain_mailhost_name = nullable_htmlentities($row['mailhost_name']);
                             $domain_created_at = nullable_htmlentities($row['domain_created_at']);
                             $domain_archived_at = nullable_htmlentities($row['domain_archived_at']);
+                            $client_id = intval($row['domain_client_id']);
+                            $client_name = nullable_htmlentities($row['client_name']);
                             // Add - if empty on the table
                             $domain_registrar_name_display = $domain_registrar_name ? $domain_registrar_name : "-";
                             $domain_webhost_name_display = $domain_webhost_name ? $domain_webhost_name : "-";
@@ -198,7 +218,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="text-dark" href="#"
                                         data-toggle="ajax-modal"
                                         data-modal-size="lg"
-                                        data-ajax-url="ajax/ajax_domain_edit.php"
+                                        data-ajax-url="ajax/ajax_domain_edit.php?<?php echo $client_url; ?>"
                                         data-ajax-id="<?php echo $domain_id; ?>"
                                         >
                                         <div class="media">
@@ -218,6 +238,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div><?php echo $domain_expire; ?></div>
                                     <div><small><?php echo $domain_expire_ago; ?></small></div>
                                 </td>
+                                <?php if (!$client_url) { ?>
+                                <td><?php echo $client_name; ?></td>
+                                <?php } ?>
                                 <td>
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -227,7 +250,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
                                                 data-modal-size="lg"
-                                                data-ajax-url="ajax/ajax_domain_edit.php"
+                                                data-ajax-url="ajax/ajax_domain_edit.php?<?php echo $client_url; ?>"
                                                 data-ajax-id="<?php echo $domain_id; ?>"
                                                 >
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
@@ -269,8 +292,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/client_domain_add_modal.php";
-require_once "modals/client_domain_export_modal.php";
+require_once "modals/domain_add_modal.php";
+require_once "modals/domain_export_modal.php";
 ?>
 
 <script src="js/bulk_actions.js"></script>

@@ -115,12 +115,6 @@
                             <p>All Assets</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="report_domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_domains.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-globe"></i>
-                            <p>All Domains</p>
-                        </a>
-                    </li>
                 <?php } ?>
 
             </ul>

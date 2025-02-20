@@ -324,7 +324,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
+                                    <td><a href="domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
                                     <td><?php echo $domain_expiry; ?></td>
                                     <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
@@ -750,7 +750,7 @@ if (isset($_GET['query'])) {
                                     </td>
                                     <td><?php echo $asset_type; ?></td>
                                     <td><?php echo $asset_serial_display; ?></td>
-                                    <td><a href="client_assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                     <td><?php echo $contact_name_display; ?></td>
                                 </tr>
 

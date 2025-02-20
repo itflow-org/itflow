@@ -116,7 +116,7 @@
 
                     <?php if (lookupUserPermission("module_support") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="client_assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_assets.php" || basename($_SERVER["PHP_SELF"]) == "client_asset_details.php") { echo "active"; } ?>">
+                            <a href="assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php" || basename($_SERVER["PHP_SELF"]) == "client_asset_details.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-desktop"></i>
                                 <p>
                                     Assets
@@ -195,7 +195,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_domains.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_domains.php") { echo "active"; } ?>">
+                            <a href="domains.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-globe"></i>
                                 <p>
                                     Domains
