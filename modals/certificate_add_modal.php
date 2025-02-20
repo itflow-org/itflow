@@ -8,7 +8,6 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <div class="modal-body bg-white">
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -28,6 +27,33 @@
                     <div class="tab-content">
 
                         <div class="tab-pane fade show active" id="pills-details">
+
+                            <?php if ($client_url) { ?>
+                                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                            <?php } else { ?>
+
+                                <div class="form-group">
+                                    <label>Client <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="client_id" required>
+                                            <option value="">- Select Client -</option>
+                                            <?php
+
+                                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                            while ($row = mysqli_fetch_array($sql)) {
+                                                $client_id = intval($row['client_id']);
+                                                $client_name = nullable_htmlentities($row['client_name']); ?>
+                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            <?php } ?>
 
                             <div class="form-group">
                                 <label>Certificate Name <strong class="text-danger">*</strong></label>
@@ -49,8 +75,7 @@
                                 </div>
                             </div>
 
-                            
-
+                            <?php if ($client_url) { ?>
                             <div class="form-group">
                                 <label>Domain</label>
                                 <div class="input-group">
@@ -70,6 +95,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php } ?>
                         
                         </div>
 

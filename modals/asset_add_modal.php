@@ -150,7 +150,7 @@
                         </div>
 
                         <div class="tab-pane fade" id="pills-network">
-
+                            <?php if ($client_url) { ?>
                             <div class="form-group">
                                 <label>Network</label>
                                 <div class="input-group">
@@ -174,6 +174,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php } ?>
 
                             <div class="form-group">
                                 <label>IP Address or DHCP</label>
@@ -254,6 +255,7 @@
                                 </div>
                             </div>
 
+                            <?php if ($client_url) { ?>
                             <div class="form-group">
                                 <label>Location</label>
                                 <div class="input-group">
@@ -298,6 +300,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php } ?>
 
                             <div class="form-group">
                                 <label>Status</label>
@@ -318,6 +321,7 @@
 
                         <div class="tab-pane fade" id="pills-purchase">
 
+                            <?php if ($client_url) { ?>
                             <div class="form-group">
                                 <label>Vendor</label>
                                 <div class="input-group">
@@ -339,6 +343,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php } ?>
 
                             <?php if ($_GET['type'] !== 'virtual') { ?>
                                 <div class="form-group">

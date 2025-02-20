@@ -130,6 +130,7 @@
                                 </div>
                             </div>
 
+                            <?php if($client_url) { ?>
                             <div class="form-group">
                                 <label>Location</label>
                                 <div class="input-group">
@@ -151,6 +152,7 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php } ?>
 
                         </div>
 
