@@ -4,7 +4,16 @@
 $sort = "network_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND network_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -15,10 +24,11 @@ $url_query_strings_sb = http_build_query(array_merge($_GET, array('sort' => $sor
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM networks
+    LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
-    WHERE network_client_id = $client_id
-    AND network_archived_at IS NULL
-    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_subnet LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%')
+    WHERE network_archived_at IS NULL
+    AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_subnet LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -46,7 +56,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
+            <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
 
                 <div class="col-md-4">
@@ -125,6 +137,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php } ?>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -132,6 +151,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
+                        $client_id = intval($row['client_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
                         $network_id = intval($row['network_id']);
                         $network_name = nullable_htmlentities($row['network_name']);
                         $network_description = nullable_htmlentities($row['network_description']);
@@ -170,7 +191,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="pr-0">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="network_ids[]" value="<?php echo $network_id ?>">
-                                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                                 </div>
                             </td>
                             <td>
@@ -197,6 +217,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $network_dns_display; ?></td>
                             <td><?php echo $network_dhcp_range_display; ?></td>
                             <td><?php echo $location_name_display; ?></td>
+                            <?php if (!$client_url) { ?>
+                            <td><a href="networks.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -238,8 +261,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/client_network_add_modal.php";
-require_once "modals/client_network_export_modal.php";
+require_once "modals/network_add_modal.php";
+require_once "modals/network_export_modal.php";
 
 ?>
 

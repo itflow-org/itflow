@@ -155,7 +155,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_networks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_networks.php") { echo "active"; } ?>">
+                            <a href="networks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-network-wired"></i>
                                 <p>
                                     Networks

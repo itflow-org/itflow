@@ -35,6 +35,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="networks.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-network-wired"></i>
+                            <p><strong>ALL</strong> Networks</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-globe"></i>
                             <p><strong>ALL</strong> Domains</p>
