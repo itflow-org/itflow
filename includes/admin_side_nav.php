@@ -33,13 +33,6 @@
                         <p>API Keys</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="admin_bulk_mail.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_bulk_mail.php") {echo "active";} ?>">
-                        <i class="nav-icon fas fa-paper-plane"></i>
-                        <p>Bulk Mail</p>
-                    </a>
-                </li>
-
                 <li class="nav-header">TAGS & CATEGORIES</li>
 
                 <li class="nav-item">

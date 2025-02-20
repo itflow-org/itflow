@@ -599,7 +599,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-info" href="report_assets.php">
+            <a class="small-box bg-info" href="assets.php">
                 <div class="inner">
                     <h3><?php echo $assets_added; ?></h3>
                     <p>New Assets</p>
@@ -625,7 +625,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-warning" href="report_domains.php">
+            <a class="small-box bg-warning" href="domains.php">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
                     <p>Expiring Domains</p>
@@ -699,7 +699,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_name = nullable_htmlentities($row['contact_name']);
 
                                     $ticket_priority_color = $ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info");
-                                    $contact_display = empty($contact_name) ? "-" : "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                                    $contact_display = empty($contact_name) ? "-" : "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
                                     <tr class="<?php echo empty($ticket_updated_at) ? 'text-bold' : ''; ?>">
                                         <td><a class="text-dark" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>

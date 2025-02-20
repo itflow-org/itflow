@@ -198,7 +198,7 @@ if ($config_enable_alert_domain_expire == 1) {
             $client_id = intval($row['client_id']);
             $client_name = sanitizeInput($row['client_name']);
 
-            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "client_domains.php?client_id=$client_id", $client_id);
+            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "domains.php?client_id=$client_id", $client_id);
 
         }
 
@@ -258,7 +258,7 @@ foreach ($warranty_alert_array as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        appNotify("Asset Warranty Expiring", "Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire", "client_assets.php?client_id=$client_id", $client_id);
+        appNotify("Asset Warranty Expiring", "Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire", "assets.php?client_id=$client_id", $client_id);
 
     }
 

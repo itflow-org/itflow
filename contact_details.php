@@ -1,18 +1,30 @@
 <?php
 
-require_once "includes/inc_all_client.php";
-
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND contact_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM contacts 
+        LEFT JOIN clients ON client_id = contact_client_id
         LEFT JOIN locations ON location_id = contact_location_id
         LEFT JOIN users ON user_id = contact_user_id
         WHERE contact_id = $contact_id
+        $client_query
     ");
 
     $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['client_id']);
+    $client_name = nullable_htmlentities($row['client_name']);
     $contact_name = nullable_htmlentities($row['contact_name']);
     $contact_title = nullable_htmlentities($row['contact_title']);
     $contact_department =nullable_htmlentities($row['contact_department']);
@@ -372,7 +384,12 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                        <a class="text-secondary" href="#" data-toggle="modal" data-target="#editAssetModal<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                        <a class="text-secondary" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_asset_edit.php"
+                                            data-ajax-id="<?php echo $asset_id; ?>"
+                                            >
+                                            <?php echo $asset_name; ?></a>
                                         <div class="mt-0">
                                             <small class="text-muted"><?php echo $asset_description; ?></small>
                                         </div>
@@ -516,7 +533,11 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-key text-secondary"></i>
-                                        <a class="text-dark" href="#" data-toggle="modal" data-target="#editLoginModal<?php echo $login_id; ?>">
+                                        <a class="text-dark" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_credential_edit.php"
+                                            data-ajax-id="<?php echo $login_id; ?>"
+                                            >
                                             <?php echo $login_name; ?>
                                         </a>
                                     </td>
@@ -680,7 +701,15 @@ if (isset($_GET['contact_id'])) {
                             ?>
 
                                 <tr>
-                                    <td class="text-bold"><a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?></a></td>
+                                    <td class="text-bold">
+                                        <a href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                            data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                            >
+                                            <?php echo $scheduled_ticket_subject ?>
+                                        </a>
+                                    </td>
                                     <td><?php echo $scheduled_ticket_priority ?></td>
                                     <td><?php echo $scheduled_ticket_frequency ?></td>
                                     <td><?php echo $scheduled_ticket_next_run ?></td>
@@ -690,8 +719,11 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal"
-                                                   data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $client_id, ',', $scheduled_ticket_id ?>)">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -1140,7 +1172,6 @@ if (isset($_GET['contact_id'])) {
         });
     </script>
 
-    <script src="js/recurring_tickets_edit_modal.js"></script>
     <!-- Include script to get TOTP code via the login ID -->
     <script src="js/logins_show_otp_via_id.js"></script>
 
@@ -1155,6 +1186,5 @@ require_once "modals/client_contact_link_document_modal.php";
 require_once "modals/client_contact_link_file_modal.php";
 
 require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/recurring_ticket_edit_modal.php";
 
 require_once "includes/footer.php";

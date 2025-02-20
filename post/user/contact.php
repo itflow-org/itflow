@@ -534,6 +534,52 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
 }
 
+if (isset($_POST['send_bulk_mail_now'])) {
+    
+    if (isset($_POST['contact_ids'])) {
+
+        $count = count($_POST['contact_ids']);
+
+        $mail_from = sanitizeInput($_POST['mail_from']);
+        $mail_from_name = sanitizeInput($_POST['mail_from_name']);
+        $subject = sanitizeInput($_POST['subject']);
+        $body = mysqli_escape_string($mysqli, $_POST['body']);
+        $queued_at = sanitizeInput($_POST['queued_at']);
+
+        // Add Emails
+        foreach($_POST['contact_ids'] as $contact_id) {
+            $contact_id = intval($contact_id);
+
+            $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
+            $row = mysqli_fetch_array($sql);
+            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_email = sanitizeInput($row['contact_email']);
+            $client_id = intval($row['contact_client_id']);
+
+            // Queue Mail
+            $data[] = [    
+                'from' => $mail_from,
+                'from_name' => $mail_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body,
+                'queued_at' => $queued_at
+            ];
+        }
+        addToMailQueue($data);
+
+        // Logging
+        logAction("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
+
+        $_SESSION['alert_message'] = "<strong>$count</strong> messages queued";
+    
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_POST['bulk_archive_contacts'])) {
 
     enforceUserPermission('module_client', 2);
@@ -1177,25 +1223,24 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
 }
 
-if (isset($_POST['export_client_contacts_csv'])) {
+if (isset($_POST['export_contacts_csv'])) {
 
     enforceUserPermission('module_client');
 
-    $client_id = intval($_POST['client_id']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND contact_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
     //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id WHERE contact_archived_at IS NULL $client_query ORDER BY contact_name ASC");
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = strtoAZaz09($client_name) . "-Contacts-" . date('Y-m-d') . ".csv";
+        $filename = "Contacts-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -1223,13 +1268,13 @@ if (isset($_POST['export_client_contacts_csv'])) {
     }
 
     //Logging
-    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
+    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file");
 
     exit;
 
 }
 
-if (isset($_POST["import_client_contacts_csv"])) {
+if (isset($_POST["import_contacts_csv"])) {
 
     enforceUserPermission('module_client', 2);
 
@@ -1332,17 +1377,9 @@ if (isset($_POST["import_client_contacts_csv"])) {
     }
 }
 
-if (isset($_GET['download_client_contacts_csv_template'])) {
-    $client_id = intval($_GET['download_client_contacts_csv_template']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
+if (isset($_GET['download_contacts_csv_template'])) {
     $delimiter = ",";
-    $filename = strtoAZaz09($client_name) . "-Contacts-Template.csv";
+    $filename = "Contacts-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');

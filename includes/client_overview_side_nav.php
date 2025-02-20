@@ -19,6 +19,12 @@
 
                 <?php  if (lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-item">
+                        <a href="contacts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "contacts.php" || basename($_SERVER["PHP_SELF"]) == "contact_details.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-address-book"></i>
+                            <p><strong>ALL</strong> Contacts</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="assets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-desktop"></i>
                             <p><strong>ALL</strong> Assets</p>
