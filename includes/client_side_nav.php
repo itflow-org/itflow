@@ -209,7 +209,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_services.php") { echo "active"; } ?>">
+                            <a href="services.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "services.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-stream"></i>
                                 <p>
                                     Services
