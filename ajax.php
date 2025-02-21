@@ -726,3 +726,22 @@ if (isset($_POST['update_task_templates_order'])) {
     exit;
 }
 
+if (isset($_POST['update_quote_items_order'])) {
+    // Update multiple quote items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $quote_id = intval($_POST['quote_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_quote_id = $quote_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
