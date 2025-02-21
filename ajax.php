@@ -523,3 +523,80 @@ if (isset($_POST['update_ticket_tasks_order'])) {
     echo json_encode(['status' => 'success']);
     exit;
 }
+
+if (isset($_POST['update_task_templates_order'])) {
+    // Update multiple task templates order
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+    $ticket_template_id = intval($_POST['ticket_template_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE task_templates SET task_template_order = $order WHERE task_template_ticket_template_id = $ticket_template_id AND task_template_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_quote_items_order'])) {
+    // Update multiple quote items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $quote_id = intval($_POST['quote_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_quote_id = $quote_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_invoice_items_order'])) {
+    // Update multiple invoice items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $invoice_id = intval($_POST['invoice_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_invoice_id = $invoice_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_recurring_invoice_items_order'])) {
+    // Update multiple recurring invoice items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $recurring_id = intval($_POST['recurring_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_recurring_id = $recurring_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+

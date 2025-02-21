@@ -115,6 +115,7 @@ if (isset($_GET['quote_id'])) {
     );
 
 ?>
+<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <?php if (isset($_GET['client_id'])) { ?>
@@ -282,7 +283,7 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table" id="items">
                                 <thead>
                                     <tr>
                                         <th class="d-print-none"></th>
@@ -335,7 +336,7 @@ if (isset($_GET['quote_id'])) {
                                             $up_hidden = "";
                                         } ?>
 
-                                        <tr>
+                                        <tr data-item-id="<?php echo $item_id; ?>">
                                             <td class="d-print-none">
                                                 <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
                                                     <div class="dropdown">
@@ -369,7 +370,7 @@ if (isset($_GET['quote_id'])) {
                                                     </div>
                                                 <?php } ?>
                                             </td>
-                                            <td><?php echo $item_name; ?></td>
+                                            <td class="grab-cursor"><?php echo $item_name; ?></td>
                                             <td><?php echo nl2br($item_description); ?></td>
                                             <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
                                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
@@ -605,7 +606,7 @@ require_once "includes/footer.php";
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var availableProducts = <?php echo $json_products ?>;
+        var availableProducts = <?php echo $json_products ?? '""' ?>;
 
         $("#name").autocomplete({
             source: availableProducts,
@@ -1013,4 +1014,40 @@ require_once "includes/footer.php";
             columnGap: 20
         }
     }
+</script>
+
+<script src="plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('table#items tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('itemId'),
+                    order: index
+                };
+            }).get();
+
+            // Send the new order to the server
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_quote_items_order: true,
+                    quote_id: <?php echo $quote_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    // Handle success
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
 </script>
