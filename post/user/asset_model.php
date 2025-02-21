@@ -19,11 +19,11 @@ $mac = sanitizeInput($_POST['mac']);
 $uri = sanitizeInput($_POST['uri']);
 $uri_2 = sanitizeInput($_POST['uri_2']);
 $status = sanitizeInput($_POST['status']);
-$location = intval($_POST['location']);
+$location = intval($_POST['location'] ?? 0);
 $physical_location = sanitizeInput($_POST['physical_location']);
-$vendor = intval($_POST['vendor']);
-$contact = intval($_POST['contact']);
-$network = intval($_POST['network']);
+$vendor = intval($_POST['vendor'] ?? 0);
+$contact = intval($_POST['contact'] ?? 0);
+$network = intval($_POST['network'] ?? 0);
 $purchase_reference = sanitizeInput($_POST['purchase_reference']);
 $purchase_date = sanitizeInput($_POST['purchase_date']);
 if (empty($purchase_date)) {

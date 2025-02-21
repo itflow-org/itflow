@@ -129,7 +129,7 @@ ob_start();
                             } else {
                                 $ip = '';
                             }
-                            echo "<li><a href=\"client_assets.php?client_id=$client_id&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
+                            echo "<li><a href=\"assets.php?client_id=$client_id&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
                         }
                         ?>
                     </ul>
@@ -165,7 +165,7 @@ ob_start();
                     }
                     foreach($networks as $network) {
                         $network = explode(":", $network);
-                        echo "<li><a href=\"client_networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
+                        echo "<li><a href=\"networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
                     }
 
                     ?>
@@ -200,7 +200,7 @@ ob_start();
                         <?php
                     }
                     foreach($location_names as $location) {
-                        echo "<li><a href=\"client_locations.php?client_id=$client_id&q=$location\">$location</a></li>";
+                        echo "<li><a href=\"locations.php?client_id=$client_id&q=$location\">$location</a></li>";
                     }
                     ?>
                     </ul>
@@ -220,7 +220,7 @@ ob_start();
                         // Showing linked domains
                         while ($row = mysqli_fetch_array($sql_domains)) {
                             if (!empty($row['domain_name'])) {
-                                echo "<li><a href=\"client_domains.php?client_id=$client_id&q=$row[domain_name]\">$row[domain_name]</a></li>";
+                                echo "<li><a href=\"domains.php?client_id=$client_id&q=$row[domain_name]\">$row[domain_name]</a></li>";
                             }
                         }
                         ?>
@@ -241,7 +241,7 @@ ob_start();
                         // Showing linked certs
                         while ($row = mysqli_fetch_array($sql_certificates)) {
                             if (!empty($row['certificate_name'])) {
-                                echo "<li><a href=\"client_certificates.php?client_id=$client_id&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
+                                echo "<li><a href=\"certificates.php?client_id=$client_id&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
                             }
                         }
                         ?>
@@ -270,7 +270,7 @@ ob_start();
                     <ul>
                         <?php
                         while ($row = mysqli_fetch_array($sql_vendors)) {
-                            echo "<li><a href=\"client_vendors.php?client_id=$client_id&q=$row[vendor_name]\">$row[vendor_name]</a></li>";
+                            echo "<li><a href=\"vendors.php?client_id=$client_id&q=$row[vendor_name]\">$row[vendor_name]</a></li>";
                         }
                         ?>
                     </ul>
@@ -288,7 +288,7 @@ ob_start();
                         mysqli_data_seek($sql_contacts, 0);
 
                         while ($row = mysqli_fetch_array($sql_contacts)) {
-                            echo "<li><a href=\"client_contact_details.php?client_id=$client_id&contact_id=$row[contact_id]\">$row[contact_name]</a></li>";
+                            echo "<li><a href=\"contact_details.php?client_id=$client_id&contact_id=$row[contact_id]\">$row[contact_name]</a></li>";
                         }
                         ?>
                     </ul>
@@ -309,14 +309,14 @@ ob_start();
                         // Showing logins linked to assets
                         while ($row = mysqli_fetch_array($sql_assets)) {
                             if (!empty($row['login_name'])) {
-                                echo "<li><a href=\"client_logins.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
+                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
                             }
                         }
 
                         // Showing explicitly linked logins
                         while ($row = mysqli_fetch_array($sql_logins)) {
                             if (!empty($row['login_name'])) {
-                                echo "<li><a href=\"client_logins.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
+                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
                             }
                         }
                         ?>

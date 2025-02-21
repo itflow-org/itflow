@@ -299,7 +299,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
+                    <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>

@@ -157,11 +157,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tr_class = "table-danger";
                             } elseif ($days_until_expiry <= 90) {
                                 $tr_class = "table-warning";    
+                            } else {
+                                $tr_class = '';
                             }
                             
                         } else {
                             $software_expire_display = "-";
-                            $tr_class = '';
                         }
      
                         $software_notes = nullable_htmlentities($row['software_notes']);

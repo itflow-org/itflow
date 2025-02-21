@@ -50,18 +50,16 @@ if (!$client_url) {
     }
 }
 
-if ($client_url) {
-    // Location Filter
-    if (isset($_GET['location']) & !empty($_GET['location'])) {
-        $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
-        $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
-        $location_filter = intval($_GET['location']);
-    } else {
-        // Default - any
-        $location_query_innerjoin = '';
-        $location_query = '';
-        $location_filter = '';
-    }
+// Location Filter
+if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
+    $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
+    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
+    $location_filter = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query_innerjoin = '';
+    $location_query = '';
+    $location_filter = '';
 }
 
 $sql = mysqli_query(
@@ -77,7 +75,6 @@ $sql = mysqli_query(
     AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
     $client_query
-
     GROUP BY l.login_id
     ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
 );

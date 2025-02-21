@@ -46,16 +46,14 @@ if (!$client_url) {
     }
 }
 
-if ($client_url) {
-    // Location Filter
-    if (isset($_GET['location']) & !empty($_GET['location'])) {
-        $location_query = 'AND (asset_location_id = ' . intval($_GET['location']) . ')';
-        $location_filter = intval($_GET['location']);
-    } else {
-        // Default - any
-        $location_query = '';
-        $location_filter = '';
-    }
+// Location Filter
+if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
+    $location_query = 'AND (asset_location_id = ' . intval($_GET['location']) . ')';
+    $location_filter = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query = '';
+    $location_filter = '';
 }
 
 //Get Asset Counts

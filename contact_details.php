@@ -247,7 +247,7 @@ if (isset($_GET['contact_id'])) {
                     <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="client_contacts.php?client_id=<?php echo $client_id; ?>">Contacts</a>
+                    <a href="contacts.php?client_id=<?php echo $client_id; ?>">Contacts</a>
                 </li>
                 <li class="breadcrumb-item active"><?php echo $contact_name; ?></li>
             </ol>
@@ -369,15 +369,6 @@ if (isset($_GET['contact_id'])) {
                                 $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
                                 $asset_notes = nullable_htmlentities($row['asset_notes']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
-                                $asset_vendor_id = intval($row['asset_vendor_id']);
-                                $asset_location_id = intval($row['asset_location_id']);
-                                $asset_network_id = intval($row['interface_network_id']);
-                                $asset_contact_id = intval($row['asset_contact_id']);
-
-                                $login_id = $row['login_id'];
-                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-
                                 $device_icon = getAssetIcon($asset_type);
 
                                 ?>

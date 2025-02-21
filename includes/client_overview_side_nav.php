@@ -35,18 +35,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="networks.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-network-wired"></i>
-                            <p><strong>ALL</strong> Networks</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-globe"></i>
-                            <p><strong>ALL</strong> Domains</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-cube"></i>
                             <p><strong>ALL</strong> Licenses</p>
@@ -59,9 +47,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="networks.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-network-wired"></i>
+                            <p><strong>ALL</strong> Networks</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="certificates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-lock"></i>
                             <p><strong>ALL</strong> Certificates</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="domains.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "domains.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-globe"></i>
+                            <p><strong>ALL</strong> Domains</p>
                         </a>
                     </li>
                     <li class="nav-item">

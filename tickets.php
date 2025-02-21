@@ -45,6 +45,17 @@ if (isset($_GET['status']) && is_array($_GET['status']) && !empty($_GET['status'
     }
 }
 
+if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
+    if (isset($_GET['unbilled'])) {
+        $billable = 1;
+        $ticket_billable_snippet = "AND ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = '1 = 1';
+    }
+} else {
+    $billable = 0;
+    $ticket_billable_snippet = '';
+}
+
 if (isset($_GET['category'])) {
     $category = sanitizeInput($_GET['category']);
     if ($category == 'empty') {
@@ -98,6 +109,7 @@ $sql = mysqli_query(
     $category_snippet
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
+    $ticket_billable_snippet
     $ticket_permission_snippet
     $client_query
     ORDER BY

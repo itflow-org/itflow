@@ -229,7 +229,7 @@ foreach ($certificateAlertArray as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire", "client_certificates.php?client_id=$client_id", $client_id);
+        appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
 
     }
 

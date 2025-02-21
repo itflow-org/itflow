@@ -698,6 +698,8 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_assets)) {
+                                $client_id = intval($row['asset_client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
                                 $asset_id = intval($row['asset_id']);
                                 $asset_type = nullable_htmlentities($row['asset_type']);
                                 $asset_name = nullable_htmlentities($row['asset_name']);
@@ -736,9 +738,6 @@ if (isset($_GET['query'])) {
                                 } else {
                                     $contact_archived_display = "Archived - ";
                                 }
-
-                                $client_id = intval($row['asset_client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
 
                                 ?>
                                 <tr>
