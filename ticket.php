@@ -461,6 +461,12 @@ if (isset($_GET['ticket_id'])) {
 
             </div> <!-- Card Header -->
 
+            <!-- create js variable related to ticket timer setting -->
+            <script type="text/javascript">
+                var noAutoStart = <?php echo json_encode($config_ticket_timer_default_no_autostart); ?>;
+            </script>
+
+
             <div class="card-body pt-3 pb-0">
                 <div class="row">
                     <div class="col-sm-4">

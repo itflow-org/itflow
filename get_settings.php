@@ -75,6 +75,7 @@ $config_ticket_client_general_notifications = intval($row['config_ticket_client_
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
 $config_ticket_new_ticket_notification_email = $row['config_ticket_new_ticket_notification_email'];
 $config_ticket_default_billable = intval($row['config_ticket_default_billable']);
+$config_ticket_timer_default_no_autostart = intval($row['config_ticket_timer_default_no_autostart']);
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);

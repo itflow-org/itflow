@@ -4,9 +4,14 @@
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize variables
         var timerInterval = null;
-        var isPaused = false;
+        //var isPaused = false;
         var ticketID = getCurrentTicketID();
         var elapsedSecs = getElapsedSeconds();
+
+        //get database setting for autostart ticket Timer and pause if true
+        var isPaused = noAutoStart === 1 ? true : false;
+        if (isPaused === true) pauseTimer();
+        //end get timer pause setting
 
         function getCurrentTicketID() {
             const urlParams = new URLSearchParams(window.location.search);
