@@ -162,7 +162,7 @@ if (mysqli_num_rows($os_sql) > 0) {
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-desktop mr-2"></i>Asset Management</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h3>
         <div class="card-tools">
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="btn-group">

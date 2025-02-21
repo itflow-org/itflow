@@ -123,7 +123,8 @@ if (isset($_GET['asset_id'])) {
             n.network_id,
             connected_interfaces.interface_id AS connected_interface_id,
             connected_interfaces.interface_name AS connected_interface_name,
-            connected_assets.asset_name AS connected_asset_name
+            connected_assets.asset_name AS connected_asset_name,
+            connected_assets.asset_id AS connected_asset_id
         FROM asset_interfaces AS ai
         LEFT JOIN networks AS n
           ON n.network_id = ai.interface_network_id
@@ -448,12 +449,13 @@ if (isset($_GET['asset_id'])) {
                                         : '-';
 
                                     // Connected interface details
-                                    $connected_asset_name    = nullable_htmlentities($row['connected_asset_name']);
+                                    $connected_asset_id = intval($row['connected_asset_id']);
+                                    $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
                                     $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
 
                                     // Show either "-" or "AssetName - Port"
                                     if ($connected_asset_name) {
-                                        $connected_to_display = "<strong>$connected_asset_name</strong> - $connected_interface_name";
+                                        $connected_to_display = "<a href='asset_details.php?client_id=$client_id&asset_id=$connected_asset_id'><strong>$connected_asset_name</strong> - $connected_interface_name</a>";
                                     } else {
                                         $connected_to_display = "-";
                                     }
