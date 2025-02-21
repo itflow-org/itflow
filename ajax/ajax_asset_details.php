@@ -285,7 +285,14 @@ ob_start();
 
                             // Show either "-" or "AssetName - Port"
                             if ($connected_asset_name) {
-                                $connected_to_display = "<a href='asset_details.php?client_id=$client_id&asset_id=$connected_asset_id'><strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name</a>";
+                                $connected_to_display = 
+                                    "<a href='#' data-toggle='ajax-modal'
+                                        data-modal-size='lg'
+                                        data-ajax-url='ajax/ajax_asset_details.php'
+                                        data-ajax-id='$connected_asset_id'>
+                                        <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                    </a>
+                                ";
                             } else {
                                 $connected_to_display = "-";
                             }
@@ -338,7 +345,7 @@ ob_start();
                         if (empty($login_username)) {
                             $login_username_display = "-";
                         } else {
-                            $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
+                            $login_username_display = "$login_username";
                         }
                         $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
                         $login_otp_secret = nullable_htmlentities($row['login_otp_secret']);
@@ -385,7 +392,7 @@ ob_start();
                             </td>
                             <td><?php echo $login_username_display; ?></td>
                             <td>
-                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
                             </td>
                             <td><?php echo $otp_display; ?></td>
                             <td><?php echo $login_uri_display; ?></td>
@@ -401,6 +408,8 @@ ob_start();
                 </table>
             </div>
         </div>
+        <!-- Include script to get TOTP code via the login ID -->
+        <script src="js/credential_show_otp_via_id.js"></script>
         <?php } ?>
 
         <?php if ($ticket_count) { ?>

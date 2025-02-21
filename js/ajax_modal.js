@@ -35,7 +35,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             }
             
             // Create a modal ID by appending the ajaxId.
-            var modalId = 'ajaxModal_' + ajaxId;
+            var modalId = 'ajaxModal_' + ajaxId + '_' + new Date().getTime();
             
             // Remove any existing modal with this ID.
             $('#' + modalId).remove();

@@ -459,7 +459,12 @@ if (isset($_GET['asset_id'])) {
 
                                     // Show either "-" or "AssetName - Port"
                                     if ($connected_asset_name) {
-                                        $connected_to_display = "<a href='asset_details.php?client_id=$client_id&asset_id=$connected_asset_id'><strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name</a>";
+                                        $connected_to_display = "<a href='#'
+                                            data-modal-size='lg'
+                                            data-ajax-url='ajax/ajax_asset_details.php'
+                                            data-ajax-id='$connected_asset_id'>
+                                            <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                        </a>";
                                     } else {
                                         $connected_to_display = "-";
                                     }
