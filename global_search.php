@@ -93,8 +93,8 @@ if (isset($_GET['query'])) {
 
     $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
         LEFT JOIN clients ON scheduled_ticket_client_id = client_id
-        WHERE scheduled_ticket_subject LIKE '%$query%'
-            OR scheduled_ticket_details LIKE '%$query%'
+        WHERE (scheduled_ticket_subject LIKE '%$query%'
+            OR scheduled_ticket_details LIKE '%$query%')
             $access_permission_query
         ORDER BY scheduled_ticket_id DESC LIMIT 5"
     );

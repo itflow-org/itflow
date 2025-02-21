@@ -24,6 +24,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM services
     LEFT JOIN clients ON client_id = service_client_id
     WHERE (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR client_name LIKE '%$q%')
+    $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

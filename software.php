@@ -25,6 +25,7 @@ $sql = mysqli_query(
     WHERE software_template = 0
     AND software_$archive_query
     AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
+    $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 

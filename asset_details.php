@@ -11,7 +11,6 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
@@ -25,7 +24,7 @@ if (isset($_GET['asset_id'])) {
     ");
 
     $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['asset_client_id']);
+    $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
     $asset_id = intval($row['asset_id']);
     $asset_type = nullable_htmlentities($row['asset_type']);

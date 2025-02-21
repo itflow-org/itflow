@@ -25,6 +25,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates
     LEFT JOIN clients ON client_id = certificate_client_id
     WHERE certificate_archived_at IS NULL
     AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
+    $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

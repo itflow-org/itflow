@@ -66,11 +66,13 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         SUM(CASE WHEN asset_type IN ('Firewall/Router', 'switch', 'access point') THEN 1 ELSE 0 END) AS network_count,
         SUM(CASE WHEN asset_type NOT IN ('laptop', 'desktop', 'server', 'virtual machine', 'Firewall/Router', 'switch', 'access point') THEN 1 ELSE 0 END) AS other_count
     FROM (
-        SELECT assets.* FROM assets 
+        SELECT assets.* FROM assets
+        LEFT JOIN clients ON client_id = asset_client_id
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_$archive_query
+        $access_permission_query
         $client_query
     ) AS filtered_assets;
 "));
@@ -106,8 +108,10 @@ $sql = mysqli_query(
     WHERE asset_$archive_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND ($type_query)
+    $access_permission_query
     $location_query
     $client_query
+
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -226,7 +230,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
-                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);

@@ -43,6 +43,7 @@ $sql = mysqli_query(
     WHERE location_$archive_query
     $tag_query
     AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    $access_permission_query
     $client_query
     GROUP BY location_id
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"

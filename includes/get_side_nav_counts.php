@@ -6,11 +6,11 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS nu
 $num_active_clients = $row['num'];
 
 // Active Ticket Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_closed_at IS NULL AND ticket_status != 4"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_archived_at IS NULL AND ticket_closed_at IS NULL AND ticket_status != 4 $access_permission_query"));
 $num_active_tickets = $row['num'];
 
 // Recurring Ticket Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets LEFT JOIN clients ON client_id = scheduled_ticket_client_id WHERE 1 = 1 $access_permission_query"));
 $num_recurring_tickets = $row['num'];
 
 // Active Project Count

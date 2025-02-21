@@ -65,6 +65,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, clients.*, 
     WHERE contact_$archive_query
     $tag_query
     AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    $access_permission_query
     $client_query
     $location_query
     GROUP BY contact_id
@@ -158,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                                 <?php
-                                $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = nullable_htmlentities($row['client_name']);
