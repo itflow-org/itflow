@@ -103,7 +103,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                             $task_completion_estimate = intval($row['task_template_completion_estimate']);
                             $task_description = nullable_htmlentities($row['task_template_description']);
                             ?>
-                            <tr data-task-id="<?php echo $task_id; ?>"> <!-- Add data-task-id attribute -->
+                            <tr data-task-id="<?php echo $task_id; ?>">
                                 <td><i class="far fa-fw fa-square text-secondary"></i></td>
                                 <td>
                                     <a href="#" class="grab-cursor">
