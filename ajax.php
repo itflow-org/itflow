@@ -764,3 +764,22 @@ if (isset($_POST['update_invoice_items_order'])) {
     exit;
 }
 
+if (isset($_POST['update_recurring_invoice_items_order'])) {
+    // Update multiple recurring invoice items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $recurring_id = intval($_POST['recurring_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_recurring_id = $recurring_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+

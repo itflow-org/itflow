@@ -231,7 +231,7 @@ if (isset($_GET['recurring_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table" id="items">
                                 <thead>
                                     <tr>
                                         <th class="d-print-none"></th>
@@ -285,7 +285,7 @@ if (isset($_GET['recurring_id'])) {
                                     }
                                     ?>
 
-                                    <tr>
+                                    <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
@@ -309,7 +309,7 @@ if (isset($_GET['recurring_id'])) {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><?php echo $item_name; ?></td>
+                                        <td class="grab-cursor"><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $recurring_currency_code); ?></td>
@@ -505,4 +505,41 @@ require_once "includes/footer.php";
             }
         });
     });
+</script>
+
+<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
+<script src="plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('table#items tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('itemId'),
+                    order: index
+                };
+            }).get();
+
+            // Send the new order to the server
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_recurring_invoice_items_order: true,
+                    recurring_id: <?php echo $recurring_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    // Handle success
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
 </script>
