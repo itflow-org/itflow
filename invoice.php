@@ -3,9 +3,17 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-} else { 
+} else {
     require_once "includes/inc_all.php";
 }
+
+// Perms
+enforceUserPermission('module_sales');
+$invoice_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $invoice_permission_snippet = "AND invoice_client_id IN ($client_access_string)";
+}
+
 
 if (isset($_GET['invoice_id'])) {
 
@@ -17,7 +25,8 @@ if (isset($_GET['invoice_id'])) {
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE invoice_id = $invoice_id"
+        WHERE invoice_id = $invoice_id
+        $invoice_permission_snippet"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -215,13 +224,13 @@ if (isset($_GET['invoice_id'])) {
                             </a>
                         <?php } ?>
                     <?php } ?>
-                    
+
                     <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
                         <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?php echo $invoice_id; ?>">
                             Mark Non-Billable
                         </a>
                     <?php } ?>
-                
+
                 </div>
 
                 <div class="col-4">

@@ -9,6 +9,10 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_support');
+$ticket_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $ticket_permission_snippet = "AND ticket_client_id IN ($client_access_string)";
+}
 
 // Initialize the HTML Purifier to prevent XSS
 require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -17,12 +21,6 @@ $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
-
-// Ticket client access snippet
-$ticket_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $ticket_permission_snippet = "AND ticket_client_id IN ($client_access_string)";
-}
 
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
@@ -49,7 +47,7 @@ if (isset($_GET['ticket_id'])) {
     if (mysqli_num_rows($sql) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include_once "footer.php";
+        include_once "includes/footer.php";
     } else {
 
         $row = mysqli_fetch_array($sql);
@@ -979,7 +977,7 @@ if (isset($_GET['ticket_id'])) {
                                 </td>
                             </tr>
                         <?php
-                        } 
+                        }
                         ?>
                     </table>
                 </div>

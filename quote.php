@@ -3,8 +3,15 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-} else { 
+} else {
     require_once "includes/inc_all.php";
+}
+
+// Perms
+enforceUserPermission('module_sales');
+$quote_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $quote_permission_snippet = "AND quote_client_id IN ($client_access_string)";
 }
 
 if (isset($_GET['quote_id'])) {
@@ -17,7 +24,8 @@ if (isset($_GET['quote_id'])) {
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE quote_id = $quote_id"
+        WHERE quote_id = $quote_id
+        $quote_permission_snippet"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -186,7 +194,7 @@ if (isset($_GET['quote_id'])) {
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                 <a class="dropdown-item" href="#"
-                                    data-toggle = "ajax-modal" 
+                                    data-toggle = "ajax-modal"
                                     data-ajax-url = "ajax/ajax_quote_copy.php"
                                     data-ajax-id = "<?php echo $quote_id; ?>"
                                     >
