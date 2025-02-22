@@ -239,7 +239,13 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <tr>
                                 <td>
-                                    <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="text-bold"><?php echo $contact_name; ?></a>
+                                    <a href="#" class="text-bold"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_contact_details.php"
+                                        data-ajax-id="<?php echo $contact_id; ?>">
+                                        <?php echo $contact_name; ?>
+                                    </a>
                                     <br>
                                     <small class="text-secondary"><?php echo $contact_title; ?></small>
                                 </td>

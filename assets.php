@@ -489,17 +489,25 @@ if (mysqli_num_rows($os_sql) > 0) {
 
                         $device_icon = getAssetIcon($asset_type);
 
-                        $contact_name = nullable_htmlentities($row['contact_name']);
-                        if (empty($contact_name)) {
-                            $contact_name = "-";
-                        }
                         $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
                         if ($contact_archived_at) {
-                            $contact_name_display = "<div class='text-danger' title='Archived'><s>$contact_name</s></div>";
+                            $contact_archive_display = "<span class='text-danger'>(Archived)</span>";
                         } else {
-                            $contact_name_display = $contact_name;
+                            $contact_archive_display = '';
                         }
-
+                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        if ($contact_name) {
+                            $contact_name_display = "<a href='#' 
+                                data-toggle='ajax-modal'
+                                data-modal-size='lg'
+                                data-ajax-url='ajax/ajax_contact_details.php'
+                                data-ajax-id='$asset_contact_id'>
+                                $contact_name $contact_archive_display
+                            ";
+                        } else {
+                            $contact_name_display = "-";
+                        }
+                        
                         $location_name = nullable_htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
@@ -579,58 +587,6 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <?php } ?>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    <?php if ($login_count > 0) { ?>
-                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#viewPasswordModal<?php echo $asset_id; ?>"><i class="fas fa-key text-dark"></i></button>
-
-                                    <div class="modal" id="viewPasswordModal<?php echo $asset_id; ?>" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content bg-dark">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i><?php echo $asset_name; ?></h5>
-                                                    <button type="button" class="close text-white" data-dismiss="modal">
-                                                        <span>&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body bg-white">
-
-                                                    <?php while ($row = mysqli_fetch_array($sql_logins)) {
-                                                        $login_id = intval($row['login_id']);
-                                                        $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                                                        $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-                                                        ?>
-
-                                                        <div class="form-group">
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                                                </div>
-                                                                <input type="text" class="form-control" value="<?php echo $login_username; ?>" readonly>
-                                                                <div class="input-group-append">
-                                                                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_username; ?>"><i class="fa fa-fw fa-copy"></i></button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                                                                </div>
-                                                                <input type="text" class="form-control" value="<?php echo $login_password; ?>" readonly autocomplete="off">
-                                                                <div class="input-group-append">
-                                                                    <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                    <?php } ?>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <?php } ?>
                                     <?php if ( !empty($asset_uri) || !empty($asset_uri_2) ) { ?>
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-default btn-sm" type="button" data-toggle="dropdown">

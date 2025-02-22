@@ -279,14 +279,6 @@ if (isset($_GET['ticket_id'])) {
             ORDER BY ticket_history_id DESC"
         );
 
-
-        // Get past tickets for selected asset
-        if ($asset_id) {
-            $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
-            $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
-        }
-
-
         // Get Technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
             $mysqli,
@@ -857,7 +849,10 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body mb-3">
                         <h5 class="text-secondary">Contact</h5>
                         <div>
-                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
+                                data-modal-size="lg"
+                                data-ajax-url="ajax/ajax_contact_details.php"
+                                data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
                             </a>
                         </div>
 
@@ -884,31 +879,6 @@ if (isset($_GET['ticket_id'])) {
                         if (!empty($contact_mobile)) { ?>
                             <div class="mt-2">
                                 <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
-                            </div>
-                        <?php } ?>
-
-                        <?php
-
-                        // Previous tickets
-                        $prev_ticket_id = $prev_ticket_subject = $prev_ticket_status = ''; // Default blank
-
-                        $sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id  <> $ticket_id ORDER BY ticket_id DESC LIMIT 1";
-                        $prev_ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
-
-                        if ($prev_ticket_row) {
-                            $prev_ticket_id = intval($prev_ticket_row['ticket_id']);
-                            $prev_ticket_subject = nullable_htmlentities($prev_ticket_row['ticket_subject']);
-                            $prev_ticket_status = nullable_htmlentities( getTicketStatusName($prev_ticket_row['ticket_status']));
-                            ?>
-
-                            <hr>
-                            <div>
-                                <i class="fa fa-fw fa-history text-secondary mr-2"></i><b>Previous ticket:</b>
-                                <a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a>
-                            </div>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-hourglass-start text-secondary mr-2"></i><strong>Status:</strong>
-                                <span class="text-success"><?php echo $prev_ticket_status; ?></span>
                             </div>
                         <?php } ?>
 
@@ -1048,88 +1018,14 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body mb-3">
                         <h5 class="text-secondary">Asset</h5>
                         <div>
-                            <a href='client_asset_details.php?client_id=<?php echo $client_id ?>&asset_id=<?php echo $asset_id ?>'><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong></a>
+                            <a href="#"
+                                data-toggle="ajax-modal"
+                                data-modal-size="lg"
+                                data-ajax-url="ajax/ajax_asset_details.php"
+                                data-ajax-id="<?php echo $asset_id; ?>">
+                                <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                            </a>
                         </div>
-
-                        <?php if (!empty($asset_os)) { ?>
-                            <div class="mt-1">
-                                <i class="fab fa-fw fa-microsoft text-secondary mr-2"></i><?php echo $asset_os; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_ip)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-network-wired text-secondary mr-2"></i><?php echo $asset_ip; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_make)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-tag text-secondary mr-2"></i>Model: <?php echo "$asset_make $asset_model"; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_serial)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-barcode text-secondary mr-2"></i>Service Tag: <?php echo $asset_serial; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_warranty_expire)) { ?>
-                            <div class="mt-1">
-                                <i class="far fa-fw fa-calendar-alt text-secondary mr-2"></i>Warranty expires: <strong><?php echo $asset_warranty_expire ?></strong>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_uri)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-globe text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Access <i class="fas fa-fw fa-external-link-alt"></i></a>
-                            </div>
-                        <?php }
-
-                        if ($ticket_asset_count > 0) { ?>
-
-                            <button class="btn btn-block btn-secondary mt-2 d-print-none" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
-
-                            <div class="modal" id="assetTicketsModal" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content bg-dark">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> <?php echo $asset_name; ?></h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal">
-                                                <span>&times;</span>
-                                            </button>
-                                        </div>
-
-                                        <div class="modal-body bg-white">
-                                            <?php
-                                            // Query is run from client_assets.php
-                                            while ($row = mysqli_fetch_array($sql_asset_tickets)) {
-                                                $service_ticket_id = intval($row['ticket_id']);
-                                                $service_ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                                                $service_ticket_number = intval($row['ticket_number']);
-                                                $service_ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                                $service_ticket_status = nullable_htmlentities($row['ticket_status']);
-                                                $service_ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                                                $service_ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
-                                                ?>
-                                                <p>
-                                                    <i class="fas fa-fw fa-ticket-alt"></i>
-                                                    Ticket: <a href="ticket.php?ticket_id=<?php echo $service_ticket_id; ?>"><?php echo "$service_ticket_prefix$service_ticket_number" ?></a> <?php echo "on $service_ticket_created_at - <b>$service_ticket_subject</b> ($service_ticket_status)"; ?>
-                                                </p>
-                                                <?php
-                                            }
-                                            ?>
-                                        </div>
-                                        <div class="modal-footer bg-white">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                        <?php } // End Ticket asset Count ?>
                     </div>
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->

@@ -124,12 +124,17 @@ ob_start();
                         mysqli_data_seek($sql_assets, 0);
 
                         while ($row = mysqli_fetch_array($sql_assets)) {
+                            $asset_id = intval($row['asset_id']);
+                            $asset_name = nullable_htmlentities($row['asset_name']);
                             if (!empty($row['interface_ip'])) {
                                 $ip = '('.nullable_htmlentities($row["interface_ip"]).')';
                             } else {
                                 $ip = '';
                             }
-                            echo "<li><a href=\"assets.php?client_id=$client_id&q=$row[asset_name]\">$row[asset_name] </a>$ip</li>";
+                            echo "<li><a href='#' data-toggle='ajax-modal'
+                                data-modal-size='lg'
+                                data-ajax-url='ajax/ajax_asset_details.php'
+                                data-ajax-id='$asset_id'>$asset_name</a>$ip</li>";
                         }
                         ?>
                     </ul>
@@ -288,7 +293,15 @@ ob_start();
                         mysqli_data_seek($sql_contacts, 0);
 
                         while ($row = mysqli_fetch_array($sql_contacts)) {
-                            echo "<li><a href=\"contact_details.php?client_id=$client_id&contact_id=$row[contact_id]\">$row[contact_name]</a></li>";
+                            $contact_id = intval($row['contact_id']);
+                            $contact_name = nullable_htmlentities($row['contact_name']);
+                            echo "<li><a href='#' data-toggle='ajax-modal'
+                                data-modal-size='lg'
+                                data-ajax-url='ajax/ajax_contact_details.php'
+                                data-ajax-id='$contact_id'>
+                                $contact_name
+                                </a>
+                            </li>";
                         }
                         ?>
                     </ul>

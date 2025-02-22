@@ -375,7 +375,11 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                        <a class="text-secondary" href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>">
+                                        <a class="text-secondary" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="lg"
+                                            data-ajax-url="ajax/ajax_asset_details.php"
+                                            data-ajax-id="<?php echo $asset_id; ?>">
                                             <?php echo $asset_name; ?>
                                         </a>
                                         <div class="mt-0">
