@@ -10,6 +10,7 @@ This file documents all notable changes made to ITFlow.
 - Clone asset interfaces when assets are transferred between clients
 
 ### Added / Changed
+- Simple Drag and Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks and Ticket Template Tasks.
 - Added a kanban view for tickets
 - Migrated all repeating modals to new ajax modal function for faster loading times and to allow for very quick development
 - Clients can upload PDF documents to accepted quotes

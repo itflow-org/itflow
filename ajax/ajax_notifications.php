@@ -5,7 +5,7 @@ require_once '../includes/ajax_header.php';
 $sql = mysqli_query($mysqli, "SELECT * FROM notifications
     WHERE notification_user_id = $session_user_id
     AND notification_dismissed_at IS NULL
-    ORDER BY notification_id DESC LIMIT 8"
+    ORDER BY notification_id"
 );
 
 $num_notifications = mysqli_num_rows($sql);
