@@ -378,7 +378,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                                <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+                                <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
                                 <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
                             </p>
                             <?php
@@ -396,7 +396,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
-                                <a href="client_certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
+                                <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
                                 <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
                             </p>
                             <?php
@@ -453,7 +453,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
-                                <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
+                                <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
                                 <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
                             </p>
 
@@ -496,7 +496,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                                <a href="client_domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
+                                <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
                                 <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
                             </p>
                             <?php
@@ -514,7 +514,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
-                                <a href="client_certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
+                                <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
                                 <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
                             </p>
                             <?php
@@ -571,7 +571,7 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
-                                <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
+                                <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
                                 <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
                             </p>
 
