@@ -402,7 +402,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($credential_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $contact_id; ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead>
@@ -499,7 +499,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $contact_id; ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
