@@ -4,23 +4,29 @@ This file documents all notable changes made to ITFlow.
 
 ## [25.02]
 ### Fixed
-- Changed several reports over to the new permissions/roles system
-- Fixed empty task box showing for resolved/closed tickets
-- Fix ticket priority sorting
-- Clone asset interfaces when assets are transferred between clients
+- Migrated several reports to the new permissions/roles system
+- Resolved issue with empty task box showing for closed/resolved tickets
+- Corrected ticket priority sorting
+- Cloned asset interfaces when transferring assets between clients
 
 ### Added / Changed
-- Client Overview section to view all client things like assets, contacts, licenses, credentials etc
-- Quick peek for asset details and contact details, document viewing throughout ITFlow App allows, all possible because of AJAX.
-- Simple Drag and Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks and Ticket Template Tasks.
-- Added a kanban view for tickets
-- Migrated all repeating modals to new ajax modal function for faster loading times and to allow for very quick development
-- Clients can upload PDF documents to accepted quotes
+- Restored max number of records per page option back to 500 since we dont have repeating modals.
+- Bulk Categorize Tickets feature
+- Renamed "Interface port" to "Interface Description." "Interface Name" should now refer to port name and/or number
+- Changed "Transfer Asset to Client" from a single action to a bulk action
+- Updated Filter Footer UI to show "Showing x to x of x records" instead of just the total records
+- Added Client Overview section to view client assets, contacts, licenses, credentials, etc.
+- Introduced Quick Peek for asset details, contact information, and document viewing throughout the ITFlow App, all made possible by AJAX
+- Enabled Simple Drag-and-Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks, and Ticket Template Tasks
+- Added new Ticket View options: Kanban and Simple View
+- Migrated all repeating modals to the new AJAX modal function for faster loading times and quicker development
+- Allowed clients to upload PDF documents to accepted quotes
 - Client Portal now shows ticket category
-- Custom links can now be added to the client portal navbar
+- Custom links can now be added to the Client Portal navbar
+- Lots of little tweaks to UI, performance, bugs, etc.
 
 ### Breaking Changes
-- Cron scripts have officially moved to /scripts and are no longer in the root directy they must be updated for them to work
+- Cron scripts have officially been moved to the /scripts folder and are no longer in the root directory; they must be updated to function properly
 
 ## [25.01.3]
 ### Fixed
