@@ -157,49 +157,52 @@ ob_start();
 <div class="modal-body bg-white">
 
     <ul class="nav nav-pills nav-justified mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#pills-contact-details<?php echo $contact_id; ?>"><i class="fas fa-fw fa-user fa-2x"></i><br>Details</a>
+        </li>
         <?php if ($asset_count) { ?>
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-contact-assets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-desktop fa-2x mr-2"></i><br>Assets (<?php echo $asset_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-assets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-desktop fa-2x"></i><br>Assets (<?php echo $asset_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($credential_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?php echo $contact_id; ?>"><i class="fas fa-fw fa-key fa-2x mr-2"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?php echo $contact_id; ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($software_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?php echo $contact_id; ?>"><i class="fas fa-fw fa-cube fa-2x mr-2"></i><br>Licenses (<?php echo $software_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?php echo $contact_id; ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?php echo $software_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x mr-2"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($recurring_ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x mr-2"></i><br>Recurring Tickets (<?php echo $recurring_ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?php echo $recurring_ticket_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($services_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-services<?php echo $contact_id; ?>"><i class="fas fa-fw fa-stream fa-2x mr-2"></i><br>Services (<?php echo $services_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-services<?php echo $contact_id; ?>"><i class="fas fa-fw fa-stream fa-2x"></i><br>Services (<?php echo $services_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($document_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?php echo $contact_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x mr-2"></i><br>Documents (<?php echo $document_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?php echo $contact_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($file_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?php echo $contact_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x mr-2"></i><br>Files (<?php echo $file_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?php echo $contact_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?php echo $file_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($note_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?php echo $contact_id; ?>"><i class="fas fa-fw fa-edit fa-2x mr-2"></i><br>Notes (<?php echo $note_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?php echo $contact_id; ?>"><i class="fas fa-fw fa-edit fa-2x"></i><br>Notes (<?php echo $note_count; ?>)</a>
         </li>
         <?php } ?>
     </ul>
@@ -208,8 +211,92 @@ ob_start();
 
     <div class="tab-content">
 
+        <div class="tab-pane fade show active" id="pills-contact-details<?php echo $contact_id; ?>">
+            <div class="card card-dark">
+                <div class="card-body">
+                    <h3 class="text-bold"><?php echo $contact_name; ?></h3>
+                    <?php if ($contact_title) { ?>
+                        <div class="text-secondary"><?php echo $contact_title; ?></div>
+                    <?php } ?>
+
+                    <div class="text-center">
+                        <?php if ($contact_photo) { ?>
+                            <img class="img-thumbnail img-circle col-3" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                        <?php } else { ?>
+                            <span class="fa-stack fa-4x">
+                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                            </span>
+                        <?php } ?>
+                    </div>
+                    <?php
+                    if (!empty($contact_tags_display)) { ?>
+                        <div class="mt-1">
+                            <?php echo $contact_tags_display; ?>
+                        </div>
+                    <?php } ?>
+                    <hr>
+                    <?php if ($location_name) { ?>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?></div>
+                    <?php }
+                    if ($contact_email) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    <?php }
+                    if ($contact_phone) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo $contact_phone; ?></a></div>
+                    <?php }
+                    if ($contact_extension) { ?>
+                        <div class="ml-4">x<?php echo $contact_extension; ?></div>
+                    <?php }
+                    if ($contact_mobile) { ?>
+                        <div class="mt-l"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
+                    <?php }
+                    if ($contact_pin) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $contact_pin; ?></div>
+                    <?php }
+                    if ($contact_primary) { ?>
+                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-2"></i>Primary Contact</div>
+                    <?php }
+                    if ($contact_important) { ?>
+                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-2"></i>Important</div>
+                    <?php }
+                    if ($contact_technical) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Technical</div>
+                    <?php }
+                    if ($contact_billing) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Billing</div>
+                    <?php } ?>
+                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
+
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Notes</h5>
+                </div>
+                <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
+            </div>
+        </div>
+
+        <script>
+            function updateContactNotes(contact_id) {
+                var notes = document.getElementById("contactNotes").value;
+
+                // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
+                jQuery.post(
+                    "ajax.php",
+                    {
+                        contact_set_notes: 'TRUE',
+                        contact_id: contact_id,
+                        notes: notes
+                    }
+                )
+            }
+        </script>
+
         <?php if ($asset_count) { ?>
-        <div class="tab-pane fade show active" id="pills-contact-assets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-assets<?php echo $contact_id; ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
