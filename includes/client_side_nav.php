@@ -5,7 +5,7 @@
         <p class="h5">
             <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
              <span class="brand-text">
-                 Back | <strong><?php if($client_abbreviation) { echo $client_abbreviation; } else { echo shortenClient($client_name); } ?></strong>
+                 Back | <strong><?php echo $client_abbreviation; ?></strong>
             </span>
         </p>
     </a>
