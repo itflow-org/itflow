@@ -11,7 +11,7 @@ This file documents all notable changes made to ITFlow.
 
 ### Added / Changed
 - Added a kanban view for tickets
-- Migrated many repeating modals to ajax modals for faster loading times
+- Migrated all repeating modals to new ajax modal function for faster loading times and to allow for very quick development
 - Clients can upload PDF documents to accepted quotes
 - Client Portal now shows ticket category
 - Custom links can now be added to the client portal navbar
