@@ -17,6 +17,10 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_sales');
+$quote_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $quote_permission_snippet = "AND quote_client_id IN ($client_access_string)";
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -25,6 +29,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON quote_category_id = category_id
     WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
+    $quote_permission_snippet
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -206,7 +211,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td class="text-bold">
                             <a href="quote.php?<?php echo $client_url; ?>quote_id=<?php echo $quote_id; ?>">
-                                <?php echo "$quote_prefix$quote_number"; ?>  
+                                <?php echo "$quote_prefix$quote_number"; ?>
                             </a>
                         </td>
                         <td><?php echo $quote_scope_display; ?></td>
@@ -231,7 +236,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#"
-                                        data-toggle = "ajax-modal" 
+                                        data-toggle = "ajax-modal"
                                         data-ajax-url = "ajax/ajax_quote_edit.php"
                                         data-ajax-id = "<?php echo $quote_id; ?>"
                                         >
@@ -239,7 +244,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                         <a class="dropdown-item" href="#"
-                                            data-toggle = "ajax-modal" 
+                                            data-toggle = "ajax-modal"
                                             data-ajax-url = "ajax/ajax_quote_copy.php"
                                             data-ajax-id = "<?php echo $quote_id; ?>"
                                             >
