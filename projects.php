@@ -170,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
                         if ($client_name) {
-                            $client_name_display = "<a href='client_tickets.php?client_id=$client_id'>$client_name</a>";
+                            $client_name_display = "<a href='tickets.php?client_id=$client_id'>$client_name</a>";
                         } else {
                             $client_name_display = "-";
                         }
