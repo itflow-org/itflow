@@ -41,7 +41,7 @@ ob_start();
         </div>
 
         <div class="form-group">
-            <textarea class="form-control tinymce<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="content"><?php echo $document_content; ?></textarea>
+            <textarea class="form-control tinymce" name="content"><?php echo $document_content; ?></textarea>
         </div>
 
         <div class="form-group">
