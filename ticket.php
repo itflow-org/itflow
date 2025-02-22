@@ -3,8 +3,10 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
+    $client_url = '';
 }
 
 // Perms
@@ -337,7 +339,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_collaborators = nullable_htmlentities($row['user_names']);
 
         ?>
-        <link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
+        <link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
@@ -1021,7 +1023,7 @@ if (isset($_GET['ticket_id'])) {
                             <a href="#"
                                 data-toggle="ajax-modal"
                                 data-modal-size="lg"
-                                data-ajax-url="ajax/ajax_asset_details.php"
+                                data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
                                 data-ajax-id="<?php echo $asset_id; ?>">
                                 <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                             </a>
@@ -1166,7 +1168,7 @@ $('#summaryModal').on('shown.bs.modal', function (e) {
 </script>
 
 
-<script src="/plugins/dragula/dragula.min.js"></script>
+<script src="plugins/dragula/dragula.min.js"></script>
 <script>
 $(document).ready(function() {
     var container = $('.table tbody')[0];

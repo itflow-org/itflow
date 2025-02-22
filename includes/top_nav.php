@@ -6,11 +6,6 @@
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" data-enable-remember="TRUE" href="#"><i class="fas fa-bars"></i></a>
         </li>
-        <li class="nav-item" title="Client Overview">
-            <a href="contacts.php" class="nav-link">
-                <i class="fas fa-users nav-icon mr-2"></i>Client Overview
-            </a>
-        </li>
     </ul>
 
     <!-- Center navbar links -->

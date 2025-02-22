@@ -180,7 +180,11 @@ $sql_related_software = mysqli_query(
 
 $software_count = mysqli_num_rows($sql_related_software);
 
-
+if (isset($_GET['client_id'])) {
+    $client_url = "client_id=$client_id&";
+} else {
+    $client_url = '';
+}
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -848,7 +852,7 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="asset_details.php?asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white">More Details</span></a>
+    <a href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white">More Details</span></a>
     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 

@@ -399,7 +399,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="text-dark" href="#"
                                         data-toggle="ajax-modal"
                                         data-modal-size="lg"
-                                        data-ajax-url="ajax/ajax_contact_details.php"
+                                        data-ajax-url="ajax/ajax_contact_details.php?<?php echo $client_url; ?>"
                                         data-ajax-id="<?php echo $contact_id; ?>">
                                         <div class="media">
                                             <?php if ($contact_photo) { ?>

@@ -480,7 +480,7 @@ require_once "includes/footer.php";
     });
 </script>
 
-<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 <script src="plugins/dragula/dragula.min.js"></script>
 <script>
 $(document).ready(function() {

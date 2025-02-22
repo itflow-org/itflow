@@ -30,7 +30,7 @@ $ticket_template_updated_at = nullable_htmlentities($row['ticket_template_update
 $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
 
 ?>
-<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">

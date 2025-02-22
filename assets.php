@@ -533,7 +533,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <a class="text-dark" href="#"
                                     data-toggle="ajax-modal"
                                     data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_asset_details.php"
+                                    data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
                                     data-ajax-id="<?php echo $asset_id; ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-<?php echo $device_icon; ?> mr-3 mt-1"></i>

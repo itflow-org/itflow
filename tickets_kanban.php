@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
-<link rel="stylesheet" href="/css/tickets_kanban.css">
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
+<link rel="stylesheet" href="css/tickets_kanban.css">
 
 <?php
 
@@ -153,5 +153,5 @@ echo   "const CONFIG_TICKET_MOVING_COLUMNS = " . json_encode($config_ticket_movi
 echo   "const CONFIG_TICKET_ORDERING = " . json_encode($config_ticket_ordering) . ";";
 echo "</script>";
 ?>
-<script src="/plugins/dragula/dragula.min.js"></script>
-<script src="/js/tickets_kanban.js"></script>
+<script src="plugins/dragula/dragula.min.js"></script>
+<script src="js/tickets_kanban.js"></script>

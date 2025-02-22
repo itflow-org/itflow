@@ -157,7 +157,7 @@ if (isset($_GET['invoice_id'])) {
 
 
     ?>
-    <link rel="stylesheet" href="/plugins/dragula/dragula.min.css">
+    <link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <?php if (isset($_GET['client_id'])) { ?>

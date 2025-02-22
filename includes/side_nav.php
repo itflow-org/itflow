@@ -32,6 +32,13 @@
                             </p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="contacts.php" class="nav-link">
+                            <i class="fas fa-users nav-icon"></i>
+                            <p>Overview</p>
+                            <i class="fas fa-angle-right nav-icon float-right"></i>
+                        </a>
+                    </li>
                 <?php } ?>
 
                 <?php if (lookupUserPermission("module_support") >= 1) { ?>
