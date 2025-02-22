@@ -195,39 +195,42 @@ ob_start();
 <div class="modal-body bg-white">
 
     <ul class="nav nav-pills nav-justified mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#pills-asset-details<?php echo $asset_id; ?>"><i class="fas fa-fw fa-<?php echo $device_icon; ?> fa-2x"></i><br>Details</a>
+        </li>
         <?php if ($interface_count) { ?>
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-asset-interfaces<?php echo $asset_id; ?>"><i class="fas fa-fw fa-ethernet mr-2"></i>Interfaces (<?php echo $interface_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-interfaces<?php echo $asset_id; ?>"><i class="fas fa-fw fa-ethernet fa-2x"></i><br>Interfaces (<?php echo $interface_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($credential_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-credentials<?php echo $asset_id; ?>"><i class="fas fa-fw fa-key mr-2"></i>Credentials (<?php echo $credential_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-credentials<?php echo $asset_id; ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets (<?php echo $ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($recurring_ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-recurring-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Tickets (<?php echo $recurring_ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-recurring-tickets<?php echo $asset_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Recurring Tickets (<?php echo $recurring_ticket_count; ?>)</a>
         </li>
         <?php } ?>
          <?php if ($software_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-licenses<?php echo $asset_id; ?>"><i class="fas fa-fw fa-cube mr-2"></i>Licenses (<?php echo $software_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-licenses<?php echo $asset_id; ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?php echo $software_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($document_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-documents<?php echo $asset_id; ?>"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents (<?php echo $document_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-documents<?php echo $asset_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>
         </li>
         <?php } ?>
         <?php if ($file_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-asset-files<?php echo $asset_id; ?>"><i class="fas fa-fw fa-briefcase mr-2"></i>Files (<?php echo $file_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-files<?php echo $asset_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?php echo $file_count; ?>)</a>
         </li>
         <?php } ?>
     </ul>
@@ -236,8 +239,117 @@ ob_start();
 
     <div class="tab-content">
 
+        <div class="tab-pane fade show active" id="pills-asset-details<?php echo $asset_id; ?>">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
+                    <?php if ($asset_photo) { ?>
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "uploads/clients/$client_id/$asset_photo"; ?>">
+                    <?php } ?>
+                    <?php if ($asset_description) { ?>
+                        <div class="text-secondary"><?php echo $asset_description; ?></div>
+                    <?php } ?>
+                </div>
+                <div class="card-body">
+                    <?php if ($asset_type) { ?>
+                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?php echo $asset_type; ?></div>
+                    <?php }
+                    if ($asset_make) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
+                    <?php }
+                    if ($asset_os) { ?>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
+                    <?php }
+                    if ($asset_serial) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
+                    <?php }
+                    if ($asset_purchase_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                    <?php }
+                    if ($asset_install_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                    <?php }
+                    if ($asset_warranty_expire) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Primary Network Interface</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($asset_ip) { ?>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-3"></i><?php echo $asset_ip; ?></div>
+                    <?php } ?>
+                    <?php if ($asset_nat_ip) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-3"></i><?php echo $asset_nat_ip; ?></div>
+                    <?php }
+                    if ($asset_mac) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-3"></i><?php echo $asset_mac; ?></div>
+                    <?php }
+                    if ($asset_uri) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link</a></div>
+                    <?php }
+                    if ($asset_uri_2) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank">Link 2</a></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($location_name) { ?>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                    <?php }
+                    if ($contact_name) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name_display; ?></div>
+                    <?php }
+                    if ($contact_email) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    <?php }
+                    if ($contact_phone) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
+                    <?php }
+                    if ($contact_mobile) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
+                    <?php } ?>
+                
+                </div>
+            </div>
+
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Additional Notes</h5>
+                </div>
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
+            </div>
+
+        </div>
+
+        <script>
+            function updateAssetNotes(asset_id) {
+                var notes = document.getElementById("assetNotes").value;
+
+                // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
+                jQuery.post(
+                    "ajax.php",
+                    {
+                        asset_set_notes: 'TRUE',
+                        asset_id: asset_id,
+                        notes: notes
+                    }
+                )
+            }
+        </script>
+
         <?php if ($interface_count) { ?>
-        <div class="tab-pane fade show active" id="pills-asset-interfaces<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-asset-interfaces<?php echo $asset_id; ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
