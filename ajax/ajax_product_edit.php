@@ -11,7 +11,7 @@ $product_name = nullable_htmlentities($row['product_name']);
 $product_description = nullable_htmlentities($row['product_description']);
 $product_price = floatval($row['product_price']);
 $product_created_at = nullable_htmlentities($row['product_created_at']);
-$category_id = intval($row['category_id']);
+$category_id = intval($row['product_category_id']);
 $product_tax_id = intval($row['product_tax_id']);
 
 // Generate the HTML form content using output buffering.

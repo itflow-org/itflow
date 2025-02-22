@@ -10,12 +10,17 @@ This file documents all notable changes made to ITFlow.
 - Clone asset interfaces when assets are transferred between clients
 
 ### Added / Changed
+- Client Overview section to view all client things like assets, contacts, licenses, credentials etc
+- Quick peek for asset details and contact details, document viewing throughout ITFlow App allows, all possible because of AJAX.
 - Simple Drag and Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks and Ticket Template Tasks.
 - Added a kanban view for tickets
 - Migrated all repeating modals to new ajax modal function for faster loading times and to allow for very quick development
 - Clients can upload PDF documents to accepted quotes
 - Client Portal now shows ticket category
 - Custom links can now be added to the client portal navbar
+
+### Breaking Changes
+- Cron scripts have officially moved to /scripts and are no longer in the root directy they must be updated for them to work
 
 ## [25.01.3]
 ### Fixed
