@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i><?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?> Management</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i><?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_client") >= 2) { ?>
                     <div class="btn-group">
