@@ -369,18 +369,6 @@ if (isset($_GET['invoice_id'])) {
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
-                                    $item_order = intval($row['item_order']);
-                                    // Logic to check if top or bottom arrow should be hidden
-                                    if ($item_order == 1) {
-                                        $up_hidden = "hidden";
-                                    } else {
-                                        $up_hidden = "";
-                                    }
-                                    if ($item_order == mysqli_num_rows($sql_invoice_items)) {
-                                        $down_hidden = "hidden";
-                                    } else {
-                                        $down_hidden = "";
-                                    }
                                     ?>
                                     <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
@@ -390,15 +378,6 @@ if (isset($_GET['invoice_id'])) {
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <form action="post.php" method="post">
-                                                            <input type="hidden" name="item_invoice_id" value="<?php echo $invoice_id; ?>">
-                                                            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                            <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="up" <?php echo $up_hidden; ?>><i class="fas fa-fw fa-arrow-up mr-2"></i>Move Up</button>
-                                                            <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
-                                                            <button class="dropdown-item" type="submit" name="update_invoice_item_order" value="down" <?php echo $down_hidden; ?>><i class="fas fa-fw fa-arrow-down mr-2"></i>Move down</button>
-                                                        </form>
-                                                        <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item" href="#"
                                                             data-toggle="ajax-modal"
                                                             data-ajax-url="ajax/ajax_item_edit.php"

@@ -99,7 +99,6 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         while($row = mysqli_fetch_array($sql_task_templates)){
                             $task_id = intval($row['task_template_id']);
                             $task_name = nullable_htmlentities($row['task_template_name']);
-                            $task_order = intval($row['task_template_order']);
                             $task_completion_estimate = intval($row['task_template_completion_estimate']);
                             $task_description = nullable_htmlentities($row['task_template_description']);
                             ?>

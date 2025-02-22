@@ -265,28 +265,6 @@ if (isset($_GET['recurring_id'])) {
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
-                                    $item_order = intval($row['item_order']);
-
-                                    // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
-                                    $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $max_item_order = intval($row['item_order']);
-
-                                    $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $min_item_order = intval($row['item_order']);
-
-                                    if ($item_order == $max_item_order) {
-                                        $down_hidden = "hidden";
-                                    } else {
-                                        $down_hidden = "";
-                                    }
-
-                                    if ($item_order == $min_item_order) {
-                                        $up_hidden = "hidden";
-                                    } else {
-                                        $up_hidden = "";
-                                    }
                                     ?>
 
                                     <tr data-item-id="<?php echo $item_id; ?>">
@@ -296,15 +274,6 @@ if (isset($_GET['recurring_id'])) {
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <form action="post.php" method="post">
-                                                        <input type="hidden" name="item_recurring_id" value="<?php echo $recurring_id; ?>">
-                                                        <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                        <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                        <button class="dropdown-item" type="submit" name="update_recurring_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i> Move Up</button>
-                                                        <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
-                                                        <button class="dropdown-item" type="submit" name="update_recurring_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i> Move Down</button>
-                                                    </form>
-                                                    <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item" href="#"
                                                         data-toggle="ajax-modal"
                                                         data-ajax-url="ajax/ajax_item_edit.php"

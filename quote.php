@@ -305,7 +305,6 @@ if (isset($_GET['quote_id'])) {
                                         $item_id = intval($row['item_id']);
                                         $item_name = nullable_htmlentities($row['item_name']);
                                         $item_description = nullable_htmlentities($row['item_description']);
-                                        $item_order = intval($row['item_order']);
                                         $item_quantity = floatval($row['item_quantity']);
                                         $item_price = floatval($row['item_price']);
                                         $item_tax = floatval($row['item_tax']);
@@ -314,27 +313,7 @@ if (isset($_GET['quote_id'])) {
                                         $tax_id = intval($row['item_tax_id']);
                                         $total_tax = $item_tax + $total_tax;
                                         $sub_total = $item_price * $item_quantity + $sub_total;
-
-                                        // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
-                                        $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                        $row = mysqli_fetch_array($sql);
-                                        $max_item_order = intval($row['item_order']);
-
-                                        $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                        $row = mysqli_fetch_array($sql);
-                                        $min_item_order = intval($row['item_order']);
-
-                                        if ($item_order == $max_item_order) {
-                                            $down_hidden = "hidden";
-                                        } else {
-                                            $down_hidden = "";
-                                        }
-
-                                        if ($item_order == $min_item_order) {
-                                            $up_hidden = "hidden";
-                                        } else {
-                                            $up_hidden = "";
-                                        } ?>
+                                        ?>
 
                                         <tr data-item-id="<?php echo $item_id; ?>">
                                             <td class="d-print-none">
@@ -344,17 +323,6 @@ if (isset($_GET['quote_id'])) {
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            <form action="post.php" method="post">
-                                                                <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
-                                                                <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                                <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i>Move Up</button>
-                                                                <?php if ($up_hidden == "" && $down_hidden == "") {
-                                                                    echo '<div class="dropdown-divider"></div>';
-                                                                } ?>
-                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i>Move Down</button>
-                                                            </form>
-                                                            <div class="dropdown-divider"></div>
                                                             <a class="dropdown-item" href="#"
                                                                 data-toggle="ajax-modal"
                                                                 data-ajax-url="ajax/ajax_item_edit.php"
