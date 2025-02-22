@@ -17,10 +17,6 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_sales');
-$quote_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $quote_permission_snippet = "AND quote_client_id IN ($client_access_string)";
-}
 
 $sql = mysqli_query(
     $mysqli,
@@ -29,7 +25,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON quote_category_id = category_id
     WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
-    $quote_permission_snippet
+    $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

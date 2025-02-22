@@ -9,11 +9,6 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_sales');
-$invoice_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $invoice_permission_snippet = "AND invoice_client_id IN ($client_access_string)";
-}
-
 
 if (isset($_GET['invoice_id'])) {
 
@@ -26,7 +21,8 @@ if (isset($_GET['invoice_id'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE invoice_id = $invoice_id
-        $invoice_permission_snippet"
+        $access_permission_query
+        LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {

@@ -9,10 +9,6 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_sales');
-$quote_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $quote_permission_snippet = "AND quote_client_id IN ($client_access_string)";
-}
 
 if (isset($_GET['quote_id'])) {
 
@@ -25,7 +21,8 @@ if (isset($_GET['quote_id'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE quote_id = $quote_id
-        $quote_permission_snippet"
+        $access_permission_query
+        LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {

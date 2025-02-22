@@ -11,10 +11,6 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_support');
-$ticket_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $ticket_permission_snippet = "AND ticket_client_id IN ($client_access_string)";
-}
 
 // Initialize the HTML Purifier to prevent XSS
 require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -42,7 +38,7 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id
-        $ticket_permission_snippet
+        $access_permission_query
         LIMIT 1"
     );
 

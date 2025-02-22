@@ -17,10 +17,6 @@ if (isset($_GET['client_id'])) {
 
 // Perms
 enforceUserPermission('module_sales');
-$invoice_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $invoice_permission_snippet = "AND invoice_client_id IN ($client_access_string)";
-}
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' $client_query"));
 $sent_count = $row['num'];
@@ -98,7 +94,7 @@ $sql = mysqli_query(
     $overdue_query
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
-    $invoice_permission_snippet
+    $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
