@@ -77,36 +77,26 @@ $session_company_currency = $row['company_currency'];
 // Set Currency Format
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
+// Get User Client Access Permissions
+$user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
+$user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
 
-try {
-    // Get User Client Access Permissions
-    $user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
-    $user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
-
-    $client_access_array = [];
-    while ($row = mysqli_fetch_assoc($user_client_access_result)) {
-        $client_access_array[] = $row['client_id'];
-    }
-
-    $client_access_string = implode(',', $client_access_array);
-
-    // Client access permission check
-    //  Default allow, if a list of allowed clients is set & the user isn't an admin, restrict them
-    $access_permission_query = "";
-    if ($client_access_string && !$session_is_admin) {
-        $access_permission_query = "AND clients.client_id IN ($client_access_string)";
-    }
-
-} catch (Exception $e) {
-    // Handle exception
-    error_log('MySQL error: ' . $e->getMessage());
-    $access_permission_query = ""; // Ensure safe default if query fails
+$client_access_array = [];
+while ($row = mysqli_fetch_assoc($user_client_access_result)) {
+    $client_access_array[] = $row['client_id'];
 }
 
+$client_access_string = implode(',', $client_access_array);
+
+// Client access permission check
+//  Default allow, if a list of allowed clients is set & the user isn't an admin, restrict them
+$access_permission_query = "";
+if ($client_access_string && !$session_is_admin) {
+    $access_permission_query = "AND clients.client_id IN ($client_access_string)";
+}
 
 // Include the settings vars
 require_once "get_settings.php";
-
 
 //Detects if using an Apple device and uses Apple Maps instead of google
 $iPod = stripos($_SERVER['HTTP_USER_AGENT'], "iPod");
@@ -119,12 +109,5 @@ if ($iPod || $iPhone || $iPad) {
     $session_map_source = "google";
 }
 
-
 // Check if mobile device
 $session_mobile = isMobile();
-
-
-// Get Notification Count for the badge on the top nav
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE (notification_user_id = $session_user_id OR notification_user_id = 0) AND notification_dismissed_at IS NULL"));
-$num_notifications = $row['num'];
-

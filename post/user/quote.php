@@ -521,7 +521,7 @@ if (isset($_GET['email_quote'])) {
 
 }
 
-if(isset($_POST['export_client_quotes_csv'])){
+if(isset($_POST['export_quotes_csv'])){
 
     enforceUserPermission('module_sales');
 
@@ -573,63 +573,5 @@ if(isset($_POST['export_client_quotes_csv'])){
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
     exit;
-
-}
-
-if (isset($_POST['update_quote_item_order'])) {
-
-    enforceUserPermission('module_sales', 2);
-
-    if ($_POST['update_quote_item_order'] == 'up') {
-        $item_id = intval($_POST['item_id']);
-        $item_quote_id = intval($_POST['item_quote_id']);
-
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-        $row = mysqli_fetch_array($sql);
-        $item_order = intval($row['item_order']);
-
-        $new_item_order = $item_order - 1;
-
-        //Check if new item order is used
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_quote_id = $item_quote_id AND item_order = $new_item_order");
-
-        //Redo the entire order of list
-        while ($row = mysqli_fetch_array($sql)) {
-            $item_id = intval($row['item_id']);
-            $item_order = intval($row['item_order']);
-
-            $new_item_order = $item_order + 1;
-
-            mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-        }
-
-
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_quote_id = $item_quote_id AND item_order = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-
-        $_SESSION['alert_message'] = "Item moved up";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-    }
-
-    if ($_POST['update_quote_item_order'] == 'down') {
-        $item_id = intval($_POST['item_id']);
-        $item_quote_id = intval($_POST['item_quote_id']);
-
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-        $row = mysqli_fetch_array($sql);
-        $item_order = intval($row['item_order']);
-
-        $new_item_order = $item_order + 1;
-
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $item_order WHERE item_quote_id = $item_quote_id AND item_order = $new_item_order");
-        mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_item_order WHERE item_id = $item_id");
-
-        $_SESSION['alert_message'] = "Item moved down";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-    }
 
 }

@@ -599,9 +599,6 @@ if (isset($_POST['invoice_note'])) {
 
 if (isset($_POST['edit_item'])) {
 
-    $invoice_id = intval($_POST['invoice_id']);
-    $quote_id = intval($_POST['quote_id']);
-    $recurring_id = intval($_POST['recurring_id']);
     $item_id = intval($_POST['item_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
@@ -623,6 +620,13 @@ if (isset($_POST['edit_item'])) {
     $total = $subtotal + $tax_amount;
 
     mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
+
+    // Determine what type of line item
+    $sql = mysqli_query($mysqli,"SELECT item_invoice_id, item_quote_id, item_recurring_id FROM invoice_items WHERE item_id = $item_id");
+    $row = mysqli_fetch_array($sql);
+    $invoice_id = intval($row['item_invoice_id']);
+    $quote_id = intval($row['item_quote_id']);
+    $recurring_id = intval($row['item_recurring_id']);
 
     if ($invoice_id > 0) {
         //Get Discount Amount
@@ -1590,54 +1594,14 @@ if (isset($_GET['force_recurring'])) {
 
 }
 
-if (isset($_POST['export_client_invoices_csv'])) {
-    $client_id = intval($_POST['client_id']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_client_id = $client_id ORDER BY invoice_number ASC");
-    
-    $num_rows = mysqli_num_rows($sql);
-
-    if ($num_rows > 0) {
-        $delimiter = ",";
-        $filename = $client_name . "-Invoices-" . date('Y-m-d') . ".csv";
-
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
-
-        //set column headers
-        $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter);
-
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status']);
-            fputcsv($f, $lineData, $delimiter);
-        }
-
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+if (isset($_POST['export_invoices_csv'])) {
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND invoice_client_id = $client_id";
+    } else {
+        $client_query = '';
     }
 
-    logAction("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file", $client_id);
-
-    exit;
-
-}
-
-if (isset($_POST['export_invoices_csv'])) {
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
     if (!empty($date_from) && !empty($date_to)) {
@@ -1648,7 +1612,7 @@ if (isset($_POST['export_invoices_csv'])) {
         $file_name_date = date('Y-m-d');
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query ORDER BY invoice_number ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query $client_query ORDER BY invoice_number ASC");
 
     $row = mysqli_fetch_array($sql);
     $client_name = $row['client_name'];
@@ -1738,22 +1702,21 @@ if (isset($_POST['export_client_recurring_csv'])) {
 
 }
 
-if (isset($_POST['export_client_payments_csv'])) {
-    $client_id = intval($_POST['client_id']);
+if (isset($_POST['export_payments_csv'])) {
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND invoice_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE invoice_client_id = $client_id AND payment_invoice_id = invoice_id ORDER BY payment_date ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE payment_invoice_id = invoice_id $client_query ORDER BY payment_date ASC");
     
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Payments-" . date('Y-m-d') . ".csv";
+        $filename = "Payments-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -1784,78 +1747,6 @@ if (isset($_POST['export_client_payments_csv'])) {
 
     exit;
 
-}
-
-
-
-if (isset($_POST['update_recurring_item_order'])) {
-
-    $item_id = intval($_POST['item_id']);
-    $item_recurring_id = intval($_POST['item_recurring_id']);
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-    $row = mysqli_fetch_array($sql);
-    $current_order = intval($row['item_order']);
-    $update_direction = sanitizeInput($_POST['update_recurring_item_order']);
-
-    switch ($update_direction)
-    {
-        case 'up':
-            $new_order = $current_order - 1;
-            break;
-        case 'down':
-            $new_order = $current_order + 1;
-            break;
-    }
-
-    //Find item_id of current item in $new_order
-    $other_sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_recurring_id = $item_recurring_id AND item_order = $new_order");
-    $other_row = mysqli_fetch_array($other_sql);
-    $other_item_id = intval($other_row['item_id']);
-    $other_row_str = strval($other_row['item_name']);
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_order WHERE item_id = $item_id");
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
-
-    $_SESSION['alert_message'] = "recurring Item Order Updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['update_invoice_item_order'])) {
-
-    $item_id = intval($_POST['item_id']);
-    $item_invoice_id = intval($_POST['item_invoice_id']);
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
-    $row = mysqli_fetch_array($sql);
-    $current_order = intval($row['item_order']);
-    $update_direction = sanitizeInput($_POST['update_invoice_item_order']);
-
-    switch ($update_direction)
-    {
-        case 'up':
-            $new_order = $current_order - 1;
-            break;
-        case 'down':
-            $new_order = $current_order + 1;
-            break;
-    }
-
-    //Find item_id of current item in $new_order
-    $other_sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $item_invoice_id AND item_order = $new_order");
-    $other_row = mysqli_fetch_array($other_sql);
-    $other_item_id = intval($other_row['item_id']);
-    $other_row_str = strval($other_row['item_name']);
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $new_order WHERE item_id = $item_id");
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_order = $current_order WHERE item_id = $other_item_id");
-
-    $_SESSION['alert_message'] = "Invoice Item Order Updated";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_GET['recurring_invoice_email_notify'])) {

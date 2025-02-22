@@ -64,6 +64,13 @@ if (isset($_GET['delete_trip'])) {
 }
 
 if (isset($_POST['export_trips_csv'])) {
+
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND trip_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
     
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
@@ -79,6 +86,7 @@ if (isset($_POST['export_trips_csv'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM trips 
         LEFT JOIN clients ON trip_client_id = client_id
         WHERE $date_query
+        $client_query
         ORDER BY trip_date DESC"
     );
 
@@ -86,7 +94,7 @@ if (isset($_POST['export_trips_csv'])) {
 
     if ($count > 0) {
         $delimiter = ",";
-        $filename = "$session_company_name-Trips-$file_name_date.csv";
+        $filename = "Trips-$file_name_date.csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -113,53 +121,6 @@ if (isset($_POST['export_trips_csv'])) {
     
         // Logging
         logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
-    }
-    exit;
-
-}
-
-if (isset($_POST['export_client_trips_csv'])) {
-    $client_id = intval($_POST['client_id']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = sanitizeInput($row['client_name']);
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_client_id = $client_id ORDER BY trip_date ASC");
-    
-    $count = mysqli_num_rows($sql);
-
-    if ($count > 0) {
-        $delimiter = ",";
-        $filename = $row['client_name'] . "-Trips-" . date('Y-m-d') . ".csv";
-
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
-
-        //set column headers
-        $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
-        fputcsv($f, $fields, $delimiter);
-
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
-            $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
-            fputcsv($f, $lineData, $delimiter);
-        }
-
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
-        // Logging
-        logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file for client $client_name", $client_id);
     }
     exit;
 

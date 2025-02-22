@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_sales', 1);
 
 function secondsToTime($inputSeconds) {
     $secondsInAMinute = 60;
@@ -152,7 +152,7 @@ $rows = 0;
 
                             <tr>
                                 <td>
-                                    <a href="client_tickets.php?client_id=<?php echo $client_id; ?>&billable=1&unbilled"><?php echo $client_name; ?></a>
+                                    <a href="tickets.php?client_id=<?php echo $client_id; ?>&billable=1&unbilled"><?php echo $client_name; ?></a>
                                 </td>
                                 <td class="text-right"><?php echo $ticket_raised_count; ?></td>
                                 <td class="text-right"><?php echo $ticket_closed_count; ?></td>

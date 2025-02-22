@@ -4,7 +4,16 @@
 $sort = "scheduled_ticket_subject";
 $order = "ASC";
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND scheduled_ticket_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
@@ -25,7 +34,20 @@ $sql = mysqli_query(
     LEFT JOIN clients on scheduled_ticket_client_id = client_id
     WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
     $rec_ticket_permission_snippet
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
+    $client_query
+    ORDER BY
+        CASE 
+            WHEN '$sort' = 'scheduled_ticket_priority' THEN
+                CASE scheduled_ticket_priority
+                    WHEN 'High' THEN 1
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low' THEN 3
+                    ELSE 4  -- Optional: for unexpected priority values
+                END
+            ELSE NULL
+        END $order, 
+        $sort $order  -- Apply normal sorting by $sort and $order
+    LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -47,6 +69,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
 
         <form autocomplete="off">
+            <?php if ($client_url) { ?>
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
 
                 <div class="col-md-4">
@@ -92,11 +117,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
+                            <?php if (!$client_url) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php } ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_subject&order=<?php echo $disp; ?>">
                                     Subject <?php if ($sort == 'scheduled_ticket_subject') { echo $order_icon; } ?>
@@ -144,11 +171,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
 
-                                <th><a href="client_recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
+                                <?php if (!$client_url) { ?>
+                                <th><a href="recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
                                 </th>
+                                <?php } ?>
 
                                 <td>
-                                    <a href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)"> <?php echo $scheduled_ticket_subject ?>
+                                    <a href="#" 
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                        data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                        >
+                                        <?php echo $scheduled_ticket_subject ?>
                                     </a>
                                 </td>
 
@@ -165,7 +200,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringTicketModal" onclick="populateRecurringTicketEditModal(<?php echo $scheduled_ticket_client_id, ",", $scheduled_ticket_id ?>)">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle="ajax-modal"
+                                                    data-modal-size="lg"
+                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
+                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -201,12 +241,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 </div>
 
-<script src="js/recurring_tickets_edit_modal.js"></script>
 <script src="js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/recurring_ticket_add_modal.php";
-
-require_once "modals/recurring_ticket_edit_modal.php";
-
 require_once "includes/footer.php";

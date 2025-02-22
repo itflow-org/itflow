@@ -30,6 +30,7 @@ $ticket_template_updated_at = nullable_htmlentities($row['ticket_template_update
 $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
 
 ?>
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <li class="breadcrumb-item">
@@ -98,13 +99,17 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         while($row = mysqli_fetch_array($sql_task_templates)){
                             $task_id = intval($row['task_template_id']);
                             $task_name = nullable_htmlentities($row['task_template_name']);
-                            $task_order = intval($row['task_template_order']);
                             $task_completion_estimate = intval($row['task_template_completion_estimate']);
                             $task_description = nullable_htmlentities($row['task_template_description']);
                             ?>
-                            <tr>
+                            <tr data-task-id="<?php echo $task_id; ?>">
                                 <td><i class="far fa-fw fa-square text-secondary"></i></td>
-                                <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
+                                <td>
+                                    <a href="#" class="grab-cursor">
+                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
+                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                    </a>
+                                </td>
                                 <td class="text-right">
                                     <div class="float-right">
                                         <div class="dropdown dropleft text-center">
@@ -112,7 +117,11 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                <a class="dropdown-item" href="#"
+                                                    data-toggle = "ajax-modal"
+                                                    data-ajax-url = "ajax/ajax_ticket_template_task_edit.php"
+                                                    data-ajax-id = "<?php echo $task_id; ?>"
+                                                    >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -125,7 +134,6 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                 </td>
                             </tr>
                             <?php
-                            require "modals/task_edit_modal.php";
                         }
                         ?>
                     </table>
@@ -137,6 +145,41 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
     </div>
 
     <script src="js/pretty_content.js"></script>
+    <script src="plugins/dragula/dragula.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        var container = $('.table tbody')[0];
+
+        dragula([container])
+            .on('drop', function (el, target, source, sibling) {
+                // Handle the drop event to update the order in the database
+                var rows = $(container).children();
+                var positions = rows.map(function(index, row) {
+                    return {
+                        id: $(row).data('taskId'),
+                        order: index
+                    };
+                }).get();
+
+                // Send the new order to the server
+                $.ajax({
+                    url: 'ajax.php',
+                    method: 'POST',
+                    data: {
+                        update_task_templates_order: true, // Adjust the parameter name if needed
+                        ticket_template_id: <?php echo $ticket_template_id; ?>,
+                        positions: positions
+                    },
+                    success: function(data) {
+                        // Handle success
+                    },
+                    error: function(error) {
+                        console.error('Error updating order:', error);
+                    }
+                });
+            });
+    });
+    </script>
 
 <?php
 

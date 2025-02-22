@@ -12,14 +12,13 @@ if (isset($_POST['add_revenue'])) {
 
     $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = sanitizeInput($_POST['payment_method']);
     $description = sanitizeInput($_POST['description']);
     $reference = sanitizeInput($_POST['reference']);
 
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account");
+    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$session_company_currency', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account");
 
     $revenue_id = mysqli_insert_id($mysqli);
 
@@ -39,14 +38,13 @@ if (isset($_POST['edit_revenue'])) {
     $revenue_id = intval($_POST['revenue_id']);
     $date = sanitizeInput($_POST['date']);
     $amount = floatval($_POST['amount']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
     $account = intval($_POST['account']);
     $category = intval($_POST['category']);
     $payment_method = sanitizeInput($_POST['payment_method']);
     $description = sanitizeInput($_POST['description']);
     $reference = sanitizeInput($_POST['reference']);
 
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$currency_code', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
+    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
 
     // Logging
     logAction("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);

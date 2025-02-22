@@ -14,8 +14,11 @@ if (isset($_POST['edit_ticket_settings'])) {
     if (filter_var($_POST['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL)) {
         $config_ticket_new_ticket_notification_email = sanitizeInput($_POST['config_ticket_new_ticket_notification_email']);
     }
-
-    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_email_parse = $config_ticket_email_parse, config_ticket_email_parse_unknown_senders = $config_ticket_email_parse_unknown_senders, config_ticket_autoclose_hours = $config_ticket_autoclose_hours, config_ticket_new_ticket_notification_email = '$config_ticket_new_ticket_notification_email', config_ticket_default_billable = $config_ticket_default_billable WHERE company_id = 1");
+    $config_ticket_default_view = intval($_POST['config_ticket_default_view']);
+    $config_ticket_moving_columns = intval($_POST['config_ticket_moving_columns']);
+    $config_ticket_ordering = intval($_POST['config_ticket_ordering']);
+    
+    mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_email_parse = $config_ticket_email_parse, config_ticket_email_parse_unknown_senders = $config_ticket_email_parse_unknown_senders, config_ticket_autoclose_hours = $config_ticket_autoclose_hours, config_ticket_new_ticket_notification_email = '$config_ticket_new_ticket_notification_email', config_ticket_default_billable = $config_ticket_default_billable, config_ticket_default_view = $config_ticket_default_view, config_ticket_moving_columns = $config_ticket_moving_columns, config_ticket_ordering = $config_ticket_ordering  WHERE company_id = 1");
 
     // Logging
     logAction("Settings", "Edit", "$session_name edited ticket settings");

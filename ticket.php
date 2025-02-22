@@ -3,26 +3,22 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
+    $client_url = '';
 }
 
 // Perms
 enforceUserPermission('module_support');
 
 // Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
-
-// Ticket client access snippet
-$ticket_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $ticket_permission_snippet = "AND ticket_client_id IN ($client_access_string)";
-}
 
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
@@ -42,14 +38,14 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id
-        $ticket_permission_snippet
+        $access_permission_query
         LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include_once "footer.php";
+        include_once "includes/footer.php";
     } else {
 
         $row = mysqli_fetch_array($sql);
@@ -279,14 +275,6 @@ if (isset($_GET['ticket_id'])) {
             ORDER BY ticket_history_id DESC"
         );
 
-
-        // Get past tickets for selected asset
-        if ($asset_id) {
-            $sql_asset_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_asset_id = $asset_id ORDER BY ticket_number DESC");
-            $ticket_asset_count = mysqli_num_rows($sql_asset_tickets);
-        }
-
-
         // Get Technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
             $mysqli,
@@ -345,6 +333,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_collaborators = nullable_htmlentities($row['user_names']);
 
         ?>
+        <link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
@@ -353,14 +342,14 @@ if (isset($_GET['ticket_id'])) {
                 <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
             </li>
             <li class="breadcrumb-item">
-                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
+                <a href="tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
             </li>
             <?php } else { ?>
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
             </li>
             <?php } ?>
             <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>
@@ -420,8 +409,13 @@ if (isset($_GET['ticket_id'])) {
                                 <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                 </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketModal<?php echo $ticket_id; ?>">
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-modal-size = "lg"
+                                        data-ajax-url = "ajax/ajax_ticket_edit.php"
+                                        data-ajax-id = "<?php echo $ticket_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
@@ -429,7 +423,11 @@ if (isset($_GET['ticket_id'])) {
                                     </a>
                                     <?php if (empty($ticket_closed_at)) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>">
+                                        <a class="dropdown-item"
+                                            data-toggle = "ajax-modal"
+                                            data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                            data-ajax-id = "<?php echo $ticket_id; ?>"
+                                            >
                                             <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                         </a>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
@@ -499,7 +497,10 @@ if (isset($_GET['ticket_id'])) {
                             <?php } ?>
                         <?php } else { ?>
                             <div class="mt-1">
-                                <a href="#" data-toggle="modal" data-target="#assignTicketModal<?php echo $ticket_id; ?>">
+                                <a href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_ticket_assign.php"
+                                    data-ajax-id = "<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                 </a>
                             </div>
@@ -509,7 +510,16 @@ if (isset($_GET['ticket_id'])) {
 
                     <div class="col-sm-4">
                         <div>
-                            <i class="fa fa-fw fa-thermometer-half text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketPriorityModal<?php echo $ticket_id; ?>"><?php echo $ticket_priority_display; ?></a>
+                            <i class="fa fa-fw fa-thermometer-half text-secondary mr-2"></i>
+                            <a href="#"
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_ticket_priority.php"
+                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                <?php } ?>
+                                >
+                                <?php echo $ticket_priority_display; ?>
+                            </a>
                         </div>
                         <?php
                         // Ticket scheduling
@@ -528,7 +538,11 @@ if (isset($_GET['ticket_id'])) {
                             <?php } elseif (lookupUserPermission("module_sales") >= 1) { ?>
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
-                                    <a href="#" data-toggle="modal" data-target="#editTicketBillableModal<?php echo $ticket_id; ?>">
+                                    <a href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-ajax-url = "ajax/ajax_ticket_billable.php"
+                                        data-ajax-id = "<?php echo $ticket_id; ?>"
+                                        >
                                         <?php
                                         if ($ticket_billable == 1) {
                                             echo "<span class='text-bold text-dark'>Billable</span>";
@@ -774,7 +788,12 @@ if (isset($_GET['ticket_id'])) {
                                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#replyEditTicketModal<?php echo $ticket_reply_id; ?>">
+                                                        <a class="dropdown-item"
+                                                            data-toggle = "ajax-modal"
+                                                            data-modal-size = "lg"
+                                                            data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
+                                                            data-ajax-id = "<?php echo $ticket_reply_id; ?>"
+                                                            >
                                                             <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
                                                         </a>
                                                         <div class="dropdown-divider"></div>
@@ -809,13 +828,10 @@ if (isset($_GET['ticket_id'])) {
                             ?>
                         </div>
                     </div>
-
                     <!-- End ticket reply card -->
-
 
                     <?php
 
-                    require "modals/ticket_reply_edit_modal.php";
                 }
 
                 ?>
@@ -829,7 +845,10 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body mb-3">
                         <h5 class="text-secondary">Contact</h5>
                         <div>
-                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
+                                data-modal-size="lg"
+                                data-ajax-url="ajax/ajax_contact_details.php"
+                                data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
                             </a>
                         </div>
 
@@ -859,37 +878,20 @@ if (isset($_GET['ticket_id'])) {
                             </div>
                         <?php } ?>
 
-                        <?php
-
-                        // Previous tickets
-                        $prev_ticket_id = $prev_ticket_subject = $prev_ticket_status = ''; // Default blank
-
-                        $sql_prev_ticket = "SELECT ticket_id, ticket_created_at, ticket_subject, ticket_status, ticket_assigned_to FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_id  <> $ticket_id ORDER BY ticket_id DESC LIMIT 1";
-                        $prev_ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, $sql_prev_ticket));
-
-                        if ($prev_ticket_row) {
-                            $prev_ticket_id = intval($prev_ticket_row['ticket_id']);
-                            $prev_ticket_subject = nullable_htmlentities($prev_ticket_row['ticket_subject']);
-                            $prev_ticket_status = nullable_htmlentities( getTicketStatusName($prev_ticket_row['ticket_status']));
-                            ?>
-
-                            <hr>
-                            <div>
-                                <i class="fa fa-fw fa-history text-secondary mr-2"></i><b>Previous ticket:</b>
-                                <a href="ticket.php?ticket_id=<?php echo $prev_ticket_id; ?>"><?php echo $prev_ticket_subject; ?></a>
-                            </div>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-hourglass-start text-secondary mr-2"></i><strong>Status:</strong>
-                                <span class="text-success"><?php echo $prev_ticket_status; ?></span>
-                            </div>
-                        <?php } ?>
-
                     </div>
                 <?php } else { ?>
                 <div class="card card-body mb-3">
                     <h5 class="text-secondary">Contact</h5>
                     <div>
-                        <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="modal" data-target="#editTicketContactModal<?php echo $ticket_id; ?>"><i>No One</i>
+                        <i class="fa fa-fw fa-user text-secondary mr-2"></i>
+                            <a href="#"
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                <?php } ?>
+                            >
+                            <i>No One</i>
                         </a>
                     </div>
                 </div>
@@ -898,7 +900,8 @@ if (isset($_GET['ticket_id'])) {
 
 
                 <!-- Tasks Card -->
-                <div class="card card-body">
+                <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
+                    <div class="card card-body">
 
                     <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                         <form action="post.php" method="post" autocomplete="off">
@@ -921,12 +924,11 @@ if (isset($_GET['ticket_id'])) {
                         while($row = mysqli_fetch_array($sql_tasks)){
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
-                            $task_order = intval($row['task_order']);
                             //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
                             $task_completion_estimate = intval($row['task_completion_estimate']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                             ?>
-                            <tr>
+                            <tr data-task-id="<?php echo $task_id; ?>">
                                 <td>
                                     <?php if ($task_completed_at) { ?>
                                         <i class="far fa-fw fa-check-square text-primary"></i>
@@ -936,7 +938,12 @@ if (isset($_GET['ticket_id'])) {
                                         </a>
                                     <?php } ?>
                                 </td>
-                                <td><span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span> - <?php echo $task_name; ?></td>
+                                <td>
+                                    <a href="#" class="grab-cursor">
+                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
+                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                    </a>
+                                </td>
                                 <td>
                                     <div class="float-right">
                                         <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
@@ -945,7 +952,11 @@ if (isset($_GET['ticket_id'])) {
                                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaskModal<?php echo $task_id; ?>">
+                                                    <a class="dropdown-item" href="#"
+                                                        data-toggle = "ajax-modal"
+                                                        data-ajax-url = "ajax/ajax_ticket_task_edit.php"
+                                                        data-ajax-id = "<?php echo $task_id; ?>"
+                                                        >
                                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                     </a>
                                                     <?php if ($task_completed_at) { ?>
@@ -963,13 +974,12 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 </td>
                             </tr>
-
-                            <?php
-
-                            require "modals/task_edit_modal.php";
-                        } ?>
+                        <?php
+                        }
+                        ?>
                     </table>
                 </div>
+                <?php } ?>
                 <!-- End Tasks Card -->
 
 
@@ -1004,88 +1014,14 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card card-body mb-3">
                         <h5 class="text-secondary">Asset</h5>
                         <div>
-                            <a href='client_asset_details.php?client_id=<?php echo $client_id ?>&asset_id=<?php echo $asset_id ?>'><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong></a>
+                            <a href="#"
+                                data-toggle="ajax-modal"
+                                data-modal-size="lg"
+                                data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
+                                data-ajax-id="<?php echo $asset_id; ?>">
+                                <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                            </a>
                         </div>
-
-                        <?php if (!empty($asset_os)) { ?>
-                            <div class="mt-1">
-                                <i class="fab fa-fw fa-microsoft text-secondary mr-2"></i><?php echo $asset_os; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_ip)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-network-wired text-secondary mr-2"></i><?php echo $asset_ip; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_make)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-tag text-secondary mr-2"></i>Model: <?php echo "$asset_make $asset_model"; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_serial)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-barcode text-secondary mr-2"></i>Service Tag: <?php echo $asset_serial; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_warranty_expire)) { ?>
-                            <div class="mt-1">
-                                <i class="far fa-fw fa-calendar-alt text-secondary mr-2"></i>Warranty expires: <strong><?php echo $asset_warranty_expire ?></strong>
-                            </div>
-                        <?php }
-
-                        if (!empty($asset_uri)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-globe text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Access <i class="fas fa-fw fa-external-link-alt"></i></a>
-                            </div>
-                        <?php }
-
-                        if ($ticket_asset_count > 0) { ?>
-
-                            <button class="btn btn-block btn-secondary mt-2 d-print-none" data-toggle="modal" data-target="#assetTicketsModal">Service History (<?php echo $ticket_asset_count; ?>)</button>
-
-                            <div class="modal" id="assetTicketsModal" tabindex="-1">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content bg-dark">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"><i class="fa fa-fw fa-desktop"></i> <?php echo $asset_name; ?></h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal">
-                                                <span>&times;</span>
-                                            </button>
-                                        </div>
-
-                                        <div class="modal-body bg-white">
-                                            <?php
-                                            // Query is run from client_assets.php
-                                            while ($row = mysqli_fetch_array($sql_asset_tickets)) {
-                                                $service_ticket_id = intval($row['ticket_id']);
-                                                $service_ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                                                $service_ticket_number = intval($row['ticket_number']);
-                                                $service_ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                                $service_ticket_status = nullable_htmlentities($row['ticket_status']);
-                                                $service_ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                                                $service_ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
-                                                ?>
-                                                <p>
-                                                    <i class="fas fa-fw fa-ticket-alt"></i>
-                                                    Ticket: <a href="ticket.php?ticket_id=<?php echo $service_ticket_id; ?>"><?php echo "$service_ticket_prefix$service_ticket_number" ?></a> <?php echo "on $service_ticket_created_at - <b>$service_ticket_subject</b> ($service_ticket_status)"; ?>
-                                                </p>
-                                                <?php
-                                            }
-                                            ?>
-                                        </div>
-                                        <div class="modal-footer bg-white">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                        <?php } // End Ticket asset Count ?>
                     </div>
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->
@@ -1159,20 +1095,15 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket_edit_modal.php";
-            require_once "modals/ticket_assign_modal.php";
-            require_once "modals/ticket_edit_contact_modal.php";
             require_once "modals/ticket_edit_asset_modal.php";
             require_once "modals/ticket_edit_vendor_modal.php";
             require_once "modals/ticket_add_watcher_modal.php";
-            require_once "modals/ticket_edit_priority_modal.php";
             require_once "modals/ticket_change_client_modal.php";
             require_once "modals/ticket_edit_schedule_modal.php";
             require_once "modals/ticket_merge_modal.php";
         }
 
         if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
-            require_once "modals/ticket_edit_billable_modal.php";
             require_once "modals/ticket_invoice_add_modal.php";
         }
     }
@@ -1183,7 +1114,7 @@ require_once "includes/footer.php";
 ?>
 
 <!-- Summary Modal -->
-<div class="modal fade" id="summaryModal" tabindex="-1" role="dialog" aria-labelledby="summaryModalTitle" aria-hidden="true">
+<div class="modal fade" id="summaryModal" tabindex="-1">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content bg-dark">
       <div class="modal-header">
@@ -1229,3 +1160,43 @@ $('#summaryModal').on('shown.bs.modal', function (e) {
     });
 });
 </script>
+
+
+<script src="plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('.table tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('taskId'),
+                    order: index
+                };
+            }).get();
+
+            //console.log('New positions:', positions);
+
+            // Send the new order to the server (example using fetch)
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_ticket_tasks_order: true,
+                    ticket_id: <?php echo $ticket_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    //console.log('Order updated:', data);
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
+</script>
+

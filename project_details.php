@@ -197,7 +197,11 @@ if (isset($_GET['project_id'])) {
                         </button>
                         <div class="dropdown-menu">
                             <?php if (empty($project_completed_at)) { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectModal<?php echo $project_id; ?>">
+                                <a class="dropdown-item" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_project_edit.php"
+                                    data-ajax-id = "<?php echo $project_id; ?>"
+                                    >
                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                 </a>
                             <?php } ?>
@@ -406,7 +410,6 @@ if (isset($_GET['project_id'])) {
 
     <?php
 
-    require_once "modals/project_edit_modal.php";
     require_once "modals/project_ticket_add_modal.php";
 
 }

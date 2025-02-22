@@ -285,22 +285,22 @@ if (isset($_POST['bulk_delete_vendors'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['export_client_vendors_csv'])) {
-    $client_id = intval($_POST['client_id']);
+if (isset($_POST['export_vendors_csv'])) {
+    
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND vendor_client_id = $client_id";
+    } else {
+        $client_query = "AND vendor_client_id = 0";
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 0 $client_query ORDER BY vendor_name ASC");
     
     $count = mysqli_num_rows($sql);
 
     if ($count > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Vendors-" . date('Y-m-d') . ".csv";
+        $filename = "Vendors-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -327,7 +327,7 @@ if (isset($_POST['export_client_vendors_csv'])) {
     }
 
     // Logging
-    logAction("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file", $client_id);
+    logAction("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file");
 
     exit;
 }

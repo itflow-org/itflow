@@ -101,11 +101,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRackUnitModal<?php echo $rack_id; ?>">
+                                        <a class="dropdown-item text-dark" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_rack_device_add.php"
+                                            data-ajax-id="<?php echo $rack_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-plus text-secondary mr-2"></i>Add Device
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#editRackModal<?php echo $rack_id; ?>">
+                                        <a class="dropdown-item text-dark" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_rack_edit.php"
+                                            data-ajax-id="<?php echo $rack_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
@@ -333,8 +341,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 
                 </div>
-                <?php require "modals/client_rack_edit_modal.php"; ?>
-                <?php require "modals/client_rack_unit_add_modal.php"; ?>
+                
             <?php } ?>
 
         </div>
@@ -347,4 +354,3 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 require_once "modals/client_rack_add_modal.php";
 require_once "includes/footer.php";
-?>

@@ -35,6 +35,8 @@ if (isset($_GET['dismiss_notification'])) {
 
 if (isset($_GET['dismiss_all_notifications'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL");
 
     $num_notifications = mysqli_num_rows($sql);

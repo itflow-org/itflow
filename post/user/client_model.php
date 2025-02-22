@@ -10,5 +10,8 @@ $currency_code = sanitizeInput($_POST['currency_code'] ?? $session_company_curre
 $net_terms = intval($_POST['net_terms'] ?? $config_default_net_terms);
 $tax_id_number = sanitizeInput($_POST['tax_id_number'] ?? '');
 $abbreviation = sanitizeInput($_POST['abbreviation']);
+if (empty($abbreviation)) {
+	$abbreviation = shortenClient($name);
+}
 $notes = sanitizeInput($_POST['notes']);
 $lead = intval($_POST['lead'] ?? 0);

@@ -56,7 +56,15 @@ $num_rows = mysqli_num_rows($sql);
 
                         ?>
                         <tr>
-                            <td><a class="text-dark text-bold" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>"><?php echo $tax_name; ?></a></td>
+                            <td>
+                                <a class="text-dark text-bold" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_tax_edit.php"
+                                    data-ajax-id="<?php echo $tax_id; ?>"
+                                    >
+                                    <?php echo $tax_name; ?>
+                                </a>
+                            </td>
                             <td><?php echo "$tax_percent%"; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -64,7 +72,11 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTaxModal<?php echo $tax_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_tax_edit.php"
+                                            data-ajax-id="<?php echo $tax_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -77,8 +89,6 @@ $num_rows = mysqli_num_rows($sql);
                         </tr>
 
                         <?php
-
-                        require "modals/admin_tax_edit_modal.php";
 
                     }
 
