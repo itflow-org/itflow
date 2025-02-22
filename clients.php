@@ -398,7 +398,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 if (!empty($contact_name)) { ?>
                                     <div class="text-bold">
-                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="client_contact_details.php?client_id=<?php echo $client_id ?>&contact_id=<?php echo $contact_id ?>"><?php echo $contact_name; ?></a>
+                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>
+                                        <a href="#"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="lg"
+                                            data-ajax-url="ajax/ajax_contact_details.php?client_id=<?php echo $client_id; ?>"
+                                            data-ajax-id="<?php echo $contact_id; ?>">
+                                            <?php echo $contact_name; ?>
+                                         </a>
                                     </div>
                                 <?php } else {
                                     echo "-";
