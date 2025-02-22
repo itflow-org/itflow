@@ -14,8 +14,8 @@ $revenue_payment_method = nullable_htmlentities($row['revenue_payment_method']);
 $revenue_amount = floatval($row['revenue_amount']);
 $revenue_currency_code = nullable_htmlentities($row['revenue_currency_code']);
 $revenue_created_at = nullable_htmlentities($row['revenue_created_at']);
-$account_id = intval($row['account_id']);
-$category_id = intval($row['category_id']);
+$account_id = intval($row['revenue_account_id']);
+$category_id = intval($row['revenue_category_id']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -40,21 +40,6 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $revenue_date; ?>" required>
-                </div>
-            </div>
-
-            <div class="form-group col-md">
-                <label>Currency <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                    </div>
-                    <select class="form-control select2" name="currency_code" required>
-                        <option value="">- Select Currency -</option>
-                        <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                            <option <?php if ($revenue_currency_code == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                        <?php } ?>
-                    </select>
                 </div>
             </div>
 
