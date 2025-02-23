@@ -460,6 +460,7 @@ if (isset($_GET['asset_id'])) {
                                     // Show either "-" or "AssetName - Port"
                                     if ($connected_asset_name) {
                                         $connected_to_display = "<a href='#'
+                                            data-toggle='ajax-modal'
                                             data-modal-size='lg'
                                             data-ajax-url='ajax/ajax_asset_details.php'
                                             data-ajax-id='$connected_asset_id'>
