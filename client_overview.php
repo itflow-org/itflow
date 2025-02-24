@@ -2,7 +2,6 @@
 
 require_once "includes/inc_all_client.php";
 
-$expiration_days = [7, 30, 90]; // Array of expiration days
 
 $sql_recent_activities = mysqli_query(
     $mysqli,
@@ -60,79 +59,77 @@ $sql_stale_tickets = mysqli_query(
     $mysqli,
     "SELECT * FROM tickets
     WHERE ticket_client_id = $client_id
-        AND ticket_updated_at < CURRENT_DATE - INTERVAL 3 DAY
+        AND ticket_updated_at < CURRENT_DATE - INTERVAL 7 DAY
         AND ticket_resolved_At IS NULL
         AND ticket_closed_at IS NULL
     ORDER BY ticket_updated_at ASC 
     LIMIT 5"
 );
 
-foreach ($expiration_days as $days) {
-    // Get Domains Expiring
-    $sql_domains_expiring = mysqli_query(
-        $mysqli,
-        "SELECT * FROM domains
-        WHERE domain_client_id = $client_id
-            AND domain_expire IS NOT NULL
-            AND domain_archived_at IS NULL
-            AND domain_expire > CURRENT_DATE
-            AND domain_expire < CURRENT_DATE + INTERVAL $days DAY
-        ORDER BY domain_expire ASC 
-        LIMIT 5"
-    );
+// Get Domains Expiring
+$sql_domains_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM domains
+    WHERE domain_client_id = $client_id
+        AND domain_expire IS NOT NULL
+        AND domain_archived_at IS NULL
+        AND domain_expire > CURRENT_DATE
+        AND domain_expire < CURRENT_DATE + INTERVAL 45 DAY
+    ORDER BY domain_expire ASC 
+    LIMIT 5"
+);
 
-    // Get Certificates Expiring
-    $sql_certificates_expiring = mysqli_query(
-        $mysqli,
-        "SELECT * FROM certificates
-        WHERE certificate_client_id = $client_id
-            AND certificate_expire IS NOT NULL
-            AND certificate_archived_at IS NULL
-            AND certificate_expire > CURRENT_DATE
-            AND certificate_expire < CURRENT_DATE + INTERVAL $days DAY
-        ORDER BY certificate_expire ASC 
-        LIMIT 5"
-    );
+// Get Certificates Expiring
+$sql_certificates_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM certificates
+    WHERE certificate_client_id = $client_id
+        AND certificate_expire IS NOT NULL
+        AND certificate_archived_at IS NULL
+        AND certificate_expire > CURRENT_DATE
+        AND certificate_expire < CURRENT_DATE + INTERVAL 45 DAY
+    ORDER BY certificate_expire ASC 
+    LIMIT 5"
+);
 
-    // Get Licenses Expiring
-    $sql_licenses_expiring = mysqli_query(
-        $mysqli,
-        "SELECT * FROM software
-        WHERE software_client_id = $client_id
-            AND software_expire IS NOT NULL
-            AND software_archived_at IS NULL
-            AND software_expire > CURRENT_DATE
-            AND software_expire < CURRENT_DATE + INTERVAL $days DAY
-        ORDER BY software_expire ASC
-        LIMIT 5"
-    );
+// Get Licenses Expiring
+$sql_licenses_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM software
+    WHERE software_client_id = $client_id
+        AND software_expire IS NOT NULL
+        AND software_archived_at IS NULL
+        AND software_expire > CURRENT_DATE
+        AND software_expire < CURRENT_DATE + INTERVAL 45 DAY
+    ORDER BY software_expire ASC
+    LIMIT 5"
+);
 
-    // Get Asset Warranties Expiring
-    $sql_asset_warranties_expiring = mysqli_query(
-        $mysqli,
-        "SELECT * FROM assets
-        WHERE asset_client_id = $client_id
-            AND asset_warranty_expire IS NOT NULL
-            AND asset_archived_at IS NULL
-            AND asset_warranty_expire > CURRENT_DATE
-            AND asset_warranty_expire < CURRENT_DATE + INTERVAL $days DAY
-        ORDER BY asset_warranty_expire ASC
-        LIMIT 5"
-    );
+// Get Asset Warranties Expiring
+$sql_asset_warranties_expiring = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_client_id = $client_id
+        AND asset_warranty_expire IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_warranty_expire > CURRENT_DATE
+        AND asset_warranty_expire < CURRENT_DATE + INTERVAL 45 DAY
+    ORDER BY asset_warranty_expire ASC
+    LIMIT 5"
+);
 
-    // Get Assets Retiring 7 Year
-    $sql_asset_retire = mysqli_query(
-        $mysqli,
-        "SELECT * FROM assets
-        WHERE asset_client_id = $client_id
-            AND asset_install_date IS NOT NULL
-            AND asset_archived_at IS NULL
-            AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE
-            AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL $days DAY
-        ORDER BY asset_install_date ASC
-        LIMIT 5"
-    );
-}
+// Get Assets Retiring 7 Year
+$sql_asset_retire = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_client_id = $client_id
+        AND asset_install_date IS NOT NULL
+        AND asset_archived_at IS NULL
+        AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE
+        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 45 DAY
+    ORDER BY asset_install_date ASC
+    LIMIT 5"
+);
 
 /*
  * EXPIRED ITEMS
@@ -354,7 +351,7 @@ $sql_asset_retired = mysqli_query(
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Upcoming Expirations</h5>
+                        <h5 class="card-title"><i class="fa fa-fw fa-exclamation-triangle text-warning mr-2"></i>Expiring in the Next 45 Days</h5>
                     </div>
                     <div class="card-body p-2">
 
