@@ -62,9 +62,10 @@ $sql_stale_tickets = mysqli_query(
         AND ticket_updated_at < CURRENT_DATE - INTERVAL 7 DAY
         AND ticket_resolved_At IS NULL
         AND ticket_closed_at IS NULL
-    ORDER BY ticket_updated_at ASC 
-    LIMIT 5"
+    ORDER BY ticket_updated_at ASC"
 );
+
+// 8 - 45 Day Warning
 
 // Get Domains Expiring
 $sql_domains_expiring = mysqli_query(
@@ -75,8 +76,7 @@ $sql_domains_expiring = mysqli_query(
         AND domain_archived_at IS NULL
         AND domain_expire > CURRENT_DATE
         AND domain_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY domain_expire ASC 
-    LIMIT 5"
+    ORDER BY domain_expire ASC"
 );
 
 // Get Certificates Expiring
@@ -88,8 +88,7 @@ $sql_certificates_expiring = mysqli_query(
         AND certificate_archived_at IS NULL
         AND certificate_expire > CURRENT_DATE
         AND certificate_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY certificate_expire ASC 
-    LIMIT 5"
+    ORDER BY certificate_expire ASC"
 );
 
 // Get Licenses Expiring
@@ -101,8 +100,7 @@ $sql_licenses_expiring = mysqli_query(
         AND software_archived_at IS NULL
         AND software_expire > CURRENT_DATE
         AND software_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY software_expire ASC
-    LIMIT 5"
+    ORDER BY software_expire ASC"
 );
 
 // Get Asset Warranties Expiring
@@ -114,8 +112,7 @@ $sql_asset_warranties_expiring = mysqli_query(
         AND asset_archived_at IS NULL
         AND asset_warranty_expire > CURRENT_DATE
         AND asset_warranty_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_warranty_expire ASC
-    LIMIT 5"
+    ORDER BY asset_warranty_expire ASC"
 );
 
 // Get Assets Retiring 7 Year
@@ -127,8 +124,7 @@ $sql_asset_retire = mysqli_query(
         AND asset_archived_at IS NULL
         AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE
         AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_install_date ASC
-    LIMIT 5"
+    ORDER BY asset_install_date ASC"
 );
 
 /*
@@ -143,8 +139,7 @@ $sql_domains_expired = mysqli_query(
         AND domain_expire IS NOT NULL
         AND domain_archived_at IS NULL
         AND domain_expire < CURRENT_DATE
-    ORDER BY domain_expire ASC 
-    LIMIT 5"
+    ORDER BY domain_expire ASC"
 );
 
 // Get Certificates Expired
@@ -155,8 +150,7 @@ $sql_certificates_expired = mysqli_query(
         AND certificate_expire IS NOT NULL
         AND certificate_archived_at IS NULL
         AND certificate_expire < CURRENT_DATE
-    ORDER BY certificate_expire ASC 
-    LIMIT 5"
+    ORDER BY certificate_expire ASC"
 );
 
 // Get Licenses Expired
@@ -167,8 +161,7 @@ $sql_licenses_expired = mysqli_query(
         AND software_expire IS NOT NULL
         AND software_archived_at IS NULL
         AND software_expire < CURRENT_DATE
-    ORDER BY software_expire ASC
-    LIMIT 5"
+    ORDER BY software_expire ASC"
 );
 
 // Get Asset Warranties Expired
@@ -179,8 +172,7 @@ $sql_asset_warranties_expired = mysqli_query(
         AND asset_warranty_expire IS NOT NULL
         AND asset_archived_at IS NULL
         AND asset_warranty_expire < CURRENT_DATE
-    ORDER BY asset_warranty_expire ASC
-    LIMIT 5"
+    ORDER BY asset_warranty_expire ASC"
 );
 
 // Get Retired Assets
@@ -191,8 +183,7 @@ $sql_asset_retired = mysqli_query(
         AND asset_install_date IS NOT NULL
         AND asset_archived_at IS NULL
         AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE  -- Assets retired (installed more than 7 years ago)
-    ORDER BY asset_install_date ASC
-    LIMIT 5"
+    ORDER BY asset_install_date ASC"
 );
 
 
@@ -366,8 +357,8 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                                <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>"><?php echo $domain_name; ?></a>
-                                <span>-- <?php echo $domain_expire_human; ?> <small class="text-muted"><?php echo $domain_expire; ?></small></span>
+                                <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>">Domain: <?php echo $domain_name; ?></a>
+                                <span>-- <?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>) </span>
                             </p>
                             <?php
                         }
@@ -384,8 +375,8 @@ $sql_asset_retired = mysqli_query(
                             ?>
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
-                                <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>"><?php echo $certificate_name; ?></a>
-                                <span>-- <?php echo $certificate_expire_human; ?> <small class="text-muted"><?php echo $certificate_expire; ?></small></span>
+                                <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>">Certificate: <?php echo $certificate_name; ?></a>
+                                <span>-- <?php echo $certificate_expire; ?> (<?php echo $certificate_expire_human; ?>) </span>
                             </p>
                             <?php
                         }
@@ -403,7 +394,7 @@ $sql_asset_retired = mysqli_query(
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
                                 <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
-                                <span>-- <?php echo $asset_warranty_expire_human; ?> <small class="text-muted"><?php echo $asset_warranty_expire; ?></small></span>
+                                <span>-- <?php echo $asset_warranty_expire; ?> (<?php echo $asset_warranty_expire_human; ?>)</span>
                             </p>
 
 
@@ -423,7 +414,7 @@ $sql_asset_retired = mysqli_query(
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
                                 <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
-                                <span>-- <?php echo $asset_install_date_human; ?> <small class="text-muted"><?php echo $asset_install_date; ?></small></span>
+                                <span>-- <?php echo $asset_install_date; ?> (<?php echo $asset_install_date_human; ?>)</span>
                             </p>
 
                             <?php
@@ -442,7 +433,7 @@ $sql_asset_retired = mysqli_query(
                             <p class="mb-1">
                                 <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
                                 <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>"><?php echo $software_name; ?></a>
-                                <span>-- <?php echo $software_expire_human; ?> <small class="text-muted"><?php echo $software_expire; ?></small></span>
+                                <span>-- <?php echo $software_expire; ?> (<?php echo $software_expire_human; ?>)</span>
                             </p>
 
                             <?php
