@@ -2430,7 +2430,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
     } else {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets);
-        header("Location: calendar_events.php");
+        header("Location: calendar.php");
     }
 
 }
